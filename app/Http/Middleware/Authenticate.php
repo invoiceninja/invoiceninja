@@ -85,6 +85,10 @@ class Authenticate
             if (env('PHANTOMJS_SECRET') && $request->phantomjs_secret && hash_equals(env('PHANTOMJS_SECRET'), $request->phantomjs_secret)) {
                 $authenticated = true;
             }
+
+            if (env('PHANTOMJS_SECRET') && $request->phantomjs_secret && hash_equals(env('PHANTOMJS_SECRET'), $request->phantomjs_secret)) {
+                $authenticated = true;
+            }
         }
 
         if (! $authenticated) {
