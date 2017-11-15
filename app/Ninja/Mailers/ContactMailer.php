@@ -327,4 +327,19 @@ class ContactMailer extends Mailer
 
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
+
+    public function sendPasswordReset($contact, $token)
+    {
+        if (! $contact->email) {
+            return;
+        }
+
+        $subject = trans('texts.your_password_reset_link');
+        $view = 'client_password';
+        $data = [
+            'token' => $token,
+        ];
+
+        $this->sendTo($contact->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
 }
