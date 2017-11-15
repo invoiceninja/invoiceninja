@@ -21,7 +21,7 @@ class InitLookup extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:init-lookup {--truncate=} {--validate=} {--update=} {--company_id=} {--page_size=100} {--database=db-ninja-1}';
+    protected $signature = 'ninja:init-lookup {--truncate=} {--subdomain} {--validate=} {--update=} {--company_id=} {--page_size=100} {--database=db-ninja-1}';
 
     /**
      * The console command description.
@@ -57,9 +57,12 @@ class InitLookup extends Command
         $database = $this->option('database');
         $dbServer = DbServer::whereName($database)->first();
 
-        if ($this->option('truncate')) {
+        if ($this->option('subdomain')) {
+            $this->logMessage('Updating subdomains...');
+            $this->popuplateSubdomains();
+        } else if ($this->option('truncate')) {
+            $this->logMessage('Truncating data...');
             $this->truncateTables();
-            $this->logMessage('Truncated');
         } else {
             config(['database.default' => $this->option('database')]);
 
@@ -84,6 +87,30 @@ class InitLookup extends Command
             } elseif (! $this->isValid) {
                 throw new Exception('Check lookups failed!!');
             }
+        }
+    }
+
+    private function popuplateSubdomains()
+    {
+        $data = [];
+
+        config(['database.default' => $this->option('database')]);
+
+        $accounts = DB::table('accounts')
+                        ->orderBy('id')
+                        ->where('subdomain', '!=', '')
+                        ->get(['account_key', 'subdomain']);
+        foreach ($accounts as $account) {
+            $data[$account->account_key] = $account->subdomain;
+        }
+
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        $validate = $this->option('validate');
+        $update = $this->option('update');
+
+        foreach ($data as $accountKey => $subdomain) {
+            LookupAccount::whereAccountKey($accountKey)->update(['subdomain' => $subdomain]);
         }
     }
 
@@ -340,6 +367,7 @@ class InitLookup extends Command
     protected function getOptions()
     {
         return [
+            ['subdomain', null, InputOption::VALUE_OPTIONAL, 'Subdomain', null],
             ['truncate', null, InputOption::VALUE_OPTIONAL, 'Truncate', null],
             ['company_id', null, InputOption::VALUE_OPTIONAL, 'Company Id', null],
             ['page_size', null, InputOption::VALUE_OPTIONAL, 'Page Size', null],
