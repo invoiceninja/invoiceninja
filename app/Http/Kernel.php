@@ -35,9 +35,14 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\StartupCheck::class,
         ],
         'api' => [
+            \App\Http\Middleware\ApiCheck::class,
+        ],
+        /*
+        'api' => [
             'throttle:60,1',
             'bindings',
         ],
+        */
     ];
 
     /**
@@ -56,6 +61,5 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'lookup' => \App\Http\Middleware\DatabaseLookup::class,
         'permissions.required' => \App\Http\Middleware\PermissionsRequired::class,
-        'api' => \App\Http\Middleware\ApiCheck::class,
     ];
 }
