@@ -54,4 +54,14 @@ class ResetPasswordController extends Controller
             return $this->traitSendResetResponse($response);
         }
     }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        $passwordReset = PasswordReset::whereToken($token)->first();
+        $email = $passwordReset ? $passwordReset->email : '';
+
+        return view('auth.passwords.reset')->with(
+            ['token' => $token, 'email' => $email]
+        );
+    }
 }

@@ -7,6 +7,7 @@ use Config;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
+use App\Models\PasswordReset;
 
 class ResetPasswordController extends Controller
 {
@@ -54,8 +55,11 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
+        $passwordReset = PasswordReset::whereToken($token)->first();
+        $email = $passwordReset ? $passwordReset->email : '';
+
         return view('clientauth.passwords.reset')->with(
-            ['token' => $token]
+            ['token' => $token, 'email' => $email]
         );
     }
 
