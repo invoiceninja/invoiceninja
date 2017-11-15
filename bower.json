@@ -21,7 +21,7 @@
     "handsontable": "*",
     "pdfmake": "0.1.31",
     "moment": "*",
-    "jsoneditor": "*",
+    "jsoneditor": "5.10.1",
     "moment-timezone": "~0.4.0",
     "quill": "~0.20.0",
     "datetimepicker": "~2.4.5",
