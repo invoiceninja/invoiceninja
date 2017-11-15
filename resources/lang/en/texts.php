@@ -2110,7 +2110,7 @@ $LANG = array(
 
 	// Updated login screen
 	'ninja_tagline' => 'Create. Send. Get Paid.',
-	'login_or_existing' => 'Or login with an existing account.',
+	'login_or_existing' => 'Or login with a connected account.',
 	'sign_up_now' => 'Sign Up Now',
 	'not_a_member_yet' => 'Not a member yet?',
 	'login_create_an_account' => 'Create an Account!',
