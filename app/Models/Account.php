@@ -1711,6 +1711,13 @@ Account::creating(function ($account)
     LookupAccount::createAccount($account->account_key, $account->company_id);
 });
 
+Account::updating(function ($account) {
+    $dirty = $account->getDirty();
+    if (array_key_exists('subdomain', $dirty)) {
+        LookupAccount::updateAccount($account->account_key, $account);
+    }
+});
+
 Account::updated(function ($account) {
     // prevent firing event if the invoice/quote counter was changed
     // TODO: remove once counters are moved to separate table

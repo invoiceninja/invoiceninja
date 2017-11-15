@@ -55,6 +55,24 @@ class LookupAccount extends LookupModel
         return $this->lookupCompany->dbServer->name;
     }
 
+    public static function updateAccount($accountKey, $account)
+    {
+        if (! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        $current = config('database.default');
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
+                            ->firstOrFail();
+
+        $lookupAccount->subdomain = $account->subdomain;
+        $lookupAccount->save();
+
+        config(['database.default' => $current]);
+    }
+
     public static function validateField($field, $value, $account = false)
     {
         if (! env('MULTI_DB_ENABLED')) {
@@ -62,7 +80,7 @@ class LookupAccount extends LookupModel
         }
 
         $current = config('database.default');
-        
+
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupAccount = LookupAccount::where($field, '=', $value)->first();
