@@ -40,7 +40,7 @@
     <input type="hidden" name="token" value="{{{ $token }}}">
 
     <div>
-        {!! Former::text('email')->placeholder(trans('texts.password'))->value($email)->raw() !!}
+        {!! Former::text('email')->placeholder(trans('texts.email'))->value($email)->readonly(true)->raw() !!}
         {!! Former::password('password')->placeholder(trans('texts.password'))->autocomplete('new-password')->raw() !!}
         {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->autocomplete('new-password')->raw() !!}
     </div>
@@ -52,7 +52,7 @@
 </div>
 <script type="text/javascript">
     $(function() {
-        $('#email').focus();
+        $('#password').focus();
     })
 </script>
 
