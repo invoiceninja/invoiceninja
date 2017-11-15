@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f2043c8ce923c8af3c99ba7c5bcf5d5e",
-    "content-hash": "dbc2b358c79e0abe0a58d2bd02310966",
+    "hash": "303fbf170906bca5a5354e7bbb92c94d",
+    "content-hash": "a1aaf83c53c00ce8dbb3ec13d70a42b3",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -169,16 +169,16 @@
         },
         {
             "name": "anahkiasen/former",
-            "version": "4.0.6",
+            "version": "4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/formers/former.git",
-                "reference": "1ad9b332e8d8f5b23159aabbca89084276938382"
+                "reference": "56fd10035d7e7c34e2761e0458b92ca8890e6a9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/1ad9b332e8d8f5b23159aabbca89084276938382",
-                "reference": "1ad9b332e8d8f5b23159aabbca89084276938382",
+                "url": "https://api.github.com/repos/formers/former/zipball/56fd10035d7e7c34e2761e0458b92ca8890e6a9a",
+                "reference": "56fd10035d7e7c34e2761e0458b92ca8890e6a9a",
                 "shasum": ""
             },
             "require": {
@@ -197,6 +197,11 @@
                 "phpunit/phpunit": "~4"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.5.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Former\\": [
@@ -217,14 +222,14 @@
                 }
             ],
             "description": "A powerful form builder",
-            "homepage": "http://anahkiasen.github.com/former/",
+            "homepage": "http://formers.github.io/former/",
             "keywords": [
                 "bootstrap",
                 "form",
                 "foundation",
                 "laravel"
             ],
-            "time": "2016-07-28 19:36:11"
+            "time": "2017-05-30 18:43:09"
         },
         {
             "name": "anahkiasen/html-object",
@@ -380,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.38.1",
+            "version": "3.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9f704274f4748d2039a16d45b3388ed8dde74e89"
+                "reference": "7b13de0b39f29833a977176ce58eed990e1487ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9f704274f4748d2039a16d45b3388ed8dde74e89",
-                "reference": "9f704274f4748d2039a16d45b3388ed8dde74e89",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7b13de0b39f29833a977176ce58eed990e1487ba",
+                "reference": "7b13de0b39f29833a977176ce58eed990e1487ba",
                 "shasum": ""
             },
             "require": {
@@ -456,7 +461,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-11-09 19:15:59"
+            "time": "2017-11-14 23:47:41"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2547,16 +2552,16 @@
         },
         {
             "name": "gocardless/gocardless-pro",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gocardless/gocardless-pro-php.git",
-                "reference": "d2d4adb7cde53722858f1e7e5508697fefdb5390"
+                "reference": "16ac38c2531e08c15e54b4a82d44854349cbfcf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/d2d4adb7cde53722858f1e7e5508697fefdb5390",
-                "reference": "d2d4adb7cde53722858f1e7e5508697fefdb5390",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/16ac38c2531e08c15e54b4a82d44854349cbfcf6",
+                "reference": "16ac38c2531e08c15e54b4a82d44854349cbfcf6",
                 "shasum": ""
             },
             "require": {
@@ -2595,7 +2600,7 @@
                 "direct debit",
                 "gocardless"
             ],
-            "time": "2017-09-18 15:08:13"
+            "time": "2017-11-14 15:46:50"
         },
         {
             "name": "google/apiclient",
@@ -12412,7 +12417,6 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "anahkiasen/former": 20,
         "chumper/datatable": 20,
         "codedge/laravel-selfupdater": 20,
         "collizo4sky/omnipay-wepay": 20,
@@ -12431,7 +12435,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.5.9",
+        "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*"
     },

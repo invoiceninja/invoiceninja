@@ -25,7 +25,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 ## Requirements
 
-* PHP >= 5.5.9
+* PHP 7
 * MySQL
 
 ## Recommended Providers
