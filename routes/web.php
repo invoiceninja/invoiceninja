@@ -1,19 +1,5 @@
 <?php
 
-// TODO remove this file
-
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the Closure to execute when that URI is requested.
-|
-*/
-
-/*
 // Application setup
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
@@ -331,41 +317,6 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/{section?}', 'AccountController@showSection');
 });
 
-// Route groups for API
-Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], function () {
-    Route::get('ping', 'AccountApiController@ping');
-    Route::post('login', 'AccountApiController@login');
-    Route::post('oauth_login', 'AccountApiController@oauthLogin');
-    Route::post('register', 'AccountApiController@register');
-    Route::get('static', 'AccountApiController@getStaticData');
-    Route::get('accounts', 'AccountApiController@show');
-    Route::put('accounts', 'AccountApiController@update');
-    Route::resource('clients', 'ClientApiController');
-    Route::resource('contacts', 'ContactApiController');
-    Route::get('quotes', 'QuoteApiController@index');
-    Route::get('download/{invoice_id}', 'InvoiceApiController@download');
-    Route::resource('invoices', 'InvoiceApiController');
-    Route::resource('payments', 'PaymentApiController');
-    Route::resource('tasks', 'TaskApiController');
-    Route::resource('credits', 'CreditApiController');
-    Route::post('hooks', 'IntegrationController@subscribe');
-    Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
-    Route::get('user_accounts', 'AccountApiController@getUserAccounts');
-    Route::resource('products', 'ProductApiController');
-    Route::resource('projects', 'ProjectApiController');
-    Route::resource('tax_rates', 'TaxRateApiController');
-    Route::resource('users', 'UserApiController');
-    Route::resource('expenses', 'ExpenseApiController');
-    Route::post('add_token', 'AccountApiController@addDeviceToken');
-    Route::post('remove_token', 'AccountApiController@removeDeviceToken');
-    Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
-    Route::get('dashboard', 'DashboardApiController@index');
-    Route::resource('documents', 'DocumentAPIController');
-    Route::resource('vendors', 'VendorApiController');
-    Route::resource('expense_categories', 'ExpenseCategoryApiController');
-    Route::post('ios_subscription_status', 'AccountApiController@iosSubscriptionStatus');
-});
-
 // Redirects for legacy links
 Route::get('/rocksteady', function () {
     return Redirect::to(NINJA_WEB_URL, 301);
@@ -404,13 +355,14 @@ Route::get('/terms', function () {
     return Redirect::to(NINJA_WEB_URL.'/terms', 301);
 });
 
+/*
 if (Utils::isNinjaDev())
 {
   //ini_set('memory_limit','1024M');
   //set_time_limit(0);
-  //Auth::loginUsingId(1);
+  Auth::loginUsingId(1);
 }
+*/
 
 // Include static app constants
 require_once app_path() . '/Constants.php';
-*/
