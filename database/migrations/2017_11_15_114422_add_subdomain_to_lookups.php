@@ -16,6 +16,16 @@ class AddSubdomainToLookups extends Migration
         Schema::table('lookup_accounts', function ($table) {
             $table->string('subdomain')->nullable()->unique();
         });
+
+        Schema::table('payments', function ($table) {
+            $table->decimal('exchange_rate', 13, 4)->default(1);
+            $table->unsignedInteger('exchange_currency_id')->nullable(false);
+        });
+
+        Schema::table('expenses', function ($table) {
+            $table->decimal('exchange_rate', 13, 4)->default(1)->change();
+        });
+
     }
 
     /**
@@ -27,6 +37,11 @@ class AddSubdomainToLookups extends Migration
     {
         Schema::table('lookup_accounts', function ($table) {
             $table->dropColumn('subdomain');
+        });
+
+        Schema::table('payments', function ($table) {
+            $table->dropColumn('exchange_rate');
+            $table->dropColumn('exchange_currency_id');
         });
     }
 }
