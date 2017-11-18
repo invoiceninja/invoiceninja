@@ -158,6 +158,20 @@
 
 	$(function() {
 
+        @if (Input::old('data'))
+            // this means we failed so we'll reload the previous state
+            window.model = new ViewModel({!! $data !!});
+        @else
+            // otherwise create blank model
+            window.model = new ViewModel({!! $payment !!});
+        @endif
+        ko.applyBindings(model);
+
+        $('#amount').change(function() {
+            var amount = $('#amount').val();
+            model.amount(NINJA.parseFloat(amount));
+        })
+
         @if ($payment)
           $('#payment_date').datepicker('update', '{{ $payment->payment_date }}')
           @if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT)
@@ -187,20 +201,6 @@
                 $('#email_receipt').prop('checked', true);
             }
         }
-
-        @if (Input::old('data'))
-            // this means we failed so we'll reload the previous state
-            window.model = new ViewModel({!! $data !!});
-        @else
-            // otherwise create blank model
-            window.model = new ViewModel({!! $payment !!});
-        @endif
-        ko.applyBindings(model);
-
-        $('#amount').change(function() {
-            var amount = $('#amount').val();
-            model.amount(NINJA.parseFloat(amount));
-        })
 	});
 
     function onFormSubmit(event) {
@@ -256,11 +256,6 @@
                 self.exchange_rate(roundSignificant(amount));
             }
         }, self);
-
-
-        self.payment_currency_id = ko.computed(function() {
-            //return
-        });
 
         self.getCurrency = function(currencyId) {
             return currencyMap[currencyId || self.account_currency_id()];
@@ -339,6 +334,10 @@
         }
       });
 
+      if (clientId) {
+        $clientSelect.trigger('change');
+      }
+
       var $invoiceSelect = $('select#invoice').on('change', function(e) {
         $clientCombobox = $('select#client');
         var invoiceId = $('input[name=invoice]').val();
@@ -353,9 +352,7 @@
             model.amount(amount);
           }
         }
-        if (window.model) {
-            model.client_id(client ? client.public_id : 0);
-        }
+        model.client_id(client ? client.public_id : 0);
       });
 
       $invoiceSelect.combobox({highlighter: comboboxHighlighter});
