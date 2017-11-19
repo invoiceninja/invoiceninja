@@ -24,6 +24,32 @@
                 return true;
             });
 
+            $('#shipToBillingAddress').click(function() {
+                var checked = $('#shipToBillingAddress').is(':checked');
+                var fields = [
+                    'address1',
+                    'address2',
+                    'city',
+                    'state',
+                    'postal_code',
+                    'country_id',
+                ]
+                $.each(fields, function(i, field) {
+                    if (checked) {
+                        $('#shipping_' + field).val($('#' + field).val());
+                    } else {
+                        $('#shipping_' + field).val('');
+                    }
+                })
+                if (checked) {
+                    $('#shipping_country_id').combobox('refresh');
+                } else {
+                    $('#shipping_country_id').combobox('toggle');
+                    $('#shipping_address1').focus();
+                }
+
+            })
+
             @if ($accountGateway->gateway_id != GATEWAY_BRAINTREE)
                 var card = new Card({
                     form: 'form#payment-form', // *required*
@@ -91,6 +117,11 @@
                 'routing_number' => 'required',
                 'account_holder_name' => 'required',
                 'account_holder_type' => 'required',
+                'shipping_address1' => 'required',
+                'shipping_city' => 'required',
+                'shipping_state' => 'required',
+                'shipping_postal_code' => 'required',
+                'shipping_country_id' => 'required',
             )) !!}
 
 
@@ -101,6 +132,7 @@
         {{ Former::populateField('email', $contact->email) }}
         @if (!$client->country_id && $client->account->country_id)
             {{ Former::populateField('country_id', $client->account->country_id) }}
+            {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
         @endif
         @if (!$client->currency_id && $client->account->currency_id)
             {{ Former::populateField('currency_id', $client->account->currency_id) }}
@@ -153,8 +185,8 @@
 
     <p>&nbsp;<br/>&nbsp;</p>
 
-    @if (!empty($showAddress))
-        <h3>{{ trans('texts.billing_address') }}&nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
+    @if (!empty($accountGateway->show_address))
+        <h3>{{ trans('texts.billing_address') }} &nbsp;&nbsp; <span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <div class="row">
             <div class="col-md-6">
                 {!! Former::text('address1')
@@ -195,6 +227,62 @@
                         ->placeholder(trans('texts.country_id'))
                         ->fromQuery($countries, 'name', 'id')
                         ->addGroupClass('country-select')
+                        ->label('') !!}
+            </div>
+        </div>
+
+        <p>&nbsp;<br/>&nbsp;</p>
+    @endif
+
+    @if (!empty($accountGateway->show_shipping_address))
+        <h3>{{ trans('texts.shipping_address') }} &nbsp;&nbsp;
+            <span>
+                <label for="shipToBillingAddress" style="font-weight:normal">
+                    <input id="shipToBillingAddress" type="checkbox"/>
+                    {{ trans('texts.ship_to_billing_address') }}
+                </label>
+            </span>
+        </h3>
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::text('shipping_address1')
+                        ->autocomplete('shipping address-line1')
+                        ->placeholder(trans('texts.address1'))
+                        ->label('') !!}
+            </div>
+            <div class="col-md-6">
+                {!! Former::text('shipping_address2')
+                        ->autocomplete('shipping address-line2')
+                        ->placeholder(trans('texts.address2'))
+                        ->label('') !!}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::text('shipping_city')
+                        ->autocomplete('shipping address-level2')
+                        ->placeholder(trans('texts.city'))
+                        ->label('') !!}
+            </div>
+            <div class="col-md-6">
+                {!! Former::text('shipping_state')
+                        ->autocomplete('shipping address-level1')
+                        ->placeholder(trans('texts.state'))
+                        ->label('') !!}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::text('shipping_postal_code')
+                        ->autocomplete('shipping postal-code')
+                        ->placeholder(trans('texts.postal_code'))
+                        ->label('') !!}
+            </div>
+            <div class="col-md-6">
+                {!! Former::select('shipping_country_id')
+                        ->placeholder(trans('texts.country_id'))
+                        ->fromQuery($countries, 'name', 'id')
+                        ->addGroupClass('shipping-country-select')
                         ->label('') !!}
             </div>
         </div>

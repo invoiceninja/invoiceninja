@@ -39,7 +39,7 @@
 
         <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.organization') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.details') !!}</h3>
           </div>
             <div class="panel-body">
 

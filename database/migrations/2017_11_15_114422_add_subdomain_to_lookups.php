@@ -36,7 +36,11 @@ class AddSubdomainToLookups extends Migration
         });
 
         Schema::table('clients', function ($table) {
-            $table->foreign('shipping_country_id')->references('id')->on('currencies');
+            $table->foreign('shipping_country_id')->references('id')->on('countries');
+        });
+
+        Schema::table('account_gateways', function ($table) {
+            $table->boolean('show_shipping_address')->default(false)->nullable();
         });
     }
 
@@ -64,6 +68,10 @@ class AddSubdomainToLookups extends Migration
             $table->dropColumn('shipping_state');
             $table->dropColumn('shipping_postal_code');
             $table->dropColumn('shipping_country_id');
+        });
+
+        Schema::table('account_gateways', function ($table) {
+            $table->dropColumn('show_shipping_address');
         });
     }
 }

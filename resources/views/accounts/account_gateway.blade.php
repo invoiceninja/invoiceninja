@@ -1,5 +1,20 @@
 @extends('header')
 
+@section('head')
+	@parent
+
+    <style type="text/css">
+        label.checkbox-inline {
+            padding-left: 0px;
+        }
+
+        label.checkbox-inline div {
+            padding-left: 20px;
+        }
+    </style>
+@stop
+
+
 @section('top-right')
     @if (env('WEPAY_CLIENT_ID') && isset($accountGatewaysIds) && ! count($accountGatewaysIds))
         {!! Button::primary(trans('texts.sign_up_with_wepay'))
@@ -23,6 +38,7 @@
         {!! Former::populateField('primary_gateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
+        {!! Former::populateField('show_shipping_address', intval($accountGateway->show_shipping_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
@@ -142,6 +158,12 @@
                 ->addGroupClass('gateway-option')
                 ->value(1) !!}
 
+        {!! Former::checkbox('show_shipping_address')
+                ->label(trans('texts.shipping_address'))
+                ->text(trans('texts.show_shipping_address_help'))
+                ->addGroupClass('gateway-option')
+                ->value(1) !!}
+
         {!! Former::checkbox('update_address')
                 ->label(' ')
                 ->text(trans('texts.update_address_help'))
@@ -153,8 +175,10 @@
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types')
                 ->addGroupClass('gateway-option')
+                ->inline()
                 ->value(1)
         !!}
+        <br/>
     </div>
 
     @if (!$accountGateway || $accountGateway->gateway_id == GATEWAY_STRIPE)
@@ -279,14 +303,9 @@
     }
 
     function enableUpdateAddress(event) {
-        var disabled = !$('#show_address').is(':checked');
+        var disabled = ! $('#show_address').is(':checked') && ! $('#show_shipping_address').is(':checked');
         $('#update_address').prop('disabled', disabled);
         $('label[for=update_address]').css('color', disabled ? '#888' : '#000');
-        if (disabled) {
-            $('#update_address').prop('checked', false);
-        } else if (event) {
-            $('#update_address').prop('checked', true);
-        }
     }
 
     function updateWebhookShown() {
@@ -306,7 +325,7 @@
         setFieldsShown();
         updateWebhookShown();
 
-        $('#show_address').change(enableUpdateAddress);
+        $('#show_address, #show_shipping_address').change(enableUpdateAddress);
         enableUpdateAddress();
 
         $('#enable_ach').change(updateWebhookShown);

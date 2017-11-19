@@ -98,11 +98,6 @@
 		  	   <p><i class="fa fa-vat-number" style="width: 20px"></i>{{ trans('texts.vat_number').': '.$client->vat_number }}</p>
             @endif
 
-            {!! $client->present()->address(ADDRESS_BILLING) !!}
-            {!! $client->present()->address(ADDRESS_SHIPPING) !!}
-
-            <br/>
-
             @if ($client->account->custom_client_label1 && $client->custom_value1)
                 {{ $client->account->custom_client_label1 . ': ' . $client->custom_value1 }}<br/>
             @endif
@@ -144,6 +139,14 @@
             <p>{{ $client->present()->paymentTerms }}</p>
 		</div>
 
+        <div class="col-md-3">
+			<h3>{{ trans('texts.address') }}</h3>
+
+            {!! $client->present()->address(ADDRESS_BILLING) !!}<br/>
+            {!! $client->present()->address(ADDRESS_SHIPPING) !!}
+
+        </div>
+
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
 		  	@foreach ($client->contacts as $contact)
@@ -173,7 +176,7 @@
 		  	@endforeach
 		</div>
 
-		<div class="col-md-4">
+		<div class="col-md-3">
 			<h3>{{ trans('texts.standing') }}
 			<table class="table" style="width:100%">
 				<tr>

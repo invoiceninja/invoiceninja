@@ -173,7 +173,6 @@ class BasePaymentDriver
             'accountGateway' => $this->accountGateway,
             'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
             'gateway' => $gateway,
-            'showAddress' => $this->accountGateway->show_address,
             'showBreadcrumbs' => false,
             'url' => $url,
             'amount' => $this->invoice()->getRequestedAmount(),
@@ -407,18 +406,32 @@ class BasePaymentDriver
             $this->contact()->save();
         }
 
+        // update the address info
+        if ($this->accountGateway->update_address) {
+            $client = $this->client();
+            if ($this->accountGateway->show_address) {
+                $client->address1 = trim($this->input['address1']);
+                $client->address2 = trim($this->input['address2']);
+                $client->city = trim($this->input['city']);
+                $client->state = trim($this->input['state']);
+                $client->postal_code = trim($this->input['postal_code']);
+                $client->country_id = trim($this->input['country_id']);
+            }
+            if ($this->accountGateway->show_shipping_address) {
+                $client->shipping_address1 = trim($this->input['shipping_address1']);
+                $client->shipping_address2 = trim($this->input['shipping_address2']);
+                $client->shipping_city = trim($this->input['shipping_city']);
+                $client->shipping_state = trim($this->input['shipping_state']);
+                $client->shipping_postal_code = trim($this->input['shipping_postal_code']);
+                $client->shipping_country_id = trim($this->input['shipping_country_id']);
+            }
+        }
+
         if (! $this->accountGateway->show_address || ! $this->accountGateway->update_address) {
             return;
         }
 
-        // update the address info
-        $client = $this->client();
-        $client->address1 = trim($this->input['address1']);
-        $client->address2 = trim($this->input['address2']);
-        $client->city = trim($this->input['city']);
-        $client->state = trim($this->input['state']);
-        $client->postal_code = trim($this->input['postal_code']);
-        $client->country_id = trim($this->input['country_id']);
+
         $client->save();
     }
 

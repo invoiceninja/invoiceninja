@@ -2541,6 +2541,8 @@ $LANG = array(
     'shipping_postal_code' => 'Shipping Postal Code',
     'shipping_country' => 'Shipping Country',
     'classify' => 'Classify',
+    'show_shipping_address_help' => 'Require client to provide their shipping address',
+    'ship_to_billing_address' => 'Ship to billing address',
 
 );
 

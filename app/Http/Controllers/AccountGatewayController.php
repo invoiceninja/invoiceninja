@@ -119,9 +119,9 @@ class AccountGatewayController extends BaseController
         $creditCards = [];
         foreach ($creditCardsArray as $card => $name) {
             if ($selectedCards > 0 && ($selectedCards & $card) == $card) {
-                $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
+                $creditCards['<div>' . $name['text'] . '</div>'] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
             } else {
-                $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
+                $creditCards['<div>' . $name['text'] . '</div>'] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
             }
         }
 
@@ -316,6 +316,7 @@ class AccountGatewayController extends BaseController
 
             $accountGateway->accepted_credit_cards = $cardCount;
             $accountGateway->show_address = Input::get('show_address') ? true : false;
+            $accountGateway->show_shipping_address = Input::get('show_shipping_address') ? true : false;
             $accountGateway->update_address = Input::get('update_address') ? true : false;
             $accountGateway->setConfig($config);
 
