@@ -2540,6 +2540,7 @@ $LANG = array(
     'shipping_state' => 'Shipping State/Province',
     'shipping_postal_code' => 'Shipping Postal Code',
     'shipping_country' => 'Shipping Country',
+    'classify' => 'Classify',
 
 );
 

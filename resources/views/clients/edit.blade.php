@@ -163,33 +163,54 @@
             </div>
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height:505px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.additional_info') !!}</h3>
           </div>
             <div class="panel-body">
 
-            {!! Former::select('currency_id')->addOption('','')
-                ->placeholder($account->currency ? $account->currency->name : '')
-                ->fromQuery($currencies, 'name', 'id') !!}
-            {!! Former::select('language_id')->addOption('','')
-                ->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
-                ->fromQuery($languages, 'name', 'id') !!}
-			{!! Former::select('payment_terms')->addOption('','')
-				->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
-				->placeholder($account->present()->paymentTerms)
-                ->help(trans('texts.payment_terms_help')) !!}
-			@if ($account->isModuleEnabled(ENTITY_TASK))
-				{!! Former::text('task_rate')
-						->placeholder($account->present()->taskRate)
-						->help('task_rate_help') !!}
-			@endif
-			{!! Former::select('size_id')->addOption('','')
-				->fromQuery($sizes, 'name', 'id') !!}
-			{!! Former::select('industry_id')->addOption('','')
-				->fromQuery($industries, 'name', 'id') !!}
-			{!! Former::textarea('public_notes') !!}
-			{!! Former::textarea('private_notes') !!}
+				<div role="tabpanel">
+					<ul class="nav nav-tabs" role="tablist" style="border: none">
+						<li role="presentation" class="active">
+							<a href="#defaults" aria-controls="defaults" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a>
+						</li>
+						<li role="presentation">
+							<a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.notes') }}</a>
+						</li>
+						<li role="presentation">
+							<a href="#classify" aria-controls="classify" role="tab" data-toggle="tab">{{ trans('texts.classify') }}</a>
+						</li>
+					</ul>
+				</div>
+				<div class="tab-content" style="padding-top:24px;">
+					<div role="tabpanel" class="tab-pane active" id="defaults">
+						{!! Former::select('currency_id')->addOption('','')
+			                ->placeholder($account->currency ? $account->currency->name : '')
+			                ->fromQuery($currencies, 'name', 'id') !!}
+			            {!! Former::select('language_id')->addOption('','')
+			                ->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
+			                ->fromQuery($languages, 'name', 'id') !!}
+						{!! Former::select('payment_terms')->addOption('','')
+							->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
+							->placeholder($account->present()->paymentTerms)
+			                ->help(trans('texts.payment_terms_help') . ' | ' . link_to('/settings/payment_terms', trans('texts.customize_options'))) !!}
+						@if ($account->isModuleEnabled(ENTITY_TASK))
+							{!! Former::text('task_rate')
+									->placeholder($account->present()->taskRate)
+									->help('task_rate_help') !!}
+						@endif
+					</div>
+					<div role="tabpanel" class="tab-pane" id="notes">
+						{!! Former::textarea('public_notes')->rows(6) !!}
+						{!! Former::textarea('private_notes')->rows(6) !!}
+					</div>
+					<div role="tabpanel" class="tab-pane" id="classify">
+						{!! Former::select('size_id')->addOption('','')
+							->fromQuery($sizes, 'name', 'id') !!}
+						{!! Former::select('industry_id')->addOption('','')
+							->fromQuery($industries, 'name', 'id') !!}
+					</div>
+				</div>
 		</div>
 		</div>
 
