@@ -459,6 +459,11 @@ class Utils
 
     public static function parseFloat($value)
     {
+        // check for comma as decimal separator
+        if (preg_match('/,[\d]{1,2}$/', $value)) {
+            $value = str_replace(',', '.', $value);
+        }
+
         $value = preg_replace('/[^0-9\.\-]/', '', $value);
 
         return floatval($value);
