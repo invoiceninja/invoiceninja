@@ -2526,6 +2526,20 @@ $LANG = array(
     'client_login' => 'Client Login',
     'converted_amount' => 'Converted Amount',
     'default' => 'Default',
+    'shipping_address' => 'Shipping Address',
+    'bllling_address' => 'Billing Address',
+    'billing_address1' => 'Billing Street',
+    'billing_address2' => 'Billing Apt/Suite',
+    'billing_city' => 'Billing City',
+    'billing_state' => 'Billing State/Province',
+    'billing_postal_code' => 'Billing Postal Code',
+    'billing_country' => 'Billing Country',
+    'shipping_address1' => 'Shipping Street',
+    'shipping_address2' => 'Shipping Apt/Suite',
+    'shipping_city' => 'Shipping City',
+    'shipping_state' => 'Shipping State/Province',
+    'shipping_postal_code' => 'Shipping Postal Code',
+    'shipping_country' => 'Shipping Country',
 
 );
 

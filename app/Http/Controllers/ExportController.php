@@ -170,7 +170,7 @@ class ExportController extends BaseController
 
         if ($request->input('include') === 'all' || $request->input('clients')) {
             $data['clients'] = Client::scope()
-                ->with('user', 'contacts', 'country', 'currency')
+                ->with('user', 'contacts', 'country', 'currency', 'shipping_country')
                 ->withArchived()
                 ->get();
         }

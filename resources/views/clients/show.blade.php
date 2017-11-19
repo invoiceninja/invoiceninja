@@ -98,18 +98,8 @@
 		  	   <p><i class="fa fa-vat-number" style="width: 20px"></i>{{ trans('texts.vat_number').': '.$client->vat_number }}</p>
             @endif
 
-            @if ($client->address1)
-                {{ $client->address1 }}<br/>
-            @endif
-            @if ($client->address2)
-                {{ $client->address2 }}<br/>
-            @endif
-            @if ($client->getCityState())
-                {{ $client->getCityState() }}<br/>
-            @endif
-            @if ($client->country)
-                {{ $client->country->name }}<br/>
-            @endif
+            {!! $client->present()->address(ADDRESS_BILLING) !!}
+            {!! $client->present()->address(ADDRESS_SHIPPING) !!}
 
             <br/>
 

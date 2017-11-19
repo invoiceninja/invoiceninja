@@ -5,12 +5,18 @@
     @endif
     <td>{{ trans('texts.balance') }}</td>
     <td>{{ trans('texts.paid_to_date') }}</td>
-    <td>{{ trans('texts.address1') }}</td>
-    <td>{{ trans('texts.address2') }}</td>
-    <td>{{ trans('texts.city') }}</td>
-    <td>{{ trans('texts.state') }}</td>
-    <td>{{ trans('texts.postal_code') }}</td>
-    <td>{{ trans('texts.country') }}</td>
+    <td>{{ trans('texts.billing_address1') }}</td>
+    <td>{{ trans('texts.billing_address2') }}</td>
+    <td>{{ trans('texts.billing_city') }}</td>
+    <td>{{ trans('texts.billing_state') }}</td>
+    <td>{{ trans('texts.billing_postal_code') }}</td>
+    <td>{{ trans('texts.billing_country') }}</td>
+    <td>{{ trans('texts.shipping_address1') }}</td>
+    <td>{{ trans('texts.shipping_address2') }}</td>
+    <td>{{ trans('texts.shipping_city') }}</td>
+    <td>{{ trans('texts.shipping_state') }}</td>
+    <td>{{ trans('texts.shipping_postal_code') }}</td>
+    <td>{{ trans('texts.shipping_country') }}</td>
     <td>{{ trans('texts.id_number') }}</td>
     <td>{{ trans('texts.vat_number') }}</td>
     <td>{{ trans('texts.website') }}</td>
@@ -50,6 +56,12 @@
         <td>{{ $client->state }}</td>
         <td>{{ $client->postal_code }}</td>
         <td>{{ $client->present()->country }}</td>
+        <td>{{ $client->shipping_address1 }}</td>
+        <td>{{ $client->shipping_address2 }}</td>
+        <td>{{ $client->shipping_city }}</td>
+        <td>{{ $client->shipping_state }}</td>
+        <td>{{ $client->shipping_postal_code }}</td>
+        <td>{{ $client->present()->shipping_country }}</td>
         <td>{{ $client->id_number }}</td>
         <td>{{ $client->vat_number }}</td>
         <td>{{ $client->website }}</td>
