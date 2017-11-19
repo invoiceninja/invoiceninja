@@ -68,19 +68,42 @@
             </div>
         </div>
 
-        <div class="panel panel-default">
+		<div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
             <div class="panel-body">
 
-			{!! Former::text('address1') !!}
-			{!! Former::text('address2') !!}
-			{!! Former::text('city') !!}
-			{!! Former::text('state') !!}
-			{!! Former::text('postal_code') !!}
-			{!! Former::select('country_id')->addOption('','')
-				->fromQuery($countries, 'name', 'id') !!}
+				<div role="tabpanel">
+					<ul class="nav nav-tabs" role="tablist" style="border: none">
+						<li role="presentation" class="active">
+							<a href="#billing_address" aria-controls="billing_address" role="tab" data-toggle="tab">{{ trans('texts.billing_address') }}</a>
+						</li>
+						<li role="presentation">
+							<a href="#shipping_address" aria-controls="shipping_address" role="tab" data-toggle="tab">{{ trans('texts.shipping_address') }}</a>
+						</li>
+					</ul>
+				</div>
+				<div class="tab-content" style="padding-top:24px;">
+					<div role="tabpanel" class="tab-pane active" id="billing_address">
+						{!! Former::text('address1') !!}
+						{!! Former::text('address2') !!}
+						{!! Former::text('city') !!}
+						{!! Former::text('state') !!}
+						{!! Former::text('postal_code') !!}
+						{!! Former::select('country_id')->addOption('','')
+							->fromQuery($countries, 'name', 'id') !!}
+					</div>
+					<div role="tabpanel" class="tab-pane" id="shipping_address">
+						{!! Former::text('shipping_address1')->label('address1') !!}
+						{!! Former::text('shipping_address2')->label('address2') !!}
+						{!! Former::text('shipping_city')->label('city') !!}
+						{!! Former::text('shipping_state')->label('state') !!}
+						{!! Former::text('shipping_postal_code')->label('postal_code') !!}
+						{!! Former::select('shipping_country_id')->addOption('','')
+							->fromQuery($countries, 'name', 'id')->label('country_id') !!}
+					</div>
+				</div>
 
         </div>
         </div>
@@ -233,7 +256,7 @@
 	<script type="text/javascript">
 
 	$(function() {
-		$('#country_id').combobox();
+		$('#country_id, #shipping_country_id').combobox();
 	});
 
 	function ContactModel(data) {

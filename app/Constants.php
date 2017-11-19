@@ -451,6 +451,9 @@ if (! defined('APP_NAME')) {
     define('FILTER_INVOICE_DATE', 'invoice_date');
     define('FILTER_PAYMENT_DATE', 'payment_date');
 
+    define('ADDRESS_BILLING', 'billing_address');
+    define('ADDRESS_SHIPPING', 'shipping_address');
+
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');
     define('SOCIAL_GITHUB', 'GitHub');

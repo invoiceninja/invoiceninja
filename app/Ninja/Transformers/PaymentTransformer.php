@@ -60,6 +60,8 @@ class PaymentTransformer extends EntityTransformer
             'invoice_id' => (int) ($this->invoice ? $this->invoice->public_id : $payment->invoice->public_id),
             'invoice_number' => $this->invoice ? $this->invoice->invoice_number : $payment->invoice->invoice_number,
             'private_notes' => $payment->private_notes,
+            'exchange_rate' => (float) $payment->exchange_rate,
+            'exchange_currency_id' => (int) $payment->exchange_currency_id,
         ]);
     }
 }

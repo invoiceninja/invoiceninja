@@ -26,6 +26,18 @@ class AddSubdomainToLookups extends Migration
             $table->decimal('exchange_rate', 13, 4)->default(1)->change();
         });
 
+        Schema::table('clients', function ($table) {
+            $table->string('shipping_address1')->nullable();
+            $table->string('shipping_address2')->nullable();
+            $table->string('shipping_city')->nullable();
+            $table->string('shipping_state')->nullable();
+            $table->string('shipping_postal_code')->nullable();
+            $table->unsignedInteger('shipping_country_id')->nullable();
+        });
+
+        Schema::table('clients', function ($table) {
+            $table->foreign('shipping_country_id')->references('id')->on('currencies');
+        });
     }
 
     /**
@@ -42,6 +54,16 @@ class AddSubdomainToLookups extends Migration
         Schema::table('payments', function ($table) {
             $table->dropColumn('exchange_rate');
             $table->dropColumn('exchange_currency_id');
+        });
+
+        Schema::table('clients', function ($table) {
+            $table->dropForeign('clients_shipping_country_id_foreign');
+            $table->dropColumn('shipping_address1');
+            $table->dropColumn('shipping_address2');
+            $table->dropColumn('shipping_city');
+            $table->dropColumn('shipping_state');
+            $table->dropColumn('shipping_postal_code');
+            $table->dropColumn('shipping_country_id');
         });
     }
 }

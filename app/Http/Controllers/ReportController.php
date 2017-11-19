@@ -100,6 +100,7 @@ class ReportController extends BaseController
                 'invoice_status' => request()->invoice_status,
                 'group_dates_by' => request()->group_dates_by,
                 'document_filter' => request()->document_filter,
+                'currency_type' => request()->currency_type,
                 'export_format' => $format,
             ];
             $report = new $reportClass($startDate, $endDate, $isExport, $options);

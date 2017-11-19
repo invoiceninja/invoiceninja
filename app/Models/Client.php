@@ -53,6 +53,12 @@ class Client extends EntityModel
         'quote_number_counter',
         'public_notes',
         'task_rate',
+        'shipping_address1',
+        'shipping_address2',
+        'shipping_city',
+        'shipping_state',
+        'shipping_postal_code',
+        'shipping_country_id',
     ];
 
 
@@ -175,6 +181,14 @@ class Client extends EntityModel
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function country()
+    {
+        return $this->belongsTo('App\Models\Country');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function shipping_country()
     {
         return $this->belongsTo('App\Models\Country');
     }

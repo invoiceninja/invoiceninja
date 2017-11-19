@@ -90,7 +90,7 @@
                 {!! Former::text('exchange_rate')
                         ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
                 {!! Former::text('')
-                        ->label(trans('texts.amount'))
+                        ->label(trans('texts.converted_amount'))
                         ->data_bind("value: convertedAmount, enable: enableExchangeRate")
                         ->append('<span data-bind="html: exchangeCurrencyCode"></span>') !!}
             </div>

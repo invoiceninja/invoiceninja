@@ -4,6 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Models\Payment;
 use Auth;
+use Utils;
 
 class PaymentReport extends AbstractReport
 {
@@ -20,6 +21,7 @@ class PaymentReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
+        $currencyType = $this->options['currency_type'];
         $invoiceMap = [];
 
         $payments = Payment::scope()
@@ -39,22 +41,36 @@ class PaymentReport extends AbstractReport
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
             $client = $payment->client;
+            $amount = $payment->getCompletedAmount();
+
+            if ($currencyType == 'converted') {
+                $amount *= $payment->exchange_rate;
+                $this->addToTotals($payment->exchange_currency_id, 'paid', $amount);
+                $amount = Utils::formatMoney($amount, $payment->exchange_currency_id);
+            } else {
+                $this->addToTotals($client->currency_id, 'paid', $amount);
+                $amount = $account->formatMoney($amount, $client);
+            }
+
             $this->data[] = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                 $invoice->present()->invoice_date,
                 $account->formatMoney($invoice->amount, $client),
                 $payment->present()->payment_date,
-                $account->formatMoney($payment->getCompletedAmount(), $client),
+                $amount,
                 $payment->present()->method,
             ];
 
             if (! isset($invoiceMap[$invoice->id])) {
-                $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 $invoiceMap[$invoice->id] = true;
-            }
 
-            $this->addToTotals($client->currency_id, 'paid', $payment->getCompletedAmount());
+                if ($currencyType == 'converted') {
+                    $this->addToTotals($payment->exchange_currency_id, 'amount', $invoice->amount * $payment->exchange_rate);
+                } else {
+                    $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+                }
+            }
         }
     }
 }
