@@ -91,7 +91,13 @@ class PaymentDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+                    $amount = Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+
+                    if ($model->exchange_currency_id && $model->exchange_rate != 1) {
+                        $amount .= ' | ' . Utils::formatMoney($model->amount * $model->exchange_rate, $model->exchange_currency_id, $model->country_id);
+                    }
+
+                    return $amount;
                 },
             ],
             [

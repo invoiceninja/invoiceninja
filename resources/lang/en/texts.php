@@ -2524,6 +2524,8 @@ $LANG = array(
     'your_password_reset_link' => 'Your Password Reset Link',
     'subdomain_taken' => 'The subdomain is already in use',
     'client_login' => 'Client Login',
+    'converted_amount' => 'Converted Amount',
+    'default' => 'Default',
 
 );
 

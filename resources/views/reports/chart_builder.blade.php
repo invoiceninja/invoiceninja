@@ -141,6 +141,12 @@
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
                         </div>
 
+						<div id="currencyType" style="display:none">
+                            {!! Former::select('currency_type')->label(trans('texts.currency'))
+                                    ->addOption(trans('texts.default'), 'default')
+                                    ->addOption(trans('texts.converted'), 'converted') !!}
+                        </div>
+
 						<div id="invoiceOrExpenseField" style="display:none">
 							{!! Former::select('document_filter')->label('filter')
 								->addOption(trans('texts.all'), '')
@@ -283,6 +289,7 @@
 		$('#dateField').toggle(val == '{{ ENTITY_TAX_RATE }}');
 		$('#statusField').toggle(val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}');
 		$('#invoiceOrExpenseField').toggle(val == '{{ ENTITY_DOCUMENT }}');
+		$('#currencyType').toggle(val == '{{ ENTITY_PAYMENT }}');
 	}
 
 	function setDocumentZipShown() {
