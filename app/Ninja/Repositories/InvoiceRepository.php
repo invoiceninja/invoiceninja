@@ -511,6 +511,8 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_footer = '';
         }
 
+        $invoice->public_notes = isset($data['public_notes']) ? trim($data['public_notes']) : '';
+
         // process date variables if not recurring
         if (! $invoice->is_recurring) {
             $invoice->terms = Utils::processVariables($invoice->terms);
