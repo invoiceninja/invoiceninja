@@ -871,22 +871,31 @@ class BasePaymentDriver
         return $payment;
     }
 
+    protected function updateClientFromOffsite($transRef, $paymentRef)
+    {
+        // do nothing
+    }
+
     public function completeOffsitePurchase($input)
     {
         $this->input = $input;
-        $ref = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;
+        $transRef = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;
 
         if (method_exists($this->gateway(), 'completePurchase')) {
             $details = $this->paymentDetails();
             $response = $this->gateway()->completePurchase($details)->send();
-            $ref = $response->getTransactionReference() ?: $ref;
+            $paymentRef = $response->getTransactionReference() ?: $transRef;
 
             if ($response->isCancelled()) {
                 return false;
             } elseif (! $response->isSuccessful()) {
                 throw new Exception($response->getMessage());
             }
+        } else {
+            $paymentRef = $transRef;
         }
+
+        $this->updateClientFromOffsite($transRef, $paymentRef);
 
         // check invoice still has balance
         if (! floatval($this->invoice()->balance)) {
@@ -895,12 +904,12 @@ class BasePaymentDriver
 
         // check this isn't a duplicate transaction reference
         if (Payment::whereAccountId($this->invitation->account_id)
-                ->whereTransactionReference($ref)
+                ->whereTransactionReference($paymentRef)
                 ->first()) {
             throw new Exception(trans('texts.payment_error_code', ['code' => 'DT']));
         }
 
-        return $this->createPayment($ref);
+        return $this->createPayment($paymentRef);
     }
 
     public function tokenLinks()
