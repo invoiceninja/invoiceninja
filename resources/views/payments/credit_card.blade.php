@@ -236,12 +236,14 @@
 
     @if (!empty($accountGateway->show_shipping_address))
         <h3>{{ trans('texts.shipping_address') }} &nbsp;&nbsp;
-            <span>
-                <label for="shipToBillingAddress" style="font-weight:normal">
-                    <input id="shipToBillingAddress" type="checkbox"/>
-                    {{ trans('texts.ship_to_billing_address') }}
-                </label>
-            </span>
+            @if ($accountGateway->show_address)
+                <span>
+                    <label for="shipToBillingAddress" style="font-weight:normal">
+                        <input id="shipToBillingAddress" type="checkbox"/>
+                        {{ trans('texts.ship_to_billing_address') }}
+                    </label>
+                </span>
+            @endif
         </h3>
         <div class="row">
             <div class="col-md-6">

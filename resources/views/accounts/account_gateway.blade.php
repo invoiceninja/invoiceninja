@@ -158,15 +158,15 @@
                 ->addGroupClass('gateway-option')
                 ->value(1) !!}
 
-        {!! Former::checkbox('show_shipping_address')
-                ->label(trans('texts.shipping_address'))
-                ->text(trans('texts.show_shipping_address_help'))
+		{!! Former::checkbox('update_address')
+                ->label(' ')
+                ->text(trans('texts.update_address_help'))
                 ->addGroupClass('gateway-option')
                 ->value(1) !!}
 
-        {!! Former::checkbox('update_address')
-                ->label(' ')
-                ->text(trans('texts.update_address_help'))
+        {!! Former::checkbox('show_shipping_address')
+                ->label(trans('texts.shipping_address'))
+                ->text(trans('texts.show_shipping_address_help'))
                 ->addGroupClass('gateway-option')
                 ->value(1) !!}
 
@@ -303,7 +303,7 @@
     }
 
     function enableUpdateAddress(event) {
-        var disabled = ! $('#show_address').is(':checked') && ! $('#show_shipping_address').is(':checked');
+        var disabled = ! $('#show_address').is(':checked');
         $('#update_address').prop('disabled', disabled);
         $('label[for=update_address]').css('color', disabled ? '#888' : '#000');
     }
