@@ -155,6 +155,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
 
+    Route::get('invoices/delivery_note/{invoice_id}', 'InvoiceController@deliveryNote');
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
 

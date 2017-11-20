@@ -106,9 +106,18 @@ class InvoiceDatatable extends EntityDatatable
                 },
             ],
             [
-                trans('texts.view_history'),
+                trans("texts.{$entityType}_history"),
                 function ($model) use ($entityType) {
                     return URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
+                },
+            ],
+            [
+                trans('texts.delivery_note'),
+                function ($model) use ($entityType) {
+                    return url("invoices/delivery_note/{$model->public_id}");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE;
                 },
             ],
             [

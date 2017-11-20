@@ -2543,6 +2543,7 @@ $LANG = array(
     'classify' => 'Classify',
     'show_shipping_address_help' => 'Require client to provide their shipping address',
     'ship_to_billing_address' => 'Ship to billing address',
+    'delivery_note' => 'Delivery Note',
 
 );
 

@@ -242,6 +242,11 @@ class InvoicePresenter extends EntityPresenter
         }
 
         $actions[] = ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')];
+
+        if ($entityType == ENTITY_INVOICE) {
+            $actions[] = ['url' => url("invoices/delivery_note/{$invoice->public_id}"), 'label' => trans('texts.delivery_note')];
+        }
+
         $actions[] = DropdownButton::DIVIDER;
 
         if ($entityType == ENTITY_QUOTE) {
