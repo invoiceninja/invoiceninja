@@ -113,6 +113,8 @@
                 <p>{{ trans('texts.task_rate') }}: {{ Utils::roundSignificant($client->task_rate) }}</p>
             @endif
 
+            <p/>
+
             @if ($client->public_notes)
                 <p><i>{{ $client->public_notes }}</i></p>
             @endif
