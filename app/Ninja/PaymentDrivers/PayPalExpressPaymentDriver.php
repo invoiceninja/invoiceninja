@@ -50,6 +50,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $data = $response->getData();
         $client = $this->client();
 
+        if (empty($data['SHIPTOSTREET'])) {
+            return;
+        }
+
         $client->shipping_address1 = trim($data['SHIPTOSTREET']);
         $client->shipping_address2 = '';
         $client->shipping_city = trim($data['SHIPTOCITY']);
