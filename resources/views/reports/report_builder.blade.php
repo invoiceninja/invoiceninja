@@ -85,8 +85,9 @@
     {!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
     <div style="display:none">
-    	{!! Former::text('action') !!}
-		{!! Former::text('format') !!}
+		{!! Former::text('action') !!}
+		{!! Former::text('frequency') !!}
+		{!! Former::text('scheduled_report_id') !!}
     </div>
 
     {!! Former::populateField('start_date', $startDate) !!}
@@ -177,15 +178,31 @@
 	@endif
 
 
-	<center class="buttons">
-		{!! DropdownButton::primary(trans('texts.export'))
-			  ->large()
-			  ->withAttributes(array('id' => 'export-button'))
-              ->withContents([
-				  ['url' => 'javascript:onExportClick("csv")', 'label' => 'CSV'],
-				  ['url' => 'javascript:onExportClick("xlsx")', 'label' => 'XLSX'],
-				  ['url' => 'javascript:onExportClick("pdf")', 'label' => 'PDF'],
+	<center class="buttons form-inline">
+		<span class="well" style="padding-right:8px; padding-left:14px;">
+		{!! Former::select('format')
+					->addOption('CSV', 'csv')
+					->addOption('XLSX', 'xlsx')
+					->addOption('PDF', 'pdf')
+					->raw() !!} &nbsp;
+
+		{!! Button::normal(trans('texts.export'))
+				->withAttributes(['onclick' => 'onExportClick()'])
+				->appendIcon(Icon::create('download-alt')) !!}
+
+		{!! Button::normal(trans('texts.cancel_schedule'))
+				->withAttributes(['id' => 'cancelSchduleButton', 'onclick' => 'onCancelScheduleClick()', 'style' => 'display:none'])
+				->appendIcon(Icon::create('remove')) !!}
+
+
+		{!! DropdownButton::primary(trans('texts.schedule'))
+			  ->withAttributes(['id'=>'scheduleDropDown'])
+			  ->withContents([
+				  ['url' => 'javascript:onScheduleClick("daily")', 'label' => trans('texts.freq_daily')],
+				  ['url' => 'javascript:onScheduleClick("weekly")', 'label' => trans('texts.freq_weekly')],
+				  ['url' => 'javascript:onScheduleClick("monthly")', 'label' => trans('texts.freq_monthly')],
               ]) !!}
+	 	</span> &nbsp;&nbsp;
 		{!! Button::success(trans('texts.run'))
 				->withAttributes(array('id' => 'submitButton'))
 				->submit()
@@ -277,12 +294,36 @@
 
 	<script type="text/javascript">
 
-    function onExportClick(format) {
+	var scheduledReports = {!! $scheduledReports !!};
+	var scheduledReportMap = {};
+
+	for (var i=0; i<scheduledReports.length; i++) {
+		var schedule = scheduledReports[i];
+		var config = JSON.parse(schedule.config);
+		scheduledReportMap[config.report_type] = schedule.public_id;
+	}
+
+	function onExportClick() {
         $('#action').val('export');
-		$('#format').val(format);
         $('#submitButton').click();
 		$('#action').val('');
     }
+
+	function onScheduleClick(frequency) {
+        $('#action').val('schedule');
+		$('#frequency').val(frequency);
+        $('#submitButton').click();
+		$('#action').val('');
+    }
+
+	function onCancelScheduleClick() {
+		var reportType = $('#report_type').val();
+		$('#action').val('cancel_schedule');
+		$('#frequency').val(frequency);
+		$('#scheduled_report_id').val(scheduledReportMap[reportType]);
+        $('#submitButton').click();
+		$('#action').val('');
+	}
 
 	function setFiltersShown() {
 		var val = $('#report_type').val();
@@ -293,15 +334,20 @@
 	}
 
 	function setDocumentZipShown() {
-		var $ul = $('#export-button').next();
 		var val = $('#report_type').val();
 		var showOption = ['invoice', 'quote', 'expense', 'document'].indexOf(val) >= 0;
-		var numOptions = $ul.children().length;
+		var numOptions = $('#format option').size();
 		if (showOption && numOptions == 3) {
-			$ul.append('<li><a href="javascript:onExportClick(\'zip\')">ZIP - {{ trans('texts.documents') }}</a></li>');
+			$("#format").append(new Option("ZIP - {{ trans('texts.documents') }}", 'zip'));
 		} else if (! showOption && numOptions == 4) {
-			$ul.find('li:last-child').remove();
+			$("#format option:last").remove();
 		}
+	}
+
+	function setScheduleButton() {
+		var reportType = $('#report_type').val();
+		$('#scheduleDropDown').toggle(! scheduledReportMap[reportType]);
+		$('#cancelSchduleButton').toggle(!! scheduledReportMap[reportType]);
 	}
 
 	var sumColumns = [];
@@ -328,6 +374,7 @@
 			var val = $('#report_type').val();
 			setFiltersShown();
 			setDocumentZipShown();
+			setScheduleButton();
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_type', val);
             }
@@ -401,6 +448,7 @@
 
 			setFiltersShown();
 			setDocumentZipShown();
+			setScheduleButton();
 		});
     })
 

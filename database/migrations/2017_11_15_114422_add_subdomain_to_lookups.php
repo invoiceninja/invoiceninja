@@ -44,6 +44,25 @@ class AddSubdomainToLookups extends Migration
         Schema::table('account_gateways', function ($table) {
             $table->boolean('show_shipping_address')->default(false)->nullable();
         });
+
+        Schema::dropIfExists('scheduled_reports');
+        Schema::create('scheduled_reports', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('account_id')->index();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->text('config');
+            $table->enum('frequency', ['daily', 'weekly', 'monthly']);
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+
+            $table->unsignedInteger('public_id')->nullable();
+            $table->unique(['account_id', 'public_id']);
+        });
+
     }
 
     /**
@@ -77,5 +96,7 @@ class AddSubdomainToLookups extends Migration
         Schema::table('account_gateways', function ($table) {
             $table->dropColumn('show_shipping_address');
         });
+
+        Schema::dropIfExists('scheduled_reports');
     }
 }

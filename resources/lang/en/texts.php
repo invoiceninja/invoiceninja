@@ -1378,6 +1378,7 @@ $LANG = array(
 
     // Frequencies
     'freq_inactive' => 'Inactive',
+    'freq_daily' => 'Daily',
     'freq_weekly' => 'Weekly',
     'freq_two_weeks' => 'Two weeks',
     'freq_four_weeks' => 'Four weeks',
@@ -2544,7 +2545,8 @@ $LANG = array(
     'show_shipping_address_help' => 'Require client to provide their shipping address',
     'ship_to_billing_address' => 'Ship to billing address',
     'delivery_note' => 'Delivery Note',
-    'show_tasks_in_portal' => 'Show tasks in the client portal'
+    'show_tasks_in_portal' => 'Show tasks in the client portal',
+    'cancel_schedule' => 'Cancel Schedule',
 
 );
 

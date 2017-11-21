@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\ScheduledReport;
 use Auth;
 use Input;
 use Str;
@@ -109,8 +110,16 @@ class ReportController extends BaseController
             }
             $params['report'] = $report;
             $params = array_merge($params, $report->results());
-            if ($isExport) {
-                return self::export($format, $reportType, $params);
+            switch ($action) {
+                case 'export':
+                    return self::export($format, $reportType, $params);
+                    break;
+                case 'schedule':
+                    self::schedule($params, $options);
+                    break;
+                case 'cancel_schedule':
+                    self::cancelSchdule();
+                    break;
             }
         } else {
             $params['columns'] = [];
@@ -119,7 +128,27 @@ class ReportController extends BaseController
             $params['report'] = false;
         }
 
-        return View::make('reports.chart_builder', $params);
+        $params['scheduledReports'] = ScheduledReport::scope()->whereUserId(auth()->user()->id)->get();
+
+        return View::make('reports.report_builder', $params);
+    }
+
+    private function schedule($params, $options)
+    {
+        $options['report_type'] = $params['reportType'];
+
+        $schedule = ScheduledReport::createNew();
+        $schedule->config = json_encode($options);
+        $schedule->frequency = request('frequency');
+        $schedule->save();
+    }
+
+    private function cancelSchdule()
+    {
+        ScheduledReport::scope()
+            ->whereUserId(auth()->user()->id)
+            ->wherePublicId(request('scheduled_report_id'))
+            ->delete();
     }
 
     /**
