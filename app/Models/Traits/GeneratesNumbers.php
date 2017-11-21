@@ -136,6 +136,10 @@ trait GeneratesNumbers
      */
     public function hasClientNumberPattern($invoice)
     {
+        if (! $this->isPro()) {
+            return false;
+        }
+
         $pattern = $invoice->invoice_type_id == INVOICE_TYPE_QUOTE ? $this->quote_number_pattern : $this->invoice_number_pattern;
 
         return strstr($pattern, '$client') !== false || strstr($pattern, '$idNumber') !== false;
