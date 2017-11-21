@@ -24,6 +24,7 @@
 	@if ($client)
 		{!! Former::populate($client) !!}
 		{!! Former::populateField('task_rate', floatval($client->task_rate) ? Utils::roundSignificant($client->task_rate) : '') !!}
+		{!! Former::populateField('show_tasks_in_portal', intval($client->show_tasks_in_portal)) !!}
         {!! Former::hidden('public_id') !!}
 	@else
 		{!! Former::populateField('invoice_number_counter', 1) !!}
@@ -172,7 +173,7 @@
 				<div role="tabpanel">
 					<ul class="nav nav-tabs" role="tablist" style="border: none">
 						<li role="presentation" class="active">
-							<a href="#defaults" aria-controls="defaults" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a>
+							<a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">{{ trans('texts.settings') }}</a>
 						</li>
 						<li role="presentation">
 							<a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.notes') }}</a>
@@ -183,7 +184,7 @@
 					</ul>
 				</div>
 				<div class="tab-content" style="padding-top:24px;">
-					<div role="tabpanel" class="tab-pane active" id="defaults">
+					<div role="tabpanel" class="tab-pane active" id="settings">
 						{!! Former::select('currency_id')->addOption('','')
 			                ->placeholder($account->currency ? $account->currency->name : '')
 			                ->fromQuery($currencies, 'name', 'id') !!}
@@ -198,6 +199,10 @@
 							{!! Former::text('task_rate')
 									->placeholder($account->present()->taskRate)
 									->help('task_rate_help') !!}
+							{!! Former::checkbox('show_tasks_in_portal')
+						        ->text(trans('texts.show_tasks_in_portal'))
+								->label('client_portal')
+						        ->value(1) !!}
 						@endif
 					</div>
 					<div role="tabpanel" class="tab-pane" id="notes">

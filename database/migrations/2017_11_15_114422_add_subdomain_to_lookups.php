@@ -33,6 +33,8 @@ class AddSubdomainToLookups extends Migration
             $table->string('shipping_state')->nullable();
             $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
+            $table->boolean('show_tasks_in_portal')->default(0);
+            $table->boolean('send_reminders')->default(1);
         });
 
         Schema::table('clients', function ($table) {
@@ -68,6 +70,8 @@ class AddSubdomainToLookups extends Migration
             $table->dropColumn('shipping_state');
             $table->dropColumn('shipping_postal_code');
             $table->dropColumn('shipping_country_id');
+            $table->dropColumn('show_tasks_in_portal');
+            $table->dropColumn('send_reminders');
         });
 
         Schema::table('account_gateways', function ($table) {

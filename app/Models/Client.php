@@ -59,9 +59,8 @@ class Client extends EntityModel
         'shipping_state',
         'shipping_postal_code',
         'shipping_country_id',
+        'show_tasks_in_portal',
     ];
-
-
 
     /**
      * @return array

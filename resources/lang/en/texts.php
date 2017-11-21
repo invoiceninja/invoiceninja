@@ -2544,6 +2544,7 @@ $LANG = array(
     'show_shipping_address_help' => 'Require client to provide their shipping address',
     'ship_to_billing_address' => 'Ship to billing address',
     'delivery_note' => 'Delivery Note',
+    'show_tasks_in_portal' => 'Show tasks in the client portal'
 
 );
 

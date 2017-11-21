@@ -44,6 +44,7 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="shipping_state", type="string", example="NY")
      * @SWG\Property(property="shipping_postal_code", type="string", example=10010)
      * @SWG\Property(property="shipping_country_id", type="integer", example=840)
+     * @SWG\Property(property="show_tasks_in_portal", type="boolean", example=false)
      */
     protected $defaultIncludes = [
         'contacts',
@@ -149,6 +150,7 @@ class ClientTransformer extends EntityTransformer
             'shipping_state' => $client->shipping_state,
             'shipping_postal_code' => $client->shipping_postal_code,
             'shipping_country_id' => (int) $client->shipping_country_id,
+            'show_tasks_in_portal' => (bool) $client->show_tasks_in_portal,
         ]);
     }
 }
