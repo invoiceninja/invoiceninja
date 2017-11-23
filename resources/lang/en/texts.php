@@ -2553,7 +2553,7 @@ $LANG = array(
     'created_scheduled_report' => 'Successfully scheduled report',
     'deleted_scheduled_report' => 'Successfully canceled scheduled report',
     'scheduled_report_attached' => 'Your scheduled :type report is attached.',
-
+    'scheduled_report_error' => 'Failed to create schedule report',
 );
 
 return $LANG;

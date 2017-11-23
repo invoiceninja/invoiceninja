@@ -11,6 +11,7 @@ use Input;
 use Utils;
 use View;
 use Carbon;
+use Validator;
 
 /**
  * Class ReportController.
@@ -133,22 +134,31 @@ class ReportController extends BaseController
 
     private function schedule($params, $options)
     {
-        $options['report_type'] = $params['reportType'];
-        $options['range'] = request('range');
-        $options['start_date_offset'] = $options['range'] ? '' : Carbon::parse($params['startDate'])->diffInDays(null, false); // null,false to get the relative/non-absolute diff
-        $options['end_date_offset'] = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
+        $validator = Validator::make(request()->all(), [
+            'frequency' => 'required|in:daily,weekly,biweekly,monthly',
+            'send_date' => 'required',
+        ]);
 
-        unset($options['start_date']);
-        unset($options['end_date']);
-        unset($options['group_dates_by']);
+        if ($validator->fails()) {
+            session()->now('message', trans('texts.scheduled_report_error'));
+        } else {
+            $options['report_type'] = $params['reportType'];
+            $options['range'] = request('range');
+            $options['start_date_offset'] = $options['range'] ? '' : Carbon::parse($params['startDate'])->diffInDays(null, false); // null,false to get the relative/non-absolute diff
+            $options['end_date_offset'] = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
 
-        $schedule = ScheduledReport::createNew();
-        $schedule->config = json_encode($options);
-        $schedule->frequency = request('frequency');
-        $schedule->send_date = Utils::toSqlDate(request('send_date'));
-        $schedule->save();
+            unset($options['start_date']);
+            unset($options['end_date']);
+            unset($options['group_dates_by']);
 
-        session()->now('message', trans('texts.created_scheduled_report'));
+            $schedule = ScheduledReport::createNew();
+            $schedule->config = json_encode($options);
+            $schedule->frequency = request('frequency');
+            $schedule->send_date = Utils::toSqlDate(request('send_date'));
+            $schedule->save();
+
+            session()->now('message', trans('texts.created_scheduled_report'));
+        }
     }
 
     private function cancelSchdule()

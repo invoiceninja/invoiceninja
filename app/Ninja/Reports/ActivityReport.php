@@ -18,8 +18,8 @@ class ActivityReport extends AbstractReport
     {
         $account = Auth::user()->account;
 
-        $startDate = $this->startDate->format('Y-m-d');
-        $endDate = $this->endDate->format('Y-m-d');
+        $startDate = $this->startDate;;
+        $endDate = $this->endDate;
 
         $activities = Activity::scope()
             ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
@@ -32,7 +32,7 @@ class ActivityReport extends AbstractReport
                 $activity->present()->createdAt,
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
                 $activity->present()->user,
-                $activity->getMessage(),
+                $this->isExport ? strip_tags($activity->getMessage()) : $activity->getMessage(),
             ];
         }
 

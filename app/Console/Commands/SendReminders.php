@@ -76,11 +76,6 @@ class SendReminders extends Command
 
         $this->info('Done');
 
-        if (\Utils::isNinjaDev()) {
-            $this->info('Stopping early on ninja dev');
-            exit;
-        }
-
         if ($errorEmail = env('ERROR_EMAIL')) {
             \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)

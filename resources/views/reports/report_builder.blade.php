@@ -101,10 +101,11 @@
 
     {!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
+
     <div style="display:none">
-		{!! Former::text('action') !!}
-		{!! Former::text('range') !!}
-		{!! Former::text('scheduled_report_id') !!}
+		{!! Former::text('action')->forceValue('') !!}
+		{!! Former::text('range')->forceValue('') !!}
+		{!! Former::text('scheduled_report_id')->forceValue('') !!}
     </div>
 
     {!! Former::populateField('start_date', $startDate) !!}
@@ -212,7 +213,7 @@
 				->appendIcon(Icon::create('remove')) !!}
 
 		{!! Button::primary(trans('texts.schedule'))
-				->withAttributes(['id'=>'scheduleButton', 'onclick' => 'showScheduleModal()'])
+				->withAttributes(['id'=>'scheduleButton', 'onclick' => 'showScheduleModal()', 'style' => 'display:none'])
 				->appendIcon(Icon::create('time')) !!}
 
 	 	</span> &nbsp;&nbsp;
@@ -433,6 +434,13 @@
             }
         });
 
+		$('#format').change(function() {
+			var val = $('#format').val();
+            if (isStorageSupported() && val != 'zip') {
+                localStorage.setItem('last:report_format', val);
+            }
+        });
+
         $('#report_type').change(function() {
 			var val = $('#report_type').val();
 			setFiltersShown();
@@ -498,6 +506,12 @@
 				widgets: ['zebra', 'uitheme'],
 			}).show();
 
+			setFiltersShown();
+			setDocumentZipShown();
+			setTimeout(function() {
+				setScheduleButton();
+			}, 1);
+
 			if (isStorageSupported()) {
 				var lastReportType = localStorage.getItem('last:report_type');
 				if (lastReportType) {
@@ -507,11 +521,13 @@
 				if (lastDocumentFilter) {
 					$('#document_filter').val(lastDocumentFilter);
 				}
+				var lastFormat = localStorage.getItem('last:report_format');
+				if (lastFormat) {
+					setTimeout(function() {
+						$('#format').val(lastFormat);
+					}, 1);
+				}
 			}
-
-			setFiltersShown();
-			setDocumentZipShown();
-			setScheduleButton();
 		});
     })
 

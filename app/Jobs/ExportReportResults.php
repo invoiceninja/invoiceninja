@@ -99,25 +99,27 @@ class ExportReportResults extends Job
                 $sheet->setAutoSize(true);
             });
 
-            $excel->sheet(trans("texts.totals"), function($sheet) use($report, $summary, $format) {
-                $sheet->setOrientation('landscape');
-                $sheet->freezeFirstRow();
+            if (count($summary)) {
+                $excel->sheet(trans("texts.totals"), function($sheet) use($report, $summary, $format) {
+                    $sheet->setOrientation('landscape');
+                    $sheet->freezeFirstRow();
 
-                if ($format == 'pdf') {
-                    $sheet->setAllBorders('thin');
-                }
-                $sheet->rows($summary);
+                    if ($format == 'pdf') {
+                        $sheet->setAllBorders('thin');
+                    }
+                    $sheet->rows($summary);
 
-                // Styling header
-                $sheet->cells('A1:'.Utils::num2alpha(count($summary[0])-1).'1', function($cells) {
-                    $cells->setBackground('#777777');
-                    $cells->setFontColor('#FFFFFF');
-                    $cells->setFontSize(13);
-                    $cells->setFontFamily('Calibri');
-                    $cells->setFontWeight('bold');
+                    // Styling header
+                    $sheet->cells('A1:'.Utils::num2alpha(count($summary[0])-1).'1', function($cells) {
+                        $cells->setBackground('#777777');
+                        $cells->setFontColor('#FFFFFF');
+                        $cells->setFontSize(13);
+                        $cells->setFontFamily('Calibri');
+                        $cells->setFontWeight('bold');
+                    });
+                    $sheet->setAutoSize(true);
                 });
-                $sheet->setAutoSize(true);
-            });
+            }
 
         });
     }
