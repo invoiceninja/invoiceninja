@@ -78,7 +78,7 @@ class RunReport extends Job
             'endDate' => $endDate,
             'report' => $report,
         ];
-        
+
         $report->exportParams = array_merge($params, $report->results());
 
         return $report;

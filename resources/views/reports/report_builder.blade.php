@@ -436,6 +436,7 @@
 
 		$('#format').change(function() {
 			var val = $('#format').val();
+			$('#scheduleButton').prop('disabled', val == 'zip');
             if (isStorageSupported() && val != 'zip') {
                 localStorage.setItem('last:report_format', val);
             }
@@ -446,6 +447,7 @@
 			setFiltersShown();
 			setDocumentZipShown();
 			setScheduleButton();
+			$('#scheduleButton').prop('disabled', $('#format').val() == 'zip');
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_type', val);
             }
