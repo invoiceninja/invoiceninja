@@ -1917,6 +1917,7 @@ $LANG = array(
     'enterprise_upgrade_feature1' => 'Set permissions for multiple-users',
     'enterprise_upgrade_feature2' => 'Attach 3rd party files to invoices & expenses',
     'much_more' => 'Much More!',
+    'all_pro_fetaures' => 'Plus all pro features!',
 
     'currency_symbol' => 'Symbol',
     'currency_code' => 'Code',

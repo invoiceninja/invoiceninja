@@ -134,10 +134,19 @@ class SendReminders extends Command
 
     private function sendScheduledReports()
     {
-        $scheduledReports = ScheduledReport::where('send_date', '<=', date('Y-m-d'))->get();
+        $scheduledReports = ScheduledReport::where('send_date', '<=', date('Y-m-d'))
+            ->with('user', 'account.company')
+            ->get();
         $this->info(count($scheduledReports) . ' scheduled reports');
 
         foreach ($scheduledReports as $scheduledReport) {
+            $user = $scheduledReport->user;
+            $account = $scheduledReport->account;
+
+            if (! $account->hasFeature(FEATURE_REPORTS)) {
+                continue;
+            }
+
             $config = (array) json_decode($scheduledReport->config);
             $reportType = $config['report_type'];
 
