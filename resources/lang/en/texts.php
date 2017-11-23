@@ -1418,6 +1418,8 @@ $LANG = array(
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
     'payment_type_SEPA' => 'SEPA Direct Debit',
+    'payment_type_Bitcoin' => 'Bitcoin',
+    'payment_type_GoCardless' => 'GoCardless',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
