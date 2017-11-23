@@ -319,10 +319,10 @@
 				</center>
 
 				{!! Former::select('frequency')
-							->addOption(trans('texts.freq_daily'), 'daily')
-							->addOption(trans('texts.freq_weekly'), 'weekly')
-							->addOption(trans('texts.freq_biweekly'), 'biweekly')
-							->addOption(trans('texts.freq_monthly'), 'monthly')
+							->addOption(trans('texts.freq_daily'), REPORT_FREQUENCY_DAILY)
+							->addOption(trans('texts.freq_weekly'), REPORT_FREQUENCY_WEEKLY)
+							->addOption(trans('texts.freq_biweekly'), REPORT_FREQUENCY_BIWEEKLY)
+							->addOption(trans('texts.freq_monthly'), REPORT_FREQUENCY_MONTHLY)
 							->value('weekly') !!} &nbsp;
 
 				{!! Former::text('send_date')

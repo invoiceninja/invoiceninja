@@ -13,6 +13,7 @@ use App\Models\ScheduledReport;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use App\Jobs\ExportReportResults;
+use App\Jobs\RunReport;
 
 /**
  * Class SendReminders.
@@ -138,52 +139,21 @@ class SendReminders extends Command
 
     private function sendScheduledReports()
     {
-        $scheduledReports = ScheduledReport::where('send_date', '=', date('Y-m-d'))->get();
+        $scheduledReports = ScheduledReport::where('send_date', '<=', date('Y-m-d'))->get();
         $this->info(count($scheduledReports) . ' scheduled reports');
 
         foreach ($scheduledReports as $scheduledReport) {
-            $config = json_decode($scheduledReport->config);
-            $reportType = $config->report_type;
-            $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
+            $config = (array) json_decode($scheduledReport->config);
+            $reportType = $config['report_type'];
 
-            if ($config->range) {
-                switch ($config->range) {
-                    case 'this_month':
-                        $startDate = Carbon::now()->firstOfMonth()->toDateString();
-                        $endDate = Carbon::now()->lastOfMonth()->toDateString();
-                        break;
-                    case 'last_month':
-                        $startDate = Carbon::now()->subMonth()->firstOfMonth()->toDateString();
-                        $endDate = Carbon::now()->subMonth()->lastOfMonth()->toDateString();
-                        break;
-                    case 'this_year':
-                        $startDate = Carbon::now()->firstOfYear()->toDateString();
-                        $endDate = Carbon::now()->lastOfYear()->toDateString();
-                        break;
-                    case 'last_year':
-                        $startDate = Carbon::now()->subYear()->firstOfYear()->toDateString();
-                        $endDate = Carbon::now()->subYear()->lastOfYear()->toDateString();
-                        break;
-                }
-            } else {
-                $startDate = Carbon::now()->subDays($config->start_date)->toDateString();
-                $endDate = Carbon::now()->subDays($config->end_date)->toDateString();
-            }
-
-            $report = new $reportClass($startDate, $endDate, true, (array) $config);
-            $params = [
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'report' => $report,
-            ];
-
-            $report->run();
-            $params = array_merge($params, $report->results());
-            $file = dispatch(new ExportReportResults($scheduledReport->user, $config->export_format, $reportType, $params));
+            $report = dispatch(new RunReport($scheduledReport->user, $reportType, $config, true));
+            $file = dispatch(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
                 $this->userMailer->sendScheduledReport($scheduledReport, $file);
             }
+
+            $scheduledReport->updateSendDate();
         }
     }
 

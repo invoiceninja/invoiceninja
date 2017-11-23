@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ExportReportResults;
+use App\Jobs\RunReport;
 use App\Models\Account;
 use App\Models\ScheduledReport;
 use Auth;
 use Input;
-use Str;
 use Utils;
 use View;
 use Carbon;
@@ -96,27 +96,24 @@ class ReportController extends BaseController
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
-            $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
-            $options = [
+            $config = [
                 'date_field' => $dateField,
                 'invoice_status' => request()->invoice_status,
                 'group_dates_by' => request()->group_dates_by,
                 'document_filter' => request()->document_filter,
                 'currency_type' => request()->currency_type,
                 'export_format' => $format,
+                'start_date' => $params['startDate'],
+                'end_date' => $params['endDate'],
             ];
-            $report = new $reportClass($startDate, $endDate, $isExport, $options);
-            if (Input::get('report_type')) {
-                $report->run();
-            }
-            $params['report'] = $report;
-            $params = array_merge($params, $report->results());
+            $report = dispatch(new RunReport(auth()->user(), $reportType, $config, $isExport));
+            $params = array_merge($params, $report->exportParams);
             switch ($action) {
                 case 'export':
                     return dispatch(new ExportReportResults(auth()->user(), $format, $reportType, $params))->export($format);
                     break;
                 case 'schedule':
-                    self::schedule($params, $options);
+                    self::schedule($params, $config);
                     break;
                 case 'cancel_schedule':
                     self::cancelSchdule();
@@ -138,8 +135,12 @@ class ReportController extends BaseController
     {
         $options['report_type'] = $params['reportType'];
         $options['range'] = request('range');
-        $options['start_date'] = $options['range'] ? '' : Carbon::parse($params['startDate'])->diffInDays(null, false); // null,false to get the relative/non-absolute diff
-        $options['end_date'] = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
+        $options['start_date_offset'] = $options['range'] ? '' : Carbon::parse($params['startDate'])->diffInDays(null, false); // null,false to get the relative/non-absolute diff
+        $options['end_date_offset'] = $options['range'] ? '' : Carbon::parse($params['endDate'])->diffInDays(null, false);
+
+        unset($options['start_date']);
+        unset($options['end_date']);
+        unset($options['group_dates_by']);
 
         $schedule = ScheduledReport::createNew();
         $schedule->config = json_encode($options);

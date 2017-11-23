@@ -228,6 +228,11 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_SIX_MONTHS', 8);
     define('FREQUENCY_ANNUALLY', 9);
 
+    define('REPORT_FREQUENCY_DAILY', 'daily');
+    define('REPORT_FREQUENCY_WEEKLY', 'weekly');
+    define('REPORT_FREQUENCY_BIWEEKLY', 'biweekly');
+    define('REPORT_FREQUENCY_MONTHLY', 'monthly');
+
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
     define('SESSION_CURRENCY_DECORATOR', 'currency_decorator');
