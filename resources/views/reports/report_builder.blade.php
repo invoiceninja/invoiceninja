@@ -381,12 +381,14 @@
     }
 
 	function onCancelScheduleClick() {
-		var reportType = $('#report_type').val();
-		$('#action').val('cancel_schedule');
-		$('#frequency').val(frequency);
-		$('#scheduled_report_id').val(scheduledReportMap[reportType]);
-        $('#submitButton').click();
-		$('#action').val('');
+		sweetConfirm(function() {
+			var reportType = $('#report_type').val();
+			$('#action').val('cancel_schedule');
+			$('#frequency').val(frequency);
+			$('#scheduled_report_id').val(scheduledReportMap[reportType]);
+	        $('#submitButton').click();
+			$('#action').val('');
+		});
 	}
 
 	function setFiltersShown() {

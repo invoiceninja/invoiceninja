@@ -115,9 +115,11 @@ class ReportController extends BaseController
                     break;
                 case 'schedule':
                     self::schedule($params, $config);
+                    return redirect('/reports');
                     break;
                 case 'cancel_schedule':
                     self::cancelSchdule();
+                    return redirect('/reports');
                     break;
             }
         } else {
@@ -157,7 +159,7 @@ class ReportController extends BaseController
             $schedule->send_date = Utils::toSqlDate(request('send_date'));
             $schedule->save();
 
-            session()->now('message', trans('texts.created_scheduled_report'));
+            session()->flash('message', trans('texts.created_scheduled_report'));
         }
     }
 
@@ -168,6 +170,6 @@ class ReportController extends BaseController
             ->wherePublicId(request('scheduled_report_id'))
             ->delete();
 
-        session()->now('message', trans('texts.deleted_scheduled_report'));
+        session()->flash('message', trans('texts.deleted_scheduled_report'));
     }
 }
