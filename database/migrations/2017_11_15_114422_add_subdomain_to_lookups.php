@@ -54,7 +54,8 @@ class AddSubdomainToLookups extends Migration
             $table->softDeletes();
 
             $table->text('config');
-            $table->enum('frequency', ['daily', 'weekly', 'monthly']);
+            $table->enum('frequency', ['daily', 'weekly', 'biweekly', 'monthly']);
+            $table->date('send_date');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

@@ -2,12 +2,17 @@
 
 namespace App\Console\Commands;
 
+use Carbon;
+use Str;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
+use App\Models\ScheduledReport;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
+use App\Jobs\ExportReportResults;
 
 /**
  * Class SendReminders.
@@ -46,13 +51,14 @@ class SendReminders extends Command
      * @param InvoiceRepository $invoiceRepo
      * @param accountRepository $accountRepo
      */
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, UserMailer $userMailer)
     {
         parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
+        $this->userMailer = $userMailer;
     }
 
     public function fire()
@@ -63,6 +69,28 @@ class SendReminders extends Command
             config(['database.default' => $database]);
         }
 
+        $this->chargeLateFees();
+        $this->setReminderEmails();
+        $this->sendScheduledReports();
+
+        $this->info('Done');
+
+        if (\Utils::isNinjaDev()) {
+            $this->info('Stopping early on ninja dev');
+            exit;
+        }
+
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject("SendReminders [{$database}]: Finished successfully");
+            });
+        }
+    }
+
+    private function chargeLateFees()
+    {
         $accounts = $this->accountRepo->findWithFees();
         $this->info(count($accounts) . ' accounts found with fees');
 
@@ -84,11 +112,13 @@ class SendReminders extends Command
                 }
             }
         }
+    }
 
+    private function setReminderEmails()
+    {
         $accounts = $this->accountRepo->findWithReminders();
         $this->info(count($accounts) . ' accounts found with reminders');
 
-        /** @var \App\Models\Account $account */
         foreach ($accounts as $account) {
             if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
@@ -97,7 +127,6 @@ class SendReminders extends Command
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
             $this->info($account->name . ': ' . count($invoices) . ' invoices found');
 
-            /** @var Invoice $invoice */
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
                     $this->info('Send email: ' . $invoice->id);
@@ -105,15 +134,56 @@ class SendReminders extends Command
                 }
             }
         }
+    }
 
-        $this->info('Done');
+    private function sendScheduledReports()
+    {
+        $scheduledReports = ScheduledReport::where('send_date', '=', date('Y-m-d'))->get();
+        $this->info(count($scheduledReports) . ' scheduled reports');
 
-        if ($errorEmail = env('ERROR_EMAIL')) {
-            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
-                $message->to($errorEmail)
-                        ->from(CONTACT_EMAIL)
-                        ->subject("SendReminders [{$database}]: Finished successfully");
-            });
+        foreach ($scheduledReports as $scheduledReport) {
+            $config = json_decode($scheduledReport->config);
+            $reportType = $config->report_type;
+            $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
+
+            if ($config->range) {
+                switch ($config->range) {
+                    case 'this_month':
+                        $startDate = Carbon::now()->firstOfMonth()->toDateString();
+                        $endDate = Carbon::now()->lastOfMonth()->toDateString();
+                        break;
+                    case 'last_month':
+                        $startDate = Carbon::now()->subMonth()->firstOfMonth()->toDateString();
+                        $endDate = Carbon::now()->subMonth()->lastOfMonth()->toDateString();
+                        break;
+                    case 'this_year':
+                        $startDate = Carbon::now()->firstOfYear()->toDateString();
+                        $endDate = Carbon::now()->lastOfYear()->toDateString();
+                        break;
+                    case 'last_year':
+                        $startDate = Carbon::now()->subYear()->firstOfYear()->toDateString();
+                        $endDate = Carbon::now()->subYear()->lastOfYear()->toDateString();
+                        break;
+                }
+            } else {
+                $startDate = Carbon::now()->subDays($config->start_date)->toDateString();
+                $endDate = Carbon::now()->subDays($config->end_date)->toDateString();
+            }
+
+            $report = new $reportClass($startDate, $endDate, true, (array) $config);
+            $params = [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'report' => $report,
+            ];
+
+            $report->run();
+            $params = array_merge($params, $report->results());
+            $file = dispatch(new ExportReportResults($scheduledReport->user, $config->export_format, $reportType, $params));
+
+            if ($file) {
+                $this->userMailer->sendScheduledReport($scheduledReport, $file);
+            }
         }
     }
 

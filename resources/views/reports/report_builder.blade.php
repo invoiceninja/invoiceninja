@@ -14,7 +14,6 @@
 			color: white;
 			background-color: #777 !important;
 		}
-
 	</style>
 
 @stop
@@ -42,10 +41,25 @@
 		var chartEndDate = moment("{{ $endDate }}");
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
+		function resolveRange(range) {
+			if (range == "{{ trans('texts.this_month') }}") {
+				return 'this_month';
+			} else if (range == "{{ trans('texts.last_month') }}") {
+				return 'last_month';
+			} else if (range == "{{ trans('texts.this_year') }}") {
+				return 'this_year';
+			} else if (range == "{{ trans('texts.last_year') }}") {
+				return 'last_year';
+			} else {
+				return '';
+			}
+		}
+
         $(function() {
 
 			if (isStorageSupported()) {
 				var lastRange = localStorage.getItem('last:report_range');
+				$('#range').val(resolveRange(lastRange));
 				lastRange = dateRanges[lastRange];
 				if (lastRange) {
 					chartStartDate = lastRange[0];
@@ -58,6 +72,9 @@
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 $('#start_date').val(start.format('YYYY-MM-DD'));
                 $('#end_date').val(end.format('YYYY-MM-DD'));
+				if (label) {
+					$('#range').val(resolveRange(label));
+				}
 
 				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
 					localStorage.setItem('last:report_range', label);
@@ -86,7 +103,7 @@
 
     <div style="display:none">
 		{!! Former::text('action') !!}
-		{!! Former::text('frequency') !!}
+		{!! Former::text('range') !!}
 		{!! Former::text('scheduled_report_id') !!}
     </div>
 
@@ -194,14 +211,10 @@
 				->withAttributes(['id' => 'cancelSchduleButton', 'onclick' => 'onCancelScheduleClick()', 'style' => 'display:none'])
 				->appendIcon(Icon::create('remove')) !!}
 
+		{!! Button::primary(trans('texts.schedule'))
+				->withAttributes(['id'=>'scheduleButton', 'onclick' => 'showScheduleModal()'])
+				->appendIcon(Icon::create('time')) !!}
 
-		{!! DropdownButton::primary(trans('texts.schedule'))
-			  ->withAttributes(['id'=>'scheduleDropDown'])
-			  ->withContents([
-				  ['url' => 'javascript:onScheduleClick("daily")', 'label' => trans('texts.freq_daily')],
-				  ['url' => 'javascript:onScheduleClick("weekly")', 'label' => trans('texts.freq_weekly')],
-				  ['url' => 'javascript:onScheduleClick("monthly")', 'label' => trans('texts.freq_monthly')],
-              ]) !!}
 	 	</span> &nbsp;&nbsp;
 		{!! Button::success(trans('texts.run'))
 				->withAttributes(array('id' => 'submitButton'))
@@ -209,9 +222,6 @@
 				->appendIcon(Icon::create('play'))
 				->large() !!}
 	</center>
-
-	{!! Former::close() !!}
-
 
 	@if (request()->report_type)
         <div class="panel panel-default">
@@ -260,7 +270,7 @@
         <table class="tablesorter tablesorter-data" style="display:none">
         <thead>
             <tr>
-				{!! $report->tableHeader() !!}
+				{!! $report ? $report->tableHeader() : '' !!}
             </tr>
         </thead>
         <tbody>
@@ -292,6 +302,51 @@
 
 	@endif
 
+	<div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">{{ trans('texts.scheduled_report') }}</h4>
+            </div>
+
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default">
+            <div class="panel-body">
+
+				<center style="padding-bottom:40px;font-size:16px;">
+					<div id="scheduleHelp"></div>
+				</center>
+
+				{!! Former::select('frequency')
+							->addOption(trans('texts.freq_daily'), 'daily')
+							->addOption(trans('texts.freq_weekly'), 'weekly')
+							->addOption(trans('texts.freq_biweekly'), 'biweekly')
+							->addOption(trans('texts.freq_monthly'), 'monthly')
+							->value('weekly') !!} &nbsp;
+
+				{!! Former::text('send_date')
+						->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+						->label('start_date')
+						->appendIcon('calendar')
+						->placeholder('')
+						->addGroupClass('send-date') !!}
+
+            </div>
+            </div>
+            </div>
+
+            <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
+              <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }} </button>
+              <button type="button" class="btn btn-success" onclick="onScheduleClick()">{{ trans('texts.schedule') }} </button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+	{!! Former::close() !!}
+
+
 	<script type="text/javascript">
 
 	var scheduledReports = {!! $scheduledReports !!};
@@ -303,6 +358,15 @@
 		scheduledReportMap[config.report_type] = schedule.public_id;
 	}
 
+	function showScheduleModal() {
+		var help = "{{ trans('texts.scheduled_report_help') }}";
+		help = help.replace(':email', "{{ auth()->user()->email }}");
+		help = help.replace(':format', $("#format").val().toUpperCase());
+		help = help.replace(':report', $("#report_type option:selected").text());
+		$('#scheduleHelp').text(help);
+        $('#scheduleModal').modal('show');
+    }
+
 	function onExportClick() {
         $('#action').val('export');
         $('#submitButton').click();
@@ -311,7 +375,6 @@
 
 	function onScheduleClick(frequency) {
         $('#action').val('schedule');
-		$('#frequency').val(frequency);
         $('#submitButton').click();
 		$('#action').val('');
     }
@@ -346,7 +409,7 @@
 
 	function setScheduleButton() {
 		var reportType = $('#report_type').val();
-		$('#scheduleDropDown').toggle(! scheduledReportMap[reportType]);
+		$('#scheduleButton').toggle(! scheduledReportMap[reportType]);
 		$('#cancelSchduleButton').toggle(!! scheduledReportMap[reportType]);
 	}
 
@@ -465,5 +528,9 @@
 		todayHighlight: true,
 		keyboardNavigation: false
 	});
+
+	var currentDate = new Date();
+	currentDate.setDate(currentDate.getDate() + 1);
+	$('#send_date').datepicker('update', currentDate);
 
 @stop

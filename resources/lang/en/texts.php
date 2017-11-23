@@ -1380,6 +1380,7 @@ $LANG = array(
     'freq_inactive' => 'Inactive',
     'freq_daily' => 'Daily',
     'freq_weekly' => 'Weekly',
+    'freq_biweekly' => 'Biweekly',
     'freq_two_weeks' => 'Two weeks',
     'freq_four_weeks' => 'Four weeks',
     'freq_monthly' => 'Monthly',
@@ -2547,6 +2548,11 @@ $LANG = array(
     'delivery_note' => 'Delivery Note',
     'show_tasks_in_portal' => 'Show tasks in the client portal',
     'cancel_schedule' => 'Cancel Schedule',
+    'scheduled_report' => 'Scheduled Report',
+    'scheduled_report_help' => 'Email the :report report as :format to :email',
+    'created_scheduled_report' => 'Successfully scheduled report',
+    'deleted_scheduled_report' => 'Successfully canceled scheduled report',
+    'scheduled_report_attached' => 'Your scheduled :type report is attached.',
 
 );
 
