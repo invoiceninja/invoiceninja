@@ -215,10 +215,10 @@ class DocumentRepository extends BaseRepository
                     ['target' => '_blank']
                 )->toHtml();
             })
-            ->addColumn('document_date', function ($model) {
+            ->addColumn('created_at', function ($model) {
                 return Utils::dateToString($model->created_at);
             })
-            ->addColumn('document_size', function ($model) {
+            ->addColumn('size', function ($model) {
                 return Form::human_filesize($model->size);
             });
 
