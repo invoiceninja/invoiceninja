@@ -84,9 +84,9 @@ Follow these steps to add custom ttf fonts: ie, `Google fonts <https://www.googl
 Omnipay
 """""""
 
-We use `Omnipay <https://github.com/thephpleague/omnipay-braintree>`_ to support our payment gateway integrations.
+We use `Omnipay <https://github.com/thephpleague/omnipay>`_ to support our payment gateway integrations.
 
-Follow these steps to add a `custom driver<https://packagist.org/packages/omnipay/common/dependents>`_.
+Follow these steps to add a `custom driver <https://packagist.org/packages/omnipay/common/dependents>`_.
 
 - Add the package to composer.json and then run ``composer install``
 - Add a row to the gateways table. ``name`` is used in the gateway select, ``provider`` needs to match the Omnipay driver name
