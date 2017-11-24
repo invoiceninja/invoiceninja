@@ -38,8 +38,11 @@ class TwoFactorController extends Controller
     {
         $user = auth()->user();
         $secret = session()->pull('2fa:secret');
+        $oneTimePassword = request('one_time_password');
 
-        if ($secret && ! $user->google_2fa_secret && $user->phone && $user->confirmed) {
+        if (! $secret || ! \Google2FA::verifyKey($secret, $oneTimePassword)) {
+            return redirect('settings/enable_two_factor')->withMessage(trans('texts.invalid_one_time_password'));
+        } elseif (! $user->google_2fa_secret && $user->phone && $user->confirmed) {
             $user->google_2fa_secret = Crypt::encrypt($secret);
             $user->save();
 

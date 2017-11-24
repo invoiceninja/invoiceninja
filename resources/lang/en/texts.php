@@ -2557,6 +2557,7 @@ $LANG = array(
     'deleted_scheduled_report' => 'Successfully canceled scheduled report',
     'scheduled_report_attached' => 'Your scheduled :type report is attached.',
     'scheduled_report_error' => 'Failed to create schedule report',
+    'invalid_one_time_password' => 'Invalid one time password',
 );
 
 return $LANG;
