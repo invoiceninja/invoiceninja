@@ -861,6 +861,10 @@ class InvoiceRepository extends BaseRepository
                     ->whereInvoiceNumber($invoiceNumber)
                     ->first()) {
                 $invoiceNumber = false;
+            } else {
+                // since we aren't using the counter we need to offset it by one
+                $account->invoice_number_counter -= 1;
+                $account->save();
             }
         }
 
