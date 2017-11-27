@@ -2566,6 +2566,7 @@ $LANG = array(
     'verification_file_missing' => 'The verification file is needed to accept payments.',
     'apple_pay_domain' => 'Use <code>:domain</code> as the domain in :link.',
     'apple_pay_not_supported' => 'Sorry, Apple/Google Pay isn\'t supported',
+    'optional_payment_methods' => 'Optional Payment Methods',
 
 );
 

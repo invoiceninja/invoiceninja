@@ -186,10 +186,24 @@
 
     @if (!$accountGateway || $accountGateway->gateway_id == GATEWAY_STRIPE)
         <div class="stripe-ach">
+			{!! Former::plaintext(' ')->value('<b>' . trans('texts.optional_payment_methods') . '</b>') !!}
+
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
                 ->value(1) !!}
+
+			{!! Former::checkbox('enable_sofort')
+                ->label(trans('texts.sofort'))
+                ->text(trans('texts.enable_sofort'))
+                ->value(1) !!}
+
+            <!--
+            {!! Former::checkbox('enable_sepa')
+                ->label('SEPA')
+                ->text(trans('texts.enable_sepa'))
+                ->value(1) !!}
+            -->
 
 			{!! Former::checkbox('enable_apple_pay')
                 ->label(trans('texts.apple_pay'))
@@ -207,18 +221,6 @@
 				{!! Former::file('apple_merchant_id')
 				 		->label('verification_file') !!}
 			@endif
-
-            {!! Former::checkbox('enable_sofort')
-                ->label(trans('texts.sofort'))
-                ->text(trans('texts.enable_sofort'))
-                ->value(1) !!}
-
-            <!--
-            {!! Former::checkbox('enable_sepa')
-                ->label('SEPA')
-                ->text(trans('texts.enable_sepa'))
-                ->value(1) !!}
-            -->
 
             {!! Former::checkbox('enable_bitcoin')
                 ->label(trans('texts.bitcoin'))
