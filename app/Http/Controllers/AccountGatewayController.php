@@ -17,6 +17,7 @@ use Utils;
 use Validator;
 use View;
 use WePay;
+use File;
 
 class AccountGatewayController extends BaseController
 {
@@ -297,6 +298,13 @@ class AccountGatewayController extends BaseController
                 $config->enableSofort = boolval(Input::get('enable_sofort'));
                 $config->enableSepa = boolval(Input::get('enable_sepa'));
                 $config->enableBitcoin = boolval(Input::get('enable_bitcoin'));
+                $config->enableApplePay = boolval(Input::get('enable_apple_pay'));
+
+                if ($config->enableApplePay && $uploadedFile = request()->file('apple_merchant_id')) {
+                    $config->appleMerchantId = File::get($uploadedFile);
+                } elseif ($oldConfig && ! empty($oldConfig->appleMerchantId)) {
+                    $config->appleMerchantId = $oldConfig->appleMerchantId;
+                }
             }
 
             if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {

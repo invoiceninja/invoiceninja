@@ -2558,6 +2558,15 @@ $LANG = array(
     'scheduled_report_attached' => 'Your scheduled :type report is attached.',
     'scheduled_report_error' => 'Failed to create schedule report',
     'invalid_one_time_password' => 'Invalid one time password',
+    'apple_pay' => 'Apple/Google Pay',
+    'enable_apple_pay' => 'Accept Apple Pay and Pay with Google',
+    'requires_subdomain' => 'This payment type requires that a :link.',
+    'subdomain_is_set' => 'subdomain is set',
+    'verification_file' => 'Verification File',
+    'verification_file_missing' => 'The verification file is needed to accept payments.',
+    'apple_pay_domain' => 'Use <code>:domain</code> as the domain in :link.',
+    'apple_pay_not_supported' => 'Sorry, Apple/Google Pay isn\'t supported',
+
 );
 
 return $LANG;

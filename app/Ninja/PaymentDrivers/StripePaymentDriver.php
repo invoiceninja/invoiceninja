@@ -53,6 +53,9 @@ class StripePaymentDriver extends BasePaymentDriver
             if ($gateway->getAlipayEnabled()) {
                 $types[] = GATEWAY_TYPE_ALIPAY;
             }
+            if ($gateway->getApplePayEnabled()) {
+                $types[] = GATEWAY_TYPE_APPLE_PAY;
+            }
         }
 
         return $types;
@@ -66,6 +69,10 @@ class StripePaymentDriver extends BasePaymentDriver
     public function rules()
     {
         $rules = parent::rules();
+
+        if ($this->isGatewayType(GATEWAY_TYPE_APPLE_PAY)) {
+            return ['sourceToken' => 'required'];
+        }
 
         if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
             $rules['authorize_ach'] = 'required';
@@ -224,7 +231,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
         // For older users the Stripe account may just have the customer token but not the card version
         // In that case we'd use GATEWAY_TYPE_TOKEN even though we're creating the credit card
-        if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)
+            || $this->isGatewayType(GATEWAY_TYPE_APPLE_PAY)
+            || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
             $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
             $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
         } elseif ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {

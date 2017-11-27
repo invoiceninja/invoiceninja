@@ -502,6 +502,20 @@ class Client extends EntityModel
         return $this->account->currency ? $this->account->currency->code : 'USD';
     }
 
+    public function getCountryCode()
+    {
+        if ($country = $this->country) {
+            return $country->iso_3166_2;
+        }
+
+        if (! $this->account) {
+            $this->load('account');
+        }
+
+        return $this->account->country ? $this->account->country->iso_3166_2 : 'US';
+    }
+
+
     /**
      * @param $isQuote
      *

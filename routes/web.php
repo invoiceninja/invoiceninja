@@ -21,7 +21,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
-    Route::post('payment/{invitation_key}', 'OnlinePaymentController@doPayment');
+    Route::post('payment/{invitation_key}/{gateway_type?}', 'OnlinePaymentController@doPayment');
     Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
@@ -72,6 +72,7 @@ Route::group(['middleware' => 'lookup:account'], function () {
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
     Route::get('validate_two_factor/{account_key}', 'Auth\LoginController@getValidateToken');
     Route::post('validate_two_factor/{account_key}', ['middleware' => 'throttle:5', 'uses' => 'Auth\LoginController@postValidateToken']);
+    Route::get('.well-known/apple-developer-merchantid-domain-association', 'OnlinePaymentController@showAppleMerchantId');
 });
 
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');

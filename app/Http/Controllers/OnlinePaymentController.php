@@ -114,10 +114,16 @@ class OnlinePaymentController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function doPayment(CreateOnlinePaymentRequest $request)
+    public function doPayment(CreateOnlinePaymentRequest $request, $invitationKey, $gatewayTypeAlias = false)
     {
         $invitation = $request->invitation;
-        $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
+
+        if ($gatewayTypeAlias) {
+            $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
+        } else {
+            $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
+        }
+
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
         if (! $invitation->invoice->canBePaid() && ! request()->update) {
@@ -184,7 +190,9 @@ class OnlinePaymentController extends BaseController
 
     private function completePurchase($invitation, $isOffsite = false)
     {
-        if ($redirectUrl = session('redirect_url:' . $invitation->invitation_key)) {
+        if (request()->wantsJson()) {
+            return response()->json(RESULT_SUCCESS);
+        } elseif ($redirectUrl = session('redirect_url:' . $invitation->invitation_key)) {
             $separator = strpos($redirectUrl, '?') === false ? '?' : '&';
 
             return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $invitation->invoice->public_id);
@@ -411,5 +419,29 @@ class OnlinePaymentController extends BaseController
         } else {
             return redirect()->to($link);
         }
+    }
+
+    public function showAppleMerchantId()
+    {
+        if (Utils::isNinja()) {
+            $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+            $account = Account::whereSubdomain($subdomain)->first();
+        } else {
+            $account = Account::first();
+        }
+
+        if (! $account) {
+            exit("Account not found");
+        }
+
+        $accountGateway = $account->account_gateways()
+            ->whereGatewayId(GATEWAY_STRIPE)->first();
+
+        if (! $account) {
+            exit("Apple merchant id not set");
+        }
+
+        echo $accountGateway->getConfigField('appleMerchantId');
+        exit;
     }
 }

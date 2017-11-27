@@ -108,6 +108,11 @@ class Utils
         return self::getResllerType() ? true : false;
     }
 
+    public static function isRootFolder()
+    {
+        return strlen(preg_replace('/[^\/]/', '', url('/'))) == 2;
+    }
+
 	public static function clientViewCSS()
 	{
 		$account = false;

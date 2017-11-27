@@ -32,7 +32,9 @@
         <h3 class="panel-title">{!! trans($title) !!}</h3>
     </div>
     <div class="panel-body form-padding-right">
-    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
+    {!! Former::open_for_files($url)
+			->method($method)
+			->addClass('warn-on-exit') !!}
 
     @if ($accountGateway)
         {!! Former::populateField('primary_gateway_id', $accountGateway->gateway_id) !!}
@@ -42,6 +44,7 @@
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+		{!! Former::populateField('enable_apple_pay', $accountGateway->getApplePayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_sofort', $accountGateway->getSofortEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_alipay', $accountGateway->getAlipayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
@@ -187,6 +190,23 @@
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
                 ->value(1) !!}
+
+			{!! Former::checkbox('enable_apple_pay')
+                ->label(trans('texts.apple_pay'))
+                ->text(trans('texts.enable_apple_pay'))
+				->disabled(Utils::isNinja() && ! $account->subdomain)
+				->help((Utils::isNinja() && ! $account->subdomain) ? trans('texts.requires_subdomain', [
+					'link' => link_to('/settings/client_portal', trans('texts.subdomain_is_set'), ['target' => '_blank'])
+				]) : ($accountGateway->getApplePayEnabled() && Utils::isRootFolder() && ! $accountGateway->getAppleMerchantId() ? 'verification_file_missing' :
+					Utils::isNinja() ? trans('texts.apple_pay_domain', [
+						'domain' => $account->subdomain . '.' . APP_DOMAIN, 'link' => link_to('https://dashboard.stripe.com/account/apple_pay', 'Stripe', ['target' => '_blank']),
+					]) : ''))
+                ->value(1) !!}
+
+			@if (Utils::isRootFolder())
+				{!! Former::file('apple_merchant_id')
+				 		->label('verification_file') !!}
+			@endif
 
             {!! Former::checkbox('enable_sofort')
                 ->label(trans('texts.sofort'))

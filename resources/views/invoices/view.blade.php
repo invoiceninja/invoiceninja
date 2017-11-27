@@ -105,7 +105,7 @@
                 });
             });
         </script>
-    @endif
+	@endif
 @stop
 
 @section('content')

@@ -2,6 +2,7 @@
 
 if (! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
+    define('APP_DOMAIN', env('APP_DOMAIN', 'invoiceninja.com'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')));
     define('CONTACT_NAME', env('MAIL_FROM_NAME'));
     define('SITE_URL', env('APP_URL'));
@@ -431,6 +432,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_SOFORT', 8);
     define('GATEWAY_TYPE_SEPA', 9);
     define('GATEWAY_TYPE_GOCARDLESS', 10);
+    define('GATEWAY_TYPE_APPLE_PAY', 11);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');
