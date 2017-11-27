@@ -19,6 +19,11 @@
         var elements = stripe.elements();
         var prButton = elements.create('paymentRequestButton', {
             paymentRequest: paymentRequest,
+            style: {
+              paymentRequestButton: {
+                height: '44px',
+              },
+            },
         });
 
         $(function() {
@@ -69,10 +74,14 @@
 
     <p>&nbsp;&nbsp;</p>
 
-    <center>
-        {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
-            &nbsp;&nbsp;
-        <div id="payment-request-button"></div>
-    </center>
+    <div class="row">
+        <div class="col-md-1 col-md-offset-4">
+            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+        </div>
+        <div class="col-md-1">
+            <div id="payment-request-button" style="padding-left:20px;width:250px;"></div>
+        </div>
+    </div>
+
 
 @stop
