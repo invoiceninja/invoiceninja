@@ -211,7 +211,7 @@
 				->disabled(Utils::isNinja() && ! $account->subdomain)
 				->help((Utils::isNinja() && ! $account->subdomain) ? trans('texts.requires_subdomain', [
 					'link' => link_to('/settings/client_portal', trans('texts.subdomain_is_set'), ['target' => '_blank'])
-				]) : ($accountGateway->getApplePayEnabled() && Utils::isRootFolder() && ! $accountGateway->getAppleMerchantId() ? 'verification_file_missing' :
+				]) : ($accountGateway && $accountGateway->getApplePayEnabled() && Utils::isRootFolder() && ! $accountGateway->getAppleMerchantId() ? 'verification_file_missing' :
 					Utils::isNinja() ? trans('texts.apple_pay_domain', [
 						'domain' => $account->subdomain . '.' . APP_DOMAIN, 'link' => link_to('https://dashboard.stripe.com/account/apple_pay', 'Stripe', ['target' => '_blank']),
 					]) : ''))
@@ -219,7 +219,8 @@
 
 			@if (Utils::isRootFolder())
 				{!! Former::file('apple_merchant_id')
-				 		->label('verification_file') !!}
+				 		->label('verification_file')
+						->addGroupClass('verification-file') !!}
 			@endif
 
             {!! Former::checkbox('enable_bitcoin')
@@ -336,8 +337,10 @@
         var enableSofort = $('#enable_sofort').is(':checked');
         var enableSepa = $('#enable_sepa').is(':checked');
         var enableBicoin = $('#enable_bitcoin').is(':checked');
+		var enableApplePay = $('#enable_apple_pay').is(':checked');
         $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort || enableSepa || enableBicoin);
         $('.stripe-ach-options').toggle(enableAch);
+		$('.verification-file').toggle(enableApplePay);
     }
 
     var gateways = {!! Cache::get('gateways') !!};
@@ -350,11 +353,7 @@
         $('#show_address, #show_shipping_address').change(enableUpdateAddress);
         enableUpdateAddress();
 
-        $('#enable_ach').change(updateWebhookShown);
-        $('#enable_alipay').change(updateWebhookShown);
-        $('#enable_sofort').change(updateWebhookShown);
-        $('#enable_sepa').change(updateWebhookShown);
-        $('#enable_bitcoin').change(updateWebhookShown);
+        $('#enable_ach, #enable_alipay, #enable_sofort, #enable_sepa, #enable_bitcoin, #enable_apple_pay').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {
