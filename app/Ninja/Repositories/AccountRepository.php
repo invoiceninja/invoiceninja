@@ -48,6 +48,9 @@ class AccountRepository
                 if (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
                 }
+            } else {
+                $company->applyDiscount(.5);
+                session()->flash('warning', $company->present()->promoMessage());
             }
 
             $company->save();
