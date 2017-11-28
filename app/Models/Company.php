@@ -194,7 +194,7 @@ class Company extends Eloquent
     public function applyDiscount($amount)
     {
         $this->discount = $amount;
-        $this->promo_expires = date_create()->modify('5 days')->format('Y-m-d');
+        $this->promo_expires = date_create()->modify('3 days')->format('Y-m-d');
     }
 
     public function applyFreeYear()
