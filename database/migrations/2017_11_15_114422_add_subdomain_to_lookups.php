@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use App\Models\Subscription;
 
 class AddSubdomainToLookups extends Migration
 {
@@ -64,6 +65,29 @@ class AddSubdomainToLookups extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
+        Schema::table('subscriptions', function ($table) {
+            $table->unsignedInteger('public_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
+        });
+
+        $accountPublicIds = [];
+        foreach (Subscription::all() as $subscription) {
+            $accountId = $subscription->account_id;
+            if (isset($accountPublicIds[$accountId])) {
+                $publicId = $accountPublicIds[$accountId];
+                $accountPublicIds[$accountId]++;
+            } else {
+                $publicId = 1;
+                $accountPublicIds[$accountId] = 2;
+            }
+            $subscription->public_id = $publicId;
+            $subscription->save();
+        }
+
+        Schema::table('subscriptions', function ($table) {
+            $table->unique(['account_id', 'public_id']);
+        });
+
     }
 
     /**
@@ -99,5 +123,15 @@ class AddSubdomainToLookups extends Migration
         });
 
         Schema::dropIfExists('scheduled_reports');
+
+        Schema::table('subscriptions', function ($table) {
+            $table->dropUnique('subscriptions_account_id_public_id_unique');
+        });
+
+        Schema::table('subscriptions', function ($table) {
+            $table->dropColumn('public_id');
+            $table->dropColumn('user_id');
+        });
+
     }
 }

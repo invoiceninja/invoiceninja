@@ -2567,6 +2567,21 @@ $LANG = array(
     'apple_pay_domain' => 'Use <code>:domain</code> as the domain in :link.',
     'apple_pay_not_supported' => 'Sorry, Apple/Google Pay isn\'t supported',
     'optional_payment_methods' => 'Optional Payment Methods',
+    'add_subscription' => 'Add Subscription',
+    'target_url' => 'Target URL',
+    'event' => 'Event',
+    'event_create_client' => 'Created Client',
+    'event_create_invoice' => 'Created Invoice',
+    'event_create_quote' => 'Created Quote',
+    'event_create_payment' => 'Created Payment',
+    'event_create_vendor' => 'Created Vendor',
+    'event_update_quote' => 'Updated Quote',
+    'event_delete_quote' => 'Deleted Quote',
+    'event_update_invoice' => 'Updated Invoice',
+    'event_delete_invoice' => 'Deleted Invoice',
+    'subscriptions' => 'Subscriptions',
+    'updated_subscription' => 'Successfully updated subscription',
+    'created_subscription' => 'Successfully created subscription',
 
 );
 

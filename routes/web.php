@@ -266,6 +266,9 @@ Route::group([
     Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
+    Route::get('api/subscriptions', 'SubscriptionController@getDatatable');
+    Route::resource('subscriptions', 'SubscriptionController');
+    Route::post('subscriptions/bulk', 'SubscriptionController@bulk');
 
     Route::get('api/tax_rates', 'TaxRateController@getDatatable');
     Route::resource('tax_rates', 'TaxRateController');
