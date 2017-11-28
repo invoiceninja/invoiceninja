@@ -71,7 +71,7 @@ class AddSubdomainToLookups extends Migration
         });
 
         $accountPublicIds = [];
-        foreach (Subscription::all() as $subscription) {
+        foreach (Subscription::withTrashed()->orderBy('id')->get() as $subscription) {
             $accountId = $subscription->account_id;
             if (isset($accountPublicIds[$accountId])) {
                 $publicId = $accountPublicIds[$accountId];
