@@ -40,6 +40,10 @@ class AnalyticsListener
         $item = $invoice->invoice_items->last()->product_key;
         $currencyCode = $client->getCurrencyCode();
 
+        if ($account->isNinjaAccount() && \App::runningInConsole()) {
+            $item .= ' [R]';
+        }
+
         $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu={$currencyCode}&ti={$invoice->invoice_number}";
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
