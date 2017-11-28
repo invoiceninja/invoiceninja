@@ -456,7 +456,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         var input = $('#subdomain');
         var val = input.val();
         if (!val) return;
-        val = val.replace(/[^a-zA-Z0-9\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
+        val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
         input.val(val);
     }
 
