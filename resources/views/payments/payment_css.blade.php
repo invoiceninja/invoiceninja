@@ -72,6 +72,11 @@ header {
     margin: 0px !important
 }
 
+hr.form-legend {
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
+
 @media screen and (min-width: 700px) {
     header {
         margin: 20px 0 75px;
@@ -81,6 +86,14 @@ header {
     .panel-body {
         padding-left: 150px;
         padding-right: 150px;
+    }
+
+}
+
+@media screen and (min-width: 1140px) {
+    .panel-body {
+        padding-left: 180px;
+        padding-right: 180px;
     }
 
 }
