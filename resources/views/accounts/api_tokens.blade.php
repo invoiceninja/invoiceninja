@@ -29,8 +29,7 @@
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
       ->render('datatable') !!}
 
-  <p>&nbsp;</p>
-  <p>&nbsp;</p>
+  <p>&nbsp;<br/>&nbsp;</p>
 
   <div class="pull-right">
   @if (Utils::hasFeature(FEATURE_API))

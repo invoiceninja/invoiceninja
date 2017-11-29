@@ -1285,9 +1285,9 @@ class Account extends Eloquent
      *
      * @return \Illuminate\Database\Eloquent\Model|null|static
      */
-    public function getSubscription($eventId)
+    public function getSubscriptions($eventId)
     {
-        return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->first();
+        return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->get();
     }
 
     /**

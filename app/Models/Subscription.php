@@ -38,5 +38,12 @@ class Subscription extends EntityModel
         return ENTITY_SUBSCRIPTION;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
 
 }
