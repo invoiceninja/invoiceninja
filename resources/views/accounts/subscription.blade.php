@@ -22,25 +22,26 @@
             {!! Former::select('event_id')
                     ->options([
                         trans('texts.clients') => [
-                            EVENT_CREATE_CLIENT => trans('texts.event_create_client'),
+                            EVENT_CREATE_CLIENT => trans('texts.subscription_event_' . EVENT_CREATE_CLIENT),
                         ],
                         trans('texts.invoices') => [
-                            EVENT_CREATE_INVOICE => trans('texts.event_create_invoice'),
-                            EVENT_UPDATE_INVOICE => trans('texts.event_update_invoice'),
-                            EVENT_DELETE_INVOICE => trans('texts.event_delete_invoice'),
+                            EVENT_CREATE_INVOICE => trans('texts.subscription_event_' . EVENT_CREATE_INVOICE),
+                            EVENT_UPDATE_INVOICE => trans('texts.subscription_event_' . EVENT_UPDATE_INVOICE),
+                            EVENT_DELETE_INVOICE => trans('texts.subscription_event_' . EVENT_DELETE_INVOICE),
                         ],
                         trans('texts.payments') => [
-                            EVENT_CREATE_PAYMENT => trans('texts.event_create_payment'),
+                            EVENT_CREATE_PAYMENT => trans('texts.subscription_event_' . EVENT_CREATE_PAYMENT),
                         ],
                         trans('texts.quotes') => [
-                            EVENT_CREATE_QUOTE => trans('texts.event_create_quote'),
-                            EVENT_UPDATE_QUOTE => trans('texts.event_update_quote'),
-                            EVENT_DELETE_QUOTE => trans('texts.event_delete_quote'),
+                            EVENT_CREATE_QUOTE => trans('texts.subscription_event_' . EVENT_CREATE_QUOTE),
+                            EVENT_UPDATE_QUOTE => trans('texts.subscription_event_' . EVENT_UPDATE_QUOTE),
+                            EVENT_DELETE_QUOTE => trans('texts.subscription_event_' . EVENT_DELETE_QUOTE),
                         ]
                     ])
                     ->label('event') !!}
 
             {!! Former::text('target_url')
+                    ->help('target_url_help')
                     ->placeholder('https://example.com')!!}
 
         </div>

@@ -14,6 +14,7 @@ class Subscription extends EntityModel
      * @var bool
      */
     public $timestamps = true;
+
     use SoftDeletes;
 
     /**
@@ -28,4 +29,14 @@ class Subscription extends EntityModel
         'event_id',
         'target_url',
     ];
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_SUBSCRIPTION;
+    }
+
+
 }

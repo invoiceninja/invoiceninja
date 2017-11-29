@@ -45,10 +45,10 @@ class SubscriptionService extends BaseService
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getDatatable($userId)
+    public function getDatatable($accountId)
     {
         $datatable = new SubscriptionDatatable(false);
-        $query = $this->subscriptionRepo->find($userId);
+        $query = $this->subscriptionRepo->find($accountId);
 
         return $this->datatableService->createDatatable($datatable, $query);
     }

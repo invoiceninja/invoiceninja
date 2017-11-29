@@ -40,6 +40,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROJECT', 'project');
     define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
     define('ENTITY_CUSTOMER', 'customer');
+    define('ENTITY_SUBSCRIPTION', 'subscription');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);

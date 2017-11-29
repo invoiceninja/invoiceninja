@@ -30,6 +30,7 @@
       ->render('datatable') !!}
 
   <p>&nbsp;</p>
+  <p>&nbsp;</p>
 
   <div class="pull-right">
   @if (Utils::hasFeature(FEATURE_API))
@@ -37,14 +38,14 @@
   @endif
   </div>
 
-  @include('partials.bulk_form', ['entityType' => ENTITY_TOKEN])
+  @include('partials.bulk_form', ['entityType' => ENTITY_SUBSCRIPTION])
 
   {!! Datatable::table()
       ->addColumn(
-        trans('texts.name'),
-        trans('texts.token'),
+        trans('texts.event'),
+        trans('texts.target_url'),
         trans('texts.action'))
-      ->setUrl(url('api/tokens/'))
+      ->setUrl(url('api/subscriptions/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
@@ -58,6 +59,9 @@
     window.onDatatableReady = actionListHandler;
 
   </script>
+
+  <p>&nbsp;</p>
+
 
   @if (!Utils::isReseller())
     <p>&nbsp;</p>

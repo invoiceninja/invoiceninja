@@ -47,7 +47,7 @@ class SubscriptionController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->subscriptionService->getDatatable(Auth::user()->id);
+        return $this->subscriptionService->getDatatable(Auth::user()->account_id);
     }
 
     /**
@@ -109,6 +109,7 @@ class SubscriptionController extends BaseController
     {
         $action = Input::get('bulk_action');
         $ids = Input::get('bulk_public_id');
+
         $count = $this->subscriptionService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_subscription'));
