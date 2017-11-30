@@ -25,6 +25,7 @@
 		{!! Former::populate($client) !!}
 		{!! Former::populateField('task_rate', floatval($client->task_rate) ? Utils::roundSignificant($client->task_rate) : '') !!}
 		{!! Former::populateField('show_tasks_in_portal', intval($client->show_tasks_in_portal)) !!}
+		{!! Former::populateField('send_reminders', intval($client->send_reminders)) !!}
         {!! Former::hidden('public_id') !!}
 	@else
 		{!! Former::populateField('invoice_number_counter', 1) !!}
@@ -203,6 +204,12 @@
 						        ->text(trans('texts.show_tasks_in_portal'))
 								->label('client_portal')
 						        ->value(1) !!}
+						@endif
+						@if ($account->hasReminders())
+							{!! Former::checkbox('send_reminders')
+								->text('send_client_reminders')
+								->label('reminders')
+								->value(1) !!}
 						@endif
 					</div>
 					<div role="tabpanel" class="tab-pane" id="notes">

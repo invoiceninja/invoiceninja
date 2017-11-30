@@ -139,6 +139,15 @@
             @endif
 
             <p>{{ $client->present()->paymentTerms }}</p>
+
+            <div class="text-muted" style="padding-top:8px">
+            @if ($client->show_tasks_in_portal)
+                • {{ trans('texts.can_view_tasks') }}<br/>
+            @endif
+            @if ($client->account->hasReminders() && ! $client->send_reminders)
+                • {{ trans('texts.is_not_sent_reminders') }}</br>
+            @endif
+            </div>
 		</div>
 
         <div class="col-md-3">

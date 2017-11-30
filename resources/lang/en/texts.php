@@ -2593,6 +2593,10 @@ $LANG = array(
     'module_quote' => 'Quotes',
     'module_task' => 'Tasks & Projects',
     'module_expense' => 'Expenses & Vendors',
+    'reminders' => 'Reminders',
+    'send_client_reminders' => 'Send email reminders',
+    'can_view_tasks' => 'Tasks are visible in the portal',
+    'is_not_sent_reminders' => 'Reminders are not sent',
 
 );
 

@@ -1170,6 +1170,9 @@ class InvoiceRepository extends BaseRepository
         $sql = implode(' OR ', $dates);
         $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
                     ->with('invoice_items')
+                    ->whereHas('client', function ($query) {
+                        $query->whereSendReminders(true);
+                    })
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)

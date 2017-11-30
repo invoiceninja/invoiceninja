@@ -60,6 +60,7 @@ class Client extends EntityModel
         'shipping_postal_code',
         'shipping_country_id',
         'show_tasks_in_portal',
+        'send_reminders',
     ];
 
     /**

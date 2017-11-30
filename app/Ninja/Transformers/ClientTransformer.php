@@ -45,6 +45,7 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="shipping_postal_code", type="string", example=10010)
      * @SWG\Property(property="shipping_country_id", type="integer", example=840)
      * @SWG\Property(property="show_tasks_in_portal", type="boolean", example=false)
+     * @SWG\Property(property="send_reminders", type="boolean", example=false)
      * @SWG\Property(property="credit_number_counter", type="integer", example=1)
      */
     protected $defaultIncludes = [
@@ -152,6 +153,7 @@ class ClientTransformer extends EntityTransformer
             'shipping_postal_code' => $client->shipping_postal_code,
             'shipping_country_id' => (int) $client->shipping_country_id,
             'show_tasks_in_portal' => (bool) $client->show_tasks_in_portal,
+            'send_reminders' => (bool) $client->send_reminders,
             'credit_number_counter' => (int) $client->credit_number_counter,
         ]);
     }

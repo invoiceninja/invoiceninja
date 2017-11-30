@@ -1007,6 +1007,15 @@ class Account extends Eloquent
         $this->company->save();
     }
 
+    public function hasReminders()
+    {
+        if (! $this->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            return false;
+        }
+
+        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3;
+    }
+
     /**
      * @param $feature
      *
