@@ -241,7 +241,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'subtotalsBalance': NINJA.subtotalsBalance(invoice),
         'balanceDue': formatMoneyInvoice(invoice.balance_amount, invoice),
         'invoiceFooter': NINJA.invoiceFooter(invoice),
-        'invoiceNumber': invoice.invoice_number || ' ',
+        'invoiceNumber': invoice.is_statement ? '' : (invoice.invoice_number || ' '),
         'entityType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoice.balance_amount < 0 ? invoiceLabels.credit_note : invoiceLabels.invoice,
         'entityTypeUC': (invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoice.balance_amount < 0 ? invoiceLabels.credit_note : invoiceLabels.invoice).toUpperCase(),
         'entityTaxType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.tax_quote : invoiceLabels.tax_invoice,
