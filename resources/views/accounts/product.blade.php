@@ -6,7 +6,7 @@
     {!! Former::open($url)
             ->method($method)
             ->rules(['product_key' => 'required|max:255'])
-            ->addClass('col-md-10 col-md-offset-1 main-form warn-on-exit') !!}
+            ->addClass('col-lg-10 col-lg-offset-1 main-form warn-on-exit') !!}
 
     @if ($product)
         {{ Former::populate($product) }}

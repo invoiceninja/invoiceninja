@@ -23,7 +23,7 @@
     @endif
 
     {!! Former::open($url)
-            ->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')
+            ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit task-form')
             ->onsubmit('return onFormSubmit(event)')
             ->method($method) !!}
 

@@ -15,7 +15,7 @@
 @section('content')
 
 	{!! Former::open($url)
-        ->addClass('col-md-10 col-md-offset-1 warn-on-exit main-form')
+        ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
         ->onsubmit('onFormSubmit(event)')
         ->method($method)
         ->rules(array(
@@ -38,7 +38,7 @@
     </span>
 
 	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
+		<div class="col-lg-10 col-lg-offset-1">
 
             <div class="panel panel-default">
             <div class="panel-body">
