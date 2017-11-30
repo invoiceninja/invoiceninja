@@ -20,6 +20,8 @@
             'dueDate': invoice ? invoice.partial_due_date || invoice.due_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'invoiceDate': invoice ? invoice.invoice_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'client': invoice ? getClientDisplayName(invoice.client) : "{{ trans('texts.client_name') }}",
+            'idNumber' : invoice ? invoice.client.id_number : '12345678',
+            'vatNumber' : invoice ? invoice.client.vat_number : '12345678',
             'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),
             'balance': invoice ? formatMoneyInvoice(parseFloat(invoice.balance), invoice) : formatMoneyAccount(100, account),
             'total': invoice ? formatMoneyInvoice(parseFloat(invoice.amount), invoice) : formatMoneyAccount(100, account),
