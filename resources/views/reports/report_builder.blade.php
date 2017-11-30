@@ -492,7 +492,6 @@
 						} else {
 							filter = '';
 						}
-						console.log('set value: %s', filter);
 						localStorage.setItem('last:report_status_ids', filter);
 					}
 				}).maximizeSelect2Height();
