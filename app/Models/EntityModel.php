@@ -327,6 +327,7 @@ class EntityModel extends Eloquent
             'settings' => 'cog',
             'self-update' => 'download',
             'reports' => 'th-list',
+            'projects' => 'briefcase',
         ];
 
         return array_get($icons, $entityType);

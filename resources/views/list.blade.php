@@ -85,19 +85,6 @@
 		</script>
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
-		{!! DropdownButton::normal(trans('texts.projects'))
-			->withAttributes(['class'=>'projectsDropdown'])
-			->withContents([
-			  ['label' => trans('texts.new_project'), 'url' => url('/projects/create')],
-			]
-		  )->split() !!}
-	  	<script type="text/javascript">
-		  	$(function() {
-		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/projects') }}', event);
-		  		});
-			});
-		</script>
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))

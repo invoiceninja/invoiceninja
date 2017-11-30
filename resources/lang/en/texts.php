@@ -2588,6 +2588,11 @@ $LANG = array(
     'archived_subscription' => 'Successfully archived subscription',
     'project_error_multiple_clients' => 'The projects can\'t belong to different clients',
     'invoice_project' => 'Invoice Project',
+    'module_recurring_invoice' => 'Recurring Invoices',
+    'module_credit' => 'Credits',
+    'module_quote' => 'Quotes',
+    'module_task' => 'Tasks & Projects',
+    'module_expense' => 'Expenses & Vendors',
 
 );
 

@@ -185,7 +185,7 @@
 						@foreach (\App\Models\Account::$modules as $entityType => $value)
 						<div class="checkbox">
 							<label for="modules_{{ $value}}">
-								<input name="modules[]" id="modules_{{ $value}}" type="checkbox" {{ Auth::user()->account->isModuleEnabled($entityType) ? 'checked="checked"' : '' }} value="{{ $value }}">{{ trans("texts.{$entityType}s") }}
+								<input name="modules[]" id="modules_{{ $value}}" type="checkbox" {{ Auth::user()->account->isModuleEnabled($entityType) ? 'checked="checked"' : '' }} value="{{ $value }}">{{ trans("texts.module_{$entityType}") }}
 							</label>
 						</div>
 						@endforeach

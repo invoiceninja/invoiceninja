@@ -216,7 +216,6 @@ class Account extends Eloquent
         ENTITY_QUOTE => 4,
         ENTITY_TASK => 8,
         ENTITY_EXPENSE => 16,
-        ENTITY_VENDOR => 32,
     ];
 
     public static $dashboardSections = [
@@ -1617,8 +1616,15 @@ class Account extends Eloquent
             ENTITY_TASK,
             ENTITY_EXPENSE,
             ENTITY_VENDOR,
+            ENTITY_PROJECT,
         ])) {
             return true;
+        }
+
+        if ($entityType == ENTITY_VENDOR) {
+            $entityType = ENTITY_EXPENSE;
+        } elseif ($entityType == ENTITY_PROJECT) {
+            $entityType = ENTITY_TASK;
         }
 
         // note: single & checks bitmask match
