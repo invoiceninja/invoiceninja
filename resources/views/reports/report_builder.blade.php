@@ -474,7 +474,7 @@
 			if (str.indexOf(':') >= 0) {
 				return roundToTwo(moment.duration(str).asHours());
 			} else {
-				var number = Number(str.replace(/[^0-9]+/g, ''));
+				var number = Number(str.replace(/[^0-9\-]+/g, ''));
 				return number / 100;
 			}
 		}
@@ -528,7 +528,7 @@
 				            var txt = $(this).find("td").eq(i).text();
 				            subtotal += convertStringToNumber(txt);
 				          });
-				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal));
+				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal, true));
 					  }
 			        },
 			    }
