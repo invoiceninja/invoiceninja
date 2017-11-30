@@ -9,11 +9,19 @@
     <link href="{{ asset('css/tablesorter.css') }}" rel="stylesheet" type="text/css"/>
     <script src="{{ asset('js/tablesorter.min.js') }}" type="text/javascript"></script>
 
+	<link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+
 	<style type="text/css">
 		table.tablesorter th {
 			color: white;
 			background-color: #777 !important;
 		}
+		.select2-selection {
+			background-color: #f9f9f9 !important;
+			width: 100%;
+		}
+
 	</style>
 
 @stop
@@ -146,12 +154,17 @@
                         </div>
 
 						<div id="statusField" style="display:none">
-							{!! Former::select('invoice_status')->label('status')
-									->addOption(trans('texts.status_all'), 'all')
-									->addOption(trans('texts.status_draft'), 'draft')
-									->addOption(trans('texts.status_sent'), 'sent')
-									->addOption(trans('texts.status_unpaid'), 'unpaid')
-									->addOption(trans('texts.status_paid'), 'paid') !!}
+
+							<div class="form-group">
+								<label for="status_ids" class="control-label col-lg-4 col-sm-4">{{ trans('texts.status') }}</label>
+								<div class="col-lg-8 col-sm-8">
+									<select name="status_ids[]" class="form-control" style="width: 100%;" id="statuses_{{ ENTITY_INVOICE }}" multiple="true">
+							            @foreach (\App\Models\EntityModel::getStatusesFor(ENTITY_INVOICE) as $key => $value)
+							                <option value="{{ $key }}">{{ $value }}</option>
+							            @endforeach
+									</select>
+								</div>
+							</div>
 						</div>
 
 						<div id="dateField" style="display:none">
@@ -467,6 +480,23 @@
 		}
 
 		$(function(){
+			var statusIds = isStorageSupported() ? (localStorage.getItem('last:report_status_ids') || '') : '';
+			$('#statuses_{{ ENTITY_INVOICE }}').select2({
+				//allowClear: true,
+			}).val(statusIds.split(',')).trigger('change')
+			  	.on('change', function() {
+					if (isStorageSupported()) {
+						var filter = $('#statuses_{{ ENTITY_INVOICE }}').val();
+						if (filter) {
+							filter = filter.join(',');
+						} else {
+							filter = '';
+						}
+						console.log('set value: %s', filter);
+						localStorage.setItem('last:report_status_ids', filter);
+					}
+				}).maximizeSelect2Height();
+
   			$(".tablesorter-data").tablesorter({
 				@if (! request()->group_when_sorted)
 					sortList: [[0,0]],

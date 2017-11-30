@@ -461,6 +461,38 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @param $query
+     * @param $typeId
+     *
+     * @return mixed
+     */
+    public function scopeStatusIds($query, $statusIds)
+    {
+        if (! $statusIds || (is_array($statusIds) && ! count($statusIds))) {
+            return $query;
+        }
+
+        return $query->where(function ($query) use ($statusIds) {
+            foreach ($statusIds as $statusId) {
+                $query->orWhere('invoice_status_id', '=', $statusId);
+            }
+            if (in_array(INVOICE_STATUS_UNPAID, $statusIds)) {
+                $query->orWhere(function ($query) {
+                    $query->where('balance', '>', 0)
+                          ->where('is_public', '=', true);
+                });
+            }
+            if (in_array(INVOICE_STATUS_OVERDUE, $statusIds)) {
+                $query->orWhere(function ($query) {
+                    $query->where('balance', '>', 0)
+                          ->where('due_date', '<', date('Y-m-d'))
+                          ->where('is_public', '=', true);
+                });
+            }
+        });
+    }
+
+    /**
      * @param $typeId
      *
      * @return bool

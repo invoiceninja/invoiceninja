@@ -99,7 +99,7 @@ class ReportController extends BaseController
             $isExport = $action == 'export';
             $config = [
                 'date_field' => $dateField,
-                'invoice_status' => request()->invoice_status,
+                'status_ids' => request()->status_ids,
                 'group_dates_by' => request()->group_dates_by,
                 'document_filter' => request()->document_filter,
                 'currency_type' => request()->currency_type,
