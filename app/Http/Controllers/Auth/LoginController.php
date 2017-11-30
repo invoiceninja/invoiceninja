@@ -101,10 +101,14 @@ class LoginController extends Controller
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             }
             */
-        } elseif ($user) {
+        } else {
+            $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Request::getClientIp(), array_get($_SERVER, 'HTTP_USER_AGENT'));
+            file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
             error_log('login failed');
-            $user->failed_logins = $user->failed_logins + 1;
-            $user->save();
+            if ($user) {
+                $user->failed_logins = $user->failed_logins + 1;
+                $user->save();
+            }
         }
 
         return $response;
