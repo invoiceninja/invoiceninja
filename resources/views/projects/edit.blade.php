@@ -3,7 +3,7 @@
 @section('content')
 
 	{!! Former::open($url)
-            ->addClass('col-md-10 col-md-offset-1 warn-on-exit')
+            ->addClass('col-md-10 col-md-offset-1 warn-on-exit main-form')
             ->method($method)
             ->rules([
                 'name' => 'required',
@@ -17,6 +17,7 @@
 
     <span style="display:none">
         {!! Former::text('public_id') !!}
+		{!! Former::text('action') !!}
     </span>
 
 	<div class="row">
@@ -55,9 +56,27 @@
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/projects'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 		@if ($project && Auth::user()->can('create', ENTITY_TASK))
-	    	{!! Button::primary(trans('texts.new_task'))->large()
-					->asLinkTo(url('/tasks/create/' . ($project->client ? $project->client->public_id : '0'). '/' . $project->public_id))
-					->appendIcon(Icon::create('plus-sign')) !!}
+			{!! DropdownButton::normal(trans('texts.more_actions'))
+				  ->withContents([
+					  [
+						  'url' => url('/tasks/create/' . ($project->client ? $project->client->public_id : '0'). '/' . $project->public_id),
+						  'label' => trans('texts.new_task'),
+					  ],
+					  [
+						  'url' => 'javascript:submitAction("invoice")',
+						  'label' => trans('texts.invoice_project'),
+					  ],
+				  	  \DropdownButton::DIVIDER,
+					  [
+						  'url' => 'javascript:submitAction("archive")',
+						  'label' => trans('texts.archive_project')
+					  ],
+					  [
+						  'url' => 'javascript:onDeleteClick()',
+						  'label' => trans('texts.delete_project')
+					  ],
+				  ])
+				  ->large() !!}
 		@endif
 	</center>
 
@@ -67,6 +86,17 @@
 
 		var clients = {!! $clients !!};
 		var clientMap = {};
+
+		function submitAction(action) {
+            $('#action').val(action);
+            $('.main-form').submit();
+        }
+
+		function onDeleteClick() {
+            sweetConfirm(function() {
+                submitAction('delete');
+            });
+        }
 
         $(function() {
 			var $clientSelect = $('select#client_id');

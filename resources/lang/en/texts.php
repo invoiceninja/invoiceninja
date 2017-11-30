@@ -1994,14 +1994,14 @@ $LANG = array(
     'created_project' => 'Successfully created project',
     'archived_project' => 'Successfully archived project',
     'archived_projects' => 'Successfully archived :count projects',
-    'restore_project' => 'Restore project',
+    'restore_project' => 'Restore Project',
     'restored_project' => 'Successfully restored project',
-    'delete_project' => 'Delete project',
+    'delete_project' => 'Delete Project',
     'deleted_project' => 'Successfully deleted project',
     'deleted_projects' => 'Successfully deleted :count projects',
     'delete_expense_category' => 'Delete category',
     'deleted_expense_category' => 'Successfully deleted category',
-    'delete_product' => 'Delete product',
+    'delete_product' => 'Delete Product',
     'deleted_product' => 'Successfully deleted product',
     'deleted_products' => 'Successfully deleted :count products',
     'restored_product' => 'Successfully restored product',
@@ -2586,7 +2586,8 @@ $LANG = array(
     'edit_subscription' => 'Edit Subscription',
     'archive_subscription' => 'Archive Subscription',
     'archived_subscription' => 'Successfully archived subscription',
-
+    'project_error_multiple_clients' => 'The projects can\'t belong to different clients',
+    'invoice_project' => 'Invoice Project',
 
 );
 

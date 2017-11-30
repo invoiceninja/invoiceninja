@@ -59,6 +59,15 @@ class ProjectDatatable extends EntityDatatable
                     return Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id]);
                 },
             ],
+            [
+                trans('texts.invoice_project'),
+                function ($model) {
+                    return "javascript:submitForm_project('invoice', {$model->public_id})";
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_INVOICE);
+                },
+            ],
         ];
     }
 }

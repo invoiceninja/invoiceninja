@@ -55,6 +55,14 @@ class Project extends EntityModel
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tasks()
+    {
+        return $this->hasMany('App\Models\Task');
+    }
 }
 
 Project::creating(function ($project) {
