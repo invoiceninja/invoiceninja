@@ -269,6 +269,12 @@ class AppController extends BaseController
     public function update()
     {
         if (! Utils::isNinjaProd()) {
+            if ($password = env('UPDATE_SECRET')) {
+                if (! hash_equals($password, request('secret') ?: '')) {
+                    abort(400, 'Invalid secret: /update?secret=<value>');
+                }
+            }
+
             try {
                 set_time_limit(60 * 5);
                 $this->checkInnoDB();

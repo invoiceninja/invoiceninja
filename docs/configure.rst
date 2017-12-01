@@ -94,6 +94,15 @@ Follow these steps to add a custom driver.
 
 .. NOTE:: Most drivers also require `code changes <https://github.com/invoiceninja/invoiceninja/tree/master/app/Ninja/PaymentDrivers>`_ to work correctly.
 
+Security
+""""""""
+
+To require a password to update the app add ``UPDATE_SECRET=random_value`` to the .env file and then use /update?secret=random_value to update.
+
+By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours.
+
+This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
+
 Google Map
 """"""""""
 
@@ -128,12 +137,6 @@ If you need to set a list of trusted proxies you can add a TRUSTED_PROXIES value
 
    TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
 
-Stay logged in
-""""""""""""""
-
-By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours.
-
-This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
 
 Customizations
 """"""""""""""
