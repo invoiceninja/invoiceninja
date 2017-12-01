@@ -1403,6 +1403,9 @@ class AccountController extends BaseController
         if (! $account->hasMultipleAccounts()) {
             $company = $account->company;
             $refunded = $company->processRefund(Auth::user());
+
+            $ninjaClient = $this->accountRepo->getNinjaClient($account);
+            $ninjaClient->delete();
         }
 
         Document::scope()->each(function ($item, $key) {
