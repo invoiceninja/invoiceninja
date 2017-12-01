@@ -2597,6 +2597,7 @@ $LANG = array(
     'send_client_reminders' => 'Send email reminders',
     'can_view_tasks' => 'Tasks are visible in the portal',
     'is_not_sent_reminders' => 'Reminders are not sent',
+    'promotion_footer' => 'Your promotion will expire soon, :link to upgrade now.',
 
 );
 
