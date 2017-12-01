@@ -120,7 +120,7 @@
 				} else {
 					var rate = {{ $account->present()->taskRate }};
 				}
-				$('#task_rate').attr('placeholder', roundSignificant(rate));
+				$('#task_rate').attr('placeholder', roundSignificant(rate, true));
 			});
 
 			@if ($clientPublicId)
