@@ -27,7 +27,6 @@
                 <div class="panel-body form-padding-right">
 
                 {!! Former::select('currency_id')
-                        ->addOption('','')
                         ->fromQuery($currencies, 'name', 'id')
                         ->onchange('updateCurrencyCodeRadio()') !!}
                 {!! Former::radios('show_currency_code')->radios([

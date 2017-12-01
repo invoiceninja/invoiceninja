@@ -31,6 +31,7 @@ class UserTableSeeder extends Seeder
             'city' => $faker->city,
             'state' => $faker->state,
             'postal_code' => $faker->postcode,
+            'currency_id' => DEFAULT_CURRENCY,
             'country_id' => Country::all()->random()->id,
             'account_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),

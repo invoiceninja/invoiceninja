@@ -714,14 +714,14 @@
                 </span>
 
                 {!! Former::select('client[currency_id]')->addOption('','')
-                        ->placeholder($account->currency ? $account->currency->name : '')
+                        ->placeholder($account->currency ? trans('texts.currency_'.Str::slug($account->currency->name, '_')) : '')
                         ->label(trans('texts.currency_id'))
                         ->data_bind('value: currency_id')
                         ->fromQuery($currencies, 'name', 'id') !!}
 
                 <span data-bind="visible: $root.showMore">
                 {!! Former::select('client[language_id]')->addOption('','')
-                        ->placeholder($account->language ? $account->language->name : '')
+						->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
                         ->label(trans('texts.language_id'))
                         ->data_bind('value: language_id')
                         ->fromQuery($languages, 'name', 'id') !!}
@@ -1225,7 +1225,7 @@
 			}
 		@endif
 		*/
-		
+
 		@if ( ! $account->live_preview)
 			return;
 		@endif

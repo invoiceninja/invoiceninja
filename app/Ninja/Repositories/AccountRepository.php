@@ -60,6 +60,7 @@ class AccountRepository
         $account->ip = Request::getClientIp();
         $account->account_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $account->company_id = $company->id;
+        $account->currency_id = DEFAULT_CURRENCY;
 
         // Set default language/currency based on IP
         if (\Cache::get('currencies')) {

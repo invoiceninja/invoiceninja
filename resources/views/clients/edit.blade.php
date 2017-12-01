@@ -187,7 +187,7 @@
 				<div class="tab-content" style="padding-top:24px;">
 					<div role="tabpanel" class="tab-pane active" id="settings">
 						{!! Former::select('currency_id')->addOption('','')
-			                ->placeholder($account->currency ? $account->currency->name : '')
+			                ->placeholder($account->currency ? trans('texts.currency_'.Str::slug($account->currency->name, '_')) : '')
 			                ->fromQuery($currencies, 'name', 'id') !!}
 			            {!! Former::select('language_id')->addOption('','')
 			                ->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
