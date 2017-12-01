@@ -1022,7 +1022,7 @@ ko.bindingHandlers.productTypeahead = {
                         model.cost(roundSignificant(datum.cost, true));
                     }
                 }
-                if (!model.qty()) {
+                if (!model.qty() && ! model.task_public_id()) {
                     model.qty(1);
                 }
                 @if ($account->invoice_item_taxes)
