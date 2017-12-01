@@ -1111,6 +1111,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return mixed
+     */
+    public function hasActivePromo()
+    {
+        return $this->company->hasActivePromo();
+    }
+
+    /**
      * @param null $plan_details
      *
      * @return bool

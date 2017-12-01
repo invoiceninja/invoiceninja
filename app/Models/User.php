@@ -133,6 +133,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return mixed
+     */
+    public function hasActivePromo()
+    {
+        return $this->account->hasActivePromo();
+    }
+
+    /**
      * @param $feature
      *
      * @return mixed

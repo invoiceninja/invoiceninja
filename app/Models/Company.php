@@ -199,6 +199,10 @@ class Company extends Eloquent
 
     public function applyFreeYear()
     {
+        if ($this->plan_started && $this->plan_started != '0000-00-00') {
+            return;
+        }
+
         $this->plan = PLAN_PRO;
         $this->plan_term = PLAN_TERM_YEARLY;
         $this->plan_price = PLAN_PRICE_PRO_MONTHLY;
