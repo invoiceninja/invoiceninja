@@ -4,7 +4,7 @@
 
 # Invoice Ninja
 
-[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
+[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Docs](https://readthedocs.org/projects/invoice-ninja/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/?badge=latest)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -14,52 +14,27 @@ All Pro and Enterprise features from the hosted app are included in the open-sou
 
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
+* [Features](https://www.invoiceninja.com/invoicing-features/)
+* [Videos](https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos)
+* [User Guide](http://docs.invoiceninja.com/en/latest/)
+* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [Roadmap](https://trello.com/b/63BbiVVe/)
+
 ## Affiliates Programs
-* Referral program (we pay you): $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-label reseller (you pay us): $500 sign up fee and either 10% of revenue or $1 per user per month
+* Referral Program (we pay you)
+	* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* White-Label Reseller (you pay us)
+	* Hosted: $500 sign up fee and either 10% of revenue or $1/user/month
+	* Self-Hosted: Contact us for volume license pricing
 
 ### Installation Options
 * [Self-Host Zip](http://docs.invoiceninja.com/en/latest/install.html)
 * [Docker File](https://github.com/invoiceninja/dockerfiles)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 
-## Requirements
-
-* PHP >= 5.5.9
-* MySQL
-
 ## Recommended Providers
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
-
-## Videos
-* [Feature Overview](https://www.youtube.com/watch?v=xHGKvadapbA)
-* [Getting Started](https://www.youtube.com/watch?v=i7fqfi5HWeo)
-* [Time Tracker](https://www.youtube.com/watch?v=hFp5DOkFhTk)
-* [Voice Commands](https://www.youtube.com/watch?v=w1ylz-q58cU)
-
-## Features
-* Built using Laravel 5.2
-* Live PDF generation using [pdfmake](http://pdfmake.org/)
-* Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
-* Integrate with hundreds of apps with [Zapier](https://zapier.com/zapbook/invoice-ninja/) and [Integromat](https://www.integromat.com/en/integrations/invoiceninja)
-* Recurring invoices with auto-billing
-* Expenses and vendors
-* Import bank statements with [OFX](http://www.ofxhome.com/)
-* Tasks with time-tracking
-* File Attachments
-* Multi-user/multi-company support
-* Tax rates and payment terms
-* Reminder emails
-* Partial payments
-* Client portal
-* Custom email templates
-* [D3.js](http://d3js.org/) visualizations
-
-## Documentation
-* [User Guide](http://docs.invoiceninja.com/en/latest/)
-* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
-* [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ## Tools
 * [InvoicePlane Import](https://github.com/turbo124/Plane2Ninja)
@@ -67,7 +42,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
 
 ## Development
-* [API Documentation](https://www.invoiceninja.com/api-documentation/)
+* [API Documentation](http://docs.invoiceninja.com/en/latest/api.html)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
 * [Zend Framework](https://github.com/alexz707/InvoiceNinjaModule)
 * [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
