@@ -73,4 +73,4 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.  
-See [LICENSE](LICENSE) for details.
+See [LICENSE](LICENSE) for details. 
