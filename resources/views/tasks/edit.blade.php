@@ -125,7 +125,7 @@
                                 </div>
                             </td>
                             <td style="padding: 0px 12px 12px 0 !important; width:100px">
-                                <input type="text" data-bind="value: duration.pretty, visible: !isEmpty()" class="form-control"></div>
+                                <input type="text" data-bind="value: duration.pretty, visible: !isEmpty(), valueUpdate: 'afterkeydown'" class="form-control duration"></div>
                                 <a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
                             </td>
                             <td style="width:30px" class="td-icon">
@@ -352,6 +352,11 @@
 
         self.duration.pretty = ko.computed({
             read: function() {
+                // handle the input being changed and the form is submitted before focus out
+                if ($("input.duration").is(":focus")) {
+                    return $("input.duration").val();
+                }
+
                 var duration = false;
                 var start = self.startTime();
                 var end = self.endTime();
