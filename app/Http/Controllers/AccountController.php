@@ -494,6 +494,7 @@ class AccountController extends BaseController
             'account' => Auth::user()->account,
             'title' => trans('texts.tax_rates'),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(),
+            'countInvoices' => Invoice::scope()->withTrashed()->count(),
         ];
 
         return View::make('accounts.tax_rates', $data);

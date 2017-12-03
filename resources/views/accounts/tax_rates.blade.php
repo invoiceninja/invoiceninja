@@ -35,11 +35,12 @@
         ->label('&nbsp;')
         ->value(1) !!}
 
-    {!! Former::checkbox('inclusive_taxes')
-        ->text(trans('texts.inclusive_taxes_help'))
-        ->label('&nbsp;')
-        ->value(1) !!}
-
+    @if ($account->inclusive_taxes || $countInvoices <= 10)
+        {!! Former::checkbox('inclusive_taxes')
+            ->text(trans('texts.inclusive_taxes_help'))
+            ->label('&nbsp;')
+            ->value(1) !!}
+    @endif
 
     {!! Former::checkbox('include_item_taxes_inline')
         ->text(trans('texts.include_item_taxes_inline'))
@@ -84,7 +85,7 @@
 
   <script type="text/javascript">
     $(function() {
-        @if (App\Models\Invoice::scope()->withTrashed()->count())
+        @if ($countInvoices > 0)
             $('#inclusive_taxes').change(function() {
                 swal("{{ trans('texts.inclusive_taxes_warning') }}");
             })

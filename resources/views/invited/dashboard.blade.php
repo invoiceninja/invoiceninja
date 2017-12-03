@@ -341,13 +341,20 @@
             </div>
         </div>
 
-        @if (!empty($account->getTokenGatewayId()))
-                <div class="row">
-                    <div class="col-xs-12">
-                    @include('payments.paymentmethods_list')
-                </div>
+        <div class="row">
+            <div class="col-xs-12">
+                @if (!empty($account->getTokenGatewayId()))
+                    <div class="pull-left">
+                        @include('payments.paymentmethods_list')
+                    </div>
+                @endif
+                @if ($client->hasRecurringInvoices())
+                    <div class="pull-right">
+                        {!! Button::primary(trans("texts.recurring_invoices"))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
+                    </div>
+                @endif
+            </div>
         </div>
-        @endif
 
         <div class="row" id="account-row">
             <div class="col-md-2 invoices-from">
