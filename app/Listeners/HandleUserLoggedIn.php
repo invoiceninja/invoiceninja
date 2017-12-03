@@ -101,6 +101,8 @@ class HandleUserLoggedIn
             // warn if using the default app key
             if (in_array(config('app.key'), ['SomeRandomString', 'SomeRandomStringSomeRandomString', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'])) {
                 Session::flash('error', trans('texts.error_app_key_set_to_default'));
+            } elseif (in_array($appCipher, ['MCRYPT_RIJNDAEL_256', 'MCRYPT_RIJNDAEL_128'])) {
+                Session::flash('error', trans('texts.mcrypt_warning'));
             }
         }
     }

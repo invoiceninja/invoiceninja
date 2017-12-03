@@ -2602,6 +2602,7 @@ $LANG = array(
     'unable_to_delete_primary' => 'Note: to delete this company first delete all linked companies.',
     'please_register' => 'Please register your account',
     'processing_request' => 'Processing request',
+    'mcrypt_warning' => 'Warning: Mcrypt is deprecated, run <code>php artisan ninja:update-key --legacy=true</code> to update your cipher.',
 
 );
 

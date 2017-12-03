@@ -70,7 +70,8 @@ class UpdateKey extends Command
             $key = str_random(32);
         }
 
-        $crypt = new Encrypter($key, config('app.cipher'));
+        $cipher = $legacy ? 'AES-256-CBC' : config('app.cipher');
+        $crypt = new Encrypter($key, $cipher);
 
         // update values using the new key/encrypter
         foreach (AccountGateway::all() as $gateway) {
@@ -85,11 +86,21 @@ class UpdateKey extends Command
             $bank->save();
         }
 
+        $message = date('r') . ' Successfully updated ';
         if ($envWriteable) {
-            $this->info(date('r') . ' Successfully update the key');
+            if ($legacy) {
+                $message .= 'the key, set the cipher in the .env file to AES-256-CBC';
+            } else {
+                $message .= 'the key';
+            }
         } else {
-            $this->info(date('r') . ' Successfully update data, make sure to set the new app key: ' . $key);
+            if ($legacy) {
+                $message .= 'the data, make sure to set the new cipher/key: AES-256-CBC/' . $key;
+            } else {
+                $message .= 'the data, make sure to set the new key: ' . $key;
+            }
         }
+        $this->info($message);
     }
 
     /**
