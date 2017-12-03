@@ -242,8 +242,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'balanceDue': formatMoneyInvoice(invoice.balance_amount, invoice),
         'invoiceFooter': NINJA.invoiceFooter(invoice),
         'invoiceNumber': invoice.is_statement ? '' : (invoice.invoice_number || ' '),
-        'entityType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoice.balance_amount < 0 ? invoiceLabels.credit_note : invoiceLabels.invoice,
-        'entityTypeUC': (invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoice.balance_amount < 0 ? invoiceLabels.credit_note : invoiceLabels.invoice).toUpperCase(),
+        'entityType': NINJA.entityType(invoice),
+        'entityTypeUC': NINJA.entityType(invoice).toUpperCase(),
         'entityTaxType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.tax_quote : invoiceLabels.tax_invoice,
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
@@ -357,6 +357,20 @@ NINJA.decodeJavascript = function(invoice, javascript)
     return javascript;
 }
 
+NINJA.entityType = function(invoice)
+{
+    if (invoice.is_delivery_note) {
+        return invoiceLabels.delivery_note;
+    } else if (invoice.is_statement) {
+        return invoiceLabels.statement;
+    } else if (invoice.is_quote) {
+        return invoiceLabels.quote;
+    } else if (invoice.balance_amount < 0) {
+        return invoiceLabels.credit_note;
+    } else {
+        return invoiceLabels.invoice;
+    }
+}
 
 NINJA.notesAndTerms = function(invoice)
 {
