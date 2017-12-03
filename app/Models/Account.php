@@ -1733,6 +1733,29 @@ class Account extends Eloquent
     {
         return $this->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->enable_portal_password;
     }
+
+    public function getBaseUrl()
+    {
+        if ($this->hasFeature(FEATURE_CUSTOM_URL)) {
+            if ($this->iframe_url) {
+                return $this->iframe_url;
+            }
+
+            if (Utils::isNinjaProd() && ! Utils::isReseller()) {
+                $url = $this->present()->clientPortalLink();
+            } else {
+                $url = url('/');
+            }
+
+            if ($this->subdomain) {
+                $url = Utils::replaceSubdomain($url, $this->subdomain);
+            }
+
+            return $url;
+        } else {
+            return url('/');
+        }
+    }
 }
 
 Account::creating(function ($account)
