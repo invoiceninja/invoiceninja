@@ -72,20 +72,22 @@
                     <label for="simple-time" class="control-label col-lg-4 col-sm-4">
                     </label>
                     <div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-                        <p>{{ $task->getStartTime() }} -
-                        @if (Auth::user()->account->timezone_id)
-                            {{ $timezone }}
-                        @else
-                            {!! link_to('/settings/localization?focus=timezone_id', $timezone, ['target' => '_blank']) !!}
+                        @if ($task->getStartTime())
+                            <p>{{ $task->getStartTime() }} -
+                            @if (Auth::user()->account->timezone_id)
+                                {{ $timezone }}
+                            @else
+                                {!! link_to('/settings/localization?focus=timezone_id', $timezone, ['target' => '_blank']) !!}
+                            @endif
+                            <p/>
                         @endif
-                        <p/>
 
                         @if ($task->hasPreviousDuration())
                             {{ trans('texts.duration') . ': ' . Utils::formatTime($task->getDuration()) }}<br/>
                         @endif
 
                         @if (!$task->is_running)
-                            <p>{!! Button::primary(trans('texts.edit_details'))->withAttributes(['onclick'=>'showTimeDetails()'])->small() !!}</p>
+                            <p>{!! Button::primary(trans('texts.edit_times'))->withAttributes(['onclick'=>'showTimeDetails()'])->small() !!}</p>
                         @endif
                     </div>
                 </div>
