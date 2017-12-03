@@ -631,7 +631,11 @@ function calculateAmounts(invoice) {
         }
     }
 
-    var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
+    if (invoice.account.inclusive_taxes != '1') {
+        var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
+    } else {
+        var taxAmount1 = roundToTwo((lineTotal * 100) / (100 + (taxRate1 * 100)));
+    }
     if (taxAmount1 != 0 || taxName1) {
       hasTaxes = true;
       var key = taxName1 + taxRate1;
@@ -642,7 +646,11 @@ function calculateAmounts(invoice) {
       }
     }
 
-    var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
+    if (invoice.account.inclusive_taxes != '1') {
+        var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
+    } else {
+        var taxAmount2 = roundToTwo((lineTotal * 100) / (100 + (taxRate2 * 100)));
+    }
     if (taxAmount2 != 0 || taxName2) {
       hasTaxes = true;
       var key = taxName2 + taxRate2;
@@ -683,14 +691,20 @@ function calculateAmounts(invoice) {
   if (parseFloat(invoice.tax_rate2 || 0) != 0) {
     taxRate2 = parseFloat(invoice.tax_rate2);
   }
-  taxAmount1 = roundToTwo(total * taxRate1 / 100);
-  taxAmount2 = roundToTwo(total * taxRate2 / 100);
-  total = total + taxAmount1 + taxAmount2;
 
-  for (var key in taxes) {
-    if (taxes.hasOwnProperty(key)) {
-        total += taxes[key].amount;
-    }
+  if (invoice.account.inclusive_taxes != '1') {
+      taxAmount1 = roundToTwo(total * taxRate1 / 100);
+      taxAmount2 = roundToTwo(total * taxRate2 / 100);
+      total = total + taxAmount1 + taxAmount2;
+
+      for (var key in taxes) {
+        if (taxes.hasOwnProperty(key)) {
+            total += taxes[key].amount;
+        }
+      }
+  } else {
+     taxAmount1 = roundToTwo((total * 100) / (100 + (taxRate1 * 100)));
+     taxAmount2 = roundToTwo((total * 100) / (100 + (taxRate2 * 100)));
   }
 
   // custom fields w/o with taxes

@@ -177,6 +177,7 @@ class Account extends Eloquent
         'credit_number_prefix',
         'credit_number_pattern',
         'task_rate',
+        'inclusive_taxes',
     ];
 
     /**

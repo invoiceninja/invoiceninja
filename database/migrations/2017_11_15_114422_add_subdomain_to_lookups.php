@@ -92,6 +92,9 @@ class AddSubdomainToLookups extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
+        Schema::table('accounts', function ($table) {
+            $table->boolean('inclusive_taxes')->default(0);
+        });
     }
 
     /**
@@ -135,6 +138,10 @@ class AddSubdomainToLookups extends Migration
         Schema::table('subscriptions', function ($table) {
             $table->dropColumn('public_id');
             $table->dropColumn('user_id');
+        });
+
+        Schema::table('accounts', function ($table) {
+            $table->dropColumn('inclusive_taxes');
         });
 
     }

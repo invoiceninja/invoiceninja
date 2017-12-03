@@ -11,6 +11,7 @@
   {{ Former::populateField('invoice_item_taxes', intval($account->invoice_item_taxes)) }}
   {{ Former::populateField('enable_second_tax_rate', intval($account->enable_second_tax_rate)) }}
   {{ Former::populateField('include_item_taxes_inline', intval($account->include_item_taxes_inline)) }}
+  {{ Former::populateField('inclusive_taxes', intval($account->inclusive_taxes)) }}
 
 
   <div class="panel panel-default">
@@ -29,13 +30,19 @@
         ->label('&nbsp;')
         ->value(1) !!}
 
-    {!! Former::checkbox('include_item_taxes_inline')
-        ->text(trans('texts.include_item_taxes_inline'))
+    {!! Former::checkbox('enable_second_tax_rate')
+        ->text(trans('texts.enable_second_tax_rate'))
         ->label('&nbsp;')
         ->value(1) !!}
 
-    {!! Former::checkbox('enable_second_tax_rate')
-        ->text(trans('texts.enable_second_tax_rate'))
+    {!! Former::checkbox('inclusive_taxes')
+        ->text(trans('texts.inclusive_taxes_help'))
+        ->label('&nbsp;')
+        ->value(1) !!}
+
+
+    {!! Former::checkbox('include_item_taxes_inline')
+        ->text(trans('texts.include_item_taxes_inline'))
         ->label('&nbsp;')
         ->value(1) !!}
 
@@ -74,5 +81,15 @@
     window.onDatatableReady = actionListHandler;
   </script>
 
+
+  <script type="text/javascript">
+    $(function() {
+        @if (App\Models\Invoice::scope()->withTrashed()->count())
+            $('#inclusive_taxes').change(function() {
+                swal("{{ trans('texts.inclusive_taxes_warning') }}");
+            })
+        @endif
+    })
+  </script>
 
 @stop
