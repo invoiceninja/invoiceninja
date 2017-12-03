@@ -14,14 +14,6 @@
     </style>
 @stop
 
-
-@section('top-right')
-    @if (env('WEPAY_CLIENT_ID') && isset($accountGatewaysIds) && ! count($accountGatewaysIds))
-        {!! Button::primary(trans('texts.sign_up_with_wepay'))
-                ->asLinkTo(URL::to('/gateways/create?wepay=true')) !!}
-    @endif
-@stop
-
 @section('content')
     @parent
 
@@ -283,7 +275,7 @@
 
     <center>
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) !!}
-        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+        {!! Button::success(trans('texts.save'))->addClass(['save-button'])->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
     </center>
 
     {!! Former::close() !!}
@@ -299,6 +291,12 @@
         } else {
             $('.secondary-gateway').show();
         }
+
+		if (primaryId == {{ GATEWAY_WEPAY }}) {
+			$('.save-button').prop('disabled', true);
+		} else {
+			$('.save-button').prop('disabled', false);
+		}
 
         var val = primaryId || secondaryId;
         $('.gateway-fields').hide();
