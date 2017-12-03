@@ -8,7 +8,7 @@
 </div>
 
 <div class="pull-left">
-	@if (in_array($entityType, [ENTITY_TASK, ENTITY_INVOICE, ENTITY_PRODUCT]))
+	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT]))
 		@can('create', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endcan
