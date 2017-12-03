@@ -2601,6 +2601,7 @@ $LANG = array(
     'promotion_footer' => 'Your promotion will expire soon, :link to upgrade now.',
     'unable_to_delete_primary' => 'Note: to delete this company first delete all linked companies.',
     'please_register' => 'Please register your account',
+    'processing_request' => 'Processing request',
 
 );
 

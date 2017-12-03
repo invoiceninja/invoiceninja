@@ -8,7 +8,7 @@
 </div>
 
 <div class="pull-left">
-	@if (in_array($entityType, [ENTITY_TASK, ENTITY_INVOICE, ENTITY_PRODUCT, ENTITY_PROJECT]))
+	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT, ENTITY_PROJECT]))
 		@can('create', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endcan
@@ -128,7 +128,15 @@
 
 <script type="text/javascript">
 
+	var submittedForm;
 	function submitForm_{{ $entityType }}(action, id) {
+		// prevent duplicate form submissions
+		if (submittedForm) {
+			swal("{{ trans('texts.processing_request') }}")
+			return;
+		}
+		submittedForm = true;
+
 		if (id) {
 			$('#public_id_{{ $entityType }}').val(id);
 		}
