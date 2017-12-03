@@ -65,7 +65,10 @@
 <script type="text/javascript">
 
   function showUpgradeModal() {
-    @if ( ! Auth::check() || ! Auth::user()->confirmed)
+    @if ( ! Auth::check() || ! Auth::user()->registered)
+        swal("{!! trans('texts.please_register') !!}");
+        return;
+    @elseif ( ! Auth::check() || ! Auth::user()->confirmed)
         swal("{!! trans('texts.confirmation_required') !!}");
         return;
     @endif
