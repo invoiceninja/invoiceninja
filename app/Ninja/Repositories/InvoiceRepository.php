@@ -1171,7 +1171,7 @@ class InvoiceRepository extends BaseRepository
 
         $sql = implode(' OR ', $dates);
         $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
-                    ->with('invoice_items')
+                    ->with('client', 'invoice_items')
                     ->whereHas('client', function ($query) {
                         $query->whereSendReminders(true);
                     })
