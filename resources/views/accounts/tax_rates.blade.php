@@ -35,7 +35,7 @@
         ->label('&nbsp;')
         ->value(1) !!}
 
-    @if ($account->inclusive_taxes || $countInvoices <= 10)
+    @if (! $hasInclusiveTaxRates && ($account->inclusive_taxes || $countInvoices <= 10))
         {!! Former::checkbox('inclusive_taxes')
             ->text(trans('texts.inclusive_taxes_help'))
             ->label('&nbsp;')

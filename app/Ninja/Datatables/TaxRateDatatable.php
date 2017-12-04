@@ -27,7 +27,7 @@ class TaxRateDatatable extends EntityDatatable
                 'type',
                 function ($model) {
                     if (auth()->user()->account->inclusive_taxes) {
-                        return trans('texts.standard');
+                        return trans('texts.inclusive');
                     } else {
                         return $model->is_inclusive ? trans('texts.inclusive') : trans('texts.exclusive');
                     }

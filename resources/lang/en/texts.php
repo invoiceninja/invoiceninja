@@ -2606,7 +2606,6 @@ $LANG = array(
     'edit_times' => 'Edit Times',
     'inclusive_taxes_help' => 'Include <b>taxes in the cost</b>',
     'inclusive_taxes_warning' => 'Warning: existing invoices will need to be resaved',
-    'standard' => 'Standard',
 
 );
 
