@@ -306,6 +306,23 @@
 	$(function() {
 		$('#country_id, #shipping_country_id').combobox();
 
+		// show/hide copy buttons if address is set
+		$('#billing_address').change(function() {
+			$('#copyBillingDiv').toggle(isAddressSet());
+		});
+		$('#shipping_address').change(function() {
+			$('#copyShippingDiv').toggle(isAddressSet(true));
+		});
+
+		// button handles to copy the address
+		$('#copyBillingDiv button').click(function() {
+			copyAddress();
+		});
+		$('#copyShippingDiv button').click(function() {
+			copyAddress(true);
+		});
+
+		// show/hide buttons based on loaded values
 		if ({{ $client->hasAddress() ? 'true' : 'false' }}) {
 			$('#copyBillingDiv').show();
 		}
@@ -313,6 +330,49 @@
 			$('#copyShippingDiv').show();
 		}
 	});
+
+	function copyAddress(shipping) {
+		var fields = [
+			'address1',
+			'address2',
+			'city',
+			'state',
+			'postal_code',
+			'country_id',
+		]
+		for (var i=0; i<fields.length; i++) {
+			var field1 = fields[i];
+			var field2 = 'shipping_' + field1;
+			if (shipping) {
+				$('#' + field1).val($('#' + field2).val());
+			} else {
+				$('#' + field2).val($('#' + field1).val());
+			}
+		}
+		$('#country_id').combobox('refresh');
+		$('#shipping_country_id').combobox('refresh');
+	}
+
+	function isAddressSet(shipping) {
+		var fields = [
+			'address1',
+			'address2',
+			'city',
+			'state',
+			'postal_code',
+			'country_id',
+		]
+		for (var i=0; i<fields.length; i++) {
+			var field = fields[i];
+			if (shipping) {
+				field = 'shipping_' + field;
+			}
+			if ($('#' + field).val()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	function ContactModel(data) {
 		var self = this;
