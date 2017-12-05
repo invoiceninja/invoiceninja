@@ -95,6 +95,14 @@
 						{!! Former::text('postal_code') !!}
 						{!! Former::select('country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id') !!}
+
+						<div class="form-group" id="copyShippingDiv" style="display:none;">
+							<label for="city" class="control-label col-lg-4 col-sm-4"></label>
+							<div class="col-lg-8 col-sm-8">
+								{!! Button::normal(trans('texts.copy_shipping'))->small() !!}
+							</div>
+						</div>
+
 					</div>
 					<div role="tabpanel" class="tab-pane" id="shipping_address">
 						{!! Former::text('shipping_address1')->label('address1') !!}
@@ -104,6 +112,13 @@
 						{!! Former::text('shipping_postal_code')->label('postal_code') !!}
 						{!! Former::select('shipping_country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id')->label('country_id') !!}
+
+						<div class="form-group" id="copyBillingDiv" style="display:none;">
+							<label for="city" class="control-label col-lg-4 col-sm-4"></label>
+							<div class="col-lg-8 col-sm-8">
+								{!! Button::normal(trans('texts.copy_billing'))->small() !!}
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -290,6 +305,13 @@
 
 	$(function() {
 		$('#country_id, #shipping_country_id').combobox();
+
+		if ({{ $client->hasAddress() ? 'true' : 'false' }}) {
+			$('#copyBillingDiv').show();
+		}
+		if ({{ $client->hasAddress(true) ? 'true' : 'false' }}) {
+			$('#copyShippingDiv').show();
+		}
 	});
 
 	function ContactModel(data) {

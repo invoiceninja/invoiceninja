@@ -389,7 +389,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasAddress()
+    public function hasAddress($shipping = false)
     {
         $fields = [
             'address1',
@@ -401,6 +401,9 @@ class Client extends EntityModel
         ];
 
         foreach ($fields as $field) {
+            if ($shipping) {
+                $field = 'shipping_' . $field;
+            }
             if ($this->$field) {
                 return true;
             }
