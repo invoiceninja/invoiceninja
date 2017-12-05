@@ -68,7 +68,10 @@ class InvoiceDatatable extends EntityDatatable
                 function ($model) {
                     $str = '';
                     if ($model->partial_due_date) {
-                        $str = Utils::fromSqlDate($model->partial_due_date) . ', ';
+                        $str = Utils::fromSqlDate($model->partial_due_date);
+                        if ($model->due_date_sql && $model->due_date_sql != '0000-00-00') {
+                            $str .= ', ';
+                        }
                     }
                     return $str . Utils::fromSqlDate($model->due_date_sql);
                 },
