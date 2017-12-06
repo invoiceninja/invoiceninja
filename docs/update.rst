@@ -13,6 +13,8 @@ If you're moving servers make sure to copy over the .env file.
 
 If the auto-update fails you can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.
 
+A common error with shared hosting is "open_basedir restriction in effect", if you see this you'll need to either temporarily modify your open_basedir settings or run the update from the command line.
+
 .. code-block:: shell
 
    composer dump-autoload --optimize
