@@ -49,8 +49,8 @@ class AccountRepository
                     $company->applyFreeYear();
                 }
             } else {
-                $company->applyDiscount(.5);
-                session()->flash('warning', $company->present()->promoMessage());
+                //$company->applyDiscount(.5);
+                //session()->flash('warning', $company->present()->promoMessage());
             }
 
             $company->save();
