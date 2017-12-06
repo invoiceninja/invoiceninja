@@ -3,29 +3,33 @@ body {
 }
 
 .nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:hover, .nav-tabs.nav-justified>.active>a:focus {
-    background-color: #337ab7;
+    background-color: #127cc0;
 }
 
 .navbar .dropdown-menu {
-    border-top: 1px solid #337ab7;
+    border-top: 1px solid #127cc0;
 }
 
 .active-clients {
-    background-color: #337ab7;
+    background-color: #127cc0;
 }
 
 .pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
-    background-color: #337ab7;
-    border-color: #337ab7;
+    background-color: #127cc0;
+    border-color: #127cc0;
 }
 
 .navbar,
 .navbar-collapse {
-    background-color: #337ab7 !important;
+    xbackground-color: #337ab7 !important;
+    background-color: #127cc0 !important;
 }
 
 .panel-heading {
-    background-color: #286090 !important;
+    xbackground-color: #286090 !important;
+    background-color: #093e60 !important;
+    xbackground-color: #054B78 !important;
+    xbackground-color: #07619B !important;
 }
 
 

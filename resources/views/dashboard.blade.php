@@ -384,7 +384,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="panel panel-default dashboard" style="height:320px">
-            <div class="panel-heading" style="background-color:#286090 !important">
+            <div class="panel-heading">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
                     @if ($invoicesSent)
