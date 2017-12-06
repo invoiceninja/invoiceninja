@@ -46,7 +46,7 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-	@if ($entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
+	@if (false && $entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
 		{!! DropdownButton::normal(trans('texts.recurring'))
 			->withAttributes(['class'=>'recurringDropdown'])
 			->withContents([
