@@ -273,7 +273,7 @@
 					</div>
 					{!! Former::close() !!}
 
-					@if (! $account->hasMultipleAccounts() || $account->getPrimaryAccount()->id != auth()->user()->account->id)
+					@if (! $account->hasMultipleAccounts() || $account->getPrimaryAccount()->id != $account->id)
 						{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
 						{!! Former::actions( Button::danger($account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showCancelConfirm()'])->appendIcon(Icon::create('trash'))) !!}
 						<div class="form-group">
@@ -292,10 +292,12 @@
 					                <div class="panel panel-default">
 					                <div class="panel-body">
 										<p><b>{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_message') : trans('texts.cancel_account_message') }}</b></p><br/>
-										<p>{!! Former::textarea('reason')
-													->placeholder(trans('texts.reason_for_canceling'))
-													->raw()
-													->rows(4) !!}</p>
+										@if ($account->getPrimaryAccount()->id == $account->id)
+											<p>{!! Former::textarea('reason')
+														->placeholder(trans('texts.reason_for_canceling'))
+														->raw()
+														->rows(4) !!}</p>
+										@endif
 										<br/>
 									</div>
 									</div>
