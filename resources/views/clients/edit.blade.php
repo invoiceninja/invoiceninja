@@ -323,10 +323,10 @@
 		});
 
 		// show/hide buttons based on loaded values
-		if ({{ $client->hasAddress() ? 'true' : 'false' }}) {
+		if ({{ $client && $client->hasAddress() ? 'true' : 'false' }}) {
 			$('#copyBillingDiv').show();
 		}
-		if ({{ $client->hasAddress(true) ? 'true' : 'false' }}) {
+		if ({{ $client && $client->hasAddress(true) ? 'true' : 'false' }}) {
 			$('#copyShippingDiv').show();
 		}
 	});
