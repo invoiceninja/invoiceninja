@@ -140,7 +140,7 @@ class Company extends Eloquent
         foreach ($discounts as $weeks => $promo) {
             list($discount, $validFor) = $promo;
             $difference = $this->created_at->diffInWeeks();
-            if ($difference >= $weeks) {
+            if ($difference >= $weeks && $discount > $this->discount) {
                 $this->discount = $discount;
                 $this->promo_expires = date_create()->modify($validFor . ' days')->format('Y-m-d');
                 $this->save();
