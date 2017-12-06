@@ -2608,6 +2608,7 @@ $LANG = array(
     'inclusive_taxes_warning' => 'Warning: existing invoices will need to be resaved',
     'copy_shipping' => 'Copy Shipping',
     'copy_billing' => 'Copy Billing',
+    'quote_has_expired' => 'The quote has expired, please contact the merchant.',
 
 );
 

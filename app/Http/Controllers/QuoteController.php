@@ -149,6 +149,13 @@ class QuoteController extends BaseController
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.invitations')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
 
+        if ($invoice->due_date) {
+            $carbonDueDate = \Carbon::parse($invoice->due_date);
+            if (! $carbonDueDate->isToday() && ! $carbonDueDate->isFuture()) {
+                return redirect("view/{$invitationKey}")->withError(trans('texts.quote_has_expired'));
+            }
+        }
+
         $invitationKey = $this->invoiceService->approveQuote($invoice, $invitation);
         Session::flash('message', trans('texts.quote_is_approved'));
 

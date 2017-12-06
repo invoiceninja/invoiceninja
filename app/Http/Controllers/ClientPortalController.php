@@ -142,9 +142,6 @@ class ClientPortalController extends BaseController
         }
 
         $showApprove = $invoice->quote_invoice_id ? false : true;
-        if ($invoice->due_date) {
-            $showApprove = time() < strtotime($invoice->getOriginal('due_date'));
-        }
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
         }
