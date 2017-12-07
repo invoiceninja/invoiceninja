@@ -38,14 +38,14 @@
         <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
         <script type="text/javascript" >
             $(function() {
-                var paypalLink = $('.dropdown-menu a[href$="paypal"]'),
+                var paypalLink = $('a[href$="paypal"]'),
                     paypalUrl = paypalLink.attr('href'),
                     checkout;
                 paypalLink.parent().attr('id', 'paypal-container');
                 braintree.setup("{{ $transactionToken }}", "custom", {
                     onReady: function (integration) {
                         checkout = integration;
-                        $('.dropdown-menu a[href$="#braintree_paypal"]').each(function(){
+                        $('a[href$="#braintree_paypal"]').each(function(){
                             var el=$(this);
                             el.attr('href', el.attr('href').replace('#braintree_paypal','?device_data='+encodeURIComponent(integration.deviceData)))
                         })
@@ -79,29 +79,39 @@
     @elseif(!empty($enableWePayACH))
         <script type="text/javascript" src="https://static.wepay.com/js/tokenization.v2.js"></script>
         <script type="text/javascript">
+			function payWithWepay() {
+				var achLink = $('a[href$="/bank_transfer"]');
+				$('#wepay-error').remove();
+				var email = {!! json_encode($contact->email) !!} || prompt('{{ trans('texts.ach_email_prompt') }}');
+				if (!email) {
+					return;
+				}
+
+				WePay.bank_account.create({
+					'client_id': '{{ WEPAY_CLIENT_ID }}',
+					'email':email
+				}, function(data){
+					dataObj = JSON.parse(data);
+					if(dataObj.bank_account_id) {
+						window.location.href = achLink.attr('href') + '/' + dataObj.bank_account_id + "?details=" + encodeURIComponent(data);
+					} else if(dataObj.error) {
+						$('#wepay-error').remove();
+						achLink.closest('.container').prepend($('<div id="wepay-error" style="margin-top:20px" class="alert alert-danger"></div>').text(dataObj.error_description));
+					}
+				});
+			}
+
             $(function() {
-                var achLink = $('.dropdown-menu a[href$="/bank_transfer"]'),
-                    achUrl = achLink.attr('href');
+                var achLink = $('a[href$="/bank_transfer"]');
                 WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
-                achLink.click(function(e) {
-                    e.preventDefault();
-
-                    $('#wepay-error').remove();
-                    var email = {!! json_encode($contact->email) !!} || prompt('{{ trans('texts.ach_email_prompt') }}');
-                    if(!email)return;
-
-                    WePay.bank_account.create({
-                        'client_id': '{{ WEPAY_CLIENT_ID }}',
-                        'email':email
-                    }, function(data){
-                        dataObj = JSON.parse(data);
-                        if(dataObj.bank_account_id) {
-                            window.location.href = achLink.attr('href') + '/' + dataObj.bank_account_id + "?details=" + encodeURIComponent(data);
-                        } else if(dataObj.error) {
-                            $('#wepay-error').remove();
-                            achLink.closest('.container').prepend($('<div id="wepay-error" style="margin-top:20px" class="alert alert-danger"></div>').text(dataObj.error_description));
-                        }
-                    });
+				achLink.click(function(e) {
+                	e.preventDefault();
+					@if ($account->requiresAuthorization($invoice))
+						window.pendingPaymentFunction = window.payWithWepay;
+						showAuthorizationModal();
+					@else
+                    	payWithWepay();
+					@endif
                 });
             });
         </script>
