@@ -138,6 +138,11 @@
     var clientMap = {};
     var invoiceMap = {};
     var invoicesForClientMap = {};
+    var statuses = [];
+
+    @foreach (cache('invoiceStatus') as $status)
+        statuses[{{ $status->id }}] = "{{ $status->getTranslatedName() }}";
+    @endforeach
 
     for (var i=0; i<clients.length; i++) {
         var client = clients[i];
@@ -323,7 +328,7 @@
           var invoice = list[i];
           var client = clientMap[invoice.client.public_id];
           if (!client || !getClientDisplayName(client)) continue; // client is deleted/archived
-          $invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
+          $invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + statuses[invoice.invoice_status.id] + ' - ' +
                     getClientDisplayName(client) + ' - ' + formatMoneyInvoice(invoice.amount, invoice) + ' | ' +
                     formatMoneyInvoice(invoice.balance, invoice),  invoice.public_id));
         }

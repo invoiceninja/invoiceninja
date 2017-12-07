@@ -2609,6 +2609,7 @@ $LANG = array(
     'copy_shipping' => 'Copy Shipping',
     'copy_billing' => 'Copy Billing',
     'quote_has_expired' => 'The quote has expired, please contact the merchant.',
+    'empty_table_footer' => 'Showing 0 to 0 of 0 entries',
 
 );
 

@@ -36,19 +36,19 @@
   <div id="tooltip" class="hidden">
     <p>
       <strong><span id="tooltipTitle"></span></strong>
-      <a class="pull-right" href="#" target="_blank">View</a>
+      <a class="pull-right" href="#" target="_blank">{{ trans('texts.view') }}</a>
     </p>
-    <p>Total <span id="tooltipTotal" class="pull-right"></span></p>
-    <p>Balance <span id="tooltipBalance" class="pull-right"></span></p>
-    <p>Age <span id="tooltipAge" class="pull-right"></span></p>
+    <p>{{ trans('texts.total') }} <span id="tooltipTotal" class="pull-right"></span></p>
+    <p>{{ trans('texts.balance') }} <span id="tooltipBalance" class="pull-right"></span></p>
+    <p>{{ trans('texts.age') }} <span id="tooltipAge" class="pull-right"></span></p>
   </div>
 
   <form class="form-inline" role="form">
-    Group By &nbsp;&nbsp;
+    {{ trans('texts.group_by') }} &nbsp;&nbsp;
     <select id="groupBySelect" class="form-control" onchange="update()" style="background-color:white !important">
-      <option>Clients</option>
-      <option>Invoices</option>
-      <option>Products</option>
+      <option>{{ trans('texts.clients') }}</option>
+      <option>{{ trans('texts.invoices') }}</option>
+      <option>{{ trans('texts.products') }}</option>
     </select>
     &nbsp;&nbsp; <b>{!! $message !!}</b>
   </form>

@@ -178,7 +178,7 @@ class User extends Authenticatable
         } elseif ($this->email) {
             return $this->email;
         } else {
-            return 'Guest';
+            return trans('texts.guest');
         }
     }
 

@@ -55,7 +55,7 @@
                     {!! Former::select('expense_currency_id')->addOption('','')
                             ->data_bind('combobox: expense_currency_id')
                             ->label(trans('texts.currency_id'))
-                            ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
+                            ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->getTranslatedName())
                             ->fromQuery($currencies, 'name', 'id') !!}
 
                     @if (! $isRecurring)
