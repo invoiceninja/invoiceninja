@@ -2515,6 +2515,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'self_host_login' => 'Self-Host Login',
     'set_self_hoat_url' => 'Self-Host URL',
     'local_storage_required' => 'Error: local storage is not available.',
+    'none' => 'None',
 
 );
 

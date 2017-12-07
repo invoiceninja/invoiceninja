@@ -17,7 +17,7 @@
       <div class="panel-body form-padding-right">
         {{--- Former::select('database[default]')->label('driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'])
                 ->value(isset($_ENV['DB_TYPE']) ? $_ENV['DB_TYPE'] : 'mysql') ---}}
-        {!! Former::plaintext('Driver')->value('MySQL') !!}
+        {!! Former::plaintext('driver')->value('MySQL') !!}
         {!! Former::text('database[type][host]')->label('host')->value(isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost') !!}
         {!! Former::text('database[type][database]')->label('database')->value(isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : 'ninja') !!}
         {!! Former::text('database[type][username]')->label('username')->value(isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : 'ninja') !!}
@@ -46,7 +46,7 @@
               {!! Former::text('mail[port]')->label('port')
                       ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
               {!! Former::select('mail[encryption]')->label('encryption')
-                      ->options(['tls' => 'TLS', 'ssl' => 'SSL', '' => 'None'])
+                      ->options(['tls' => 'TLS', 'ssl' => 'SSL', '' => trans('texts.none')])
                       ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
               {!! Former::password('mail[password]')->label('password')
                       ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}
