@@ -14,6 +14,37 @@
 
     <script type="text/javascript">
 
+        function copyBillingAddress() {
+            var fields = [
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'postal_code',
+                'country_id',
+            ]
+            $.each(fields, function(i, field) {
+                $('#shipping_' + field).val($('#' + field).val());
+            })
+            $('#shipping_country_id').combobox('refresh');
+        }
+
+        function clearShippingAddress() {
+            var fields = [
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'postal_code',
+                'country_id',
+            ]
+            $.each(fields, function(i, field) {
+                $('#shipping_' + field).val('');
+            })
+            $('#shipping_country_id').combobox('toggle');
+            $('#shipping_address1').focus();
+        }
+
         $(function() {
             $('.payment-form').submit(function(event) {
                 var $form = $(this);
@@ -26,29 +57,19 @@
 
             $('#shipToBillingAddress').click(function() {
                 var checked = $('#shipToBillingAddress').is(':checked');
-                var fields = [
-                    'address1',
-                    'address2',
-                    'city',
-                    'state',
-                    'postal_code',
-                    'country_id',
-                ]
-                $.each(fields, function(i, field) {
-                    if (checked) {
-                        $('#shipping_' + field).val($('#' + field).val());
-                    } else {
-                        $('#shipping_' + field).val('');
-                    }
-                })
+                $('.shipping-address input').prop('disabled', checked);
                 if (checked) {
-                    $('#shipping_country_id').combobox('refresh');
+                    copyBillingAddress();
                 } else {
-                    $('#shipping_country_id').combobox('toggle');
-                    $('#shipping_address1').focus();
+                    clearShippingAddress();
                 }
-
             })
+
+            $('.billing-address').change(function() {
+                if ($('#shipToBillingAddress').is(':checked')) {
+                    copyBillingAddress();
+                }
+            });
 
             @if ($accountGateway->gateway_id != GATEWAY_BRAINTREE)
                 var card = new Card({
@@ -191,7 +212,7 @@
         <h3>{{ trans('texts.billing_address') }} &nbsp;&nbsp; <span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <hr class="form-legend"/>
 
-        <div style="padding-bottom: 22px;">
+        <div style="padding-bottom: 22px;" class="billing-address">
             <div class="row">
                 <div class="col-md-6">
                     {!! Former::text('address1')
@@ -251,7 +272,7 @@
         </h3>
         <hr class="form-legend"/>
 
-        <div style="padding-bottom: 22px;">
+        <div style="padding-bottom: 22px;" class="shipping-address">
             <div class="row">
                 <div class="col-md-6">
                     {!! Former::text('shipping_address1')
