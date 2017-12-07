@@ -138,8 +138,10 @@
 
             $('#reportrange').daterangepicker({
                 locale: {
-                    format: "{{ $account->getMomentDateFormat() }}",
+					format: "{{ $account->getMomentDateFormat() }}",
 					customRangeLabel: "{{ trans('texts.custom_range') }}",
+					applyLabel: "{{ trans('texts.apply') }}",
+					cancelLabel: "{{ trans('texts.cancel') }}",
                 },
 				startDate: chartStartDate,
                 endDate: chartEndDate,
