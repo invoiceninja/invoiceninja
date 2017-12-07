@@ -191,7 +191,7 @@ class LoginController extends Controller
         if (auth()->check() && ! auth()->user()->registered) {
             if (request()->force_logout) {
                 $account = auth()->user()->account;
-                $this->accountRepo->unlinkAccount($account);
+                app('App\Ninja\Repositories\AccountRepository')->unlinkAccount($account);
 
                 if (! $account->hasMultipleAccounts()) {
                     $account->company->forceDelete();
