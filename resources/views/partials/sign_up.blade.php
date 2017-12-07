@@ -262,8 +262,9 @@
         <br/>
         @if (Utils::isNinja())
           {{ trans('texts.success_message') }}
+          <br/>&nbsp;<br/>
         @endif
-        <br/>
+        <iframe width="100%" height="315" src="{{ str_replace('watch?v=', 'embed/', config('ninja.video_urls.getting_started')) }}"></iframe>
       </div>
 
       </div>

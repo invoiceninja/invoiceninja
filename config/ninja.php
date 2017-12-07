@@ -4,7 +4,8 @@ return [
 
     'video_urls' => [
         'all' => env('NINJA_VIDEOS_URL', 'https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos'),
-        'custom_design' => env('NINJA_VIDEOS_CUSOTM_DESIGN_URL', 'https://www.youtube.com/watch?v=pXQ6jgiHodc'),
+        'custom_design' => env('NINJA_VIDEOS_CUSTOM_DESIGN_URL', 'https://www.youtube.com/watch?v=pXQ6jgiHodc'),
+        'getting_started' => env('NINJA_VIDEOS_GETTING_STARTED_URL', 'https://www.youtube.com/watch?v=i7fqfi5HWeo'),
     ],
 
     // invoice locking feature
