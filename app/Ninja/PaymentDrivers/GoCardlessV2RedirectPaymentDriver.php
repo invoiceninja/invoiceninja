@@ -2,6 +2,7 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use Omnipay;
 use Session;
 use App\Models\Payment;
 
@@ -17,6 +18,23 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         ];
 
         return $types;
+    }
+
+    // Workaround for access_token/accessToken issue
+    protected function gateway()
+    {
+        if ($this->gateway) {
+            return $this->gateway;
+        }
+
+        $this->gateway = Omnipay::create($this->accountGateway->gateway->provider);
+
+        $config = (array) $this->accountGateway->getConfig();
+        $config['access_token'] = $config['accessToken'];
+        $config['secret'] = $config['webhookSecret'];
+        $this->gateway->initialize($config);
+
+        return $this->gateway;
     }
 
     protected function paymentDetails($paymentMethod = false)
