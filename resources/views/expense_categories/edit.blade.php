@@ -21,9 +21,6 @@
         <div class="col-lg-10 col-lg-offset-1">
 
             <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.category') !!}</h3>
-            </div>
             <div class="panel-body">
 
                 {!! Former::text('name') !!}
