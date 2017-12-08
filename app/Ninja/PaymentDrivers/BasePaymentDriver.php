@@ -484,22 +484,23 @@ class BasePaymentDriver
         }
 
         if (isset($input['address1'])) {
-            // TODO use cache instead
-            $country = Country::find($input['country_id']);
+            $hasShippingAddress = $this->accountGateway->show_shipping_address;
+            $country = Utils::getFromCache($input['country_id'], 'countries');
+            $shippingCountry = $hasShippingAddress ? Utils::getFromCache($input['shipping_country_id'], 'countries') : $country;
 
             $data = array_merge($data, [
-                'billingAddress1' => $input['address1'],
-                'billingAddress2' => $input['address2'],
-                'billingCity' => $input['city'],
-                'billingState' => $input['state'],
-                'billingPostcode' => $input['postal_code'],
+                'billingAddress1' => trim($input['address1']),
+                'billingAddress2' => trim($input['address2']),
+                'billingCity' => trim($input['city']),
+                'billingState' => trim($input['state']),
+                'billingPostcode' => trim($input['postal_code']),
                 'billingCountry' => $country->iso_3166_2,
-                'shippingAddress1' => $input['address1'],
-                'shippingAddress2' => $input['address2'],
-                'shippingCity' => $input['city'],
-                'shippingState' => $input['state'],
-                'shippingPostcode' => $input['postal_code'],
-                'shippingCountry' => $country->iso_3166_2,
+                'shippingAddress1' => $hasShippingAddress ? trim($this->input['shipping_address1']) : trim($input['address1']),
+                'shippingAddress2' => $hasShippingAddress ? trim($this->input['shipping_address2']) : trim($input['address2']),
+                'shippingCity' => $hasShippingAddress ? trim($this->input['shipping_city']) : trim($input['city']),
+                'shippingState' => $hasShippingAddress ? trim($this->input['shipping_state']) : trim($input['state']),
+                'shippingPostcode' => $hasShippingAddress ? trim($this->input['shipping_postal_code']) : trim($input['postal_code']),
+                'shippingCountry' => $hasShippingAddress ? $shippingCountry->iso_3166_2 : $country->iso_3166_2,
             ]);
         }
 
@@ -511,6 +512,7 @@ class BasePaymentDriver
         $invoice = $this->invoice();
         $client = $this->client();
         $contact = $this->invitation->contact ?: $client->contacts()->first();
+        $hasShippingAddress = $this->accountGateway->show_shipping_address;
 
         return [
             'email' => $contact->email,
@@ -524,12 +526,12 @@ class BasePaymentDriver
             'billingState' => $client->state,
             'billingCountry' => $client->country ? $client->country->iso_3166_2 : '',
             'billingPhone' => $contact->phone,
-            'shippingAddress1' => $client->address1,
-            'shippingAddress2' => $client->address2,
-            'shippingCity' => $client->city,
-            'shippingPostcode' => $client->postal_code,
-            'shippingState' => $client->state,
-            'shippingCountry' => $client->country ? $client->country->iso_3166_2 : '',
+            'shippingAddress1' => $client->shipping_address1 ? $client->shipping_address1 : $client->address1,
+            'shippingAddress2' => $client->shipping_address1 ? $client->shipping_address1 : $client->address2,
+            'shippingCity' => $client->shipping_address1 ? $client->shipping_address1 : $client->city,
+            'shippingPostcode' => $client->shipping_address1 ? $client->shipping_address1 : $client->postal_code,
+            'shippingState' => $client->shipping_address1 ? $client->shipping_address1 : $client->state,
+            'shippingCountry' => $client->shipping_address1 ? ($client->shipping_country ? $client->shipping_country->iso_3166_2 : '') : ($client->country ? $client->country->iso_3166_2 : ''),
             'shippingPhone' => $contact->phone,
         ];
     }

@@ -57,7 +57,7 @@
 
             $('#shipToBillingAddress').click(function() {
                 var checked = $('#shipToBillingAddress').is(':checked');
-                $('.shipping-address input').prop('disabled', checked);
+                $('.shipping-address input').prop('readonly', checked);
                 if (checked) {
                     copyBillingAddress();
                 } else {
