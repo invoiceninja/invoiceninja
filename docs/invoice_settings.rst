@@ -96,7 +96,6 @@ To add fields to your contact entries, click on the Contact Fields tab.
 
 You have the option of adding up to two new fields for contact information about your client. These will appear on the Client/Create and Client/Edit pages. When creating an invoice, the field name and information you entered for the contact will be displayed in the Client details section of the PDF invoice.
 
-
 Company Fields
 ^^^^^^^^^^^^^^
 
