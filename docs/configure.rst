@@ -6,11 +6,11 @@ Review the `.env.example <https://github.com/invoiceninja/invoiceninja/blob/mast
 Recurring invoices and reminder emails
 """"""""""""""""""""""""""""""""""""""
 
-Create a cron to call the ``ninja:send-invoices`` command **hourly** and ``ninja:send-reminders`` command **once daily**.
+Create a cron to call the ``ninja:send-invoices`` and ``ninja:send-reminders`` commands **once daily**.
 
 .. code-block:: shell
 
-   0 * * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices
+   0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-reminders
 
 Email Queues
