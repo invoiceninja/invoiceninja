@@ -102,7 +102,8 @@ Company Fields
 
 To add fields to your company details, click on the Company Fields tab. Enter the Field Label and Field Value information in the relevant fields. The information you entered will automatically appear in the Company details section of the PDF invoice.
 
-- Product Fields
+Product Fields
+^^^^^^^^^^^^^^
 
 To add fields to your product entries, click on the Product Fields tab.
 
