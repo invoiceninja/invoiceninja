@@ -89,14 +89,16 @@ To add fields to your client entries, click on the Client Fields tab.
 
 You have the option of adding up to two new fields for client information. These will appear on the Client/Create and Client/Edit pages. When creating an invoice, the field name and information you entered for the client will be displayed in the Client details section of the PDF invoice.
 
-- Contact Fields
+Contact Fields
+^^^^^^^^^^^^^^
 
 To add fields to your contact entries, click on the Contact Fields tab.
 
 You have the option of adding up to two new fields for contact information about your client. These will appear on the Client/Create and Client/Edit pages. When creating an invoice, the field name and information you entered for the contact will be displayed in the Client details section of the PDF invoice.
 
 
-- Company Fields
+Company Fields
+^^^^^^^^^^^^^^
 
 To add fields to your company details, click on the Company Fields tab. Enter the Field Label and Field Value information in the relevant fields. The information you entered will automatically appear in the Company details section of the PDF invoice.
 
@@ -106,7 +108,8 @@ To add fields to your product entries, click on the Product Fields tab.
 
 You have the option of adding up to two new fields for product information. These will appear on the Product/Create and Product/Edit pages. When creating an invoice, the field name and information you entered for the product will appear in the Item section of the PDF invoice.
 
-- Invoice Fields
+Invoice Fields
+^^^^^^^^^^^^^^
 
 Want to include customized information in your invoices? To add fields to your invoice entry, click on the Invoice Fields tab. Enter the new field name in the Field Label field. You can add one or two new invoice fields. The new fields will appear in the top part of the Create/Invoice page, and will automatically be included in the PDF invoice.
 
@@ -122,7 +125,7 @@ Want to convert accepted quotes into invoices at a click of a button? Check the 
 To disable the auto convert function, uncheck the Enable button.
 
 Defaults
-""""""""""""""""
+""""""""
 
 Set any customized default text you want to Invoice Terms, Invoice Footer, Quote Terms and Documents. The text you enter will appear in the relevant sections on all future invoices.
 
