@@ -160,6 +160,11 @@ class Company extends Eloquent
     public function getPlanDetails($includeInactive = false, $includeTrial = true)
     {
         $account = $this->accounts()->first();
+
+        if (! $account) {
+            return false;
+        }
+
         return $account->getPlanDetails($includeInactive, $includeTrial);
     }
 
