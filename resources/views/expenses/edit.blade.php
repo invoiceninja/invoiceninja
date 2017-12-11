@@ -55,7 +55,7 @@
                     {!! Former::select('expense_currency_id')->addOption('','')
                             ->data_bind('combobox: expense_currency_id')
                             ->label(trans('texts.currency_id'))
-                            ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
+                            ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->getTranslatedName())
                             ->fromQuery($currencies, 'name', 'id') !!}
 
                     @if (! $isRecurring)
@@ -471,7 +471,10 @@
                     return roundToTwo(self.amount() * self.exchange_rate()).toFixed(2);
                 },
                 write: function(value) {
-                    self.amount(roundToTwo(value / self.exchange_rate()));
+                    // When changing the converted amount we're updating
+                    // the exchange rate rather than change the amount
+                    self.exchange_rate(NINJA.parseFloat(value) / self.amount());
+                    //self.amount(roundToTwo(value / self.exchange_rate()));
                 }
             }, self);
 

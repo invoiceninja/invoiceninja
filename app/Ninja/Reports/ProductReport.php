@@ -13,6 +13,7 @@ class ProductReport extends AbstractReport
         'invoice_number',
         'invoice_date',
         'product',
+        'description',
         'qty',
         'cost',
         //'tax_rate1',
@@ -22,20 +23,16 @@ class ProductReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
-        $status = $this->options['invoice_status'];
+        $statusIds = $this->options['status_ids'];
 
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function ($query) use ($status) {
-                            if ($status == 'draft') {
-                                $query->whereIsPublic(false);
-                            } elseif (in_array($status, ['paid', 'unpaid', 'sent'])) {
-                                $query->whereIsPublic(true);
-                            }
+                        ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
+                                  ->statusIds($statusIds)
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
                                   ->with(['invoice_items']);
@@ -43,17 +40,13 @@ class ProductReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                if (! $invoice->isPaid() && $status == 'paid') {
-                    continue;
-                } elseif ($invoice->isPaid() && $status == 'unpaid') {
-                    continue;
-                }
                 foreach ($invoice->invoice_items as $item) {
                     $this->data[] = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
                         $item->product_key,
+                        $this->isExport ? $item->notes : $item->present()->notes,
                         Utils::roundSignificant($item->qty, 0),
                         Utils::roundSignificant($item->cost, 2),
                     ];

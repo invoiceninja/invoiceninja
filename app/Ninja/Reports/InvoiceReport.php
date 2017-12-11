@@ -22,21 +22,17 @@ class InvoiceReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
-        $status = $this->options['invoice_status'];
+        $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
 
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function ($query) use ($status) {
-                            if ($status == 'draft') {
-                                $query->whereIsPublic(false);
-                            } elseif (in_array($status, ['paid', 'unpaid', 'sent'])) {
-                                $query->whereIsPublic(true);
-                            }
+                        ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
+                                  ->statusIds($statusIds)
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
                                   ->with(['payments' => function ($query) {
@@ -65,17 +61,12 @@ class InvoiceReport extends AbstractReport
             foreach ($client->invoices as $invoice) {
                 $payments = count($invoice->payments) ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
-                    if (! $payment && $status == 'paid') {
-                        continue;
-                    } elseif ($payment && $status == 'unpaid') {
-                        continue;
-                    }
                     $this->data[] = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
                         $account->formatMoney($invoice->amount, $client),
-                        $invoice->present()->status(),
+                        $invoice->statusLabel(),
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',

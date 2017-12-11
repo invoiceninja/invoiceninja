@@ -1,16 +1,5 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the Closure to execute when that URI is requested.
-|
-*/
-
 // Application setup
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
@@ -32,7 +21,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
-    Route::post('payment/{invitation_key}', 'OnlinePaymentController@doPayment');
+    Route::post('payment/{invitation_key}/{gateway_type?}', 'OnlinePaymentController@doPayment');
     Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
@@ -47,6 +36,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
+    Route::get('client/tasks', 'ClientPortalController@taskIndex');
     Route::get('client/dashboard/{contact_key?}', 'ClientPortalController@dashboard');
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
@@ -58,6 +48,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('api/client.recurring_invoices', ['as' => 'api.client.recurring_invoices', 'uses' => 'ClientPortalController@recurringInvoiceDatatable']);
     Route::get('api/client.documents', ['as' => 'api.client.documents', 'uses' => 'ClientPortalController@documentDatatable']);
     Route::get('api/client.payments', ['as' => 'api.client.payments', 'uses' => 'ClientPortalController@paymentDatatable']);
+    Route::get('api/client.tasks', ['as' => 'api.client.tasks', 'uses' => 'ClientPortalController@taskDatatable']);
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
 
@@ -79,39 +70,38 @@ Route::group(['middleware' => 'lookup:postmark'], function () {
 Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
-    Route::get('validate_two_factor/{account_key}', 'Auth\AuthController@getValidateToken');
-    Route::post('validate_two_factor/{account_key}', ['middleware' => 'throttle:5', 'uses' => 'Auth\AuthController@postValidateToken']);
+    Route::get('validate_two_factor/{account_key}', 'Auth\LoginController@getValidateToken');
+    Route::post('validate_two_factor/{account_key}', ['middleware' => 'throttle:5', 'uses' => 'Auth\LoginController@postValidateToken']);
+    Route::get('.well-known/apple-developer-merchantid-domain-association', 'OnlinePaymentController@showAppleMerchantId');
 });
 
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 
 // Laravel auth routes
-Route::get('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@getRegister']);
-Route::post('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@postRegister']);
-Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper']);
-Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
-Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmailWrapper']);
-Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
-Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
+Route::get('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@getLoginWrapper']);
+Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@getLogoutWrapper']);
+Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswordController@showLinkRequestForm']);
+Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@showResetForm']);
+Route::get('/auth/{provider}', 'Auth\AuthController@oauthLogin');
 
 Route::group(['middleware' => ['lookup:user']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
-    Route::post('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper']);
-    Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail']);
-    Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset']);
+    Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@postLoginWrapper']);
+    Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswordController@sendResetLinkEmail']);
+    Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@reset']);
 });
 
 // Client auth
-Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin']);
-Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout']);
-Route::get('/client/sessionexpired', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getSessionExpired']);
-Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail']);
-Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset']);
+Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
+Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogout']);
+Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getSessionExpired']);
+Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
+Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);
 
 Route::group(['middleware' => ['lookup:contact']], function () {
-    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin']);
-    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail']);
-    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset']);
+    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
+    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
+    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
 });
 
 if (Utils::isReseller()) {
@@ -137,7 +127,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::post('signup/validate', 'AccountController@checkEmail');
     Route::post('signup/submit', 'AccountController@submitSignup');
-    Route::get('auth_unlink', 'Auth\AuthController@authUnlink');
+    Route::get('auth_unlink', 'Auth\AuthController@oauthUnlink');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
@@ -168,6 +158,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
 
+    Route::get('invoices/delivery_note/{invoice_id}', 'InvoiceController@deliveryNote');
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
 
@@ -275,6 +266,9 @@ Route::group([
     Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
+    Route::get('api/subscriptions', 'SubscriptionController@getDatatable');
+    Route::resource('subscriptions', 'SubscriptionController');
+    Route::post('subscriptions/bulk', 'SubscriptionController@bulk');
 
     Route::get('api/tax_rates', 'TaxRateController@getDatatable');
     Route::resource('tax_rates', 'TaxRateController');
@@ -328,39 +322,6 @@ Route::group([
 
 Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/{section?}', 'AccountController@showSection');
-});
-
-// Route groups for API
-Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], function () {
-    Route::get('ping', 'AccountApiController@ping');
-    Route::post('login', 'AccountApiController@login');
-    Route::post('oauth_login', 'AccountApiController@oauthLogin');
-    Route::post('register', 'AccountApiController@register');
-    Route::get('static', 'AccountApiController@getStaticData');
-    Route::get('accounts', 'AccountApiController@show');
-    Route::put('accounts', 'AccountApiController@update');
-    Route::resource('clients', 'ClientApiController');
-    Route::resource('contacts', 'ContactApiController');
-    Route::get('quotes', 'QuoteApiController@index');
-    Route::get('download/{invoice_id}', 'InvoiceApiController@download');
-    Route::resource('invoices', 'InvoiceApiController');
-    Route::resource('payments', 'PaymentApiController');
-    Route::resource('tasks', 'TaskApiController');
-    Route::resource('credits', 'CreditApiController');
-    Route::post('hooks', 'IntegrationController@subscribe');
-    Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
-    Route::get('user_accounts', 'AccountApiController@getUserAccounts');
-    Route::resource('products', 'ProductApiController');
-    Route::resource('projects', 'ProjectApiController');
-    Route::resource('tax_rates', 'TaxRateApiController');
-    Route::resource('users', 'UserApiController');
-    Route::resource('expenses', 'ExpenseApiController');
-    Route::post('add_token', 'AccountApiController@addDeviceToken');
-    Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
-    Route::get('dashboard', 'DashboardApiController@index');
-    Route::resource('documents', 'DocumentAPIController');
-    Route::resource('vendors', 'VendorApiController');
-    Route::resource('expense_categories', 'ExpenseCategoryApiController');
 });
 
 // Redirects for legacy links

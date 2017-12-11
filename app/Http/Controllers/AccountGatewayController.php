@@ -17,6 +17,7 @@ use Utils;
 use Validator;
 use View;
 use WePay;
+use File;
 
 class AccountGatewayController extends BaseController
 {
@@ -119,9 +120,9 @@ class AccountGatewayController extends BaseController
         $creditCards = [];
         foreach ($creditCardsArray as $card => $name) {
             if ($selectedCards > 0 && ($selectedCards & $card) == $card) {
-                $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
+                $creditCards['<div>' . $name['text'] . '</div>'] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
             } else {
-                $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
+                $creditCards['<div>' . $name['text'] . '</div>'] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
             }
         }
 
@@ -297,6 +298,13 @@ class AccountGatewayController extends BaseController
                 $config->enableSofort = boolval(Input::get('enable_sofort'));
                 $config->enableSepa = boolval(Input::get('enable_sepa'));
                 $config->enableBitcoin = boolval(Input::get('enable_bitcoin'));
+                $config->enableApplePay = boolval(Input::get('enable_apple_pay'));
+
+                if ($config->enableApplePay && $uploadedFile = request()->file('apple_merchant_id')) {
+                    $config->appleMerchantId = File::get($uploadedFile);
+                } elseif ($oldConfig && ! empty($oldConfig->appleMerchantId)) {
+                    $config->appleMerchantId = $oldConfig->appleMerchantId;
+                }
             }
 
             if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {
@@ -316,6 +324,7 @@ class AccountGatewayController extends BaseController
 
             $accountGateway->accepted_credit_cards = $cardCount;
             $accountGateway->show_address = Input::get('show_address') ? true : false;
+            $accountGateway->show_shipping_address = Input::get('show_shipping_address') ? true : false;
             $accountGateway->update_address = Input::get('update_address') ? true : false;
             $accountGateway->setConfig($config);
 

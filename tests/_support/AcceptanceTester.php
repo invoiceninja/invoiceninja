@@ -132,7 +132,7 @@ class AcceptanceTester extends \Codeception\Actor
             $I->selectOption('#expiration_month', 12);
             $I->selectOption('#expiration_year', date('Y'));
             $I->click('.btn-success');
-            $I->wait(3);
+            $I->wait(5);
             $I->see('Successfully applied payment');
         });
     }

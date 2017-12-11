@@ -13,86 +13,6 @@ use Illuminate\Support\Facades\Password;
 
 class PasswordController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Password Reset Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling password reset requests
-    | and uses a simple trait to include this behavior. You're free to
-    | explore this trait and override any methods you wish to tweak.
-    |
-    */
-
-    use ResetsPasswords;
-
-    /**
-     * @var string
-     */
-    protected $redirectTo = '/client/dashboard';
-
-    /**
-     * Create a new password controller instance.
-     *
-     * @internal param \Illuminate\Contracts\Auth\Guard $auth
-     * @internal param \Illuminate\Contracts\Auth\PasswordBroker $passwords
-     */
-    public function __construct()
-    {
-        $this->middleware('guest');
-        Config::set('auth.defaults.passwords', 'client');
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function showLinkRequestForm()
-    {
-        $data = [
-        	'clientauth' => true,
-		];
-
-        if (! session('contact_key')) {
-            return \Redirect::to('/client/sessionexpired');
-        }
-
-        return view('clientauth.password')->with($data);
-    }
-
-    /**
-     * Send a reset link to the given user.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function sendResetLinkEmail(Request $request)
-    {
-        $broker = $this->getBroker();
-
-        $contactId = null;
-        $contactKey = session('contact_key');
-        if ($contactKey) {
-            $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted && $contact->email) {
-                $contactId = $contact->id;
-            }
-        }
-
-        $response = Password::broker($broker)->sendResetLink(['id' => $contactId], function (Message $message) {
-            $message->subject($this->getEmailSubject());
-        });
-
-        switch ($response) {
-            case Password::RESET_LINK_SENT:
-                return $this->getSendResetLinkEmailSuccessResponse($response);
-
-            case Password::INVALID_USER:
-            default:
-                return $this->getSendResetLinkEmailFailureResponse($response);
-        }
-    }
-
     /**
      * Display the password reset view for the given token.
      *
@@ -116,7 +36,7 @@ class PasswordController extends Controller
 		);
 
         if (! session('contact_key')) {
-            return \Redirect::to('/client/sessionexpired');
+            return \Redirect::to('/client/session_expired');
         }
 
         return view('clientauth.reset')->with($data);

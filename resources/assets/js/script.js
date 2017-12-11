@@ -515,101 +515,6 @@ function getClientDisplayName(client)
   return '';
 }
 
-function populateInvoiceComboboxes(clientId, invoiceId) {
-  var clientMap = {};
-  var invoiceMap = {};
-  var invoicesForClientMap = {};
-  var $clientSelect = $('select#client');
-
-  for (var i=0; i<invoices.length; i++) {
-    var invoice = invoices[i];
-    var client = invoice.client;
-
-    if (!invoicesForClientMap.hasOwnProperty(client.public_id)) {
-      invoicesForClientMap[client.public_id] = [];
-    }
-
-    invoicesForClientMap[client.public_id].push(invoice);
-    invoiceMap[invoice.public_id] = invoice;
-  }
-
-  for (var i=0; i<clients.length; i++) {
-    var client = clients[i];
-    clientMap[client.public_id] = client;
-  }
-
-  $clientSelect.append(new Option('', ''));
-  for (var i=0; i<clients.length; i++) {
-    var client = clients[i];
-    var clientName = getClientDisplayName(client);
-    if (!clientName) {
-        continue;
-    }
-    $clientSelect.append(new Option(clientName, client.public_id));
-  }
-
-  if (clientId) {
-    $clientSelect.val(clientId);
-  }
-
-  $clientSelect.combobox({highlighter: comboboxHighlighter});
-  $clientSelect.on('change', function(e) {
-    var clientId = $('input[name=client]').val();
-    var invoiceId = $('input[name=invoice]').val();
-    var invoice = invoiceMap[invoiceId];
-    if (invoice && invoice.client.public_id == clientId) {
-      e.preventDefault();
-      return;
-    }
-    setComboboxValue($('.invoice-select'), '', '');
-    $invoiceCombobox = $('select#invoice');
-    $invoiceCombobox.find('option').remove().end().combobox('refresh');
-    $invoiceCombobox.append(new Option('', ''));
-    var list = clientId ? (invoicesForClientMap.hasOwnProperty(clientId) ? invoicesForClientMap[clientId] : []) : invoices;
-    for (var i=0; i<list.length; i++) {
-      var invoice = list[i];
-      var client = clientMap[invoice.client.public_id];
-      if (!client || !getClientDisplayName(client)) continue; // client is deleted/archived
-      $invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
-                getClientDisplayName(client) + ' - ' + formatMoneyInvoice(invoice.amount, invoice) + ' | ' +
-                formatMoneyInvoice(invoice.balance, invoice),  invoice.public_id));
-    }
-    $('select#invoice').combobox('refresh');
-  });
-
-  var $invoiceSelect = $('select#invoice').on('change', function(e) {
-    $clientCombobox = $('select#client');
-    var invoiceId = $('input[name=invoice]').val();
-    if (invoiceId) {
-      var invoice = invoiceMap[invoiceId];
-      var client = clientMap[invoice.client.public_id];
-      invoice.client = client;
-      setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
-      if (!parseFloat($('#amount').val())) {
-        $('#amount').val(parseFloat(invoice.balance).toFixed(2));
-      }
-    }
-  });
-
-  $invoiceSelect.combobox({highlighter: comboboxHighlighter});
-
-  if (invoiceId) {
-    var invoice = invoiceMap[invoiceId];
-    var client = clientMap[invoice.client.public_id];
-    invoice.client = client;
-    setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' +
-            invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' +
-            formatMoneyInvoice(invoice.amount, invoice) + ' | ' + formatMoneyInvoice(invoice.balance, invoice)));
-    $invoiceSelect.trigger('change');
-  } else if (clientId) {
-    var client = clientMap[clientId];
-    setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
-    $clientSelect.trigger('change');
-  } else {
-    $clientSelect.trigger('change');
-  }
-}
-
 
 var CONSTS = {};
 CONSTS.INVOICE_STATUS_DRAFT = 1;
@@ -726,7 +631,11 @@ function calculateAmounts(invoice) {
         }
     }
 
-    var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
+    if (invoice.account.inclusive_taxes != '1') {
+        var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
+    } else {
+        var taxAmount1 = roundToTwo((lineTotal * 100) / (100 + (taxRate1 * 100)));
+    }
     if (taxAmount1 != 0 || taxName1) {
       hasTaxes = true;
       var key = taxName1 + taxRate1;
@@ -737,7 +646,11 @@ function calculateAmounts(invoice) {
       }
     }
 
-    var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
+    if (invoice.account.inclusive_taxes != '1') {
+        var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
+    } else {
+        var taxAmount2 = roundToTwo((lineTotal * 100) / (100 + (taxRate2 * 100)));
+    }
     if (taxAmount2 != 0 || taxName2) {
       hasTaxes = true;
       var key = taxName2 + taxRate2;
@@ -778,14 +691,20 @@ function calculateAmounts(invoice) {
   if (parseFloat(invoice.tax_rate2 || 0) != 0) {
     taxRate2 = parseFloat(invoice.tax_rate2);
   }
-  taxAmount1 = roundToTwo(total * taxRate1 / 100);
-  taxAmount2 = roundToTwo(total * taxRate2 / 100);
-  total = total + taxAmount1 + taxAmount2;
 
-  for (var key in taxes) {
-    if (taxes.hasOwnProperty(key)) {
-        total += taxes[key].amount;
-    }
+  if (invoice.account.inclusive_taxes != '1') {
+      taxAmount1 = roundToTwo(total * taxRate1 / 100);
+      taxAmount2 = roundToTwo(total * taxRate2 / 100);
+      total = total + taxAmount1 + taxAmount2;
+
+      for (var key in taxes) {
+        if (taxes.hasOwnProperty(key)) {
+            total += taxes[key].amount;
+        }
+      }
+  } else {
+     taxAmount1 = roundToTwo((total * 100) / (100 + (taxRate1 * 100)));
+     taxAmount2 = roundToTwo((total * 100) / (100 + (taxRate2 * 100)));
   }
 
   // custom fields w/o with taxes

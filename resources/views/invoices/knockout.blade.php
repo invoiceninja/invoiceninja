@@ -425,10 +425,18 @@ function InvoiceModel(data) {
         }
 
         var taxRate1 = parseFloat(self.tax_rate1());
-        var tax1 = roundToTwo(total * (taxRate1/100));
+        @if ($account->inclusive_taxes)
+            var tax1 = roundToTwo((total * 100) / (100 + (taxRate1 * 100)));
+        @else
+            var tax1 = roundToTwo(total * (taxRate1/100));
+        @endif
 
         var taxRate2 = parseFloat(self.tax_rate2());
-        var tax2 = roundToTwo(total * (taxRate2/100));
+        @if ($account->inclusive_taxes)
+            var tax2 = roundToTwo((total * 100) / (100 + (taxRate2 * 100)));
+        @else
+            var tax2 = roundToTwo(total * (taxRate2/100));
+        @endif
 
         return self.formatMoney(tax1 + tax2);
     });
@@ -447,7 +455,11 @@ function InvoiceModel(data) {
                 }
             }
 
-            var taxAmount = roundToTwo(lineTotal * item.tax_rate1() / 100);
+            @if ($account->inclusive_taxes)
+                var taxAmount = roundToTwo((lineTotal * 100) / (100 + (item.tax_rate1() * 100)));
+            @else
+                var taxAmount = roundToTwo(lineTotal * item.tax_rate1() / 100);
+            @endif
             if (taxAmount) {
                 var key = item.tax_name1() + item.tax_rate1();
                 if (taxes.hasOwnProperty(key)) {
@@ -457,7 +469,11 @@ function InvoiceModel(data) {
                 }
             }
 
-            var taxAmount = roundToTwo(lineTotal * item.tax_rate2() / 100);
+            @if ($account->inclusive_taxes)
+                var taxAmount = roundToTwo((lineTotal * 100) / (100 + (item.tax_rate2() * 100)));
+            @else
+                var taxAmount = roundToTwo(lineTotal * item.tax_rate2() / 100);
+            @endif
             if (taxAmount) {
                 var key = item.tax_name2() + item.tax_rate2();
                 if (taxes.hasOwnProperty(key)) {
@@ -529,19 +545,21 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var taxAmount1 = roundToTwo(total * parseFloat(self.tax_rate1()) / 100);
-        var taxAmount2 = roundToTwo(total * parseFloat(self.tax_rate2()) / 100);
+        @if (! $account->inclusive_taxes)
+            var taxAmount1 = roundToTwo(total * parseFloat(self.tax_rate1()) / 100);
+            var taxAmount2 = roundToTwo(total * parseFloat(self.tax_rate2()) / 100);
 
-        total = NINJA.parseFloat(total) + taxAmount1 + taxAmount2;
-        total = roundToTwo(total);
+            total = NINJA.parseFloat(total) + taxAmount1 + taxAmount2;
+            total = roundToTwo(total);
 
-        var taxes = self.totals.itemTaxes();
-        for (var key in taxes) {
-            if (taxes.hasOwnProperty(key)) {
-                total += taxes[key].amount;
-                total = roundToTwo(total);
+            var taxes = self.totals.itemTaxes();
+            for (var key in taxes) {
+                if (taxes.hasOwnProperty(key)) {
+                    total += taxes[key].amount;
+                    total = roundToTwo(total);
+                }
             }
-        }
+        @endif
 
         if (customValue1 && !customTaxes1) {
             total = NINJA.parseFloat(total) + customValue1;
@@ -1022,7 +1040,7 @@ ko.bindingHandlers.productTypeahead = {
                         model.cost(roundSignificant(datum.cost, true));
                     }
                 }
-                if (!model.qty()) {
+                if (!model.qty() && ! model.task_public_id()) {
                     model.qty(1);
                 }
                 @if ($account->invoice_item_taxes)

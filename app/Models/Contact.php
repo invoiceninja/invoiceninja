@@ -9,13 +9,20 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\LookupContact;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * Class Contact.
  */
 class Contact extends EntityModel implements AuthenticatableContract, CanResetPasswordContract
 {
-    use SoftDeletes, Authenticatable, CanResetPassword;
+    use SoftDeletes;
+    use Authenticatable;
+    use CanResetPassword;
+    use Notifiable;
+
+    protected $guard = 'client';
+
     /**
      * @var array
      */
@@ -40,6 +47,17 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         'send_invoice',
         'custom_value1',
         'custom_value2',
+    ];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'confirmation_code',
     ];
 
     /**
@@ -164,6 +182,12 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         }
 
         return "{$url}/client/dashboard/{$this->contact_key}";
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        //$this->notify(new ResetPasswordNotification($token));
+        app('App\Ninja\Mailers\ContactMailer')->sendPasswordReset($this, $token);
     }
 }
 

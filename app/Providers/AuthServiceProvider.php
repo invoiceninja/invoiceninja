@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Gate;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -28,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\TaxRate::class => \App\Policies\TaxRatePolicy::class,
         \App\Models\AccountGateway::class => \App\Policies\AccountGatewayPolicy::class,
         \App\Models\AccountToken::class => \App\Policies\TokenPolicy::class,
+        \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
         \App\Models\BankAccount::class => \App\Policies\BankAccountPolicy::class,
         \App\Models\PaymentTerm::class => \App\Policies\PaymentTermPolicy::class,
         \App\Models\Project::class => \App\Policies\ProjectPolicy::class,
@@ -41,12 +43,12 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(GateContract $gate)
+    public function boot()
     {
         foreach (get_class_methods(new \App\Policies\GenericEntityPolicy()) as $method) {
-            $gate->define($method, "App\Policies\GenericEntityPolicy@{$method}");
+            Gate::define($method, "App\Policies\GenericEntityPolicy@{$method}");
         }
 
-        $this->registerPolicies($gate);
+        $this->registerPolicies();
     }
 }

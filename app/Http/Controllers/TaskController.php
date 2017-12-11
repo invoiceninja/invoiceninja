@@ -308,7 +308,6 @@ class TaskController extends BaseController
             }
         } else {
             $count = $this->taskService->bulk($ids, $action);
-
             if (request()->wantsJson()) {
                 return response()->json($count);
             } else {

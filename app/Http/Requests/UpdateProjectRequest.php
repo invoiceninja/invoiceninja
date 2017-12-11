@@ -26,7 +26,7 @@ class UpdateProjectRequest extends ProjectRequest
         }
 
         return [
-            'name' => sprintf('required|unique:projects,name,%s,id,account_id,%s', $this->entity()->id, $this->user()->account_id),
+            'name' => 'required',
         ];
     }
 }

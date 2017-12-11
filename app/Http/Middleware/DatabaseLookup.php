@@ -10,6 +10,7 @@ use App\Models\LookupInvitation;
 use App\Models\LookupAccountToken;
 use App\Models\LookupUser;
 use Auth;
+use Utils;
 
 class DatabaseLookup
 {
@@ -44,6 +45,13 @@ class DatabaseLookup
                 LookupInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
+            } elseif ($key = request()->account_key) {
+                LookupAccount::setServerByField('account_key', $key);
+            } else {
+                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                if ($subdomain != 'app') {
+                    LookupAccount::setServerByField('subdomain', $subdomain);
+                }
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);

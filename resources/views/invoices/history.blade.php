@@ -61,7 +61,10 @@
                 ->style('background-color: white !important') !!}
     @endif
 
-    {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo(URL::to('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'))->withAttributes(array('class' => 'pull-right')) !!}
+    {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))
+            ->asLinkTo(URL::to('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'))
+            ->appendIcon(Icon::create('edit'))
+            ->withAttributes(array('class' => 'pull-right')) !!}
     {!! Former::close() !!}
 
     <br/>&nbsp;<br/>

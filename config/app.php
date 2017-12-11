@@ -4,6 +4,8 @@ use App\Libraries\Utils;
 
 return [
 
+    'name' => env('APP_NAME', 'Invoice Ninja'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
@@ -139,6 +141,7 @@ return [
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
+        'Illuminate\Notifications\NotificationServiceProvider',
 
         /*
          * Additional Providers

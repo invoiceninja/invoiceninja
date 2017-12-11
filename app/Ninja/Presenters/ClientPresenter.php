@@ -11,6 +11,11 @@ class ClientPresenter extends EntityPresenter
         return $this->entity->country ? $this->entity->country->name : '';
     }
 
+    public function shipping_country()
+    {
+        return $this->entity->shipping_country ? $this->entity->shipping_country->name : '';
+    }
+
     public function balance()
     {
         $client = $this->entity;
@@ -50,6 +55,53 @@ class ClientPresenter extends EntityPresenter
 
         return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
     }
+
+    public function address($addressType = ADDRESS_BILLING)
+    {
+        $str = '';
+        $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
+        $client = $this->entity;
+
+        if ($address1 = $client->{$prefix . 'address1'}) {
+            $str .= e($address1) . '<br/>';
+        }
+        if ($address2 = $client->{$prefix . 'address2'}) {
+            $str .= e($address2) . '<br/>';
+        }
+        if ($cityState = $this->getCityState($addressType)) {
+            $str .= e($cityState) . '<br/>';
+        }
+        if ($country = $client->{$prefix . 'country'}) {
+            $str .= e($country->name) . '<br/>';
+        }
+
+        if ($str) {
+            $str = '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
+        }
+
+        return $str;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCityState($addressType = ADDRESS_BILLING)
+    {
+        $client = $this->entity;
+        $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
+        $swap = $client->{$prefix . 'country'} && $client->{$prefix . 'country'}->swap_postal_code;
+
+        $city = e($client->{$prefix . 'city'});
+        $state = e($client->{$prefix . 'state'});
+        $postalCode = e($client->{$prefix . 'post_code'});
+
+        if ($city || $state || $postalCode) {
+            return Utils::cityStateZip($city, $state, $postalCode, $swap);
+        } else {
+            return false;
+        }
+    }
+
 
     /**
      * @return string

@@ -116,8 +116,10 @@ class SendRecurringInvoices extends Command
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
                 if ($invoice && ! $invoice->isPaid()) {
-                    $this->info('Sending Invoice');
+                    $this->info('Not billed - Sending Invoice');
                     $this->mailer->sendInvoice($invoice);
+                } elseif ($invoice) {
+                    $this->info('Successfully billed invoice');
                 }
             } catch (Exception $exception) {
                 $this->info('Error: ' . $exception->getMessage());

@@ -126,8 +126,3 @@ To email an invoice use the email_invoice command passing the id of the invoice.
 
   curl -X POST ninja.dev/api/v1/email_invoice -d '{"id":1}' \
     -H "Content-Type:application/json" -H "X-Ninja-Token: TOKEN"
-
-Subscriptions
-"""""""""""""
-
-You can use subscriptions to have Invoice Ninja POST newly created records to a third-party application. To enable this feature you need to manually add a record to the subscriptions table. To determine the event_id find the associated EVENT_CREATE_ value from app/Constants.php.

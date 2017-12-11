@@ -86,6 +86,11 @@
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                         </li>
                     @endif
+                    @if (request()->contact && request()->contact->client->show_tasks_in_portal)
+                        <li {!! Request::is('*client/tasks') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/tasks', trans('texts.tasks') ) !!}
+                        </li>
+                    @endif
                     @if (isset($hasQuotes) && $hasQuotes)
                         <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/quotes', trans('texts.quotes') ) !!}

@@ -22,7 +22,7 @@ class CreateProjectRequest extends ProjectRequest
     public function rules()
     {
         return [
-            'name' => sprintf('required|unique:projects,name,,id,account_id,%s', $this->user()->account_id),
+            'name' => 'required',
             'client_id' => 'required',
         ];
     }

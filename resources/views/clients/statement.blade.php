@@ -75,8 +75,10 @@
 
             $('#reportrange').daterangepicker({
                 locale: {
-					format: "{{ $account->getMomentDateFormat() }}",
-					customRangeLabel: "{{ trans('texts.custom_range') }}",
+                    format: "{{ $account->getMomentDateFormat() }}",
+                    customRangeLabel: "{{ trans('texts.custom_range') }}",
+                    applyLabel: "{{ trans('texts.apply') }}",
+                    cancelLabel: "{{ trans('texts.cancel') }}",
                 },
                 startDate: statementStartDate,
                 endDate: statementEndDate,

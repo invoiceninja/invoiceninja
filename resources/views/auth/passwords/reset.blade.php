@@ -3,10 +3,15 @@
 @section('form')
 <div class="container">
 
-  {!! Former::open('/password/reset')->addClass('form-signin')->rules(array(
+  {!! Former::open('/password/reset')
+        ->addClass('form-signin')
+        ->autocomplete('off')
+        ->rules(array(
         'password' => 'required',
         'password_confirmation' => 'required',
   )) !!}
+
+    @include('partials.autocomplete_fix')
 
     <h2 class="form-signin-heading">{{ trans('texts.set_password') }}</h2>
     <hr class="green">
@@ -35,9 +40,9 @@
     <input type="hidden" name="token" value="{{{ $token }}}">
 
     <div>
-        {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}
-        {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
-        {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->raw() !!}
+        {!! Former::text('email')->placeholder(trans('texts.email'))->value($email)->readonly(true)->raw() !!}
+        {!! Former::password('password')->placeholder(trans('texts.password'))->autocomplete('new-password')->raw() !!}
+        {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->autocomplete('new-password')->raw() !!}
     </div>
 
     <p>{!! Button::success(trans('texts.save'))->large()->submit()->withAttributes(['class' => 'green'])->block() !!}</p>
@@ -47,7 +52,7 @@
 </div>
 <script type="text/javascript">
     $(function() {
-        $('#email').focus();
+        $('#password').focus();
     })
 </script>
 

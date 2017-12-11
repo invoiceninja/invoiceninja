@@ -177,6 +177,7 @@ class Account extends Eloquent
         'credit_number_prefix',
         'credit_number_pattern',
         'task_rate',
+        'inclusive_taxes',
     ];
 
     /**
@@ -216,7 +217,6 @@ class Account extends Eloquent
         ENTITY_QUOTE => 4,
         ENTITY_TASK => 8,
         ENTITY_EXPENSE => 16,
-        ENTITY_VENDOR => 32,
     ];
 
     public static $dashboardSections = [
@@ -233,6 +233,7 @@ class Account extends Eloquent
         'due_date',
         'hours',
         'id_number',
+        'invoice',
         'item',
         'line_total',
         'outstanding',
@@ -240,6 +241,7 @@ class Account extends Eloquent
         'partial_due',
         'po_number',
         'quantity',
+        'quote',
         'rate',
         'service',
         'subtotal',
@@ -1008,6 +1010,15 @@ class Account extends Eloquent
         $this->company->save();
     }
 
+    public function hasReminders()
+    {
+        if (! $this->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            return false;
+        }
+
+        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3;
+    }
+
     /**
      * @param $feature
      *
@@ -1293,9 +1304,9 @@ class Account extends Eloquent
      *
      * @return \Illuminate\Database\Eloquent\Model|null|static
      */
-    public function getSubscription($eventId)
+    public function getSubscriptions($eventId)
     {
-        return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->first();
+        return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->get();
     }
 
     /**
@@ -1625,8 +1636,15 @@ class Account extends Eloquent
             ENTITY_TASK,
             ENTITY_EXPENSE,
             ENTITY_VENDOR,
+            ENTITY_PROJECT,
         ])) {
             return true;
+        }
+
+        if ($entityType == ENTITY_VENDOR) {
+            $entityType = ENTITY_EXPENSE;
+        } elseif ($entityType == ENTITY_PROJECT) {
+            $entityType = ENTITY_TASK;
         }
 
         // note: single & checks bitmask match
@@ -1692,6 +1710,11 @@ class Account extends Eloquent
         return $this->company->accounts->count() > 1;
     }
 
+    public function getPrimaryAccount()
+    {
+        return $this->company->accounts()->orderBy('id')->first();
+    }
+
     public function financialYearStart()
     {
         if (! $this->financial_year_start) {
@@ -1712,11 +1735,41 @@ class Account extends Eloquent
     {
         return $this->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->enable_portal_password;
     }
+
+    public function getBaseUrl()
+    {
+        if ($this->hasFeature(FEATURE_CUSTOM_URL)) {
+            if ($this->iframe_url) {
+                return $this->iframe_url;
+            }
+
+            if (Utils::isNinjaProd() && ! Utils::isReseller()) {
+                $url = $this->present()->clientPortalLink();
+            } else {
+                $url = url('/');
+            }
+
+            if ($this->subdomain) {
+                $url = Utils::replaceSubdomain($url, $this->subdomain);
+            }
+
+            return $url;
+        } else {
+            return url('/');
+        }
+    }
 }
 
 Account::creating(function ($account)
 {
     LookupAccount::createAccount($account->account_key, $account->company_id);
+});
+
+Account::updating(function ($account) {
+    $dirty = $account->getDirty();
+    if (array_key_exists('subdomain', $dirty)) {
+        LookupAccount::updateAccount($account->account_key, $account);
+    }
 });
 
 Account::updated(function ($account) {

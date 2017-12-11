@@ -185,7 +185,7 @@
 						@foreach (\App\Models\Account::$modules as $entityType => $value)
 						<div class="checkbox">
 							<label for="modules_{{ $value}}">
-								<input name="modules[]" id="modules_{{ $value}}" type="checkbox" {{ Auth::user()->account->isModuleEnabled($entityType) ? 'checked="checked"' : '' }} value="{{ $value }}">{{ trans("texts.{$entityType}s") }}
+								<input name="modules[]" id="modules_{{ $value}}" type="checkbox" {{ Auth::user()->account->isModuleEnabled($entityType) ? 'checked="checked"' : '' }} value="{{ $value }}">{{ trans("texts.module_{$entityType}") }}
 							</label>
 						</div>
 						@endforeach
@@ -273,39 +273,50 @@
 					</div>
 					{!! Former::close() !!}
 
-					{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
-					{!! Former::actions( Button::danger($account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showCancelConfirm()'])->appendIcon(Icon::create('trash'))) !!}
-					<div class="form-group">
-						<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-							<span class="help-block">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_help') : trans('texts.cancel_account_help') }}</span>
+					@if (! $account->hasMultipleAccounts() || $account->getPrimaryAccount()->id != $account->id)
+						{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
+						{!! Former::actions( Button::danger($account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showCancelConfirm()'])->appendIcon(Icon::create('trash'))) !!}
+						<div class="form-group">
+							<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+								<span class="help-block">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_help') : trans('texts.cancel_account_help') }}</span>
+							</div>
 						</div>
-					</div>
-					<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
-						<div class="modal-dialog" style="min-width:150px">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-									<h4 class="modal-title" id="confirmCancelModalLabel">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</h4>
-								</div>
-								<div class="container" style="width: 100%; padding-bottom: 0px !important">
-				                <div class="panel panel-default">
-				                <div class="panel-body">
-									<p><b>{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_message') : trans('texts.cancel_account_message') }}</b></p><br/>
-									<p>{!! Former::textarea('reason')
-												->placeholder(trans('texts.reason_for_canceling'))
-												->raw()
-												->rows(4) !!}</p>
-									<br/>
-								</div>
-								</div>
-								</div>
-								<div class="modal-footer" style="margin-top: 2px">
-									<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-									<button type="button" class="btn btn-danger" id="deleteButton" onclick="confirmCancel()">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</button>
+						<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+							<div class="modal-dialog" style="min-width:150px">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="confirmCancelModalLabel">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</h4>
+									</div>
+									<div class="container" style="width: 100%; padding-bottom: 0px !important">
+					                <div class="panel panel-default">
+					                <div class="panel-body">
+										<p><b>{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_message') : trans('texts.cancel_account_message') }}</b></p><br/>
+										@if ($account->getPrimaryAccount()->id == $account->id)
+											<p>{!! Former::textarea('reason')
+														->placeholder(trans('texts.reason_for_canceling'))
+														->raw()
+														->rows(4) !!}</p>
+										@endif
+										<br/>
+									</div>
+									</div>
+									</div>
+									<div class="modal-footer" style="margin-top: 2px">
+										<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
+										<button type="button" class="btn btn-danger" id="deleteButton" onclick="confirmCancel()">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</button>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+					@elseif ($account->hasMultipleAccounts())
+						<div class="form-group">
+							<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+								<span class="help-block">{{ trans('texts.unable_to_delete_primary') }}</span>
+							</div>
+						</div>
+					@endif
+
 					{!! Former::close() !!}
 				</div>
 			</div>

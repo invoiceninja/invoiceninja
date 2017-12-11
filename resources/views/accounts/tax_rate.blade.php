@@ -28,13 +28,14 @@
   {!! Former::text('name')->label('texts.name') !!}
   {!! Former::text('rate')->label('texts.rate')->append('%') !!}
 
-  {!! Former::radios('is_inclusive')->radios([
-          trans('texts.exclusive') . ': 100 + 10% = 100 + 10' => array('name' => 'is_inclusive', 'value' => 0),
-          trans('texts.inclusive') . ':&nbsp; 100 + 10% = 90.91 + 9.09' => array('name' => 'is_inclusive', 'value' => 1),
-      ])->check(0)
-        ->label('type')
-        ->help('tax_rate_type_help') !!}
-
+  @if (! auth()->user()->account->inclusive_taxes)
+      {!! Former::radios('is_inclusive')->radios([
+              trans('texts.exclusive') . ': 100 + 10% = 100 + 10' => array('name' => 'is_inclusive', 'value' => 0),
+              trans('texts.inclusive') . ':&nbsp; 100 + 10% = 90.91 + 9.09' => array('name' => 'is_inclusive', 'value' => 1),
+          ])->check(0)
+            ->label('type')
+            ->help('tax_rate_type_help') !!}
+  @endif
 
   </div>
   </div>

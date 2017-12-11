@@ -67,7 +67,7 @@
                 $(this).css({color:'#444444'});
             });
 
-            $('#country_id').combobox();
+            $('#country_id, #shipping_country_id').combobox();
             $('#currency_id').combobox();
             $('#first_name').focus();
         });

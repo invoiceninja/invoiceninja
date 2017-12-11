@@ -42,9 +42,8 @@ class Gateway extends Eloquent
      */
     public static $preferred = [
         GATEWAY_PAYPAL_EXPRESS,
-        GATEWAY_BITPAY,
-        GATEWAY_DWOLLA,
         GATEWAY_STRIPE,
+        GATEWAY_WEPAY,
         GATEWAY_BRAINTREE,
         GATEWAY_AUTHORIZE_NET,
         GATEWAY_MOLLIE,
@@ -140,7 +139,6 @@ class Gateway extends Eloquent
     public function scopePrimary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
-            ->where('id', '!=', GATEWAY_WEPAY)
             ->whereIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
     }
@@ -152,7 +150,6 @@ class Gateway extends Eloquent
     public function scopeSecondary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
-            ->where('id', '!=', GATEWAY_WEPAY)
             ->whereNotIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
     }
@@ -178,11 +175,13 @@ class Gateway extends Eloquent
             $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
         } elseif ($this->id == GATEWAY_STRIPE) {
             $link = 'https://dashboard.stripe.com/account/apikeys';
+        } elseif ($this->id == GATEWAY_WEPAY) {
+            $link = url('/gateways/create?wepay=true');
         }
 
         $key = 'texts.gateway_help_'.$this->id;
         $str = trans($key, [
-            'link' => "<a href='$link' target='_blank'>Click here</a>",
+            'link' => "<a href='$link' >Click here</a>",
             'complete_link' => url('/complete'),
         ]);
 

@@ -39,10 +39,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        
+
         'client' => [
             'driver' => 'session',
-            'provider' => 'client',
+            'provider' => 'clients',
         ],
 
         'api' => [
@@ -73,8 +73,8 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-        
-        'client' => [
+
+        'clients' => [
             'driver' => 'eloquent',
             'model' => App\Models\Contact::class,
         ]
@@ -102,13 +102,11 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'email' => 'emails.password',
             'table' => 'password_resets',
             'expire' => 60,
         ],
-        'client' => [
-            'provider' => 'client',
-            'email' => 'emails.client_password',
+        'clients' => [
+            'provider' => 'clients',
             'table' => 'password_resets',
             'expire' => 60,
         ],

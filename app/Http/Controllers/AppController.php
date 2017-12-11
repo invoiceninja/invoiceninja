@@ -269,9 +269,21 @@ class AppController extends BaseController
     public function update()
     {
         if (! Utils::isNinjaProd()) {
+            if ($password = env('UPDATE_SECRET')) {
+                if (! hash_equals($password, request('secret') ?: '')) {
+                    abort(400, 'Invalid secret: /update?secret=<value>');
+                }
+            }
+
             try {
                 set_time_limit(60 * 5);
                 $this->checkInnoDB();
+
+                $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+                if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+                $cacheServices = base_path('bootstrap/cache/services.json');
+                if (file_exists($cacheServices)) { unlink ($cacheServices); }
+
                 Artisan::call('clear-compiled');
                 Artisan::call('cache:clear');
                 Artisan::call('debugbar:clear');

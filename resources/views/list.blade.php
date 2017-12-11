@@ -8,7 +8,7 @@
 </div>
 
 <div class="pull-left">
-	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT]))
+	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT, ENTITY_PROJECT]))
 		@can('create', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endcan
@@ -46,7 +46,7 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-	@if ($entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
+	@if (false && $entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
 		{!! DropdownButton::normal(trans('texts.recurring'))
 			->withAttributes(['class'=>'recurringDropdown'])
 			->withContents([
@@ -85,19 +85,6 @@
 		</script>
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
-		{!! DropdownButton::normal(trans('texts.projects'))
-			->withAttributes(['class'=>'projectsDropdown'])
-			->withContents([
-			  ['label' => trans('texts.new_project'), 'url' => url('/projects/create')],
-			]
-		  )->split() !!}
-	  	<script type="text/javascript">
-		  	$(function() {
-		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/projects') }}', event);
-		  		});
-			});
-		</script>
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
@@ -141,7 +128,15 @@
 
 <script type="text/javascript">
 
+	var submittedForm;
 	function submitForm_{{ $entityType }}(action, id) {
+		// prevent duplicate form submissions
+		if (submittedForm) {
+			swal("{{ trans('texts.processing_request') }}")
+			return;
+		}
+		submittedForm = true;
+
 		if (id) {
 			$('#public_id_{{ $entityType }}').val(id);
 		}

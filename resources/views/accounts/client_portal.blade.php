@@ -65,8 +65,7 @@
 
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="link">
-                        <div class="panel-body">
-
+                        <div class="panel-body col-lg-10 col-lg-offset-1">
                             @if (Utils::isNinja() && ! Utils::isReseller())
                                 {!! Former::inline_radios('domain_id')
                                         ->label(trans('texts.domain'))
@@ -109,7 +108,7 @@
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="navigation">
-                        <div class="panel-body">
+                        <div class="panel-body col-lg-10 col-lg-offset-1">
 
                             {!! Former::checkbox('enable_client_portal')
                                 ->text(trans('texts.enable'))
@@ -155,62 +154,52 @@
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="password">
                         <div class="panel-body">
-                          <div class="row">
-                            <div class="col-md-10 col-md-offset-1">
-                                {!! Former::checkbox('enable_portal_password')
-                                    ->text(trans('texts.enable'))
-                                    ->help(trans('texts.enable_portal_password_help'))
-                                    ->label(trans('texts.enable_portal_password'))
-                                    ->value(1) !!}
-                            </div>
-                            <div class="col-md-10 col-md-offset-1">
-                                {!! Former::checkbox('send_portal_password')
-                                    ->text(trans('texts.enable'))
-                                    ->help(trans('texts.send_portal_password_help'))
-                                    ->label(trans('texts.send_portal_password'))
-                                    ->value(1) !!}
-                            </div>
+                          <div class="row col-lg-10 col-lg-offset-1">
+                            {!! Former::checkbox('enable_portal_password')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.enable_portal_password_help'))
+                                ->label(trans('texts.enable_portal_password'))
+                                ->value(1) !!}
+                            {!! Former::checkbox('send_portal_password')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.send_portal_password_help'))
+                                ->label(trans('texts.send_portal_password'))
+                                ->value(1) !!}
+                            {!! Former::plaintext('client_login')
+                                ->value(link_to($account->present()->clientLoginUrl, null, ['target' => '_blank'])) !!}
                         </div>
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="checkbox">
                         <div class="panel-body">
-                          <div class="row">
-                            <div class="col-md-10 col-md-offset-1">
-                                {!! Former::checkbox('show_accept_invoice_terms')
-                                    ->text(trans('texts.enable'))
-                                    ->help(trans('texts.show_accept_invoice_terms_help'))
-                                    ->label(trans('texts.show_accept_invoice_terms'))
-                                    ->value(1) !!}
-                            </div>
-                            <div class="col-md-10 col-md-offset-1">
-                                {!! Former::checkbox('show_accept_quote_terms')
-                                    ->text(trans('texts.enable'))
-                                    ->help(trans('texts.show_accept_quote_terms_help'))
-                                    ->label(trans('texts.show_accept_quote_terms'))
-                                    ->value(1) !!}
-                            </div>
+                          <div class="row col-lg-10 col-lg-offset-1">
+                            {!! Former::checkbox('show_accept_invoice_terms')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.show_accept_invoice_terms_help'))
+                                ->label(trans('texts.show_accept_invoice_terms'))
+                                ->value(1) !!}
+                            {!! Former::checkbox('show_accept_quote_terms')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.show_accept_quote_terms_help'))
+                                ->label(trans('texts.show_accept_quote_terms'))
+                                ->value(1) !!}
                         </div>
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="signature">
                         <div class="panel-body">
-                          <div class="row">
-                            <div class="col-md-10 col-md-offset-1">
-                                {!! Former::checkbox('require_invoice_signature')
-                                    ->text(trans('texts.enable'))
-                                    ->help(trans('texts.require_invoice_signature_help'))
-                                    ->label(trans('texts.require_invoice_signature'))
-                                    ->value(1) !!}
-                            </div>
-                            <div class="col-md-10 col-md-offset-1">
-                                {!! Former::checkbox('require_quote_signature')
-                                    ->text(trans('texts.enable'))
-                                    ->help(trans('texts.require_quote_signature_help'))
-                                    ->label(trans('texts.require_quote_signature'))
-                                    ->value(1) !!}
-                            </div>
-                        </div>
+                          <div class="row col-lg-10 col-lg-offset-1">
+                            {!! Former::checkbox('require_invoice_signature')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.require_invoice_signature_help'))
+                                ->label(trans('texts.require_invoice_signature'))
+                                ->value(1) !!}
+                            {!! Former::checkbox('require_quote_signature')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.require_quote_signature_help'))
+                                ->label(trans('texts.require_quote_signature'))
+                                ->value(1) !!}
+                          </div>
                         </div>
                     </div>
                 </div>
@@ -222,7 +211,7 @@
                 <h3 class="panel-title">{!! trans('texts.buy_now_buttons') !!}</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-10 col-md-offset-1">
+                <div class="row col-lg-10 col-lg-offset-1">
 
                     @if (count($gateway_types) && count($products))
 

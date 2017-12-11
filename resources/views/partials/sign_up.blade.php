@@ -127,6 +127,7 @@
           @else
               handleSignedUp();
               NINJA.isRegistered = true;
+              $('#gettingStartedIframe').attr('src', '{{ str_replace('watch?v=', 'embed/', config('ninja.video_urls.getting_started')) }}');
               $('#signUpButton').hide();
               $('#myAccountButton').html(result);
               $('#signUpSuccessDiv, #signUpFooter, #closeSignUpButton').show();
@@ -262,8 +263,11 @@
         <br/>
         @if (Utils::isNinja())
           {{ trans('texts.success_message') }}
+          <br/>&nbsp;<br/>
         @endif
-        <br/>
+        @if (! auth()->user()->registered)
+            <iframe id="gettingStartedIframe" width="100%" height="315"></iframe>
+        @endif
       </div>
 
       </div>

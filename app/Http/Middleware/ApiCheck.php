@@ -28,7 +28,8 @@ class ApiCheck
     {
         $loggingIn = $request->is('api/v1/login')
             || $request->is('api/v1/register')
-            || $request->is('api/v1/oauth_login');
+            || $request->is('api/v1/oauth_login')
+            || $request->is('api/v1/ios_subscription_status');
 
         $headers = Utils::getApiHeaders();
         $hasApiSecret = false;

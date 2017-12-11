@@ -138,8 +138,10 @@
 
             $('#reportrange').daterangepicker({
                 locale: {
-                    format: "{{ $account->getMomentDateFormat() }}",
+					format: "{{ $account->getMomentDateFormat() }}",
 					customRangeLabel: "{{ trans('texts.custom_range') }}",
+					applyLabel: "{{ trans('texts.apply') }}",
+					cancelLabel: "{{ trans('texts.cancel') }}",
                 },
 				startDate: chartStartDate,
                 endDate: chartEndDate,
@@ -168,7 +170,7 @@
             });
 
             function loadData() {
-                var includeExpenses = "{{ count($expenses) ? 'true' : 'false' }}";
+                var includeExpenses = "{{ $showExpenses ? 'true' : 'false' }}";
                 var url = "{!! url('/dashboard_chart_data') !!}/" + chartGroupBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
                 $.get(url, function(response) {
                     response = JSON.parse(response);
@@ -288,7 +290,7 @@
         <div class="panel panel-default">
             <div class="panel-body expenses-panel">
                 <div style="overflow:hidden">
-                    @if (count($expenses))
+                    @if ($showExpenses)
                         <div class="{{ $headerClass }}">
                             {{ trans('texts.total_expenses') }}
                         </div>
@@ -384,7 +386,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="panel panel-default dashboard" style="height:320px">
-            <div class="panel-heading" style="background-color:#286090 !important">
+            <div class="panel-heading">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
                     @if ($invoicesSent)
@@ -413,7 +415,7 @@
         <div class="panel panel-default dashboard" style="height:320px;">
             <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                 <h3 class="panel-title" style="color: black !important">
-                    @if (count($expenses) && count($averageInvoice))
+                    @if ($showExpenses && count($averageInvoice))
                         <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
                             @foreach ($averageInvoice as $item)
                                 <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">

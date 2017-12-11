@@ -98,21 +98,6 @@
 		  	   <p><i class="fa fa-vat-number" style="width: 20px"></i>{{ trans('texts.vat_number').': '.$client->vat_number }}</p>
             @endif
 
-            @if ($client->address1)
-                {{ $client->address1 }}<br/>
-            @endif
-            @if ($client->address2)
-                {{ $client->address2 }}<br/>
-            @endif
-            @if ($client->getCityState())
-                {{ $client->getCityState() }}<br/>
-            @endif
-            @if ($client->country)
-                {{ $client->country->name }}<br/>
-            @endif
-
-            <br/>
-
             @if ($client->account->custom_client_label1 && $client->custom_value1)
                 {{ $client->account->custom_client_label1 . ': ' . $client->custom_value1 }}<br/>
             @endif
@@ -127,6 +112,8 @@
             @if (floatval($client->task_rate))
                 <p>{{ trans('texts.task_rate') }}: {{ Utils::roundSignificant($client->task_rate) }}</p>
             @endif
+
+            <p/>
 
             @if ($client->public_notes)
                 <p><i>{{ $client->public_notes }}</i></p>
@@ -152,7 +139,24 @@
             @endif
 
             <p>{{ $client->present()->paymentTerms }}</p>
+
+            <div class="text-muted" style="padding-top:8px">
+            @if ($client->show_tasks_in_portal)
+                • {{ trans('texts.can_view_tasks') }}<br/>
+            @endif
+            @if ($client->account->hasReminders() && ! $client->send_reminders)
+                • {{ trans('texts.is_not_sent_reminders') }}</br>
+            @endif
+            </div>
 		</div>
+
+        <div class="col-md-3">
+			<h3>{{ trans('texts.address') }}</h3>
+
+            {!! $client->present()->address(ADDRESS_BILLING) !!}<br/>
+            {!! $client->present()->address(ADDRESS_SHIPPING) !!}
+
+        </div>
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
@@ -183,7 +187,7 @@
 		  	@endforeach
 		</div>
 
-		<div class="col-md-4">
+		<div class="col-md-3">
 			<h3>{{ trans('texts.standing') }}
 			<table class="table" style="width:100%">
 				<tr>

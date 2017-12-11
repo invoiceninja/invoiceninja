@@ -38,6 +38,15 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="id_number", type="string", example="123456")
      * @SWG\Property(property="language_id", type="integer", example=1)
      * @SWG\Property(property="task_rate", type="number", format="float", example=10)
+     * @SWG\Property(property="shipping_address1", type="string", example="10 Main St.")
+     * @SWG\Property(property="shipping_address2", type="string", example="1st Floor")
+     * @SWG\Property(property="shipping_city", type="string", example="New York")
+     * @SWG\Property(property="shipping_state", type="string", example="NY")
+     * @SWG\Property(property="shipping_postal_code", type="string", example=10010)
+     * @SWG\Property(property="shipping_country_id", type="integer", example=840)
+     * @SWG\Property(property="show_tasks_in_portal", type="boolean", example=false)
+     * @SWG\Property(property="send_reminders", type="boolean", example=false)
+     * @SWG\Property(property="credit_number_counter", type="integer", example=1)
      */
     protected $defaultIncludes = [
         'contacts',
@@ -137,6 +146,15 @@ class ClientTransformer extends EntityTransformer
             'invoice_number_counter' => (int) $client->invoice_number_counter,
             'quote_number_counter' => (int) $client->quote_number_counter,
             'task_rate' => (float) $client->task_rate,
+            'shipping_address1' => $client->shipping_address1,
+            'shipping_address2' => $client->shipping_address2,
+            'shipping_city' => $client->shipping_city,
+            'shipping_state' => $client->shipping_state,
+            'shipping_postal_code' => $client->shipping_postal_code,
+            'shipping_country_id' => (int) $client->shipping_country_id,
+            'show_tasks_in_portal' => (bool) $client->show_tasks_in_portal,
+            'send_reminders' => (bool) $client->send_reminders,
+            'credit_number_counter' => (int) $client->credit_number_counter,
         ]);
     }
 }

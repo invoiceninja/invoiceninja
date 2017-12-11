@@ -1,10 +1,17 @@
 @extends('header')
 
-@section('top-right')
-    @if (env('WEPAY_CLIENT_ID') && isset($accountGatewaysIds) && ! count($accountGatewaysIds))
-        {!! Button::primary(trans('texts.sign_up_with_wepay'))
-                ->asLinkTo(URL::to('/gateways/create?wepay=true')) !!}
-    @endif
+@section('head')
+	@parent
+
+    <style type="text/css">
+        label.checkbox-inline {
+            padding-left: 0px;
+        }
+
+        label.checkbox-inline div {
+            padding-left: 20px;
+        }
+    </style>
 @stop
 
 @section('content')
@@ -17,15 +24,19 @@
         <h3 class="panel-title">{!! trans($title) !!}</h3>
     </div>
     <div class="panel-body form-padding-right">
-    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
+    {!! Former::open_for_files($url)
+			->method($method)
+			->addClass('warn-on-exit') !!}
 
     @if ($accountGateway)
         {!! Former::populateField('primary_gateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
+        {!! Former::populateField('show_shipping_address', intval($accountGateway->show_shipping_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+		{!! Former::populateField('enable_apple_pay', $accountGateway->getApplePayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_sofort', $accountGateway->getSofortEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_alipay', $accountGateway->getAlipayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
@@ -142,9 +153,15 @@
                 ->addGroupClass('gateway-option')
                 ->value(1) !!}
 
-        {!! Former::checkbox('update_address')
+		{!! Former::checkbox('update_address')
                 ->label(' ')
                 ->text(trans('texts.update_address_help'))
+                ->addGroupClass('gateway-option')
+                ->value(1) !!}
+
+        {!! Former::checkbox('show_shipping_address')
+                ->label(trans('texts.shipping_address'))
+                ->text(trans('texts.show_shipping_address_help'))
                 ->addGroupClass('gateway-option')
                 ->value(1) !!}
 
@@ -153,18 +170,22 @@
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types')
                 ->addGroupClass('gateway-option')
+                ->inline()
                 ->value(1)
         !!}
+        <br/>
     </div>
 
     @if (!$accountGateway || $accountGateway->gateway_id == GATEWAY_STRIPE)
         <div class="stripe-ach">
+			{!! Former::plaintext(' ')->value('<b>' . trans('texts.optional_payment_methods') . '</b>') !!}
+
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
                 ->value(1) !!}
 
-            {!! Former::checkbox('enable_sofort')
+			{!! Former::checkbox('enable_sofort')
                 ->label(trans('texts.sofort'))
                 ->text(trans('texts.enable_sofort'))
                 ->value(1) !!}
@@ -175,6 +196,24 @@
                 ->text(trans('texts.enable_sepa'))
                 ->value(1) !!}
             -->
+
+			{!! Former::checkbox('enable_apple_pay')
+                ->label(trans('texts.apple_pay'))
+                ->text(trans('texts.enable_apple_pay'))
+				->disabled(Utils::isNinja() && ! $account->subdomain)
+				->help((Utils::isNinja() && ! $account->subdomain) ? trans('texts.requires_subdomain', [
+					'link' => link_to('/settings/client_portal', trans('texts.subdomain_is_set'), ['target' => '_blank'])
+				]) : ($accountGateway && $accountGateway->getApplePayEnabled() && Utils::isRootFolder() && ! $accountGateway->getAppleMerchantId() ? 'verification_file_missing' :
+					Utils::isNinja() ? trans('texts.apple_pay_domain', [
+						'domain' => $account->subdomain . '.' . APP_DOMAIN, 'link' => link_to('https://dashboard.stripe.com/account/apple_pay', 'Stripe', ['target' => '_blank']),
+					]) : ''))
+                ->value(1) !!}
+
+			@if (Utils::isRootFolder())
+				{!! Former::file('apple_merchant_id')
+				 		->label('verification_file')
+						->addGroupClass('verification-file') !!}
+			@endif
 
             {!! Former::checkbox('enable_bitcoin')
                 ->label(trans('texts.bitcoin'))
@@ -236,7 +275,7 @@
 
     <center>
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) !!}
-        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+        {!! Button::success(trans('texts.save'))->addClass(['save-button'])->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
     </center>
 
     {!! Former::close() !!}
@@ -252,6 +291,12 @@
         } else {
             $('.secondary-gateway').show();
         }
+
+		if (primaryId == {{ GATEWAY_WEPAY }}) {
+			$('.save-button').prop('disabled', true);
+		} else {
+			$('.save-button').prop('disabled', false);
+		}
 
         var val = primaryId || secondaryId;
         $('.gateway-fields').hide();
@@ -279,14 +324,9 @@
     }
 
     function enableUpdateAddress(event) {
-        var disabled = !$('#show_address').is(':checked');
+        var disabled = ! $('#show_address').is(':checked');
         $('#update_address').prop('disabled', disabled);
         $('label[for=update_address]').css('color', disabled ? '#888' : '#000');
-        if (disabled) {
-            $('#update_address').prop('checked', false);
-        } else if (event) {
-            $('#update_address').prop('checked', true);
-        }
     }
 
     function updateWebhookShown() {
@@ -295,8 +335,10 @@
         var enableSofort = $('#enable_sofort').is(':checked');
         var enableSepa = $('#enable_sepa').is(':checked');
         var enableBicoin = $('#enable_bitcoin').is(':checked');
+		var enableApplePay = $('#enable_apple_pay').is(':checked');
         $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort || enableSepa || enableBicoin);
         $('.stripe-ach-options').toggle(enableAch);
+		$('.verification-file').toggle(enableApplePay);
     }
 
     var gateways = {!! Cache::get('gateways') !!};
@@ -306,14 +348,10 @@
         setFieldsShown();
         updateWebhookShown();
 
-        $('#show_address').change(enableUpdateAddress);
+        $('#show_address, #show_shipping_address').change(enableUpdateAddress);
         enableUpdateAddress();
 
-        $('#enable_ach').change(updateWebhookShown);
-        $('#enable_alipay').change(updateWebhookShown);
-        $('#enable_sofort').change(updateWebhookShown);
-        $('#enable_sepa').change(updateWebhookShown);
-        $('#enable_bitcoin').change(updateWebhookShown);
+        $('#enable_ach, #enable_alipay, #enable_sofort, #enable_sepa, #enable_bitcoin, #enable_apple_pay').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {

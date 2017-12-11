@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
+use Str;
 use stdClass;
 
 class InvoiceItemPresenter extends EntityPresenter
@@ -15,5 +16,10 @@ class InvoiceItemPresenter extends EntityPresenter
         $data->amount = round($data->item_price * $data->quantity, 2);
 
         return $data;
+    }
+
+    public function notes()
+    {
+        return Str::limit($this->entity->notes);
     }
 }

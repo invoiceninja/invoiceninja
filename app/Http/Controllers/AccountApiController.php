@@ -16,6 +16,7 @@ use Auth;
 use Cache;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Response;
 use Socialite;
 use Utils;
@@ -91,7 +92,7 @@ class AccountApiController extends BaseAPIController
 
         return $this->response($data);
     }
-
+    
     public function show(Request $request)
     {
         $account = Auth::user()->account;
@@ -118,7 +119,13 @@ class AccountApiController extends BaseAPIController
 
     public function getUserAccounts(Request $request)
     {
-        return $this->processLogin($request);
+        $user = Auth::user();
+
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
+        $data = $this->createCollection($users, $transformer, 'user_account');
+
+        return $this->response($data);
     }
 
     public function update(UpdateAccountRequest $request)
@@ -140,7 +147,7 @@ class AccountApiController extends BaseAPIController
         $devices = json_decode($account->devices, true);
 
         for ($x = 0; $x < count($devices); $x++) {
-            if ($devices[$x]['email'] == Auth::user()->username) {
+            if ($devices[$x]['email'] == $request->email) {
                 $devices[$x]['token'] = $request->token; //update
                 $devices[$x]['device'] = $request->device;
                     $account->devices = json_encode($devices);
@@ -169,6 +176,26 @@ class AccountApiController extends BaseAPIController
         $account->save();
 
         return $this->response($newDevice);
+    }
+
+    public function removeDeviceToken(Request $request) {
+
+        $account = Auth::user()->account;
+
+        $devices = json_decode($account->devices, true);
+
+        foreach($devices as $key => $value)
+        {
+
+            if($request->token == $value['token'])
+                unset($devices[$key]);
+
+        }
+
+        $account->devices = json_encode(array_values($devices));
+        $account->save();
+
+        return $this->response(['success']);
     }
 
     public function updatePushNotifications(Request $request)
@@ -220,4 +247,11 @@ class AccountApiController extends BaseAPIController
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
+
+    public function iosSubscriptionStatus() {
+
+        //stubbed for iOS callbacks
+        
+    }
+
 }

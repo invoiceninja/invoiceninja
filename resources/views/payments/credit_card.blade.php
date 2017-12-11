@@ -14,6 +14,37 @@
 
     <script type="text/javascript">
 
+        function copyBillingAddress() {
+            var fields = [
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'postal_code',
+                'country_id',
+            ]
+            $.each(fields, function(i, field) {
+                $('#shipping_' + field).val($('#' + field).val());
+            })
+            $('#shipping_country_id').combobox('refresh');
+        }
+
+        function clearShippingAddress() {
+            var fields = [
+                'address1',
+                'address2',
+                'city',
+                'state',
+                'postal_code',
+                'country_id',
+            ]
+            $.each(fields, function(i, field) {
+                $('#shipping_' + field).val('');
+            })
+            $('#shipping_country_id').combobox('toggle');
+            $('#shipping_address1').focus();
+        }
+
         $(function() {
             $('.payment-form').submit(function(event) {
                 var $form = $(this);
@@ -22,6 +53,22 @@
                 $form.find('button').prop('disabled', true);
 
                 return true;
+            });
+
+            $('#shipToBillingAddress').click(function() {
+                var checked = $('#shipToBillingAddress').is(':checked');
+                $('.shipping-address input').prop('readonly', checked);
+                if (checked) {
+                    copyBillingAddress();
+                } else {
+                    clearShippingAddress();
+                }
+            })
+
+            $('.billing-address').change(function() {
+                if ($('#shipToBillingAddress').is(':checked')) {
+                    copyBillingAddress();
+                }
             });
 
             @if ($accountGateway->gateway_id != GATEWAY_BRAINTREE)
@@ -91,6 +138,11 @@
                 'routing_number' => 'required',
                 'account_holder_name' => 'required',
                 'account_holder_type' => 'required',
+                'shipping_address1' => 'required',
+                'shipping_city' => 'required',
+                'shipping_state' => 'required',
+                'shipping_postal_code' => 'required',
+                'shipping_country_id' => 'required',
             )) !!}
 
 
@@ -101,6 +153,7 @@
         {{ Former::populateField('email', $contact->email) }}
         @if (!$client->country_id && $client->account->country_id)
             {{ Former::populateField('country_id', $client->account->country_id) }}
+            {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
         @endif
         @if (!$client->currency_id && $client->account->currency_id)
             {{ Former::populateField('currency_id', $client->account->currency_id) }}
@@ -128,86 +181,149 @@
     @endif
 
     <h3>{{ trans('texts.contact_information') }}</h3>
-    <div class="row">
-        <div class="col-md-6">
-            {!! Former::text('first_name')
-                    ->placeholder(trans('texts.first_name'))
-                    ->label('') !!}
+    <hr class="form-legend"/>
+
+    <div style="padding-bottom: 22px;">
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::text('first_name')
+                        ->placeholder(trans('texts.first_name'))
+                        ->label('') !!}
+            </div>
+            <div class="col-md-6">
+                {!! Former::text('last_name')
+                        ->placeholder(trans('texts.last_name'))
+                        ->autocomplete('family-name')
+                        ->label('') !!}
+            </div>
         </div>
-        <div class="col-md-6">
-            {!! Former::text('last_name')
-                    ->placeholder(trans('texts.last_name'))
-                    ->autocomplete('family-name')
-                    ->label('') !!}
+
+        <div class="row" style="display:{{ isset($paymentTitle) || empty($contact->email) ? 'block' : 'none' }}">
+            <div class="col-md-12">
+                {!! Former::text('email')
+                        ->placeholder(trans('texts.email'))
+                        ->autocomplete('email')
+                        ->label('') !!}
+            </div>
         </div>
     </div>
 
-    <div class="row" style="display:{{ isset($paymentTitle) || empty($contact->email) ? 'block' : 'none' }}">
-        <div class="col-md-12">
-            {!! Former::text('email')
-                    ->placeholder(trans('texts.email'))
-                    ->autocomplete('email')
-                    ->label('') !!}
-        </div>
-    </div>
+    @if (!empty($accountGateway->show_address))
+        <h3>{{ trans('texts.billing_address') }} &nbsp;&nbsp; <span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
+        <hr class="form-legend"/>
 
-    <p>&nbsp;<br/>&nbsp;</p>
+        <div style="padding-bottom: 22px;" class="billing-address">
+            <div class="row">
+                <div class="col-md-6">
+                    {!! Former::text('address1')
+                            ->autocomplete('address-line1')
+                            ->placeholder(trans('texts.address1'))
+                            ->label('') !!}
+                </div>
+                <div class="col-md-6">
+                    {!! Former::text('address2')
+                            ->autocomplete('address-line2')
+                            ->placeholder(trans('texts.address2'))
+                            ->label('') !!}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {!! Former::text('city')
+                            ->autocomplete('address-level2')
+                            ->placeholder(trans('texts.city'))
+                            ->label('') !!}
+                </div>
+                <div class="col-md-6">
+                    {!! Former::text('state')
+                            ->autocomplete('address-level1')
+                            ->placeholder(trans('texts.state'))
+                            ->label('') !!}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {!! Former::text('postal_code')
+                            ->autocomplete('postal-code')
+                            ->placeholder(trans('texts.postal_code'))
+                            ->label('') !!}
+                </div>
+                <div class="col-md-6">
+                    {!! Former::select('country_id')
+                            ->placeholder(trans('texts.country_id'))
+                            ->fromQuery($countries, 'name', 'id')
+                            ->addGroupClass('country-select')
+                            ->label('') !!}
+                </div>
+            </div>
+        </div>
+    @endif
 
-    @if (!empty($showAddress))
-        <h3>{{ trans('texts.billing_address') }}&nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::text('address1')
-                        ->autocomplete('address-line1')
-                        ->placeholder(trans('texts.address1'))
-                        ->label('') !!}
-            </div>
-            <div class="col-md-6">
-                {!! Former::text('address2')
-                        ->autocomplete('address-line2')
-                        ->placeholder(trans('texts.address2'))
-                        ->label('') !!}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::text('city')
-                        ->autocomplete('address-level2')
-                        ->placeholder(trans('texts.city'))
-                        ->label('') !!}
-            </div>
-            <div class="col-md-6">
-                {!! Former::text('state')
-                        ->autocomplete('address-level1')
-                        ->placeholder(trans('texts.state'))
-                        ->label('') !!}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::text('postal_code')
-                        ->autocomplete('postal-code')
-                        ->placeholder(trans('texts.postal_code'))
-                        ->label('') !!}
-            </div>
-            <div class="col-md-6">
-                {!! Former::select('country_id')
-                        ->placeholder(trans('texts.country_id'))
-                        ->fromQuery($countries, 'name', 'id')
-                        ->addGroupClass('country-select')
-                        ->label('') !!}
-            </div>
-        </div>
+    @if (!empty($accountGateway->show_shipping_address))
+        <h3>{{ trans('texts.shipping_address') }} &nbsp;&nbsp;
+            @if ($accountGateway->show_address)
+                <span>
+                    <label for="shipToBillingAddress" style="font-weight:normal">
+                        <input id="shipToBillingAddress" type="checkbox"/>
+                        {{ trans('texts.ship_to_billing_address') }}
+                    </label>
+                </span>
+            @endif
+        </h3>
+        <hr class="form-legend"/>
 
-        <p>&nbsp;<br/>&nbsp;</p>
+        <div style="padding-bottom: 22px;" class="shipping-address">
+            <div class="row">
+                <div class="col-md-6">
+                    {!! Former::text('shipping_address1')
+                            ->autocomplete('shipping address-line1')
+                            ->placeholder(trans('texts.address1'))
+                            ->label('') !!}
+                </div>
+                <div class="col-md-6">
+                    {!! Former::text('shipping_address2')
+                            ->autocomplete('shipping address-line2')
+                            ->placeholder(trans('texts.address2'))
+                            ->label('') !!}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {!! Former::text('shipping_city')
+                            ->autocomplete('shipping address-level2')
+                            ->placeholder(trans('texts.city'))
+                            ->label('') !!}
+                </div>
+                <div class="col-md-6">
+                    {!! Former::text('shipping_state')
+                            ->autocomplete('shipping address-level1')
+                            ->placeholder(trans('texts.state'))
+                            ->label('') !!}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {!! Former::text('shipping_postal_code')
+                            ->autocomplete('shipping postal-code')
+                            ->placeholder(trans('texts.postal_code'))
+                            ->label('') !!}
+                </div>
+                <div class="col-md-6">
+                    {!! Former::select('shipping_country_id')
+                            ->placeholder(trans('texts.country_id'))
+                            ->fromQuery($countries, 'name', 'id')
+                            ->addGroupClass('shipping-country-select')
+                            ->label('') !!}
+                </div>
+            </div>
+        </div>
     @endif
 
     @if ($accountGateway->isGateway(GATEWAY_WEPAY) && $account->token_billing_type_id == TOKEN_BILLING_DISABLED)
         {{--- do nothing ---}}
     @else
         <div class="row">
-            <div class="col-lg-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
-
+            <div class="col-lg-12">
                 <h3>
                     {{ trans('texts.billing_method') }}
                     @if (isset($acceptedCreditCardTypes))
@@ -218,6 +334,9 @@
                     @endif
                     <br/>
                 </h3>
+                <hr class="form-legend"/>
+            </div>
+            <div class="col-lg-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
 
                 <div class="row">
                     <div class="col-md-12">
@@ -303,7 +422,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4" style="padding-top: 12px; padding-left: 0px;">
                 <div class='card-wrapper'></div>
             </div>
         </div>

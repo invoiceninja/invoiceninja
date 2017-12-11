@@ -607,10 +607,12 @@ class InvoiceRepository extends BaseRepository
             $total += $invoice->custom_value2;
         }
 
-        $taxAmount1 = round($total * ($invoice->tax_rate1 ? $invoice->tax_rate1 : 0) / 100, 2);
-        $taxAmount2 = round($total * ($invoice->tax_rate2 ? $invoice->tax_rate2 : 0) / 100, 2);
-        $total = round($total + $taxAmount1 + $taxAmount2, 2);
-        $total += $itemTax;
+        if (! $account->inclusive_taxes) {
+            $taxAmount1 = round($total * ($invoice->tax_rate1 ? $invoice->tax_rate1 : 0) / 100, 2);
+            $taxAmount2 = round($total * ($invoice->tax_rate2 ? $invoice->tax_rate2 : 0) / 100, 2);
+            $total = round($total + $taxAmount1 + $taxAmount2, 2);
+            $total += $itemTax;
+        }
 
         // custom fields not charged taxes
         if ($invoice->custom_value1 && ! $invoice->custom_taxes1) {
@@ -1174,7 +1176,10 @@ class InvoiceRepository extends BaseRepository
 
         $sql = implode(' OR ', $dates);
         $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
-                    ->with('invoice_items')
+                    ->with('client', 'invoice_items')
+                    ->whereHas('client', function ($query) {
+                        $query->whereSendReminders(true);
+                    })
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)

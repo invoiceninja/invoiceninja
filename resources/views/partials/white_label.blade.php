@@ -6,8 +6,8 @@
 
 @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
   {{ trans('texts.white_labeled') }}
-  @if ($company->hasActivePlan() && $company->daysUntilPlanExpires() <= 10)
-    - <b>{!! trans('texts.license_expiring', [
+  @if (! Utils::isNinja() && $company->hasActivePlan() && $company->daysUntilPlanExpires() <= 10)
+    <br/><b>{!! trans('texts.license_expiring', [
         'count' => $company->daysUntilPlanExpires(),
         'link' => '<a href="#" onclick="buyWhiteLabel()">' . trans('texts.click_here') . '</a>',
     ]) !!}</b>

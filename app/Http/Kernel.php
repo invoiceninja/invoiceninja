@@ -9,33 +9,57 @@ class Kernel extends HttpKernel
     /**
      * The application's global HTTP middleware stack.
      *
+     * These middleware are run during every request to your application.
+     *
      * @var array
      */
     protected $middleware = [
-        'Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode',
-        'Illuminate\Cookie\Middleware\EncryptCookies',
-        'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
-        'Illuminate\Session\Middleware\StartSession',
-        'Illuminate\View\Middleware\ShareErrorsFromSession',
-        'App\Http\Middleware\VerifyCsrfToken',
-        'App\Http\Middleware\DuplicateSubmissionCheck',
-        'App\Http\Middleware\QueryLogging',
-        'App\Http\Middleware\StartupCheck',
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            //\Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\DuplicateSubmissionCheck::class,
+            \App\Http\Middleware\QueryLogging::class,
+            \App\Http\Middleware\StartupCheck::class,
+        ],
+        'api' => [
+            \App\Http\Middleware\ApiCheck::class,
+        ],
+        /*
+        'api' => [
+            'throttle:60,1',
+            'bindings',
+        ],
+        */
     ];
 
     /**
      * The application's route middleware.
      *
+     * These middleware may be assigned to groups or used individually.
+     *
      * @var array
      */
     protected $routeMiddleware = [
-        'lookup' => 'App\Http\Middleware\DatabaseLookup',
-        'auth' => 'App\Http\Middleware\Authenticate',
-        'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
-        'permissions.required' => 'App\Http\Middleware\PermissionsRequired',
-        'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
-        'api' => 'App\Http\Middleware\ApiCheck',
-        'cors' => '\Barryvdh\Cors\HandleCors',
-        'throttle' => 'Illuminate\Routing\Middleware\ThrottleRequests',
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'lookup' => \App\Http\Middleware\DatabaseLookup::class,
+        'permissions.required' => \App\Http\Middleware\PermissionsRequired::class,
     ];
 }

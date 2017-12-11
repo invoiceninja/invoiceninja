@@ -154,4 +154,42 @@ class UserMailer extends Mailer
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
+
+    public function sendPasswordReset($user, $token)
+    {
+        if (! $user->email) {
+            return;
+        }
+
+        $subject = trans('texts.your_password_reset_link');
+        $view = 'password';
+        $data = [
+            'token' => $token,
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    public function sendScheduledReport($scheduledReport, $file)
+    {
+        $user = $scheduledReport->user;
+        $config = json_decode($scheduledReport->config);
+
+        if (! $user->email) {
+            return;
+        }
+
+        $subject = sprintf('%s - %s %s', APP_NAME, trans('texts.' . $config->report_type), trans('texts.report'));
+        $view = 'user_message';
+        $data = [
+            'userName' => $user->getDisplayName(),
+            'primaryMessage' => trans('texts.scheduled_report_attached', ['type' => trans('texts.' . $config->report_type)]),
+            'documents' => [[
+                'name' => $file->filename . '.' . $config->export_format,
+                'data' =>  $file->string($config->export_format),
+            ]]
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
 }

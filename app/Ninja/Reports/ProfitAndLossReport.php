@@ -59,7 +59,7 @@ class ProfitAndLossReport extends AbstractReport
             $this->data[] = [
                 trans('texts.expense'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
-                $expense->present()->amount,
+                '-' . $expense->present()->amount,
                 $expense->present()->expense_date,
                 $expense->present()->category,
             ];

@@ -8,6 +8,7 @@ use App\Models\Task;
 use Auth;
 use Session;
 use DB;
+use Utils;
 
 class TaskRepository extends BaseRepository
 {
@@ -99,6 +100,38 @@ class TaskRepository extends BaseRepository
         }
 
         return $query;
+    }
+
+    public function getClientDatatable($clientId)
+    {
+        $query = DB::table('tasks')
+                    ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                    ->where('tasks.client_id', '=', $clientId)
+                    ->where('tasks.is_deleted', '=', false)
+                    ->whereNull('tasks.invoice_id')
+                    ->select(
+                        'tasks.description',
+                        'tasks.time_log',
+                        'tasks.time_log as duration',
+                        DB::raw("SUBSTRING(time_log, 3, 10) date"),
+                        'projects.name as project'
+                    );
+
+        $table = \Datatable::query($query)
+            ->addColumn('project', function ($model) {
+                return $model->project;
+            })
+            ->addColumn('date', function ($model) {
+                return Task::calcStartTime($model);
+            })
+            ->addColumn('duration', function ($model) {
+                return Utils::formatTime(Task::calcDuration($model));
+            })
+            ->addColumn('description', function ($model) {
+                return $model->description;
+            });
+
+        return $table->make();
     }
 
     public function save($publicId, $data, $task = null)

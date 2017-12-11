@@ -64,8 +64,9 @@ class Authenticate
                 Session::put('contact_key', $contact->contact_key);
             }
             if (! $contact) {
-                return \Redirect::to('client/sessionexpired');
+                return \Redirect::to('client/session_expired');
             }
+
             $account = $contact->account;
 
             if (Auth::guard('user')->check() && Auth::user('user')->account_id == $account->id) {
@@ -86,8 +87,8 @@ class Authenticate
                 $authenticated = true;
             }
 
-            if (env('PHANTOMJS_SECRET') && $request->phantomjs_secret && hash_equals(env('PHANTOMJS_SECRET'), $request->phantomjs_secret)) {
-                $authenticated = true;
+            if ($authenticated) {
+                $request->merge(['contact' => $contact]);
             }
         }
 

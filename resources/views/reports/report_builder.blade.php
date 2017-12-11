@@ -9,10 +9,17 @@
     <link href="{{ asset('css/tablesorter.css') }}" rel="stylesheet" type="text/css"/>
     <script src="{{ asset('js/tablesorter.min.js') }}" type="text/javascript"></script>
 
+	<link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+
 	<style type="text/css">
 		table.tablesorter th {
 			color: white;
 			background-color: #777 !important;
+		}
+		.select2-selection {
+			background-color: #f9f9f9 !important;
+			width: 100%;
 		}
 
 	</style>
@@ -42,10 +49,25 @@
 		var chartEndDate = moment("{{ $endDate }}");
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
+		function resolveRange(range) {
+			if (range == "{{ trans('texts.this_month') }}") {
+				return 'this_month';
+			} else if (range == "{{ trans('texts.last_month') }}") {
+				return 'last_month';
+			} else if (range == "{{ trans('texts.this_year') }}") {
+				return 'this_year';
+			} else if (range == "{{ trans('texts.last_year') }}") {
+				return 'last_year';
+			} else {
+				return '';
+			}
+		}
+
         $(function() {
 
 			if (isStorageSupported()) {
 				var lastRange = localStorage.getItem('last:report_range');
+				$('#range').val(resolveRange(lastRange));
 				lastRange = dateRanges[lastRange];
 				if (lastRange) {
 					chartStartDate = lastRange[0];
@@ -58,6 +80,9 @@
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 $('#start_date').val(start.format('YYYY-MM-DD'));
                 $('#end_date').val(end.format('YYYY-MM-DD'));
+				if (label) {
+					$('#range').val(resolveRange(label));
+				}
 
 				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
 					localStorage.setItem('last:report_range', label);
@@ -68,6 +93,8 @@
                 locale: {
 					format: "{{ $account->getMomentDateFormat() }}",
 					customRangeLabel: "{{ trans('texts.custom_range') }}",
+					applyLabel: "{{ trans('texts.apply') }}",
+					cancelLabel: "{{ trans('texts.cancel') }}",
                 },
                 startDate: chartStartDate,
                 endDate: chartEndDate,
@@ -84,9 +111,11 @@
 
     {!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
+
     <div style="display:none">
-    	{!! Former::text('action') !!}
-		{!! Former::text('format') !!}
+		{!! Former::text('action')->forceValue('') !!}
+		{!! Former::text('range')->forceValue('') !!}
+		{!! Former::text('scheduled_report_id')->forceValue('') !!}
     </div>
 
     {!! Former::populateField('start_date', $startDate) !!}
@@ -127,18 +156,29 @@
                         </div>
 
 						<div id="statusField" style="display:none">
-							{!! Former::select('invoice_status')->label('status')
-									->addOption(trans('texts.status_all'), 'all')
-									->addOption(trans('texts.status_draft'), 'draft')
-									->addOption(trans('texts.status_sent'), 'sent')
-									->addOption(trans('texts.status_unpaid'), 'unpaid')
-									->addOption(trans('texts.status_paid'), 'paid') !!}
+
+							<div class="form-group">
+								<label for="status_ids" class="control-label col-lg-4 col-sm-4">{{ trans('texts.status') }}</label>
+								<div class="col-lg-8 col-sm-8">
+									<select name="status_ids[]" class="form-control" style="width: 100%;" id="statuses_{{ ENTITY_INVOICE }}" multiple="true">
+							            @foreach (\App\Models\EntityModel::getStatusesFor(ENTITY_INVOICE) as $key => $value)
+							                <option value="{{ $key }}">{{ $value }}</option>
+							            @endforeach
+									</select>
+								</div>
+							</div>
 						</div>
 
 						<div id="dateField" style="display:none">
                             {!! Former::select('date_field')->label(trans('texts.filter'))
                                     ->addOption(trans('texts.invoice_date'), FILTER_INVOICE_DATE)
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
+                        </div>
+
+						<div id="currencyType" style="display:none">
+                            {!! Former::select('currency_type')->label(trans('texts.currency'))
+                                    ->addOption(trans('texts.default'), 'default')
+                                    ->addOption(trans('texts.converted'), 'converted') !!}
                         </div>
 
 						<div id="invoiceOrExpenseField" style="display:none">
@@ -171,24 +211,33 @@
 	@endif
 
 
-	<center class="buttons">
-		{!! DropdownButton::primary(trans('texts.export'))
-			  ->large()
-			  ->withAttributes(array('id' => 'export-button'))
-              ->withContents([
-				  ['url' => 'javascript:onExportClick("csv")', 'label' => 'CSV'],
-				  ['url' => 'javascript:onExportClick("xlsx")', 'label' => 'XLSX'],
-				  ['url' => 'javascript:onExportClick("pdf")', 'label' => 'PDF'],
-              ]) !!}
+	<center class="buttons form-inline">
+		<span class="well" style="padding-right:8px; padding-left:14px;">
+		{!! Former::select('format')
+					->addOption('CSV', 'csv')
+					->addOption('XLSX', 'xlsx')
+					->addOption('PDF', 'pdf')
+					->raw() !!} &nbsp;
+
+		{!! Button::normal(trans('texts.export'))
+				->withAttributes(['onclick' => 'onExportClick()'])
+				->appendIcon(Icon::create('download-alt')) !!}
+
+		{!! Button::normal(trans('texts.cancel_schedule'))
+				->withAttributes(['id' => 'cancelSchduleButton', 'onclick' => 'onCancelScheduleClick()', 'style' => 'display:none'])
+				->appendIcon(Icon::create('remove')) !!}
+
+		{!! Button::primary(trans('texts.schedule'))
+				->withAttributes(['id'=>'scheduleButton', 'onclick' => 'showScheduleModal()', 'style' => 'display:none'])
+				->appendIcon(Icon::create('time')) !!}
+
+	 	</span> &nbsp;&nbsp;
 		{!! Button::success(trans('texts.run'))
 				->withAttributes(array('id' => 'submitButton'))
 				->submit()
 				->appendIcon(Icon::create('play'))
 				->large() !!}
 	</center>
-
-	{!! Former::close() !!}
-
 
 	@if (request()->report_type)
         <div class="panel panel-default">
@@ -237,7 +286,7 @@
         <table class="tablesorter tablesorter-data" style="display:none">
         <thead>
             <tr>
-				{!! $report->tableHeader() !!}
+				{!! $report ? $report->tableHeader() : '' !!}
             </tr>
         </thead>
         <tbody>
@@ -269,32 +318,117 @@
 
 	@endif
 
+	<div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">{{ trans('texts.scheduled_report') }}</h4>
+            </div>
+
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default">
+            <div class="panel-body">
+
+				<center style="padding-bottom:40px;font-size:16px;">
+					<div id="scheduleHelp"></div>
+				</center>
+
+				{!! Former::select('frequency')
+							->addOption(trans('texts.freq_daily'), REPORT_FREQUENCY_DAILY)
+							->addOption(trans('texts.freq_weekly'), REPORT_FREQUENCY_WEEKLY)
+							->addOption(trans('texts.freq_biweekly'), REPORT_FREQUENCY_BIWEEKLY)
+							->addOption(trans('texts.freq_monthly'), REPORT_FREQUENCY_MONTHLY)
+							->value('weekly') !!} &nbsp;
+
+				{!! Former::text('send_date')
+						->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+						->label('start_date')
+						->appendIcon('calendar')
+						->placeholder('')
+						->addGroupClass('send-date') !!}
+
+            </div>
+            </div>
+            </div>
+
+            <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
+              <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }} </button>
+              <button type="button" class="btn btn-success" onclick="onScheduleClick()">{{ trans('texts.schedule') }} </button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+	{!! Former::close() !!}
+
+
 	<script type="text/javascript">
 
-    function onExportClick(format) {
+	var scheduledReports = {!! $scheduledReports !!};
+	var scheduledReportMap = {};
+
+	for (var i=0; i<scheduledReports.length; i++) {
+		var schedule = scheduledReports[i];
+		var config = JSON.parse(schedule.config);
+		scheduledReportMap[config.report_type] = schedule.public_id;
+	}
+
+	function showScheduleModal() {
+		var help = "{{ trans('texts.scheduled_report_help') }}";
+		help = help.replace(':email', "{{ auth()->user()->email }}");
+		help = help.replace(':format', $("#format").val().toUpperCase());
+		help = help.replace(':report', $("#report_type option:selected").text());
+		$('#scheduleHelp').text(help);
+        $('#scheduleModal').modal('show');
+    }
+
+	function onExportClick() {
         $('#action').val('export');
-		$('#format').val(format);
         $('#submitButton').click();
 		$('#action').val('');
     }
+
+	function onScheduleClick(frequency) {
+        $('#action').val('schedule');
+        $('#submitButton').click();
+		$('#action').val('');
+    }
+
+	function onCancelScheduleClick() {
+		sweetConfirm(function() {
+			var reportType = $('#report_type').val();
+			$('#action').val('cancel_schedule');
+			$('#frequency').val(frequency);
+			$('#scheduled_report_id').val(scheduledReportMap[reportType]);
+	        $('#submitButton').click();
+			$('#action').val('');
+		});
+	}
 
 	function setFiltersShown() {
 		var val = $('#report_type').val();
 		$('#dateField').toggle(val == '{{ ENTITY_TAX_RATE }}');
 		$('#statusField').toggle(val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}');
 		$('#invoiceOrExpenseField').toggle(val == '{{ ENTITY_DOCUMENT }}');
+		$('#currencyType').toggle(val == '{{ ENTITY_PAYMENT }}');
 	}
 
 	function setDocumentZipShown() {
-		var $ul = $('#export-button').next();
 		var val = $('#report_type').val();
 		var showOption = ['invoice', 'quote', 'expense', 'document'].indexOf(val) >= 0;
-		var numOptions = $ul.children().length;
+		var numOptions = $('#format option').size();
 		if (showOption && numOptions == 3) {
-			$ul.append('<li><a href="javascript:onExportClick(\'zip\')">ZIP - {{ trans('texts.documents') }}</a></li>');
+			$("#format").append(new Option("ZIP - {{ trans('texts.documents') }}", 'zip'));
 		} else if (! showOption && numOptions == 4) {
-			$ul.find('li:last-child').remove();
+			$("#format option:last").remove();
 		}
+	}
+
+	function setScheduleButton() {
+		var reportType = $('#report_type').val();
+		$('#scheduleButton').toggle(! scheduledReportMap[reportType]);
+		$('#cancelSchduleButton').toggle(!! scheduledReportMap[reportType]);
 	}
 
 	var sumColumns = [];
@@ -317,10 +451,20 @@
             }
         });
 
+		$('#format').change(function() {
+			var val = $('#format').val();
+			$('#scheduleButton').prop('disabled', val == 'zip');
+            if (isStorageSupported() && val != 'zip') {
+                localStorage.setItem('last:report_format', val);
+            }
+        });
+
         $('#report_type').change(function() {
 			var val = $('#report_type').val();
 			setFiltersShown();
 			setDocumentZipShown();
+			setScheduleButton();
+			$('#scheduleButton').prop('disabled', $('#format').val() == 'zip');
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_type', val);
             }
@@ -332,12 +476,28 @@
 			if (str.indexOf(':') >= 0) {
 				return roundToTwo(moment.duration(str).asHours());
 			} else {
-				var number = Number(str.replace(/[^0-9]+/g, ''));
+				var number = Number(str.replace(/[^0-9\-]+/g, ''));
 				return number / 100;
 			}
 		}
 
 		$(function(){
+			var statusIds = isStorageSupported() ? (localStorage.getItem('last:report_status_ids') || '') : '';
+			$('#statuses_{{ ENTITY_INVOICE }}').select2({
+				//allowClear: true,
+			}).val(statusIds.split(',')).trigger('change')
+			  	.on('change', function() {
+					if (isStorageSupported()) {
+						var filter = $('#statuses_{{ ENTITY_INVOICE }}').val();
+						if (filter) {
+							filter = filter.join(',');
+						} else {
+							filter = '';
+						}
+						localStorage.setItem('last:report_status_ids', filter);
+					}
+				}).maximizeSelect2Height();
+
   			$(".tablesorter-data").tablesorter({
 				@if (! request()->group_when_sorted)
 					sortList: [[0,0]],
@@ -370,7 +530,7 @@
 				            var txt = $(this).find("td").eq(i).text();
 				            subtotal += convertStringToNumber(txt);
 				          });
-				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal));
+				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal, true));
 					  }
 			        },
 			    }
@@ -381,6 +541,12 @@
 				widgets: ['zebra', 'uitheme'],
 			}).show();
 
+			setFiltersShown();
+			setDocumentZipShown();
+			setTimeout(function() {
+				setScheduleButton();
+			}, 1);
+
 			if (isStorageSupported()) {
 				var lastReportType = localStorage.getItem('last:report_type');
 				if (lastReportType) {
@@ -390,10 +556,13 @@
 				if (lastDocumentFilter) {
 					$('#document_filter').val(lastDocumentFilter);
 				}
+				var lastFormat = localStorage.getItem('last:report_format');
+				if (lastFormat) {
+					setTimeout(function() {
+						$('#format').val(lastFormat);
+					}, 1);
+				}
 			}
-
-			setFiltersShown();
-			setDocumentZipShown();
 		});
     })
 
@@ -410,5 +579,9 @@
 		todayHighlight: true,
 		keyboardNavigation: false
 	});
+
+	var currentDate = new Date();
+	currentDate.setDate(currentDate.getDate() + 1);
+	$('#send_date').datepicker('update', currentDate);
 
 @stop

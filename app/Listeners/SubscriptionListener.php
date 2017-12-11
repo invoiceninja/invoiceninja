@@ -132,21 +132,25 @@ class SubscriptionListener
             return;
         }
 
-        $subscription = $entity->account->getSubscription($eventId);
+        $subscriptions = $entity->account->getSubscriptions($eventId);
 
-        if ($subscription) {
-            $manager = new Manager();
-            $manager->setSerializer(new ArraySerializer());
-            $manager->parseIncludes($include);
+        if (! $subscriptions->count()) {
+            return;
+        }
 
-            $resource = new Item($entity, $transformer, $entity->getEntityType());
-            $data = $manager->createData($resource)->toArray();
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $manager->parseIncludes($include);
 
-            // For legacy Zapier support
-            if (isset($data['client_id'])) {
-                $data['client_name'] = $entity->client->getDisplayName();
-            }
+        $resource = new Item($entity, $transformer, $entity->getEntityType());
+        $data = $manager->createData($resource)->toArray();
 
+        // For legacy Zapier support
+        if (isset($data['client_id'])) {
+            $data['client_name'] = $entity->client->getDisplayName();
+        }
+
+        foreach ($subscriptions as $subscription) {
             Utils::notifyZapier($subscription, $data);
         }
     }

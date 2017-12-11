@@ -32,7 +32,7 @@
     </p>
 
     <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
-        © {{ date('Y') }} Invoice Ninja<br />
+        &#9400; {{ date('Y') }} Invoice Ninja<br />
         <strong><a href="{{ URL::to('/settings/notifications') }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ strtoupper(trans('texts.email_preferences')) }}</a></strong>
     </p>
 @stop

@@ -461,6 +461,38 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @param $query
+     * @param $typeId
+     *
+     * @return mixed
+     */
+    public function scopeStatusIds($query, $statusIds)
+    {
+        if (! $statusIds || (is_array($statusIds) && ! count($statusIds))) {
+            return $query;
+        }
+
+        return $query->where(function ($query) use ($statusIds) {
+            foreach ($statusIds as $statusId) {
+                $query->orWhere('invoice_status_id', '=', $statusId);
+            }
+            if (in_array(INVOICE_STATUS_UNPAID, $statusIds)) {
+                $query->orWhere(function ($query) {
+                    $query->where('balance', '>', 0)
+                          ->where('is_public', '=', true);
+                });
+            }
+            if (in_array(INVOICE_STATUS_OVERDUE, $statusIds)) {
+                $query->orWhere(function ($query) {
+                    $query->where('balance', '>', 0)
+                          ->where('due_date', '<', date('Y-m-d'))
+                          ->where('is_public', '=', true);
+                });
+            }
+        });
+    }
+
+    /**
      * @param $typeId
      *
      * @return bool
@@ -955,6 +987,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'include_item_taxes_inline',
             'invoice_fields',
             'show_currency_code',
+            'inclusive_taxes',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
@@ -1319,17 +1352,26 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getTaxes($calculatePaid = false)
     {
         $taxes = [];
+        $account = $this->account;
         $taxable = $this->getTaxable();
         $paidAmount = $this->getAmountPaid($calculatePaid);
 
         if ($this->tax_name1) {
-            $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
+            if ($account->inclusive_taxes) {
+                $invoiceTaxAmount = round(($taxable * 100) / (100 + ($this->tax_rate1 * 100)), 2);
+            } else {
+                $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
+            }
             $invoicePaidAmount = floatval($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
         }
 
         if ($this->tax_name2) {
-            $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
+            if ($account->inclusive_taxes) {
+                $invoiceTaxAmount = round(($taxable * 100) / (100 + ($this->tax_rate2 * 100)), 2);
+            } else {
+                $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
+            }
             $invoicePaidAmount = floatval($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
         }
@@ -1338,13 +1380,21 @@ class Invoice extends EntityModel implements BalanceAffecting
             $itemTaxable = $this->getItemTaxable($invoiceItem, $taxable);
 
             if ($invoiceItem->tax_name1) {
-                $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate1 / 100), 2);
+                if ($account->inclusive_taxes) {
+                    $itemTaxAmount = round(($itemTaxable * 100) / (100 + ($invoiceItem->tax_rate1 * 100)), 2);
+                } else {
+                    $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate1 / 100), 2);
+                }
                 $itemPaidAmount = floatval($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
             }
 
             if ($invoiceItem->tax_name2) {
-                $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate2 / 100), 2);
+                if ($account->inclusive_taxes) {
+                    $itemTaxAmount = round(($itemTaxable * 100) / (100 + ($invoiceItem->tax_rate2 * 100)), 2);
+                } else {
+                    $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate2 / 100), 2);
+                }
                 $itemPaidAmount = floatval($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
             }

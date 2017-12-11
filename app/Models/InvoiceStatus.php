@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Eloquent;
+use Str;
 
 /**
  * Class InvoiceStatus.
@@ -33,6 +34,14 @@ class InvoiceStatus extends Eloquent
                 return INVOICE_STATUS_UNPAID;
             default:
                 return false;
-        }        
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTranslatedName()
+    {
+        return trans('texts.status_' . Str::slug($this->name, '_'));
     }
 }

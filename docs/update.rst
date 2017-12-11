@@ -13,6 +13,8 @@ If you're moving servers make sure to copy over the .env file.
 
 If the auto-update fails you can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.
 
+A common error with shared hosting is "open_basedir restriction in effect", if you see this you'll need to either temporarily modify your open_basedir settings or run the update from the command line.
+
 .. code-block:: shell
 
    composer dump-autoload --optimize
@@ -23,6 +25,11 @@ If the auto-update fails you can manually run the update with the following comm
 .. NOTE:: If you've downloaded the code from GitHub you also need to run ``composer install``
 
 .. TIP:: You can see the detailed changes for each release on our `GitHub release notes <https://github.com/invoiceninja/invoiceninja/releases>`_.
+
+Version 4.0
+"""""""""""""
+
+The minimum PHP version is now 7.0.0
 
 Version 3.2
 """""""""""
@@ -36,7 +43,8 @@ Make sure the .env file includes ``APP_CIPHER=rijndael-128``
 
 Version 2.5.1
 """""""""""""
-Minimum PHP version is now 5.5.9
+
+The minimum PHP version is now 5.5.9
 
 Version 2.0
 """""""""""

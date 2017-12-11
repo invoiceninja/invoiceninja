@@ -275,6 +275,7 @@ class AccountTransformer extends EntityTransformer
             'custom_contact_label1' => $account->custom_contact_label1,
             'custom_contact_label2' => $account->custom_contact_label2,
             'task_rate' => (float) $account->task_rate,
+            'inclusive_taxes' => (bool) $account->inclusive_taxes,
         ];
     }
 }

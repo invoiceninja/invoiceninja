@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use Event;
+use Illuminate\Http\Request;
+use App\Models\PasswordReset;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
-class PasswordController extends Controller
+class ResetPasswordController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
@@ -21,40 +23,27 @@ class PasswordController extends Controller
     */
 
     use ResetsPasswords {
-        getResetSuccessResponse as protected traitGetResetSuccessResponse;
+        sendResetResponse as protected traitSendResetResponse;
     }
 
     /**
+     * Where to redirect users after resetting their password.
+     *
      * @var string
      */
     protected $redirectTo = '/dashboard';
 
     /**
-     * Create a new password controller instance.
+     * Create a new controller instance.
      *
-     * @internal param \Illuminate\Contracts\Auth\Guard $auth
-     * @internal param \Illuminate\Contracts\Auth\PasswordBroker $passwords
+     * @return void
      */
     public function __construct()
     {
         $this->middleware('guest');
     }
 
-    /**
-     * Display the form to request a password reset link.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function getEmailWrapper()
-    {
-        if (auth()->check()) {
-            return redirect('/');
-        }
-
-        return $this->getEmail();
-    }
-
-    protected function getResetSuccessResponse($response)
+    protected function sendResetResponse($response)
     {
         $user = auth()->user();
 
@@ -64,7 +53,20 @@ class PasswordController extends Controller
             return redirect('/validate_two_factor/' . $user->account->account_key);
         } else {
             Event::fire(new UserLoggedIn());
-            return $this->traitGetResetSuccessResponse($response);
+            return $this->traitSendResetResponse($response);
         }
+    }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        $passwordReset = PasswordReset::whereToken($token)->first();
+
+        if (! $passwordReset) {
+            return redirect('login')->withMessage(trans('texts.invalid_code'));
+        }
+
+        return view('auth.passwords.reset')->with(
+            ['token' => $token, 'email' => $passwordReset->email]
+        );
     }
 }

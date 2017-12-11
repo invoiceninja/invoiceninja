@@ -2,6 +2,7 @@
 
 if (! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
+    define('APP_DOMAIN', env('APP_DOMAIN', 'invoiceninja.com'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')));
     define('CONTACT_NAME', env('MAIL_FROM_NAME'));
     define('SITE_URL', env('APP_URL'));
@@ -39,6 +40,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROJECT', 'project');
     define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
     define('ENTITY_CUSTOMER', 'customer');
+    define('ENTITY_SUBSCRIPTION', 'subscription');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
@@ -228,6 +230,11 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_SIX_MONTHS', 8);
     define('FREQUENCY_ANNUALLY', 9);
 
+    define('REPORT_FREQUENCY_DAILY', 'daily');
+    define('REPORT_FREQUENCY_WEEKLY', 'weekly');
+    define('REPORT_FREQUENCY_BIWEEKLY', 'biweekly');
+    define('REPORT_FREQUENCY_MONTHLY', 'monthly');
+
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
     define('SESSION_CURRENCY_DECORATOR', 'currency_decorator');
@@ -310,7 +317,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.9.2' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.0.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -426,6 +433,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_SOFORT', 8);
     define('GATEWAY_TYPE_SEPA', 9);
     define('GATEWAY_TYPE_GOCARDLESS', 10);
+    define('GATEWAY_TYPE_APPLE_PAY', 11);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');
@@ -450,6 +458,9 @@ if (! defined('APP_NAME')) {
 
     define('FILTER_INVOICE_DATE', 'invoice_date');
     define('FILTER_PAYMENT_DATE', 'payment_date');
+
+    define('ADDRESS_BILLING', 'billing_address');
+    define('ADDRESS_SHIPPING', 'shipping_address');
 
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');

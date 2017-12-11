@@ -241,9 +241,9 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'subtotalsBalance': NINJA.subtotalsBalance(invoice),
         'balanceDue': formatMoneyInvoice(invoice.balance_amount, invoice),
         'invoiceFooter': NINJA.invoiceFooter(invoice),
-        'invoiceNumber': invoice.invoice_number || ' ',
-        'entityType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoice.balance_amount < 0 ? invoiceLabels.credit_note : invoiceLabels.invoice,
-        'entityTypeUC': (invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoice.balance_amount < 0 ? invoiceLabels.credit_note : invoiceLabels.invoice).toUpperCase(),
+        'invoiceNumber': invoice.is_statement ? '' : (invoice.invoice_number || ' '),
+        'entityType': NINJA.entityType(invoice),
+        'entityTypeUC': NINJA.entityType(invoice).toUpperCase(),
         'entityTaxType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.tax_quote : invoiceLabels.tax_invoice,
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
@@ -357,6 +357,20 @@ NINJA.decodeJavascript = function(invoice, javascript)
     return javascript;
 }
 
+NINJA.entityType = function(invoice)
+{
+    if (invoice.is_delivery_note) {
+        return invoiceLabels.delivery_note;
+    } else if (invoice.is_statement) {
+        return invoiceLabels.statement;
+    } else if (invoice.is_quote) {
+        return invoiceLabels.quote;
+    } else if (invoice.balance_amount < 0) {
+        return invoiceLabels.credit_note;
+    } else {
+        return invoiceLabels.invoice;
+    }
+}
 
 NINJA.notesAndTerms = function(invoice)
 {
@@ -416,6 +430,18 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
     for (var i=0; i<fields.length; i++) {
         var field = fields[i];
         var width = 0;
+
+        if (invoice.is_delivery_note) {
+            var skipFields = [
+                'product.unit_cost',
+                'product.rate',
+                'product.tax',
+                'product.line_total',
+            ];
+            if (skipFields.indexOf(field) >= 0) {
+                continue;
+            }
+        }
 
         if (field == 'product.custom_value1') {
             if (invoice.has_custom_item_value1) {
@@ -529,6 +555,12 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     var isTasks = isSecondTable || (invoice.hasTasks && !invoice.hasStandard);
     var grid = [[]];
     var styles = ['tableHeader'];
+    var skipFields = [
+        'product.unit_cost',
+        'product.rate',
+        'product.tax',
+        'product.line_total',
+    ];
 
     if (isSecondTable) {
         styles.push('secondTableHeader');
@@ -539,6 +571,11 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
     for (var i=0; i<fields.length; i++) {
         var field = fields[i].split('.')[1]; // split to remove 'product.'
+
+        if (invoice.is_delivery_note && skipFields.indexOf(fields[i]) >= 0) {
+            continue;
+        }
+
         var headerStyles = styles.concat([snakeToCamel(field), snakeToCamel(field) + 'TableHeader']);
         var value = invoiceLabels[field];
 
@@ -612,7 +649,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             custom_value1 = processVariables(item.custom_value1);
             custom_value2 = processVariables(item.custom_value2);
         }
-        
+
         var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
         if (account.include_item_taxes_inline == '1') {
             var taxAmount1 = 0;
@@ -633,6 +670,11 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
         for (var j=0; j<fields.length; j++) {
             var field = fields[j].split('.')[1]; // split to remove 'product.'
+
+            if (invoice.is_delivery_note && skipFields.indexOf(fields[j]) >= 0) {
+                continue;
+            }
+
             var value = item[field];
             var styles = [snakeToCamel(field), rowStyle];
 
@@ -742,8 +784,8 @@ NINJA.statementSubtotals = function(invoice)
 
 NINJA.subtotals = function(invoice, hideBalance)
 {
-    if (!invoice) {
-        return;
+    if (! invoice || invoice.is_delivery_note) {
+        return [[]];
     }
 
     var account = invoice.account;
@@ -818,6 +860,10 @@ NINJA.subtotals = function(invoice, hideBalance)
 }
 
 NINJA.subtotalsBalance = function(invoice) {
+    if (invoice.is_delivery_note) {
+        return [[]];
+    }
+
     var isPartial = NINJA.parseFloat(invoice.partial);
     return [[
         {text: isPartial ? invoiceLabels.partial_due : (invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due), style:['subtotalsLabel', 'subtotalsBalanceDueLabel']},
@@ -913,6 +959,17 @@ NINJA.invoiceDetails = function(invoice) {
 
 
 NINJA.renderField = function(invoice, field, twoColumn) {
+    if (invoice.is_delivery_note) {
+        var skipFields = [
+            'invoice.due_date',
+            'invoice.balance_due',
+            'invoice.partial_due',
+        ];
+        if (skipFields.indexOf(field) >= 0) {
+            return false;
+        }
+    }
+
     var client = invoice.client;
     if (!client) {
         return false;
@@ -939,24 +996,49 @@ NINJA.renderField = function(invoice, field, twoColumn) {
             label = invoiceLabels.vat_number;
         }
     } else if (field == 'client.address1') {
-        value = client.address1;
+        if (invoice.is_delivery_note && client.shipping_address1) {
+            value = client.shipping_address1;
+        } else {
+            value = client.address1;
+        }
     } else if (field == 'client.address2') {
-        value = client.address2;
+        if (invoice.is_delivery_note && client.shipping_address1) {
+            value = client.shipping_address2;
+        } else {
+            value = client.address2;
+        }
     } else if (field == 'client.city_state_postal') {
         var cityStatePostal = '';
-        if (client.city || client.state || client.postal_code) {
-            var swap = client.country && client.country.swap_postal_code;
-            cityStatePostal = formatAddress(client.city, client.state, client.postal_code, swap);
+        if (invoice.is_delivery_note && client.shipping_address1) {
+            if (client.shipping_city || client.shipping_state || client.shipping_postal_code) {
+                var swap = client.shipping_country && client.shipping_country.swap_postal_code;
+                cityStatePostal = formatAddress(client.shipping_city, client.shipping_state, client.shipping_postal_code, swap);
+            }
+        } else {
+            if (client.city || client.state || client.postal_code) {
+                var swap = client.country && client.country.swap_postal_code;
+                cityStatePostal = formatAddress(client.city, client.state, client.postal_code, swap);
+            }
         }
         value = cityStatePostal;
     } else if (field == 'client.postal_city_state') {
         var postalCityState = '';
-        if (client.city || client.state || client.postal_code) {
-            postalCityState = formatAddress(client.city, client.state, client.postal_code, true);
+        if (invoice.is_delivery_note && client.shipping_address1) {
+            if (client.shipping_city || client.shipping_state || client.shipping_postal_code) {
+                postalCityState = formatAddress(client.shipping_city, client.shipping_state, client.shipping_postal_code, true);
+            }
+        } else {
+            if (client.city || client.state || client.postal_code) {
+                postalCityState = formatAddress(client.city, client.state, client.postal_code, true);
+            }
         }
         value = postalCityState;
     } else if (field == 'client.country') {
-        value = client.country ? client.country.name : '';
+        if (invoice.is_delivery_note && client.shipping_address1) {
+            value = client.shipping_country ? client.shipping_country.name : '';
+        } else {
+            value = client.country ? client.country.name : '';
+        }
     } else if (field == 'client.email') {
         value = contact.email == clientName ? '' : contact.email;
     } else if (field == 'client.phone') {

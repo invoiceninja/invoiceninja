@@ -38,7 +38,8 @@ class ExpenseReport extends AbstractReport
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {
-                    $name = sprintf('%s_%s_%s_%s', date('Y-m-d'), trans('texts.expense'), $expense->public_id, $document->name);
+                    $expenseId = str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT);
+                    $name = sprintf('%s_%s_%s_%s', date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
                     $name = str_replace(' ', '_', $name);
                     $zip->add_file($name, $document->getRaw());
                 }

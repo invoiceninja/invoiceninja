@@ -23,7 +23,10 @@ class Payment extends EntityModel
      * @var array
      */
     protected $fillable = [
+        'transaction_reference',
         'private_notes',
+        'exchange_rate',
+        'exchange_currency_id',
     ];
 
     public static $statusClasses = [
@@ -301,6 +304,14 @@ class Payment extends EntityModel
     public function canBeRefunded()
     {
         return $this->getCompletedAmount() > 0 && ($this->isCompleted() || $this->isPartiallyRefunded());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExchanged()
+    {
+        return $this->exchange_currency_id || $this->exchange_rate != 1;
     }
 
     /**

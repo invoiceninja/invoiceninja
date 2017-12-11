@@ -41,4 +41,33 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         }
     }
 
+    protected function updateClientFromOffsite($transRef, $paymentRef)
+    {
+        $response = $this->gateway()->fetchCheckout([
+            'token' => $transRef
+        ])->send();
+
+        $data = $response->getData();
+        $client = $this->client();
+
+        if (empty($data['SHIPTOSTREET'])) {
+            return;
+        }
+
+        $client->shipping_address1 = trim($data['SHIPTOSTREET']);
+        $client->shipping_address2 = '';
+        $client->shipping_city = trim($data['SHIPTOCITY']);
+        $client->shipping_state = trim($data['SHIPTOSTATE']);
+        $client->shipping_postal_code = trim($data['SHIPTOZIP']);
+
+        if ($country = cache('countries')->filter(function ($item) use ($data) {
+            return strtolower($item->iso_3166_2) == strtolower(trim($data['SHIPTOCOUNTRYCODE']));
+        })->first()) {
+            $client->shipping_country_id = $country->id;
+        } else {
+            $client->shipping_country_id = null;
+        }
+
+        $client->save();
+    }
 }

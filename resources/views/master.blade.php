@@ -124,6 +124,7 @@
             "bInfo": true,
             "oLanguage": {
                 'sEmptyTable': "{{ trans('texts.empty_table') }}",
+                'sInfoEmpty': "{{ trans('texts.empty_table_footer') }}",
                 'sLengthMenu': '_MENU_ {{ trans('texts.rows') }}',
                 'sInfo': "{{ trans('texts.datatable_info', ['start' => '_START_', 'end' => '_END_', 'total' => '_TOTAL_']) }}",
                 'sSearch': ''

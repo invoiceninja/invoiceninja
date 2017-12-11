@@ -83,7 +83,6 @@ class AuthService
             }
         } else {
             LookupUser::setServerByField('oauth_user_key', $providerId . '-' . $oauthUserId);
-            \Log::info("Find user: $providerId, $oauthUserId");
             if ($user = $this->accountRepo->findUserByOauth($providerId, $oauthUserId)) {
                 if ($user->google_2fa_secret) {
                     session(['2fa:user:id' => $user->id]);

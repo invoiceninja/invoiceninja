@@ -20,6 +20,8 @@
             'dueDate': invoice ? invoice.partial_due_date || invoice.due_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'invoiceDate': invoice ? invoice.invoice_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'client': invoice ? getClientDisplayName(invoice.client) : "{{ trans('texts.client_name') }}",
+            'idNumber' : invoice ? invoice.client.id_number : '12345678',
+            'vatNumber' : invoice ? invoice.client.vat_number : '12345678',
             'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),
             'balance': invoice ? formatMoneyInvoice(parseFloat(invoice.balance), invoice) : formatMoneyAccount(100, account),
             'total': invoice ? formatMoneyInvoice(parseFloat(invoice.amount), invoice) : formatMoneyAccount(100, account),
@@ -31,14 +33,14 @@
             'number': invoice ? invoice.invoice_number : '0001',
             'password': passwordHtml,
             'documents': documentsHtml,
-            'viewLink': '{{ link_to('#', url('/view/...')) }}$password',
+            'viewLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
             'viewButton': isQuote || (invoice && invoice.invoice_type_id == {{ INVOICE_TYPE_QUOTE }}) ?
                 '{!! Form::flatButton('view_quote', '#0b4d78') !!}$password' :
                 '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
-            'paymentLink': '{{ link_to('#', url('/payment/...')) }}$password',
+            'paymentLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
             'paymentButton': '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
             'autoBill': '{{ trans('texts.auto_bill_notification_placeholder') }}',
-            'portalLink': "{{ URL::to('/client/portal/...') }}",
+            'portalLink': "{{ auth()->user()->account->getBaseUrl() . '/...' }}",
             'portalButton': '{!! Form::flatButton('view_portal', '#36c157') !!}',
             'customClient1': invoice ? invoice.client.custom_value1 : 'custom value',
             'customClient2': invoice ? invoice.client.custom_value2 : 'custom value',
@@ -51,7 +53,7 @@
         // Add any available payment method links
         @foreach (\App\Models\Gateway::$gatewayTypes as $type)
             @if ($type != GATEWAY_TYPE_TOKEN)
-                {!! "keys['" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) . "Link'] = '" . URL::to('/payment/...') . "';" !!}
+                {!! "keys['" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) . "Link'] = '" . auth()->user()->account->getBaseUrl() . "/...';" !!}
                 {!! "keys['" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) . "Button'] = '" . Form::flatButton('pay_now', '#36c157') . "';" !!}
             @endif
         @endforeach

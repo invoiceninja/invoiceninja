@@ -53,9 +53,15 @@ class Client extends EntityModel
         'quote_number_counter',
         'public_notes',
         'task_rate',
+        'shipping_address1',
+        'shipping_address2',
+        'shipping_city',
+        'shipping_state',
+        'shipping_postal_code',
+        'shipping_country_id',
+        'show_tasks_in_portal',
+        'send_reminders',
     ];
-
-
 
     /**
      * @return array
@@ -175,6 +181,14 @@ class Client extends EntityModel
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function country()
+    {
+        return $this->belongsTo('App\Models\Country');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function shipping_country()
     {
         return $this->belongsTo('App\Models\Country');
     }
@@ -375,7 +389,7 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasAddress()
+    public function hasAddress($shipping = false)
     {
         $fields = [
             'address1',
@@ -387,6 +401,9 @@ class Client extends EntityModel
         ];
 
         foreach ($fields as $field) {
+            if ($shipping) {
+                $field = 'shipping_' . $field;
+            }
             if ($this->$field) {
                 return true;
             }
@@ -488,6 +505,20 @@ class Client extends EntityModel
 
         return $this->account->currency ? $this->account->currency->code : 'USD';
     }
+
+    public function getCountryCode()
+    {
+        if ($country = $this->country) {
+            return $country->iso_3166_2;
+        }
+
+        if (! $this->account) {
+            $this->load('account');
+        }
+
+        return $this->account->country ? $this->account->country->iso_3166_2 : 'US';
+    }
+
 
     /**
      * @param $isQuote
