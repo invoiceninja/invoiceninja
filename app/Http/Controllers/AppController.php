@@ -391,7 +391,7 @@ class AppController extends BaseController
 
     public function stats()
     {
-        if (! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {
+        if (! hash_equals(Input::get('password') ?: '', env('RESELLER_PASSWORD'))) {
             sleep(3);
 
             return '';
