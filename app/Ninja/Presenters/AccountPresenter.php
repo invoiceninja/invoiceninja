@@ -5,6 +5,7 @@ namespace App\Ninja\Presenters;
 use Carbon;
 use Domain;
 use App\Models\TaxRate;
+use App\Models\Account;
 use Laracasts\Presenter\Presenter;
 use stdClass;
 use Utils;
