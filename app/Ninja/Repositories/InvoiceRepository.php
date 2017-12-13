@@ -336,6 +336,9 @@ class InvoiceRepository extends BaseRepository
             } elseif ($model->invoice_status_id == INVOICE_STATUS_PARTIAL) {
                 $label = trans('texts.status_partial');
                 $class = 'info';
+            } elseif ($entityType == ENTITY_QUOTE && ($model->invoice_status_id >= INVOICE_STATUS_APPROVED || $model->quote_invoice_id)) {
+                $label = trans('texts.status_approved');
+                $class = 'success';
             } elseif (Invoice::calcIsOverdue($model->balance, $model->due_date)) {
                 $class = 'danger';
                 if ($entityType == ENTITY_INVOICE) {
@@ -343,9 +346,6 @@ class InvoiceRepository extends BaseRepository
                 } else {
                     $label = trans('texts.expired');
                 }
-            } elseif ($entityType == ENTITY_QUOTE && ($model->invoice_status_id >= INVOICE_STATUS_APPROVED || $model->quote_invoice_id)) {
-                $label = trans('texts.status_approved');
-                $class = 'success';
             } else {
                 $class = 'default';
                 if ($entityType == ENTITY_INVOICE) {
