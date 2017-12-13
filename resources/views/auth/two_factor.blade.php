@@ -18,7 +18,15 @@
         {!! Former::text('totp')
                 ->placeholder(trans('texts.one_time_password'))
                 ->autofocus()
+                ->style('text-indent:4px')
                 ->forceValue('')
+                ->raw() !!}
+
+        {!! Former::select('trust')
+                ->style('background-color:white !important')
+                ->addOption(trans('texts.do_not_trust'), '')
+                ->addOption(trans('texts.trust_for_30_days'), '30')
+                ->addOption(trans('texts.trust_forever'), 'forever')
                 ->raw() !!}
 
         {!! Button::success(trans('texts.submit'))

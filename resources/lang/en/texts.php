@@ -2610,6 +2610,9 @@ $LANG = array(
     'copy_billing' => 'Copy Billing',
     'quote_has_expired' => 'The quote has expired, please contact the merchant.',
     'empty_table_footer' => 'Showing 0 to 0 of 0 entries',
+    'do_not_trust' => 'Do not remember this device',
+    'trust_for_30_days' => 'Trust for 30 days',
+    'trust_forever' => 'Trust forever',
 
 );
 
