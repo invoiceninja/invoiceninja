@@ -6,7 +6,9 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
+use App\Models\User;
 use Artisan;
+use Crypt;
 use Illuminate\Encryption\Encrypter;
 use Laravel\LegacyEncrypter\McryptEncrypter;
 
@@ -18,7 +20,7 @@ class UpdateKey extends Command
     /**
      * @var string
      */
-    protected $name = 'ninja:update-key';
+    protected $name = 'ninja:update-key {--database=}';
 
     /**
      * @var string
@@ -28,6 +30,10 @@ class UpdateKey extends Command
     public function fire()
     {
         $this->info(date('r') . ' Running UpdateKey...');
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
 
         if (! env('APP_KEY') || ! env('APP_CIPHER')) {
             $this->info(date('r') . ' Error: app key and cipher are not set');
@@ -42,6 +48,7 @@ class UpdateKey extends Command
         // load the current values
         $gatewayConfigs = [];
         $bankUsernames = [];
+        $twoFactorSecrets = [];
 
         foreach (AccountGateway::all() as $gateway) {
             if ($legacy) {
@@ -56,6 +63,14 @@ class UpdateKey extends Command
                 $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
             } else {
                 $bankUsernames[$bank->id] = $bank->getUsername();
+            }
+        }
+
+        foreach (User::where('google_2fa_secret', '!=', '')->get() as $user) {
+            if ($legacy) {
+                $twoFactorSecrets[$user->id] = $legacy->decrypt($user->google_2fa_secret);
+            } else {
+                $twoFactorSecrets[$user->id] = Crypt::decrypt($user->google_2fa_secret);
             }
         }
 
@@ -84,6 +99,12 @@ class UpdateKey extends Command
             $username = $bankUsernames[$bank->id];
             $bank->username = $crypt->encrypt($username);
             $bank->save();
+        }
+
+        foreach (User::where('google_2fa_secret', '!=', '')->get() as $user) {
+            $secret = $twoFactorSecrets[$user->id];
+            $user->google_2fa_secret = $crypt->encrypt($secret);
+            $user->save();
         }
 
         $message = date('r') . ' Successfully updated ';
@@ -118,6 +139,7 @@ class UpdateKey extends Command
     {
         return [
             ['legacy', null, InputOption::VALUE_OPTIONAL, 'Legacy', null],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
     }
 }
