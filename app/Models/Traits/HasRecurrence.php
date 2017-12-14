@@ -4,6 +4,7 @@ namespace App\Models\Traits;
 
 use Carbon;
 use DateTime;
+use Utils;
 
 /**
  * Class HasRecurrence
