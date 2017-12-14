@@ -510,7 +510,7 @@ class AccountRepository
 
     public function registerNinjaUser($user)
     {
-        if ($user->email == TEST_USERNAME) {
+        if (! $user || $user->email == TEST_USERNAME) {
             return false;
         }
 

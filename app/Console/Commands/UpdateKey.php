@@ -6,7 +6,9 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
+use App\Models\User;
 use Artisan;
+use Crypt;
 use Illuminate\Encryption\Encrypter;
 use Laravel\LegacyEncrypter\McryptEncrypter;
 
@@ -42,6 +44,7 @@ class UpdateKey extends Command
         // load the current values
         $gatewayConfigs = [];
         $bankUsernames = [];
+        $twoFactorSecrets = [];
 
         foreach (AccountGateway::all() as $gateway) {
             if ($legacy) {
@@ -56,6 +59,14 @@ class UpdateKey extends Command
                 $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
             } else {
                 $bankUsernames[$bank->id] = $bank->getUsername();
+            }
+        }
+
+        foreach (User::where('google_2fa_secret', '!=', '')->get() as $user) {
+            if ($legacy) {
+                $twoFactorSecrets[$user->id] = $legacy->decrypt($user->google_2fa_secret);
+            } else {
+                $twoFactorSecrets[$user->id] = Crypt::decrypt($user->google_2fa_secret);
             }
         }
 
@@ -84,6 +95,12 @@ class UpdateKey extends Command
             $username = $bankUsernames[$bank->id];
             $bank->username = $crypt->encrypt($username);
             $bank->save();
+        }
+
+        foreach (User::where('google_2fa_secret', '!=', '')->get() as $user) {
+            $secret = $twoFactorSecrets[$user->id];
+            $user->google_2fa_secret = $crypt->encrypt($secret);
+            $user->save();
         }
 
         $message = date('r') . ' Successfully updated ';
