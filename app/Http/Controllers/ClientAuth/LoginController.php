@@ -91,8 +91,10 @@ class LoginController extends Controller
             $credentials = $request->only('email', 'password');
             $account = false;
 
-            // resovle the email to a contact/account
-            if ($accountKey = request()->account_key) {
+            // resolve the email to a contact/account
+            if (! Utils::isNinja() && Account::count() == 1) {
+                $account = Account::first();
+            } elseif ($accountKey = request()->account_key) {
                 $account = Account::whereAccountKey($accountKey)->first();
             } else {
                 $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
