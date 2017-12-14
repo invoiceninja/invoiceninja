@@ -291,7 +291,7 @@
 
 			function onApproveClick() {
 				$('#approveButton').prop('disabled', true);
-				//location.href = "{{ url('/approve/' . $invitation->invitation_key) }}";
+				location.href = "{{ url('/approve/' . $invitation->invitation_key) }}";
 			}
 
 			function onDownloadClick() {
