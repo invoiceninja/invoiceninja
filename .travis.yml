@@ -2,6 +2,9 @@ language: php
 
 sudo: true
 
+# Prevent tests from taking more than 50 minutes
+group: deprecated-2017Q4
+
 php:
 #  - 5.5.9
 #  - 5.6
