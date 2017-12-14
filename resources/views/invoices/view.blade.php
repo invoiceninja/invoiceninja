@@ -163,7 +163,7 @@
             @if ($invoice->isQuote())
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
-                    {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}
+                    {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()'])->large() !!}
                 @endif
 			@elseif ( ! $invoice->canBePaid())
 				{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
@@ -287,6 +287,11 @@
 					$('#termsCheckbox').attr('checked', false);
 				@endif
 				$('#authorizationModal').modal('show');
+			}
+
+			function onApproveClick() {
+				$('#approveButton').prop('disabled', true);
+				location.href = "{{ url('/approve/' . $invitation->invitation_key) }}";
 			}
 
 			function onDownloadClick() {
