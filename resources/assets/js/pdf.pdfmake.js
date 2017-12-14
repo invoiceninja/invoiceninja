@@ -797,10 +797,10 @@ NINJA.subtotals = function(invoice, hideBalance)
     }
 
     var customValue1 = NINJA.parseFloat(invoice.custom_value1);
-    var customValue1Label = customValue1 >= 0 ? (account.custom_invoice_label1 || invoiceLabels.surcharge) : invoiceLabels.discount;
+    var customValue1Label = account.custom_invoice_label1 || invoiceLabels.surcharge;
 
     var customValue2 = NINJA.parseFloat(invoice.custom_value2);
-    var customValue2Label = customValue2 >= 0 ? (account.custom_invoice_label2 || invoiceLabels.surcharge) : invoiceLabels.discount;
+    var customValue2Label = account.custom_invoice_label2 || invoiceLabels.surcharge;
 
     if (customValue1 && invoice.custom_taxes1 == '1') {
         data.push([{text: customValue1Label, style: ['subtotalsLabel', 'customTax1Label']}, {text: formatMoneyInvoice(invoice.custom_value1, invoice), style: ['subtotals', 'customTax1']}]);
