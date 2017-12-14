@@ -408,7 +408,7 @@ class StripePaymentDriver extends BasePaymentDriver
                     'account' => $this->account(),
                     'invitation' => $this->invitation,
                     'invoiceNumber' => $invoiceNumber,
-                    'amount' => $amount,
+                    'amount' => $this->invoice()->getRequestedAmount(),
                     'source' => $response,
                 ]);
             } else {
