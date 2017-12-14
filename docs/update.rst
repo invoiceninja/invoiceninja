@@ -31,6 +31,8 @@ Version 4.0
 
 The minimum PHP version is now 7.0.0
 
+If you're using a rijndael cipher run ``php artisan ninja:update-key --legacy=true`` to change to AES-256-CBC.
+
 Version 3.2
 """""""""""
 
