@@ -192,7 +192,7 @@
             <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.footer') }}</a></li>
         </ul>
     </div>
-    <div id="jsoneditor" style="width: 100%; height: 743px;"></div>
+    <div id="jsoneditor" style="width: 100%; height: 814px;"></div>
     <p>&nbsp;</p>
 
     <div>
@@ -258,7 +258,7 @@
     <div class="col-md-6">
       <div id="pdf-error" class="alert alert-danger" style="display:none"></div>
 
-      @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
+      @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 930])
 
     </div>
   </div>
