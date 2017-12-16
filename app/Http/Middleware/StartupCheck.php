@@ -206,7 +206,7 @@ class StartupCheck
                     $orderBy = 'id';
                 }
                 $tableData = $class::orderBy($orderBy)->get();
-                if (count($tableData)) {
+                if ($tableData->count()) {
                     Cache::forever($name, $tableData);
                 }
             }
