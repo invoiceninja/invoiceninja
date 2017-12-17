@@ -43,11 +43,16 @@
             padding-bottom: 3px;
         }
 
+        .kanban-column-row {
+            margin-bottom: -8px;
+        }
+
         .kanban-column-row .view div {
             padding: 8px;
         }
 
         .kanban-column textarea {
+            resize: vertical;
             width: 100%;
             padding-left: 8px;
             padding-top: 8px;
@@ -72,7 +77,10 @@
 @section('content')
 
     <script type="text/javascript">
+
         var statuses = {!! $statuses !!};
+        var tasks = {!! $tasks !!};
+
         ko.bindingHandlers.enterkey = {
             init: function (element, valueAccessor, allBindings, viewModel) {
                 var callback = valueAccessor();
@@ -99,9 +107,18 @@
 
             self.statuses = ko.observableArray();
             for (var i=0; i<statuses.length; i++) {
-                self.statuses.push(new StatusModel(statuses[i]));
+                var status = statuses[i];
+                var statusModel = new StatusModel(status);
+                self.statuses.push(statusModel);
             }
             self.statuses.push(new StatusModel());
+
+            for (var i=0; i<tasks.length; i++) {
+                var task = tasks[i];
+                var taskModel = new TaskModel(task);
+                var statusModel = self.statuses()[tasks.task_status_id || 0];
+                statusModel.tasks.push(taskModel);
+            }
 
             self.onDragged = function() {
 
@@ -113,8 +130,17 @@
             self.name = ko.observable();
             self.is_blank = ko.observable(false);
             self.is_editing_status = ko.observable(false);
+            self.is_header_hovered = ko.observable(false);
             self.tasks = ko.observableArray();
             self.new_task = new TaskModel();
+
+            self.onHeaderMouseOver = function() {
+                self.is_header_hovered(true);
+            }
+
+            self.onHeaderMouseOut = function() {
+                self.is_header_hovered(false);
+            }
 
             self.inputValue = ko.computed({
                 read: function () {
@@ -156,9 +182,10 @@
                 self.new_task.endEdit();
             }
 
-            self.saveNewTask = function(task) {
+            self.saveNewTask = function() {
+                console.log('description: ' + self.new_task.description());
                 var task = new TaskModel({
-                    description: task.description()
+                    description: self.new_task.description()
                 })
                 self.tasks.push(task);
                 self.new_task.reset();
@@ -178,12 +205,12 @@
         function TaskModel(data) {
             var self = this;
             self.description = ko.observable('');
+            self.description.orig = ko.observable('');
             self.is_blank = ko.observable(false);
             self.is_editing_task = ko.observable(false);
 
             self.startEdit = function() {
-                console.log('start edit');
-
+                self.description.orig(self.description());
                 self.is_editing_task(true);
                 $('.kanban-column-row.editing textarea').focus();
             }
@@ -197,11 +224,12 @@
             }
 
             self.cancelEditTask = function() {
-                /*
-                if (self.new_task.is_blank()) {
-                    self.new_task.description('');
+                if (self.is_blank()) {
+                    self.description('');
+                } else {
+                    self.description(self.description.orig());
                 }
-                */
+
                 self.endEdit();
             }
 
@@ -241,14 +269,13 @@
         <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onDragged, allowDrop: true, connectClass: 'connect-column' }">
             <div class="well kanban-column">
 
-                <div class="kanban-column-header" data-bind="css: { editing: is_editing_status }">
+                <div class="kanban-column-header" data-bind="css: { editing: is_editing_status }, event: { mouseover: onHeaderMouseOver, mouseout: onHeaderMouseOut }">
                     <div class="pull-left" data-bind="event: { click: startEdit }">
                         <div class="view" data-bind="text: name"></div>
-                        <input class="edit" type="text"
-                            data-bind="value: inputValue, hasfocus: is_editing_status, selected: is_editing_status,
+                        <input class="edit" type="text" data-bind="value: inputValue, hasfocus: is_editing_status, selected: is_editing_status,
                                 placeholder: placeholder, event: { blur: endEdit }, enterkey: endEdit"/>
                     </div>
-                    <div class="pull-right" data-bind="click: archiveStatus, visible: ! is_blank()">
+                    <div class="pull-right" data-bind="click: archiveStatus, visible: ! is_blank() &amp;&amp; is_header_hovered">
                         <i class="fa fa-times" title="{{ trans('texts.archive') }}"></i>
                     </div><br/>
                 </div>
@@ -261,7 +288,7 @@
                             </div>
                         </div>
                         <div class="edit">
-                            <textarea data-bind="value: description"></textarea>
+                            <textarea data-bind="value: description, valueUpdate: 'afterkeydown', enterkey: saveEditTask"></textarea>
                             <div class="pull-right">
                                 <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelEditTask">
                                     {{ trans('texts.cancel') }}
@@ -274,17 +301,17 @@
                     </div>
                 </div>
 
-                <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
+                <div class="kanban-column-footer" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
                     <div data-bind="event: { click: startEdit }">
                         <div class="view panel" data-bind="visible: ! is_blank()">
                             <div data-bind="text: description"></div>
                         </div>
-                        <a href="#" class="view text-muted" data-bind="visible: is_blank">
+                        <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
                     </div>
                     <div class="edit">
-                        <textarea data-bind="value: description"></textarea>
+                        <textarea data-bind="value: description, valueUpdate: 'afterkeydown', enterkey: $parent.saveNewTask"></textarea>
                         <div class="pull-right">
                             <button type='button' class='btn btn-default btn-sm' data-bind="click: $parent.cancelNewTask">
                                 {{ trans('texts.cancel') }}

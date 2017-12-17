@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use App\Models\TaskStatus;
 
 class TaskKanbanController extends BaseController
@@ -11,9 +12,10 @@ class TaskKanbanController extends BaseController
      */
     public function index()
     {
-        // check initial statuses exist
+        $tasks = Task::scope()->get();
         $stauses = TaskStatus::scope()->get();
 
+        // check initial statuses exist
         if (! $stauses->count()) {
             $stauses = [];
             $defaults = [
@@ -34,6 +36,7 @@ class TaskKanbanController extends BaseController
         $data = [
             'title' => trans('texts.kanban'),
             'statuses' => $stauses,
+            'tasks' => $tasks,
         ];
 
         return view('tasks.kanban', $data);
