@@ -2618,6 +2618,7 @@ $LANG = array(
     'ready_to_do' => 'Ready to do',
     'in_progress' => 'In progress',
     'add_status' => 'Add status',
+    'archive_status' => 'Archive Status',
 
 );
 

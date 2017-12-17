@@ -7,9 +7,11 @@
         .kanban {
             overflow-x: auto;
             white-space: nowrap;
+            min-height: 540px;
         }
 
         .kanban-column {
+            background-color: #EAEAEA;
             padding: 10px;
             height: 100%;
             width: 230px;
@@ -204,7 +206,9 @@
             }
 
             self.archiveStatus = function() {
-                window.model.statuses.remove(self);
+                sweetConfirm(function() {
+                    window.model.statuses.remove(self);
+                }, "{{ trans('texts.archive_status')}}");
             }
 
             self.cancelNewTask = function() {
@@ -226,7 +230,6 @@
 
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
-                self.tasks.push(new TaskModel({description:'testing'}));
             } else {
                 self.name('{{ trans('texts.add_status') }}...');
                 self.is_blank(true);
@@ -235,6 +238,7 @@
 
         function TaskModel(data) {
             var self = this;
+            self.public_id = ko.observable(0);
             self.description = ko.observable('');
             self.description.orig = ko.observable('');
             self.is_blank = ko.observable(false);
@@ -247,7 +251,6 @@
                 }
                 var projectId = self.project().public_id();
                 var colorNum = (projectId-1) % 8;
-                console.log('project-group' + (colorNum+1));
                 return 'project-group' + (colorNum+1);
             })
 
@@ -275,8 +278,13 @@
                 self.endEdit();
             }
 
-            self.saveEditTask = function(task) {
+            self.saveEditTask = function() {
                 self.endEdit();
+            }
+
+            self.viewTask = function() {
+                //console.log();
+                window.open('{{ url('/tasks') }}/' + self.public_id() + '/edit', '_blank');
             }
 
             self.reset = function() {
@@ -351,6 +359,9 @@
                             <div class="pull-right">
                                 <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelEditTask">
                                     {{ trans('texts.cancel') }}
+                                </button>
+                                <button type='button' class='btn btn-primary btn-sm' data-bind="click: viewTask">
+                                    {{ trans('texts.view') }}
                                 </button>
                                 <button type='button' class='btn btn-success btn-sm' data-bind="click: saveEditTask">
                                     {{ trans('texts.save') }}
