@@ -11,7 +11,7 @@
         }
 
         .kanban-column {
-            background-color: #EAEAEA;
+            background-color: #E9E9E9;
             padding: 10px;
             height: 100%;
             width: 230px;
@@ -88,9 +88,15 @@
         .project-group7 { color: #a87821; }
         .project-group8 { color: #676767; }
 
-
     </style>
 
+@stop
+
+@section('top-right')
+    <div class="form-group">
+        <input type="text" placeholder="{{ trans('texts.filter') }}" data-bind="value: filter, valueUpdate: 'afterkeydown'"
+            class="form-control" style="background-color: #FFFFFF !important"/>
+    </div>
 @stop
 
 @section('content')
@@ -130,12 +136,15 @@
             var self = this;
 
             self.statuses = ko.observableArray();
+            self.is_adding_status = ko.observable(false);
+            self.new_status = ko.observable('');
+            self.filter = ko.observable('');
+
             for (var i=0; i<statuses.length; i++) {
                 var status = statuses[i];
                 var statusModel = new StatusModel(status);
                 self.statuses.push(statusModel);
             }
-            self.statuses.push(new StatusModel());
 
             for (var i=0; i<projects.length; i++) {
                 var project = projects[i];
@@ -144,7 +153,7 @@
 
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
-                //clientMap[client.public_id] = client;
+                clientMap[client.public_id] = new ClientModel(client);
             }
 
             for (var i=0; i<tasks.length; i++) {
@@ -152,6 +161,22 @@
                 var taskModel = new TaskModel(task);
                 var statusModel = self.statuses()[tasks.task_status_id || 0];
                 statusModel.tasks.push(taskModel);
+            }
+
+            self.startAddStatus = function() {
+                self.is_adding_status(true);
+            }
+
+            self.cancelAddStatus = function() {
+                self.is_adding_status(false);
+            }
+
+            self.completeAddStatus = function() {
+                self.is_adding_status(false);
+                var statusModel = new StatusModel({
+                    name: self.new_status()
+                })
+                self.statuses.push(statusModel);
             }
 
             self.onDragged = function() {
@@ -162,7 +187,6 @@
         function StatusModel(data) {
             var self = this;
             self.name = ko.observable();
-            self.is_blank = ko.observable(false);
             self.is_editing_status = ko.observable(false);
             self.is_header_hovered = ko.observable(false);
             self.tasks = ko.observableArray();
@@ -176,6 +200,7 @@
                 self.is_header_hovered(false);
             }
 
+            /*
             self.inputValue = ko.computed({
                 read: function () {
                     return self.is_blank() ? '' : self.name();
@@ -188,16 +213,13 @@
                     }
                 }
             });
+            */
 
-            self.placeholder = ko.computed(function() {
-                return self.is_blank() ? '{{ trans('texts.add_status') }}...' : '';
-            })
-
-            self.startEdit = function() {
+            self.startStatusEdit = function() {
                 self.is_editing_status(true);
             }
 
-            self.endEdit = function() {
+            self.endStatusEdit = function() {
                 self.is_editing_status(false);
             }
 
@@ -215,7 +237,7 @@
                 if (self.new_task.is_blank()) {
                     self.new_task.description('');
                 }
-                self.new_task.endEdit();
+                self.new_task.endTaskEdit();
             }
 
             self.saveNewTask = function() {
@@ -224,15 +246,11 @@
                 })
                 self.tasks.push(task);
                 self.new_task.reset();
-                self.is_blank(false);
-                self.endEdit();
+                self.endStatusEdit();
             }
 
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
-            } else {
-                self.name('{{ trans('texts.add_status') }}...');
-                self.is_blank(true);
             }
         }
 
@@ -244,6 +262,7 @@
             self.is_blank = ko.observable(false);
             self.is_editing_task = ko.observable(false);
             self.project = ko.observable();
+            self.client = ko.observable();
 
             self.projectColor = ko.computed(function() {
                 if (! self.project()) {
@@ -254,18 +273,51 @@
                 return 'project-group' + (colorNum+1);
             })
 
-            self.startEdit = function() {
+            self.startTaskEdit = function() {
                 self.description.orig(self.description());
                 self.is_editing_task(true);
                 $('.kanban-column-row.editing textarea').focus();
             }
 
-            self.endEdit = function() {
+            self.endTaskEdit = function() {
                 self.is_editing_task(false);
             }
 
             self.onDragged = function() {
 
+            }
+
+            self.matchesFilter = function(filter) {
+                if (filter) {
+                    filter = filter.toLowerCase();
+                    var parts = filter.split(' ');
+                    for (var i=0; i<parts.length; i++) {
+                        var part = parts[i];
+                        var isMatch = false;
+                        if (self.description()) {
+                            if (self.description().toLowerCase().indexOf(part) >= 0) {
+                                isMatch = true;
+                            }
+                        }
+                        if (self.project()) {
+                            var projectName = self.project().name();
+                            if (projectName && projectName.toLowerCase().indexOf(part) >= 0) {
+                                isMatch = true;
+                            }
+                        }
+                        if (self.client()) {
+                            var clientName = self.client().displayName();
+                            if (clientName && clientName.toLowerCase().indexOf(part) >= 0) {
+                                isMatch = true;
+                            }
+                        }
+                        if (! isMatch) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
             }
 
             self.cancelEditTask = function() {
@@ -275,20 +327,20 @@
                     self.description(self.description.orig());
                 }
 
-                self.endEdit();
+                self.endTaskEdit();
             }
 
             self.saveEditTask = function() {
-                self.endEdit();
+                self.endTaskEdit();
             }
 
             self.viewTask = function() {
                 //console.log();
-                window.open('{{ url('/tasks') }}/' + self.public_id() + '/edit', '_blank');
+                window.open('{{ url('/tasks') }}/' + self.public_id() + '/edit', 'task');
             }
 
             self.reset = function() {
-                self.endEdit();
+                self.endTaskEdit();
                 self.description('');
                 self.is_blank(true);
             }
@@ -297,6 +349,11 @@
                 'project': {
                     create: function(options) {
                         return projectMap[options.data.public_id];
+                    }
+                },
+                'client': {
+                    create: function(options) {
+                        return clientMap[options.data.public_id];
                     }
                 }
             }
@@ -318,6 +375,19 @@
             }
         }
 
+        function ClientModel(data) {
+            var self = this;
+            self.name = ko.observable();
+
+            self.displayName = ko.computed(function() {
+                return self.name();
+            })
+
+            if (data) {
+                ko.mapping.fromJS(data, {}, this);
+            }
+        }
+
         $(function() {
             window.model = new ViewModel();
             ko.applyBindings(model);
@@ -332,24 +402,24 @@
 
 
     <div class="kanban">
-        <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onDragged, allowDrop: true, connectClass: 'connect-column' }">
+        <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onDragged, allowDrop: true, connectClass: 'connect-column' }" style="float:left">
             <div class="well kanban-column">
 
                 <div class="kanban-column-header" data-bind="css: { editing: is_editing_status }, event: { mouseover: onHeaderMouseOver, mouseout: onHeaderMouseOut }">
-                    <div class="pull-left" data-bind="event: { click: startEdit }">
+                    <div class="pull-left" data-bind="event: { click: startStatusEdit }">
                         <div class="view" data-bind="text: name"></div>
-                        <input class="edit" type="text" data-bind="value: inputValue, hasfocus: is_editing_status, selected: is_editing_status,
-                                placeholder: placeholder, event: { blur: endEdit }, enterkey: endEdit"/>
+                        <input class="edit" type="text" data-bind="value: name, hasfocus: is_editing_status, selected: is_editing_status,
+                                event: { blur: endStatusEdit }, enterkey: endStatusEdit"/>
                     </div>
-                    <div class="pull-right" data-bind="click: archiveStatus, visible: ! is_blank() &amp;&amp; is_header_hovered">
+                    <div class="pull-right" data-bind="click: archiveStatus, visible: is_header_hovered">
                         <i class="fa fa-times" title="{{ trans('texts.archive') }}"></i>
                     </div><br/>
                 </div>
 
                 <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onDragged, allowDrop: true, connectClass: 'connect-row' }">
-                    <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }">
-                        <div data-bind="event: { click: startEdit }">
-                            <div class="view panel" data-bind="visible: ! is_blank()">
+                    <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
+                        <div data-bind="event: { click: startTaskEdit }">
+                            <div class="view panel">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
                                 <div data-bind="text: description"></div>
                             </div>
@@ -372,7 +442,7 @@
                 </div>
 
                 <div class="kanban-column-footer" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
-                    <div data-bind="event: { click: startEdit }">
+                    <div data-bind="event: { click: startTaskEdit }">
                         <div class="view panel" data-bind="visible: ! is_blank()">
                             <div data-bind="text: description"></div>
                         </div>
@@ -395,6 +465,29 @@
 
             </div>
         </div>
+
+        <div class="kanban-column well">
+            <div class="kanban-column-row" data-bind="css: { editing: is_adding_status }">
+                <div data-bind="event: { click: startAddStatus }" style="padding-bottom: 8px;">
+                    <a href="#" class="view text-muted" style="font-size:13px">
+                        {{ trans('texts.new_status') }}...
+                    </a>
+                </div>
+                <div class="edit">
+                    <textarea data-bind="value: new_status, valueUpdate: 'afterkeydown',
+                        hasfocus: is_adding_status, selected: is_adding_status, enterkey: completeAddStatus"></textarea>
+                    <div class="pull-right">
+                        <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelAddStatus">
+                            {{ trans('texts.cancel') }}
+                        </button>
+                        <button type='button' class='btn btn-success btn-sm' data-bind="click: completeAddStatus">
+                            {{ trans('texts.save') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 @stop
