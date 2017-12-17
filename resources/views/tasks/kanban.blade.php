@@ -165,6 +165,7 @@
 
             self.startAddStatus = function() {
                 self.is_adding_status(true);
+                $('.kanban-column-last .kanban-column-row.editing textarea').focus();
             }
 
             self.cancelAddStatus = function() {
@@ -442,11 +443,8 @@
                     </div>
                 </div>
 
-                <div class="kanban-column-footer" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
+                <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
                     <div data-bind="event: { click: startTaskEdit }">
-                        <div class="view panel" data-bind="visible: ! is_blank()">
-                            <div data-bind="text: description"></div>
-                        </div>
                         <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
@@ -467,7 +465,7 @@
             </div>
         </div>
 
-        <div class="kanban-column well">
+        <div class="kanban-column kanban-column-last well">
             <div class="kanban-column-row" data-bind="css: { editing: is_adding_status }">
                 <div data-bind="event: { click: startAddStatus }" style="padding-bottom: 8px;">
                     <a href="#" class="view text-muted" style="font-size:13px">
