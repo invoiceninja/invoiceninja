@@ -84,6 +84,7 @@
 			});
 		</script>
 	@elseif ($entityType == ENTITY_TASK)
+		{!! Button::normal(trans('texts.kanban'))->asLinkTo(url('/tasks/kanban'))->appendIcon(Icon::create('th')) !!}
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
     @endif
 

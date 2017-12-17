@@ -143,6 +143,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
 
     Route::get('time_tracker', 'TimeTrackerController@index');
+    Route::get('tasks/kanban', 'TaskKanbanController@index');
     Route::resource('tasks', 'TaskController');
     Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');

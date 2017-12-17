@@ -2613,6 +2613,11 @@ $LANG = array(
     'do_not_trust' => 'Do not remember this device',
     'trust_for_30_days' => 'Trust for 30 days',
     'trust_forever' => 'Trust forever',
+    'kanban' => 'Kanban',
+    'backlog' => 'Backlog',
+    'ready_to_do' => 'Ready to do',
+    'in_progress' => 'In progress',
+    'add_status' => 'Add status',
 
 );
 
