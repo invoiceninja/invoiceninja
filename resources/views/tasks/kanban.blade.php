@@ -391,6 +391,7 @@
         $(function() {
             window.model = new ViewModel();
             ko.applyBindings(model);
+            $('.kanban').show();
         });
 
     </script>
@@ -401,7 +402,7 @@
     </script>
 
 
-    <div class="kanban">
+    <div class="kanban" style="display: none">
         <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onDragged, allowDrop: true, connectClass: 'connect-column' }" style="float:left">
             <div class="well kanban-column">
 
