@@ -47,6 +47,12 @@
             margin-bottom: -8px;
         }
 
+        .kanban-column-row .fa-circle {
+            float:right;
+            padding-top: 10px;
+            padding-right: 8px;
+        }
+
         .kanban-column-row .view div {
             padding: 8px;
         }
@@ -70,6 +76,17 @@
             display: none;
         }​
 
+        .project-group0 { color: #000000; }
+        .project-group1 { color: #1c9f77; }
+        .project-group2 { color: #d95d02; }
+        .project-group3 { color: #716cb1; }
+        .project-group4 { color: #e62a8b; }
+        .project-group5 { color: #5fa213; }
+        .project-group6 { color: #e6aa04; }
+        .project-group7 { color: #a87821; }
+        .project-group8 { color: #676767; }
+
+
     </style>
 
 @stop
@@ -80,6 +97,11 @@
 
         var statuses = {!! $statuses !!};
         var tasks = {!! $tasks !!};
+        var projects = {!! $projects !!};
+        var clients = {!! $clients !!};
+
+        var projectMap = {};
+        var clientMap = {};
 
         ko.bindingHandlers.enterkey = {
             init: function (element, valueAccessor, allBindings, viewModel) {
@@ -112,6 +134,16 @@
                 self.statuses.push(statusModel);
             }
             self.statuses.push(new StatusModel());
+
+            for (var i=0; i<projects.length; i++) {
+                var project = projects[i];
+                projectMap[project.public_id] = new ProjectModel(project);
+            }
+
+            for (var i=0; i<clients.length; i++) {
+                var client = clients[i];
+                //clientMap[client.public_id] = client;
+            }
 
             for (var i=0; i<tasks.length; i++) {
                 var task = tasks[i];
@@ -183,7 +215,6 @@
             }
 
             self.saveNewTask = function() {
-                console.log('description: ' + self.new_task.description());
                 var task = new TaskModel({
                     description: self.new_task.description()
                 })
@@ -208,6 +239,17 @@
             self.description.orig = ko.observable('');
             self.is_blank = ko.observable(false);
             self.is_editing_task = ko.observable(false);
+            self.project = ko.observable();
+
+            self.projectColor = ko.computed(function() {
+                if (! self.project()) {
+                    return '';
+                }
+                var projectId = self.project().public_id();
+                var colorNum = (projectId-1) % 8;
+                console.log('project-group' + (colorNum+1));
+                return 'project-group' + (colorNum+1);
+            })
 
             self.startEdit = function() {
                 self.description.orig(self.description());
@@ -243,13 +285,29 @@
                 self.is_blank(true);
             }
 
+            self.mapping = {
+                'project': {
+                    create: function(options) {
+                        return projectMap[options.data.public_id];
+                    }
+                }
+            }
+
             if (data) {
-                ko.mapping.fromJS(data, {}, this);
+                ko.mapping.fromJS(data, self.mapping, this);
             } else {
                 //self.description('{{ trans('texts.add_task') }}...');
                 self.is_blank(true);
             }
+        }
 
+        function ProjectModel(data) {
+            var self = this;
+            self.name = ko.observable();
+
+            if (data) {
+                ko.mapping.fromJS(data, {}, this);
+            }
         }
 
         $(function() {
@@ -284,6 +342,7 @@
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }">
                         <div data-bind="event: { click: startEdit }">
                             <div class="view panel" data-bind="visible: ! is_blank()">
+                                <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
                                 <div data-bind="text: description"></div>
                             </div>
                         </div>
