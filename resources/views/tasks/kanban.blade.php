@@ -389,6 +389,32 @@
             }
 
             self.saveEditTask = function() {
+                var description = (self.description() || '').trim();
+                if (! description) {
+                    return false;
+                }
+                $.ajax({
+                    dataType: 'json',
+                    type: 'put',
+                    data: self.toData(),
+                    url: '{{ url('/tasks') }}/' + self.public_id(),
+                    accepts: {
+                        json: 'application/json'
+                    },
+                    success: function(response) {
+                        console.log('success');
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        console.log('error');
+                        console.log(error);
+                    },
+                }).always(function() {
+                    setTimeout(function() {
+                        model.is_sending_request(false);
+                    }, 1000);
+                });
+
                 self.endTaskEdit();
             }
 
