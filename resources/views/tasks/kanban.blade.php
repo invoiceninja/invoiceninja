@@ -252,8 +252,12 @@
             }
 
             self.saveNewTask = function() {
+                var description = self.new_task.description();
+                if (! description) {
+                    return false;
+                }
                 var task = new TaskModel({
-                    description: self.new_task.description()
+                    description: description
                 })
                 self.tasks.push(task);
                 self.new_task.reset();
@@ -291,6 +295,10 @@
             }
 
             self.endTaskEdit = function() {
+                var description = self.description();
+                if (! description && ! self.is_blank()) {
+                    return false;
+                }
                 self.is_editing_task(false);
             }
 
