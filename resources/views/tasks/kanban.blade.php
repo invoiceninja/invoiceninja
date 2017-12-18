@@ -10,6 +10,10 @@
             min-height: 540px;
         }
 
+        .kanban input {
+            width: 100%;
+        }
+
         .kanban-column {
             background-color: #E9E9E9;
             padding: 10px;
@@ -110,6 +114,7 @@
 
         var projectMap = {};
         var clientMap = {};
+        var statusMap = {};
 
         ko.bindingHandlers.enterkey = {
             init: function (element, valueAccessor, allBindings, viewModel) {
@@ -143,6 +148,7 @@
             for (var i=0; i<statuses.length; i++) {
                 var status = statuses[i];
                 var statusModel = new StatusModel(status);
+                statusMap[status.public_id] = statusModel;
                 self.statuses.push(statusModel);
             }
 
@@ -159,7 +165,11 @@
             for (var i=0; i<tasks.length; i++) {
                 var task = tasks[i];
                 var taskModel = new TaskModel(task);
-                var statusModel = self.statuses()[tasks.task_status_id || 0];
+                if (task.task_status) {
+                    var statusModel = statusMap[task.task_status.public_id];
+                } else {
+                    var statusModel = self.statuses()[0];
+                }
                 statusModel.tasks.push(taskModel);
             }
 
@@ -467,15 +477,15 @@
 
         <div class="kanban-column kanban-column-last well">
             <div class="kanban-column-row" data-bind="css: { editing: is_adding_status }">
-                <div data-bind="event: { click: startAddStatus }" style="padding-bottom: 8px;">
-                    <a href="#" class="view text-muted" style="font-size:13px">
+                <div class="view" data-bind="event: { click: startAddStatus }" style="padding-bottom: 8px;">
+                    <a href="#" class="text-muted" style="font-size:13px">
                         {{ trans('texts.new_status') }}...
                     </a>
                 </div>
                 <div class="edit">
-                    <textarea data-bind="value: new_status, valueUpdate: 'afterkeydown',
+                    <input data-bind="value: new_status, valueUpdate: 'afterkeydown',
                         hasfocus: is_adding_status, selected: is_adding_status, enterkey: completeAddStatus"></textarea>
-                    <div class="pull-right">
+                    <div class="pull-right" style="padding-top:6px">
                         <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelAddStatus">
                             {{ trans('texts.cancel') }}
                         </button>

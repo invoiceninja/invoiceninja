@@ -80,6 +80,14 @@ class Task extends EntityModel
     }
 
     /**
+     * @return mixed
+     */
+    public function task_status()
+    {
+        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
+    }
+
+    /**
      * @param $task
      *
      * @return string

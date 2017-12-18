@@ -14,10 +14,10 @@ class TaskKanbanController extends BaseController
      */
     public function index()
     {
-        $tasks = Task::scope()->with(['project', 'client'])->get();
+        $tasks = Task::scope()->with(['project', 'client', 'task_status'])->orderBy('task_status_sort_order')->get();
+        $stauses = TaskStatus::scope()->orderBy('sort_order')->get();
         $projects = Project::scope()->get();
         $clients = Client::scope()->get();
-        $stauses = TaskStatus::scope()->get();
 
         // check initial statuses exist
         if (! $stauses->count()) {
