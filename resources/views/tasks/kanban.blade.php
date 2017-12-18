@@ -436,7 +436,7 @@
                     </div><br/>
                 </div>
 
-                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onDragged, allowDrop: true, connectClass: 'connect-row' }">
+                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:8px">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
                         <div data-bind="event: { click: startTaskEdit }">
                             <div class="view panel">
@@ -457,6 +457,7 @@
                                     {{ trans('texts.save') }}
                                 </button>
                             </div>
+                            <div class="clearfix" style="padding-bottom:20px"></div>
                         </div>
                     </div>
                 </div>
