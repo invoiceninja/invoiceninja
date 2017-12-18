@@ -50,13 +50,17 @@
         }
 
         .kanban-column-row {
-            margin-bottom: -8px;
+            margin-bottom: -12px;
         }
 
         .kanban-column-row .fa-circle {
             float:right;
             padding-top: 10px;
             padding-right: 8px;
+        }
+
+        .kanban-column-row .panel {
+            word-break: break-all;
         }
 
         .kanban-column-row .view div {
@@ -144,6 +148,7 @@
             self.is_adding_status = ko.observable(false);
             self.new_status = ko.observable('');
             self.filter = ko.observable('');
+            self.is_sending_request = ko.observable(false);
 
             for (var i=0; i<statuses.length; i++) {
                 var status = statuses[i];
@@ -198,6 +203,7 @@
         function StatusModel(data) {
             var self = this;
             self.name = ko.observable();
+            self.public_id = ko.observable();
             self.is_editing_status = ko.observable(false);
             self.is_header_hovered = ko.observable(false);
             self.tasks = ko.observableArray();
@@ -252,13 +258,38 @@
             }
 
             self.saveNewTask = function() {
-                var description = self.new_task.description();
+                var task = self.new_task;
+                var description = (task.description() || '').trim();
                 if (! description) {
                     return false;
                 }
                 var task = new TaskModel({
-                    description: description
+                    description: description,
+                    task_status_id: self.public_id(),
+                    task_status_sort_order: self.tasks.length,
                 })
+
+                $.ajax({
+                    dataType: 'json',
+                    type: 'post',
+                    data: task.toData(),
+                    url: '{{ url('/tasks') }}',
+                    accepts: {
+                        json: 'application/json'
+                    },
+                    success: function(response) {
+                        task.public_id(response.public_id);
+                    },
+                    error: function(error) {
+                        console.log('error');
+                        console.log(error);
+                    },
+                }).always(function() {
+                    setTimeout(function() {
+                        model.is_sending_request(false);
+                    }, 1000);
+                });
+
                 self.tasks.push(task);
                 self.new_task.reset();
                 self.endStatusEdit();
@@ -278,6 +309,8 @@
             self.is_editing_task = ko.observable(false);
             self.project = ko.observable();
             self.client = ko.observable();
+            self.task_status_id = ko.observable();
+            self.task_status_sort_order = ko.observable();
 
             self.projectColor = ko.computed(function() {
                 if (! self.project()) {
@@ -304,6 +337,12 @@
 
             self.onDragged = function() {
 
+            }
+
+            self.toData = function() {
+                return 'description=' + encodeURIComponent(self.description()) +
+                    '&task_status_id=' + self.task_status_id() +
+                    '&task_status_sort_order=' + self.task_status_sort_order();
             }
 
             self.matchesFilter = function(filter) {
@@ -408,8 +447,12 @@
         }
 
         $(function() {
+            toastr.options.timeOut = 3000;
+            toastr.options.positionClass = 'toast-bottom-right';
+
             window.model = new ViewModel();
             ko.applyBindings(model);
+
             $('.kanban').show();
         });
 

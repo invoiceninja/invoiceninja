@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use Auth;
 use Session;
 use DB;
@@ -160,6 +161,12 @@ class TaskRepository extends BaseRepository
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
+        }
+        if (isset($data['task_status_id'])) {
+            $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
+        }
+        if (isset($data['task_status_sort_order'])) {
+            $task->task_status_sort_order = $data['task_status_sort_order'];
         }
 
         if (isset($data['time_log'])) {
