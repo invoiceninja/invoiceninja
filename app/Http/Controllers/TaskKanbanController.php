@@ -32,6 +32,7 @@ class TaskKanbanController extends BaseController
         // check initial statuses exist
         if (! $statuses->count()) {
             $statuses = collect([]);
+            $firstStatus = false;
             $defaults = [
                 'backlog',
                 'ready_to_do',
@@ -44,6 +45,36 @@ class TaskKanbanController extends BaseController
                 $status->sort_order = $i;
                 $status->save();
                 $statuses[] = $status;
+                if (! $firstStatus) {
+                    $firstStatus = $status;
+                }
+            }
+            $i = 0;
+            foreach ($tasks as $task) {
+                $task->task_status_id = $firstStatus->id;
+                $task->task_status_sort_order = $i++;
+                $task->save();
+            }
+        // otherwise, check that the tasks orders are correct
+        } else {
+            $firstStatus = $statuses[0];
+            $adjustment = 0;
+            $counts = [];
+            foreach ($tasks as $task) {
+                if (! $task->task_status_id) {
+                    $task->task_status_id = $firstStatus->id;
+                    $task->setRelation('task_status', $firstStatus);
+                }
+                if (! isset($counts[$task->task_status_id])) {
+                    $counts[$task->task_status_id] = 0;
+                }
+                if ($task->task_status_sort_order != $counts[$task->task_status_id]) {
+                    $task->task_status_sort_order = $counts[$task->task_status_id];
+                }
+                $counts[$task->task_status_id]++;
+                if ($task->isDirty()) {
+                    $task->save();
+                }
             }
         }
 
