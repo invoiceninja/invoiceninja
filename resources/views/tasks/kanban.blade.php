@@ -15,6 +15,10 @@
             width: 100%;
         }
 
+        .tt-input {
+            background-color: #FFFFFF !important;
+        }
+
         .kanban-column {
             background-color: #E9E9E9;
             padding: 10px;
@@ -113,7 +117,7 @@
 
 @section('top-right')
     <div class="form-group">
-        <input type="text" placeholder="{{ trans('texts.filter') }}" data-bind="value: filter, valueUpdate: 'afterkeydown'"
+        <input type="text" placeholder="{{ trans('texts.filter') }}" id="filter"
             class="form-control" style="background-color: #FFFFFF !important"/>
     </div>
 @stop
@@ -130,6 +134,9 @@
         var projectMap = {};
         var clientMap = {};
         var statusMap = {};
+
+        var clientList = [];
+        var projectList = [];
 
         ko.bindingHandlers.enterkey = {
             init: function (element, valueAccessor, allBindings, viewModel) {
@@ -185,11 +192,19 @@
             for (var i=0; i<projects.length; i++) {
                 var project = projects[i];
                 projectMap[project.public_id] = new ProjectModel(project);
+                projectList.push({
+                    value: project.name,
+                    tokens: project.name,
+                })
             }
 
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
                 clientMap[client.public_id] = new ClientModel(client);
+                clientList.push({
+                    value: client.name,
+                    tokens: client.name,
+                })
             }
 
             for (var i=0; i<tasks.length; i++) {
@@ -521,8 +536,32 @@
         }
 
         $(function() {
-            toastr.options.timeOut = 3000;
-            toastr.options.positionClass = 'toast-bottom-right';
+            $('#filter').typeahead({
+                hint: true,
+                highlight: true,
+            },{
+                name: 'data',
+                limit: 4,
+                display: 'value',
+                source: searchData(clientList, 'tokens'),
+                templates: {
+                    header: '&nbsp;<span style="font-weight:600;font-size:15px">{{ trans('texts.clients') }}</span>'
+                }
+            },{
+                name: 'data',
+                limit: 4,
+                display: 'value',
+                source: searchData(projectList, 'tokens'),
+                templates: {
+                    header: '&nbsp;<span style="font-weight:600;font-size:15px">{{ trans('texts.projects') }}</span>'
+                }
+            }).on('typeahead:selected', function(element, datum, name) {
+                model.filter(datum.value);
+            });
+
+            $('#filter').on('keyup', function() {
+                model.filter($('#filter').val());
+            });
 
             window.model = new ViewModel();
             ko.applyBindings(model);
