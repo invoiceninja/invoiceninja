@@ -69,6 +69,11 @@
             word-break: break-all;
         }
 
+        .kanban-column-row .running div {
+            border: 2px groove #36c157;
+            border-radius: 4px;
+        }
+
         .kanban-column-row .view div {
             padding: 8px;
         }
@@ -378,6 +383,7 @@
             self.description.orig = ko.observable('');
             self.is_blank = ko.observable(false);
             self.is_editing_task = ko.observable(false);
+            self.is_running = ko.observable(false);
             self.project = ko.observable();
             self.client = ko.observable();
             self.task_status_id = ko.observable();
@@ -544,13 +550,14 @@
                 <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:8px">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
                         <div data-bind="event: { click: startEditTask }">
-                            <div class="view panel">
+                            <div class="view panel" data-bind="css: { running: is_running }">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
                                 <div data-bind="text: description"></div>
                                 <!--
                                 <p>Public Id: <span data-bind="text: public_id"></span></p>
                                 <p>Status Id: <span data-bind="text: task_status_id"></span></p>
                                 <p>Sort Order: <span data-bind="text: task_status_sort_order"></p>
+                                <p>Running: <span data-bind="text: is_running"></span></p>
                                 -->
                             </div>
                         </div>
