@@ -331,9 +331,9 @@
                 }
                 var task = new TaskModel({
                     description: description,
-                    task_status_id: self.public_id(),
                     task_status_sort_order: self.tasks().length,
                 })
+                task.task_status_id(self.public_id())
 
                 var url = '{{ url('/tasks') }}';
                 var data = task.toData();
@@ -439,7 +439,6 @@
             }
 
             self.viewTask = function() {
-                //console.log();
                 window.open('{{ url('/tasks') }}/' + self.public_id() + '/edit', 'task');
             }
 
@@ -464,8 +463,9 @@
 
             if (data) {
                 ko.mapping.fromJS(data, self.mapping, this);
+                // resolve the private status id to the public value
+                self.task_status_id(data.task_status ? data.task_status.public_id : 0);
             } else {
-                //self.description('{{ trans('texts.add_task') }}...');
                 self.is_blank(true);
             }
         }
@@ -524,9 +524,12 @@
                         <div data-bind="event: { click: startEditTask }">
                             <div class="view panel">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
-                                <div data-bind="text: description"></div><br/>
-                                Status Id: <span data-bind="text: task_status_id"></span><br/>
-                                Sort Order: <span data-bind="text: task_status_sort_order"></span>
+                                <div data-bind="text: description"></div>
+                                <!--
+                                <p>Public Id: <span data-bind="text: public_id"></span></p>
+                                <p>Status Id: <span data-bind="text: task_status_id"></span></p>
+                                <p>Sort Order: <span data-bind="text: task_status_sort_order"></p>
+                                -->
                             </div>
                         </div>
                         <div class="edit">
