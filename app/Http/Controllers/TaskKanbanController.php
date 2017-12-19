@@ -48,4 +48,55 @@ class TaskKanbanController extends BaseController
         return view('tasks.kanban', $data);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeStatus()
+    {
+        return $this->saveStatus();
+    }
+
+    /**
+     * @param $publicId
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateStatus($publicId)
+    {
+        return $this->saveStatus($publicId);
+    }
+
+    /**
+     * @param bool $publicId
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    private function saveStatus($publicId = false)
+    {
+        if ($publicId) {
+            $status = TaskStatus::scope($publicId)->firstOrFail();
+        } else {
+            $status = TaskStatus::createNew();
+        }
+
+        $status->name = request('name');
+        $status->save();
+
+        return response()->json($status);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteStatus($publicId)
+    {
+        $status = TaskStatus::scope($publicId)->first();
+
+        if ($status) {
+            $status->delete();
+        }
+
+        return response()->json(['message' => RESULT_SUCCESS]);
+    }
+
 }

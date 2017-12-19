@@ -170,12 +170,16 @@
             for (var i=0; i<tasks.length; i++) {
                 var task = tasks[i];
                 var taskModel = new TaskModel(task);
+                var statusModel = false;
                 if (task.task_status) {
                     var statusModel = statusMap[task.task_status.public_id];
-                } else {
-                    var statusModel = self.statuses()[0];
                 }
-                statusModel.tasks.push(taskModel);
+                if (! statusModel) {
+                    statusModel = self.statuses()[0];
+                }
+                if (statusModel) {
+                    statusModel.tasks.push(taskModel);
+                }
             }
 
             self.startAddStatus = function() {
@@ -188,11 +192,41 @@
             }
 
             self.completeAddStatus = function() {
-                self.is_adding_status(false);
                 var statusModel = new StatusModel({
                     name: self.new_status()
                 })
-                self.statuses.push(statusModel);
+
+                var url = '{{ url('/task_statuses') }}';
+                var data = 'name=' + encodeURIComponent(statusModel.name());
+                self.ajax('post', url, data, function(response) {
+                    statusModel.public_id(response.public_id);
+                    self.statuses.push(statusModel);
+                    self.is_adding_status(false);
+                })
+            }
+
+            self.ajax = function(method, url, data, callback) {
+                model.is_sending_request(true);
+                $.ajax({
+                    type: method,
+                    url: url,
+                    data: data,
+                    dataType: 'json',
+                    accepts: {
+                        json: 'application/json'
+                    },
+                    success: function(response) {
+                        callback(response);
+                    },
+                    error: function(error) {
+                        console.log('error');
+                        console.log(error);
+                    },
+                }).always(function() {
+                    setTimeout(function() {
+                        model.is_sending_request(false);
+                    }, 1000);
+                });
             }
 
             self.onDragged = function() {
@@ -217,21 +251,6 @@
                 self.is_header_hovered(false);
             }
 
-            /*
-            self.inputValue = ko.computed({
-                read: function () {
-                    return self.is_blank() ? '' : self.name();
-                },
-                write: function(value) {
-                    self.name(value);
-                    if (self.is_blank()) {
-                        self.is_blank(false);
-                        model.statuses.push(new StatusModel());
-                    }
-                }
-            });
-            */
-
             self.startStatusEdit = function() {
                 self.is_editing_status(true);
             }
@@ -246,7 +265,10 @@
 
             self.archiveStatus = function() {
                 sweetConfirm(function() {
-                    window.model.statuses.remove(self);
+                    var url = '{{ url('/task_statuses') }}/' + self.public_id();
+                    model.ajax('delete', url, null, function(response) {
+                        model.statuses.remove(self);
+                    })
                 }, "{{ trans('texts.archive_status')}}");
             }
 
@@ -269,30 +291,14 @@
                     task_status_sort_order: self.tasks.length,
                 })
 
-                $.ajax({
-                    dataType: 'json',
-                    type: 'post',
-                    data: task.toData(),
-                    url: '{{ url('/tasks') }}',
-                    accepts: {
-                        json: 'application/json'
-                    },
-                    success: function(response) {
-                        task.public_id(response.public_id);
-                    },
-                    error: function(error) {
-                        console.log('error');
-                        console.log(error);
-                    },
-                }).always(function() {
-                    setTimeout(function() {
-                        model.is_sending_request(false);
-                    }, 1000);
-                });
-
-                self.tasks.push(task);
-                self.new_task.reset();
-                self.endStatusEdit();
+                var url = '{{ url('/tasks') }}';
+                var data = task.toData();
+                model.ajax('post', url, data, function(response) {
+                    task.public_id(response.public_id);
+                    self.tasks.push(task);
+                    self.new_task.reset();
+                    self.endStatusEdit();
+                })
             }
 
             if (data) {
@@ -393,29 +399,12 @@
                 if (! description) {
                     return false;
                 }
-                $.ajax({
-                    dataType: 'json',
-                    type: 'put',
-                    data: self.toData(),
-                    url: '{{ url('/tasks') }}/' + self.public_id(),
-                    accepts: {
-                        json: 'application/json'
-                    },
-                    success: function(response) {
-                        console.log('success');
-                        console.log(response);
-                    },
-                    error: function(error) {
-                        console.log('error');
-                        console.log(error);
-                    },
-                }).always(function() {
-                    setTimeout(function() {
-                        model.is_sending_request(false);
-                    }, 1000);
-                });
 
-                self.endTaskEdit();
+                var url = '{{ url('/tasks') }}/' + self.public_id();
+                var data = self.toData();
+                model.ajax('put', url, data, function(response) {
+                    self.endTaskEdit();
+                });
             }
 
             self.viewTask = function() {
@@ -532,7 +521,7 @@
                 </div>
 
                 <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
-                    <div data-bind="event: { click: startTaskEdit }" style="padding-bottom:6px">
+                    <div data-bind="event: { click: startEditTask }" style="padding-bottom:6px">
                         <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
