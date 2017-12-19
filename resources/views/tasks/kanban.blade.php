@@ -230,8 +230,8 @@
                 });
             }
 
-            self.onDragged = function() {
-
+            self.onStatusDragged = function() {
+                console.log('onStatusDragged..');
             }
         }
 
@@ -274,8 +274,20 @@
                 self.is_editing_status(false);
             }
 
-            self.onDragged = function() {
+            self.onTaskDragged = function(dragged) {
+                console.log('onTaskDragged..');
+                //console.log(dragged);
+                var task = dragged.item;
+                task.task_status_sort_order(dragged.targetIndex);
+                task.task_status_id(self.public_id());
 
+                var url = '{{ url('/task_status_order') }}/' + task.public_id();
+                var data = task.toData();
+                console.log(data);
+                //return;
+                model.ajax('put', url, data, function(response) {
+
+                });
             }
 
             self.archiveStatus = function() {
@@ -345,10 +357,6 @@
                 self.description.orig(self.description());
                 self.is_editing_task(true);
                 $('.kanban-column-row.editing textarea').focus();
-            }
-
-            self.onDragged = function() {
-
             }
 
             self.toData = function() {
@@ -480,7 +488,7 @@
     </script>
 
     <div class="kanban" style="display: none">
-        <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onDragged, allowDrop: true, connectClass: 'connect-column' }" style="float:left">
+        <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onStatusDragged, allowDrop: true, connectClass: 'connect-column' }" style="float:left">
             <div class="well kanban-column">
 
                 <div class="kanban-column-header" data-bind="css: { editing: is_editing_status }, event: { mouseover: onHeaderMouseOver, mouseout: onHeaderMouseOut }">
@@ -494,7 +502,7 @@
                     </div><br/>
                 </div>
 
-                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:8px">
+                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:8px">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
                         <div data-bind="event: { click: startEditTask }">
                             <div class="view panel">

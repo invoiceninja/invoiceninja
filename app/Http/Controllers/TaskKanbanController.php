@@ -90,13 +90,42 @@ class TaskKanbanController extends BaseController
      */
     public function deleteStatus($publicId)
     {
-        $status = TaskStatus::scope($publicId)->first();
-
-        if ($status) {
-            $status->delete();
-        }
+        $status = TaskStatus::scope($publicId)->firstOrFail();
+        $status->delete();
 
         return response()->json(['message' => RESULT_SUCCESS]);
+    }
+
+    /**
+     * @param $publicId
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateTask($publicId)
+    {
+        $task = Task::scope($publicId)->firstOrFail();
+
+        $origStatusId = $task->task_status_id;
+        $origSortOrder = $task->task_status_sort_order;
+
+        $newStatusId = request('task_status_id');
+        $newSortOrder = request('task_status_sort_order');
+
+        Task::scope()
+            ->where('task_status_id', '=', $origStatusId)
+            ->where('task_status_sort_order', '>', $origSortOrder)
+            ->decrement('task_status_sort_order');
+
+        Task::scope()
+            ->where('task_status_id', '=', $newStatusId)
+            ->where('task_status_sort_order', '>=', $newSortOrder)
+            ->increment('task_status_sort_order');
+
+        $task->task_status_id = request('task_status_id');
+        $task->task_status_sort_order = $newSortOrder;
+        $task->save();
+
+        return response()->json($task);
     }
 
 }
