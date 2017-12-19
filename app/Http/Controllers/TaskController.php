@@ -148,8 +148,11 @@ class TaskController extends BaseController
     public function edit(TaskRequest $request)
     {
         $this->checkTimezone();
-
         $task = $request->entity();
+
+        if (! $task) {
+            return redirect('/');
+        }
 
         $actions = [];
         if ($task->invoice) {
