@@ -584,7 +584,7 @@
                     </div><br/>
                 </div>
 
-                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:8px">
+                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:16px">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
                         <div data-bind="event: { click: startEditTask }">
                             <div class="view panel" data-bind="css: { running: is_running }">
