@@ -299,8 +299,19 @@
                 sweetConfirm(function() {
                     var url = '{{ url('/task_statuses') }}/' + self.public_id();
                     model.ajax('delete', url, null, function(response) {
-                        //model.statuses.remove(self);
-                        location.reload();
+                        model.statuses.remove(self);
+                        if (model.statuses().length) {
+                            var firstStatus = model.statuses()[0];
+                            var adjustment = firstStatus.tasks().length;
+                            for (var i=0; i<self.tasks().length; i++) {
+                                var task = self.tasks()[i];
+                                task.task_status_id(firstStatus.public_id());
+                                task.task_status_sort_order(task.task_status_sort_order() + adjustment);
+                                firstStatus.tasks.push(task);
+                            }
+                        } else {
+                            location.reload();
+                        }
                     })
                 }, "{{ trans('texts.archive_status')}}");
             }
@@ -513,7 +524,9 @@
                         <div data-bind="event: { click: startEditTask }">
                             <div class="view panel">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
-                                <div data-bind="text: description"></div>
+                                <div data-bind="text: description"></div><br/>
+                                Status Id: <span data-bind="text: task_status_id"></span><br/>
+                                Sort Order: <span data-bind="text: task_status_sort_order"></span>
                             </div>
                         </div>
                         <div class="edit">
