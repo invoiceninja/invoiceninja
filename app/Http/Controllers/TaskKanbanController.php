@@ -53,7 +53,11 @@ class TaskKanbanController extends BaseController
      */
     public function storeStatus()
     {
-        return $this->saveStatus();
+        $status = TaskStatus::createNew();
+        $status->fill(request()->all());
+        $status->save();
+
+        return response()->json($status);
     }
 
     /**
@@ -63,22 +67,7 @@ class TaskKanbanController extends BaseController
      */
     public function updateStatus($publicId)
     {
-        return $this->saveStatus($publicId);
-    }
-
-    /**
-     * @param bool $publicId
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    private function saveStatus($publicId = false)
-    {
-        if ($publicId) {
-            $status = TaskStatus::scope($publicId)->firstOrFail();
-        } else {
-            $status = TaskStatus::createNew();
-        }
-
+        $status = TaskStatus::scope($publicId)->firstOrFail();
         $status->fill(request()->all());
         $status->save();
 

@@ -230,8 +230,17 @@
                 });
             }
 
-            self.onStatusDragged = function() {
+            self.onStatusDragged = function(dragged) {
                 console.log('onStatusDragged..');
+                var status = dragged.item;
+                status.sort_order(dragged.targetIndex);
+
+                var url = '{{ url('/task_status') }}/' + status.public_id();
+                var data = task.toData();
+
+                model.ajax('put', url, data, function(response) {
+                    // do nothing
+                });
             }
         }
 
