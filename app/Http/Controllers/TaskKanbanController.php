@@ -129,7 +129,7 @@ class TaskKanbanController extends BaseController
         $origStatusId = $task->task_status_id;
         $origSortOrder = $task->task_status_sort_order;
 
-        $newStatusId = request('task_status_id');
+        $newStatusId = TaskStatus::getPrivateId(request('task_status_id'));
         $newSortOrder = request('task_status_sort_order');
 
         Task::scope()
@@ -142,7 +142,7 @@ class TaskKanbanController extends BaseController
             ->where('task_status_sort_order', '>=', $newSortOrder)
             ->increment('task_status_sort_order');
 
-        $task->task_status_id = TaskStatus::getPrivateId(request('task_status_id'));
+        $task->task_status_id = $newStatusId;
         $task->task_status_sort_order = $newSortOrder;
         $task->save();
 
