@@ -242,6 +242,7 @@ class AccountRepository
             ['dashboard', '/dashboard'],
             ['reports', '/reports'],
             ['calendar', '/calendar'],
+            ['kanban', '/tasks/kanban'],
             ['customize_design', '/settings/customize_design'],
             ['new_tax_rate', '/tax_rates/create'],
             ['new_product', '/products/create'],
