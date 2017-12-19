@@ -37,4 +37,13 @@ class TaskStatus extends EntityModel
     {
         return ENTITY_TASK_STATUS;
     }
+
+    /**
+     * @return mixed
+     */
+    public function tasks()
+    {
+        return $this->hasMany('App\Models\Task')->orderBy('task_status_sort_order');
+    }
+
 }

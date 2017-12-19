@@ -299,7 +299,8 @@
                 sweetConfirm(function() {
                     var url = '{{ url('/task_statuses') }}/' + self.public_id();
                     model.ajax('delete', url, null, function(response) {
-                        model.statuses.remove(self);
+                        //model.statuses.remove(self);
+                        location.reload();
                     })
                 }, "{{ trans('texts.archive_status')}}");
             }

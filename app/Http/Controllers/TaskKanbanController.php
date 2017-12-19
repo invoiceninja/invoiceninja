@@ -100,6 +100,20 @@ class TaskKanbanController extends BaseController
             ->where('sort_order', '>', $status->sort_order)
             ->decrement('sort_order');
 
+        $firstStatus = TaskStatus::scope()
+            ->orderBy('sort_order')
+            ->first();
+
+        // Move linked tasks to the end of the first status
+        if ($firstStatus) {
+            $firstCount = $firstStatus->tasks->count();
+            Task::scope()
+                ->where('task_status_id', '=', $status->id)
+                ->increment('task_status_sort_order', $firstCount, [
+                    'task_status_id' => $firstStatus->id
+                ]);
+        }
+
         return response()->json(['message' => RESULT_SUCCESS]);
     }
 
