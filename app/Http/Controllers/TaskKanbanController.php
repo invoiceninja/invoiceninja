@@ -96,6 +96,10 @@ class TaskKanbanController extends BaseController
         $status = TaskStatus::scope($publicId)->firstOrFail();
         $status->delete();
 
+        TaskStatus::scope()
+            ->where('sort_order', '>', $status->sort_order)
+            ->decrement('sort_order');
+
         return response()->json(['message' => RESULT_SUCCESS]);
     }
 
@@ -124,7 +128,7 @@ class TaskKanbanController extends BaseController
             ->where('task_status_sort_order', '>=', $newSortOrder)
             ->increment('task_status_sort_order');
 
-        $task->task_status_id = request('task_status_id');
+        $task->task_status_id = TaskStatus::getPrivateId(request('task_status_id'));
         $task->task_status_sort_order = $newSortOrder;
         $task->save();
 
