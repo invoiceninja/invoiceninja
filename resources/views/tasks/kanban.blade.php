@@ -235,8 +235,8 @@
                 var status = dragged.item;
                 status.sort_order(dragged.targetIndex);
 
-                var url = '{{ url('/task_status') }}/' + status.public_id();
-                var data = task.toData();
+                var url = '{{ url('/task_statuses') }}/' + status.public_id();
+                var data = status.toData();
 
                 model.ajax('put', url, data, function(response) {
                     // do nothing

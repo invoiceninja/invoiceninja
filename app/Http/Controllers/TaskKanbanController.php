@@ -15,13 +15,13 @@ class TaskKanbanController extends BaseController
     public function index()
     {
         $tasks = Task::scope()->with(['project', 'client', 'task_status'])->orderBy('task_status_sort_order')->get();
-        $stauses = TaskStatus::scope()->orderBy('sort_order')->get();
+        $statuses = TaskStatus::scope()->orderBy('sort_order')->get();
         $projects = Project::scope()->get();
         $clients = Client::scope()->get();
 
         // check initial statuses exist
-        if (! $stauses->count()) {
-            $stauses = [];
+        if (! $statuses->count()) {
+            $statuses = collect([]);
             $defaults = [
                 'backlog',
                 'ready_to_do',
@@ -33,13 +33,13 @@ class TaskKanbanController extends BaseController
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;
                 $status->save();
-                $stauses[] = $status;
+                $statuses[] = $status;
             }
         }
 
         $data = [
             'title' => trans('texts.kanban'),
-            'statuses' => $stauses,
+            'statuses' => $statuses,
             'tasks' => $tasks,
             'clients' => $clients,
             'projects' => $projects,
@@ -68,6 +68,20 @@ class TaskKanbanController extends BaseController
     public function updateStatus($publicId)
     {
         $status = TaskStatus::scope($publicId)->firstOrFail();
+
+        if ($status->sort_order != request('sort_order')) {
+            $origSortOrder = $status->sort_order;
+            $newSortOrder = request('sort_order');
+
+            TaskStatus::scope()
+                ->where('sort_order', '>', $origSortOrder)
+                ->decrement('sort_order');
+
+            TaskStatus::scope()
+                ->where('sort_order', '>=', $newSortOrder)
+                ->increment('sort_order');
+        }
+
         $status->fill(request()->all());
         $status->save();
 
