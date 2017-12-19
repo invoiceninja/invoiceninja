@@ -140,6 +140,20 @@
             }
         };
 
+        ko.bindingHandlers.escapekey = {
+            init: function (element, valueAccessor, allBindings, viewModel) {
+                var callback = valueAccessor();
+                $(element).keyup(function (event) {
+                    var keyCode = (event.which ? event.which : event.keyCode);
+                    if (keyCode === 27) {
+                        callback.call(viewModel);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+        };
+
         ko.bindingHandlers.selected = {
             update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 var selected = ko.utils.unwrapObservable(valueAccessor());
@@ -252,6 +266,7 @@
         function StatusModel(data) {
             var self = this;
             self.name = ko.observable();
+            self.name.orig = ko.observable();
             self.sort_order = ko.observable();
             self.public_id = ko.observable();
             self.is_editing_status = ko.observable(false);
@@ -277,15 +292,16 @@
             }
 
             self.saveEditStatus = function() {
-                var url = '{{ url('/task_statuses') }}/' + self.public_id();
-                var data = 'name=' + encodeURIComponent(self.name());
-                model.ajax('put', url, data, function(response) {
+                if (self.name() == self.name.orig()) {
                     self.is_editing_status(false);
-                })
-            }
-
-            self.cancelEditStatus = function() {
-                self.is_editing_status(false);
+                } else {
+                    var url = '{{ url('/task_statuses') }}/' + self.public_id();
+                    var data = 'name=' + encodeURIComponent(self.name());
+                    model.ajax('put', url, data, function(response) {
+                        self.name.orig(self.name());
+                        self.is_editing_status(false);
+                    })
+                }
             }
 
             self.onTaskDragged = function(dragged) {
@@ -351,6 +367,7 @@
 
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
+                self.name.orig(self.name());
             }
         }
 
@@ -517,7 +534,7 @@
                     <div class="pull-left" data-bind="event: { click: startEditStatus }">
                         <div class="view" data-bind="text: name"></div>
                         <input class="edit" type="text" data-bind="value: name, valueUpdate: 'afterkeydown', hasfocus: is_editing_status, selected: is_editing_status,
-                                event: { blur: cancelEditStatus }, enterkey: saveEditStatus"/>
+                                event: { blur: saveEditStatus }, enterkey: saveEditStatus, escapekey: saveEditStatus"/>
                     </div>
                     <div class="pull-right" data-bind="click: archiveStatus, visible: is_header_hovered">
                         <i class="fa fa-times" title="{{ trans('texts.archive') }}"></i>
