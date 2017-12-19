@@ -4,6 +4,7 @@
     @parent
 
     <style type="text/css">
+    
         .kanban {
             overflow-x: auto;
             white-space: nowrap;
@@ -182,16 +183,16 @@
                 }
             }
 
-            self.startAddStatus = function() {
+            self.startNewStatus = function() {
                 self.is_adding_status(true);
                 $('.kanban-column-last .kanban-column-row.editing textarea').focus();
             }
 
-            self.cancelAddStatus = function() {
+            self.cancelNewStatus = function() {
                 self.is_adding_status(false);
             }
 
-            self.completeAddStatus = function() {
+            self.saveNewStatus = function() {
                 var statusModel = new StatusModel({
                     name: self.new_status()
                 })
@@ -251,11 +252,19 @@
                 self.is_header_hovered(false);
             }
 
-            self.startStatusEdit = function() {
+            self.startEditStatus = function() {
                 self.is_editing_status(true);
             }
 
-            self.endStatusEdit = function() {
+            self.saveEditStatus = function() {
+                var url = '{{ url('/task_statuses') }}/' + self.public_id();
+                var data = 'name=' + encodeURIComponent(self.name());
+                model.ajax('put', url, data, function(response) {
+                    self.is_editing_status(false);
+                })
+            }
+
+            self.cancelEditStatus = function() {
                 self.is_editing_status(false);
             }
 
@@ -297,7 +306,6 @@
                     task.public_id(response.public_id);
                     self.tasks.push(task);
                     self.new_task.reset();
-                    self.endStatusEdit();
                 })
             }
 
@@ -473,21 +481,15 @@
 
     </script>
 
-    <!-- <div data-bind="text: ko.toJSON(model)"></div> -->
-    <script id="itemTmpl" type="text/html">
-
-    </script>
-
-
     <div class="kanban" style="display: none">
         <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onDragged, allowDrop: true, connectClass: 'connect-column' }" style="float:left">
             <div class="well kanban-column">
 
                 <div class="kanban-column-header" data-bind="css: { editing: is_editing_status }, event: { mouseover: onHeaderMouseOver, mouseout: onHeaderMouseOut }">
-                    <div class="pull-left" data-bind="event: { click: startStatusEdit }">
+                    <div class="pull-left" data-bind="event: { click: startEditStatus }">
                         <div class="view" data-bind="text: name"></div>
-                        <input class="edit" type="text" data-bind="value: name, hasfocus: is_editing_status, selected: is_editing_status,
-                                event: { blur: endStatusEdit }, enterkey: endStatusEdit"/>
+                        <input class="edit" type="text" data-bind="value: name, valueUpdate: 'afterkeydown', hasfocus: is_editing_status, selected: is_editing_status,
+                                event: { blur: cancelEditStatus }, enterkey: saveEditStatus"/>
                     </div>
                     <div class="pull-right" data-bind="click: archiveStatus, visible: is_header_hovered">
                         <i class="fa fa-times" title="{{ trans('texts.archive') }}"></i>
@@ -521,7 +523,7 @@
                 </div>
 
                 <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
-                    <div data-bind="event: { click: startEditTask }" style="padding-bottom:6px">
+                    <div data-bind="event: { click: startTaskEdit }" style="padding-bottom:6px">
                         <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
@@ -544,19 +546,19 @@
 
         <div class="kanban-column kanban-column-last well">
             <div class="kanban-column-row" data-bind="css: { editing: is_adding_status }">
-                <div class="view" data-bind="event: { click: startAddStatus }" style="padding-bottom: 8px;">
+                <div class="view" data-bind="event: { click: startNewStatus }" style="padding-bottom: 8px;">
                     <a href="#" class="text-muted" style="font-size:13px">
                         {{ trans('texts.new_status') }}...
                     </a>
                 </div>
                 <div class="edit">
                     <input data-bind="value: new_status, valueUpdate: 'afterkeydown',
-                        hasfocus: is_adding_status, selected: is_adding_status, enterkey: completeAddStatus"></textarea>
+                        hasfocus: is_adding_status, selected: is_adding_status, enterkey: saveNewStatus"></textarea>
                     <div class="pull-right" style="padding-top:6px">
-                        <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelAddStatus">
+                        <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelNewStatus">
                             {{ trans('texts.cancel') }}
                         </button>
-                        <button type='button' class='btn btn-success btn-sm' data-bind="click: completeAddStatus">
+                        <button type='button' class='btn btn-success btn-sm' data-bind="click: saveNewStatus">
                             {{ trans('texts.save') }}
                         </button>
                     </div>
