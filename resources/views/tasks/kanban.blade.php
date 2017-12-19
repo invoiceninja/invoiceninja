@@ -8,7 +8,6 @@
         .kanban {
             overflow-x: auto;
             white-space: nowrap;
-            min-height: 540px;
         }
 
         .kanban input {
