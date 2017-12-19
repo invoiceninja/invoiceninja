@@ -4,7 +4,7 @@
     @parent
 
     <style type="text/css">
-    
+
         .kanban {
             overflow-x: auto;
             white-space: nowrap;
@@ -285,7 +285,7 @@
                 if (self.new_task.is_blank()) {
                     self.new_task.description('');
                 }
-                self.new_task.endTaskEdit();
+                self.new_task.is_editing_task(false);
             }
 
             self.saveNewTask = function() {
@@ -335,18 +335,10 @@
                 return 'project-group' + (colorNum+1);
             })
 
-            self.startTaskEdit = function() {
+            self.startEditTask = function() {
                 self.description.orig(self.description());
                 self.is_editing_task(true);
                 $('.kanban-column-row.editing textarea').focus();
-            }
-
-            self.endTaskEdit = function() {
-                var description = self.description();
-                if (! description && ! self.is_blank()) {
-                    return false;
-                }
-                self.is_editing_task(false);
             }
 
             self.onDragged = function() {
@@ -399,7 +391,7 @@
                     self.description(self.description.orig());
                 }
 
-                self.endTaskEdit();
+                self.is_editing_task(false);
             }
 
             self.saveEditTask = function() {
@@ -411,7 +403,7 @@
                 var url = '{{ url('/tasks') }}/' + self.public_id();
                 var data = self.toData();
                 model.ajax('put', url, data, function(response) {
-                    self.endTaskEdit();
+                    self.is_editing_task(false);
                 });
             }
 
@@ -421,9 +413,9 @@
             }
 
             self.reset = function() {
-                self.endTaskEdit();
-                self.description('');
+                self.is_editing_task(false);
                 self.is_blank(true);
+                self.description('');
             }
 
             self.mapping = {
@@ -498,7 +490,7 @@
 
                 <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:8px">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
-                        <div data-bind="event: { click: startTaskEdit }">
+                        <div data-bind="event: { click: startEditTask }">
                             <div class="view panel">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
                                 <div data-bind="text: description"></div>
@@ -523,7 +515,7 @@
                 </div>
 
                 <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
-                    <div data-bind="event: { click: startTaskEdit }" style="padding-bottom:6px">
+                    <div data-bind="event: { click: startEditTask }" style="padding-bottom:6px">
                         <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
