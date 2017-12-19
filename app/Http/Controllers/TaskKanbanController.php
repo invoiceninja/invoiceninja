@@ -79,7 +79,7 @@ class TaskKanbanController extends BaseController
             $status = TaskStatus::createNew();
         }
 
-        $status->name = request('name');
+        $status->fill(request()->all());
         $status->save();
 
         return response()->json($status);

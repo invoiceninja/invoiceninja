@@ -194,11 +194,11 @@
 
             self.saveNewStatus = function() {
                 var statusModel = new StatusModel({
-                    name: self.new_status()
+                    name: self.new_status(),
+                    sort_order: self.statuses().length,
                 })
-
                 var url = '{{ url('/task_statuses') }}';
-                var data = 'name=' + encodeURIComponent(statusModel.name());
+                var data = statusModel.toData();
                 self.ajax('post', url, data, function(response) {
                     statusModel.public_id(response.public_id);
                     self.statuses.push(statusModel);
@@ -238,11 +238,17 @@
         function StatusModel(data) {
             var self = this;
             self.name = ko.observable();
+            self.sort_order = ko.observable();
             self.public_id = ko.observable();
             self.is_editing_status = ko.observable(false);
             self.is_header_hovered = ko.observable(false);
             self.tasks = ko.observableArray();
             self.new_task = new TaskModel();
+
+            self.toData = function() {
+                return 'name=' + encodeURIComponent(self.name()) +
+                    '&sort_order=' + self.sort_order();
+            }
 
             self.onHeaderMouseOver = function() {
                 self.is_header_hovered(true);

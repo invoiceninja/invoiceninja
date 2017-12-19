@@ -15,10 +15,20 @@ class TaskStatus extends EntityModel
      * @var bool
      */
     public $timestamps = true;
+
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'sort_order',
+    ];
+
 
     /**
      * @return mixed
