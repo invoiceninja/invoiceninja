@@ -18,6 +18,7 @@
         .kanban-column {
             background-color: #E9E9E9;
             padding: 10px;
+            padding-bottom: 14px;
             height: 100%;
             width: 230px;
             margin-right: 12px;
@@ -25,6 +26,10 @@
             vertical-align: top;
             white-space: normal;
             cursor: pointer;
+        }
+
+        .kanban-column-last {
+            background-color: #F8F8F8;
         }
 
         .kanban-column-header {

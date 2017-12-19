@@ -14,7 +14,12 @@ class TaskKanbanController extends BaseController
      */
     public function index()
     {
-        $tasks = Task::scope()->with(['project', 'client', 'task_status'])->orderBy('task_status_sort_order')->get();
+        $tasks = Task::scope()
+            ->with(['project', 'client', 'task_status'])
+            ->whereNull('invoice_id')
+            ->orderBy('task_status_sort_order')
+            ->get();
+
         $statuses = TaskStatus::scope()->orderBy('sort_order')->get();
         $projects = Project::scope()->get();
         $clients = Client::scope()->get();
