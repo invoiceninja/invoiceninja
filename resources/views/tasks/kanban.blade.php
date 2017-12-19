@@ -275,18 +275,14 @@
             }
 
             self.onTaskDragged = function(dragged) {
-                console.log('onTaskDragged..');
-                //console.log(dragged);
                 var task = dragged.item;
                 task.task_status_sort_order(dragged.targetIndex);
                 task.task_status_id(self.public_id());
 
                 var url = '{{ url('/task_status_order') }}/' + task.public_id();
                 var data = task.toData();
-                console.log(data);
-                //return;
                 model.ajax('put', url, data, function(response) {
-
+                    // do nothing
                 });
             }
 
@@ -315,7 +311,7 @@
                 var task = new TaskModel({
                     description: description,
                     task_status_id: self.public_id(),
-                    task_status_sort_order: self.tasks.length,
+                    task_status_sort_order: self.tasks().length,
                 })
 
                 var url = '{{ url('/tasks') }}';
