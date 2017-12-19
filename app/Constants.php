@@ -205,10 +205,10 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
     define('PAYMENT_STATUS_REFUNDED', 6);
 
-    define('TASK_STATUS_LOGGED', 1);
-    define('TASK_STATUS_RUNNING', 2);
-    define('TASK_STATUS_INVOICED', 3);
-    define('TASK_STATUS_PAID', 4);
+    define('TASK_STATUS_LOGGED', -1);
+    define('TASK_STATUS_RUNNING', -2);
+    define('TASK_STATUS_INVOICED', -3);
+    define('TASK_STATUS_PAID', -4);
 
     define('EXPENSE_STATUS_LOGGED', 1);
     define('EXPENSE_STATUS_PENDING', 2);

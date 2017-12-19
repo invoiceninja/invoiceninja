@@ -239,7 +239,17 @@ class Task extends EntityModel
     public static function getStatuses($entityType = false)
     {
         $statuses = [];
-        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
+
+        $taskStatues = TaskStatus::scope()->orderBy('sort_order')->get();
+
+        foreach ($taskStatues as $status) {
+            $statuses[$status->id] = $status->name;
+        }
+
+        if (! $taskStatues->count()) {
+            $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
+        }
+
         $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
         $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
         $statuses[TASK_STATUS_PAID] = trans('texts.paid');

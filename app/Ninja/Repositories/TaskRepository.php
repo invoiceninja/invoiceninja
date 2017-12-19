@@ -88,6 +88,11 @@ class TaskRepository extends BaseRepository
                 if (in_array(TASK_STATUS_PAID, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0);
                 }
+                $query->orWhere(function ($query) use ($statuses) {
+                    $query->whereIn('tasks.task_status_id', $statuses)
+                        ->whereNull('tasks.invoice_id');
+                });
+
             });
         }
 
