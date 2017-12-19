@@ -259,8 +259,7 @@
                         callback(response);
                     },
                     error: function(error) {
-                        console.log('error');
-                        console.log(error);
+                        swal("{{ trans('texts.error_refresh_page') }}");
                     },
                 }).always(function() {
                     setTimeout(function() {
@@ -270,7 +269,6 @@
             }
 
             self.onStatusDragged = function(dragged) {
-                console.log('onStatusDragged..');
                 var status = dragged.item;
                 status.sort_order(dragged.targetIndex);
 
