@@ -49,7 +49,11 @@ class TaskDatatable extends EntityDatatable
             [
                 'duration',
                 function ($model) {
-                    return Utils::formatTime(Task::calcDuration($model));
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
+                        return Utils::formatTime(Task::calcDuration($model));
+                    }
+
+                    return link_to("tasks/{$model->public_id}/edit", Utils::formatTime(Task::calcDuration($model)))->toHtml();
                 },
             ],
             [
@@ -120,7 +124,7 @@ class TaskDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number);
+        $label = Task::calcStatusLabel($model->is_running, $model->balance, $model->invoice_number, $model->task_status);
         $class = Task::calcStatusClass($model->is_running, $model->balance, $model->invoice_number);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";

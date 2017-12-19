@@ -247,21 +247,25 @@ class Task extends EntityModel
         return $statuses;
     }
 
-    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber)
+    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
     {
         if ($invoiceNumber) {
             if (floatval($balance) > 0) {
-                $label = 'invoiced';
+                $label = trans('texts.invoiced');
             } else {
-                $label = 'paid';
+                $label = trans('texts.paid');
             }
-        } elseif ($isRunning) {
-            $label = 'running';
+        } elseif ($taskStatus) {
+            $label = $taskStatus;
         } else {
-            $label = 'logged';
+            $label = trans('texts.logged');
         }
 
-        return trans("texts.{$label}");
+        if ($isRunning) {
+            $label .= ' | ' . trans('texts.running');
+        }
+
+        return $label;
     }
 
     public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
@@ -275,7 +279,7 @@ class Task extends EntityModel
         } elseif ($isRunning) {
             return 'primary';
         } else {
-            return 'warning';
+            return 'info';
         }
     }
 
@@ -302,7 +306,9 @@ class Task extends EntityModel
             $invoiceNumber = false;
         }
 
-        return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber);
+        $taskStatus = $this->task_status ? $this->task_status->name : false;
+
+        return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber, $taskStatus);
     }
 }
 

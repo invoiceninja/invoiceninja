@@ -36,7 +36,7 @@ class AddRemember2faToken extends Migration
         });
 
         Schema::table('tasks', function ($table) {
-            $table->unsignedInteger('task_status_id')->nullable();
+            $table->unsignedInteger('task_status_id')->index()->nullable();
             $table->smallInteger('task_status_sort_order')->default(0);
         });
 

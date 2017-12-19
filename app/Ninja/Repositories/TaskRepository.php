@@ -25,6 +25,7 @@ class TaskRepository extends BaseRepository
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                    ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
                     ->where('tasks.account_id', '=', Auth::user()->account_id)
                     ->where(function ($query) { // handle when client isn't set
                         $query->where('contacts.is_primary', '=', true)
@@ -56,7 +57,8 @@ class TaskRepository extends BaseRepository
                         'tasks.user_id',
                         'projects.name as project',
                         'projects.public_id as project_public_id',
-                        'projects.user_id as project_user_id'
+                        'projects.user_id as project_user_id',
+                        'task_statuses.name as task_status'
                     );
 
         if ($clientPublicId) {
