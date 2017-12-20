@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\CurlUtils;
 use Carbon;
 use Str;
 use App\Models\Invoice;
+use App\Models\Currency;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
@@ -73,6 +75,7 @@ class SendReminders extends Command
         $this->chargeLateFees();
         $this->setReminderEmails();
         $this->sendScheduledReports();
+        $this->loadExchangeRates();
 
         $this->info('Done');
 
@@ -160,6 +163,20 @@ class SendReminders extends Command
             }
 
             $scheduledReport->updateSendDate();
+        }
+    }
+
+    private function loadExchangeRates()
+    {
+        $this->info('Loading latest exchange rates...');
+
+        $data = CurlUtils::get('https://api.fixer.io/latest');
+        $data = json_decode($data);
+
+        Currency::whereCode('EUR')->update(['exchange_rate' => 1]);
+
+        foreach ($data->rates as $code => $rate) {
+            Currency::whereCode($code)->update(['exchange_rate' => $rate]);
         }
     }
 

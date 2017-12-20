@@ -43,6 +43,10 @@ class AddRemember2faToken extends Migration
         Schema::table('tasks', function ($table) {
             $table->foreign('task_status_id')->references('id')->on('task_statuses')->onDelete('cascade');
         });
+
+        Schema::table('currencies', function ($table) {
+            $table->decimal('exchange_rate', 13, 4)->nullable();
+        });
     }
 
     /**
@@ -66,5 +70,9 @@ class AddRemember2faToken extends Migration
         });
 
         Schema::dropIfExists('task_statuses');
+
+        Schema::table('currencies', function ($table) {
+            $table->dropColumn('exchange_rate');
+        });
     }
 }

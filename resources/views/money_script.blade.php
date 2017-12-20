@@ -15,6 +15,13 @@
         countryMap[country.id] = country;
     }
 
+    fx.base = 'EUR';
+    fx.rates = {!! cache('currencies')
+                    ->keyBy('code')
+                    ->map(function($item, $key) {
+                        return $item->exchange_rate ?: 1;
+                    }); !!};
+
     var NINJA = NINJA || {};
     @if (Auth::check())
     NINJA.primaryColor = "{{ Auth::user()->account->primary_color }}";
