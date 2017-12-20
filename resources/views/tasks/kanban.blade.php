@@ -178,8 +178,10 @@
 
             self.statuses = ko.observableArray();
             self.is_adding_status = ko.observable(false);
-            self.new_status = ko.observable('');
-            self.filter = ko.observable('');
+            self.new_status = ko.observable();
+            self.filter = ko.observable();
+            self.filter_client_id = ko.observable();
+            self.filter_project_id = ko.observable();
             self.is_sending_request = ko.observable(false);
 
             for (var i=0; i<statuses.length; i++) {
@@ -193,17 +195,27 @@
                 var project = projects[i];
                 projectMap[project.public_id] = new ProjectModel(project);
                 projectList.push({
+                    type: 'project',
                     value: project.name,
                     tokens: project.name,
+                    id: project.public_id,
                 })
             }
 
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
                 clientMap[client.public_id] = new ClientModel(client);
+                var tokens = [client.name];
+                if (client.contacts.length) {
+                    $.each(client.contacts, function(i, contact) {
+                        tokens.push(contact.first_name, contact.last_name, contact.email);
+                    });
+                }
                 clientList.push({
-                    value: client.name,
-                    tokens: client.name,
+                    type: 'client',
+                    value: getClientDisplayName(client),
+                    tokens: tokens,
+                    id: client.public_id,
                 })
             }
 
@@ -423,7 +435,7 @@
                     '&task_status_sort_order=' + self.task_status_sort_order();
             }
 
-            self.matchesFilter = function(filter) {
+            self.matchesFilter = function(filter, clientId, projectId) {
                 if (filter) {
                     filter = filter.toLowerCase();
                     var parts = filter.split(' ');
@@ -450,6 +462,18 @@
                         if (! isMatch) {
                             return false;
                         }
+                    }
+                }
+
+                if (clientId) {
+                    if (! self.client() || self.client().public_id() != clientId) {
+                        return false;
+                    }
+                }
+
+                if (projectId) {
+                    if (! self.project() || self.project().public_id() != projectId) {
+                        return false;
                     }
                 }
 
@@ -554,11 +578,20 @@
                     header: '&nbsp;<span style="font-weight:600;font-size:15px">{{ trans('texts.projects') }}</span>'
                 }
             }).on('typeahead:selected', function(element, datum, name) {
-                model.filter(datum.value);
+                model.filter(false);
+                if (datum.type == 'client') {
+                    model.filter_client_id(datum.id);
+                    model.filter_project_id(false);
+                } else {
+                    model.filter_project_id(datum.id);
+                    model.filter_client_id(false);
+                }
             });
 
-            $('#filter').on('keyup', function() {
+            $('#filter').on('input', function() {
                 model.filter($('#filter').val());
+                model.filter_client_id(false);
+                model.filter_project_id(false);
             });
 
             window.model = new ViewModel();
@@ -585,7 +618,7 @@
                 </div>
 
                 <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:16px">
-                    <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter())">
+                    <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter(), $root.filter_client_id(), $root.filter_project_id())">
                         <div data-bind="event: { click: startEditTask }">
                             <div class="view panel" data-bind="css: { running: is_running }">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>

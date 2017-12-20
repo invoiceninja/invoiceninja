@@ -27,7 +27,7 @@ class TaskKanbanController extends BaseController
             ->get();
 
         $projects = Project::scope()->get();
-        $clients = Client::scope()->get();
+        $clients = Client::scope()->with(['contacts'])->get();
 
         // check initial statuses exist
         if (! $statuses->count()) {
@@ -61,7 +61,7 @@ class TaskKanbanController extends BaseController
             $adjustment = 0;
             $counts = [];
             foreach ($tasks as $task) {
-                if (! $task->task_status_id) {
+                if (! $task->task_status || $task->task_status->trashed()) {
                     $task->task_status_id = $firstStatus->id;
                     $task->setRelation('task_status', $firstStatus);
                 }
