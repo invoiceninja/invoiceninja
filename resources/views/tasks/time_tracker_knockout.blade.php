@@ -187,6 +187,7 @@
         }
 
         self.filterState = ko.observable('all');
+        self.filterStatusId = ko.observable(false);
         self.sortField = ko.observable(defaultSortField);
         self.sortDirection = ko.observable(defaultSortDirection);
 
@@ -519,7 +520,7 @@
             var tasks = self.tasks();
 
             var filtered = ko.utils.arrayFilter(tasks, function(task) {
-                return task.matchesFilter(self.filter(), self.filterState());
+                return task.matchesFilter(self.filter(), self.filterState(), self.filterStatusId());
             });
 
             if (! self.filter() || filtered.length > 0) {
@@ -602,6 +603,7 @@
         self.project = ko.observable();
         self.isHovered = ko.observable(false);
         self.created_at = ko.observable(moment.utc().format('YYYY-MM-DD HH:mm:ss'));
+        self.task_status_id = ko.observable();
 
         self.mapping = {
             'client': {
@@ -768,6 +770,9 @@
             if (! self.isRunning()) {
                 self.addTime();
             }
+            if (data.task_status) {
+                self.task_status_id(data.task_status.public_id);
+            }
 
             // Trigger isChanged to update
             self.client_id.valueHasMutated();
@@ -928,7 +933,7 @@
             return times;
         }
 
-        self.matchesFilter = function(filter, filterState) {
+        self.matchesFilter = function(filter, filterState, filterStatusId) {
             if (filter) {
                 filter = model.filter().toLowerCase();
                 var parts = filter.split(' ');
@@ -962,6 +967,12 @@
                 return false;
             } else if (filterState == 'running' && ! self.isRunning()) {
                 return false;
+            }
+
+            if (filterStatusId) {
+                if (self.task_status_id() != filterStatusId) {
+                    return false;
+                }
             }
 
             return true;
