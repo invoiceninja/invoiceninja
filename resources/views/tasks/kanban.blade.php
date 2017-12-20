@@ -73,6 +73,10 @@
             word-break: break-all;
         }
 
+        .kanban-column-row .panel.hovered {
+            xborder-color: #6394e8 !important;
+        }
+
         .kanban-column-row .running div {
             border: 2px groove #36c157;
             border-radius: 4px;
@@ -413,6 +417,7 @@
             self.client = ko.observable();
             self.task_status_id = ko.observable();
             self.task_status_sort_order = ko.observable();
+            self.is_panel_hovered = ko.observable(false);
 
             self.projectColor = ko.computed(function() {
                 if (! self.project()) {
@@ -427,6 +432,14 @@
                 self.description.orig(self.description());
                 self.is_editing_task(true);
                 $('.kanban-column-row.editing textarea').focus();
+            }
+
+            self.onPanelMouseOver = function() {
+                self.is_panel_hovered(true);
+            }
+
+            self.onPanelMouseOut = function() {
+                self.is_panel_hovered(false);
             }
 
             self.toData = function() {
@@ -608,7 +621,7 @@
 
                 <div class="kanban-column-header" data-bind="css: { editing: is_editing_status }, event: { mouseover: onHeaderMouseOver, mouseout: onHeaderMouseOut }">
                     <div class="pull-left" data-bind="event: { click: startEditStatus }">
-                        <div class="view" data-bind="text: name"></div>
+                        <div class="view" data-bind="text: name().length > 24 ? name().substring(0, 24) + '...' : name()"></div>
                         <input class="edit" type="text" data-bind="value: name, valueUpdate: 'afterkeydown', hasfocus: is_editing_status, selected: is_editing_status,
                                 event: { blur: saveEditStatus }, enterkey: saveEditStatus, escapekey: saveEditStatus"/>
                     </div>
@@ -620,15 +633,9 @@
                 <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:16px">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter(), $root.filter_client_id(), $root.filter_project_id())">
                         <div data-bind="event: { click: startEditTask }">
-                            <div class="view panel" data-bind="css: { running: is_running }">
+                            <div class="view panel" data-bind="css: { running: is_running, hovered: is_panel_hovered }, event: { mouseover: onPanelMouseOver, mouseout: onPanelMouseOut }">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
-                                <div data-bind="text: description"></div>
-                                <!--
-                                <p>Public Id: <span data-bind="text: public_id"></span></p>
-                                <p>Status Id: <span data-bind="text: task_status_id"></span></p>
-                                <p>Sort Order: <span data-bind="text: task_status_sort_order"></p>
-                                <p>Running: <span data-bind="text: is_running"></span></p>
-                                -->
+                                <div data-bind="text: description().length > 100 ? description().substring(0, 100) + '...' : description()"></div>
                             </div>
                         </div>
                         <div class="edit">
