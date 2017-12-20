@@ -639,7 +639,7 @@
                             </div>
                         </div>
                         <div class="edit">
-                            <textarea data-bind="value: description, valueUpdate: 'afterkeydown', enterkey: saveEditTask"></textarea>
+                            <textarea data-bind="value: description, valueUpdate: 'afterkeydown', enterkey: saveEditTask, escapekey: cancelEditTask"></textarea>
                             <div class="pull-right">
                                 <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelEditTask">
                                     {{ trans('texts.cancel') }}
@@ -663,7 +663,7 @@
                         </a>
                     </div>
                     <div class="edit">
-                        <textarea data-bind="value: description, valueUpdate: 'afterkeydown', enterkey: $parent.saveNewTask"></textarea>
+                        <textarea data-bind="value: description, valueUpdate: 'afterkeydown', enterkey: $parent.saveNewTask, escapekey: $parent.cancelNewTask"></textarea>
                         <div class="pull-right">
                             <button type='button' class='btn btn-default btn-sm' data-bind="click: $parent.cancelNewTask">
                                 {{ trans('texts.cancel') }}
