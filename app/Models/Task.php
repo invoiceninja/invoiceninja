@@ -243,7 +243,7 @@ class Task extends EntityModel
         $taskStatues = TaskStatus::scope()->orderBy('sort_order')->get();
 
         foreach ($taskStatues as $status) {
-            $statuses[$status->id] = $status->name;
+            $statuses[$status->public_id] = $status->name;
         }
 
         if (! $taskStatues->count()) {
