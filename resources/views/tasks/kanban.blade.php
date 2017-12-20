@@ -656,8 +656,8 @@
                     </div>
                 </div>
 
-                <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task">
-                    <div data-bind="event: { click: startEditTask }" style="padding-bottom:6px">
+                <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task" style="padding-bottom:6px">
+                    <div data-bind="event: { click: startEditTask }">
                         <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
