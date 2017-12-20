@@ -452,6 +452,9 @@
         });
 
 		$('#format').change(function() {
+			@if (! auth()->user()->hasFeature(FEATURE_REPORTS))
+				return;
+			@endif
 			var val = $('#format').val();
 			$('#scheduleButton').prop('disabled', val == 'zip');
             if (isStorageSupported() && val != 'zip') {
@@ -460,6 +463,9 @@
         });
 
         $('#report_type').change(function() {
+			@if (! auth()->user()->hasFeature(FEATURE_REPORTS))
+				return;
+			@endif
 			var val = $('#report_type').val();
 			setFiltersShown();
 			setDocumentZipShown();
