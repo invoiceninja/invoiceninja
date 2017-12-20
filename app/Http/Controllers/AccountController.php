@@ -536,6 +536,8 @@ class AccountController extends BaseController
         $client->work_phone = '(212) 555-0000';
         $client->work_email = 'sample@example.com';
         $client->balance = 100;
+        $client->vat_number = $account->vat_number ? '1234567890' : '';
+        $client->id_number = $account->id_number ? '1234567890' : '';
 
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
