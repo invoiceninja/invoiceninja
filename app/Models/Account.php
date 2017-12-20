@@ -1045,9 +1045,8 @@ class Account extends Eloquent
             // Pro
             case FEATURE_TASKS:
             case FEATURE_EXPENSES:
-                if (Utils::isNinja() && $this->company_id < EXTRAS_GRANDFATHER_COMPANY_ID) {
-                    return true;
-                }
+            case FEATURE_QUOTES:
+                return true;
 
             case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
             case FEATURE_DIFFERENT_DESIGNS:
@@ -1056,7 +1055,6 @@ class Account extends Eloquent
             case FEATURE_CUSTOM_EMAILS:
             case FEATURE_PDF_ATTACHMENT:
             case FEATURE_MORE_INVOICE_DESIGNS:
-            case FEATURE_QUOTES:
             case FEATURE_REPORTS:
             case FEATURE_BUY_NOW_BUTTONS:
             case FEATURE_API:
