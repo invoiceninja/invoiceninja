@@ -33,7 +33,7 @@ class InvoiceDesignsSeeder extends Seeder
                         $record->id = $i + 1;
                         $record->name = $design;
                     }
-                    $record->pdfmake = $pdfmake;
+                    $record->pdfmake = json_encode(json_decode($pdfmake)); // remove the white space
                     $record->save();
                 }
             }
