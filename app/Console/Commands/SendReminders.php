@@ -170,7 +170,7 @@ class SendReminders extends Command
     {
         $this->info('Loading latest exchange rates...');
 
-        $data = CurlUtils::get('https://api.fixer.io/latest');
+        $data = CurlUtils::get(config('ninja.exchange_rates_url'));
         $data = json_decode($data);
 
         Currency::whereCode('EUR')->update(['exchange_rate' => 1]);
