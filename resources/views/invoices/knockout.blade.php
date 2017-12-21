@@ -1037,7 +1037,20 @@ ko.bindingHandlers.productTypeahead = {
                 }
                 if (parseFloat(datum.cost)) {
                     if (! model.cost() || ! model.task_public_id()) {
-                        model.cost(roundSignificant(datum.cost, true));
+                        // optionally handle curency conversion
+                        var cost = datum.cost;
+                        var client = window.model.invoice().client();
+                        if (client) {
+                            var clientCurrencyId = client.currency_id();
+                            if (clientCurrencyId) {
+                                var accountCurrencyId = {{ $account->getCurrencyId() }};
+                                cost = fx.convert(cost, {
+                                    from: currencyMap[accountCurrencyId].code,
+                                    to: currencyMap[clientCurrencyId].code,
+                                });
+                            }
+                        }
+                        model.cost(roundSignificant(cost, true));
                     }
                 }
                 if (!model.qty() && ! model.task_public_id()) {

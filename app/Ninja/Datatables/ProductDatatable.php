@@ -30,7 +30,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'cost',
                 function ($model) {
-                    return Utils::roundSignificant($model->cost);
+                    return Utils::formatMoney($model->cost);
                 },
             ],
             [
