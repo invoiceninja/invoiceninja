@@ -1037,19 +1037,32 @@ ko.bindingHandlers.productTypeahead = {
                 }
                 if (parseFloat(datum.cost)) {
                     if (! model.cost() || ! model.task_public_id()) {
-                        // optionally handle curency conversion
                         var cost = datum.cost;
-                        var client = window.model.invoice().client();
-                        if (client) {
-                            var clientCurrencyId = client.currency_id();
-                            if (clientCurrencyId) {
+
+                        // optionally handle curency conversion
+                        @if ($account->convert_products)
+                            var client = window.model.invoice().client();
+                            if (client) {
+                                var clientCurrencyId = client.currency_id();
                                 var accountCurrencyId = {{ $account->getCurrencyId() }};
-                                cost = fx.convert(cost, {
-                                    from: currencyMap[accountCurrencyId].code,
-                                    to: currencyMap[clientCurrencyId].code,
-                                });
+                                if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
+                                    cost = fx.convert(cost, {
+                                        from: currencyMap[accountCurrencyId].code,
+                                        to: currencyMap[clientCurrencyId].code,
+                                    });
+                                    var rate = fx.convert(1, {
+                                        from: currencyMap[accountCurrencyId].code,
+                                        to: currencyMap[clientCurrencyId].code,
+                                    });
+                                    if ((account.custom_invoice_text_label1 || '').toLowerCase() == 'exchange rate') {
+                                        window.model.invoice().custom_text_value1(roundToFour(rate, true));
+                                    } else if ((account.custom_invoice_text_label2 || '').toLowerCase() == 'exchange rate') {
+                                        window.model.invoice().custom_text_value2(roundToFour(rate, true));
+                                    }
+                                }
                             }
-                        }
+                        @endif
+
                         model.cost(roundSignificant(cost, true));
                     }
                 }

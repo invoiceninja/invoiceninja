@@ -2620,6 +2620,8 @@ $LANG = array(
     'add_status' => 'Add status',
     'archive_status' => 'Archive Status',
     'new_status' => 'New Status',
+    'convert_products' => 'Convert Products',
+    'convert_products_help' => 'Automatically convert product prices to the client\'s currency',
 
 );
 

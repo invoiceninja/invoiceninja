@@ -47,6 +47,10 @@ class AddRemember2faToken extends Migration
         Schema::table('currencies', function ($table) {
             $table->decimal('exchange_rate', 13, 4)->nullable();
         });
+
+        Schema::table('accounts', function ($table) {
+            $table->boolean('convert_products')->default(false);
+        });
     }
 
     /**
@@ -73,6 +77,10 @@ class AddRemember2faToken extends Migration
 
         Schema::table('currencies', function ($table) {
             $table->dropColumn('exchange_rate');
+        });
+
+        Schema::table('accounts', function ($table) {
+            $table->dropColumn('convert_products');
         });
     }
 }
