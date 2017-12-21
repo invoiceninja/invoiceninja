@@ -159,7 +159,7 @@
                                 {!! Former::select('invoice_currency_id')->addOption('','')
                                         ->label(trans('texts.invoice_currency'))
                                         ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
-                                        ->data_bind('combobox: invoiceCurrencyId, disable: true')
+                                        ->data_bind('combobox: invoice_currency_id, disable: true')
                                         ->fromQuery($currencies, 'name', 'id') !!}
                             </span>
                             <span style="display:none;" data-bind="visible: client_id">
@@ -354,6 +354,12 @@
                 onClientChange();
             });
 
+            $('#invoice_currency_id, #expense_currency_id').on('change', function() {
+                setTimeout(function() {
+                    model.updateExchangeRate();
+                }, 1);
+            })
+
             @if ($data)
                 // this means we failed so we'll reload the previous state
                 window.model = new ViewModel({!! $data !!});
@@ -478,26 +484,19 @@
                 }
             }, self);
 
-
-            self.invoiceCurrencyId = ko.computed({
-                read: function () {
-                    return self.invoice_currency_id();
-                },
-                write: function(invoiceCurrencyId) {
-                    self.invoice_currency_id(invoiceCurrencyId);
-                    var fromCode = self.expenseCurrencyCode();
-                    var toCode = self.invoiceCurrencyCode();
-                    if (currencyMap[fromCode].exchange_rate && currencyMap[toCode].exchange_rate) {
-                        var rate = fx.convert(1, {
-                            from: fromCode,
-                            to: toCode,
-                        });
-                        self.exchange_rate(roundToFour(rate));
-                    } else {
-                        self.exchange_rate(1);
-                    }
+            self.updateExchangeRate = function() {
+                var fromCode = self.expenseCurrencyCode();
+                var toCode = self.invoiceCurrencyCode();
+                if (currencyMap[fromCode].exchange_rate && currencyMap[toCode].exchange_rate) {
+                    var rate = fx.convert(1, {
+                        from: fromCode,
+                        to: toCode,
+                    });
+                    self.exchange_rate(roundToFour(rate, true));
+                } else {
+                    self.exchange_rate(1);
                 }
-            }, self);
+            }
 
             self.getCurrency = function(currencyId) {
                 return currencyMap[currencyId || self.account_currency_id()];
