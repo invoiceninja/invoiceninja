@@ -32,7 +32,7 @@
         </td>
         <td>
             <div id="scrollable-dropdown-menu">
-                <input id="product_key" type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                <input type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
             </div>
         </td>
         <td>

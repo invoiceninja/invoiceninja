@@ -1203,7 +1203,6 @@
 		var invoice = createInvoiceModel();
 		var design = getDesignJavascript();
 
-		/*
 		@if ($invoice->exists)
 			if (! checkedInvoiceBalances) {
 				checkedInvoiceBalances = true;
@@ -1218,7 +1217,6 @@
 				}
 			}
 		@endif
-		*/
 
 		@if ( ! $account->live_preview)
 			return;

@@ -897,6 +897,14 @@ function ItemModel(data) {
 
     this.totals.rawTotal = ko.computed(function() {
         var value = roundSignificant(NINJA.parseFloat(self.cost()) * NINJA.parseFloat(self.qty()));
+        if (self.discount()) {
+            var discount = NINJA.parseFloat(self.discount());
+            if (parseInt(model.invoice().is_amount_discount())) {
+                value -= discount;
+            } else {
+                value -= (value * discount / 100);
+            }
+        }
         return value ? roundToTwo(value) : 0;
     });
 

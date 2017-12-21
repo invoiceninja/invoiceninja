@@ -153,6 +153,7 @@ function GetPdfMake(invoice, javascript, callback) {
 
     // support setting noWrap as a style
     dd.styles.noWrap = {'noWrap': true};
+    dd.styles.discount = {'alignment': 'right'};
 
     // set page size
     dd.pageSize = invoice.account.page_size;
@@ -560,6 +561,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         'product.rate',
         'product.tax',
         'product.line_total',
+        'product.discount',
     ];
 
     if (isSecondTable) {
@@ -611,6 +613,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var item = invoice.invoice_items[i];
         var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(NINJA.parseFloat(item.cost), invoice, null, getPrecision(NINJA.parseFloat(item.cost))) : ' ';
         var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : ' ';
+        var discount = NINJA.parseFloat(item.discount);
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';
@@ -651,6 +654,15 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
 
         var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
+
+        if (discount != 0) {
+            if (parseInt(invoice.is_amount_discount)) {
+                lineTotal -= discount;
+            } else {
+                lineTotal -= (lineTotal * discount / 100);
+            }
+        }
+
         if (account.include_item_taxes_inline == '1') {
             var taxAmount1 = 0;
             var taxAmount2 = 0;
@@ -698,6 +710,12 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 value = qty;
                 if (field == 'hours') {
                     styles.push('cost');
+                }
+            } else if (field == 'discount') {
+                if (parseInt(invoice.is_amount_discount)) {
+                    value = roundSignificant(discount, true);
+                } else {
+                    value = discount + '%';
                 }
             } else if (field == 'tax') {
                 value = ' ';
