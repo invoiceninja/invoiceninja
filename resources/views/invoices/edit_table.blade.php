@@ -1,4 +1,4 @@
-<table class="table invoice-table">
+<table class="table invoice-table {{ $isTasks ? 'task-table' : 'product-table' }}">
 <thead  {!! $isTasks ? 'style="display:none;" data-bind="visible: $root.hasTasks"' : ($invoice->has_tasks || ! empty($tasks) ? 'data-bind="visible: $root.hasItems"' : '') !!}>
     @if ($isTasks)
         <tr data-bind="visible: $root.hasItems">
@@ -32,7 +32,7 @@
         </td>
         <td>
             <div id="scrollable-dropdown-menu">
-                <input type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                <input id="product_key" type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
             </div>
         </td>
         <td>
