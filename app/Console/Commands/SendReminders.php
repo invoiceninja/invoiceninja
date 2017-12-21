@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Libraries\CurlUtils;
 use Carbon;
 use Str;
+use Cache;
 use App\Models\Invoice;
 use App\Models\Currency;
 use App\Ninja\Mailers\ContactMailer as Mailer;
@@ -178,6 +179,8 @@ class SendReminders extends Command
         foreach ($data->rates as $code => $rate) {
             Currency::whereCode($code)->update(['exchange_rate' => $rate]);
         }
+
+        Cache::forget('currencies');
     }
 
     /**
