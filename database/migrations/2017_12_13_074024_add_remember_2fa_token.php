@@ -51,6 +51,10 @@ class AddRemember2faToken extends Migration
         Schema::table('accounts', function ($table) {
             $table->boolean('convert_products')->default(false);
         });
+
+        Schema::table('invoice_items', function ($table) {
+            $table->float('discount');
+        });
     }
 
     /**
@@ -81,6 +85,10 @@ class AddRemember2faToken extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->dropColumn('convert_products');
+        });
+
+        Schema::table('invoice_items', function ($table) {
+            $table->dropColumn('discount');
         });
     }
 }

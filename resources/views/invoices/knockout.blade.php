@@ -821,6 +821,7 @@ function ItemModel(data) {
     self.notes = ko.observable('');
     self.cost = ko.observable(0);
     self.qty = ko.observable(0);
+    self.discount = ko.observable();
     self.custom_value1 = ko.observable('');
     self.custom_value2 = ko.observable('');
     self.tax_name1 = ko.observable('');

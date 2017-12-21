@@ -186,6 +186,7 @@ trait PresentsInvoice
                 'product.custom_value2',
                 'product.unit_cost',
                 'product.quantity',
+                'product.discount',
                 'product.tax',
                 'product.line_total',
             ],
@@ -196,6 +197,7 @@ trait PresentsInvoice
                 'product.custom_value2',
                 'product.rate',
                 'product.hours',
+                'product.discount',
                 'product.tax',
                 'product.line_total',
             ],
@@ -378,9 +380,9 @@ trait PresentsInvoice
         return null;
     }
 
-    public function hideQuantity() {
+    public function hasInvoiceField($type, $field) {
         $fields = $this->getInvoiceFields();
 
-        return ! isset($fields['product_fields']['product.quantity']);
+        return isset($fields[$type . '_fields'][$field]);
     }
 }
