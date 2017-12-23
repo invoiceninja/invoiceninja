@@ -303,13 +303,10 @@
 
 	<div class="table-responsive" style="padding-top:4px;">
 
-
 		@include('invoices.edit_table', ['isTasks' => false])
-
 		@if ($account->isModuleEnabled(ENTITY_TASK) && ($invoice->has_tasks || ! empty($tasks)))
 			@include('invoices.edit_table', ['isTasks' => true])
 		@endif
-
 
 		{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
 		{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
@@ -490,8 +487,6 @@
 				@endif
 			</div>
 		</div>
-
-
 
     </div>
 	</div>
