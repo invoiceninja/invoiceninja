@@ -1003,6 +1003,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'tax_name2',
                 'tax_rate2',
                 'invoice_item_type_id',
+                'discount',
             ]);
         }
 

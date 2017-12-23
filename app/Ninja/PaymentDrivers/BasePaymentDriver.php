@@ -375,8 +375,7 @@ class BasePaymentDriver
 
             $items[] = $item;
 
-            $invoiceItem->setRelation('invoice', $invoice);
-            $total += $invoiceItem->amount();
+            $total += $invoiceItem->cost * $invoiceItem->qty;
         }
 
         if ($total != $invoice->getRequestedAmount()) {
