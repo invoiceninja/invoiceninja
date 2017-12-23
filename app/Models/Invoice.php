@@ -1292,11 +1292,19 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         $total = $invoiceItem->qty * $invoiceItem->cost;
 
-        if ($this->discount > 0) {
+        if ($this->discount != 0) {
             if ($this->is_amount_discount) {
                 $total -= $invoiceTotal ? ($total / ($invoiceTotal + $this->discount) * $this->discount) : 0;
             } else {
                 $total *= (100 - $this->discount) / 100;
+            }
+        }
+
+        if ($invoiceItem->discount != 0) {
+            if ($this->is_amount_discount) {
+                $total -= $invoiceItem->discount;
+            } else {
+                $total -= $total * $invoiceItem->discount / 100;
             }
         }
 
@@ -1311,7 +1319,17 @@ class Invoice extends EntityModel implements BalanceAffecting
         $total = 0;
 
         foreach ($this->invoice_items as $invoiceItem) {
-            $total += $invoiceItem->qty * $invoiceItem->cost;
+            $lineTotal = $invoiceItem->qty * $invoiceItem->cost;
+
+            if ($invoiceItem->discount != 0) {
+                if ($this->is_amount_discount) {
+                    $lineTotal -= $invoiceItem->discount;
+                } else {
+                    $lineTotal -= $lineTotal * $invoiceItem->discount / 100;
+                }
+            }
+
+            $total += $lineTotal;
         }
 
         if ($this->discount > 0) {
