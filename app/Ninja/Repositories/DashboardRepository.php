@@ -337,7 +337,8 @@ class DashboardRepository
                     ->where('invoices.is_public', '=', true)
                     ->where('contacts.is_primary', '=', true)
                     ->where(function($query) {
-                        $query->where(DB::raw("coalesce(invoices.partial_due_date, invoices.due_date)"), '>=', date('Y-m-d'));
+                        $query->where(DB::raw("coalesce(invoices.partial_due_date, invoices.due_date)"), '>=', date('Y-m-d'))
+                            ->orWhereNull('invoices.due_date');
                     })
                     ->orderBy('invoices.due_date', 'asc');
 
