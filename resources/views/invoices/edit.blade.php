@@ -308,9 +308,6 @@
 			@include('invoices.edit_table', ['isTasks' => true])
 		@endif
 
-		{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
-		{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
-
 		<table class="pull-right subtotals-table" style="margin-right:40px; margin-top:0px;">
 			<tr>
 				<td colspan="2">{{ trans('texts.subtotal') }}</td>
@@ -486,6 +483,10 @@
 				</div>
 				@endif
 			</div>
+
+			{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+			{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
+
 		</div>
 
     </div>
