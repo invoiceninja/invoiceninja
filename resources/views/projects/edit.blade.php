@@ -61,7 +61,8 @@
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/projects'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
-		@if ($project && Auth::user()->can('create', ENTITY_TASK))
+
+		@if (false && $project && Auth::user()->can('create', ENTITY_TASK))
 			{!! DropdownButton::normal(trans('texts.more_actions'))
 				  ->withContents([
 					  [

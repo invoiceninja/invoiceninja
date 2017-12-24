@@ -650,7 +650,13 @@
             window.model = new ViewModel();
             ko.applyBindings(model);
 
-            if ({{ $clientPublicId ? 'true' : 'false' }}) {
+            if ({{ $projectPublicId ? 'true' : 'false' }}) {
+                var project = projectMap[{{ $projectPublicId ?: 0}}];
+                if (project) {
+                    model.filter_project_id({{ $projectPublicId }});
+                    model.filter(project.name());
+                }
+            } else if ({{ $clientPublicId ? 'true' : 'false' }}) {
                 var client = clientMap[{{ $clientPublicId ?: 0 }}];
                 if (client) {
                     model.filter_client_id({{ $clientPublicId }});

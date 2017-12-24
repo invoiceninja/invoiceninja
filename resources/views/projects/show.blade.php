@@ -36,13 +36,6 @@
                             ]
                           )->split() !!}
                     @endcan
-                    @if ( ! $project->trashed())
-                        @can('create', ENTITY_TASK)
-                            {!! Button::primary(trans("texts.new_task"))
-                                    ->asLinkTo(URL::to("/tasks/create/{$project->client->public_id}/{$project->public_id}"))
-                                    ->appendIcon(Icon::create('plus-sign')) !!}
-                        @endcan
-                    @endif
                 @endif
 
                 @if ($project->trashed())
