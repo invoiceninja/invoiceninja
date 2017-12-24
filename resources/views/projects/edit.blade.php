@@ -38,9 +38,18 @@
 
                 {!! Former::text('name') !!}
 
+				{!! Former::text('due_date')
+	                        ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+	                        ->addGroupClass('due_date')
+	                        ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+
+				{!! Former::text('budgeted_hours')->type('number') !!}
+
 				{!! Former::text('task_rate')
 						->placeholder($project && $project->client->task_rate ? $project->client->present()->taskRate : $account->present()->taskRate)
 				 		->help('task_rate_help') !!}
+
+				{!! Former::textarea('private_notes')->rows(4) !!}
 
             </div>
             </div>
@@ -119,6 +128,8 @@
 				}
 				$('#task_rate').attr('placeholder', roundSignificant(rate, true));
 			});
+
+			$('#due_date').datepicker('update', '{{ $project ? Utils::fromSqlDate($project->due_date) : '' }}');
 
 			@if ($clientPublicId)
 				$('#name').focus();

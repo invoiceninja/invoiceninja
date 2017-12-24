@@ -55,6 +55,12 @@ class AddRemember2faToken extends Migration
         Schema::table('invoice_items', function ($table) {
             $table->float('discount');
         });
+
+        Schema::table('projects', function ($table) {
+            $table->date('due_date')->nullable();
+            $table->text('private_notes')->nullable();
+            $table->float('budgeted_hours');
+        });
     }
 
     /**
@@ -89,6 +95,12 @@ class AddRemember2faToken extends Migration
 
         Schema::table('invoice_items', function ($table) {
             $table->dropColumn('discount');
+        });
+
+        Schema::table('projects', function ($table) {
+            $table->dropColumn('due_date');
+            $table->dropColumn('private_notes');
+            $table->dropColumn('budgeted_hours');
         });
     }
 }

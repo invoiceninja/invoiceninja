@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Project;
 use Auth;
 use DB;
+use Utils;
 
 class ProjectRepository extends BaseRepository
 {
@@ -71,6 +72,11 @@ class ProjectRepository extends BaseRepository
         }
 
         $project->fill($input);
+
+        if (isset($input['due_date'])) {
+            $project->due_date = Utils::toSqlDate($input['due_date']);
+        }
+
         $project->save();
 
         return $project;
