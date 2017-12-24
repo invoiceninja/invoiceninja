@@ -20,7 +20,9 @@ class DiscountCest
 
         $clientEmail = $this->faker->safeEmail;
         $itemTaxName = $this->faker->word;
+        $productKey = $this->faker->word;
         $itemTaxRate = rand(1, 1000) / 10;
+        $itemDiscount = rand(1, 1000) / 10;
         $itemDiscount = rand(1, 1000) / 10;
         $discount = rand(1, 1000) / 10;
         $itemAmount = rand(1, 10000) / 10;
@@ -44,6 +46,15 @@ class DiscountCest
         $I->click('Save');
         $I->see($itemTaxName);
 
+        // create product
+        $I->amOnPage('/products/create');
+        $I->fillField(['name' => 'product_key'], $productKey);
+        $I->fillField(['name' => 'notes'], $this->faker->text(80));
+        $I->fillField(['name' => 'cost'], $itemAmount);
+        $I->selectOption('select[name=tax_select1]', $itemTaxName . ': ' . number_format($itemTaxRate, 3) . '%');
+        $I->click('Save');
+        $I->wait(1);
+
         $I->amOnPage('/invoices/create');
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
@@ -51,19 +62,18 @@ class DiscountCest
         // check tax and discount rounding
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('#discount', $discount);
-        $this->fillItem($I, 1, 'Item', 'Notes', $itemAmount, $quantity, $itemDiscount);
+        $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
+        $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
+        $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(6) input', $itemDiscount);
+        $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(5) input', $quantity);
 
         $I->click('Mark Sent');
-    }
 
-    private function fillItem(AcceptanceTester $I, $row, $product, $description, $cost, $quantity, $discount)
-    {
-        $row_selector = sprintf('table.product-table tr:nth-child(%d) ', $row);
+        $total = $itemAmount * $quantity;
+        $total -= $total * $itemDiscount / 100;
+        $total -= $total * $discount / 100;
+        $total += $total * $itemTaxRate / 100;
 
-        $I->fillField($row_selector.'#product_key', $product);
-        $I->fillField($row_selector.'textarea', $description);
-        $I->fillField($row_selector.'td:nth-child(4) input', $cost);
-        $I->fillField($row_selector.'td:nth-child(5) input', $quantity);
-        $I->fillField($row_selector.'td:nth-child(6) input', $discount);
+        $I->see(number_format($total,2));
     }
 }
