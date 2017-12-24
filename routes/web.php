@@ -143,7 +143,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
 
     Route::get('time_tracker', 'TimeTrackerController@index');
-    Route::get('tasks/kanban', 'TaskKanbanController@index');
+    Route::get('tasks/kanban/{client_id?}', 'TaskKanbanController@index');
     Route::post('task_statuses', 'TaskKanbanController@storeStatus');
     Route::put('task_statuses/{task_status_id}', 'TaskKanbanController@updateStatus');
     Route::delete('task_statuses/{task_status_id}', 'TaskKanbanController@deleteStatus');

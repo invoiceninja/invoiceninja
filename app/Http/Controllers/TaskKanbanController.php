@@ -12,7 +12,7 @@ class TaskKanbanController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function index()
+    public function index($clientPublicId = false)
     {
         $tasks = Task::scope()
             ->with(['project', 'client', 'task_status'])
@@ -84,6 +84,7 @@ class TaskKanbanController extends BaseController
             'tasks' => $tasks,
             'clients' => $clients,
             'projects' => $projects,
+            'clientPublicId' => $clientPublicId,
         ];
 
         return view('tasks.kanban', $data);

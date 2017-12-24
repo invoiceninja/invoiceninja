@@ -121,7 +121,7 @@
 
 @section('top-right')
     <div class="form-group">
-        <input type="text" placeholder="{{ trans('texts.filter') }}" id="filter"
+        <input type="text" data-bind="value: filter" placeholder="{{ trans('texts.filter') }}" id="filter"
             class="form-control" style="background-color: #FFFFFF !important"/>
     </div>
 @stop
@@ -560,14 +560,50 @@
         function ClientModel(data) {
             var self = this;
             self.name = ko.observable();
+            self.contacts = ko.observableArray();
 
             self.displayName = ko.computed(function() {
-                return self.name();
+                if (self.name()) {
+                    return self.name();
+                }
+
+                if (self.contacts().length) {
+                    return self.contacts()[0].displayName();
+                }
             })
+
+            self.mapping = {
+                'contacts': {
+                    create: function(options) {
+                        return new ContactModel(options.data);
+                    }
+                }
+            }
+
+            if (data) {
+                ko.mapping.fromJS(data, self.mapping, this);
+            }
+        }
+
+        function ContactModel(data) {
+            var self = this;
+            self.public_id = ko.observable('');
+            self.first_name = ko.observable('');
+            self.last_name = ko.observable('');
+            self.email = ko.observable('');
+            self.phone = ko.observable('');
 
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
             }
+
+            self.displayName = ko.computed(function() {
+                if (self.first_name() || self.last_name()) {
+                    return self.first_name() + ' ' + self.last_name();
+                } else {
+                    return self.email();
+                }
+            });
         }
 
         $(function() {
@@ -609,6 +645,14 @@
 
             window.model = new ViewModel();
             ko.applyBindings(model);
+
+            if ({{ $clientPublicId ? 'true' : 'false' }}) {
+                var client = clientMap[{{ $clientPublicId ?: 0 }}];
+                if (client) {
+                    model.filter_client_id({{ $clientPublicId }});
+                    model.filter(client.displayName());
+                }
+            }
 
             $('.kanban').show();
         });
