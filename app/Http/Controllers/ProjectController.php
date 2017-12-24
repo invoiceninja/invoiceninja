@@ -10,6 +10,9 @@ use App\Models\Project;
 use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
+use DateInterval;
+use DatePeriod;
+use stdClass;
 use Auth;
 use Input;
 use Session;
@@ -51,13 +54,67 @@ class ProjectController extends BaseController
 
     public function show(ProjectRequest $request)
     {
+        $account = auth()->user()->account;
         $project = $request->entity();
+        $taskMap = [];
+
+        foreach ($project->tasks as $task) {
+            $parts = json_decode($task->time_log) ?: [];
+
+            if (! count($parts)) {
+                continue;
+            }
+
+            foreach ($parts as $part) {
+                $start = $part[0];
+                $end = count($part) > 1 ? $part[1] : time();
+
+                $date = $account->getDateTime();
+                $date->setTimestamp($part[0]);
+                $sqlDate = $date->format('Y-m-d');
+
+                if (! isset($taskMap[$sqlDate])) {
+                    $taskMap[$sqlDate] = 0;
+                }
+
+                $taskMap[$sqlDate] += $end - $start;
+            }
+        }
+
+        $labels = [];
+        $records = [];
+        $startDate = date_create('2017-11-01');
+        $endDate = date_create('2017-12-01');
+
+        $interval = new DateInterval('P1D');
+        $period = new DatePeriod($startDate, $interval, $endDate);
+        $data = [];
+        $amount = 0;
+        $color = '51,122,183';
+
+        foreach ($period as $date) {
+            $labels[] = $date->format('m/d/Y');
+            $records[] = $amount+=10;
+        }
+
+        $dataset = new stdClass();
+        $dataset->data = $records;
+        $dataset->label = trans("texts.tasks");
+        $dataset->lineTension = 0;
+        $dataset->borderWidth = 4;
+        $dataset->borderColor = "rgba({$color}, 1)";
+        $dataset->backgroundColor = "rgba({$color}, 0.1)";
+
+        $data = new stdClass();
+        $data->labels = $labels;
+        $data->datasets = [$dataset];
 
         $data = [
             'account' => auth()->user()->account,
             'project' => $project,
             'title' => trans('texts.view_project'),
             'showBreadcrumbs' => false,
+            'data' => $data,
         ];
 
         return View::make('projects.show', $data);

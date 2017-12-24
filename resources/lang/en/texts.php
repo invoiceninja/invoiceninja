@@ -2626,6 +2626,7 @@ $LANG = array(
     'budgeted_hours' => 'Budgeted Hours',
     'progress' => 'Progress',
     'view_project' => 'View Project',
+    'summary' => 'Summary',
 
 );
 
