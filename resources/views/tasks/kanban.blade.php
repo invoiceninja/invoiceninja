@@ -77,6 +77,10 @@
             xborder-color: #6394e8 !important;
         }
 
+        .kanban-column-row div {
+            min-height: 36px;
+        }
+
         .kanban-column-row .running div {
             border: 2px groove #36c157;
             border-radius: 4px;
