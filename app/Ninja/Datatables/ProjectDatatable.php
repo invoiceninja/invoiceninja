@@ -21,7 +21,7 @@ class ProjectDatatable extends EntityDatatable
                         return $model->project;
                     }
 
-                    $str = link_to("projects/{$model->public_id}/edit", $model->project)->toHtml();
+                    $str = link_to("projects/{$model->public_id}", $model->project)->toHtml();
                     return $this->addNote($str, $model->private_notes);
                 },
             ],

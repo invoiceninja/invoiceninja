@@ -2624,6 +2624,8 @@ $LANG = array(
     'convert_products_help' => 'Automatically convert product prices to the client\'s currency',
     'improve_client_portal_link' => 'Set a subdomain to shorten the client portal link.',
     'budgeted_hours' => 'Budgeted Hours',
+    'progress' => 'Progress',
+    'view_project' => 'View Project',
 
 );
 

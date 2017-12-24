@@ -158,7 +158,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('projects', 'ProjectController@store');
     Route::put('projects/{projects}', 'ProjectController@update');
     Route::get('projects/{projects}/edit', 'ProjectController@edit');
-    Route::get('projects/{projects}', 'ProjectController@edit');
+    Route::get('projects/{projects}', 'ProjectController@show');
     Route::post('projects/bulk', 'ProjectController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');

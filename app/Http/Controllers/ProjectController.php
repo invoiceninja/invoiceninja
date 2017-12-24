@@ -49,6 +49,20 @@ class ProjectController extends BaseController
         return $this->projectService->getDatatable($search, $userId);
     }
 
+    public function show(ProjectRequest $request)
+    {
+        $project = $request->entity();
+
+        $data = [
+            'account' => auth()->user()->account,
+            'project' => $project,
+            'title' => trans('texts.view_project'),
+            'showBreadcrumbs' => false,
+        ];
+
+        return View::make('projects.show', $data);
+    }
+
     public function create(ProjectRequest $request)
     {
         $data = [
