@@ -739,7 +739,9 @@ class InvoiceRepository extends BaseRepository
                         }
                         if ($product && (Auth::user()->can('edit', $product))) {
                             $product->notes = ($task || $expense) ? '' : $item['notes'];
-                            $product->cost = $expense ? 0 : $item['cost'];
+                            if (! $account->convert_products) {
+                                $product->cost = $expense ? 0 : $item['cost'];
+                            }
                             $product->tax_name1 = isset($item['tax_name1']) ? $item['tax_name1'] : null;
                             $product->tax_rate1 = isset($item['tax_rate1']) ? $item['tax_rate1'] : 0;
                             $product->tax_name2 = isset($item['tax_name2']) ? $item['tax_name2'] : null;
