@@ -13,6 +13,7 @@
     @if ($project)
         {!! Former::populate($project) !!}
 		{!! Former::populateField('task_rate', floatval($project->task_rate) ? Utils::roundSignificant($project->task_rate) : '') !!}
+		{!! Former::populateField('budgeted_hours', floatval($project->budgeted_hours) ? $project->budgeted_hours : '') !!}
     @endif
 
     <span style="display:none">
