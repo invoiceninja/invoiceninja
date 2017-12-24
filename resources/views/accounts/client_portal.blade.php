@@ -166,7 +166,8 @@
                                 ->label(trans('texts.send_portal_password'))
                                 ->value(1) !!}
                             {!! Former::plaintext('client_login')
-                                ->value(link_to($account->present()->clientLoginUrl, null, ['target' => '_blank'])) !!}
+                                ->value(link_to($account->present()->clientLoginUrl, null, ['target' => '_blank']))
+                                ->help(Utils::isNinja() && ! $account->subdomain && ! $account->iframe_url ? 'improve_client_portal_link' : '') !!}
                         </div>
                         </div>
                     </div>
