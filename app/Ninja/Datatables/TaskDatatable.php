@@ -33,7 +33,7 @@ class TaskDatatable extends EntityDatatable
                         return $model->project;
                     }
 
-                    return $model->project_public_id ? link_to("projects/{$model->project_public_id}/edit", $model->project)->toHtml() : '';
+                    return $model->project_public_id ? link_to("projects/{$model->project_public_id}", $model->project)->toHtml() : '';
                 },
             ],
             [

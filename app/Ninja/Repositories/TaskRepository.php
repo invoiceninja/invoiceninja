@@ -18,7 +18,7 @@ class TaskRepository extends BaseRepository
         return 'App\Models\Task';
     }
 
-    public function find($clientPublicId = null, $filter = null)
+    public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
     {
         $query = DB::table('tasks')
                     ->leftJoin('clients', 'tasks.client_id', '=', 'clients.id')
@@ -61,7 +61,9 @@ class TaskRepository extends BaseRepository
                         'task_statuses.name as task_status'
                     );
 
-        if ($clientPublicId) {
+        if ($projectPublicId) {
+            $query->where('projects.public_id', '=', $projectPublicId);
+        } elseif ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
         } else {
             $query->whereNull('clients.deleted_at');

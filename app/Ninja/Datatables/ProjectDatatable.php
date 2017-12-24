@@ -48,13 +48,13 @@ class ProjectDatatable extends EntityDatatable
             [
                 'budgeted_hours',
                 function ($model) {
-                    return $model->budgeted_hours;
+                    return $model->budgeted_hours ?: '';
                 },
             ],
             [
                 'task_rate',
                 function ($model) {
-                    return floatval($model->task_rate) ? Utils::roundSignificant($model->task_rate) : '';
+                    return floatval($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
                 }
             ],
         ];

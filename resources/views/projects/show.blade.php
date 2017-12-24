@@ -20,7 +20,7 @@
         <div class="col-md-5">
             <div class="pull-right">
 
-                {!! Former::open('vendors/bulk')->addClass('mainForm') !!}
+                {!! Former::open('projects/bulk')->addClass('mainForm') !!}
             		<div style="display:none">
             			{!! Former::text('action') !!}
             			{!! Former::text('public_id')->value($project->public_id) !!}
@@ -65,14 +65,24 @@
 	<div class="row">
         <div class="col-md-3">
 			<h3>{{ trans('texts.details') }}</h3>
-
-
+            @if ($project->due_date)
+                {{ trans('texts.due_date') . ': ' . Utils::fromSqlDate($project->due_date) }}<br/>
+            @endif
+            @if ($project->budgeted_hours)
+                {{ trans('texts.budgeted_hours') . ': ' . $project->budgeted_hours }}<br/>
+            @endif
+            @if (floatval($project->task_rate))
+                {{ trans('texts.task_rate') . ': ' . Utils::formatMoney($project->task_rate) }}<br/>
+            @endif
         </div>
+
         <div class="col-md-3">
 			<h3>{{ trans('texts.notes') }}</h3>
 
+            {{ $project->private_notes }}
 
         </div>
+
         <div class="col-md-6">
 			<h3>{{ trans('texts.progress') }}</h3>
 
@@ -82,5 +92,53 @@
     </div>
     </div>
 
+    <ul class="nav nav-tabs nav-justified">
+		{!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
+	</ul><br/>
+
+	<div class="tab-content">
+        <div class="tab-pane" id="tasks">
+            @include('list', [
+                'entityType' => ENTITY_TASK,
+                'datatable' => new \App\Ninja\Datatables\ProjectTaskDatatable(true, true),
+                'projectId' => $project->public_id,
+                'clientId' => $project->client->public_id,
+            ])
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+    var loadedTabs = {};
+
+	$(function() {
+		$('.normalDropDown:not(.dropdown-toggle)').click(function(event) {
+            openUrlOnClick('{{ URL::to('projects/' . $project->public_id . '/edit') }}', event)
+		});
+		$('.primaryDropDown:not(.dropdown-toggle)').click(function(event) {
+			openUrlOnClick('{{ URL::to('tasks/create/' . $project->client->public_id . '/' . $project->public_id ) }}', event);
+		});
+
+        $('.nav-tabs a[href="#tasks"]').tab('show');
+	});
+
+	function onArchiveClick() {
+		$('#action').val('archive');
+		$('.mainForm').submit();
+	}
+
+	function onRestoreClick() {
+		$('#action').val('restore');
+		$('.mainForm').submit();
+	}
+
+	function onDeleteClick() {
+		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
+			$('#action').val('delete');
+			$('.mainForm').submit();
+		}
+	}
+
+	</script>
 
 @stop

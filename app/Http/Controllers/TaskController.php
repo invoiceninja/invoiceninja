@@ -82,9 +82,9 @@ class TaskController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getDatatable($clientPublicId = null)
+    public function getDatatable($clientPublicId = null, $projectPublicId = null)
     {
-        return $this->taskService->getDatatable($clientPublicId, Input::get('sSearch'));
+        return $this->taskService->getDatatable($clientPublicId, $projectPublicId, Input::get('sSearch'));
     }
 
     /**
