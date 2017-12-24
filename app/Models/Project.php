@@ -33,7 +33,7 @@ class Project extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
+    protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
 
     /**
      * @return mixed
@@ -52,6 +52,14 @@ class Project extends EntityModel
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
+    /**
      * @return mixed
      */
     public function client()
@@ -65,6 +73,13 @@ class Project extends EntityModel
     public function tasks()
     {
         return $this->hasMany('App\Models\Task');
+    }
+
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('due_date', [$startDate, $endDate]);
+        });
     }
 }
 

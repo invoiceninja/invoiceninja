@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Expense;
 use App\Models\Task;
+use App\Models\Project;
 
 class GenerateCalendarEvents extends Job
 {
@@ -26,6 +27,7 @@ class GenerateCalendarEvents extends Job
             ENTITY_TASK => Task::scope()->with(['project']),
             ENTITY_PAYMENT => Payment::scope()->with(['invoice']),
             ENTITY_EXPENSE => Expense::scope()->with(['expense_category']),
+            ENTITY_PROJECT => Project::scope(),
         ];
 
         foreach ($data as $type => $source) {
