@@ -21,7 +21,8 @@ class ProjectDatatable extends EntityDatatable
                         return $model->project;
                     }
 
-                    return link_to("projects/{$model->public_id}/edit", $model->project)->toHtml();
+                    $str = link_to("projects/{$model->public_id}/edit", $model->project)->toHtml();
+                    return $this->addNote($str, $model->private_notes);
                 },
             ],
             [
@@ -36,6 +37,18 @@ class ProjectDatatable extends EntityDatatable
                     } else {
                         return '';
                     }
+                },
+            ],
+            [
+                'due_date',
+                function ($model) {
+                    return Utils::fromSqlDate($model->due_date);
+                },
+            ],
+            [
+                'budgeted_hours',
+                function ($model) {
+                    return $model->budgeted_hours;
                 },
             ],
             [

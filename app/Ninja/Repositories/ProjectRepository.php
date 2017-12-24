@@ -38,6 +38,9 @@ class ProjectRepository extends BaseRepository
                     'projects.deleted_at',
                     'projects.task_rate',
                     'projects.is_deleted',
+                    'projects.due_date',
+                    'projects.budgeted_hours',
+                    'projects.private_notes',
                     DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                     'clients.user_id as client_user_id',
                     'clients.public_id as client_public_id'

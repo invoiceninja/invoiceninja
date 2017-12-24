@@ -43,7 +43,7 @@
 	                        ->addGroupClass('due_date')
 	                        ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 
-				{!! Former::text('budgeted_hours')->type('number') !!}
+				{!! Former::text('budgeted_hours') !!}
 
 				{!! Former::text('task_rate')
 						->placeholder($project && $project->client->task_rate ? $project->client->present()->taskRate : $account->present()->taskRate)
