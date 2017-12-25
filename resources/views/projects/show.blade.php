@@ -76,7 +76,7 @@
             {{ $project->private_notes }}
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <h3>{{ trans('texts.summary') }}
 			<table class="table" style="width:100%">
 				<tr>
@@ -85,7 +85,12 @@
 				</tr>
 				<tr>
 					<td><small>{{ trans('texts.duration') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatTime($chartData->duration) }}</td>
+					<td style="text-align: right">
+                        {{ Utils::formatTime($chartData->duration) }}
+                        @if ($project->budgeted_hours)
+            				[{{ round($chartData->duration / ($project->budgeted_hours * 60 * 60) * 100) }}%]
+                        @endif
+                    </td>
 				</tr>
 			</table>
 			</h3>
@@ -174,7 +179,7 @@
                     yAxes: [{
                         ticks: {
                             @if ($project->budgeted_hours)
-                                max: {{ $project->budgeted_hours }},
+                                max: {{ max($project->budgeted_hours, $chartData->duration / 60 / 60) }},
                             @endif
                             beginAtZero: true,
                             callback: function(label, index, labels) {
