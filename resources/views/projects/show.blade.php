@@ -81,11 +81,11 @@
 			<table class="table" style="width:100%">
 				<tr>
 					<td><small>{{ trans('texts.tasks') }}</small></td>
-					<td style="text-align: right">3</td>
+					<td style="text-align: right">{{ $chartData->count }}</td>
 				</tr>
 				<tr>
 					<td><small>{{ trans('texts.duration') }}</small></td>
-					<td style="text-align: right">04:15:00</td>
+					<td style="text-align: right">{{ Utils::formatTime($chartData->duration) }}</td>
 				</tr>
 			</table>
 			</h3>
