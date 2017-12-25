@@ -77,18 +77,28 @@
         </div>
 
         <div class="col-md-3">
-			<h3>{{ trans('texts.summary') }}</h3>
-            
+            <h3>{{ trans('texts.summary') }}
+			<table class="table" style="width:100%">
+				<tr>
+					<td><small>{{ trans('texts.tasks') }}</small></td>
+					<td style="text-align: right">3</td>
+				</tr>
+				<tr>
+					<td><small>{{ trans('texts.duration') }}</small></td>
+					<td style="text-align: right">04:15:00</td>
+				</tr>
+			</table>
+			</h3>
+
         </div>
 
     </div>
     </div>
     </div>
 
-
-    <canvas id="chart-canvas" height="50px" style="background-color:white;padding:20px;display:none"></canvas><br/>
-
-
+    @if ($chartData)
+        <canvas id="chart-canvas" height="50px" style="background-color:white;padding:20px;display:none"></canvas><br/>
+    @endif
 
     <ul class="nav nav-tabs nav-justified">
 		{!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
@@ -119,8 +129,7 @@
 
         $('.nav-tabs a[href="#tasks"]').tab('show');
 
-        var chartData = {!! json_encode($data) !!};
-        console.log(chartData);
+        var chartData = {!! json_encode($chartData) !!};
         loadChart(chartData);
 	});
 
@@ -143,70 +152,39 @@
 
     function loadChart(data) {
         var ctx = document.getElementById('chart-canvas').getContext('2d');
-        if (window.myChart) {
-            window.myChart.config.data = data;
-            //window.myChart.config.options.scales.xAxes[0].time.unit = chartGroupBy.toLowerCase();
-            //window.myChart.config.options.scales.xAxes[0].time.round = chartGroupBy.toLowerCase();
-            window.myChart.update();
-        } else {
-            $('#chart-canvas').fadeIn();
-            window.myChart = new Chart(ctx, {
-                type: 'line',
-                data: data,
-                options: {
-                    tooltips: {
-                        mode: 'x-axis',
-                        titleFontSize: 15,
-                        titleMarginBottom: 12,
-                        bodyFontSize: 15,
-                        bodySpacing: 10,
-                        callbacks: {
-                            title: function(item) {
-                                //return moment(item[0].xLabel).format("{{ $account->getMomentDateFormat() }}");
-                            },
-                            label: function(item, data) {
-                                /*
-                                if (item.datasetIndex == 0) {
-                                    var label = " {!! trans('texts.invoices') !!}: ";
-                                } else if (item.datasetIndex == 1) {
-                                    var label = " {!! trans('texts.payments') !!}: ";
-                                } else if (item.datasetIndex == 2) {
-                                    var label = " {!! trans('texts.expenses') !!}: ";
-                                }
-
-                                return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
-                                */
+        $('#chart-canvas').fadeIn();
+        window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                legend: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            round: 'day',
+                        },
+                        gridLines: {
+                            display: false,
+                        },
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            @if ($project->budgeted_hours)
+                                max: {{ $project->budgeted_hours }},
+                            @endif
+                            beginAtZero: true,
+                            callback: function(label, index, labels) {
+                                return roundToTwo(label) + " {{ trans('texts.hours') }}";
                             }
-                        }
-                    },
-                    title: {
-                        display: false,
-                        fontSize: 18,
-                        text: '{{ trans('texts.total_revenue') }}'
-                    },
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                //unit: chartGroupBy,
-                                //round: chartGroupBy,
-                            },
-                            gridLines: {
-                                display: false,
-                            },
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true,
-                                callback: function(label, index, labels) {
-                                    //return formatMoney(label, chartCurrencyId, account.country_id);
-                                }
-                            },
-                        }]
-                    }
+                        },
+                    }]
                 }
-            });
-        }
+            }
+        });
     }
 
 
