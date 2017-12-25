@@ -58,7 +58,7 @@ class AccountPresenter extends Presenter
      */
     public function taskRate()
     {
-        if ($this->entity->task_rate) {
+        if (floatval($this->entity->task_rate)) {
             return Utils::roundSignificant($this->entity->task_rate);
         } else {
             return '';
@@ -249,7 +249,7 @@ class AccountPresenter extends Presenter
         } else {
             $url = SITE_URL;
         }
-        
+
         $url .= '/client/login';
 
         if (Utils::isNinja()) {

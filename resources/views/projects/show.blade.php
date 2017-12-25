@@ -66,8 +66,8 @@
             @if ($project->budgeted_hours)
                 {{ trans('texts.budgeted_hours') . ': ' . $project->budgeted_hours }}<br/>
             @endif
-            @if (floatval($project->task_rate))
-                {{ trans('texts.task_rate') . ': ' . Utils::formatMoney($project->task_rate) }}<br/>
+            @if ($project->present()->defaultTaskRate)
+                {{ trans('texts.task_rate') . ': ' . $project->present()->defaultTaskRate }}<br/>
             @endif
         </div>
 
