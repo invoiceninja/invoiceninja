@@ -268,6 +268,13 @@
             }
 
             self.ajax = function(method, url, data, callback) {
+                // prevent more than one request per second
+                if (model.is_sending_request()) {
+                    setTimeout(function() {
+                        self.ajax(method, url, data, callback);
+                    }, 1000);
+                    return;
+                }
                 model.is_sending_request(true);
                 $.ajax({
                     type: method,
