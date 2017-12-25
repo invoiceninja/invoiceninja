@@ -101,7 +101,7 @@
     </div>
     </div>
 
-    @if ($chartData)
+    @if ($chartData->duration)
         <canvas id="chart-canvas" height="50px" style="background-color:white;padding:20px;display:none"></canvas><br/>
     @endif
 

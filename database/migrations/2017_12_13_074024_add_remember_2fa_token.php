@@ -50,6 +50,7 @@ class AddRemember2faToken extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->boolean('convert_products')->default(false);
+            $table->boolean('enable_reminder4')->default(false);
         });
 
         Schema::table('invoice_items', function ($table) {
@@ -61,6 +62,13 @@ class AddRemember2faToken extends Migration
             $table->text('private_notes')->nullable();
             $table->float('budgeted_hours');
         });
+
+        Schema::table('account_email_settings', function ($table) {
+            $table->string('email_subject_reminder4')->nullable();
+            $table->text('email_template_reminder4')->nullable();
+            $table->unsignedInteger('frequency_id_reminder4')->nullable();
+        });
+
     }
 
     /**
@@ -91,6 +99,7 @@ class AddRemember2faToken extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->dropColumn('convert_products');
+            $table->dropColumn('enable_reminder4');
         });
 
         Schema::table('invoice_items', function ($table) {
@@ -101,6 +110,12 @@ class AddRemember2faToken extends Migration
             $table->dropColumn('due_date');
             $table->dropColumn('private_notes');
             $table->dropColumn('budgeted_hours');
+        });
+
+        Schema::table('account_email_settings', function ($table) {
+            $table->dropColumn('email_subject_reminder4');
+            $table->dropColumn('email_template_reminder4');
+            $table->dropColumn('frequency_id_reminder4');
         });
     }
 }

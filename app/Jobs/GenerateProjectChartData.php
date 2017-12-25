@@ -59,10 +59,6 @@ class GenerateProjectChartData extends Job
             }
         }
 
-        if (! count($taskMap)) {
-            return false;
-        }
-
         $labels = [];
         $records = [];
         $startDate = $account->getDateTime()->setTimestamp($startTimestamp);

@@ -126,7 +126,7 @@
 				if (client && parseFloat(client.task_rate)) {
 					var rate = client.task_rate;
 				} else {
-					var rate = {{ $account->present()->taskRate }};
+					var rate = {{ $account->present()->taskRate ?: 0 }};
 				}
 				$('#task_rate').attr('placeholder', roundSignificant(rate, true));
 			});
