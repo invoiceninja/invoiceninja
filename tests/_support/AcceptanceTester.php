@@ -114,7 +114,7 @@ class AcceptanceTester extends \Codeception\Actor
         $invoiceNumber = $I->grabValueFrom('#invoice_number');
 
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
-        $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
+        $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(2) input.tt-input', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
 
         return $invoiceNumber;

@@ -62,7 +62,7 @@ class DiscountCest
         // check tax and discount rounding
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('#discount', $discount);
-        $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
+        $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(2) input.tt-input', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(6) input', $itemDiscount);
         $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(5) input', $quantity);
