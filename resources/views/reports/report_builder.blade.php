@@ -547,9 +547,9 @@
 				widgets: ['zebra', 'uitheme'],
 			}).show();
 
-			setFiltersShown();
-			setDocumentZipShown();
 			setTimeout(function() {
+				setFiltersShown();
+				setDocumentZipShown();
 				setScheduleButton();
 			}, 1);
 
