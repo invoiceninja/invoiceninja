@@ -38,13 +38,8 @@ Version 3.2
 
 An import folder has been adding to storage/, you may need to run ``sudo chown -R www-data:www-data storage``
 
-Version 2.6
+Version 2.5
 """""""""""
-
-Make sure the .env file includes ``APP_CIPHER=rijndael-128``
-
-Version 2.5.1
-"""""""""""""
 
 The minimum PHP version is now 5.5.9
 
@@ -53,6 +48,6 @@ Version 2.0
 
 Copy .env.example to .env and set config settings
 
-Set the app cipher to ``rijndael-256`` to support existing passwords
+If unset, set the app cipher to ``rijndael-256``.
 
 Check that ``/path/to/ninja/storage`` has 755 permissions and is owned by the webserver user
