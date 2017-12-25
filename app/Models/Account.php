@@ -108,6 +108,7 @@ class Account extends Eloquent
         'enable_reminder1',
         'enable_reminder2',
         'enable_reminder3',
+        'enable_reminder4',
         'num_days_reminder1',
         'num_days_reminder2',
         'num_days_reminder3',
@@ -178,6 +179,7 @@ class Account extends Eloquent
         'credit_number_pattern',
         'task_rate',
         'inclusive_taxes',
+        'convert_products',
     ];
 
     /**
@@ -1016,7 +1018,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3;
+        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3 || $this->enable_reminder4;
     }
 
     /**

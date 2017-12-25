@@ -74,7 +74,7 @@ class SendReminders extends Command
         }
 
         $this->chargeLateFees();
-        $this->setReminderEmails();
+        $this->sendReminderEmails();
         $this->sendScheduledReports();
         $this->loadExchangeRates();
 
@@ -116,7 +116,7 @@ class SendReminders extends Command
         }
     }
 
-    private function setReminderEmails()
+    private function sendReminderEmails()
     {
         $accounts = $this->accountRepo->findWithReminders();
         $this->info(count($accounts) . ' accounts found with reminders');

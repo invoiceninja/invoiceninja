@@ -2627,6 +2627,7 @@ $LANG = array(
     'progress' => 'Progress',
     'view_project' => 'View Project',
     'summary' => 'Summary',
+    'endless_reminder' => 'Endless Reminder',
 
 );
 

@@ -444,6 +444,7 @@ if (! defined('APP_NAME')) {
     define('TEMPLATE_REMINDER1', 'reminder1');
     define('TEMPLATE_REMINDER2', 'reminder2');
     define('TEMPLATE_REMINDER3', 'reminder3');
+    define('TEMPLATE_REMINDER4', 'reminder4');
 
     define('RESET_FREQUENCY_DAILY', 1);
     define('RESET_FREQUENCY_WEEKLY', 2);

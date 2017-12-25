@@ -73,11 +73,13 @@
                         <li role="presentation" class="active"><a href="#reminder1" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.first_reminder') }}</a></li>
                         <li role="presentation"><a href="#reminder2" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.second_reminder') }}</a></li>
                         <li role="presentation"><a href="#reminder3" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.third_reminder') }}</a></li>
+                        <li role="presentation"><a href="#reminder4" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.endless_reminder') }}</a></li>
                     </ul>
                     <div class="tab-content">
                         @include('accounts.template', ['field' => 'reminder1', 'number' => 1, 'isReminder' => true, 'active' => true])
                         @include('accounts.template', ['field' => 'reminder2', 'number' => 2, 'isReminder' => true])
                         @include('accounts.template', ['field' => 'reminder3', 'number' => 3, 'isReminder' => true])
+                        @include('accounts.template', ['field' => 'reminder4', 'number' => 4, 'isReminder' => true])
                     </div>
                 </div>
             </div>

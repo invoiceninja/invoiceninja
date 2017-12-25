@@ -845,6 +845,9 @@ class AccountController extends BaseController
                 $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
             }
 
+            $account->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
+            $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
+
             $account->save();
             $account->account_email_settings->save();
 
