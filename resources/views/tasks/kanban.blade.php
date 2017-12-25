@@ -71,6 +71,8 @@
 
         .kanban-column-row .panel {
             word-break: break-all;
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
         }
 
         .kanban-column-row .panel.hovered {
@@ -94,7 +96,7 @@
             resize: vertical;
             width: 100%;
             padding-left: 8px;
-            padding-top: 8px;
+            padding-top: 12px;
         }
 
         .kanban-column .edit {
@@ -684,10 +686,10 @@
                     </div><br/>
                 </div>
 
-                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:16px">
+                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:32px;">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter(), $root.filter_client_id(), $root.filter_project_id())">
-                        <div data-bind="event: { click: startEditTask }">
-                            <div class="view panel" data-bind="css: { running: is_running, hovered: is_panel_hovered }, event: { mouseover: onPanelMouseOver, mouseout: onPanelMouseOut }">
+                        <div class="view" data-bind="event: { click: startEditTask }">
+                            <div class="panel" data-bind="css: { running: is_running, hovered: is_panel_hovered }, event: { mouseover: onPanelMouseOver, mouseout: onPanelMouseOut }">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
                                 <div data-bind="text: description().length > 100 ? description().substring(0, 100) + '...' : description()"></div>
                             </div>
@@ -711,8 +713,8 @@
                 </div>
 
                 <div class="kanban-column-row" data-bind="css: { editing: new_task.is_editing_task }, with: new_task" style="padding-bottom:6px">
-                    <div data-bind="event: { click: startEditTask }">
-                        <a href="#" class="view text-muted" style="font-size:13px" data-bind="visible: is_blank">
+                    <div class="view" data-bind="event: { click: startEditTask }">
+                        <a href="#" class="text-muted" style="font-size:13px" data-bind="visible: is_blank">
                             {{ trans('texts.new_task') }}...
                         </a>
                     </div>
