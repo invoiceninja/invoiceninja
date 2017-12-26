@@ -132,6 +132,9 @@ class SendReminders extends Command
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
+                    if ($invoice->last_sent_date == date('Y-m-d')) {
+                        continue;
+                    }
                     $this->info('Send email: ' . $invoice->id);
                     $this->mailer->sendInvoice($invoice, $reminder);
                 }
@@ -142,6 +145,9 @@ class SendReminders extends Command
             $this->info($account->name . ': ' . count($invoices) . ' endless invoices found');
 
             foreach ($invoices as $invoice) {
+                if ($invoice->last_sent_date == date('Y-m-d')) {
+                    continue;
+                }
                 $this->info('Send email: ' . $invoice->id);
                 $this->mailer->sendInvoice($invoice, 'reminder4');
             }

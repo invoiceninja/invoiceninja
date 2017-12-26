@@ -83,6 +83,17 @@ class AddRemember2faToken extends Migration
             where invoices.id = activities.invoice_id
             and invoices.is_recurring = 0
             and invoices.invoice_type_id = 1");
+
+        DB::statement("update invoices, (
+            	select max(created_at) created_at, invoice_id
+            	from activities
+            	where activity_type_id = 20
+            	group by invoice_id
+            ) as activities
+            set invoices.last_sent_date = activities.created_at
+            where invoices.id = activities.invoice_id
+            and invoices.is_recurring = 0
+            and invoices.invoice_type_id = 2");
     }
 
     /**
