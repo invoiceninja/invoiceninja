@@ -697,7 +697,7 @@ class AccountRepository
 
     public function findWithReminders()
     {
-        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1')->get();
+        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1')->get();
     }
 
     public function findWithFees()

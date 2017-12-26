@@ -126,6 +126,7 @@ class SendReminders extends Command
                 continue;
             }
 
+            // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
             $this->info($account->name . ': ' . count($invoices) . ' invoices found');
 
@@ -134,6 +135,15 @@ class SendReminders extends Command
                     $this->info('Send email: ' . $invoice->id);
                     $this->mailer->sendInvoice($invoice, $reminder);
                 }
+            }
+
+            // endless reminders
+            $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account);
+            $this->info($account->name . ': ' . count($invoices) . ' endless invoices found');
+
+            foreach ($invoices as $invoice) {
+                $this->info('Send email: ' . $invoice->id);
+                $this->mailer->sendInvoice($invoice, 'reminder4');
             }
         }
     }

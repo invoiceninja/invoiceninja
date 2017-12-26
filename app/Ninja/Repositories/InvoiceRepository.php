@@ -1204,6 +1204,40 @@ class InvoiceRepository extends BaseRepository
         return $invoices;
     }
 
+    public function findNeedingEndlessReminding(Account $account)
+    {
+        $frequencyId = $account->account_email_settings->frequency_id_reminder4;
+        $frequency = Utils::getFromCache($frequencyId, 'frequencies');
+
+        $lastSentDate = date_create();
+        $lastSentDate->sub(date_interval_create_from_date_string($frequency->date_interval));
+
+        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+                    ->with('client', 'invoice_items')
+                    ->whereHas('client', function ($query) {
+                        $query->whereSendReminders(true);
+                    })
+                    ->whereAccountId($account->id)
+                    ->where('balance', '>', 0)
+                    ->where('is_recurring', '=', false)
+                    ->whereIsPublic(true)
+                    ->where('last_sent_date', '<', $lastSentDate);
+
+        for ($i=1; $i<=3; $i++) {
+            if (!$account->{"enable_reminder{$i}"}) {
+                continue;
+            }
+            $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
+            $date = date_create();
+            if ($account->{"direction_reminder{$i}"} == REMINDER_DIRECTION_AFTER) {
+                $date->sub(date_interval_create_from_date_string($account->{"num_days_reminder{$i}"} . ' days'));
+            }
+            $invoices->where($field, '<', $date);
+        }
+
+        return $invoices->get();
+    }
+
     public function clearGatewayFee($invoice)
     {
         $account = $invoice->account;

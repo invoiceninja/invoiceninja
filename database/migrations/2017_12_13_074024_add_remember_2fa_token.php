@@ -69,6 +69,20 @@ class AddRemember2faToken extends Migration
             $table->unsignedInteger('frequency_id_reminder4')->nullable();
         });
 
+        Schema::table('frequencies', function ($table) {
+            $table->string('date_interval')->nullable();
+        });
+
+        DB::statement("update invoices, (
+            	select max(created_at) created_at, invoice_id
+            	from activities
+            	where activity_type_id = 6
+            	group by invoice_id
+            ) as activities
+            set invoices.last_sent_date = activities.created_at
+            where invoices.id = activities.invoice_id
+            and invoices.is_recurring = 0
+            and invoices.invoice_type_id = 1");
     }
 
     /**
@@ -117,5 +131,10 @@ class AddRemember2faToken extends Migration
             $table->dropColumn('email_template_reminder4');
             $table->dropColumn('frequency_id_reminder4');
         });
+
+        Schema::table('frequencies', function ($table) {
+            $table->dropColumn('date_interval');
+        });
+
     }
 }

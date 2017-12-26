@@ -56,6 +56,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\InvoiceWasEmailed' => [
             'App\Listeners\NotificationListener@emailedInvoice',
+            'App\Listeners\InvoiceListener@emailedInvoice',
         ],
         'App\Events\InvoiceInvitationWasEmailed' => [
             'App\Listeners\ActivityListener@emailedInvoice',
