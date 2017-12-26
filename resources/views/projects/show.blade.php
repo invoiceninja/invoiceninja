@@ -59,7 +59,9 @@
 	<div class="row">
         <div class="col-md-3">
 			<h3>{{ trans('texts.details') }}</h3>
-            {{ trans('texts.client') }}: {!! $project->client->present()->link !!}<br/>
+            <h4>
+                {!! $project->client->present()->link !!}<br/>
+            </h4>
             @if ($project->due_date)
                 {{ trans('texts.due_date') . ': ' . Utils::fromSqlDate($project->due_date) }}<br/>
             @endif

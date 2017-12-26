@@ -79,13 +79,16 @@ class TaskKanbanController extends BaseController
         }
 
         $data = [
+            'showBreadcrumbs' => false,
             'title' => trans('texts.kanban'),
             'statuses' => $statuses,
             'tasks' => $tasks,
             'clients' => $clients,
             'projects' => $projects,
             'clientPublicId' => $clientPublicId,
+            'client' => $clientPublicId ? Client::scope($clientPublicId)->first() : null,
             'projectPublicId' => $projectPublicId,
+            'project' => $projectPublicId ? Project::scope($projectPublicId)->first() : null,
         ];
 
         return view('tasks.kanban', $data);

@@ -134,6 +134,7 @@
 
 @section('content')
 
+
     <script type="text/javascript">
 
         var statuses = {!! $statuses !!};
@@ -677,6 +678,21 @@
         });
 
     </script>
+
+    <ol class="breadcrumb">
+        @if ($project)
+            <li>{!! link_to('/projects', trans('texts.projects')) !!}</li>
+            <li>{!! $project->present()->link !!}</li>
+        @elseif ($client)
+            <li>{!! link_to('/tasks', trans('texts.tasks')) !!}</li>
+            <li>{!! $client->present()->link !!}</li>
+        @else
+            <li>{!! link_to('/tasks', trans('texts.tasks')) !!}</li>
+
+        @endif
+        <li class="active">{{ trans('texts.kanban') }}</li>
+    </ol>
+
 
     <div class="kanban" style="display: none">
         <div data-bind="sortable: { data: statuses, as: 'status', afterMove: onStatusDragged, allowDrop: true, connectClass: 'connect-column' }" style="float:left">

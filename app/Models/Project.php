@@ -81,6 +81,11 @@ class Project extends EntityModel
             $query->whereBetween('due_date', [$startDate, $endDate]);
         });
     }
+
+    public function getDisplayName()
+    {
+        return $this->name;
+    }
 }
 
 Project::creating(function ($project) {
