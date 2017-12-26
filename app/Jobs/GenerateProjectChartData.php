@@ -88,7 +88,6 @@ class GenerateProjectChartData extends Job
         $dataset->borderWidth = 4;
         $dataset->borderColor = "rgba({$color}, 1)";
         $dataset->backgroundColor = "rgba({$color}, 0.1)";
-        $dataset->steppedLine = true;
 
         $data = new stdClass();
         $data->labels = $labels;
