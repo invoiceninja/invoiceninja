@@ -257,7 +257,39 @@ class SubscriptionListener
         }
 
         foreach ($subscriptions as $subscription) {
-            Utils::notifyZapier($subscription, $data);
+            self::notifySubscription($subscription, $data);
         }
     }
+
+    private static function notifySubscription($subscription, $data)
+    {
+        $curl = curl_init();
+        $jsonEncodedData = json_encode($data);
+        $url = $subscription->target_url;
+
+        if (! Utils::isNinja() && $secret = env('SUBSCRIPTION_SECRET')) {
+            $url .= '?secret=' . $secret;
+        }
+
+        $opts = [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $jsonEncodedData,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+        ];
+
+        curl_setopt_array($curl, $opts);
+
+        $result = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        curl_close($curl);
+
+        if ($status == 410) {
+            $subscription->delete();
+        }
+    }
+
 }

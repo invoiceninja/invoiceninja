@@ -911,32 +911,6 @@ class Utils
         }
     }
 
-    public static function notifyZapier($subscription, $data)
-    {
-        $curl = curl_init();
-        $jsonEncodedData = json_encode($data);
-
-        $opts = [
-            CURLOPT_URL => $subscription->target_url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => $jsonEncodedData,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
-        ];
-
-        curl_setopt_array($curl, $opts);
-
-        $result = curl_exec($curl);
-        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-        curl_close($curl);
-
-        if ($status == 410) {
-            $subscription->delete();
-        }
-    }
-
     public static function getApiHeaders($count = 0)
     {
         return [
