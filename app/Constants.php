@@ -307,6 +307,17 @@ if (! defined('APP_NAME')) {
     define('EVENT_DELETE_QUOTE', 7);
     define('EVENT_UPDATE_INVOICE', 8);
     define('EVENT_DELETE_INVOICE', 9);
+    define('EVENT_UPDATE_CLIENT', 10);
+    define('EVENT_DELETE_CLIENT', 11);
+    define('EVENT_DELETE_PAYMENT', 12);
+    define('EVENT_UPDATE_VENDOR', 13);
+    define('EVENT_DELETE_VENDOR', 14);
+    define('EVENT_CREATE_EXPENSE', 15);
+    define('EVENT_UPDATE_EXPENSE', 16);
+    define('EVENT_DELETE_EXPENSE', 17);
+    define('EVENT_CREATE_TASK', 18);
+    define('EVENT_UPDATE_TASK', 19);
+    define('EVENT_DELETE_TASK', 20);
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('NINJA_ACCOUNT_KEY', env('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h'));

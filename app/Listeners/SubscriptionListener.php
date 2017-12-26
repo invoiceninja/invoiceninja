@@ -3,21 +3,33 @@
 namespace App\Listeners;
 
 use App\Events\ClientWasCreated;
-use App\Events\CreditWasCreated;
+use App\Events\ClientWasUpdated;
+use App\Events\ClientWasDeleted;
 use App\Events\ExpenseWasCreated;
+use App\Events\ExpenseWasUpdated;
+use App\Events\ExpenseWasDeleted;
 use App\Events\QuoteItemsWereCreated;
 use App\Events\QuoteItemsWereUpdated;
-use App\Events\InvoiceWasDeleted;
+use App\Events\QuoteWasDeleted;
 use App\Events\PaymentWasCreated;
+use App\Events\PaymentWasDeleted;
 use App\Events\InvoiceItemsWereCreated;
 use App\Events\InvoiceItemsWereUpdated;
-use App\Events\QuoteWasDeleted;
+use App\Events\InvoiceWasDeleted;
 use App\Events\VendorWasCreated;
+use App\Events\VendorWasUpdated;
+use App\Events\VendorWasDeleted;
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasUpdated;
+use App\Events\TaskWasDeleted;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\ClientTransformer;
 use App\Ninja\Transformers\InvoiceTransformer;
 use App\Ninja\Transformers\PaymentTransformer;
+use App\Ninja\Transformers\VendorTransformer;
+use App\Ninja\Transformers\ExpenseTransformer;
+use App\Ninja\Transformers\TaskTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use Utils;
@@ -37,6 +49,25 @@ class SubscriptionListener
     }
 
     /**
+     * @param ClientWasUpdated $event
+     */
+    public function updatedClient(ClientWasUpdated $event)
+    {
+        $transformer = new ClientTransformer($event->client->account);
+        $this->checkSubscriptions(EVENT_UPDATE_CLIENT, $event->client, $transformer);
+    }
+
+    /**
+     * @param ClientWasDeleted $event
+     */
+    public function deletedClient(ClientWasDeleted $event)
+    {
+        $transformer = new ClientTransformer($event->client->account);
+        $this->checkSubscriptions(EVENT_DELETE_CLIENT, $event->client, $transformer);
+    }
+
+
+    /**
      * @param PaymentWasCreated $event
      */
     public function createdPayment(PaymentWasCreated $event)
@@ -46,25 +77,14 @@ class SubscriptionListener
     }
 
     /**
-     * @param CreditWasCreated $event
+     * @param PaymentWasDeleted $event
      */
-    public function createdCredit(CreditWasCreated $event)
+    public function deletedPayment(PaymentWasDeleted $event)
     {
+        $transformer = new PaymentTransformer($event->payment->account);
+        $this->checkSubscriptions(EVENT_DELETE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
     }
 
-    /**
-     * @param VendorWasCreated $event
-     */
-    public function createdVendor(VendorWasCreated $event)
-    {
-    }
-
-    /**
-     * @param ExpenseWasCreated $event
-     */
-    public function createdExpense(ExpenseWasCreated $event)
-    {
-    }
 
     /**
      * @param InvoiceWasCreated $event
@@ -83,6 +103,16 @@ class SubscriptionListener
         $transformer = new InvoiceTransformer($event->invoice->account);
         $this->checkSubscriptions(EVENT_UPDATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
     }
+
+    /**
+     * @param InvoiceWasDeleted $event
+     */
+    public function deletedInvoice(InvoiceWasDeleted $event)
+    {
+        $transformer = new InvoiceTransformer($event->invoice->account);
+        $this->checkSubscriptions(EVENT_DELETE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
 
     /**
      * @param QuoteWasCreated $event
@@ -105,20 +135,96 @@ class SubscriptionListener
     /**
      * @param InvoiceWasDeleted $event
      */
-    public function deletedInvoice(InvoiceWasDeleted $event)
-    {
-        $transformer = new InvoiceTransformer($event->invoice->account);
-        $this->checkSubscriptions(EVENT_DELETE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
-    }
-
-    /**
-     * @param InvoiceWasDeleted $event
-     */
     public function deletedQuote(QuoteWasDeleted $event)
     {
         $transformer = new InvoiceTransformer($event->quote->account);
         $this->checkSubscriptions(EVENT_DELETE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
     }
+
+
+    /**
+     * @param VendorWasCreated $event
+     */
+    public function createdVendor(VendorWasCreated $event)
+    {
+        $transformer = new VendorTransformer($event->vendor->account);
+        $this->checkSubscriptions(EVENT_CREATE_VENDOR, $event->vendor, $transformer);
+    }
+
+    /**
+     * @param VendorWasUpdated $event
+     */
+    public function updatedVendor(VendorWasUpdated $event)
+    {
+        $transformer = new VendorTransformer($event->vendor->account);
+        $this->checkSubscriptions(EVENT_UPDATE_VENDOR, $event->vendor, $transformer);
+    }
+
+    /**
+     * @param VendorWasDeleted $event
+     */
+    public function deletedVendor(VendorWasDeleted $event)
+    {
+        $transformer = new VendorTransformer($event->vendor->account);
+        $this->checkSubscriptions(EVENT_DELETE_VENDOR, $event->vendor, $transformer);
+    }
+
+
+    /**
+     * @param ExpenseWasCreated $event
+     */
+    public function createdExpense(ExpenseWasCreated $event)
+    {
+        $transformer = new ExpenseTransformer($event->expense->account);
+        $this->checkSubscriptions(EVENT_CREATE_EXPENSE, $event->expense, $transformer);
+    }
+
+    /**
+     * @param ExpenseWasUpdated $event
+     */
+    public function updatedExpense(ExpenseWasUpdated $event)
+    {
+        $transformer = new ExpenseTransformer($event->expense->account);
+        $this->checkSubscriptions(EVENT_UPDATE_EXPENSE, $event->expense, $transformer);
+    }
+
+    /**
+     * @param ExpenseWasDeleted $event
+     */
+    public function deletedExpense(ExpenseWasDeleted $event)
+    {
+        $transformer = new ExpenseTransformer($event->expense->account);
+        $this->checkSubscriptions(EVENT_DELETE_EXPENSE, $event->expense, $transformer);
+    }
+
+
+    /**
+     * @param TaskWasCreated $event
+     */
+    public function createdTask(TaskWasCreated $event)
+    {
+        $transformer = new TaskTransformer($event->task->account);
+        $this->checkSubscriptions(EVENT_CREATE_TASK, $event->task, $transformer);
+    }
+
+    /**
+     * @param TaskWasUpdated $event
+     */
+    public function updatedTask(TaskWasUpdated $event)
+    {
+        $transformer = new TaskTransformer($event->task->account);
+        $this->checkSubscriptions(EVENT_UPDATE_TAK, $event->task, $transformer);
+    }
+
+    /**
+     * @param TaskWasDeleted $event
+     */
+    public function deletedTask(TaskWasDeleted $event)
+    {
+        $transformer = new TaskTransformer($event->task->account);
+        $this->checkSubscriptions(EVENT_DELETE_TASK, $event->task, $transformer);
+    }
+
 
     /**
      * @param $eventId
