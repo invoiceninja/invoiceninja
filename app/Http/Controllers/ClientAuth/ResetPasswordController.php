@@ -8,7 +8,6 @@ use App\Models\PasswordReset;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
-use App\Models\PasswordReset;
 
 class ResetPasswordController extends Controller
 {
