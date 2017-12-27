@@ -213,7 +213,7 @@ class SubscriptionListener
     public function updatedTask(TaskWasUpdated $event)
     {
         $transformer = new TaskTransformer($event->task->account);
-        $this->checkSubscriptions(EVENT_UPDATE_TAK, $event->task, $transformer);
+        $this->checkSubscriptions(EVENT_UPDATE_TASK, $event->task, $transformer);
     }
 
     /**
