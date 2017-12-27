@@ -181,6 +181,7 @@
     $('#moreDesignsModal').modal('show');
   }
 
+  window.signatureAsPNG = false;
   function convertSignature(invoice) {
       if (! invoice || ! invoice.invitations || ! invoice.invitations.length) {
           return invoice;
@@ -190,18 +191,24 @@
       if (! sourceSVG || sourceSVG.indexOf('data:image') == 0) {
           return invoice;
       }
+      if (window.signatureAsPNG) {
+          invoice.invitations[0].signature_base64 = window.signatureAsPNG;
+          return invoice;
+      } else {
+          var signatureDiv = $('#signatureCanvas')[0];
+          var ctx = signatureDiv.getContext('2d');
+          var img = new Image();
+          img.src = "data:image/svg+xml;base64," + sourceSVG;
+          img.onload = function() {
+              ctx.drawImage(img, 0, 0);
+              var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+              var image = signatureDiv.toDataURL("image/png") || blankImage;
+              window.signatureAsPNG = invoice.invitations[0].signature_base64 = image;
+              refreshPDF();
+          }
 
-      var signatureDiv = $('#signatureCanvas')[0];
-      var ctx = signatureDiv.getContext('2d');
-      var img = new Image();
-      img.src = "data:image/svg+xml;base64," + sourceSVG;
-      img.onload = function() {
-          ctx.drawImage(img, 0, 0);
-          invoice.invitations[0].signature_base64 = signatureDiv.toDataURL("image/png");
-          refreshPDF();
+          return false;
       }
-
-      return false;
   }
 
 </script>
