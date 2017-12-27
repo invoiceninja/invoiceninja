@@ -366,6 +366,10 @@ NINJA.signatureImage = function(invoice) {
         return blankImage;
     }
 
+    if (! parseInt(invoice.account.signature_on_pdf)) {
+        return blankImage;
+    }
+
     return invoice.invitations[0].signature_base64 || blankImage;
 }
 
@@ -374,8 +378,11 @@ NINJA.signatureDate = function(invoice) {
         return '';
     }
 
-    var date = invoice.invitations[0].signature_date;
+    if (! parseInt(invoice.account.signature_on_pdf)) {
+        return '';
+    }
 
+    var date = invoice.invitations[0].signature_date;
     return NINJA.formatDateTime(date, invoice.account);
 }
 

@@ -278,6 +278,7 @@ class AccountTransformer extends EntityTransformer
             'task_rate' => (float) $account->task_rate,
             'inclusive_taxes' => (bool) $account->inclusive_taxes,
             'convert_products' => (bool) $account->convert_products,
+            'signature_on_pdf' => (bool) $account->signature_on_pdf,
         ];
     }
 }

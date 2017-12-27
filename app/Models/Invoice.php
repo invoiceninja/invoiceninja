@@ -992,6 +992,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'date_format',
             'datetime_format',
             'timezone',
+            'signature_on_pdf',
         ]);
 
         foreach ($this->invitations as $invitation) {

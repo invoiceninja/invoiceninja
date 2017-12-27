@@ -37,6 +37,7 @@
 {!! Former::populateField('show_accept_quote_terms', intval($account->show_accept_quote_terms)) !!}
 {!! Former::populateField('require_invoice_signature', intval($account->require_invoice_signature)) !!}
 {!! Former::populateField('require_quote_signature', intval($account->require_quote_signature)) !!}
+{!! Former::populateField('signature_on_pdf', intval($account->signature_on_pdf)) !!}
 
 @include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL, 'advanced' => true])
 
@@ -195,10 +196,16 @@
                                 ->help(trans('texts.require_invoice_signature_help'))
                                 ->label(trans('texts.require_invoice_signature'))
                                 ->value(1) !!}
+
                             {!! Former::checkbox('require_quote_signature')
                                 ->text(trans('texts.enable'))
                                 ->help(trans('texts.require_quote_signature_help'))
                                 ->label(trans('texts.require_quote_signature'))
+                                ->value(1) !!}
+
+                            {!! Former::checkbox('signature_on_pdf')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.signature_on_pdf_help'))
                                 ->value(1) !!}
                           </div>
                         </div>

@@ -51,6 +51,7 @@ class AddRemember2faToken extends Migration
         Schema::table('accounts', function ($table) {
             $table->boolean('convert_products')->default(false);
             $table->boolean('enable_reminder4')->default(false);
+            $table->boolean('signature_on_pdf')->default(false);
         });
 
         Schema::table('invoice_items', function ($table) {
@@ -125,6 +126,7 @@ class AddRemember2faToken extends Migration
         Schema::table('accounts', function ($table) {
             $table->dropColumn('convert_products');
             $table->dropColumn('enable_reminder4');
+            $table->dropColumn('signature_on_pdf');
         });
 
         Schema::table('invoice_items', function ($table) {

@@ -180,6 +180,7 @@ class Account extends Eloquent
         'task_rate',
         'inclusive_taxes',
         'convert_products',
+        'signature_on_pdf',
     ];
 
     /**
