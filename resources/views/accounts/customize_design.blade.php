@@ -250,7 +250,7 @@
 		"margin": [200, 10, 0, 0]
 	},
 	{
-		"text": "$signatureDate",
+		"text": ["{{ trans('texts.signed') }}: ", "$signatureDate"],
 		"margin": [200, -40, 0, 0]
 	}
 	]
