@@ -234,11 +234,29 @@
 		  <div class="panel panel-default">
 		  <div class="panel-body">
 	            {!! trans('texts.customize_help') !!}<br/>
-
 	            <pre id="sampleData" style="display:none;height:200px;padding-top:16px;"></pre>
 	            @if (empty($sampleInvoice))
 	                <div class="help-block">{{ trans('texts.create_invoice_for_sample') }}</div>
 	            @endif
+
+				@if ($account->require_invoice_signature || $account->require_invoice_signature)
+					<p>&nbsp;</p>
+					{{ trans('texts.signature_on_invoice_help') }}
+					<pre style="padding-top:16px;">
+{
+	"stack": [
+	{
+		"image": "$signatureBase64",
+		"margin": [200, 10, 0, 0]
+	},
+	{
+		"text": "$signatureDate",
+		"margin": [200, -40, 0, 0]
+	}
+	]
+},
+					</pre>
+				@endif
           </div>
 	  	  </div>
   		  </div>

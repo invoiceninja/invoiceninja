@@ -3,6 +3,7 @@
 <div id="pdfCanvas" style="display:none;width:100%;background-color:#525659;border:solid 2px #9a9a9a;padding-top:40px;text-align:center">
     <canvas id="theCanvas" style="max-width:100%;border:solid 1px #CCCCCC;"></canvas>
 </div>
+<canvas id="signatureCanvas" style="display:none;"></canvas>
 @endif
 
 @if (!Utils::isNinja() || !Utils::isPro())
@@ -178,6 +179,29 @@
     loadImages('#designThumbs');
     trackEvent('/account', '/view_more_designs');
     $('#moreDesignsModal').modal('show');
+  }
+
+  function convertSignature(invoice) {
+      if (! invoice || ! invoice.invitations || ! invoice.invitations.length) {
+          return invoice;
+      }
+
+      var sourceSVG = invoice.invitations[0].signature_base64;
+      if (! sourceSVG || sourceSVG.indexOf('data:image') == 0) {
+          return invoice;
+      }
+
+      var signatureDiv = $('#signatureCanvas')[0];
+      var ctx = signatureDiv.getContext('2d');
+      var img = new Image();
+      img.src = "data:image/svg+xml;base64," + sourceSVG;
+      img.onload = function() {
+          ctx.drawImage(img, 0, 0);
+          invoice.invitations[0].signature_base64 = signatureDiv.toDataURL("image/png");
+          refreshPDF();
+      }
+
+      return false;
   }
 
 </script>

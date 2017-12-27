@@ -14,7 +14,6 @@ NINJA.TEMPLATES = {
 };
 
 function GetPdfMake(invoice, javascript, callback) {
-
     var itemsTable = false;
     if (invoice.hasTasks) {
         // check if we need to add a second table for tasks
@@ -252,6 +251,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSizeSmaller': NINJA.fontSize - 1,
         'bodyFont': NINJA.bodyFont,
         'headerFont': NINJA.headerFont,
+        'signatureBase64': NINJA.signatureImage(invoice),
+        'signatureDate': NINJA.signatureDate(invoice),
     }
 
     for (var key in json) {
@@ -356,6 +357,33 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     return javascript;
+}
+
+NINJA.signatureImage = function(invoice) {
+    var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+
+    if (! invoice.invitations || ! invoice.invitations.length) {
+        return blankImage;
+    }
+
+    return invoice.invitations[0].signature_base64 || blankImage;
+}
+
+NINJA.signatureDate = function(invoice) {
+    if (! invoice.invitations || ! invoice.invitations.length) {
+        return '';
+    }
+
+    var date = invoice.invitations[0].signature_date;
+
+    return NINJA.formatDateTime(date, invoice.account);
+}
+
+NINJA.formatDateTime = function(date, account) {
+    var format = account.datetime_format ? account.datetime_format.format_moment : 'LLL';
+    var timezone = account.timezone ? account.timezone.name : '{{ DEFAULT_TIMEZONE }}';
+
+    return date ? moment.utc(date).tz(timezone).format(format) : '';
 }
 
 NINJA.entityType = function(invoice)

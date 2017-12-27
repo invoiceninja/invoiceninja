@@ -906,6 +906,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'documents',
             'expenses',
             'client',
+            'invitations',
             'tax_name1',
             'tax_rate1',
             'tax_name2',
@@ -988,7 +989,17 @@ class Invoice extends EntityModel implements BalanceAffecting
             'invoice_fields',
             'show_currency_code',
             'inclusive_taxes',
+            'date_format',
+            'datetime_format',
+            'timezone',
         ]);
+
+        foreach ($this->invitations as $invitation) {
+            $invitation->setVisible([
+                'signature_base64',
+                'signature_date',
+            ]);
+        }
 
         foreach ($this->invoice_items as $invoiceItem) {
             $invoiceItem->setVisible([

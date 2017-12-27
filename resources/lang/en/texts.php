@@ -2639,6 +2639,7 @@ $LANG = array(
     'view_project' => 'View Project',
     'summary' => 'Summary',
     'endless_reminder' => 'Endless Reminder',
+    'signature_on_invoice_help' => 'Add the following code to show your client\'s signature on the PDF.'
 
 );
 

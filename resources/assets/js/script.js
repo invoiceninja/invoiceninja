@@ -31,6 +31,13 @@ function generatePDF(invoice, javascript, force, cb) {
   }
 
   invoice = calculateAmounts(invoice);
+  invoice = convertSignature(invoice);
+
+  // convertSignature returns false to wait for the canvas to draw 
+  if (! invoice) {
+      return false;
+  }
+
   var pdfDoc = GetPdfMake(invoice, javascript, cb);
 
   if (cb) {
