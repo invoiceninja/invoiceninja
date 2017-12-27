@@ -147,7 +147,6 @@ class EventServiceProvider extends ServiceProvider
         // Credits
         'App\Events\CreditWasCreated' => [
             'App\Listeners\ActivityListener@createdCredit',
-            'App\Listeners\SubscriptionListener@createdCredit',
         ],
         'App\Events\CreditWasArchived' => [
             'App\Listeners\ActivityListener@archivedCredit',
