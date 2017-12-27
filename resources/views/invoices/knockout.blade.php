@@ -1045,7 +1045,7 @@ ko.bindingHandlers.productTypeahead = {
                     model.notes(datum.notes);
                 }
                 if (parseFloat(datum.cost)) {
-                    if (! model.cost() || ! model.task_public_id()) {
+                    if (! NINJA.parseFloat(model.cost()) || ! model.task_public_id()) {
                         var cost = datum.cost;
 
                         // optionally handle curency conversion
