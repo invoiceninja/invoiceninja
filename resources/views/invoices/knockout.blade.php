@@ -1036,7 +1036,7 @@ ko.bindingHandlers.productTypeahead = {
                     model.notes(datum.notes);
                 }
                 if (parseFloat(datum.cost)) {
-                    if (! model.cost() || ! model.task_public_id()) {
+                    if (! NINJA.parseFloat(model.cost()) || ! model.task_public_id()) {
                         model.cost(roundSignificant(datum.cost, true));
                     }
                 }
