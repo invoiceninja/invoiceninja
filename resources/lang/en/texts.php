@@ -2641,7 +2641,7 @@ $LANG = array(
     'endless_reminder' => 'Endless Reminder',
     'signature_on_invoice_help' => 'Add the following code to show your client\'s signature on the PDF.',
     'signature_on_pdf' => 'Show on PDF',
-    'signature_on_pdf_help' => 'Show the client signature on the invoice PDF.',
+    'signature_on_pdf_help' => 'Show the client signature on the invoice/quote PDF.',
 
 );
 
