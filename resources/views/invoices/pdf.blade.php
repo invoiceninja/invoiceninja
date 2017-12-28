@@ -187,7 +187,18 @@
           return invoice;
       }
 
-      var sourceSVG = invoice.invitations[0].signature_base64;
+      for (var i=0; i<invoice.invitations.length; i++) {
+          var invitation = invoice.invitations[i];
+          if (invitation.signature_base64) {
+              break;
+          }
+      }
+
+      if (! invitation.signature_base64) {
+          return invoice;
+      }
+
+      var sourceSVG = invitation.signature_base64;
       if (! sourceSVG || sourceSVG.indexOf('data:image') == 0) {
           return invoice;
       }

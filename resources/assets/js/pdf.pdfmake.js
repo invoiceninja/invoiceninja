@@ -370,7 +370,18 @@ NINJA.signatureImage = function(invoice) {
         return blankImage;
     }
 
-    return invoice.invitations[0].signature_base64 || blankImage;
+    for (var i=0; i<invoice.invitations.length; i++) {
+        var invitation = invoice.invitations[i];
+        if (invitation.signature_base64) {
+            break;
+        }
+    }
+
+    if (! invitation.signature_base64) {
+        return blankImage;
+    }
+
+    return invitation.signature_base64 || blankImage;
 }
 
 NINJA.signatureDate = function(invoice) {
@@ -382,7 +393,18 @@ NINJA.signatureDate = function(invoice) {
         return '';
     }
 
-    var date = invoice.invitations[0].signature_date;
+    for (var i=0; i<invoice.invitations.length; i++) {
+        var invitation = invoice.invitations[i];
+        if (invitation.signature_base64) {
+            break;
+        }
+    }
+
+    if (! invitation.signature_base64) {
+        return '';
+    }
+
+    var date = invitation.signature_date;
     return NINJA.formatDateTime(date, invoice.account);
 }
 
