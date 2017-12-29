@@ -50,6 +50,10 @@ class Handler extends ExceptionHandler
             return false;
         }
 
+        if (! class_exists('Utils')) {
+            return parent::report($e);
+        }
+
         if (Crawler::isCrawler()) {
             return false;
         }
@@ -91,6 +95,10 @@ class Handler extends ExceptionHandler
     {
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
+        }
+
+        if (! class_exists('Utils')) {
+            return parent::render($request, $e);
         }
 
         if ($e instanceof TokenMismatchException) {
