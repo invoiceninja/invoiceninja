@@ -1296,7 +1296,7 @@ NINJA.processItem = function(item, section) {
     item.style.push(section);
 
     // make sure numbers aren't wrapped
-    if (item.text && item.text.match && item.text.match(/\d[.,]\d\d($| [A-Z]{3}$)/)) {
+    if (item.text && item.length && item.length < 20 && item.text.match && item.text.match(/\d[.,]\d\d($| [A-Z]{3}$)/)) {
         item.style.push('noWrap');
     }
 
