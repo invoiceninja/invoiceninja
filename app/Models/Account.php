@@ -1323,6 +1323,8 @@ class Account extends Eloquent
                 'paid_to_date',
                 'invoices',
                 'contacts',
+                'currency_id',
+                'currency',
             ]);
 
             foreach ($client->invoices as $invoice) {
@@ -1336,6 +1338,8 @@ class Account extends Eloquent
                     'created_at',
                     'is_recurring',
                     'invoice_type_id',
+                    'is_public',
+                    'due_date',
                 ]);
 
                 foreach ($invoice->invoice_items as $invoiceItem) {
@@ -1343,6 +1347,7 @@ class Account extends Eloquent
                         'product_key',
                         'cost',
                         'qty',
+                        'discount',
                     ]);
                 }
             }

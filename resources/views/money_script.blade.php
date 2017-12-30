@@ -114,6 +114,10 @@
 
         var currency = currencyMap[currencyId];
 
+        if (!currency) {
+            currency = currencyMap[{{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }}];
+        }
+
         if (!decorator) {
             decorator = '{{ Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL) }}';
         }
