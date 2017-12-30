@@ -70,10 +70,10 @@ class DiscountCest
         $I->click('Mark Sent');
 
         $total = $itemAmount * $quantity;
-        $total -= $total * $itemDiscount / 100;
-        $total -= $total * $discount / 100;
-        $total += $total * $itemTaxRate / 100;
+        $total -= round($total * round($itemDiscount, 2) / 100, 2);
+        $total -= round($total * round($discount, 2) / 100, 2);
+        $total += round($total * $itemTaxRate / 100, 2);
 
-        $I->see(number_format($total,2));
+        $I->see(number_format($total, 2));
     }
 }

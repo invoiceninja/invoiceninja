@@ -670,7 +670,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var item = invoice.invoice_items[i];
         var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(NINJA.parseFloat(item.cost), invoice, null, getPrecision(NINJA.parseFloat(item.cost))) : ' ';
         var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : ' ';
-        var discount = NINJA.parseFloat(item.discount);
+        var discount = roundToTwo(NINJA.parseFloat(item.discount));
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';
@@ -770,7 +770,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 }
             } else if (field == 'discount') {
                 if (parseInt(invoice.is_amount_discount)) {
-                    value = roundSignificant(discount, true);
+                    value = formatMoneyInvoice(discount, invoice);
                 } else {
                     value = discount + '%';
                 }

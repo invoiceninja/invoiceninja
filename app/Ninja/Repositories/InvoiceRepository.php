@@ -541,10 +541,11 @@ class InvoiceRepository extends BaseRepository
 
             $invoiceItemCost = Utils::roundSignificant(Utils::parseFloat($item['cost']));
             $invoiceItemQty = Utils::roundSignificant(Utils::parseFloat($item['qty']));
+            $discount = empty($item['discount']) ? 0 : round(Utils::parseFloat($item['discount']), 2);
 
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
 
-            if (! empty($item['discount']) && $discount = Utils::parseFloat($item['discount'])) {
+            if ($discount) {
                 if ($invoice->is_amount_discount) {
                     $lineTotal -= $discount;
                 } else {
@@ -559,9 +560,10 @@ class InvoiceRepository extends BaseRepository
             $item = (array) $item;
             $invoiceItemCost = Utils::roundSignificant(Utils::parseFloat($item['cost']));
             $invoiceItemQty = Utils::roundSignificant(Utils::parseFloat($item['qty']));
+            $discount = empty($item['discount']) ? 0 : round(Utils::parseFloat($item['discount']), 2);
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
 
-            if (! empty($item['discount']) && $discount = Utils::parseFloat($item['discount'])) {
+            if ($discount) {
                 if ($invoice->is_amount_discount) {
                     $lineTotal -= $discount;
                 } else {
@@ -593,7 +595,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        if ($invoice->discount > 0) {
+        if ($invoice->discount != 0) {
             if ($invoice->is_amount_discount) {
                 $total -= $invoice->discount;
             } else {

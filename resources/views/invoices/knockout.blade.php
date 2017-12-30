@@ -399,7 +399,7 @@ function InvoiceModel(data) {
         if (parseInt(self.is_amount_discount())) {
             return roundToTwo(self.discount());
         } else {
-            return roundToTwo(self.totals.rawSubtotal() * self.discount() / 100);
+            return roundToTwo(self.totals.rawSubtotal() * roundToTwo(self.discount()) / 100);
         }
     });
 
@@ -449,9 +449,9 @@ function InvoiceModel(data) {
             var lineTotal = item.totals.rawTotal();
             if (self.discount()) {
                 if (parseInt(self.is_amount_discount())) {
-                    lineTotal -= roundToTwo((lineTotal/total) * self.discount());
+                    lineTotal -= roundToTwo((lineTotal/total) * roundToTwo(self.discount()));
                 } else {
-                    lineTotal -= roundToTwo(lineTotal * self.discount() / 100);
+                    lineTotal -= roundToTwo(lineTotal * roundToTwo(self.discount()) / 100);
                 }
             }
 
@@ -898,7 +898,7 @@ function ItemModel(data) {
     this.totals.rawTotal = ko.computed(function() {
         var value = roundSignificant(NINJA.parseFloat(self.cost()) * NINJA.parseFloat(self.qty()));
         if (self.discount()) {
-            var discount = NINJA.parseFloat(self.discount());
+            var discount = roundToTwo(NINJA.parseFloat(self.discount()));
             if (parseInt(model.invoice().is_amount_discount())) {
                 value -= discount;
             } else {

@@ -588,8 +588,8 @@ function calculateAmounts(invoice) {
     if (invoice.is_statement) {
         var lineTotal = roundToTwo(NINJA.parseFloat(item.balance));
     } else {
-        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
-        var discount = NINJA.parseFloat(item.discount);
+        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
+        var discount = roundToTwo(NINJA.parseFloat(item.discount));
         if (discount != 0) {
             if (parseInt(invoice.is_amount_discount)) {
                 lineTotal -= discount;
@@ -644,8 +644,8 @@ function calculateAmounts(invoice) {
     }
 
     // calculate line item tax
-    var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
-    var discount = NINJA.parseFloat(item.discount);
+    var lineTotal = roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
+    var discount = roundToTwo(NINJA.parseFloat(item.discount));
     if (discount != 0) {
         if (parseInt(invoice.is_amount_discount)) {
             lineTotal -= discount;
@@ -656,10 +656,11 @@ function calculateAmounts(invoice) {
     lineTotal = roundToTwo(lineTotal);
 
     if (invoice.discount != 0) {
+        var discount = roundToTwo(NINJA.parseFloat(invoice.discount));
         if (parseInt(invoice.is_amount_discount)) {
-            lineTotal -= roundToTwo((lineTotal/total) * invoice.discount);
+            lineTotal -= roundToTwo((lineTotal/total) * discount);
         } else {
-            lineTotal -= roundToTwo(lineTotal * invoice.discount / 100);
+            lineTotal -= roundToTwo(lineTotal * discount / 100);
         }
     }
 
@@ -702,7 +703,7 @@ function calculateAmounts(invoice) {
     if (parseInt(invoice.is_amount_discount)) {
       discount = roundToTwo(invoice.discount);
     } else {
-      discount = roundToTwo(total * invoice.discount / 100);
+      discount = roundToTwo(total * roundToTwo(invoice.discount) / 100);
     }
     total -= discount;
   }
