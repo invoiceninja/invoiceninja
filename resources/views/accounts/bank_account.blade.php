@@ -66,7 +66,9 @@
                         ->addOption('101', 101)
                         ->addOption('102', 102)
                         ->addOption('103', 103)
-                        ->help('ofx_help') !!}
+                        ->help(trans('texts.ofx_help', [
+                            'link' => link_to('http://www.ofxhome.com/index.php/home/directory', trans('texts.adjust_the_settings'), ['target' => '_blank', 'id' => 'ofxLink'])
+                        ])) !!}
 
             </div>
         </div>
@@ -298,7 +300,27 @@
     }
 
     $(function() {
-        $('#bank_id').focus();
+
+        var banks = {!! $banks !!};
+        var bankMap = {};
+
+        for (var i=0; i<banks.length; i++) {
+            var bank = banks[i];
+            bankMap[bank.id] = bank;
+        }
+
+        $('#bank_id')
+            .change(function(event) {
+                var bankId = $(event.currentTarget).val();
+                bankId = bankMap[bankId] ? bankMap[bankId].remote_id : false;
+                if (bankId) {
+                    var link = 'http://www.ofxhome.com/index.php/institution/view/' + bankId;
+                } else {
+                    var link = 'http://www.ofxhome.com/index.php/home/directory';
+                }
+                $('#ofxLink').attr('href', link);
+            })
+            .focus();
     });
 
     var TransactionModel = function(data) {
