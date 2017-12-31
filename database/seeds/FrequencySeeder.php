@@ -18,6 +18,7 @@ class FrequencySeeder extends Seeder
             ['name' => 'Four months', 'date_interval' => '4 months'],
             ['name' => 'Six months', 'date_interval' => '6 months'],
             ['name' => 'Annually', 'date_interval' => '1 year'],
+            ['name' => 'Two years', 'date_interval' => '2 years'],
         ];
 
         foreach ($frequencies as $frequency) {

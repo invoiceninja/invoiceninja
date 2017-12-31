@@ -358,6 +358,9 @@ trait GeneratesNumbers
             case FREQUENCY_ANNUALLY:
                 $resetDate->addYear();
                 break;
+            case FREQUENCY_TWO_YEARS:
+                $resetDate->addYears(2);
+                break;
         }
 
         $this->reset_counter_date = $resetDate->format('Y-m-d');

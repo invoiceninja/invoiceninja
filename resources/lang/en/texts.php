@@ -1389,6 +1389,7 @@ $LANG = array(
     'freq_four_months' => 'Four months',
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
+    'freq_two_years' => 'Two years',
 
     // Payment types
     'payment_type_Apply Credit' => 'Apply Credit',

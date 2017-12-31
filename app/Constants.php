@@ -230,6 +230,7 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_FOUR_MONTHS', 7);
     define('FREQUENCY_SIX_MONTHS', 8);
     define('FREQUENCY_ANNUALLY', 9);
+    define('FREQUENCY_TWO_YEARS', 10);
 
     define('REPORT_FREQUENCY_DAILY', 'daily');
     define('REPORT_FREQUENCY_WEEKLY', 'weekly');

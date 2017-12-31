@@ -70,6 +70,8 @@ trait HasRecurrence
                 return $monthsSinceLastSent >= 6;
             case FREQUENCY_ANNUALLY:
                 return $monthsSinceLastSent >= 12;
+            case FREQUENCY_TWO_YEARS:
+                return $monthsSinceLastSent >= 24;
             default:
                 return false;
         }
@@ -111,6 +113,9 @@ trait HasRecurrence
                 break;
             case FREQUENCY_ANNUALLY:
                 $rule = 'FREQ=YEARLY;';
+                break;
+            case FREQUENCY_TWO_YEARS:
+                $rule = 'FREQ=YEARLY;INTERVAL=2;';
                 break;
         }
 
