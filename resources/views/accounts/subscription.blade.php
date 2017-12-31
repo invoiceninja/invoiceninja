@@ -38,6 +38,7 @@
                         trans('texts.quotes') => [
                             EVENT_CREATE_QUOTE => trans('texts.subscription_event_' . EVENT_CREATE_QUOTE),
                             EVENT_UPDATE_QUOTE => trans('texts.subscription_event_' . EVENT_UPDATE_QUOTE),
+                            EVENT_APPROVE_QUOTE => trans('texts.subscription_event_' . EVENT_APPROVE_QUOTE),
                             EVENT_DELETE_QUOTE => trans('texts.subscription_event_' . EVENT_DELETE_QUOTE),
                         ],
                         trans('texts.tasks') => [

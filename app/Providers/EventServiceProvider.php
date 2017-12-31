@@ -108,6 +108,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\QuoteInvitationWasApproved' => [
             'App\Listeners\ActivityListener@approvedQuote',
             'App\Listeners\NotificationListener@approvedQuote',
+            'App\Listeners\SubscriptionListener@approvedQuote',
         ],
 
         // Payments

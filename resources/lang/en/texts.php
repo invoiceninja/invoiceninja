@@ -2593,6 +2593,7 @@ $LANG = array(
     'subscription_event_18' => 'Created Task',
     'subscription_event_19' => 'Updated Task',
     'subscription_event_20' => 'Deleted Task',
+    'subscription_event_21' => 'Approved Quote',
     'subscriptions' => 'Subscriptions',
     'updated_subscription' => 'Successfully updated subscription',
     'created_subscription' => 'Successfully created subscription',

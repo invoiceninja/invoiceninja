@@ -11,6 +11,7 @@ use App\Events\ExpenseWasDeleted;
 use App\Events\QuoteItemsWereCreated;
 use App\Events\QuoteItemsWereUpdated;
 use App\Events\QuoteWasDeleted;
+use App\Events\QuoteInvitationWasApproved;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\InvoiceItemsWereCreated;
@@ -130,6 +131,15 @@ class SubscriptionListener
     {
         $transformer = new InvoiceTransformer($event->quote->account);
         $this->checkSubscriptions(EVENT_UPDATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param QuoteInvitationWasApproved $event
+     */
+    public function approvedQuote(QuoteInvitationWasApproved $event)
+    {
+        $transformer = new InvoiceTransformer($event->quote->account);
+        $this->checkSubscriptions(EVENT_APPROVE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
     }
 
     /**
