@@ -258,12 +258,7 @@ class NinjaController extends BaseController
             if ($productId == PRODUCT_INVOICE_DESIGNS) {
                 return file_get_contents(storage_path() . '/invoice_designs.txt');
             } else {
-                // temporary fix to enable previous version to work
-                if (Input::get('get_date')) {
-                    return $license->created_at->format('Y-m-d');
-                } else {
-                    return 'valid';
-                }
+                return $license->created_at->format('Y-m-d');
             }
         } else {
             return RESULT_FAILURE;

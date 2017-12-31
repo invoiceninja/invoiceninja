@@ -2644,6 +2644,7 @@ $LANG = array(
     'signature_on_invoice_help' => 'Add the following code to show your client\'s signature on the PDF.',
     'signature_on_pdf' => 'Show on PDF',
     'signature_on_pdf_help' => 'Show the client signature on the invoice/quote PDF.',
+    'expired_white_label' => 'The white label license has expired',
 
 );
 
