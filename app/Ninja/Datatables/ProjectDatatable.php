@@ -33,7 +33,7 @@ class ProjectDatatable extends EntityDatatable
                             return Utils::getClientDisplayName($model);
                         }
 
-                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                        return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
                     } else {
                         return '';
                     }
