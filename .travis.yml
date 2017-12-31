@@ -102,6 +102,8 @@ after_script:
   - php artisan ninja:check-data --no-interaction --database='db-ninja-2'
   - php artisan ninja:init-lookup --validate=true --database='db-ninja-1'
   - php artisan ninja:init-lookup --validate=true --database='db-ninja-2'
+  - cat storage/logs/laravel-error.log
+  - cat storage/logs/laravel-info.log
   - cat .env
   - mysql -u root -e 'select * from lookup_companies;' ninja0
   - mysql -u root -e 'select * from lookup_accounts;' ninja0
@@ -121,8 +123,6 @@ after_script:
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from fonts;' ninja
   - mysql -u root -e 'select * from banks;' ninja
-  - cat storage/logs/laravel-error.log
-  - cat storage/logs/laravel-info.log
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)
   - for i in $FILES; do echo $i; base64 "$i"; break; done
 
