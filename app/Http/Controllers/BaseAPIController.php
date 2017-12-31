@@ -18,7 +18,7 @@ use Utils;
 /**
  * @SWG\Swagger(
  *     schemes={"http","https"},
- *     host="ninja.dev",
+ *     host="ninja.test",
  *     basePath="/api/v1",
  *     produces={"application/json"},
  *     @SWG\Info(

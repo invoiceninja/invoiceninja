@@ -44,7 +44,7 @@ Create an application in either Google, Facebook, GitHub or LinkedIn and then se
 
    GOOGLE_CLIENT_ID=
    GOOGLE_CLIENT_SECRET=
-   GOOGLE_OAUTH_REDIRECT=http://ninja.dev/auth/google
+   GOOGLE_OAUTH_REDIRECT=http://ninja.test/auth/google
 
 PhantomJS
 """""""""
