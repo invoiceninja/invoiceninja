@@ -337,7 +337,7 @@
         var enableBicoin = $('#enable_bitcoin').is(':checked');
 		var enableApplePay = $('#enable_apple_pay').is(':checked');
         $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort || enableSepa || enableBicoin);
-        $('.stripe-ach-options').toggle(enableAch);
+        $('.stripe-ach-options').toggle(enableAch && {{ $accountGateway && $accountGateway->getPlaidClientId() ? 'true' : 'false' }});
 		$('.verification-file').toggle(enableApplePay);
     }
 
