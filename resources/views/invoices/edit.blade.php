@@ -156,7 +156,7 @@
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<input type="checkbox" value="1" data-bind="visible: email() || first_name() || last_name(), checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<span data-bind="visible: first_name || last_name">
-								<span data-bind="text: first_name() + ' ' + last_name()"></span>
+								<span data-bind="text: (first_name() || '') + ' ' + (last_name() || '')"></span>
 								<br/>
 							</span>
 							<span data-bind="visible: email">

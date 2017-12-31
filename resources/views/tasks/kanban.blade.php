@@ -613,7 +613,7 @@
 
             self.displayName = ko.computed(function() {
                 if (self.first_name() || self.last_name()) {
-                    return self.first_name() + ' ' + self.last_name();
+                    return (self.first_name() || '') + ' ' + (self.last_name() || '');
                 } else {
                     return self.email();
                 }

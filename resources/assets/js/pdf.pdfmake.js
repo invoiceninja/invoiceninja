@@ -1051,7 +1051,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     }
     var account = invoice.account;
     var contact = client.contacts[0];
-    var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
+    var clientName = client.name || (contact.first_name || contact.last_name ? ((contact.first_name || '') + ' ' + (contact.last_name || '')) : contact.email);
 
     var label = false;
     var value = false;
@@ -1059,7 +1059,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     if (field == 'client.client_name') {
         value = clientName || ' ';
     } else if (field == 'client.contact_name') {
-        value = (contact.first_name || contact.last_name) ? contact.first_name + ' ' + contact.last_name : false;
+        value = (contact.first_name || contact.last_name) ? (contact.first_name || '') + ' ' + (contact.last_name || '') : false;
     } else if (field == 'client.id_number') {
         value = client.id_number;
         if (invoiceLabels.id_number_orig) {
