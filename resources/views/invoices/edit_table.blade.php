@@ -88,7 +88,7 @@
             <div class="line-total" data-bind="text: totals.total"></div>
         </td>
         <td style="cursor:pointer" class="hide-border td-icon">
-            <i style="padding-left:2px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()"
+            <i style="padding-left:2px;display:none;" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()"
             class="fa fa-minus-circle redlink" title="Remove item"/>
         </td>
     </tr>
