@@ -93,7 +93,7 @@ Route::group(['middleware' => ['lookup:user']], function () {
 
 // Client auth
 Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
-Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogout']);
+Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogoutWrapper']);
 Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getSessionExpired']);
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
 Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);

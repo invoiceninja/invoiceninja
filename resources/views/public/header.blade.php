@@ -119,6 +119,11 @@
                             {!! link_to('/client/credits', trans('texts.credits') ) !!}
                         </li>
                     @endif
+                    @if ($account->enable_portal_password && request()->contact->password)
+                        <li>
+                            {!! link_to('/client/logout', trans('texts.logout')) !!}
+                        </li>
+                    @endif
                 </ul>
                 @endif
             </div><!--/.nav-collapse -->
