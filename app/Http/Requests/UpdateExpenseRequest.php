@@ -21,8 +21,6 @@ class UpdateExpenseRequest extends ExpenseRequest
      */
     public function rules()
     {
-        return [
-            'amount' => 'numeric',
-        ];
+        return [];
     }
 }
