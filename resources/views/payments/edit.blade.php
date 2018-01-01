@@ -354,8 +354,10 @@
                     formatMoneyInvoice(invoice.balance, invoice),  invoice.public_id));
         }
         $('select#invoice').combobox('refresh');
+        $('#amount').val('');
 
         if (window.model) {
+            model.amount('');
             model.client_id(clientId);
             setTimeout(function() {
                 model.updateExchangeRate();
@@ -375,12 +377,13 @@
           var client = clientMap[invoice.client.public_id];
           invoice.client = client;
           setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
-          if (!parseFloat($('#amount').val())) {
-            var amount = parseFloat(invoice.balance);
-            $('#amount').val(amount.toFixed(2));
-            model.amount(amount);
-          }
-        }
+          var amount = parseFloat(invoice.balance);
+          $('#amount').val(amount.toFixed(2));
+          model.amount(amount);
+      } else {
+          $('#amount').val('');
+          model.amount('');
+      }
         model.client_id(client ? client.public_id : 0);
         setTimeout(function() {
             model.updateExchangeRate();
