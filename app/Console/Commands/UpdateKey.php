@@ -20,7 +20,7 @@ class UpdateKey extends Command
     /**
      * @var string
      */
-    protected $name = 'ninja:update-key {--database=}';
+    protected $name = 'ninja:update-key {--database=} {--key=} {--legacy=}';
 
     /**
      * @var string
@@ -42,7 +42,7 @@ class UpdateKey extends Command
 
         $legacy = false;
         if ($this->option('legacy') == 'true') {
-            $legacy = new McryptEncrypter(env('APP_KEY'));
+            $legacy = new McryptEncrypter(env('APP_KEY'), env('APP_CIPHER'));
         }
 
         // load the current values
@@ -50,7 +50,7 @@ class UpdateKey extends Command
         $bankUsernames = [];
         $twoFactorSecrets = [];
 
-        foreach (AccountGateway::all() as $gateway) {
+        foreach (AccountGateway::withTrashed()->get() as $gateway) {
             if ($legacy) {
                 $gatewayConfigs[$gateway->id] = json_decode($legacy->decrypt($gateway->config));
             } else {
@@ -58,7 +58,7 @@ class UpdateKey extends Command
             }
         }
 
-        foreach (BankAccount::all() as $bank) {
+        foreach (BankAccount::withTrashed()->get() as $bank) {
             if ($legacy) {
                 $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
             } else {
@@ -66,7 +66,7 @@ class UpdateKey extends Command
             }
         }
 
-        foreach (User::where('google_2fa_secret', '!=', '')->get() as $user) {
+        foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
             if ($legacy) {
                 $twoFactorSecrets[$user->id] = $legacy->decrypt($user->google_2fa_secret);
             } else {
@@ -78,7 +78,9 @@ class UpdateKey extends Command
         $envPath = base_path() . '/.env';
         $envWriteable = file_exists($envPath) && @fopen($envPath, 'a');
 
-        if ($envWriteable) {
+        if ($key = $this->option('key')) {
+            $key = base64_decode(str_replace('base64:', '', $key));
+        } elseif ($envWriteable) {
             Artisan::call('key:generate');
             $key = base64_decode(str_replace('base64:', '', config('app.key')));
         } else {
@@ -89,19 +91,19 @@ class UpdateKey extends Command
         $crypt = new Encrypter($key, $cipher);
 
         // update values using the new key/encrypter
-        foreach (AccountGateway::all() as $gateway) {
+        foreach (AccountGateway::withTrashed()->get() as $gateway) {
             $config = $gatewayConfigs[$gateway->id];
             $gateway->config = $crypt->encrypt(json_encode($config));
             $gateway->save();
         }
 
-        foreach (BankAccount::all() as $bank) {
+        foreach (BankAccount::withTrashed()->get() as $bank) {
             $username = $bankUsernames[$bank->id];
             $bank->username = $crypt->encrypt($username);
             $bank->save();
         }
 
-        foreach (User::where('google_2fa_secret', '!=', '')->get() as $user) {
+        foreach (User::withTrashed()->where('google_2fa_secret', '!=', '')->get() as $user) {
             $secret = $twoFactorSecrets[$user->id];
             $user->google_2fa_secret = $crypt->encrypt($secret);
             $user->save();
@@ -140,6 +142,7 @@ class UpdateKey extends Command
         return [
             ['legacy', null, InputOption::VALUE_OPTIONAL, 'Legacy', null],
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+            ['key', null, InputOption::VALUE_OPTIONAL, 'Key', null],
         ];
     }
 }
