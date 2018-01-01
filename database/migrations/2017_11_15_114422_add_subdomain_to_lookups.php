@@ -95,6 +95,12 @@ class AddSubdomainToLookups extends Migration
         Schema::table('accounts', function ($table) {
             $table->boolean('inclusive_taxes')->default(0);
         });
+
+        if (Utils::isNinja()) {
+            Schema::table('activities', function ($table) {
+                $table->index('user_id');
+            });
+        }
     }
 
     /**
