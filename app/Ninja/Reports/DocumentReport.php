@@ -50,7 +50,7 @@ class DocumentReport extends AbstractReport
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
             foreach ($records as $record) {
                 foreach ($record->documents as $document) {
-                    $name = sprintf('%s_%s_%s', date('Y-m-d'), $record->present()->titledName, $document->name);
+                    $name = sprintf('%s_%s_%s', $document->created_at->format('Y-m-d'), $record->present()->titledName, $document->name);
                     $name = str_replace(' ', '_', $name);
                     $name = str_replace('#', '', $name);
                     $zip->add_file($name, $document->getRaw());

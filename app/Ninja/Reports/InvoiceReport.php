@@ -48,7 +48,7 @@ class InvoiceReport extends AbstractReport
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
                     foreach ($invoice->documents as $document) {
-                        $name = sprintf('%s_%s_%s', date('Y-m-d'), $invoice->present()->titledName, $document->name);
+                        $name = sprintf('%s_%s_%s', $invoice->invoice_date ?: date('Y-m-d'), $invoice->present()->titledName, $document->name);
                         $zip->add_file($name, $document->getRaw());
                     }
                 }
