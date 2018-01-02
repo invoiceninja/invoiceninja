@@ -581,6 +581,7 @@ function calculateAmounts(invoice) {
 
   var hasStandard = false;
   var hasTask = false;
+  var hasDiscount = false;
 
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -647,6 +648,7 @@ function calculateAmounts(invoice) {
     var lineTotal = roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
     var discount = roundToTwo(NINJA.parseFloat(item.discount));
     if (discount != 0) {
+        hasDiscount = true;
         if (parseInt(invoice.is_amount_discount)) {
             lineTotal -= discount;
         } else {
@@ -696,6 +698,7 @@ function calculateAmounts(invoice) {
   }
 
   invoice.has_item_taxes = hasTaxes;
+  invoice.has_item_discounts = hasDiscount;
   invoice.subtotal_amount = total;
 
   var discount = 0;

@@ -519,6 +519,12 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
             } else {
                 continue;
             }
+        } else if (field == 'product.discount') {
+            if (invoice.has_item_discounts) {
+                width = 15;
+            } else {
+                continue;
+            }
         } else if (field == 'product.description') {
             width = 0;
         } else {
@@ -652,6 +658,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
         } else if (field == 'tax' && ! invoice.has_item_taxes) {
             continue;
+        } else if (field == 'discount' && ! invoice.has_item_discounts) {
+            continue;
         } else if (field == 'unit_cost' || field == 'rate' || field == 'hours') {
             headerStyles.push('cost');
         }
@@ -753,6 +761,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 continue;
             } else if (field == 'tax' && ! invoice.has_item_taxes) {
                 continue;
+            } else if (field == 'discount' && ! invoice.has_item_discounts) {
+                continue;
             }
 
             if (field == 'item' || field == 'service') {
@@ -772,7 +782,9 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 if (parseInt(invoice.is_amount_discount)) {
                     value = formatMoneyInvoice(discount, invoice);
                 } else {
-                    value = discount + '%';
+                    if (discount) {
+                        value = discount + '%';
+                    }
                 }
             } else if (field == 'tax') {
                 value = ' ';
