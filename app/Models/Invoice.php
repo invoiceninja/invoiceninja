@@ -1258,6 +1258,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                         break;
                     } else {
                         $pdfString = false;
+                        sleep(2);
                     }
                 }
             }
