@@ -666,7 +666,9 @@ function calculateAmounts(invoice) {
         }
     }
 
-    if (invoice.account.inclusive_taxes != '1') {
+    if (! taxRate1) {
+        var taxAmount1 = 0;
+    } else if (invoice.account.inclusive_taxes != '1') {
         var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
     } else {
         var taxAmount1 = roundToTwo((lineTotal * 100) / (100 + (taxRate1 * 100)));
@@ -681,7 +683,9 @@ function calculateAmounts(invoice) {
       }
     }
 
-    if (invoice.account.inclusive_taxes != '1') {
+    if (! taxRate2) {
+        var taxAmount2 = 0;
+    } else if (invoice.account.inclusive_taxes != '1') {
         var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
     } else {
         var taxAmount2 = roundToTwo((lineTotal * 100) / (100 + (taxRate2 * 100)));
