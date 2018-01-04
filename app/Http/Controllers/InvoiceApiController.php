@@ -278,6 +278,16 @@ class InvoiceApiController extends BaseAPIController
             unset($data['invoice_items'][0]['tax_rate2']);
         } else {
             foreach ($data['invoice_items'] as $index => $item) {
+                // check for multiple products
+                if ($productKey = array_get($item, 'product_key')) {
+                    $parts = explode(',', $productKey);
+                    if (count($parts) > 1 && Product::findProductByKey($parts[0])) {
+                        foreach ($parts as $index => $productKey) {
+                            $data['invoice_items'][$index] = self::prepareItem(['product_key' => $productKey]);
+                        }
+                        break;
+                    }
+                }
                 $data['invoice_items'][$index] = self::prepareItem($item);
             }
         }
