@@ -85,7 +85,9 @@ You can also update a client by specifying a value for ‘id’. Next, here’s 
     -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}' \
     -H "X-Ninja-Token: TOKEN"
 
-If the product_key is set and matches an existing record the product fields will be auto-populated. If the email field is set then we’ll search for a matching client. If no matches are found a new client will be created.
+If the email field is set we’ll search for a matching client, if no matches are found a new client will be created.
+
+If the product_key is set and matches an existing record the product fields will be auto-populated. You can use a comma-separated value to create an invoice with multiple products.
 
 Options
 ^^^^^^^
