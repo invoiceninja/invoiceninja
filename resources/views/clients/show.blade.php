@@ -371,7 +371,7 @@
             };
 
             var map = new google.maps.Map(mapCanvas, mapOptions)
-            var address = "{{ "{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : '') }}";
+            var address = {!! json_encode(e("{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : ''))) !!};
 
             geocoder = new google.maps.Geocoder();
             geocoder.geocode( { 'address': address}, function(results, status) {
