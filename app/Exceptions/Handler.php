@@ -140,6 +140,7 @@ class Handler extends ExceptionHandler
         if (Utils::isNinjaProd()
             && ! Utils::isDownForMaintenance()
             && ! ($e instanceof HttpResponseException)
+            && ! ($e instanceof \Illuminate\Validation\ValidationException)
             && ! ($e instanceof ValidationException)) {
             $data = [
                 'error' => get_class($e),
