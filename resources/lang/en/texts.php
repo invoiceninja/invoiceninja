@@ -1262,6 +1262,7 @@ $LANG = array(
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'You must :link.',
     'stripe_webhook_help_link_text' => 'add this URL as an endpoint at Stripe',
+    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'There was an error adding your payment methd. Please try again later.',
     'notification_invoice_payment_failed_subject' => 'Payment failed for Invoice :invoice',
     'notification_invoice_payment_failed' => 'A payment made by client :client towards Invoice :invoice failed. The payment has been marked as failed and :amount has been added to the client\'s balance.',
@@ -2458,7 +2459,6 @@ $LANG = array(
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
-    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'calendar' => 'Calendar',
     'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
