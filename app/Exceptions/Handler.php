@@ -30,9 +30,10 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         TokenMismatchException::class,
         ModelNotFoundException::class,
+        ValidationException::class,
+        \Illuminate\Validation\ValidationException::class,
         //AuthorizationException::class,
         //HttpException::class,
-        //ValidationException::class,
     ];
 
     /**
