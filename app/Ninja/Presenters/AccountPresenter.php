@@ -247,7 +247,7 @@ class AccountPresenter extends Presenter
             $url .= $account->subdomain ?: 'app';
             $url .= '.' . Domain::getDomainFromId($account->domain_id);
         } else {
-            $url = SITE_URL;
+            $url = trim(SITE_URL, '/');
         }
 
         $url .= '/client/login';

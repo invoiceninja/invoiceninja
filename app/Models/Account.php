@@ -1421,7 +1421,7 @@ class Account extends Eloquent
      */
     public function getSiteUrl()
     {
-        $url = SITE_URL;
+        $url = trim(SITE_URL, '/');
         $iframe_url = $this->iframe_url;
 
         if ($iframe_url) {
