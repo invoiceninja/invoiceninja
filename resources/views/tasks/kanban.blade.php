@@ -273,7 +273,7 @@
                 if (model.is_sending_request()) {
                     setTimeout(function() {
                         self.ajax(method, url, data, callback);
-                    }, 1000);
+                    }, 1500);
                     return;
                 }
                 model.is_sending_request(true);
@@ -294,7 +294,7 @@
                 }).always(function() {
                     setTimeout(function() {
                         model.is_sending_request(false);
-                    }, 1000);
+                    }, 1500);
                 });
             }
 
@@ -709,7 +709,7 @@
                     </div><br/>
                 </div>
 
-                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:32px;">
+                <div data-bind="sortable: { data: tasks, as: 'task', afterMove: onTaskDragged, allowDrop: true, connectClass: 'connect-row' }" style="min-height:28px;">
                     <div class="kanban-column-row" data-bind="css: { editing: is_editing_task }, visible: task.matchesFilter($root.filter(), $root.filter_client_id(), $root.filter_project_id())">
                         <div class="view" data-bind="event: { click: startEditTask }">
                             <div class="panel" data-bind="css: { running: is_running, hovered: is_panel_hovered }, event: { mouseover: onPanelMouseOver, mouseout: onPanelMouseOut }">

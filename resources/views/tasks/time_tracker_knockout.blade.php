@@ -297,7 +297,7 @@
             }).always(function() {
                 setTimeout(function() {
                     model.sendingBulkRequest(false);
-                }, 1000);
+                }, 1500);
             });
         }
 
@@ -755,7 +755,7 @@
             }).always(function() {
                 setTimeout(function() {
                     model.sendingRequest(false);
-                }, 1000);
+                }, 1500);
             });
         }
 

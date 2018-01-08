@@ -152,6 +152,7 @@ class TaskRepository extends BaseRepository
             $task = Task::scope($publicId)->withTrashed()->firstOrFail();
         } else {
             $task = Task::createNew();
+            $task->task_status_sort_order = 9999;
         }
 
         if ($task->is_deleted) {
