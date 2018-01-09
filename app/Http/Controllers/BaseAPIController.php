@@ -74,7 +74,7 @@ class BaseAPIController extends Controller
         $entity = $request->entity();
         $action = $request->action;
 
-        if (! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'offline'])) {
+        if (! in_array($action, ['archive', 'delete', 'restore', 'mark_sent'])) {
             return $this->errorResponse("Action [$action] is not supported");
         }
 
