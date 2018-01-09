@@ -92,7 +92,7 @@ class DashboardRepository
             $record->lineTension = 0;
             $record->borderWidth = 4;
             $record->borderColor = "rgba({$color}, 1)";
-            $record->backgroundColor = "rgba({$color}, 0.05)";
+            $record->backgroundColor = "rgba({$color}, 0.1)";
             $datasets[] = $record;
 
             if ($entityType == ENTITY_INVOICE) {

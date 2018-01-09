@@ -399,7 +399,7 @@ function InvoiceModel(data) {
         if (parseInt(self.is_amount_discount())) {
             return roundToTwo(self.discount());
         } else {
-            return roundToTwo(self.totals.rawSubtotal() * self.discount() / 100);
+            return roundToTwo(self.totals.rawSubtotal() * roundToTwo(self.discount()) / 100);
         }
     });
 
@@ -449,9 +449,9 @@ function InvoiceModel(data) {
             var lineTotal = item.totals.rawTotal();
             if (self.discount()) {
                 if (parseInt(self.is_amount_discount())) {
-                    lineTotal -= roundToTwo((lineTotal/total) * self.discount());
+                    lineTotal -= roundToTwo((lineTotal/total) * roundToTwo(self.discount()));
                 } else {
-                    lineTotal -= roundToTwo(lineTotal * self.discount() / 100);
+                    lineTotal -= roundToTwo(lineTotal * roundToTwo(self.discount()) / 100);
                 }
             }
 
@@ -702,7 +702,7 @@ function ClientModel(data) {
         if (self.contacts().length == 0) return;
         var contact = self.contacts()[0];
         if (contact.first_name() || contact.last_name()) {
-            return contact.first_name() + ' ' + contact.last_name();
+            return (contact.first_name() || '') + ' ' + (contact.last_name() || '');
         } else {
             return contact.email();
         }
@@ -712,7 +712,7 @@ function ClientModel(data) {
         if (self.contacts().length == 0) return '';
         var contact = self.contacts()[0];
         if (contact.first_name() || contact.last_name()) {
-            return contact.first_name() + ' ' + contact.last_name();
+            return (contact.first_name() || '') + ' ' + (contact.last_name() || '');
         } else {
             return contact.email();
         }
@@ -821,6 +821,7 @@ function ItemModel(data) {
     self.notes = ko.observable('');
     self.cost = ko.observable(0);
     self.qty = ko.observable(0);
+    self.discount = ko.observable();
     self.custom_value1 = ko.observable('');
     self.custom_value2 = ko.observable('');
     self.tax_name1 = ko.observable('');
@@ -896,6 +897,14 @@ function ItemModel(data) {
 
     this.totals.rawTotal = ko.computed(function() {
         var value = roundSignificant(NINJA.parseFloat(self.cost()) * NINJA.parseFloat(self.qty()));
+        if (self.discount()) {
+            var discount = roundToTwo(NINJA.parseFloat(self.discount()));
+            if (parseInt(model.invoice().is_amount_discount())) {
+                value -= discount;
+            } else {
+                value -= (value * discount / 100);
+            }
+        }
         return value ? roundToTwo(value) : 0;
     });
 
@@ -1037,7 +1046,33 @@ ko.bindingHandlers.productTypeahead = {
                 }
                 if (parseFloat(datum.cost)) {
                     if (! NINJA.parseFloat(model.cost()) || ! model.task_public_id()) {
-                        model.cost(roundSignificant(datum.cost, true));
+                        var cost = datum.cost;
+
+                        // optionally handle curency conversion
+                        @if ($account->convert_products)
+                            var client = window.model.invoice().client();
+                            if (client) {
+                                var clientCurrencyId = client.currency_id();
+                                var accountCurrencyId = {{ $account->getCurrencyId() }};
+                                if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
+                                    cost = fx.convert(cost, {
+                                        from: currencyMap[accountCurrencyId].code,
+                                        to: currencyMap[clientCurrencyId].code,
+                                    });
+                                    var rate = fx.convert(1, {
+                                        from: currencyMap[accountCurrencyId].code,
+                                        to: currencyMap[clientCurrencyId].code,
+                                    });
+                                    if ((account.custom_invoice_text_label1 || '').toLowerCase() == 'exchange rate') {
+                                        window.model.invoice().custom_text_value1(roundToFour(rate, true));
+                                    } else if ((account.custom_invoice_text_label2 || '').toLowerCase() == 'exchange rate') {
+                                        window.model.invoice().custom_text_value2(roundToFour(rate, true));
+                                    }
+                                }
+                            }
+                        @endif
+
+                        model.cost(roundSignificant(cost, true));
                     }
                 }
                 if (!model.qty() && ! model.task_public_id()) {

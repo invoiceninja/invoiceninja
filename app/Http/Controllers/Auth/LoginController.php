@@ -11,6 +11,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Event;
 use Cache;
 use Lang;
+use Str;
+use Cookie;
 use App\Events\UserLoggedIn;
 use App\Http\Requests\ValidateTwoFactorRequest;
 
@@ -139,9 +141,18 @@ class LoginController extends Controller
     private function authenticated(Request $request, Authenticatable $user)
     {
         if ($user->google_2fa_secret) {
-            auth()->logout();
-            session()->put('2fa:user:id', $user->id);
-            return redirect('/validate_two_factor/' . $user->account->account_key);
+            $cookie = false;
+            if ($user->remember_2fa_token) {
+                $cookie = Cookie::get('remember_2fa_' . sha1($user->id));
+            }
+
+            if ($cookie && hash_equals($user->remember_2fa_token, $cookie)) {
+                // do nothing
+            } else {
+                auth()->logout();
+                session()->put('2fa:user:id', $user->id);
+                return redirect('/validate_two_factor/' . $user->account->account_key);
+            }
         }
 
         Event::fire(new UserLoggedIn());
@@ -179,6 +190,16 @@ class LoginController extends Controller
         //login and redirect user
         auth()->loginUsingId($userId);
         Event::fire(new UserLoggedIn());
+
+        if ($trust = request()->trust) {
+            $user = auth()->user();
+            if (! $user->remember_2fa_token) {
+                $user->remember_2fa_token = Str::random(60);
+                $user->save();
+            }
+            $minutes = $trust == 30 ? 60 * 27 * 30 : 2628000;
+            cookie()->queue('remember_2fa_' . sha1($user->id), $user->remember_2fa_token, $minutes);
+        }
 
         return redirect()->intended($this->redirectTo);
     }

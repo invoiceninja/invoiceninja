@@ -536,6 +536,8 @@ class AccountController extends BaseController
         $client->work_phone = '(212) 555-0000';
         $client->work_email = 'sample@example.com';
         $client->balance = 100;
+        $client->vat_number = $account->vat_number ? '1234567890' : '';
+        $client->id_number = $account->id_number ? '1234567890' : '';
 
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
@@ -843,6 +845,9 @@ class AccountController extends BaseController
                 $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
             }
 
+            $account->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
+            $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
+
             $account->save();
             $account->account_email_settings->save();
 
@@ -875,6 +880,7 @@ class AccountController extends BaseController
 
         $account->fill_products = Input::get('fill_products') ? true : false;
         $account->update_products = Input::get('update_products') ? true : false;
+        $account->convert_products = Input::get('convert_products') ? true : false;
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));

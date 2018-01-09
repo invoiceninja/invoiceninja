@@ -21,8 +21,12 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
         ],
+        'App\Events\ClientWasUpdated' => [
+            'App\Listeners\SubscriptionListener@updatedClient',
+        ],
         'App\Events\ClientWasDeleted' => [
             'App\Listeners\ActivityListener@deletedClient',
+            'App\Listeners\SubscriptionListener@deletedClient',
         ],
         'App\Events\ClientWasRestored' => [
             'App\Listeners\ActivityListener@restoredClient',
@@ -55,6 +59,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@restoredInvoice',
         ],
         'App\Events\InvoiceWasEmailed' => [
+            'App\Listeners\InvoiceListener@emailedInvoice',
             'App\Listeners\NotificationListener@emailedInvoice',
         ],
         'App\Events\InvoiceInvitationWasEmailed' => [
@@ -89,6 +94,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@restoredQuote',
         ],
         'App\Events\QuoteWasEmailed' => [
+            'App\Listeners\QuoteListener@emailedQuote',
             'App\Listeners\NotificationListener@emailedQuote',
         ],
         'App\Events\QuoteInvitationWasEmailed' => [
@@ -102,6 +108,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\QuoteInvitationWasApproved' => [
             'App\Listeners\ActivityListener@approvedQuote',
             'App\Listeners\NotificationListener@approvedQuote',
+            'App\Listeners\SubscriptionListener@approvedQuote',
         ],
 
         // Payments
@@ -119,6 +126,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@deletedPayment',
             'App\Listeners\InvoiceListener@deletedPayment',
             'App\Listeners\CreditListener@deletedPayment',
+            'App\Listeners\SubscriptionListener@deletedPayment',
         ],
         'App\Events\PaymentWasRefunded' => [
             'App\Listeners\ActivityListener@refundedPayment',
@@ -140,7 +148,6 @@ class EventServiceProvider extends ServiceProvider
         // Credits
         'App\Events\CreditWasCreated' => [
             'App\Listeners\ActivityListener@createdCredit',
-            'App\Listeners\SubscriptionListener@createdCredit',
         ],
         'App\Events\CreditWasArchived' => [
             'App\Listeners\ActivityListener@archivedCredit',
@@ -166,9 +173,11 @@ class EventServiceProvider extends ServiceProvider
         // Task events
         'App\Events\TaskWasCreated' => [
             'App\Listeners\ActivityListener@createdTask',
+            'App\Listeners\SubscriptionListener@createdTask',
         ],
         'App\Events\TaskWasUpdated' => [
             'App\Listeners\ActivityListener@updatedTask',
+            'App\Listeners\SubscriptionListener@updatedTask',
         ],
         'App\Events\TaskWasRestored' => [
             'App\Listeners\ActivityListener@restoredTask',
@@ -178,14 +187,28 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\TaskWasDeleted' => [
             'App\Listeners\ActivityListener@deletedTask',
+            'App\Listeners\SubscriptionListener@deletedTask',
+        ],
+
+        // Vendor events
+        'App\Events\VendorWasCreated' => [
+            'App\Listeners\SubscriptionListener@createdVendor',
+        ],
+        'App\Events\VendorWasUpdated' => [
+            'App\Listeners\SubscriptionListener@updatedVendor',
+        ],
+        'App\Events\VendorWasDeleted' => [
+            'App\Listeners\SubscriptionListener@deletedVendor',
         ],
 
         // Expense events
         'App\Events\ExpenseWasCreated' => [
             'App\Listeners\ActivityListener@createdExpense',
+            'App\Listeners\SubscriptionListener@createdExpense',
         ],
         'App\Events\ExpenseWasUpdated' => [
             'App\Listeners\ActivityListener@updatedExpense',
+            'App\Listeners\SubscriptionListener@updatedExpense',
         ],
         'App\Events\ExpenseWasRestored' => [
             'App\Listeners\ActivityListener@restoredExpense',
@@ -195,6 +218,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\ExpenseWasDeleted' => [
             'App\Listeners\ActivityListener@deletedExpense',
+            'App\Listeners\SubscriptionListener@deletedExpense',
         ],
 
         'Illuminate\Queue\Events\JobExceptionOccurred' => [

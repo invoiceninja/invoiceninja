@@ -603,6 +603,12 @@ class InvoiceController extends BaseController
         ];
         $invoice->invoice_type_id = intval($invoice->invoice_type_id);
 
+        if ($invoice->client->shipping_address1) {
+            foreach (['address1', 'address2', 'city', 'state', 'postal_code', 'country_id'] as $field) {
+                $invoice->client->$field = $invoice->client->{'shipping_' . $field};
+            }
+        }
+
         $data = [
             'invoice' => $invoice,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),

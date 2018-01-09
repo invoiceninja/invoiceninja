@@ -413,7 +413,7 @@
 			if (self.contacts().length == 0) return '';
 			var contact = self.contacts()[0];
 			if (contact.first_name() || contact.last_name()) {
-				return contact.first_name() + ' ' + contact.last_name();
+				return (contact.first_name() || '') + ' ' + (contact.last_name() || '');
 			} else {
 				return contact.email();
 			}

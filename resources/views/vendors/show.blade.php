@@ -113,7 +113,7 @@
             @endif
 
             @if ($vendor->private_notes)
-                <p><i>{{ $vendor->private_notes }}</i></p>
+                <p><i>{!! nl2br(e($vendor->private_notes)) !!}</i></p>
             @endif
 
   	        @if ($vendor->vendor_industry)

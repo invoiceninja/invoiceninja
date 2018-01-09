@@ -35,17 +35,18 @@
         ->label('&nbsp;')
         ->value(1) !!}
 
-    @if (! $hasInclusiveTaxRates && $countInvoices == 0)
-        {!! Former::checkbox('inclusive_taxes')
-            ->text(trans('texts.inclusive_taxes_help'))
-            ->label('&nbsp;')
-            ->value(1) !!}
-    @endif
-
     {!! Former::checkbox('include_item_taxes_inline')
         ->text(trans('texts.include_item_taxes_inline'))
         ->label('&nbsp;')
         ->value(1) !!}
+
+    @if (! $hasInclusiveTaxRates && $countInvoices == 0)
+        {!! Former::checkbox('inclusive_taxes')
+            ->text(trans('texts.inclusive_taxes_help'))
+            ->label('&nbsp;')
+            ->help('inclusive_taxes_notice')
+            ->value(1) !!}
+    @endif
 
       &nbsp;
 

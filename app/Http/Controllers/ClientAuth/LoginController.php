@@ -39,7 +39,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest:client', ['except' => 'logout']);
+        $this->middleware('guest:client', ['except' => 'getLogoutWrapper']);
     }
 
     /**
@@ -168,6 +168,18 @@ class LoginController extends Controller
     public function getSessionExpired()
     {
         return view('clientauth.sessionexpired')->with(['clientauth' => true]);
+    }
+
+    /**
+     * @return \Illuminate\Http\Response
+     */
+    public function getLogoutWrapper(Request $request)
+    {
+        $contactKey = session('contact_key');
+
+        self::logout($request);
+
+        return redirect('/client/dashboard/' . $contactKey);
     }
 
 }

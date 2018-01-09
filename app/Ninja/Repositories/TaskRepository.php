@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use Auth;
 use Session;
 use DB;
@@ -17,13 +18,14 @@ class TaskRepository extends BaseRepository
         return 'App\Models\Task';
     }
 
-    public function find($clientPublicId = null, $filter = null)
+    public function find($clientPublicId = null, $projectPublicId = null, $filter = null)
     {
         $query = DB::table('tasks')
                     ->leftJoin('clients', 'tasks.client_id', '=', 'clients.id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                    ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
                     ->where('tasks.account_id', '=', Auth::user()->account_id)
                     ->where(function ($query) { // handle when client isn't set
                         $query->where('contacts.is_primary', '=', true)
@@ -55,10 +57,13 @@ class TaskRepository extends BaseRepository
                         'tasks.user_id',
                         'projects.name as project',
                         'projects.public_id as project_public_id',
-                        'projects.user_id as project_user_id'
+                        'projects.user_id as project_user_id',
+                        'task_statuses.name as task_status'
                     );
 
-        if ($clientPublicId) {
+        if ($projectPublicId) {
+            $query->where('projects.public_id', '=', $projectPublicId);
+        } elseif ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
         } else {
             $query->whereNull('clients.deleted_at');
@@ -85,6 +90,11 @@ class TaskRepository extends BaseRepository
                 if (in_array(TASK_STATUS_PAID, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0);
                 }
+                $query->orWhere(function ($query) use ($statuses) {
+                    $query->whereIn('task_statuses.public_id', $statuses)
+                        ->whereNull('tasks.invoice_id');
+                });
+
             });
         }
 
@@ -142,6 +152,7 @@ class TaskRepository extends BaseRepository
             $task = Task::scope($publicId)->withTrashed()->firstOrFail();
         } else {
             $task = Task::createNew();
+            $task->task_status_sort_order = 9999;
         }
 
         if ($task->is_deleted) {
@@ -160,6 +171,12 @@ class TaskRepository extends BaseRepository
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
+        }
+        if (isset($data['task_status_id'])) {
+            $task->task_status_id = $data['task_status_id'] ? TaskStatus::getPrivateId($data['task_status_id']) : null;
+        }
+        if (isset($data['task_status_sort_order'])) {
+            $task->task_status_sort_order = $data['task_status_sort_order'];
         }
 
         if (isset($data['time_log'])) {

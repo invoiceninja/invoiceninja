@@ -64,6 +64,7 @@
 
     _.each(data, function(client) {
       _.each(client.invoices, function(invoice) {
+        invoice.client = client;
         _.each(invoice.invoice_items, function(invoice_item) {
           invoice_item.invoice = invoice;
         });
@@ -76,23 +77,42 @@
 
     // remove quotes and recurring invoices
     invoices = _.filter(invoices, function(invoice) {
+      if (! invoice.is_public) {
+          return false;
+      }
       return parseInt(invoice.invoice_type_id) == {{ INVOICE_TYPE_STANDARD }} && !invoice.is_recurring;
     });
 
     var products = _.flatten(_.pluck(invoices, 'invoice_items'));
     products = d3.nest()
-      .key(function(d) { return d.product_key; })
+      .key(function(d) {
+          return d.product_key + (d.invoice.client.currency && d.invoice.client.currency_id != {{ auth()->user()->account->currency_id }} ?
+            ' [' + d.invoice.client.currency.code + ']'
+            : '');
+      })
       .sortKeys(d3.ascending)
       .rollup(function(d) { return {
         amount: d3.sum(d, function(g) {
-          return g.qty * g.cost;
+           var lineTotal = g.qty * g.cost;
+           var discount = parseFloat(g.discount);
+           if (discount != 0) {
+               if (parseInt(g.invoice.is_amount_discount)) {
+                   lineTotal -= discount;
+               } else {
+                   lineTotal -= (lineTotal * discount / 100);
+               }
+           }
+           return lineTotal;
         }),
         paid: d3.sum(d, function(g) {
           return g.invoice && g.invoice.invoice_status_id == {{ INVOICE_STATUS_PAID }} ? (g.qty * g.cost) : 0;
         }),
         age: d3.mean(d, function(g) {
-          return calculateInvoiceAge(g.invoice) || null;
+          return calculateInvoiceAge(g.invoice) || 0;
         }),
+        currency_id: d3.mean(d, function(g) {
+          return g.invoice.client.currency_id;
+        })
       }})
       .entries(products);
 
@@ -104,6 +124,7 @@
       client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
       var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });
       client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : -1;
+      client.currencyId = client.currency_id || {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
     });
 
     _.each(invoices, function(invoice) {
@@ -112,6 +133,7 @@
       invoice.displayBalance = +invoice.balance;
       invoice.displayPercent = (+invoice.amount - +invoice.balance) / +invoice.amount;
       invoice.displayAge = calculateInvoiceAge(invoice);
+      invoice.currencyId = invoice.client.currency_id || {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
     });
 
     _.each(products, function(product) {
@@ -120,6 +142,7 @@
       product.displayBalance = product.values.amount - product.values.paid;
       product.displayPercent = (product.values.paid / product.values.amount).toFixed(2);
       product.displayAge = product.values.age;
+      product.currencyId = product.values.currency_id;
     });
 
     //console.log(JSON.stringify(clients));
@@ -148,7 +171,7 @@
     var bubble = d3.layout.pack()
       .sort(null)
       .size([diameter, diameter])
-      .value(function(d) { return Math.max(30, d.displayTotal) })
+      .value(function(d) { return d.displayTotal })
       .padding(12);
 
     var svg = d3.select(".svg-div").append("svg")
@@ -192,8 +215,8 @@
         }
 
         d3.select("#tooltipTitle").text(truncate(d.displayName, 18));
-        d3.select("#tooltipTotal").text(formatMoney(d.displayTotal));
-        d3.select("#tooltipBalance").text(formatMoney(d.displayBalance));
+        d3.select("#tooltipTotal").text(formatMoney(d.displayTotal, d.currencyId));
+        d3.select("#tooltipBalance").text(formatMoney(d.displayBalance, d.currencyId));
         d3.select("#tooltipAge").text(pluralize('? day', parseInt(Math.max(0, d.displayAge))));
 
         if (groupBy == "products" || !d.public_id) {
@@ -264,17 +287,10 @@
     }
 
     function calculateInvoiceAge(invoice) {
-      if (!invoice || invoice.invoice_status_id == 5) {
-        return -1;
+      if (!invoice || !invoice.due_date || invoice.invoice_status_id == 5) {
+        return 0;
       }
-      var dayInSeconds = 1000*60*60*24;
-      @if (Auth::user()->account->hasFeature(FEATURE_REPORTS))
-        var date = convertToJsDate(invoice.created_at);
-      @else
-        var date = new Date().getTime() - (dayInSeconds * Math.random() * 100);
-      @endif
-
-      return parseInt((new Date().getTime() - date) / dayInSeconds);
+      return moment(invoice.due_date).diff(moment(), 'days') * -1;
     }
 
     function convertToJsDate(isoDate) {

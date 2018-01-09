@@ -116,11 +116,11 @@
             <p/>
 
             @if ($client->public_notes)
-                <p><i>{{ $client->public_notes }}</i></p>
+                <p><i>{!! nl2br(e($client->public_notes)) !!}</i></p>
             @endif
 
             @if ($client->private_notes)
-                <p><i>{{ $client->private_notes }}</i></p>
+                <p><i>{!! nl2br(e($client->private_notes)) !!}</i></p>
             @endif
 
   	        @if ($client->client_industry)

@@ -374,6 +374,7 @@ class BasePaymentDriver
             ]);
 
             $items[] = $item;
+
             $total += $invoiceItem->cost * $invoiceItem->qty;
         }
 

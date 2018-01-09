@@ -69,6 +69,7 @@ class User extends Authenticatable
         'oauth_provider_id',
         'google_2fa_secret',
         'google_2fa_phone',
+        'remember_2fa_token',
     ];
 
     /**

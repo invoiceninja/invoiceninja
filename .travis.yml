@@ -11,11 +11,12 @@ php:
 #  - 5.6
 #  - 7.0
   - 7.1
+#  - 7.2
 #  - hhvm
 
 addons:
   hosts:
-    - ninja.dev
+    - www.ninja.test
 
 cache:
   directories:
@@ -62,14 +63,14 @@ before_script:
   - php artisan migrate --database=db-ninja-0 --seed --no-interaction
   - php artisan migrate --database=db-ninja-1 --seed --no-interaction
   - php artisan migrate --database=db-ninja-2 --seed --no-interaction
-  # Start webserver on ninja.dev:8000
-  - php artisan serve --host=ninja.dev --port=8000 & # '&' allows to run in background
+  # Start webserver on ninja.test:8000
+  - php artisan serve --host=www.ninja.test --port=8000 & # '&' allows to run in background
   # Start PhantomJS
   - phantomjs --webdriver=4444 & # '&' allows to run in background
   # Give it some time to start
   - sleep 5
   # Make sure the app is up-to-date
-  - curl -L http://ninja.dev:8000/update
+  - curl -L http://www.ninja.test:8000/update
   - php artisan ninja:create-test-data 4 true
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
   - sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
@@ -90,6 +91,7 @@ script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
 
   #- sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
@@ -100,6 +102,8 @@ after_script:
   - php artisan ninja:check-data --no-interaction --database='db-ninja-2'
   - php artisan ninja:init-lookup --validate=true --database='db-ninja-1'
   - php artisan ninja:init-lookup --validate=true --database='db-ninja-2'
+  - cat storage/logs/laravel-error.log
+  - cat storage/logs/laravel-info.log
   - cat .env
   - mysql -u root -e 'select * from lookup_companies;' ninja0
   - mysql -u root -e 'select * from lookup_accounts;' ninja0
@@ -119,8 +123,6 @@ after_script:
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from fonts;' ninja
   - mysql -u root -e 'select * from banks;' ninja
-  - cat storage/logs/laravel-error.log
-  - cat storage/logs/laravel-info.log
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)
   - for i in $FILES; do echo $i; base64 "$i"; break; done
 

@@ -67,6 +67,10 @@
             if (errorMsg.indexOf('DOM Exception 22') > -1) {
                 return;
             }
+            // Less than IE9 https://stackoverflow.com/a/14835682/497368
+            if (! document.addEventListener) {
+                return;
+            }
             try {
                 // Use StackTraceJS to parse the error context
                 if (error) {
@@ -75,6 +79,8 @@
                         gps.findFunctionName(result[0]).then(function (result) {
                             logError(errorMsg + ': ' + JSON.stringify(result));
                         });
+                    }).catch(function () {
+                        logError(errorMsg);
                     });
                 } else {
                     logError(errorMsg);

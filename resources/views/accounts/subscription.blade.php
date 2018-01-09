@@ -23,6 +23,8 @@
                     ->options([
                         trans('texts.clients') => [
                             EVENT_CREATE_CLIENT => trans('texts.subscription_event_' . EVENT_CREATE_CLIENT),
+                            EVENT_UPDATE_CLIENT => trans('texts.subscription_event_' . EVENT_UPDATE_CLIENT),
+                            EVENT_DELETE_CLIENT => trans('texts.subscription_event_' . EVENT_DELETE_CLIENT),
                         ],
                         trans('texts.invoices') => [
                             EVENT_CREATE_INVOICE => trans('texts.subscription_event_' . EVENT_CREATE_INVOICE),
@@ -31,12 +33,29 @@
                         ],
                         trans('texts.payments') => [
                             EVENT_CREATE_PAYMENT => trans('texts.subscription_event_' . EVENT_CREATE_PAYMENT),
+                            EVENT_DELETE_PAYMENT => trans('texts.subscription_event_' . EVENT_DELETE_PAYMENT),
                         ],
                         trans('texts.quotes') => [
                             EVENT_CREATE_QUOTE => trans('texts.subscription_event_' . EVENT_CREATE_QUOTE),
                             EVENT_UPDATE_QUOTE => trans('texts.subscription_event_' . EVENT_UPDATE_QUOTE),
+                            EVENT_APPROVE_QUOTE => trans('texts.subscription_event_' . EVENT_APPROVE_QUOTE),
                             EVENT_DELETE_QUOTE => trans('texts.subscription_event_' . EVENT_DELETE_QUOTE),
-                        ]
+                        ],
+                        trans('texts.tasks') => [
+                            EVENT_CREATE_TASK => trans('texts.subscription_event_' . EVENT_CREATE_TASK),
+                            EVENT_UPDATE_TASK => trans('texts.subscription_event_' . EVENT_UPDATE_TASK),
+                            EVENT_DELETE_TASK => trans('texts.subscription_event_' . EVENT_DELETE_TASK),
+                        ],
+                        trans('texts.vendors') => [
+                            EVENT_CREATE_VENDOR => trans('texts.subscription_event_' . EVENT_CREATE_VENDOR),
+                            EVENT_UPDATE_VENDOR => trans('texts.subscription_event_' . EVENT_UPDATE_VENDOR),
+                            EVENT_DELETE_VENDOR => trans('texts.subscription_event_' . EVENT_DELETE_VENDOR),
+                        ],
+                        trans('texts.expenses') => [
+                            EVENT_CREATE_EXPENSE => trans('texts.subscription_event_' . EVENT_CREATE_EXPENSE),
+                            EVENT_UPDATE_EXPENSE => trans('texts.subscription_event_' . EVENT_UPDATE_EXPENSE),
+                            EVENT_DELETE_EXPENSE => trans('texts.subscription_event_' . EVENT_DELETE_EXPENSE),
+                        ],
                     ])
                     ->label('event') !!}
 

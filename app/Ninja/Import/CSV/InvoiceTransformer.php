@@ -17,7 +17,9 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (! $this->getClientId($data->name)) {
+        $clientId = $this->getClientId($data->email) ?: $this->getClientId($data->name);
+
+        if (! $clientId) {
             return false;
         }
 
@@ -25,9 +27,9 @@ class InvoiceTransformer extends BaseTransformer
             return false;
         }
 
-        return new Item($data, function ($data) {
+        return new Item($data, function ($data) use ($clientId) {
             return [
-                'client_id' => $this->getClientId($data->name),
+                'client_id' => $clientId,
                 'invoice_number' => isset($data->invoice_number) ? $this->getInvoiceNumber($data->invoice_number) : null,
                 'paid' => $this->getFloat($data, 'paid'),
                 'po_number' => $this->getString($data, 'po_number'),

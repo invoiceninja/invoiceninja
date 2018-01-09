@@ -14,7 +14,6 @@ NINJA.TEMPLATES = {
 };
 
 function GetPdfMake(invoice, javascript, callback) {
-
     var itemsTable = false;
     if (invoice.hasTasks) {
         // check if we need to add a second table for tasks
@@ -153,6 +152,7 @@ function GetPdfMake(invoice, javascript, callback) {
 
     // support setting noWrap as a style
     dd.styles.noWrap = {'noWrap': true};
+    dd.styles.discount = {'alignment': 'right'};
 
     // set page size
     dd.pageSize = invoice.account.page_size;
@@ -251,6 +251,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSizeSmaller': NINJA.fontSize - 1,
         'bodyFont': NINJA.bodyFont,
         'headerFont': NINJA.headerFont,
+        'signatureBase64': NINJA.signatureImage(invoice),
+        'signatureDate': NINJA.signatureDate(invoice),
     }
 
     for (var key in json) {
@@ -357,6 +359,62 @@ NINJA.decodeJavascript = function(invoice, javascript)
     return javascript;
 }
 
+NINJA.signatureImage = function(invoice) {
+    var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+
+    if (! invoice.invitations || ! invoice.invitations.length) {
+        return blankImage;
+    }
+
+    if (! parseInt(invoice.account.signature_on_pdf)) {
+        return blankImage;
+    }
+
+    for (var i=0; i<invoice.invitations.length; i++) {
+        var invitation = invoice.invitations[i];
+        if (invitation.signature_base64) {
+            break;
+        }
+    }
+
+    if (! invitation.signature_base64) {
+        return blankImage;
+    }
+
+    return invitation.signature_base64 || blankImage;
+}
+
+NINJA.signatureDate = function(invoice) {
+    if (! invoice.invitations || ! invoice.invitations.length) {
+        return '';
+    }
+
+    if (! parseInt(invoice.account.signature_on_pdf)) {
+        return '';
+    }
+
+    for (var i=0; i<invoice.invitations.length; i++) {
+        var invitation = invoice.invitations[i];
+        if (invitation.signature_base64) {
+            break;
+        }
+    }
+
+    if (! invitation.signature_base64) {
+        return '';
+    }
+
+    var date = invitation.signature_date;
+    return NINJA.formatDateTime(date, invoice.account);
+}
+
+NINJA.formatDateTime = function(date, account) {
+    var format = account.datetime_format ? account.datetime_format.format_moment : 'LLL';
+    var timezone = account.timezone ? account.timezone.name : '{{ DEFAULT_TIMEZONE }}';
+
+    return date ? moment.utc(date).tz(timezone).format(format) : '';
+}
+
 NINJA.entityType = function(invoice)
 {
     if (invoice.is_delivery_note) {
@@ -461,6 +519,12 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
             } else {
                 continue;
             }
+        } else if (field == 'product.discount') {
+            if (invoice.has_item_discounts) {
+                width = 15;
+            } else {
+                continue;
+            }
         } else if (field == 'product.description') {
             width = 0;
         } else {
@@ -560,6 +624,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         'product.rate',
         'product.tax',
         'product.line_total',
+        'product.discount',
     ];
 
     if (isSecondTable) {
@@ -593,6 +658,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
         } else if (field == 'tax' && ! invoice.has_item_taxes) {
             continue;
+        } else if (field == 'discount' && ! invoice.has_item_discounts) {
+            continue;
         } else if (field == 'unit_cost' || field == 'rate' || field == 'hours') {
             headerStyles.push('cost');
         }
@@ -609,8 +676,9 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     for (var i=0; i<invoice.invoice_items.length; i++) {
         var row = [];
         var item = invoice.invoice_items[i];
-        var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(item.cost, invoice, null, getPrecision(item.cost)) : ' ';
-        var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : ' ';
+        var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(NINJA.parseFloat(item.cost), invoice, null, getPrecision(NINJA.parseFloat(item.cost))) : ' ';
+        var qty = NINJA.parseFloat(item.qty) ? formatMoneyInvoice(NINJA.parseFloat(item.qty), invoice, 'none', getPrecision(NINJA.parseFloat(item.qty))) + '' : ' ';
+        var discount = roundToTwo(NINJA.parseFloat(item.discount));
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';
@@ -651,6 +719,15 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
 
         var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
+
+        if (discount != 0) {
+            if (parseInt(invoice.is_amount_discount)) {
+                lineTotal -= discount;
+            } else {
+                lineTotal -= (lineTotal * discount / 100);
+            }
+        }
+
         if (account.include_item_taxes_inline == '1') {
             var taxAmount1 = 0;
             var taxAmount2 = 0;
@@ -684,6 +761,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 continue;
             } else if (field == 'tax' && ! invoice.has_item_taxes) {
                 continue;
+            } else if (field == 'discount' && ! invoice.has_item_discounts) {
+                continue;
             }
 
             if (field == 'item' || field == 'service') {
@@ -698,6 +777,14 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 value = qty;
                 if (field == 'hours') {
                     styles.push('cost');
+                }
+            } else if (field == 'discount') {
+                if (parseInt(invoice.is_amount_discount)) {
+                    value = formatMoneyInvoice(discount, invoice);
+                } else {
+                    if (discount) {
+                        value = discount + '%';
+                    }
                 }
             } else if (field == 'tax') {
                 value = ' ';
@@ -797,10 +884,10 @@ NINJA.subtotals = function(invoice, hideBalance)
     }
 
     var customValue1 = NINJA.parseFloat(invoice.custom_value1);
-    var customValue1Label = customValue1 >= 0 ? (account.custom_invoice_label1 || invoiceLabels.surcharge) : invoiceLabels.discount;
+    var customValue1Label = account.custom_invoice_label1 || invoiceLabels.surcharge;
 
     var customValue2 = NINJA.parseFloat(invoice.custom_value2);
-    var customValue2Label = customValue2 >= 0 ? (account.custom_invoice_label2 || invoiceLabels.surcharge) : invoiceLabels.discount;
+    var customValue2Label = account.custom_invoice_label2 || invoiceLabels.surcharge;
 
     if (customValue1 && invoice.custom_taxes1 == '1') {
         data.push([{text: customValue1Label, style: ['subtotalsLabel', 'customTax1Label']}, {text: formatMoneyInvoice(invoice.custom_value1, invoice), style: ['subtotals', 'customTax1']}]);
@@ -976,7 +1063,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     }
     var account = invoice.account;
     var contact = client.contacts[0];
-    var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
+    var clientName = client.name || (contact.first_name || contact.last_name ? ((contact.first_name || '') + ' ' + (contact.last_name || '')) : contact.email);
 
     var label = false;
     var value = false;
@@ -984,7 +1071,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     if (field == 'client.client_name') {
         value = clientName || ' ';
     } else if (field == 'client.contact_name') {
-        value = (contact.first_name || contact.last_name) ? contact.first_name + ' ' + contact.last_name : false;
+        value = (contact.first_name || contact.last_name) ? (contact.first_name || '') + ' ' + (contact.last_name || '') : false;
     } else if (field == 'client.id_number') {
         value = client.id_number;
         if (invoiceLabels.id_number_orig) {

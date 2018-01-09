@@ -80,6 +80,14 @@ class Task extends EntityModel
     }
 
     /**
+     * @return mixed
+     */
+    public function task_status()
+    {
+        return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
+    }
+
+    /**
      * @param $task
      *
      * @return string
@@ -231,7 +239,17 @@ class Task extends EntityModel
     public static function getStatuses($entityType = false)
     {
         $statuses = [];
-        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
+
+        $taskStatues = TaskStatus::scope()->orderBy('sort_order')->get();
+
+        foreach ($taskStatues as $status) {
+            $statuses[$status->public_id] = $status->name;
+        }
+
+        if (! $taskStatues->count()) {
+            $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
+        }
+
         $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
         $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
         $statuses[TASK_STATUS_PAID] = trans('texts.paid');
@@ -239,21 +257,25 @@ class Task extends EntityModel
         return $statuses;
     }
 
-    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber)
+    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber, $taskStatus)
     {
         if ($invoiceNumber) {
             if (floatval($balance) > 0) {
-                $label = 'invoiced';
+                $label = trans('texts.invoiced');
             } else {
-                $label = 'paid';
+                $label = trans('texts.paid');
             }
-        } elseif ($isRunning) {
-            $label = 'running';
+        } elseif ($taskStatus) {
+            $label = $taskStatus;
         } else {
-            $label = 'logged';
+            $label = trans('texts.logged');
         }
 
-        return trans("texts.{$label}");
+        if ($isRunning) {
+            $label .= ' | ' . trans('texts.running');
+        }
+
+        return $label;
     }
 
     public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
@@ -267,7 +289,7 @@ class Task extends EntityModel
         } elseif ($isRunning) {
             return 'primary';
         } else {
-            return 'warning';
+            return 'info';
         }
     }
 
@@ -294,7 +316,9 @@ class Task extends EntityModel
             $invoiceNumber = false;
         }
 
-        return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber);
+        $taskStatus = $this->task_status ? $this->task_status->name : false;
+
+        return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber, $taskStatus);
     }
 }
 

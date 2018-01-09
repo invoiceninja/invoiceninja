@@ -201,6 +201,12 @@
             toggleDatePicker('payment_date');
         });
 
+        $('#exchange_currency_id').on('change', function() {
+            setTimeout(function() {
+                model.updateExchangeRate();
+            }, 1);
+        })
+
         if (isStorageSupported()) {
             if (localStorage.getItem('last:send_email_receipt')) {
                 $('#email_receipt').prop('checked', true);
@@ -261,6 +267,21 @@
                 self.exchange_rate(roundSignificant(amount));
             }
         }, self);
+
+
+        self.updateExchangeRate = function() {
+            var fromCode = self.paymentCurrencyCode();
+            var toCode = self.exchangeCurrencyCode();
+            if (currencyMap[fromCode].exchange_rate && currencyMap[toCode].exchange_rate) {
+                var rate = fx.convert(1, {
+                    from: fromCode,
+                    to: toCode,
+                });
+                self.exchange_rate(roundToFour(rate, true));
+            } else {
+                self.exchange_rate(1);
+            }
+        }
 
         self.getCurrency = function(currencyId) {
             return currencyMap[currencyId || self.account_currency_id()];
@@ -333,9 +354,14 @@
                     formatMoneyInvoice(invoice.balance, invoice),  invoice.public_id));
         }
         $('select#invoice').combobox('refresh');
+        $('#amount').val('');
 
         if (window.model) {
+            model.amount('');
             model.client_id(clientId);
+            setTimeout(function() {
+                model.updateExchangeRate();
+            }, 1);
         }
       });
 
@@ -351,13 +377,17 @@
           var client = clientMap[invoice.client.public_id];
           invoice.client = client;
           setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
-          if (!parseFloat($('#amount').val())) {
-            var amount = parseFloat(invoice.balance);
-            $('#amount').val(amount.toFixed(2));
-            model.amount(amount);
-          }
-        }
+          var amount = parseFloat(invoice.balance);
+          $('#amount').val(amount.toFixed(2));
+          model.amount(amount);
+      } else {
+          $('#amount').val('');
+          model.amount('');
+      }
         model.client_id(client ? client.public_id : 0);
+        setTimeout(function() {
+            model.updateExchangeRate();
+        }, 1);
       });
 
       $invoiceSelect.combobox({highlighter: comboboxHighlighter});

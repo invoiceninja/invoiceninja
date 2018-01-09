@@ -164,7 +164,7 @@
 			if (self.vendor_contacts().length == 0) return '';
 			var contact = self.vendor_contacts()[0];
 			if (contact.first_name() || contact.last_name()) {
-				return contact.first_name() + ' ' + contact.last_name();
+				return (contact.first_name() || '') + ' ' + (contact.last_name() || '');
 			} else {
 				return contact.email();
 			}

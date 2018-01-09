@@ -541,8 +541,18 @@ class InvoiceRepository extends BaseRepository
 
             $invoiceItemCost = Utils::roundSignificant(Utils::parseFloat($item['cost']));
             $invoiceItemQty = Utils::roundSignificant(Utils::parseFloat($item['qty']));
+            $discount = empty($item['discount']) ? 0 : round(Utils::parseFloat($item['discount']), 2);
 
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
+
+            if ($discount) {
+                if ($invoice->is_amount_discount) {
+                    $lineTotal -= $discount;
+                } else {
+                    $lineTotal -= $lineTotal * $discount / 100;
+                }
+            }
+
             $total += round($lineTotal, 2);
         }
 
@@ -550,7 +560,16 @@ class InvoiceRepository extends BaseRepository
             $item = (array) $item;
             $invoiceItemCost = Utils::roundSignificant(Utils::parseFloat($item['cost']));
             $invoiceItemQty = Utils::roundSignificant(Utils::parseFloat($item['qty']));
+            $discount = empty($item['discount']) ? 0 : round(Utils::parseFloat($item['discount']), 2);
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
+
+            if ($discount) {
+                if ($invoice->is_amount_discount) {
+                    $lineTotal -= $discount;
+                } else {
+                    $lineTotal -= round($lineTotal * $discount / 100, 2);
+                }
+            }
 
             if ($invoice->discount > 0) {
                 if ($invoice->is_amount_discount) {
@@ -576,7 +595,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        if ($invoice->discount > 0) {
+        if ($invoice->discount != 0) {
             if ($invoice->is_amount_discount) {
                 $total -= $invoice->discount;
             } else {
@@ -722,7 +741,9 @@ class InvoiceRepository extends BaseRepository
                         }
                         if ($product && (Auth::user()->can('edit', $product))) {
                             $product->notes = ($task || $expense) ? '' : $item['notes'];
-                            $product->cost = $expense ? 0 : $item['cost'];
+                            if (! $account->convert_products) {
+                                $product->cost = $expense ? 0 : $item['cost'];
+                            }
                             $product->tax_name1 = isset($item['tax_name1']) ? $item['tax_name1'] : null;
                             $product->tax_rate1 = isset($item['tax_rate1']) ? $item['tax_rate1'] : 0;
                             $product->tax_name2 = isset($item['tax_name2']) ? $item['tax_name2'] : null;
@@ -1188,6 +1209,40 @@ class InvoiceRepository extends BaseRepository
                     ->get();
 
         return $invoices;
+    }
+
+    public function findNeedingEndlessReminding(Account $account)
+    {
+        $frequencyId = $account->account_email_settings->frequency_id_reminder4;
+        $frequency = Utils::getFromCache($frequencyId, 'frequencies');
+
+        $lastSentDate = date_create();
+        $lastSentDate->sub(date_interval_create_from_date_string($frequency->date_interval));
+
+        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+                    ->with('client', 'invoice_items')
+                    ->whereHas('client', function ($query) {
+                        $query->whereSendReminders(true);
+                    })
+                    ->whereAccountId($account->id)
+                    ->where('balance', '>', 0)
+                    ->where('is_recurring', '=', false)
+                    ->whereIsPublic(true)
+                    ->where('last_sent_date', '<', $lastSentDate);
+
+        for ($i=1; $i<=3; $i++) {
+            if (!$account->{"enable_reminder{$i}"}) {
+                continue;
+            }
+            $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
+            $date = date_create();
+            if ($account->{"direction_reminder{$i}"} == REMINDER_DIRECTION_AFTER) {
+                $date->sub(date_interval_create_from_date_string($account->{"num_days_reminder{$i}"} . ' days'));
+            }
+            $invoices->where($field, '<', $date);
+        }
+
+        return $invoices->get();
     }
 
     public function clearGatewayFee($invoice)

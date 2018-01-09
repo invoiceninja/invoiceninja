@@ -211,6 +211,7 @@ class AccountTransformer extends EntityTransformer
             'enable_reminder1' => $account->enable_reminder1,
             'enable_reminder2' => $account->enable_reminder2,
             'enable_reminder3' => $account->enable_reminder3,
+            'enable_reminder4' => $account->enable_reminder4,
             'num_days_reminder1' => $account->num_days_reminder1,
             'num_days_reminder2' => $account->num_days_reminder2,
             'num_days_reminder3' => $account->num_days_reminder3,
@@ -276,6 +277,8 @@ class AccountTransformer extends EntityTransformer
             'custom_contact_label2' => $account->custom_contact_label2,
             'task_rate' => (float) $account->task_rate,
             'inclusive_taxes' => (bool) $account->inclusive_taxes,
+            'convert_products' => (bool) $account->convert_products,
+            'signature_on_pdf' => (bool) $account->signature_on_pdf,
         ];
     }
 }

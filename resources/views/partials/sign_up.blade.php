@@ -6,6 +6,8 @@
 
       $('#signUpModal').on('shown.bs.modal', function () {
         trackEvent('/account', '/view_sign_up');
+        // change the type after page load to prevent errors in Chrome console 
+        $('#new_password').attr('type', 'password');
         $(['first_name','last_name','email','password']).each(function(i, field) {
           var $input = $('form.signUpForm #new_'+field);
           if (!$input.val()) {
@@ -221,7 +223,7 @@
                         ->placeholder(trans('texts.email'))
                         ->autocomplete('email')
                         ->label(' ') !!}
-                {!! Former::password('new_password')
+                {!! Former::text('new_password')
                         ->placeholder(trans('texts.password'))
                         ->autocomplete('new-password')
                         ->label(' ') !!}

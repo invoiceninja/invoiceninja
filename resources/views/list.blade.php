@@ -84,11 +84,12 @@
 			});
 		</script>
 	@elseif ($entityType == ENTITY_TASK)
+		{!! Button::normal(trans('texts.kanban'))->asLinkTo(url('/tasks/kanban' . (! empty($clientId) ? ('/' . $clientId . (! empty($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('th')) !!}
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
-    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? $clientId : '')))->appendIcon(Icon::create('plus-sign')) !!}
+    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? ($clientId . (isset($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
 </div>
@@ -96,9 +97,9 @@
 
 {!! Datatable::table()
 	->addColumn(Utils::trans($datatable->columnFields(), $datatable->entityType))
-	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? $clientId : (isset($vendorId) ? $vendorId : ''))))
+	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? (isset($projectId) ? ($clientId . '/' . $projectId) : $clientId) : (isset($vendorId) ? $vendorId : ''))))
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
-	->setCustomValues('clientId', isset($clientId) && $clientId)
+	->setCustomValues('clientId', isset($clientId) && $clientId && empty($projectId))
 	->setOptions('sPaginationType', 'bootstrap')
     ->setOptions('aaSorting', [[isset($clientId) ? ($datatable->sortCol-1) : $datatable->sortCol, 'desc']])
 	->render('datatable') !!}

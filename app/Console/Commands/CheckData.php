@@ -80,7 +80,7 @@ class CheckData extends Command
             $this->checkDraftSentInvoices();
         }
 
-        $this->checkInvoices();
+        //$this->checkInvoices();
         $this->checkInvoiceBalances();
         $this->checkClientBalances();
         $this->checkContacts();

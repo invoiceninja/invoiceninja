@@ -28,7 +28,7 @@ class ReportController extends BaseController
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $account = Account::where('id', '=', Auth::user()->account->id)
-                            ->with(['clients.invoices.invoice_items', 'clients.contacts'])
+                            ->with(['clients.invoices.invoice_items', 'clients.contacts', 'clients.currency'])
                             ->first();
             $account = $account->hideFieldsForViz();
             $clients = $account->clients;

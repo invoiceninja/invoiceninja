@@ -165,7 +165,7 @@
 
                 <!-- Navbar Filter -->
                 <div class="input-group input-group-lg">
-                    <span class="input-group-addon" style="width:1%;" data-bind="click: onFilterClick, style: { 'background-color': filterState() != 'all' ? '#ffffaa'  : '' }" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
+                    <span class="input-group-addon" style="width:1%;" data-bind="click: onFilterClick, style: { 'background-color': (filterState() != 'all' || filterStatusId() != '') ? '#ffffaa'  : '' }" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
                     <input id="search" type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
                         data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder, style: filterStyle, disabled: selectedTask().isChanged }">
 					<span class="input-group-addon" style="width:1%;" data-bind="click: onClearClick, visible: filter()" title="{{ trans('texts.clear') }}">
@@ -307,7 +307,16 @@
 					<div class="panel panel-default">
 						<div class="panel-body">
 							<div class="row" xstyle="padding-bottom:22px;">
-								<div class="col-md-12">
+								@if ($statuses->count())
+									<div class="col-md-6">
+										{!! Former::select('filter_status')
+												->label('status')
+												->addOption(trans('texts.all'), '')
+										 		->fromQuery($statuses, 'name', 'public_id')
+												->data_bind('value: filterStatusId') !!}
+									</div>
+								@endif
+								<div class="col-md-{{ $statuses->count() ? '6' : '12' }}">
 									{!! Former::select('filter_state')
 											->label('filter')
 									 		->addOption(trans('texts.all'), 'all')

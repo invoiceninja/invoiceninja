@@ -13,23 +13,34 @@
             <div class="well" style="padding-bottom:20px">
                 <div class="row">
                     <div class="col-md-6">
-                        {!! Former::plaintext('schedule')
-                                ->value(
-                                    Former::input('num_days_' . $field)
-                                        ->style('float:left;width:20%')
-                                        ->raw() .
-                                    Former::select('direction_' . $field)
-                                        ->addOption(trans('texts.days_before'), REMINDER_DIRECTION_BEFORE)
-                                        ->addOption(trans('texts.days_after'), REMINDER_DIRECTION_AFTER)
-                                        ->style('float:left;width:40%')
-                                        ->raw() .
-                                    '<div id="days_after_'. $field .'" style="float:left;width:40%;display:none;padding-top:8px;padding-left:16px;font-size:16px;">' . trans('texts.days_after') . '</div>' .
-                                    Former::select('field_' . $field)
-                                        ->addOption(trans('texts.field_due_date'), REMINDER_FIELD_DUE_DATE)
-                                        ->addOption(trans('texts.field_invoice_date'), REMINDER_FIELD_INVOICE_DATE)
-                                        ->style('float:left;width:40%')
-                                        ->raw()
-                                ) !!}
+                        @if ($field == 'reminder4')
+                            {!! Former::populateField('frequency_id_reminder4', $account->account_email_settings->frequency_id_reminder4) !!}
+                            {!! Former::plaintext('frequency')
+                                    ->value(
+                                        Former::select('frequency_id_reminder4')
+                                            ->options(\App\Models\Frequency::selectOptions())
+                                            ->style('float:left;')
+                                            ->raw()
+                                    ) !!}
+                        @else
+                            {!! Former::plaintext('schedule')
+                                    ->value(
+                                        Former::input('num_days_' . $field)
+                                            ->style('float:left;width:20%')
+                                            ->raw() .
+                                        Former::select('direction_' . $field)
+                                            ->addOption(trans('texts.days_before'), REMINDER_DIRECTION_BEFORE)
+                                            ->addOption(trans('texts.days_after'), REMINDER_DIRECTION_AFTER)
+                                            ->style('float:left;width:40%')
+                                            ->raw() .
+                                        '<div id="days_after_'. $field .'" style="float:left;width:40%;display:none;padding-top:8px;padding-left:16px;font-size:16px;">' . trans('texts.days_after') . '</div>' .
+                                        Former::select('field_' . $field)
+                                            ->addOption(trans('texts.field_due_date'), REMINDER_FIELD_DUE_DATE)
+                                            ->addOption(trans('texts.field_invoice_date'), REMINDER_FIELD_INVOICE_DATE)
+                                            ->style('float:left;width:40%')
+                                            ->raw()
+                                    ) !!}
+                        @endif
                     </div>
                     <div class="col-md-6">
 
@@ -40,21 +51,23 @@
 
                     </div>
                 </div>
-                <div class="row" style="padding-top:30px">
-                    <div class="col-md-6">
-                        {!! Former::text('late_fee' . $number . '_amount')
-                                        ->label('late_fee_amount')
-                                        ->type('number')
-                                        ->step('any') !!}
+                @if ($field != 'reminder4')
+                    <div class="row" style="padding-top:30px">
+                        <div class="col-md-6">
+                            {!! Former::text('late_fee' . $number . '_amount')
+                                            ->label('late_fee_amount')
+                                            ->type('number')
+                                            ->step('any') !!}
+                        </div>
+                        <div class="col-md-6">
+                            {!! Former::text('late_fee' . $number . '_percent')
+                                            ->label('late_fee_percent')
+                                            ->type('number')
+                                            ->step('any')
+                                            ->append('%') !!}
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        {!! Former::text('late_fee' . $number . '_percent')
-                                        ->label('late_fee_percent')
-                                        ->type('number')
-                                        ->step('any')
-                                        ->append('%') !!}
-                    </div>
-                </div>
+                @endif
             </div>
 
             <br/>

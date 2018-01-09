@@ -44,7 +44,7 @@ Create an application in either Google, Facebook, GitHub or LinkedIn and then se
 
    GOOGLE_CLIENT_ID=
    GOOGLE_CLIENT_SECRET=
-   GOOGLE_OAUTH_REDIRECT=http://ninja.dev/auth/google
+   GOOGLE_OAUTH_REDIRECT=http://ninja.test/auth/google
 
 PhantomJS
 """""""""
@@ -99,9 +99,9 @@ Security
 
 To require a password to update the app add ``UPDATE_SECRET=random_value`` to the .env file and then use /update?secret=random_value to update.
 
-By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours.
+By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours. This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
 
-This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
+To include a secret when notifying subscriptions add ``SUBSCRIPTION_SECRET=random_value`` to the .env file.
 
 Google Map
 """"""""""

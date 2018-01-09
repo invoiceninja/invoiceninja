@@ -82,9 +82,9 @@ class TaskController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getDatatable($clientPublicId = null)
+    public function getDatatable($clientPublicId = null, $projectPublicId = null)
     {
-        return $this->taskService->getDatatable($clientPublicId, Input::get('sSearch'));
+        return $this->taskService->getDatatable($clientPublicId, $projectPublicId, Input::get('sSearch'));
     }
 
     /**
@@ -148,8 +148,11 @@ class TaskController extends BaseController
     public function edit(TaskRequest $request)
     {
         $this->checkTimezone();
-
         $task = $request->entity();
+
+        if (! $task) {
+            return redirect('/');
+        }
 
         $actions = [];
         if ($task->invoice) {
@@ -260,7 +263,8 @@ class TaskController extends BaseController
 
         if (in_array($action, ['resume', 'stop'])) {
             $this->taskRepo->save($ids, ['action' => $action]);
-            return Redirect::to('tasks')->withMessage(trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
+            Session::flash('message', trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
+            return $this->returnBulk($this->entityType, $action, $ids);
         } elseif ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id', 'id')->get();
             $clientPublicId = false;

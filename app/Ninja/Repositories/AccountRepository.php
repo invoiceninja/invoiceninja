@@ -242,6 +242,7 @@ class AccountRepository
             ['dashboard', '/dashboard'],
             ['reports', '/reports'],
             ['calendar', '/calendar'],
+            ['kanban', '/tasks/kanban'],
             ['customize_design', '/settings/customize_design'],
             ['new_tax_rate', '/tax_rates/create'],
             ['new_product', '/products/create'],
@@ -510,7 +511,7 @@ class AccountRepository
 
     public function registerNinjaUser($user)
     {
-        if ($user->email == TEST_USERNAME) {
+        if (! $user || $user->email == TEST_USERNAME) {
             return false;
         }
 
@@ -696,7 +697,7 @@ class AccountRepository
 
     public function findWithReminders()
     {
-        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1')->get();
+        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1')->get();
     }
 
     public function findWithFees()

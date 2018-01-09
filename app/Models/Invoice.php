@@ -105,6 +105,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         return [
             'name',
+            'email',
             'invoice_number',
             'po_number',
             'invoice_date',
@@ -130,6 +131,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         return [
             'number^po' => 'invoice_number',
             'client|organization' => 'name',
+            'email' => 'email',
             'paid^date' => 'paid',
             'invoice date|create date' => 'invoice_date',
             'po number' => 'po_number',
@@ -140,7 +142,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'description' => 'item_notes',
             'quantity|qty' => 'item_quantity',
             'amount|cost' => 'item_cost',
-            'product|item' => 'item_product',
+            'product' => 'item_product',
             'tax' => 'item_tax1',
         ];
     }
@@ -906,6 +908,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'documents',
             'expenses',
             'client',
+            'invitations',
             'tax_name1',
             'tax_rate1',
             'tax_name2',
@@ -988,7 +991,18 @@ class Invoice extends EntityModel implements BalanceAffecting
             'invoice_fields',
             'show_currency_code',
             'inclusive_taxes',
+            'date_format',
+            'datetime_format',
+            'timezone',
+            'signature_on_pdf',
         ]);
+
+        foreach ($this->invitations as $invitation) {
+            $invitation->setVisible([
+                'signature_base64',
+                'signature_date',
+            ]);
+        }
 
         foreach ($this->invoice_items as $invoiceItem) {
             $invoiceItem->setVisible([
@@ -1003,6 +1017,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'tax_name2',
                 'tax_rate2',
                 'invoice_item_type_id',
+                'discount',
             ]);
         }
 
@@ -1300,11 +1315,19 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         $total = $invoiceItem->qty * $invoiceItem->cost;
 
-        if ($this->discount > 0) {
+        if ($this->discount != 0) {
             if ($this->is_amount_discount) {
                 $total -= $invoiceTotal ? ($total / ($invoiceTotal + $this->discount) * $this->discount) : 0;
             } else {
                 $total *= (100 - $this->discount) / 100;
+            }
+        }
+
+        if ($invoiceItem->discount != 0) {
+            if ($this->is_amount_discount) {
+                $total -= $invoiceItem->discount;
+            } else {
+                $total -= $total * $invoiceItem->discount / 100;
             }
         }
 
@@ -1319,7 +1342,17 @@ class Invoice extends EntityModel implements BalanceAffecting
         $total = 0;
 
         foreach ($this->invoice_items as $invoiceItem) {
-            $total += $invoiceItem->qty * $invoiceItem->cost;
+            $lineTotal = $invoiceItem->qty * $invoiceItem->cost;
+
+            if ($invoiceItem->discount != 0) {
+                if ($this->is_amount_discount) {
+                    $lineTotal -= $invoiceItem->discount;
+                } else {
+                    $lineTotal -= $lineTotal * $invoiceItem->discount / 100;
+                }
+            }
+
+            $total += $lineTotal;
         }
 
         if ($this->discount > 0) {

@@ -132,6 +132,11 @@
                            ->text(trans('texts.braintree_enable_paypal'))
                            ->value(1) !!}
                 @endif
+			@elseif ($gateway->id == GATEWAY_GOCARDLESS)
+				{!! Former::text('webhook_url')
+						->readonly(true)
+						->value(url(env('WEBHOOK_PREFIX','') . 'payment_hook/' . $account->account_key . '/' . GATEWAY_GOCARDLESS))
+						->help('gocardless_webhook_help_link_text') !!}
             @endif
 
             @if ($gateway->getHelp())
@@ -231,9 +236,9 @@
                     <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
                     <div class="col-lg-8 col-sm-8 help-block">
                         <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
-                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                        <div class="help-block">{!! trans('texts.stripe_webhook_help', [
                         'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
-                    ]) !!}</strong></div>
+                    ]) !!}</div>
                     </div>
                 </div>
             </div>
@@ -337,7 +342,7 @@
         var enableBicoin = $('#enable_bitcoin').is(':checked');
 		var enableApplePay = $('#enable_apple_pay').is(':checked');
         $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort || enableSepa || enableBicoin);
-        $('.stripe-ach-options').toggle(enableAch);
+        $('.stripe-ach-options').toggle(enableAch && {{ $accountGateway && $accountGateway->getPlaidClientId() ? 'true' : 'false' }});
 		$('.verification-file').toggle(enableApplePay);
     }
 

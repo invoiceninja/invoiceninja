@@ -24,6 +24,25 @@
 			padding: 20px;
 		}
 
+		.subtotals-table {
+			min-width: 340px;
+		}
+
+		.subtotals-table tr {
+			border-bottom: solid #CCCCCC 1px;
+		}
+
+		.subtotals-table td {
+			padding-top: 20px;
+			padding-bottom: 12px;
+		}
+
+		.subtotals-table input {
+			float: right;
+			text-align: right;
+			max-width: 150px;
+		}
+
     </style>
 @stop
 
@@ -137,7 +156,7 @@
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<input type="checkbox" value="1" data-bind="visible: email() || first_name() || last_name(), checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<span data-bind="visible: first_name || last_name">
-								<span data-bind="text: first_name() + ' ' + last_name()"></span>
+								<span data-bind="text: (first_name() || '') + ' ' + (last_name() || '')"></span>
 								<br/>
 							</span>
 							<span data-bind="visible: email">
@@ -284,152 +303,43 @@
 
 	<div class="table-responsive" style="padding-top:4px;">
 
-		<table class="table invoice-table">
+		@include('invoices.edit_table', ['isTasks' => false])
+		@if ($account->isModuleEnabled(ENTITY_TASK) && ($invoice->has_tasks || ! empty($tasks)))
+			@include('invoices.edit_table', ['isTasks' => true])
+		@endif
 
-			@include('invoices.edit_table', ['isTasks' => false])
-
-			@if ($account->isModuleEnabled(ENTITY_TASK) && ($invoice->has_tasks || ! empty($tasks)))
-				@include('invoices.edit_table', ['isTasks' => true])
-			@endif
-
-		<tfoot>
+		<table class="pull-right subtotals-table" style="margin-right:40px; margin-top:0px;">
 			<tr>
-				<td class="hide-border"/>
-				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="10" style="vertical-align:top">
-					<br/>
-                    <div role="tabpanel">
-
-                      <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active"><a href="#public_notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.public_notes') }}</a></li>
-						<li role="presentation"><a href="#private_notes" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.private_notes") }}</a></li>
-                        <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
-                        <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
-                        @if ($account->hasFeature(FEATURE_DOCUMENTS))
-                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
-                                {{ trans("texts.documents") }}
-                                @if ($count = ($invoice->countDocuments($expenses)))
-                                    ({{ $count }})
-                                @endif
-                            </a></li>
-                        @endif
-                    </ul>
-
-					{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
-					{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
-
-                    <div class="tab-content" style="padding-right:12px;max-width:600px;">
-                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px;">
-                            {!! Former::textarea('public_notes')
-									->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
-                            		->label(null)->style('width: 100%')->rows(4)->label(null) !!}
-                        </div>
-						<div role="tabpanel" class="tab-pane" id="private_notes" style="padding-bottom:44px">
-                            {!! Former::textarea('private_notes')
-									->data_bind("value: private_notes, valueUpdate: 'afterkeydown'")
-                            		->label(null)->style('width: 100%')->rows(4) !!}
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="terms">
-                            {!! Former::textarea('terms')
-									->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            		->label(false)->style('width: 100%')->rows(4)
-		                            ->help('<div class="checkbox">
-		                                        <label>
-		                                            <input name="set_default_terms" type="checkbox" style="width: 16px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
-		                                        </label>
-		                                        <div class="pull-right" data-bind="visible: showResetTerms()">
-		                                            <a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
-		                                        </div>
-		                                    </div>') !!}
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="footer">
-                            {!! Former::textarea('invoice_footer')
-									->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-		                            ->label(false)->style('width: 100%')->rows(4)
-		                            ->help('<div class="checkbox">
-		                                        <label>
-		                                            <input name="set_default_footer" type="checkbox" style="width: 16px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
-		                                        </label>
-		                                        <div class="pull-right" data-bind="visible: showResetFooter()">
-		                                            <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
-		                                        </div>
-		                                    </div>') !!}
-                        </div>
-                        @if ($account->hasFeature(FEATURE_DOCUMENTS))
-                        <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
-                            <div id="document-upload">
-                                <div class="dropzone">
-                                    <div data-bind="foreach: documents">
-                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                    </div>
-                                </div>
-                                @if ($invoice->hasExpenseDocuments() || count($expenses))
-                                    <h4>{{trans('texts.documents_from_expenses')}}</h4>
-									@foreach($invoice->expenses as $expense)
-										@if ($expense->invoice_documents)
-	                                        @foreach($expense->documents as $document)
-	                                            <div>{{$document->name}}</div>
-	                                        @endforeach
-										@endif
-                                    @endforeach
-									@foreach($expenses as $expense)
-										@if ($expense->invoice_documents)
-	                                        @foreach($expense->documents as $document)
-	                                            <div>{{$document->name}}</div>
-	                                        @endforeach
-										@endif
-                                    @endforeach
-                                @endif
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-
-				{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
-				{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
-
-				</td>
-				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="2">{{ trans('texts.subtotal') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 			</tr>
 
 			<tr style="display:none" data-bind="visible: discount() != 0">
-				<td class="hide-border" colspan="3"/>
-				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="2">{{ trans('texts.discount') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 			</tr>
 
             @if ($account->showCustomField('custom_invoice_label1', $invoice) && $invoice->custom_taxes1)
 				<tr>
-					<td class="hide-border" colspan="3"/>
-					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 					<td colspan="2">{{ $account->custom_invoice_label1 ?: trans('texts.surcharge') }}</td>
-					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
+					<td><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
             @if ($account->showCustomField('custom_invoice_label2', $invoice) && $invoice->custom_taxes2)
 				<tr>
-					<td class="hide-border" colspan="3"/>
-					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 					<td colspan="2">{{ $account->custom_invoice_label2 ?: trans('texts.surcharge') }}</td>
-					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
+					<td><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
 
             <tr style="display:none" data-bind="visible: $root.invoice_item_taxes.show &amp;&amp; totals.hasItemTaxes">
-				<td class="hide-border" colspan="3"/>
-				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-                <td>{{ trans('texts.tax') }}</td>
+                <td>{{ trans('texts.tax') }}&nbsp;&nbsp;</td>
                 <td style="min-width:120px"><span data-bind="html: totals.itemTaxRates"/></td>
                 <td style="text-align: right"><span data-bind="html: totals.itemTaxAmounts"/></td>
             </tr>
 
 			<tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
-				<td class="hide-border" colspan="3"/>
-				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-				<td>{{ trans('texts.tax') }}</td>
+				<td>{{ trans('texts.tax') }}&nbsp;&nbsp;</td>
 				<td style="min-width:120px">
                     {!! Former::select('')
                             ->id('taxRateSelect1')
@@ -456,52 +366,132 @@
 
             @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$invoice->custom_taxes1)
 				<tr>
-					<td class="hide-border" colspan="3"/>
-					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 					<td colspan="2">{{ $account->custom_invoice_label1 ?: trans('texts.surcharge') }}</td>
-					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
+					<td><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
 
             @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$invoice->custom_taxes2)
 				<tr>
-					<td class="hide-border" colspan="3"/>
-					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 					<td colspan="2">{{ $account->custom_invoice_label2 ?: trans('texts.surcharge') }}</td>
-					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
+					<td><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
 
 			@if (!$account->hide_paid_to_date)
 				<tr>
-					<td class="hide-border" colspan="3"/>
-					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 					<td colspan="2">{{ trans('texts.paid_to_date') }}</td>
 					<td style="text-align: right" data-bind="text: totals.paidToDate"></td>
 				</tr>
 			@endif
 
-			<tr data-bind="style: { 'font-weight': partial() ? 'normal' : 'bold', 'font-size': partial() ? '1em' : '1.05em' }">
-				<td class="hide-border" colspan="3"/>
-				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
+			<tr data-bind="style: { 'font-weight': partial() ? 'normal' : 'bold', 'font-size': partial() ? '1em' : '1.05em' }" style="font-size:1.05em;font-weight:bold;">
 				<td class="hide-border" data-bind="css: {'hide-border': !partial()}" colspan="2">{{ $entityType == ENTITY_INVOICE ? $invoiceLabels['balance_due'] : trans('texts.total') }}</td>
 				<td class="hide-border" data-bind="css: {'hide-border': !partial()}" style="text-align: right"><span data-bind="text: totals.total"></span></td>
 			</tr>
 
 			<tr style="font-size:1.05em; display:none; font-weight:bold" data-bind="visible: partial">
-				<td class="hide-border" colspan="3"/>
-				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td class="hide-border" colspan="2">{{ $invoiceLabels['partial_due'] }}</td>
 				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.partial"></span></td>
 			</tr>
+		</table>
 
-		</tfoot>
 
+		<div role="tabpanel" class="pull-left" style="margin-left:40px; margin-top:30px;">
 
-	</table>
+			<ul class="nav nav-tabs" role="tablist" style="border: none">
+				<li role="presentation" class="active"><a href="#public_notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.public_notes') }}</a></li>
+				<li role="presentation"><a href="#private_notes" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.private_notes") }}</a></li>
+				<li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
+				<li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
+				@if ($account->hasFeature(FEATURE_DOCUMENTS))
+					<li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
+						{{ trans("texts.documents") }}
+						@if ($count = ($invoice->countDocuments($expenses)))
+							({{ $count }})
+						@endif
+					</a></li>
+				@endif
+			</ul>
+
+			{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
+			{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
+
+			<div class="tab-content" style="padding-right:12px;max-width:600px;">
+				<div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px;">
+					{!! Former::textarea('public_notes')
+							->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
+							->label(null)->style('width: 100%')->rows(4)->label(null) !!}
+				</div>
+				<div role="tabpanel" class="tab-pane" id="private_notes" style="padding-bottom:44px">
+					{!! Former::textarea('private_notes')
+							->data_bind("value: private_notes, valueUpdate: 'afterkeydown'")
+							->label(null)->style('width: 100%')->rows(4) !!}
+				</div>
+				<div role="tabpanel" class="tab-pane" id="terms">
+					{!! Former::textarea('terms')
+							->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
+							->label(false)->style('width: 100%')->rows(4)
+							->help('<div class="checkbox">
+										<label>
+											<input name="set_default_terms" type="checkbox" style="width: 16px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
+										</label>
+										<div class="pull-right" data-bind="visible: showResetTerms()">
+											<a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
+										</div>
+									</div>') !!}
+				</div>
+				<div role="tabpanel" class="tab-pane" id="footer">
+					{!! Former::textarea('invoice_footer')
+							->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
+							->label(false)->style('width: 100%')->rows(4)
+							->help('<div class="checkbox">
+										<label>
+											<input name="set_default_footer" type="checkbox" style="width: 16px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
+										</label>
+										<div class="pull-right" data-bind="visible: showResetFooter()">
+											<a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
+										</div>
+									</div>') !!}
+				</div>
+				@if ($account->hasFeature(FEATURE_DOCUMENTS))
+				<div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+					<div id="document-upload">
+						<div class="dropzone">
+							<div data-bind="foreach: documents">
+								<input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+							</div>
+						</div>
+						@if ($invoice->hasExpenseDocuments() || count($expenses))
+							<h4>{{trans('texts.documents_from_expenses')}}</h4>
+							@foreach($invoice->expenses as $expense)
+								@if ($expense->invoice_documents)
+									@foreach($expense->documents as $document)
+										<div>{{$document->name}}</div>
+									@endforeach
+								@endif
+							@endforeach
+							@foreach($expenses as $expense)
+								@if ($expense->invoice_documents)
+									@foreach($expense->documents as $document)
+										<div>{{$document->name}}</div>
+									@endforeach
+								@endif
+							@endforeach
+						@endif
+					</div>
+				</div>
+				@endif
+			</div>
+
+			{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+			{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
+
+		</div>
+
+    </div>
 	</div>
-    </div>
-    </div>
+	</div>
 
 	<center class="buttons">
 
@@ -1209,7 +1199,6 @@
 		var invoice = createInvoiceModel();
 		var design = getDesignJavascript();
 
-		/*
 		@if ($invoice->exists)
 			if (! checkedInvoiceBalances) {
 				checkedInvoiceBalances = true;
@@ -1224,7 +1213,6 @@
 				}
 			}
 		@endif
-		*/
 
 		@if ( ! $account->live_preview)
 			return;

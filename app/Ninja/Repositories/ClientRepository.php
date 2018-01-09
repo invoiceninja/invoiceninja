@@ -38,7 +38,7 @@ class ClientRepository extends BaseRepository
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
-                        DB::raw("CONCAT(contacts.first_name, ' ', contacts.last_name) contact"),
+                        DB::raw("CONCAT(COALESCE(contacts.first_name, ''), ' ', COALESCE(contacts.last_name, '')) contact"),
                         'clients.public_id',
                         'clients.name',
                         'clients.private_notes',

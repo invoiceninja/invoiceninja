@@ -30,9 +30,10 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         TokenMismatchException::class,
         ModelNotFoundException::class,
+        ValidationException::class,
+        \Illuminate\Validation\ValidationException::class,
         //AuthorizationException::class,
         //HttpException::class,
-        //ValidationException::class,
     ];
 
     /**
@@ -48,6 +49,10 @@ class Handler extends ExceptionHandler
     {
         if (! $this->shouldReport($e)) {
             return false;
+        }
+
+        if (! class_exists('Utils')) {
+            return parent::report($e);
         }
 
         if (Crawler::isCrawler()) {
@@ -91,6 +96,10 @@ class Handler extends ExceptionHandler
     {
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
+        }
+
+        if (! class_exists('Utils')) {
+            return parent::render($request, $e);
         }
 
         if ($e instanceof TokenMismatchException) {

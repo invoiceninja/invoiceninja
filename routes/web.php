@@ -93,7 +93,7 @@ Route::group(['middleware' => ['lookup:user']], function () {
 
 // Client auth
 Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
-Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogout']);
+Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogoutWrapper']);
 Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getSessionExpired']);
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
 Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@showResetForm']);
@@ -143,8 +143,13 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
 
     Route::get('time_tracker', 'TimeTrackerController@index');
+    Route::get('tasks/kanban/{client_id?}/{project_id?}', 'TaskKanbanController@index');
+    Route::post('task_statuses', 'TaskKanbanController@storeStatus');
+    Route::put('task_statuses/{task_status_id}', 'TaskKanbanController@updateStatus');
+    Route::delete('task_statuses/{task_status_id}', 'TaskKanbanController@deleteStatus');
+    Route::put('task_status_order/{task_id}', 'TaskKanbanController@updateTask');
     Route::resource('tasks', 'TaskController');
-    Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
+    Route::get('api/tasks/{client_id?}/{project_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
     Route::get('projects', 'ProjectController@index');
@@ -153,7 +158,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('projects', 'ProjectController@store');
     Route::put('projects/{projects}', 'ProjectController@update');
     Route::get('projects/{projects}/edit', 'ProjectController@edit');
-    Route::get('projects/{projects}', 'ProjectController@edit');
+    Route::get('projects/{projects}', 'ProjectController@show');
     Route::post('projects/bulk', 'ProjectController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');

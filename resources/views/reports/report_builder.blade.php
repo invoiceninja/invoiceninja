@@ -262,8 +262,14 @@
 							- {{ $dimension }}
 						@endif
 						</td>
-	                    @foreach ($val as $id => $field)
-	                        <td>{!! Utils::formatMoney($field, $currencyId) !!}</td>
+	                    @foreach ($val as $field => $value)
+							<td>
+								@if ($field == 'duration')
+									{{ Utils::formatTime($value) }}
+								@else
+		                        	{{ Utils::formatMoney($value, $currencyId) }}
+								@endif
+							</td>
 	                    @endforeach
 	                </tr>
 				@endforeach
@@ -547,9 +553,9 @@
 				widgets: ['zebra', 'uitheme'],
 			}).show();
 
-			setFiltersShown();
-			setDocumentZipShown();
 			setTimeout(function() {
+				setFiltersShown();
+				setDocumentZipShown();
 				setScheduleButton();
 			}, 1);
 

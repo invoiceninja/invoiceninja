@@ -108,6 +108,7 @@ class Account extends Eloquent
         'enable_reminder1',
         'enable_reminder2',
         'enable_reminder3',
+        'enable_reminder4',
         'num_days_reminder1',
         'num_days_reminder2',
         'num_days_reminder3',
@@ -178,6 +179,8 @@ class Account extends Eloquent
         'credit_number_pattern',
         'task_rate',
         'inclusive_taxes',
+        'convert_products',
+        'signature_on_pdf',
     ];
 
     /**
@@ -1016,7 +1019,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3;
+        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3 || $this->enable_reminder4;
     }
 
     /**
@@ -1320,6 +1323,8 @@ class Account extends Eloquent
                 'paid_to_date',
                 'invoices',
                 'contacts',
+                'currency_id',
+                'currency',
             ]);
 
             foreach ($client->invoices as $invoice) {
@@ -1333,6 +1338,8 @@ class Account extends Eloquent
                     'created_at',
                     'is_recurring',
                     'invoice_type_id',
+                    'is_public',
+                    'due_date',
                 ]);
 
                 foreach ($invoice->invoice_items as $invoiceItem) {
@@ -1340,6 +1347,7 @@ class Account extends Eloquent
                         'product_key',
                         'cost',
                         'qty',
+                        'discount',
                     ]);
                 }
             }
@@ -1413,7 +1421,7 @@ class Account extends Eloquent
      */
     public function getSiteUrl()
     {
-        $url = SITE_URL;
+        $url = trim(SITE_URL, '/');
         $iframe_url = $this->iframe_url;
 
         if ($iframe_url) {

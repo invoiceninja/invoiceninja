@@ -23,6 +23,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_CREDIT', 'credit');
     define('ENTITY_QUOTE', 'quote');
     define('ENTITY_TASK', 'task');
+    define('ENTITY_TASK_STATUS', 'task_status');
     define('ENTITY_ACCOUNT_GATEWAY', 'account_gateway');
     define('ENTITY_USER', 'user');
     define('ENTITY_TOKEN', 'token');
@@ -204,10 +205,10 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
     define('PAYMENT_STATUS_REFUNDED', 6);
 
-    define('TASK_STATUS_LOGGED', 1);
-    define('TASK_STATUS_RUNNING', 2);
-    define('TASK_STATUS_INVOICED', 3);
-    define('TASK_STATUS_PAID', 4);
+    define('TASK_STATUS_LOGGED', -1);
+    define('TASK_STATUS_RUNNING', -2);
+    define('TASK_STATUS_INVOICED', -3);
+    define('TASK_STATUS_PAID', -4);
 
     define('EXPENSE_STATUS_LOGGED', 1);
     define('EXPENSE_STATUS_PENDING', 2);
@@ -229,6 +230,7 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_FOUR_MONTHS', 7);
     define('FREQUENCY_SIX_MONTHS', 8);
     define('FREQUENCY_ANNUALLY', 9);
+    define('FREQUENCY_TWO_YEARS', 10);
 
     define('REPORT_FREQUENCY_DAILY', 'daily');
     define('REPORT_FREQUENCY_WEEKLY', 'weekly');
@@ -306,6 +308,18 @@ if (! defined('APP_NAME')) {
     define('EVENT_DELETE_QUOTE', 7);
     define('EVENT_UPDATE_INVOICE', 8);
     define('EVENT_DELETE_INVOICE', 9);
+    define('EVENT_UPDATE_CLIENT', 10);
+    define('EVENT_DELETE_CLIENT', 11);
+    define('EVENT_DELETE_PAYMENT', 12);
+    define('EVENT_UPDATE_VENDOR', 13);
+    define('EVENT_DELETE_VENDOR', 14);
+    define('EVENT_CREATE_EXPENSE', 15);
+    define('EVENT_UPDATE_EXPENSE', 16);
+    define('EVENT_DELETE_EXPENSE', 17);
+    define('EVENT_CREATE_TASK', 18);
+    define('EVENT_UPDATE_TASK', 19);
+    define('EVENT_DELETE_TASK', 20);
+    define('EVENT_APPROVE_QUOTE', 21);
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('NINJA_ACCOUNT_KEY', env('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h'));
@@ -317,7 +331,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.0.1' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.1.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -443,6 +457,7 @@ if (! defined('APP_NAME')) {
     define('TEMPLATE_REMINDER1', 'reminder1');
     define('TEMPLATE_REMINDER2', 'reminder2');
     define('TEMPLATE_REMINDER3', 'reminder3');
+    define('TEMPLATE_REMINDER4', 'reminder4');
 
     define('RESET_FREQUENCY_DAILY', 1);
     define('RESET_FREQUENCY_WEEKLY', 2);

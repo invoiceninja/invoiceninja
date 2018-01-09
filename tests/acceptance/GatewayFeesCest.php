@@ -133,11 +133,9 @@ class GatewayFeesCest
         }
 
         $I->click('Mark Sent');
-        //$I->see($invoiceNumber);
-        //$I->see('Successfully created invoice');
+        $I->wait(3);
 
         $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
-        //$clientId = $I->grabFromDatabase('clients', 'id', ['name' => $clientEmail]);
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
         $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
 

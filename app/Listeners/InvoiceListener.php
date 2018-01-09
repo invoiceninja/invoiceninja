@@ -6,6 +6,7 @@ use Illuminate\Queue\Events\JobExceptionOccurred;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasUpdated;
+use App\Events\InvoiceWasEmailed;
 use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
@@ -58,6 +59,16 @@ class InvoiceListener
     {
         $invitation = $event->invitation;
         $invitation->markViewed();
+    }
+
+    /**
+     * @param InvoiceWasEmailed $event
+     */
+    public function emailedInvoice(InvoiceWasEmailed $event)
+    {
+        $invoice = $event->invoice;
+        $invoice->last_sent_date = date('Y-m-d');
+        $invoice->save();
     }
 
     /**

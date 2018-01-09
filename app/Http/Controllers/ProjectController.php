@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateProjectChartData;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\ProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
@@ -47,6 +48,23 @@ class ProjectController extends BaseController
         $userId = Auth::user()->filterId();
 
         return $this->projectService->getDatatable($search, $userId);
+    }
+
+    public function show(ProjectRequest $request)
+    {
+        $account = auth()->user()->account;
+        $project = $request->entity();
+        $chartData = dispatch(new GenerateProjectChartData($project));
+
+        $data = [
+            'account' => auth()->user()->account,
+            'project' => $project,
+            'title' => trans('texts.view_project'),
+            'showBreadcrumbs' => false,
+            'chartData' => $chartData,
+        ];
+
+        return View::make('projects.show', $data);
     }
 
     public function create(ProjectRequest $request)

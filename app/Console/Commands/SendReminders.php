@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\CurlUtils;
 use Carbon;
 use Str;
+use Cache;
 use App\Models\Invoice;
+use App\Models\Currency;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
@@ -71,8 +74,9 @@ class SendReminders extends Command
         }
 
         $this->chargeLateFees();
-        $this->setReminderEmails();
+        $this->sendReminderEmails();
         $this->sendScheduledReports();
+        $this->loadExchangeRates();
 
         $this->info('Done');
 
@@ -112,7 +116,7 @@ class SendReminders extends Command
         }
     }
 
-    private function setReminderEmails()
+    private function sendReminderEmails()
     {
         $accounts = $this->accountRepo->findWithReminders();
         $this->info(count($accounts) . ' accounts found with reminders');
@@ -122,14 +126,30 @@ class SendReminders extends Command
                 continue;
             }
 
+            // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
             $this->info($account->name . ': ' . count($invoices) . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
+                    if ($invoice->last_sent_date == date('Y-m-d')) {
+                        continue;
+                    }
                     $this->info('Send email: ' . $invoice->id);
                     $this->mailer->sendInvoice($invoice, $reminder);
                 }
+            }
+
+            // endless reminders
+            $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account);
+            $this->info($account->name . ': ' . count($invoices) . ' endless invoices found');
+
+            foreach ($invoices as $invoice) {
+                if ($invoice->last_sent_date == date('Y-m-d')) {
+                    continue;
+                }
+                $this->info('Send email: ' . $invoice->id);
+                $this->mailer->sendInvoice($invoice, 'reminder4');
             }
         }
     }
@@ -161,6 +181,22 @@ class SendReminders extends Command
 
             $scheduledReport->updateSendDate();
         }
+    }
+
+    private function loadExchangeRates()
+    {
+        $this->info('Loading latest exchange rates...');
+
+        $data = CurlUtils::get(config('ninja.exchange_rates_url'));
+        $data = json_decode($data);
+
+        Currency::whereCode('EUR')->update(['exchange_rate' => 1]);
+
+        foreach ($data->rates as $code => $rate) {
+            Currency::whereCode($code)->update(['exchange_rate' => $rate]);
+        }
+
+        Cache::forget('currencies');
     }
 
     /**

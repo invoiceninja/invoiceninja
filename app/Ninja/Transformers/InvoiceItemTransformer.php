@@ -23,6 +23,7 @@ class InvoiceItemTransformer extends EntityTransformer
             'invoice_item_type_id' => (int) $item->invoice_item_type_id,
             'custom_value1' => $item->custom_value1,
             'custom_value2' => $item->custom_value2,
+            'discount' => (float) $item->discount,
         ]);
     }
 }
