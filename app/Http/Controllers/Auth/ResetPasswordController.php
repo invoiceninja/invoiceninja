@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use Event;
 use Illuminate\Http\Request;
-use App\Models\PasswordReset;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
@@ -59,14 +58,8 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
-        $passwordReset = PasswordReset::whereToken($token)->first();
-
-        if (! $passwordReset) {
-            return redirect('login')->withMessage(trans('texts.invalid_code'));
-        }
-
         return view('auth.passwords.reset')->with(
-            ['token' => $token, 'email' => $passwordReset->email]
+            ['token' => $token]
         );
     }
 }
