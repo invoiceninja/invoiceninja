@@ -92,9 +92,11 @@ class BankAccountController extends BaseController
         if ($publicId) {
             $bankAccount = BankAccount::scope($publicId)->firstOrFail();
             if ($username != $bankAccount->username) {
-                // TODO update username
+                $bankAccount->setUsername($username);
+                $bankAccount->save();
+            } else {
+                $username = Crypt::decrypt($username);
             }
-            $username = Crypt::decrypt($username);
             $bankId = $bankAccount->bank_id;
         } else {
             $bankAccount = new BankAccount;
