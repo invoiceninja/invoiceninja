@@ -4,7 +4,9 @@ namespace App\Http\Controllers\ClientAuth;
 
 use Password;
 use Config;
+use Utils;
 use App\Models\Contact;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
@@ -45,10 +47,6 @@ class ForgotPasswordController extends Controller
         	'clientauth' => true,
 		];
 
-        if (! session('contact_key')) {
-            return \Redirect::to('/client/session_expired');
-        }
-
         return view('clientauth.passwords.email')->with($data);
     }
 
@@ -61,13 +59,31 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
-        $contactId = null;
-        $contactKey = session('contact_key');
-        if ($contactKey) {
-            $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted && $contact->email) {
-                $contactId = $contact->id;
+        // resolve the email to a contact/account
+        $account = false;
+        if (! Utils::isNinja() && Account::count() == 1) {
+            $account = Account::first();
+        } elseif ($accountKey = request()->account_key) {
+            $account = Account::whereAccountKey($accountKey)->first();
+        } else {
+            $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+            if ($subdomain && $subdomain != 'app') {
+                $account = Account::whereSubdomain($subdomain)->first();
             }
+        }
+
+        if (! $account || ! request()->email) {
+            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
+        }
+
+        $contact = Contact::where('email', '=', request()->email)
+            ->where('account_id', '=', $account->id)
+            ->first();
+
+        if ($contact) {
+            $contactId = $contact->id;
+        } else {
+            return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
         }
 
         $response = $this->broker()->sendResetLink(['id' => $contactId], function (Message $message) {

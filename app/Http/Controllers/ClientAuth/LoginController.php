@@ -98,7 +98,7 @@ class LoginController extends Controller
                 $account = Account::whereAccountKey($accountKey)->first();
             } else {
                 $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
-                if ($subdomain != 'app') {
+                if ($subdomain && $subdomain != 'app') {
                     $account = Account::whereSubdomain($subdomain)->first();
                 }
             }
