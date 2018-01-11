@@ -5,7 +5,7 @@
         <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-    <style type="text/css">{!! isset($account)?$account->clientViewCSS():'' !!}</style>
+    <style type="text/css">{!! !empty($account)?$account->clientViewCSS():'' !!}</style>
 @stop
 
 @section('body')
