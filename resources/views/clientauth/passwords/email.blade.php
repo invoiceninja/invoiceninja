@@ -3,7 +3,9 @@
 @section('form')
     @include('partials.warn_session', ['redirectTo' => '/client/session_expired'])
     <div class="container">
-        {!! Former::open('client/recover_password')->addClass('form-signin') !!}
+        {!! Former::open()
+                ->rules(['email' => 'required|email'])
+                ->addClass('form-signin') !!}
 
         <h2 class="form-signin-heading">{{ trans('texts.password_recovery') }}</h2>
         <hr class="green">
@@ -35,6 +37,9 @@
             <div class="alert alert-danger">{{ Session::get('error') }}</div>
         @endif
 
+        <div>
+            {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
+        </div>
         {!! Button::success(trans('texts.send_email'))
                     ->withAttributes(['class' => 'green'])
                     ->large()->submit()->block() !!}

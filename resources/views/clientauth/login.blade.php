@@ -50,7 +50,7 @@
 
         <div class="row meta">
             <div class="col-md-12 col-sm-12" style="text-align:center;padding-top:8px;">
-                {!! link_to('/client/recover_password', trans('texts.recover_password')) !!}
+                {!! link_to('/client/recover_password' . (request()->account_key ? '?account_key=' . request()->account_key : ''), trans('texts.recover_password')) !!}
             </div>
         </div>
         {!! Former::close() !!}
