@@ -68,6 +68,7 @@ class DiscountCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) td:nth-child(5) input', $quantity);
 
         $I->click('Mark Sent');
+        $I->wait(3);
 
         $total = $itemAmount * $quantity;
         $total -= round($total * round($itemDiscount, 2) / 100, 2);
