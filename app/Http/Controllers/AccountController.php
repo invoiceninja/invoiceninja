@@ -392,6 +392,10 @@ class AccountController extends BaseController
      */
     public function showUserDetails()
     {
+        if (! auth()->user()->registered) {
+            return redirect('/')->withError(trans('texts.sign_up_to_save'));
+        }
+
         $oauthLoginUrls = [];
         foreach (AuthService::$providers as $provider) {
             $oauthLoginUrls[] = ['label' => $provider, 'url' => URL::to('/auth/'.strtolower($provider))];

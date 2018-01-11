@@ -38,8 +38,10 @@
                 </div>
                 <div class="list-group">
                     @foreach ($settings as $section)
-                        <a href="{{ URL::to("settings/{$section}") }}" class="list-group-item {{ $selected === $section ? 'selected' : '' }}"
-                            style="width:100%;text-align:left">{{ trans("texts.{$section}") }}</a>
+                        @if ($section != ACCOUNT_USER_DETAILS || auth()->user()->registered)
+                            <a href="{{ URL::to("settings/{$section}") }}" class="list-group-item {{ $selected === $section ? 'selected' : '' }}"
+                                style="width:100%;text-align:left">{{ trans("texts.{$section}") }}</a>
+                        @endif
                     @endforeach
                     @if ($type === ADVANCED_SETTINGS && !Utils::isNinjaProd())
                         <a href="{{ URL::to("settings/system_settings") }}" class="list-group-item {{ $selected === 'system_settings' ? 'selected' : '' }}"
