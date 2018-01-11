@@ -39,7 +39,7 @@ class ConvertInvoiceToUbl extends Job
 
         // invoice
         $ublInvoice->setId($invoice->invoice_number);
-        $ublInvoice->setIssueDate($invoice->invoice_date);
+        $ublInvoice->setIssueDate(date_create($invoice->invoice_date));
         $ublInvoice->setInvoiceTypeCode('SalesInvoice');
 
         // account
@@ -78,7 +78,7 @@ class ConvertInvoiceToUbl extends Job
         if ($client->country_id) {
             $country = new Country();
             $country->setIdentificationCode($client->country->iso_3166_2);
-            $customerAddress->setCountry($client);
+            $customerAddress->setCountry($country);
         }
 
         $customerParty->setPostalAddress($customerAddress);
@@ -90,27 +90,51 @@ class ConvertInvoiceToUbl extends Job
 
         $ublInvoice->setAccountingCustomerParty($customerParty);
 
-        $taxtotal = (new \CleverIt\UBL\Invoice\TaxTotal())
-            ->setTaxAmount(10)
-            ->setTaxSubTotal((new \CleverIt\UBL\Invoice\TaxSubTotal())
+        // line items
+        $invoiceLine = [];
+
+        foreach ($invoice->invoice_items as $index => $item) {
+            $invoiceLine = (new InvoiceLine())
+                ->setId($index + 1)
+                ->setInvoicedQuantity($item->qty)
+                ->setLineExtensionAmount($item->cost)
+                ->setItem((new Item())
+                    ->setName($item->product_key)
+                    ->setDescription($item->description));
+                    //->setSellersItemIdentification("1ABCD"));
+
+            if ($item->tax_name1 || $item->tax_rate1) {
+                $taxtotal = (new TaxTotal())
+                    ->setTaxAmount(10)
+                    ->setTaxSubTotal((new TaxSubTotal())
+                        ->setTaxAmount(10)
+                        ->setTaxableAmount(100)
+                        ->setTaxCategory((new TaxCategory())
+                            ->setId("H")
+                            ->setName("NL, Hoog Tarief")
+                            ->setPercent(21.00)));
+                $invoiceLine->setTaxTotal($taxtotal);
+            }
+
+            $invoiceLines[] = $invoiceLine;
+        }
+
+        $ublInvoice->setInvoiceLines($invoiceLines);
+
+        if ($invoice->tax_name1 || $invoice->tax_rate1) {
+            $taxtotal = (new TaxTotal())
                 ->setTaxAmount(10)
-                ->setTaxableAmount(100)
-                ->setTaxCategory((new \CleverIt\UBL\Invoice\TaxCategory())
-                    ->setId("H")
-                    ->setName("NL, Hoog Tarief")
-                    ->setPercent(21.00)));
+                ->setTaxSubTotal((new TaxSubTotal())
+                    ->setTaxAmount(10)
+                    ->setTaxableAmount(100)
+                    ->setTaxCategory((new TaxCategory())
+                        ->setId("H")
+                        ->setName("NL, Hoog Tarief")
+                        ->setPercent(21.00)));
+            $ublInvoice->setTaxTotal($taxtotal);
+        }
 
-        $invoiceLine = (new \CleverIt\UBL\Invoice\InvoiceLine())
-            ->setId(1)
-            ->setInvoicedQuantity(1)
-            ->setLineExtensionAmount(100)
-            ->setTaxTotal($taxtotal)
-            ->setItem((new \CleverIt\UBL\Invoice\Item())->setName("Test item")->setDescription("test item description")->setSellersItemIdentification("1ABCD"));
-
-        $ublInvoice->setInvoiceLines([$invoiceLine]);
-        $ublInvoice->setTaxTotal($taxtotal);
-
-        $ublInvoice->setLegalMonetaryTotal((new \CleverIt\UBL\Invoice\LegalMonetaryTotal())
+        $ublInvoice->setLegalMonetaryTotal((new LegalMonetaryTotal())
             ->setLineExtensionAmount(100)
             ->setTaxExclusiveAmount(100)
             ->setPayableAmount(-1000)
