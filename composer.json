@@ -25,6 +25,7 @@
         "barryvdh/laravel-ide-helper": "~2.2",
         "cerdic/css-tidy": "~v1.5",
         "chumper/datatable": "dev-develop#04ef2bf",
+        "cleverit/ubl_invoice": "^0.1.1",
         "codedge/laravel-selfupdater": "5.x-dev",
         "collizo4sky/omnipay-wepay": "dev-address-fix",
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",

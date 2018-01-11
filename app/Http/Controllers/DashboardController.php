@@ -24,6 +24,8 @@ class DashboardController extends BaseController
      */
     public function index()
     {
+        //dd(dispatch(new \App\Jobs\ConvertInvoiceToUbl(\App\Models\Invoice::first())));
+
         $user = Auth::user();
         $viewAll = $user->hasPermission('view_all');
         $userId = $user->id;

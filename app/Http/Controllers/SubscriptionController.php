@@ -154,6 +154,6 @@ class SubscriptionController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return Redirect::to('subscriptions/' . $subscriptionPublicId . '/edit');
     }
 }
