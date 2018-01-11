@@ -24,7 +24,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * Referral Program (we pay you)
 	* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 * White-Label Reseller (you pay us)
-	* Hosted: $500 sign up fee and either 10% of revenue or $1/user/month
+	* Hosted: $500 annually and either 10% of revenue or $1/user/month
 	* Self-Hosted: Contact us for volume license pricing
 
 ### Installation Options
