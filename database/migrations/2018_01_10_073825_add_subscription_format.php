@@ -16,6 +16,10 @@ class AddSubscriptionFormat extends Migration
         Schema::table('subscriptions', function ($table) {
             $table->enum('format', ['JSON', 'UBL'])->default('JSON');
         });
+
+        Schema::table('accounts', function ($table) {
+            $table->boolean('ubl_email_attachment')->default(false);
+        });
     }
 
     /**
@@ -27,6 +31,10 @@ class AddSubscriptionFormat extends Migration
     {
         Schema::table('subscriptions', function ($table) {
             $table->dropColumn('format');
+        });
+
+        Schema::table('accounts', function ($table) {
+            $table->dropColumn('ubl_email_attachment');
         });
     }
 }

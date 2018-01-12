@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a0b0eb9c2d63d3d2cbd24eb98f18f001",
-    "content-hash": "231a35f4b2351f92f781e063b965e861",
+    "hash": "cb8a64c60286537ef9f496d1fb7b17d6",
+    "content-hash": "b74be03e96ee322cbf4ddf19ed15686d",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -1085,16 +1085,16 @@
         },
         {
             "name": "cleverit/ubl_invoice",
-            "version": "v0.1.1",
+            "version": "v1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CleverIT/UBL_invoice.git",
-                "reference": "81931c88732393cef78afa78c8c33fc7a9024843"
+                "reference": "3c4ec1dd8dc826d6c8302e191565b8ac1a947022"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CleverIT/UBL_invoice/zipball/81931c88732393cef78afa78c8c33fc7a9024843",
-                "reference": "81931c88732393cef78afa78c8c33fc7a9024843",
+                "url": "https://api.github.com/repos/CleverIT/UBL_invoice/zipball/3c4ec1dd8dc826d6c8302e191565b8ac1a947022",
+                "reference": "3c4ec1dd8dc826d6c8302e191565b8ac1a947022",
                 "shasum": ""
             },
             "require": {
@@ -1133,7 +1133,7 @@
                 "xml",
                 "xml invoice"
             ],
-            "time": "2017-01-17 09:08:26"
+            "time": "2018-01-11 19:26:20"
         },
         {
             "name": "codedge/laravel-selfupdater",

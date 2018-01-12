@@ -24,6 +24,7 @@
 
     {{ Former::populate($account) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
+    {{ Former::populateField('ubl_email_attachment', intval($account->ubl_email_attachment)) }}
     {{ Former::populateField('document_email_attachment', intval($account->document_email_attachment)) }}
     {{ Former::populateField('enable_email_markup', intval($account->enable_email_markup)) }}
     {{ Former::populateField('bcc_email', $account->account_email_settings->bcc_email) }}
@@ -51,6 +52,10 @@
                         'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
                         'link_docs' => link_to('http://docs.invoiceninja.com/en/latest/configure.html#phantomjs', 'PhantomJS', ['target' => '_blank'])
                     ])) : false) !!}
+
+            {!! Former::checkbox('ubl_email_attachment')
+                    ->text(trans('texts.enable'))
+                    ->value(1) !!}
 
             {!! Former::checkbox('document_email_attachment')
                     ->text(trans('texts.enable'))

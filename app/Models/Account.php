@@ -146,6 +146,7 @@ class Account extends Eloquent
         'invoice_fields',
         'invoice_embed_documents',
         'document_email_attachment',
+        'ubl_email_attachment',
         'enable_client_portal_dashboard',
         'page_size',
         'live_preview',

@@ -106,7 +106,7 @@ class ConvertInvoiceToUbl extends Job
             if ($item->tax_name1 || $item->tax_rate1) {
                 $taxtotal = (new TaxTotal())
                     ->setTaxAmount(10)
-                    ->setTaxSubTotal((new TaxSubTotal())
+                    ->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount(10)
                         ->setTaxableAmount(100)
                         ->setTaxCategory((new TaxCategory())
@@ -124,7 +124,7 @@ class ConvertInvoiceToUbl extends Job
         if ($invoice->tax_name1 || $invoice->tax_rate1) {
             $taxtotal = (new TaxTotal())
                 ->setTaxAmount(10)
-                ->setTaxSubTotal((new TaxSubTotal())
+                ->addTaxSubTotal((new TaxSubTotal())
                     ->setTaxAmount(10)
                     ->setTaxableAmount(100)
                     ->setTaxCategory((new TaxCategory())
