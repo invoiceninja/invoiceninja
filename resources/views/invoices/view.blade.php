@@ -290,6 +290,15 @@
 			}
 
 			function onApproveClick() {
+				@if ($account->requiresAuthorization($invoice))
+					window.pendingPaymentFunction = approveQuote;
+					showAuthorizationModal();
+				@else
+					approveQuote();
+				@endif
+			}
+
+			function approveQuote() {
 				$('#approveButton').prop('disabled', true);
 				location.href = "{{ url('/approve/' . $invitation->invitation_key) }}";
 			}
