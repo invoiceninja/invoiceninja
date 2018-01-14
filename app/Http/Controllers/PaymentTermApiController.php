@@ -7,7 +7,6 @@ use App\Http\Requests\PaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
-use Illuminate\Support\Facades\Auth;
 
 class PaymentTermApiController extends BaseAPIController
 {
