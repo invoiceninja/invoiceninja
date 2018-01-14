@@ -185,8 +185,8 @@ class PaymentTermApiController extends BaseAPIController
     {
 
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
-        
-        $this->paymentTermRepo->delete($paymentTerm);
+
+        $this->paymentTermRepo->archive($paymentTerm);
 
         return $this->itemResponse($paymentTerm);
     }
