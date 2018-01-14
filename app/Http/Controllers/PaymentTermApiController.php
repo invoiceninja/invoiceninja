@@ -52,8 +52,12 @@ class PaymentTermApiController extends BaseAPIController
             ->withTrashed()
             ->orderBy('num_days', 'asc');
 
+
         $mergedPaymentTerms = $defaultPaymentTerms->merge($paymentTerms);
 
+
+        dd($mergedPaymentTerms);
+        
         return $this->listResponse($mergedPaymentTerms);
     }
 
