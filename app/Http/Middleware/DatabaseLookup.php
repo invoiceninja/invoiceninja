@@ -58,6 +58,11 @@ class DatabaseLookup
         } elseif ($guard == 'account') {
             if ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
+            } else {
+                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                if ($subdomain != 'app') {
+                    LookupAccount::setServerByField('subdomain', $subdomain);
+                }
             }
         } elseif ($guard == 'license') {
             config(['database.default' => DB_NINJA_1]);
