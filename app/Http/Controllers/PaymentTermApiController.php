@@ -52,6 +52,8 @@ class PaymentTermApiController extends BaseAPIController
             ->withTrashed()
             ->orderBy('num_days', 'asc');
 
+        dd($paymentTerms);
+        
         return $this->listResponse($paymentTerms);
     }
 
