@@ -106,7 +106,7 @@ class PaymentTermApiController extends BaseAPIController
          *   )
          * )
          */
-    public function store(CreatePaymentTermAPIRequestt $request)
+    public function store(CreatePaymentTermAPIRequest $request)
     {
         //stub
 

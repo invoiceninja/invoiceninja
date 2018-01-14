@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Invoice;
 
-class CreatePaymentTermAPIRequest extends PaymentRequest
+class CreatePaymentTermAPIRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,7 @@ class CreatePaymentTermAPIRequest extends PaymentRequest
     {
 
         $rules = [
-            'num_days' => 'required|numeric',
+            'num_days' => 'required|numeric|unique',
         ];
 
 

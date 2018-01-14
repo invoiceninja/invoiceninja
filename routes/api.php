@@ -32,3 +32,4 @@ Route::resource('documents', 'DocumentAPIController');
 Route::resource('vendors', 'VendorApiController');
 Route::resource('expense_categories', 'ExpenseCategoryApiController');
 Route::post('ios_subscription_status', 'AccountApiController@iosSubscriptionStatus');
+Route::resource('payment_terms', 'PaymentTermApiController');
