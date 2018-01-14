@@ -14,9 +14,6 @@ class PaymentTermTransformer extends EntityTransformer
      * @SWG\Property(property="num_days", type="number", format="integer", example=10, readOnly=true)
      * @SWG\Property(property="name", type="string", example="Net 7")
      */
-    protected $defaultIncludes = [];
-
-    protected $availableIncludes = [];
 
     public function __construct($account = null, $serializer = null, $paymentTerm = null)
     {
