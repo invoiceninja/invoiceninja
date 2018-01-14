@@ -51,8 +51,6 @@ class PaymentTermApiController extends BaseAPIController
             ->orWhere('account_id',0)
             ->withTrashed()
             ->orderBy('num_days', 'asc');
-
-        dd($paymentTerms);
         
         return $this->listResponse($paymentTerms);
     }
