@@ -184,7 +184,6 @@ class PaymentTermApiController extends BaseAPIController
     {
 
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
-        $this->entity = $paymentTerm;
 
         if($paymentTerm->account_id == 0)
             return $this->errorResponse(['message'=>'Cannot delete a default Payment Term'], 400);
