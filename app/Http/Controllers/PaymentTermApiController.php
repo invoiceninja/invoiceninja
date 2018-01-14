@@ -7,6 +7,7 @@ use App\Http\Requests\PaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentTermApiController extends BaseAPIController
 {
@@ -47,7 +48,7 @@ class PaymentTermApiController extends BaseAPIController
     public function index()
     {
 
-        $paymentTerms = PaymentTerm::scope()
+        $paymentTerms = PaymentTerm::where('account_id',Auth::user()->account_id)
             ->orWhere('account_id',0)
             ->withTrashed()
             ->orderBy('num_days', 'asc');
