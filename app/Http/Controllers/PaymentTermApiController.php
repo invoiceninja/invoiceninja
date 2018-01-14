@@ -49,7 +49,6 @@ class PaymentTermApiController extends BaseAPIController
     {
 
         $paymentTerms = PaymentTerm::where('account_id',Auth::user()->account_id)
-            ->orWhere('account_id',0)
             ->withTrashed()
             ->orderBy('num_days', 'asc');
 
