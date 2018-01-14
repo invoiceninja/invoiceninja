@@ -9,6 +9,7 @@ use App\Libraries\Utils;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\PaymentTermRepository;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 
 class PaymentTermApiController extends BaseAPIController
 {
@@ -180,10 +181,9 @@ class PaymentTermApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdatePaymentTermRequest $request, $numDays)
+    public function destroy(Request $request, $numDays)
     {
-        dd('ugh');
-        
+
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
 
         dd($paymentTerm->toArray());
