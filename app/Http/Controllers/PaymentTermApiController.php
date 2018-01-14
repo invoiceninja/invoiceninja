@@ -123,41 +123,6 @@ class PaymentTermApiController extends BaseAPIController
     }
 
     /**
-     * @SWG\Put(
-     *   path="/paymentTerm/{payment_term_id}",
-     *   summary="Update a payment term",
-     *   operationId="updatePaymentTerm",
-     *   tags={"payment"},
-     *   @SWG\Parameter(
-     *     in="path",
-     *     name="payment_term_id",
-     *     type="integer",
-     *     required=true
-     *   ),
-     *   @SWG\Parameter(
-     *     in="body",
-     *     name="payment term",
-     *     @SWG\Schema(ref="#/definitions/PaymentTerm")
-     *   ),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="Updated payment term",
-     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/PaymentTerm"))
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="an ""unexpected"" error"
-     *   )
-     * )
-     *
-     * @param mixed $publicId
-     */
-    public function update(UpdatePaymentTermRequest $request, $publicId)
-    {
-        //stub
-    }
-
-    /**
      * @SWG\Delete(
      *   path="/paymentTerm/{num_days}",
      *   summary="Delete a payment term",
@@ -186,7 +151,7 @@ class PaymentTermApiController extends BaseAPIController
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
 
         if(!$paymentTerm || $paymentTerm->account_id == 0)
-            return $this->errorResponse(['message'=>'Cannot delete a default Payment Term'], 400);
+            return $this->errorResponse(['message'=>'Cannot delete a default or non existent Payment Term'], 400);
 
         $this->paymentTermRepo->archive($paymentTerm);
 
