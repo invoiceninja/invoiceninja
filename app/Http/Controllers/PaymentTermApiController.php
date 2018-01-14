@@ -47,7 +47,7 @@ class PaymentTermApiController extends BaseAPIController
     public function index()
     {
 
-        $paymentTerms = PaymentTerm::getSelectOptions();
+        $paymentTerms = PaymentTerm::scope();
 
         return $this->listResponse($paymentTerms);
     }
