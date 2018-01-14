@@ -1208,9 +1208,14 @@ class InvoiceRepository extends BaseRepository
 
     public function findNeedingEndlessReminding(Account $account)
     {
-        $frequencyId = $account->account_email_settings->frequency_id_reminder4;
-        $frequency = Utils::getFromCache($frequencyId, 'frequencies');
+        $settings = $account->account_email_settings;
+        $frequencyId = $settings->frequency_id_reminder4;
 
+        if (! $frequencyId || ! $account->enable_reminder4) {
+            return [];
+        }
+
+        $frequency = Utils::getFromCache($frequencyId, 'frequencies');
         $lastSentDate = date_create();
         $lastSentDate->sub(date_interval_create_from_date_string($frequency->date_interval));
 
