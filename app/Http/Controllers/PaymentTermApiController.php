@@ -182,6 +182,8 @@ class PaymentTermApiController extends BaseAPIController
      */
     public function destroy(UpdatePaymentTermRequest $request, $numDays)
     {
+        dd('ugh');
+        
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
 
         dd($paymentTerm->toArray());
