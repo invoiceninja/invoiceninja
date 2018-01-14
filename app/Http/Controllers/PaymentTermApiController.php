@@ -47,7 +47,7 @@ class PaymentTermApiController extends BaseAPIController
     public function index()
     {
 
-        $paymentTerms = PaymentTerm::all()->get();
+        $paymentTerms = PaymentTerm::whereAccountId(0)->get();
 
         return $this->listResponse($paymentTerms);
     }
