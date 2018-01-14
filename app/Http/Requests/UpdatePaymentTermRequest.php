@@ -25,6 +25,10 @@ class UpdatePaymentTermRequest extends EntityRequest
      */
     public function rules()
     {
-        return ['account_id' => 'size:'. $this->user()->account_id];
+        $rules = [];
+
+        $rules['valid_payment_term'] = $this->entity()->account_id>0;
+
+        return $rules;
     }
 }
