@@ -26,9 +26,8 @@ class PaymentTermTransformer extends EntityTransformer
     public function transform(PaymentTerm $paymentTerm)
     {
         return array_merge($this->getDefaults($paymentTerm), [
-            'id' => (int) $paymentTerm->public_id,
             'num_days' => (int) $paymentTerm->num_days,
-            'name' => $paymentTerm->name,
+            'name' => trans('texts.payment_terms_net') . ' ' . $paymentTerm->getNumDays(),
             'updated_at' => $this->getTimestamp($paymentTerm->updated_at),
             'archived_at' => $this->getTimestamp($paymentTerm->deleted_at),
 
