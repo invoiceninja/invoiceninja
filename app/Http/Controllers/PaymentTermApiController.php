@@ -5,27 +5,29 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreatePaymentTermAPIRequest;
 use App\Http\Requests\PaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
+use App\Libraries\Utils;
 use App\Models\PaymentTerm;
-use App\Services\PaymentTermService;
+use App\Ninja\Repositories\PaymentTermRepository;
+use Illuminate\Support\Facades\Input;
 
 class PaymentTermApiController extends BaseAPIController
 {
     /**
-     * @var PaymentTermService
+     * @var PaymentTermRepository
      */
-    protected $paymentTermService;
+    protected $paymentTermRepo;
     protected $entityType = ENTITY_PAYMENT_TERM;
 
     /**
      * PaymentTermApiController constructor.
      *
-     * @param PaymentTermService $paymentTermService
+     * @param PaymentTermRepository $paymentTermRepo
      */
-    public function __construct(PaymentTermService $paymentTermService)
+    public function __construct(PaymentTermRepository $paymentTermRepo)
     {
         parent::__construct();
 
-        $this->paymentTermService = $paymentTermService;
+        $this->$paymentTermRepo = $paymentTermRepo;
     }
 
     /**
@@ -110,8 +112,14 @@ class PaymentTermApiController extends BaseAPIController
          */
     public function store(CreatePaymentTermAPIRequest $request)
     {
-        //stub
 
+        $paymentTerm = PaymentTerm::createNew();
+
+        $paymentTerm->num_days = Utils::parseInt(Input::get('num_days'));
+        $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
+        $paymentTerm->save();
+
+        return $this->itemResponse($paymentTerm);
     }
 
     /**
@@ -174,6 +182,9 @@ class PaymentTermApiController extends BaseAPIController
      */
     public function destroy(UpdatePaymentTermRequest $request)
     {
-        //stub
-    }
+        $paymentTerm = $request->entity();
+
+        $this->paymentTermRepo->delete($paymentTerm);
+
+        return $this->itemResponse($paymentTerm);
 }
