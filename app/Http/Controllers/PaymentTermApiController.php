@@ -14,6 +14,7 @@ class PaymentTermApiController extends BaseAPIController
      * @var PaymentTermService
      */
     protected $paymentTermService;
+    protected $entityType = ENTITY_PAYMENT_TERM;
 
     /**
      * PaymentTermApiController constructor.
