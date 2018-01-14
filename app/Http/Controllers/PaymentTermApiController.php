@@ -180,9 +180,9 @@ class PaymentTermApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdatePaymentTermRequest $request)
+    public function destroy(UpdatePaymentTermRequest $request, $numDays)
     {
-        $paymentTerm = $request->entity();
+        $paymentTerm = PaymentTerm::where('num_days', $numDays);
 
         $this->paymentTermRepo->delete($paymentTerm);
 
