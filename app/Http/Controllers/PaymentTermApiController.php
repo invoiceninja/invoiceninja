@@ -50,8 +50,8 @@ class PaymentTermApiController extends BaseAPIController
         $paymentTerms = PaymentTerm::scope()
             ->orWhere('account_id',0)
             ->withTrashed()
-            ->orderBy('num_days', 'asc')->get();
-        
+            ->orderBy('num_days', 'asc');
+
         return $this->listResponse($paymentTerms);
     }
 
