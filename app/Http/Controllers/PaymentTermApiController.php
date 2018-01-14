@@ -159,13 +159,13 @@ class PaymentTermApiController extends BaseAPIController
 
     /**
      * @SWG\Delete(
-     *   path="/paymentTerm/{payment_term_id}",
+     *   path="/paymentTerm/{num_days}",
      *   summary="Delete a payment term",
      *   operationId="deletePaymentTerm",
      *   tags={"payment term"},
      *   @SWG\Parameter(
      *     in="path",
-     *     name="payment_term_id",
+     *     name="num_days",
      *     type="integer",
      *     required=true
      *   ),
@@ -182,7 +182,7 @@ class PaymentTermApiController extends BaseAPIController
      */
     public function destroy(UpdatePaymentTermRequest $request, $numDays)
     {
-        $paymentTerm = PaymentTerm::where('num_days', $numDays);
+        $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
 
         $this->paymentTermRepo->delete($paymentTerm);
 
