@@ -46,7 +46,7 @@ class PaymentTermApiController extends BaseAPIController
 
     public function index()
     {
-        $defaultPaymentTerms = PaymentTerm::where('account_id',0);
+        $defaultPaymentTerms = PaymentTerm::where('account_id',0)->get();
 
         $paymentTerms = PaymentTerm::scope()
             ->withTrashed()
