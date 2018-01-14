@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
-use Sabre\Xml\Service;
+use CleverIt\UBL\Invoice\Generator;
 use CleverIt\UBL\Invoice\Invoice;
 use CleverIt\UBL\Invoice\Party;
 use CleverIt\UBL\Invoice\Address;
@@ -25,13 +25,6 @@ class ConvertInvoiceToUbl extends Job
 
     public function handle()
     {
-        $xmlService = new Service();
-        $xmlService->namespaceMap = [
-            'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2' => '',
-            'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2' => 'cbc',
-            'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2' => 'cac'
-        ];
-
         $invoice = $this->invoice;
         $account = $invoice->account;
         $client = $invoice->client;
@@ -64,7 +57,7 @@ class ConvertInvoiceToUbl extends Job
             $taxtotal = new TaxTotal();
             $taxAmount1 = $taxAmount2 = 0;
 
-            if ($item->tax_name1 || $item->tax_rate1) {
+            if ($item->tax_name1 || floatval($item->tax_rate1)) {
                 $taxAmount1 = $invoice->taxAmount($taxable, $invoice->tax_rate1);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($taxAmount1)
@@ -75,7 +68,7 @@ class ConvertInvoiceToUbl extends Job
                             ->setPercent($item->tax_rate1)));
             }
 
-            if ($item->tax_name2 || $item->tax_rate2) {
+            if ($item->tax_name2 || floatval($item->tax_rate2)) {
                 $itemTaxAmount2 = $invoice->taxAmount($taxable, $invoice->tax_rate2);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($taxAmount2)
@@ -95,9 +88,7 @@ class ConvertInvoiceToUbl extends Job
             ->setTaxExclusiveAmount($taxable)
             ->setPayableAmount($invoice->balance));
 
-        return $xmlService->write('Invoice', [
-            $ublInvoice
-        ]);
+        return Generator::invoice($ublInvoice, $invoice->client->getCurrencyCode());
     }
 
     public function createParty($company, $user)
@@ -141,7 +132,7 @@ class ConvertInvoiceToUbl extends Job
             $taxtotal = new TaxTotal();
             $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
-            if ($item->tax_name1 || $item->tax_rate1) {
+            if ($item->tax_name1 || floatval($item->tax_rate1)) {
                 $itemTaxAmount1 = $invoice->taxAmount($taxable, $item->tax_rate1);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($itemTaxAmount1)
@@ -152,7 +143,7 @@ class ConvertInvoiceToUbl extends Job
                             ->setPercent($item->tax_rate1)));
             }
 
-            if ($item->tax_name2 || $item->tax_rate2) {
+            if ($item->tax_name2 || floatval($item->tax_rate2)) {
                 $itemTaxAmount2 = $invoice->taxAmount($taxable, $item->tax_rate2);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($itemTaxAmount2)
