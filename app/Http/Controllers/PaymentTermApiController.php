@@ -47,9 +47,7 @@ class PaymentTermApiController extends BaseAPIController
     public function index()
     {
 
-        $paymentTerms = PaymentTerm::scope()
-            ->withTrashed()
-            ->orderBy('num_days', 'asc')->get();
+        $paymentTerms = PaymentTerm::all()->get();
 
         return $this->listResponse($paymentTerms);
     }
