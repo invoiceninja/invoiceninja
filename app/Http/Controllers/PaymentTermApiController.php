@@ -23,6 +23,8 @@ class PaymentTermApiController extends BaseAPIController
      */
     public function __construct(PaymentTermService $paymentTermService)
     {
+        parent::__construct();
+
         $this->paymentTermService = $paymentTermService;
     }
 
@@ -48,7 +50,7 @@ class PaymentTermApiController extends BaseAPIController
     {
 
         $paymentTerms = PaymentTerm::where('account_id',0);
-        
+
         return $this->listResponse($paymentTerms);
     }
 
