@@ -27,7 +27,7 @@ class PaymentTermApiController extends BaseAPIController
     {
         parent::__construct();
 
-        $this->$paymentTermRepo = $paymentTermRepo;
+        $this->paymentTermRepo = $paymentTermRepo;
     }
 
     /**
