@@ -425,20 +425,23 @@ class OnlinePaymentController extends BaseController
     {
         if (Utils::isNinja()) {
             $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+            if (! $subdomain || $subdomain == 'app') {
+                exit('Invalid subdomain');
+            }
             $account = Account::whereSubdomain($subdomain)->first();
         } else {
             $account = Account::first();
         }
 
         if (! $account) {
-            exit("Account not found");
+            exit('Account not found');
         }
 
         $accountGateway = $account->account_gateways()
             ->whereGatewayId(GATEWAY_STRIPE)->first();
 
         if (! $account) {
-            exit("Apple merchant id not set");
+            exit('Apple merchant id not set');
         }
 
         echo $accountGateway->getConfigField('appleMerchantId');
