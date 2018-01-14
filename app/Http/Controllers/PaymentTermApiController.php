@@ -180,7 +180,7 @@ class PaymentTermApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdatePaymentTermRequest $request, $numDays)
+    public function destroy($request, $numDays)
     {
 
         $paymentTerm = PaymentTerm::where('num_days', $numDays)->first();
