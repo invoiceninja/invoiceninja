@@ -141,7 +141,7 @@
 	                    // do nothing
 	                } else {
 	                    console.log('not supported');
-						$('#paymentButtons ul.dropdown-menu li').last().remove();
+						//$('#paymentButtons ul.dropdown-menu li').last().remove();
 	                }
 	            });
 
