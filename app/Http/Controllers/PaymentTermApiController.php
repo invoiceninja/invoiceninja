@@ -49,6 +49,8 @@ class PaymentTermApiController extends BaseAPIController
 
         $paymentTerms = PaymentTerm::where('account_id',0);
 
+        dd($paymentTerms->get()->toArray());
+        
         return $this->listResponse($paymentTerms);
     }
 
