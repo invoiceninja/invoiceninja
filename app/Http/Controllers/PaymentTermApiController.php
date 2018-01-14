@@ -46,12 +46,11 @@ class PaymentTermApiController extends BaseAPIController
 
     public function index()
     {
-        $defaultPaymentTerms = PaymentTerm::where('account_id',0)->get();
+        $defaultPaymentTerms = PaymentTerm::where('account_id',0);
 
         $paymentTerms = PaymentTerm::scope()
             ->withTrashed()
-            ->orderBy('num_days', 'asc')
-            ->get();
+            ->orderBy('num_days', 'asc');
 
         $mergedPaymentTerms = $defaultPaymentTerms->merge($paymentTerms);
 
