@@ -1085,16 +1085,16 @@
         },
         {
             "name": "cleverit/ubl_invoice",
-            "version": "v1.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CleverIT/UBL_invoice.git",
-                "reference": "3c4ec1dd8dc826d6c8302e191565b8ac1a947022"
+                "reference": "8b98ed26b975cae24eea319f3f2cefd82add735e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CleverIT/UBL_invoice/zipball/3c4ec1dd8dc826d6c8302e191565b8ac1a947022",
-                "reference": "3c4ec1dd8dc826d6c8302e191565b8ac1a947022",
+                "url": "https://api.github.com/repos/CleverIT/UBL_invoice/zipball/8b98ed26b975cae24eea319f3f2cefd82add735e",
+                "reference": "8b98ed26b975cae24eea319f3f2cefd82add735e",
                 "shasum": ""
             },
             "require": {
@@ -1133,7 +1133,7 @@
                 "xml",
                 "xml invoice"
             ],
-            "time": "2018-01-11 19:26:20"
+            "time": "2018-01-13 00:27:05"
         },
         {
             "name": "codedge/laravel-selfupdater",

@@ -54,7 +54,7 @@
                     ])) : false) !!}
 
             {!! Former::checkbox('ubl_email_attachment')
-                    ->text(trans('texts.enable'))
+                    ->text(trans('texts.enable') . ' [' . trans('texts.beta') . ']')
                     ->value(1) !!}
 
             {!! Former::checkbox('document_email_attachment')
