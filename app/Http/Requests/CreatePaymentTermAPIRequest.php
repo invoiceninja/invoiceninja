@@ -27,7 +27,7 @@ class CreatePaymentTermAPIRequest extends Request
     {
 
         $rules = [
-            'num_days' => 'required|numeric|unique',
+            'num_days' => 'required|numeric|unique:payment_terms',
         ];
 
 
