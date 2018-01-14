@@ -6,6 +6,7 @@ use App\Http\Requests\CreatePaymentTermAPIRequest;
 use App\Http\Requests\PaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
 use App\Models\PaymentTerm;
+use App\Services\PaymentTermService;
 
 class PaymentTermApiController extends BaseAPIController
 {
@@ -170,7 +171,7 @@ class PaymentTermApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdatePaymentRequest $request)
+    public function destroy(UpdatePaymentTermRequest $request)
     {
         //stub
     }
