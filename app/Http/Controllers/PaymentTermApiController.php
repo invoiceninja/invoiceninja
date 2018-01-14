@@ -187,4 +187,5 @@ class PaymentTermApiController extends BaseAPIController
         $this->paymentTermRepo->delete($paymentTerm);
 
         return $this->itemResponse($paymentTerm);
+    }
 }
