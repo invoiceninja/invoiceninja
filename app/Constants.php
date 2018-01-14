@@ -605,7 +605,6 @@ if (! defined('APP_NAME')) {
         'dateFormats' => 'App\Models\DateFormat',
         'datetimeFormats' => 'App\Models\DatetimeFormat',
         'languages' => 'App\Models\Language',
-        'paymentTerms' => 'App\Models\PaymentTerm',
         'paymentTypes' => 'App\Models\PaymentType',
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',
