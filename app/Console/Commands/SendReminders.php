@@ -197,6 +197,8 @@ class SendReminders extends Command
         }
 
         Cache::forget('currencies');
+
+        CurlUtils::get(SITE_URL . '?clear_cache=true');
     }
 
     /**
