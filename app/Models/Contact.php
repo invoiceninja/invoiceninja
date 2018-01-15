@@ -55,7 +55,6 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      * @var array
      */
     protected $hidden = [
-        'password',
         'remember_token',
         'confirmation_code',
     ];
