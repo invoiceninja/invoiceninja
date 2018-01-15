@@ -20,7 +20,6 @@
 				background-color: #f8f8f8;
 			}
 
-
             .dropdown-menu li a{
                 overflow:hidden;
                 margin-top:5px;
@@ -137,11 +136,8 @@
 	        $(function() {
 	            // Check the availability of the Payment Request API first.
 	            paymentRequest.canMakePayment().then(function(result) {
-	                if (result) {
-	                    // do nothing
-	                } else {
-	                    console.log('not supported');
-						//$('#paymentButtons ul.dropdown-menu li').last().remove();
+	                if (! result) {
+						$('#paymentButtons ul.dropdown-menu li').find('a[href$="apple_pay"]').remove();
 	                }
 	            });
 
