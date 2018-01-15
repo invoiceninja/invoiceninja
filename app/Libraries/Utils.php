@@ -1002,8 +1002,12 @@ class Utils
         $parts = parse_url($url);
         $subdomain = '';
 
-        if (isset($parts['host'])) {
-            $host = explode('.', $parts['host']);
+        if (isset($parts['host']) || isset($parts['path'])) {
+            if (isset($parts['host'])) {
+                $host = explode('.', $parts['host']);
+            } else {
+                $host = explode('.', $parts['path']);
+            }
             if (count($host) > 2) {
                 $subdomain = $host[0];
             }
