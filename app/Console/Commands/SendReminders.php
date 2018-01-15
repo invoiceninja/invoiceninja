@@ -196,7 +196,7 @@ class SendReminders extends Command
             Currency::whereCode($code)->update(['exchange_rate' => $rate]);
         }
 
-        Cache::forget('currencies');
+        CurlUtils::get(SITE_URL . '?clear_cache=true');
     }
 
     /**
