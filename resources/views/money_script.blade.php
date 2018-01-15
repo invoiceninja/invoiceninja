@@ -122,7 +122,10 @@
             decorator = '{{ Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL) }}';
         }
 
-        if (!precision) {
+        if (decorator == 'none') {
+            var parts = (value + '').split('.');
+            precision = parts.length > 1 ? Math.min(4, parts[1].length) : 0;
+        } else if (!precision) {
             precision = currency.precision;
         } else if (currency.precision == 0) {
             precision = 0;
