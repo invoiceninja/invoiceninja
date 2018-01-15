@@ -19,6 +19,9 @@ use CleverIt\UBL\Invoice\LegalMonetaryTotal;
 
 class ConvertInvoiceToUbl extends Job
 {
+    const INVOICE_TYPE_STANDARD = 380;
+    const INVOICE_TYPE_CREDIT = 381;
+
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
@@ -34,7 +37,7 @@ class ConvertInvoiceToUbl extends Job
         // invoice
         $ublInvoice->setId($invoice->invoice_number);
         $ublInvoice->setIssueDate(date_create($invoice->invoice_date));
-        $ublInvoice->setInvoiceTypeCode('SalesInvoice');
+        $ublInvoice->setInvoiceTypeCode($invoice->amount < 0 ? self::INVOICE_TYPE_CREDIT : self::INVOICE_TYPE_STANDARD);
 
         $supplierParty = $this->createParty($account, $invoice->user);
         $ublInvoice->setAccountingSupplierParty($supplierParty);
@@ -49,7 +52,7 @@ class ConvertInvoiceToUbl extends Job
         foreach ($invoice->invoice_items as $index => $item) {
             $itemTaxable = $invoice->getItemTaxable($item, $taxable);
             $item->setRelation('invoice', $invoice);
-            $invoiceLines[] = $this->createInvoiceLine($invoice, $index, $item, $itemTaxable);
+            $invoiceLines[] = $this->createInvoiceLine($index, $item, $itemTaxable);
         }
 
         $ublInvoice->setInvoiceLines($invoiceLines);
@@ -59,31 +62,11 @@ class ConvertInvoiceToUbl extends Job
             $taxAmount1 = $taxAmount2 = 0;
 
             if ($invoice->tax_name1 || floatval($invoice->tax_rate1)) {
-                $taxAmount1 = $invoice->taxAmount($taxable, $invoice->tax_rate1);
-                $taxScheme = ((new TaxScheme()))
-                    ->setId($invoice->tax_name1);
-                $taxtotal->addTaxSubTotal((new TaxSubTotal())
-                        ->setTaxAmount($taxAmount1)
-                        ->setTaxableAmount($taxable)
-                        ->setTaxCategory((new TaxCategory())
-                            ->setId($invoice->tax_name1)
-                            ->setName($invoice->tax_name1)
-                            ->setTaxScheme($taxScheme)
-                            ->setPercent($invoice->tax_rate1)));
+                $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
             }
 
             if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
-                $itemTaxAmount2 = $invoice->taxAmount($taxable, $invoice->tax_rate2);
-                $taxScheme = ((new TaxScheme()))
-                    ->setId($invoice->tax_name2);
-                $taxtotal->addTaxSubTotal((new TaxSubTotal())
-                        ->setTaxAmount($taxAmount2)
-                        ->setTaxableAmount($taxable)
-                        ->setTaxCategory((new TaxCategory())
-                            ->setId($invoice->tax_name2)
-                            ->setName($invoice->tax_name2)
-                            ->setTaxScheme($taxScheme)
-                            ->setPercent($invoice->tax_rate2)));
+                $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
             }
 
             $taxtotal->setTaxAmount($taxAmount1 + $taxAmount2);
@@ -98,7 +81,7 @@ class ConvertInvoiceToUbl extends Job
         return Generator::invoice($ublInvoice, $invoice->client->getCurrencyCode());
     }
 
-    public function createParty($company, $user)
+    private function createParty($company, $user)
     {
         $party = new Party();
         $party->setName($company->name);
@@ -124,7 +107,7 @@ class ConvertInvoiceToUbl extends Job
         return $party;
     }
 
-    public function createInvoiceLine($invoice, $index, $item, $taxable)
+    private function createInvoiceLine($index, $item, $taxable)
     {
         $invoiceLine = (new InvoiceLine())
             ->setId($index + 1)
@@ -140,31 +123,11 @@ class ConvertInvoiceToUbl extends Job
             $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
             if ($item->tax_name1 || floatval($item->tax_rate1)) {
-                $itemTaxAmount1 = $invoice->taxAmount($taxable, $item->tax_rate1);
-                $taxScheme = ((new TaxScheme()))
-                    ->setId($item->tax_name1);
-                $taxtotal->addTaxSubTotal((new TaxSubTotal())
-                        ->setTaxAmount($itemTaxAmount1)
-                        ->setTaxableAmount($taxable)
-                        ->setTaxCategory((new TaxCategory())
-                            ->setId($item->tax_name1)
-                            ->setName($item->tax_name1)
-                            ->setTaxScheme($taxScheme)
-                            ->setPercent($item->tax_rate1)));
+                $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
             }
 
             if ($item->tax_name2 || floatval($item->tax_rate2)) {
-                $itemTaxAmount2 = $invoice->taxAmount($taxable, $item->tax_rate2);
-                $taxScheme = ((new TaxScheme()))
-                    ->setId($item->tax_name2);
-                $taxtotal->addTaxSubTotal((new TaxSubTotal())
-                        ->setTaxAmount($itemTaxAmount2)
-                        ->setTaxableAmount($taxable)
-                        ->setTaxCategory((new TaxCategory())
-                            ->setId($item->tax_name2)
-                            ->setName($item->tax_name2)
-                            ->setTaxScheme($taxScheme)
-                            ->setPercent($item->tax_rate2)));
+                $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
             }
 
             $taxtotal->setTaxAmount($itemTaxAmount1 + $itemTaxAmount2);
@@ -172,5 +135,23 @@ class ConvertInvoiceToUbl extends Job
         }
 
         return $invoiceLine;
+    }
+
+    private function createTaxRate(&$taxtotal, $taxable, $taxRate, $taxName)
+    {
+        $invoice = $this->invoice;
+        $taxAmount = $invoice->taxAmount($taxable, $taxRate);
+        $taxScheme = ((new TaxScheme()))->setId($taxName);
+
+        $taxtotal->addTaxSubTotal((new TaxSubTotal())
+                ->setTaxAmount($taxAmount)
+                ->setTaxableAmount($taxable)
+                ->setTaxCategory((new TaxCategory())
+                    ->setId($taxName)
+                    ->setName($taxName)
+                    ->setTaxScheme($taxScheme)
+                    ->setPercent($taxRate)));
+
+        return $taxAmount;
     }
 }
