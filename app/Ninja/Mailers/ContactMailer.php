@@ -8,6 +8,7 @@ use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\TemplateService;
+use App\Jobs\ConvertInvoiceToUbl;
 use Event;
 use Utils;
 
@@ -61,9 +62,13 @@ class ContactMailer extends Mailer
 
         $sent = false;
         $pdfString = false;
+        $ublString = false;
 
         if ($account->attachPDF()) {
             $pdfString = $invoice->getPDFString();
+        }
+        if ($account->attachUBL()) {
+            $ublString = dispatch(new ConvertInvoiceToUbl($invoice));
         }
 
         $documentStrings = [];
@@ -88,7 +93,12 @@ class ContactMailer extends Mailer
 
         $isFirst = true;
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder, $isFirst);
+            $data = [
+                'pdfString' => $pdfString,
+                'documentStrings' => $documentStrings,
+                'ublString' => $ublString,
+            ];
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $reminder, $isFirst, $data);
             $isFirst = false;
             if ($response === true) {
                 $sent = true;
@@ -126,10 +136,9 @@ class ContactMailer extends Mailer
         Invoice $invoice,
         $body,
         $subject,
-        $pdfString,
-        $documentStrings,
         $reminder,
-        $isFirst
+        $isFirst,
+        $attachments
     ) {
         $client = $invoice->client;
         $account = $invoice->account;
@@ -177,15 +186,19 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invoice' => $invoice,
-            'documents' => $documentStrings,
+            'documents' => $attachments['documentStrings'],
             'notes' => $reminder,
             'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
         ];
 
         if ($account->attachPDF()) {
-            $data['pdfString'] = $pdfString;
+            $data['pdfString'] = $attachments['pdfString'];
             $data['pdfFileName'] = $invoice->getFileName();
+        }
+        if ($account->attachUBL()) {
+            $data['ublString'] = $attachments['ublString'];
+            $data['ublFileName'] = $invoice->getFileName('xml');
         }
 
         $subject = $this->templateService->processVariables($subject, $variables);

@@ -701,11 +701,11 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return string
      */
-    public function getFileName()
+    public function getFileName($extension = 'pdf')
     {
         $entityType = $this->getEntityType();
 
-        return trans("texts.$entityType") . '_' . $this->invoice_number . '.pdf';
+        return trans("texts.$entityType") . '_' . $this->invoice_number . '.' . $extension;
     }
 
     /**

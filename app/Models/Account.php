@@ -1486,6 +1486,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return bool
+     */
+    public function attachUBL()
+    {
+        return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->ubl_email_attachment;
+    }
+
+    /**
      * @return mixed
      */
     public function getEmailDesignId()

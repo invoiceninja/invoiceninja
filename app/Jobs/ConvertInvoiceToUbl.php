@@ -12,6 +12,7 @@ use CleverIt\UBL\Invoice\Contact;
 use CleverIt\UBL\Invoice\TaxTotal;
 use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxCategory;
+use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\InvoiceLine;
 use CleverIt\UBL\Invoice\Item;
 use CleverIt\UBL\Invoice\LegalMonetaryTotal;
@@ -57,26 +58,32 @@ class ConvertInvoiceToUbl extends Job
             $taxtotal = new TaxTotal();
             $taxAmount1 = $taxAmount2 = 0;
 
-            if ($item->tax_name1 || floatval($item->tax_rate1)) {
+            if ($invoice->tax_name1 || floatval($invoice->tax_rate1)) {
                 $taxAmount1 = $invoice->taxAmount($taxable, $invoice->tax_rate1);
+                $taxScheme = ((new TaxScheme()))
+                    ->setId($invoice->tax_name1);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($taxAmount1)
                         ->setTaxableAmount($taxable)
                         ->setTaxCategory((new TaxCategory())
-                            ->setId($item->tax_name1)
-                            ->setName($item->tax_name1)
-                            ->setPercent($item->tax_rate1)));
+                            ->setId($invoice->tax_name1)
+                            ->setName($invoice->tax_name1)
+                            ->setTaxScheme($taxScheme)
+                            ->setPercent($invoice->tax_rate1)));
             }
 
-            if ($item->tax_name2 || floatval($item->tax_rate2)) {
+            if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
                 $itemTaxAmount2 = $invoice->taxAmount($taxable, $invoice->tax_rate2);
+                $taxScheme = ((new TaxScheme()))
+                    ->setId($invoice->tax_name2);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($taxAmount2)
                         ->setTaxableAmount($taxable)
                         ->setTaxCategory((new TaxCategory())
-                            ->setId($item->tax_name2)
-                            ->setName($item->tax_name2)
-                            ->setPercent($item->tax_rate2)));
+                            ->setId($invoice->tax_name2)
+                            ->setName($invoice->tax_name2)
+                            ->setTaxScheme($taxScheme)
+                            ->setPercent($invoice->tax_rate2)));
             }
 
             $taxtotal->setTaxAmount($taxAmount1 + $taxAmount2);
@@ -134,23 +141,29 @@ class ConvertInvoiceToUbl extends Job
 
             if ($item->tax_name1 || floatval($item->tax_rate1)) {
                 $itemTaxAmount1 = $invoice->taxAmount($taxable, $item->tax_rate1);
+                $taxScheme = ((new TaxScheme()))
+                    ->setId($item->tax_name1);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($itemTaxAmount1)
                         ->setTaxableAmount($taxable)
                         ->setTaxCategory((new TaxCategory())
                             ->setId($item->tax_name1)
                             ->setName($item->tax_name1)
+                            ->setTaxScheme($taxScheme)
                             ->setPercent($item->tax_rate1)));
             }
 
             if ($item->tax_name2 || floatval($item->tax_rate2)) {
                 $itemTaxAmount2 = $invoice->taxAmount($taxable, $item->tax_rate2);
+                $taxScheme = ((new TaxScheme()))
+                    ->setId($item->tax_name2);
                 $taxtotal->addTaxSubTotal((new TaxSubTotal())
                         ->setTaxAmount($itemTaxAmount2)
                         ->setTaxableAmount($taxable)
                         ->setTaxCategory((new TaxCategory())
                             ->setId($item->tax_name2)
                             ->setName($item->tax_name2)
+                            ->setTaxScheme($taxScheme)
                             ->setPercent($item->tax_rate2)));
             }
 
