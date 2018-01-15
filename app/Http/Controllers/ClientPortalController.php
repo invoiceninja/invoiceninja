@@ -111,6 +111,8 @@ class ClientPortalController extends BaseController
             'last_name',
             'email',
             'phone',
+            'custom_value1',
+            'custom_value2',
         ]);
 
         // translate the country names

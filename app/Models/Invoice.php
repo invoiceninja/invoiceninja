@@ -972,6 +972,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_value2',
             'custom_client_label1',
             'custom_client_label2',
+            'custom_contact_label1',
+            'custom_contact_label2',
             'primary_color',
             'secondary_color',
             'hide_quantity',
