@@ -46,12 +46,14 @@
 
                 {!! Former::password('bank_username')
                         ->data_bind("value: bank_username, valueUpdate: 'afterkeydown'")
-                        ->label(trans('texts.username')) !!}
+                        ->label(trans('texts.username'))
+                        ->data_lpignore('true') !!}
 
                 {!! Former::password('bank_password')
                         ->label(trans('texts.password'))
                         ->data_bind("value: bank_password, valueUpdate: 'afterkeydown'")
-                        ->blockHelp(trans(Request::secure() ? 'texts.bank_password_help' : 'texts.bank_password_warning')) !!}
+                        ->blockHelp(trans(Request::secure() ? 'texts.bank_password_help' : 'texts.bank_password_warning'))
+                        ->data_lpignore('true') !!}
 
                 <br/>
 
