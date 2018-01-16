@@ -72,7 +72,6 @@
                     return;
                 }
             @endif
-            if ()
             // Less than IE9 https://stackoverflow.com/a/14835682/497368
             if (! document.addEventListener) {
                 return;
