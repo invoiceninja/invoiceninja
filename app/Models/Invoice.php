@@ -690,6 +690,15 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
     }
 
+    public function activeUser()
+    {
+        if (! $this->user->trashed()) {
+            return $this->user;
+        }
+
+        return $this->account->users->first();
+    }
+
     /**
      * @return mixed
      */
