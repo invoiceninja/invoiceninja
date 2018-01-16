@@ -1063,16 +1063,16 @@ ko.bindingHandlers.productTypeahead = {
                                         from: currencyMap[accountCurrencyId].code,
                                         to: currencyMap[clientCurrencyId].code,
                                     });
-                                    if ((account.custom_invoice_text_label1 || '').toLowerCase() == 'exchange rate') {
+                                    if ((account.custom_invoice_text_label1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                         window.model.invoice().custom_text_value1(roundToFour(rate, true));
-                                    } else if ((account.custom_invoice_text_label2 || '').toLowerCase() == 'exchange rate') {
+                                    } else if ((account.custom_invoice_text_label2 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                         window.model.invoice().custom_text_value2(roundToFour(rate, true));
                                     }
                                 }
                             }
                         @endif
 
-                        model.cost(roundSignificant(cost, true));
+                        model.cost(roundToTwo(cost, true));
                     }
                 }
                 if (!model.qty() && ! model.task_public_id()) {
