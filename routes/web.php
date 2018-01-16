@@ -377,5 +377,4 @@ if (Utils::isNinjaDev())
 */
 
 // Include static app constants
-
 require_once app_path() . '/Constants.php';
