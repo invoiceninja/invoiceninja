@@ -67,6 +67,11 @@
             if (errorMsg.indexOf('DOM Exception 22') > -1) {
                 return;
             }
+            @if (Utils::isTravis())
+                if (errorMsg.indexOf('Attempting to change value of a readonly property') > -1) {
+                    return;
+                }
+            @endif
             // Less than IE9 https://stackoverflow.com/a/14835682/497368
             if (! document.addEventListener) {
                 return;
