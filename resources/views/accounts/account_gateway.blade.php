@@ -243,7 +243,7 @@
                 </div>
             </div>
 
-            <div class="stripe-ach-options">
+            <div class="stripe-ach-options" style="display:none">
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <h4>{{trans('texts.plaid')}}</h4>
