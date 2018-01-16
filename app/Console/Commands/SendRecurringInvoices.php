@@ -111,7 +111,7 @@ class SendRecurringInvoices extends Command
 
             $account = $recurInvoice->account;
             $account->loadLocalizationSettings($recurInvoice->client);
-            Auth::loginUsingId($recurInvoice->user_id);
+            Auth::loginUsingId($recurInvoice->activeUser()->id);
 
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
@@ -150,7 +150,7 @@ class SendRecurringInvoices extends Command
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info('Processing Autobill-delayed Invoice: ' . $invoice->id);
-                Auth::loginUsingId($invoice->user_id);
+                Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
                 Auth::logout();
             }
