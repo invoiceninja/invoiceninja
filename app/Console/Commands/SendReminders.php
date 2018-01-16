@@ -92,7 +92,7 @@ class SendReminders extends Command
     private function chargeLateFees()
     {
         $accounts = $this->accountRepo->findWithFees();
-        $this->info(count($accounts) . ' accounts found with fees');
+        $this->info($accounts->count() . ' accounts found with fees');
 
         foreach ($accounts as $account) {
             if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -100,7 +100,7 @@ class SendReminders extends Command
             }
 
             $invoices = $this->invoiceRepo->findNeedingReminding($account, false);
-            $this->info($account->name . ': ' . count($invoices) . ' invoices found');
+            $this->info($account->name . ': ' . $invoices->count() . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice, false)) {
@@ -128,7 +128,7 @@ class SendReminders extends Command
 
             // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
-            $this->info($account->name . ': ' . count($invoices) . ' invoices found');
+            $this->info($account->name . ': ' . $invoices->count() . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
@@ -142,7 +142,7 @@ class SendReminders extends Command
 
             // endless reminders
             $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account);
-            $this->info($account->name . ': ' . count($invoices) . ' endless invoices found');
+            $this->info($account->name . ': ' . $invoices->count() . ' endless invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($invoice->last_sent_date == date('Y-m-d')) {
@@ -159,7 +159,7 @@ class SendReminders extends Command
         $scheduledReports = ScheduledReport::where('send_date', '<=', date('Y-m-d'))
             ->with('user', 'account.company')
             ->get();
-        $this->info(count($scheduledReports) . ' scheduled reports');
+        $this->info($scheduledReports->count() . ' scheduled reports');
 
         foreach ($scheduledReports as $scheduledReport) {
             $user = $scheduledReport->user;

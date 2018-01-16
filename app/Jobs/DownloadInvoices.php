@@ -54,34 +54,5 @@ class DownloadInvoices extends Job
 
         $zip->finish();
         exit;
-
-        /*
-        // if queues are disabled download a zip file
-        if (config('queue.default') === 'sync' || count($this->invoices) <= 10) {
-            $zip = Archive::instance_by_useragent(date('Y-m-d') . '-Invoice_PDFs');
-            foreach ($this->invoices as $invoice) {
-                $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
-            }
-            $zip->finish();
-            exit;
-
-        // otherwise sends the PDFs in an email
-        } else {
-            $data = [];
-            foreach ($this->invoices as $invoice) {
-                $data[] = [
-                    'name' => $invoice->getFileName(),
-                    'data' => $invoice->getPDFString(),
-                ];
-            }
-
-            $subject = trans('texts.invoices_are_attached');
-            $data = [
-                'documents' => $data
-            ];
-
-            $userMailer->sendMessage($this->user, $subject, false, $data);
-        }
-        */
     }
 }

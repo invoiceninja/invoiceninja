@@ -804,7 +804,7 @@ class InvoiceRepository extends BaseRepository
         $client->load('contacts');
         $sendInvoiceIds = [];
 
-        if (! count($client->contacts)) {
+        if (! $client->contacts->count()) {
             return $invoice;
         }
 

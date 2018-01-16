@@ -73,7 +73,7 @@ class ChargeRenewalInvoices extends Command
                         ->orderBy('id')
                         ->get();
 
-        $this->info(count($invoices).' invoices found');
+        $this->info($invoices->count() . ' invoices found');
 
         foreach ($invoices as $invoice) {
 

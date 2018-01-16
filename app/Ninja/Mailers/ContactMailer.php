@@ -270,7 +270,7 @@ class ContactMailer extends Mailer
             $invitation = $payment->invitation;
         } else {
             $user = $payment->user;
-            $contact = count($client->contacts) ? $client->contacts[0] : '';
+            $contact = $client->contacts->count() ? $client->contacts[0] : '';
             $invitation = $payment->invoice->invitations[0];
         }
 

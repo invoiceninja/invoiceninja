@@ -501,7 +501,7 @@ class Account extends Eloquent
         if ($gatewayId) {
             return $this->getGatewayConfig($gatewayId) != false;
         } else {
-            return count($this->account_gateways) > 0;
+            return $this->account_gateways->count() > 0;
         }
     }
 

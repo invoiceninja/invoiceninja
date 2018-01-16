@@ -83,7 +83,7 @@ class DashboardController extends BaseController
             'tasks' => $tasks,
             'showBlueVinePromo' => $showBlueVinePromo,
             'showWhiteLabelExpired' => $showWhiteLabelExpired,
-            'showExpenses' => count($expenses) && $account->isModuleEnabled(ENTITY_EXPENSE),
+            'showExpenses' => $expenses->count() && $account->isModuleEnabled(ENTITY_EXPENSE),
             'headerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? 'in-large' : 'in-thin',
             'footerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? '' : 'in-thin',
         ];

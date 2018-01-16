@@ -1470,18 +1470,18 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function countDocuments($expenses = false)
     {
-        $count = count($this->documents);
+        $count = $this->documents->count();
 
         foreach ($this->expenses as $expense) {
             if ($expense->invoice_documents) {
-                $count += count($expense->documents);
+                $count += $expense->documents->count();
             }
         }
 
         if ($expenses) {
             foreach ($expenses as $expense) {
                 if ($expense->invoice_documents) {
-                    $count += count($expense->documents);
+                    $count += $expense->documents->count();
                 }
             }
         }
@@ -1511,7 +1511,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function hasExpenseDocuments()
     {
         foreach ($this->expenses as $expense) {
-            if ($expense->invoice_documents && count($expense->documents)) {
+            if ($expense->invoice_documents && $expense->documents->count()) {
                 return true;
             }
         }

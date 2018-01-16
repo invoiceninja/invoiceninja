@@ -947,7 +947,7 @@ class ImportService
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
-        if (count($client->contacts) && $name = strtolower(trim($client->contacts[0]->email))) {
+        if ($client->contacts->count() && $name = strtolower(trim($client->contacts[0]->email))) {
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }

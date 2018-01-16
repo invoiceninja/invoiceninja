@@ -351,7 +351,7 @@ class Client extends EntityModel
             return $this->name;
         }
 
-        if (! count($this->contacts)) {
+        if (! $this->contacts->count()) {
             return '';
         }
 

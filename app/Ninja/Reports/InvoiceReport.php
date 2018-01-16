@@ -59,7 +59,7 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                $payments = count($invoice->payments) ? $invoice->payments : [false];
+                $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
                     $this->data[] = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,

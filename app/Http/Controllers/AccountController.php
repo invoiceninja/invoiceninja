@@ -452,7 +452,7 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
         $account->load('account_gateways');
-        $count = count($account->account_gateways);
+        $count = $account->account_gateways->count();
         $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
@@ -737,7 +737,7 @@ class AccountController extends BaseController
 
             return $font->id == $account->header_font_id || $font->id == $account->body_font_id;
         });
-        if ($account->live_preview && count($fonts)) {
+        if ($account->live_preview && $fonts->count()) {
             $account->live_preview = false;
             Session::flash('warning', trans('texts.live_preview_disabled'));
         }

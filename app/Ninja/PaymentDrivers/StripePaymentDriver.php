@@ -114,7 +114,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $this->tokenResponse = $response->getData();
 
         // import Stripe tokens created before payment methods table was added
-        if (! count($customer->payment_methods)) {
+        if (! $customer->payment_methods->count()) {
             if ($paymentMethod = $this->createPaymentMethod($customer)) {
                 $customer->default_payment_method_id = $paymentMethod->id;
                 $customer->save();

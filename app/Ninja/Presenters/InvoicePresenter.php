@@ -175,7 +175,7 @@ class InvoicePresenter extends EntityPresenter
     {
         $client = $this->entity->client;
 
-        return count($client->contacts) ? $client->contacts[0]->email : '';
+        return $client->contacts->count() ? $client->contacts[0]->email : '';
     }
 
     public function autoBillEmailMessage()
@@ -271,7 +271,7 @@ class InvoicePresenter extends EntityPresenter
 
             foreach ($invoice->payments as $payment) {
                 $label = trans('texts.view_payment');
-                if (count($invoice->payments) > 1) {
+                if ($invoice->payments->count() > 1) {
                     $label .= ' - ' . $invoice->account->formatMoney($payment->amount, $invoice->client);
                 }
                 $actions[] = ['url' => $payment->present()->url, 'label' => $label];

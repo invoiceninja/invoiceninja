@@ -122,9 +122,9 @@ class CheckData extends Command
                         ->withTrashed()
                         ->get();
 
-        $this->logMessage(count($invoices) . ' draft sent invoices');
+        $this->logMessage($invoices->count() . ' draft sent invoices');
 
-        if (count($invoices) > 0) {
+        if ($invoices->count() > 0) {
             $this->isValid = false;
         }
 
@@ -190,9 +190,9 @@ class CheckData extends Command
                     ->havingRaw('count(users.id) > 1')
                     ->get(['users.oauth_user_id']);
 
-        $this->logMessage(count($users) . ' users with duplicate oauth ids');
+        $this->logMessage($users->count() . ' users with duplicate oauth ids');
 
-        if (count($users) > 0) {
+        if ($users->count() > 0) {
             $this->isValid = false;
         }
 
@@ -308,9 +308,9 @@ class CheckData extends Command
                         ->whereNull('contact_key')
                         ->orderBy('id')
                         ->get(['id']);
-        $this->logMessage(count($contacts) . ' contacts without a contact_key');
+        $this->logMessage($contacts->count() . ' contacts without a contact_key');
 
-        if (count($contacts) > 0) {
+        if ($contacts->count() > 0) {
             $this->isValid = false;
         }
 
@@ -339,9 +339,9 @@ class CheckData extends Command
         }
 
         $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.account_id']);
-        $this->logMessage(count($clients) . ' clients without any contacts');
+        $this->logMessage($clients->count() . ' clients without any contacts');
 
-        if (count($clients) > 0) {
+        if ($clients->count() > 0) {
             $this->isValid = false;
         }
 
@@ -374,9 +374,9 @@ class CheckData extends Command
         }
 
         $clients = $clients->get(['clients.id', DB::raw('count(contacts.id)')]);
-        $this->logMessage(count($clients) . ' clients without a single primary contact');
+        $this->logMessage($clients->count() . ' clients without a single primary contact');
 
-        if (count($clients) > 0) {
+        if ($clients->count() > 0) {
             $this->isValid = false;
         }
     }
@@ -423,9 +423,9 @@ class CheckData extends Command
                     ->havingRaw('count(invitations.id) = 0')
                     ->get(['invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id']);
 
-        $this->logMessage(count($invoices) . ' invoices without any invitations');
+        $this->logMessage($invoices->count() . ' invoices without any invitations');
 
-        if (count($invoices) > 0) {
+        if ($invoices->count() > 0) {
             $this->isValid = false;
         }
 
@@ -512,9 +512,9 @@ class CheckData extends Command
                                 ->where("{$table}.{$accountId}", '!=', DB::raw("{$tableName}.account_id"))
                                 ->get(["{$table}.id"]);
 
-                if (count($records)) {
+                if ($records->count()) {
                     $this->isValid = false;
-                    $this->logMessage(count($records) . " {$table} records with incorrect {$entityType} account id");
+                    $this->logMessage($records->count() . " {$table} records with incorrect {$entityType} account id");
 
                     if ($this->option('fix') == 'true') {
                         foreach ($records as $record) {
@@ -549,9 +549,9 @@ class CheckData extends Command
                     ->groupBy('clients.id')
                     ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0)) and clients.paid_to_date != 999999999.9999')
                     ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
-        $this->logMessage(count($clients) . ' clients with incorrect paid to date');
+        $this->logMessage($clients->count() . ' clients with incorrect paid to date');
 
-        if (count($clients) > 0) {
+        if ($clients->count() > 0) {
             $this->isValid = false;
         }
 
@@ -580,9 +580,9 @@ class CheckData extends Command
                     ->havingRaw('(invoices.amount - invoices.balance) != coalesce(sum(payments.amount - payments.refunded), 0)')
                     ->get(['invoices.id', 'invoices.amount', 'invoices.balance', DB::raw('coalesce(sum(payments.amount - payments.refunded), 0)')]);
 
-        $this->logMessage(count($invoices) . ' invoices with incorrect balances');
+        $this->logMessage($invoices->count() . ' invoices with incorrect balances');
 
-        if (count($invoices) > 0) {
+        if ($invoices->count() > 0) {
             $this->isValid = false;
         }
     }
@@ -608,9 +608,9 @@ class CheckData extends Command
         $clients = $clients->groupBy('clients.id', 'clients.balance')
                 ->orderBy('accounts.company_id', 'DESC')
                 ->get(['accounts.company_id', 'clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
-        $this->logMessage(count($clients) . ' clients with incorrect balance/activities');
+        $this->logMessage($clients->count() . ' clients with incorrect balance/activities');
 
-        if (count($clients) > 0) {
+        if ($clients->count() > 0) {
             $this->isValid = false;
         }
 
