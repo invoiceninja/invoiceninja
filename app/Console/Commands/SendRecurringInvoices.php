@@ -157,7 +157,7 @@ class SendRecurringInvoices extends Command
                     continue;
                 }
 
-                Auth::loginUsingId($recurInvoice->activeUser()->id);
+                Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
                 Auth::logout();
             }
