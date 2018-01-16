@@ -16,7 +16,7 @@
 
 	{!! Former::open($url)
         ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
-        ->onsubmit('onFormSubmit(event)')
+        ->onsubmit('return onFormSubmit(event)')
         ->method($method)
         ->rules(array(
     		'client' => 'required',
@@ -215,7 +215,17 @@
 	});
 
     function onFormSubmit(event) {
-        $('#saveButton').attr('disabled', true);
+        // warn if amount is more than balance/credit will be created
+        var invoiceId = $('input[name=invoice]').val();
+        var invoice = invoiceMap[invoiceId];
+        var amount = $('#amount').val();
+
+        if (amount <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
+            $('#saveButton').attr('disabled', true);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function submitAction(action) {

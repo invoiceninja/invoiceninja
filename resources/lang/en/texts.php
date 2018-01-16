@@ -2650,6 +2650,7 @@ $LANG = array(
     'expired_white_label' => 'The white label license has expired',
     'return_to_login' => 'Return to Login',
     'convert_products_tip' => 'Note: add a custom field named ":name" to see the exchange rate.',
+    'amount_greater_than_balance' => 'The amount is greater than the invoice balance, a credit will be created with the remaining amount.',
 
 );
 
