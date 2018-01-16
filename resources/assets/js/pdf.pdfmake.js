@@ -683,8 +683,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var productKey = item.product_key;
         var tax1 = '';
         var tax2 = '';
-        var custom_value1 = item.custom_value1;
-        var custom_value2 = item.custom_value2;
+        var customValue1 = item.custom_value1;
+        var customValue2 = item.custom_value2;
 
         if (isTasks) {
             if (item.invoice_item_type_id != 2) {
@@ -714,8 +714,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         if (invoice.is_recurring) {
             notes = processVariables(notes);
             productKey = processVariables(productKey);
-            custom_value1 = processVariables(item.custom_value1);
-            custom_value2 = processVariables(item.custom_value2);
+            customValue1 = processVariables(item.custom_value1);
+            customValue2 = processVariables(item.custom_value2);
         }
 
         var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
@@ -766,10 +766,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
 
             if (field == 'item' || field == 'service') {
-                value = item.product_key;
+                value = productKey;
                 styles.push('productKey');
             } else if (field == 'description') {
-                value = item.notes;
+                value = notes;
             } else if (field == 'unit_cost' || field == 'rate') {
                 value = cost;
                 styles.push('cost');
@@ -778,6 +778,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 if (field == 'hours') {
                     styles.push('cost');
                 }
+            } else if (field == 'custom_value1') {
+                value = customValue1;
+            } else if (field == 'custom_value2') {
+                value = customValue2;
             } else if (field == 'discount') {
                 if (parseInt(invoice.is_amount_discount)) {
                     value = formatMoneyInvoice(discount, invoice);
