@@ -199,6 +199,18 @@
         }
     });
 
+    // set timeout onDomReady
+    setTimeout(delayedFragmentTargetOffset, 500);
+
+    // add scroll offset to fragment target (if there is one)
+    function delayedFragmentTargetOffset(){
+        var offset = $(':target').offset();
+        if (offset) {
+            var scrollto = offset.top - 180; // minus fixed header height
+            $('html, body').animate({scrollTop:scrollto}, 0);
+        }
+    }
+
   });
 
 </script>
