@@ -61,10 +61,10 @@
                 @if ($account->custom_invoice_label2)
                     <td>{{ $invoice->custom_value2 }}</td>
                 @endif
-                @if ($account->custom_invoice_label1)
+                @if ($account->custom_invoice_text_label1)
                     <td>{{ $invoice->custom_text_value1 }}</td>
                 @endif
-                @if ($account->custom_invoice_label2)
+                @if ($account->custom_invoice_text_label2)
                     <td>{{ $invoice->custom_text_value2 }}</td>
                 @endif
                 <td>{{ $item->product_key }}</td>
