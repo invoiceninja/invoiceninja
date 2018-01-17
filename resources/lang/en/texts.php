@@ -2651,6 +2651,7 @@ $LANG = array(
     'return_to_login' => 'Return to Login',
     'convert_products_tip' => 'Note: add a custom field named ":name" to see the exchange rate.',
     'amount_greater_than_balance' => 'The amount is greater than the invoice balance, a credit will be created with the remaining amount.',
+    'custom_fields_tip' => 'Use <code>Label|Option1,Option2</code> to show a select box.'
 
 );
 

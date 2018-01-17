@@ -53,10 +53,16 @@
 
 			@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
 				@if ($customLabel1)
-					{!! Former::text('custom_value1')->label(e($customLabel1)) !!}
+					@include('partials.custom_field', [
+						'field' => 'custom_value1',
+						'label' => $customLabel1
+					])
 				@endif
 				@if ($customLabel2)
-					{!! Former::text('custom_value2')->label(e($customLabel2)) !!}
+					@include('partials.custom_field', [
+						'field' => 'custom_value2',
+						'label' => $customLabel2
+					])
 				@endif
 			@endif
 
@@ -154,14 +160,20 @@
 
 				@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
 					@if ($account->custom_contact_label1)
-						{!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
-								attr: {name: 'contacts[' + \$index() + '][custom_value1]'}")
-							->label(e($account->custom_contact_label1)) !!}
+						@include('partials.custom_field', [
+							'field' => 'custom_contact1',
+							'label' => $account->custom_contact_label1,
+							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown',
+									attr: {name: 'contacts[' + \$index() + '][custom_value1]'}",
+						])
 					@endif
 					@if ($account->custom_contact_label2)
-						{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
-								attr: {name: 'contacts[' + \$index() + '][custom_value2]'}")
-							->label(e($account->custom_contact_label2)) !!}
+						@include('partials.custom_field', [
+							'field' => 'custom_contact2',
+							'label' => $account->custom_contact_label2,
+							'databind' => "value: custom_value2, valueUpdate: 'afterkeydown',
+									attr: {name: 'contacts[' + \$index() + '][custom_value2]'}",
+						])
 					@endif
 				@endif
 

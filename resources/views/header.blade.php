@@ -57,7 +57,6 @@
         window.loadedSearchData = true;
         trackEvent('/activity', '/search');
         var request = $.get('{{ URL::route('get_search_data') }}', function(data) {
-            console.log(data);
           $('#search').typeahead({
             hint: true,
             highlight: true,
@@ -67,9 +66,9 @@
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customClientLabel1 }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label1 }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customClientLabel1 }}</span>'
             }
           }
           @endif
@@ -78,9 +77,9 @@
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customClientLabel2 }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label2 }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customClientLabel2 }}</span>'
             }
           }
           @endif

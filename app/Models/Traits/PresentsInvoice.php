@@ -2,6 +2,8 @@
 
 namespace App\Models\Traits;
 
+use Utils;
+
 /**
  * Class PresentsInvoice.
  */
@@ -362,7 +364,7 @@ trait PresentsInvoice
             'product.custom_value1' => 'custom_invoice_item_label1',
             'product.custom_value2' => 'custom_invoice_item_label2',
         ] as $field => $property) {
-            $data[$field] = e($this->$property) ?: trans('texts.custom_field');
+            $data[$field] = e(Utils::getCustomLabel($this->$property)) ?: trans('texts.custom_field');
         }
 
         return $data;

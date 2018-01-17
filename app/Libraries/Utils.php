@@ -1007,7 +1007,7 @@ class Utils
                 $host = explode('.', $parts['host']);
             } else {
                 $host = explode('.', $parts['path']);
-            }            
+            }
             if (count($host) > 2) {
                 $subdomain = $host[0];
             }
@@ -1084,6 +1084,25 @@ class Utils
             return $postalCode . ' ' . $str;
         } else {
             return $str . ' ' . $postalCode;
+        }
+    }
+
+    public static function getCustomLabel($value)
+    {
+        if (strpos($value, '|') !== false) {
+            return explode('|', $value)[0];
+        } else {
+            return $value;
+        }
+    }
+
+    public static function getCustomValues($value)
+    {
+        if (strpos($value, '|') !== false) {
+            $values = explode(',', explode('|', $value)[1]);
+            return array_combine($values, $values);
+        } else {
+            return $value;
         }
     }
 

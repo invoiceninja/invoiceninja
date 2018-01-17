@@ -242,7 +242,7 @@
                                 ->label(trans('texts.field_label')) !!}
                         {!! Former::text('custom_client_label2')
                                 ->label(trans('texts.field_label'))
-                                ->help(trans('texts.custom_client_fields_helps')) !!}
+                                ->help(trans('texts.custom_client_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                     </div>
                 </div>
@@ -253,7 +253,7 @@
                                 ->label(trans('texts.field_label')) !!}
                         {!! Former::text('custom_contact_label2')
                                 ->label(trans('texts.field_label'))
-                                ->help(trans('texts.custom_contact_fields_help')) !!}
+                                ->help(trans('texts.custom_contact_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                     </div>
                 </div>
@@ -280,7 +280,7 @@
                                 ->label(trans('texts.field_label')) !!}
                         {!! Former::text('custom_invoice_item_label2')
                                 ->label(trans('texts.field_label'))
-                                ->help(trans('texts.custom_product_fields_help')) !!}
+                                ->help(trans('texts.custom_product_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                     </div>
                 </div>
@@ -291,7 +291,7 @@
                                 ->label(trans('texts.field_label')) !!}
                         {!! Former::text('custom_invoice_text_label2')
                                 ->label(trans('texts.field_label'))
-                                ->help(trans('texts.custom_invoice_fields_helps')) !!}
+                                ->help(trans('texts.custom_invoice_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                         {!! Former::text('custom_invoice_label1')
                                 ->label(trans('texts.surcharge_label'))

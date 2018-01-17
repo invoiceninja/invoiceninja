@@ -646,13 +646,13 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
         if (field == 'custom_value1') {
             if (invoice.has_custom_item_value1) {
-                value = account.custom_invoice_item_label1;
+                value = NINJA.getCustomLabel(account.custom_invoice_item_label1);
             } else {
                 continue;
             }
         } else if (field == 'custom_value2') {
             if (invoice.has_custom_item_value2) {
-                value = account.custom_invoice_item_label2;
+                value = NINJA.getCustomLabel(account.custom_invoice_item_label2);
             } else {
                 continue;
             }
@@ -1136,22 +1136,22 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = contact.phone;
     } else if (field == 'client.custom_value1') {
         if (account.custom_client_label1 && client.custom_value1) {
-            label = account.custom_client_label1;
+            label = NINJA.getCustomLabel(account.custom_client_label1);
             value = client.custom_value1;
         }
     } else if (field == 'client.custom_value2') {
         if (account.custom_client_label2 && client.custom_value2) {
-            label = account.custom_client_label2;
+            label = NINJA.getCustomLabel(account.custom_client_label2);
             value = client.custom_value2;
         }
     } else if (field == 'contact.custom_value1') {
         if (account.custom_contact_label1 && contact.custom_value1) {
-            label = account.custom_contact_label1;
+            label = NINJA.getCustomLabel(account.custom_contact_label1);
             value = contact.custom_value1;
         }
     } else if (field == 'contact.custom_value2') {
         if (account.custom_contact_label2 && contact.custom_value2) {
-            label = account.custom_contact_label2;
+            label = NINJA.getCustomLabel(account.custom_contact_label2);
             value = contact.custom_value2;
         }
     } else if (field == 'account.company_name') {
@@ -1222,12 +1222,12 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         }
     } else if (field == 'invoice.custom_text_value1') {
         if (invoice.custom_text_value1 && account.custom_invoice_text_label1) {
-            label = invoice.account.custom_invoice_text_label1;
+            label = NINJA.getCustomLabel(invoice.account.custom_invoice_text_label1);
             value = invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1;
         }
     } else if (field == 'invoice.custom_text_value2') {
         if (invoice.custom_text_value2 && account.custom_invoice_text_label2) {
-            label = invoice.account.custom_invoice_text_label2;
+            label = NINJA.getCustomLabel(invoice.account.custom_invoice_text_label2);
             value = invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2;
         }
     } else if (field == 'invoice.balance_due') {
@@ -1477,4 +1477,12 @@ NINJA.parseRegExpLine = function(line, regExp, formatter, groupText)
     }
 
     return line;
+}
+
+NINJA.getCustomLabel = function(value) {
+    if (value && value.indexOf('|') > 0) {
+        return value.split('|')[0];
+    } else {
+        return value;
+    }
 }

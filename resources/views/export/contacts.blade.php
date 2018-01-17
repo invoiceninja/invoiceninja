@@ -8,10 +8,10 @@
     <td>{{ trans('texts.email') }}</td>
     <td>{{ trans('texts.phone') }}</td>
     @if ($account->custom_contact_label1)
-        <td>{{ $account->custom_contact_label1 }}</td>
+        <td>{{ $account->present()->customContactLabel1 }}</td>
     @endif
     @if ($account->custom_contact_label2)
-        <td>{{ $account->custom_contact_label2 }}</td>
+        <td>{{ $account->present()->customContactLabel2 }}</td>
     @endif
 </tr>
 
