@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aab53e0382a9fe290684134644ba09d2",
-    "content-hash": "9ca34996a5b715781c82467710f6775a",
+    "hash": "7bcccd99be4c828e4192fd08c530a5e5",
+    "content-hash": "e886e481ac6825f0b1d9402360938147",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -3359,61 +3359,6 @@
             "time": "2015-01-01 16:31:18"
         },
         {
-            "name": "incube8/omnipay-multicards",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/incube8/omnipay-multicards.git",
-                "reference": "712b4419ef604e88587098ba3a788eb4221144fd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/712b4419ef604e88587098ba3a788eb4221144fd",
-                "reference": "712b4419ef604e88587098ba3a788eb4221144fd",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "omnipay/dummy": "dev-master",
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Omnipay\\Multicards\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Del",
-                    "email": "del@incube8.sg"
-                }
-            ],
-            "description": "MultiCards driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/incube8/omnipay-multicards",
-            "keywords": [
-                "MultiCards",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2017-01-12 06:17:38"
-        },
-        {
             "name": "intervention/image",
             "version": "dev-master",
             "source": {
@@ -3485,16 +3430,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.4",
+            "version": "v0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "eb2d739440efdea418152a68c80fd7d9ca00140d"
+                "reference": "2ca215e97e3b436b26b0b8f52e865ed94eb61408"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/eb2d739440efdea418152a68c80fd7d9ca00140d",
-                "reference": "eb2d739440efdea418152a68c80fd7d9ca00140d",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/2ca215e97e3b436b26b0b8f52e865ed94eb61408",
+                "reference": "2ca215e97e3b436b26b0b8f52e865ed94eb61408",
                 "shasum": ""
             },
             "require": {
@@ -3514,7 +3459,6 @@
                 "dwolla/omnipay-dwolla": "dev-master",
                 "fotografde/omnipay-checkoutcom": "~2.0",
                 "fruitcakestudio/omnipay-sisow": "~2.0",
-                "incube8/omnipay-multicards": "dev-master",
                 "justinbusschau/omnipay-secpay": "~2.0",
                 "lokielse/omnipay-alipay": "~1.4",
                 "meebio/omnipay-creditcall": "dev-master",
@@ -3542,7 +3486,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2017-11-11 19:43:09"
+            "time": "2018-01-17 13:51:24"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -11271,6 +11215,61 @@
                 "webdriver"
             ],
             "time": "2017-11-15 11:08:09"
+        },
+        {
+            "name": "incube8/omnipay-multicards",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/incube8/omnipay-multicards.git",
+                "reference": "712b4419ef604e88587098ba3a788eb4221144fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/712b4419ef604e88587098ba3a788eb4221144fd",
+                "reference": "712b4419ef604e88587098ba3a788eb4221144fd",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "omnipay/dummy": "dev-master",
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Multicards\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Del",
+                    "email": "del@incube8.sg"
+                }
+            ],
+            "description": "MultiCards driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/incube8/omnipay-multicards",
+            "keywords": [
+                "MultiCards",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2017-01-12 06:17:38"
         },
         {
             "name": "phpdocumentor/reflection-common",
