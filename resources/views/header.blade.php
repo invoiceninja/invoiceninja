@@ -57,7 +57,6 @@
         window.loadedSearchData = true;
         trackEvent('/activity', '/search');
         var request = $.get('{{ URL::route('get_search_data') }}', function(data) {
-            console.log(data);
           $('#search').typeahead({
             hint: true,
             highlight: true,
