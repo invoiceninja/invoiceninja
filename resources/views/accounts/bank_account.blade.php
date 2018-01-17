@@ -303,7 +303,7 @@
 
     $(function() {
 
-        var banks = {!! $banks !!};
+        var banks = {!! $banks || '[]' !!};
         var bankMap = {};
 
         for (var i=0; i<banks.length; i++) {
