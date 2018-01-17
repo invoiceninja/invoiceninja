@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cb8a64c60286537ef9f496d1fb7b17d6",
-    "content-hash": "b74be03e96ee322cbf4ddf19ed15686d",
+    "hash": "93dd175ac0d4991745c24edb65807e04",
+    "content-hash": "2fafcc49fe838509079aea7e46db843f",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -393,16 +393,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.48.9",
+            "version": "3.49.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "98394ea71d03080aaef6a47e413178ef88f17839"
+                "reference": "b4a698296c5772a959b131481d11b6c1d7498a66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/98394ea71d03080aaef6a47e413178ef88f17839",
-                "reference": "98394ea71d03080aaef6a47e413178ef88f17839",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b4a698296c5772a959b131481d11b6c1d7498a66",
+                "reference": "b4a698296c5772a959b131481d11b6c1d7498a66",
                 "shasum": ""
             },
             "require": {
@@ -469,7 +469,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2018-01-08 23:52:14"
+            "time": "2018-01-16 23:44:11"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2718,16 +2718,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.41",
+            "version": "v0.42",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "b3715dfaad3cd91304c84bf3ce36c5cade851b35"
+                "reference": "873421bf7cd0cab613da792124db04e203ff196b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/b3715dfaad3cd91304c84bf3ce36c5cade851b35",
-                "reference": "b3715dfaad3cd91304c84bf3ce36c5cade851b35",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/873421bf7cd0cab613da792124db04e203ff196b",
+                "reference": "873421bf7cd0cab613da792124db04e203ff196b",
                 "shasum": ""
             },
             "require": {
@@ -2751,7 +2751,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2018-01-06 00:23:20"
+            "time": "2018-01-13 00:23:28"
         },
         {
             "name": "google/auth",
@@ -2802,16 +2802,16 @@
         },
         {
             "name": "google/cloud",
-            "version": "v0.50.1",
+            "version": "v0.51.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GoogleCloudPlatform/google-cloud-php.git",
-                "reference": "557462f9be1604f8c6b5ed0cc6d039a06ff251cd"
+                "reference": "563469c033d82412fc5eaa0884e55c2ee0bcfe05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php/zipball/557462f9be1604f8c6b5ed0cc6d039a06ff251cd",
-                "reference": "557462f9be1604f8c6b5ed0cc6d039a06ff251cd",
+                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php/zipball/563469c033d82412fc5eaa0884e55c2ee0bcfe05",
+                "reference": "563469c033d82412fc5eaa0884e55c2ee0bcfe05",
                 "shasum": ""
             },
             "require": {
@@ -2827,24 +2827,24 @@
                 "rize/uri-template": "~0.3"
             },
             "replace": {
-                "google/cloud-bigquery": "1.0.0",
+                "google/cloud-bigquery": "1.0.1",
                 "google/cloud-bigtable": "0.1.1",
                 "google/cloud-container": "0.1.1",
                 "google/cloud-core": "1.15.1",
                 "google/cloud-dataproc": "0.1.1",
-                "google/cloud-datastore": "1.2.0",
-                "google/cloud-debugger": "0.1.0",
+                "google/cloud-datastore": "1.2.1",
+                "google/cloud-debugger": "0.2.0",
                 "google/cloud-dlp": "0.4.3",
                 "google/cloud-error-reporting": "0.7.3",
-                "google/cloud-firestore": "0.3.3",
+                "google/cloud-firestore": "0.3.4",
                 "google/cloud-language": "0.11.2",
-                "google/cloud-logging": "1.8.2",
+                "google/cloud-logging": "1.8.3",
                 "google/cloud-monitoring": "0.7.3",
                 "google/cloud-oslogin": "0.1.1",
-                "google/cloud-pubsub": "0.11.2",
+                "google/cloud-pubsub": "0.11.3",
                 "google/cloud-spanner": "1.0.1",
                 "google/cloud-speech": "0.10.2",
-                "google/cloud-storage": "1.3.1",
+                "google/cloud-storage": "1.3.2",
                 "google/cloud-trace": "0.5.1",
                 "google/cloud-translate": "1.1.0",
                 "google/cloud-videointelligence": "0.8.3",
@@ -2928,7 +2928,7 @@
                 "translation",
                 "vision"
             ],
-            "time": "2018-01-08 21:36:25"
+            "time": "2018-01-12 19:19:47"
         },
         {
             "name": "google/gax",
@@ -3419,61 +3419,6 @@
             "time": "2015-01-01 16:31:18"
         },
         {
-            "name": "incube8/omnipay-multicards",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/incube8/omnipay-multicards.git",
-                "reference": "712b4419ef604e88587098ba3a788eb4221144fd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/712b4419ef604e88587098ba3a788eb4221144fd",
-                "reference": "712b4419ef604e88587098ba3a788eb4221144fd",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "omnipay/dummy": "dev-master",
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Omnipay\\Multicards\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Del",
-                    "email": "del@incube8.sg"
-                }
-            ],
-            "description": "MultiCards driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/incube8/omnipay-multicards",
-            "keywords": [
-                "MultiCards",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2017-01-12 06:17:38"
-        },
-        {
             "name": "intervention/image",
             "version": "dev-master",
             "source": {
@@ -3545,16 +3490,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.4",
+            "version": "v0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "eb2d739440efdea418152a68c80fd7d9ca00140d"
+                "reference": "2ca215e97e3b436b26b0b8f52e865ed94eb61408"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/eb2d739440efdea418152a68c80fd7d9ca00140d",
-                "reference": "eb2d739440efdea418152a68c80fd7d9ca00140d",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/2ca215e97e3b436b26b0b8f52e865ed94eb61408",
+                "reference": "2ca215e97e3b436b26b0b8f52e865ed94eb61408",
                 "shasum": ""
             },
             "require": {
@@ -3574,7 +3519,6 @@
                 "dwolla/omnipay-dwolla": "dev-master",
                 "fotografde/omnipay-checkoutcom": "~2.0",
                 "fruitcakestudio/omnipay-sisow": "~2.0",
-                "incube8/omnipay-multicards": "dev-master",
                 "justinbusschau/omnipay-secpay": "~2.0",
                 "lokielse/omnipay-alipay": "~1.4",
                 "meebio/omnipay-creditcall": "dev-master",
@@ -3602,7 +3546,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2017-11-11 19:43:09"
+            "time": "2018-01-17 13:51:24"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -4846,16 +4790,16 @@
         },
         {
             "name": "maatwebsite/excel",
-            "version": "2.1.23",
+            "version": "2.1.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Maatwebsite/Laravel-Excel.git",
-                "reference": "8682c955601b6de15a8c7d6e373b927cc8380627"
+                "reference": "bd71c9f462ea4a7945944691cc58acd2c85abd47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Maatwebsite/Laravel-Excel/zipball/8682c955601b6de15a8c7d6e373b927cc8380627",
-                "reference": "8682c955601b6de15a8c7d6e373b927cc8380627",
+                "url": "https://api.github.com/repos/Maatwebsite/Laravel-Excel/zipball/bd71c9f462ea4a7945944691cc58acd2c85abd47",
+                "reference": "bd71c9f462ea4a7945944691cc58acd2c85abd47",
                 "shasum": ""
             },
             "require": {
@@ -4866,11 +4810,11 @@
                 "jeremeamia/superclosure": "^2.3",
                 "nesbot/carbon": "~1.0",
                 "php": ">=5.5",
-                "phpoffice/phpexcel": "1.8.*",
+                "phpoffice/phpexcel": "^1.8.1",
                 "tijsverkoyen/css-to-inline-styles": "~2.0"
             },
             "require-dev": {
-                "mockery/mockery": "~0.9",
+                "mockery/mockery": "~1.0",
                 "orchestra/testbench": "3.1.*|3.2.*|3.3.*|3.4.*|3.5.*",
                 "phpseclib/phpseclib": "~1.0",
                 "phpunit/phpunit": "~4.0"
@@ -4920,7 +4864,7 @@
                 "import",
                 "laravel"
             ],
-            "time": "2017-09-19 19:36:48"
+            "time": "2018-01-10 11:58:11"
         },
         {
             "name": "maximebf/debugbar",
@@ -8220,16 +8164,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "3.7.1",
+            "version": "3.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "45cffe822057a09e05f7bd09ec5fb88eeecd2334"
+                "reference": "bba83ad77bb9deb6d3c352a7361b818e415b221d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/45cffe822057a09e05f7bd09ec5fb88eeecd2334",
-                "reference": "45cffe822057a09e05f7bd09ec5fb88eeecd2334",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/bba83ad77bb9deb6d3c352a7361b818e415b221d",
+                "reference": "bba83ad77bb9deb6d3c352a7361b818e415b221d",
                 "shasum": ""
             },
             "require": {
@@ -8241,7 +8185,7 @@
             },
             "require-dev": {
                 "apigen/apigen": "^4.1",
-                "codeception/aspect-mock": "^1.0 | ^2.0",
+                "codeception/aspect-mock": "^1.0 | ~2.0.0",
                 "doctrine/annotations": "~1.2.0",
                 "goaop/framework": "1.0.0-alpha.2 | ^1.0 | ^2.1",
                 "ircmaxell/random-lib": "^1.1",
@@ -8249,7 +8193,7 @@
                 "mockery/mockery": "^0.9.4",
                 "moontoast/math": "^1.1",
                 "php-mock/php-mock-phpunit": "^0.3|^1.1",
-                "phpunit/phpunit": "^4.7|>=5.0 <5.4",
+                "phpunit/phpunit": "^4.7|^5.0",
                 "satooshi/php-coveralls": "^0.6.1",
                 "squizlabs/php_codesniffer": "^2.3"
             },
@@ -8298,7 +8242,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2017-09-22 20:46:04"
+            "time": "2018-01-13 22:22:03"
         },
         {
             "name": "rize/uri-template",
@@ -8350,12 +8294,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "fe89fd2178cabef137b9a76fa91d64925474b956"
+                "reference": "a54d4cf91890993ee599c446e2eb3dba3f9eae32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/fe89fd2178cabef137b9a76fa91d64925474b956",
-                "reference": "fe89fd2178cabef137b9a76fa91d64925474b956",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/a54d4cf91890993ee599c446e2eb3dba3f9eae32",
+                "reference": "a54d4cf91890993ee599c446e2eb3dba3f9eae32",
                 "shasum": ""
             },
             "conflict": {
@@ -8438,7 +8382,7 @@
                 "symfony/web-profiler-bundle": ">=2,<2.3.19|>=2.4,<2.4.9|>=2.5,<2.5.4",
                 "symfony/yaml": ">=2,<2.0.22|>=2.1,<2.1.7",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
-                "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
+                "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
                 "twig/twig": "<1.20",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
@@ -8487,7 +8431,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-01-07 00:56:33"
+            "time": "2018-01-13 18:31:46"
         },
         {
             "name": "sabre/uri",
@@ -9980,29 +9924,29 @@
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
-            "version": "2.2.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tijsverkoyen/CssToInlineStyles.git",
-                "reference": "ab03919dfd85a74ae0372f8baf9f3c7d5c03b04b"
+                "reference": "0ed4a2ea4e0902dac0489e6436ebcd5bbcae9757"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tijsverkoyen/CssToInlineStyles/zipball/ab03919dfd85a74ae0372f8baf9f3c7d5c03b04b",
-                "reference": "ab03919dfd85a74ae0372f8baf9f3c7d5c03b04b",
+                "url": "https://api.github.com/repos/tijsverkoyen/CssToInlineStyles/zipball/0ed4a2ea4e0902dac0489e6436ebcd5bbcae9757",
+                "reference": "0ed4a2ea4e0902dac0489e6436ebcd5bbcae9757",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.5 || ^7",
-                "symfony/css-selector": "^2.7|~3.0"
+                "php": "^5.5 || ^7.0",
+                "symfony/css-selector": "^2.7 || ^3.0 || ^4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8|5.1.*"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "2.2.x-dev"
                 }
             },
             "autoload": {
@@ -10023,7 +9967,7 @@
             ],
             "description": "CssToInlineStyles is a class that enables you to convert HTML-pages/files into HTML-pages/files with inline styles. This is very useful when you're sending emails.",
             "homepage": "https://github.com/tijsverkoyen/CssToInlineStyles",
-            "time": "2016-09-20 12:50:39"
+            "time": "2017-11-27 11:13:29"
         },
         {
             "name": "true/punycode",
