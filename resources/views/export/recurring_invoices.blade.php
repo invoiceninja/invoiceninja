@@ -10,24 +10,24 @@
     <td>{{ trans('texts.po_number') }}</td>
     <td>{{ trans('texts.status') }}</td>
     @if ($account->custom_invoice_label1)
-        <td>{{ $account->custom_invoice_label1 }}</td>
+        <td>{{ $account->present()->customInvoiceLabel1 }}</td>
     @endif
     @if ($account->custom_invoice_label2)
-        <td>{{ $account->custom_invoice_label2 }}</td>
+        <td>{{ $account->present()->customInvoiceLabel2 }}</td>
     @endif
     @if ($account->custom_invoice_text_label1)
-        <td>{{ $account->custom_invoice_text_label1 }}</td>
+        <td>{{ $account->present()->customInvoiceTextLabel1 }}</td>
     @endif
     @if ($account->custom_invoice_text_label2)
-        <td>{{ $account->custom_invoice_text_label2 }}</td>
+        <td>{{ $account->present()->customInvoiceTextLabel2 }}</td>
     @endif
     <td>{{ trans('texts.item_product') }}</td>
     <td>{{ trans('texts.item_notes') }}</td>
     @if ($account->custom_invoice_item_label1)
-        <td>{{ $account->custom_invoice_item_label1 }}</td>
+        <td>{{ $account->present()->customProductLabel1 }}</td>
     @endif
     @if ($account->custom_invoice_item_label2)
-        <td>{{ $account->custom_invoice_item_label2 }}</td>
+        <td>{{ $account->present()->customProductLabel2 }}</td>
     @endif
     <td>{{ trans('texts.item_cost') }}</td>
     <td>{{ trans('texts.item_quantity') }}</td>
@@ -61,10 +61,10 @@
                 @if ($account->custom_invoice_label2)
                     <td>{{ $invoice->custom_value2 }}</td>
                 @endif
-                @if ($account->custom_invoice_label1)
+                @if ($account->custom_invoice_text_label1)
                     <td>{{ $invoice->custom_text_value1 }}</td>
                 @endif
-                @if ($account->custom_invoice_label2)
+                @if ($account->custom_invoice_text_label2)
                     <td>{{ $invoice->custom_text_value2 }}</td>
                 @endif
                 <td>{{ $item->product_key }}</td>
