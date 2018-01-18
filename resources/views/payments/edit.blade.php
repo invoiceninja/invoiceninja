@@ -215,21 +215,21 @@
 	});
 
     function onFormSubmit(event) {
-        // warn if amount is more than balance/credit will be created
-        var invoiceId = $('input[name=invoice]').val();
-        var invoice = invoiceMap[invoiceId];
-        var amount = $('#amount').val();
-
-        if (! invoice) {
-            logError('Warning: invoice not found: ' + invoiceId);
-        }
-
-        if (amount <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
-            $('#saveButton').attr('disabled', true);
+        @if ($payment)
             return true;
-        } else {
-            return false;
-        }
+        @else
+            // warn if amount is more than balance/credit will be created
+            var invoiceId = $('input[name=invoice]').val();
+            var invoice = invoiceMap[invoiceId];
+            var amount = $('#amount').val();
+
+            if (amount <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
+                $('#saveButton').attr('disabled', true);
+                return true;
+            } else {
+                return false;
+            }
+        @endif
     }
 
     function submitAction(action) {
