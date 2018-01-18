@@ -11217,61 +11217,6 @@
             "time": "2017-11-15 11:08:09"
         },
         {
-            "name": "incube8/omnipay-multicards",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/incube8/omnipay-multicards.git",
-                "reference": "712b4419ef604e88587098ba3a788eb4221144fd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/712b4419ef604e88587098ba3a788eb4221144fd",
-                "reference": "712b4419ef604e88587098ba3a788eb4221144fd",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "omnipay/dummy": "dev-master",
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Omnipay\\Multicards\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Del",
-                    "email": "del@incube8.sg"
-                }
-            ],
-            "description": "MultiCards driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/incube8/omnipay-multicards",
-            "keywords": [
-                "MultiCards",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2017-01-12 06:17:38"
-        },
-        {
             "name": "phpdocumentor/reflection-common",
             "version": "1.0.1",
             "source": {
