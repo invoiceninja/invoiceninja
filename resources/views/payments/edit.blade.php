@@ -220,6 +220,10 @@
         var invoice = invoiceMap[invoiceId];
         var amount = $('#amount').val();
 
+        if (! invoice) {
+            logError('Warning: invoice not found: ' + invoiceId);
+        }
+
         if (amount <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
             $('#saveButton').attr('disabled', true);
             return true;
