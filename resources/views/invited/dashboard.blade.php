@@ -350,7 +350,8 @@
                 @endif
                 @if ($client->hasRecurringInvoices())
                     <div class="pull-right">
-                        {!! Button::primary(trans("texts.recurring_invoices"))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
+                        {!! Button::primary(strtoupper(trans("texts.recurring")))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
+                        {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details')) !!}
                     </div>
                 @endif
             </div>

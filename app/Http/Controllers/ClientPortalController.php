@@ -962,4 +962,19 @@ class ClientPortalController extends BaseController
 
         return Redirect::to('client/invoices/recurring');
     }
+
+    public function showDetails()
+    {
+        if (! $contact = $this->getContact()) {
+            return $this->returnError();
+        }
+
+        $data = [
+            'contact' => $contact,
+            'client' => $contact->client,
+            'account' => $contact->account,
+        ];
+
+        return view('invited.details', $data);
+    }
 }

@@ -29,6 +29,8 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::post('client/payment_methods/verify', 'ClientPortalController@verifyPaymentMethod');
     Route::post('client/payment_methods/default', 'ClientPortalController@setDefaultPaymentMethod');
     Route::post('client/payment_methods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
+    Route::get('client/details', 'ClientPortalController@showDetails');
+    Route::post('client/details', 'ClientPortalController@updateDetails');
     Route::get('client/quotes', 'ClientPortalController@quoteIndex');
     Route::get('client/credits', 'ClientPortalController@creditIndex');
     Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
