@@ -97,7 +97,7 @@ class QuoteController extends BaseController
 
         return [
           'entityType' => ENTITY_QUOTE,
-          'account' => $account,
+          'account' => Auth::user()->account->load('country'),
           'products' => Product::scope()->orderBy('product_key')->get(),
           'taxRateOptions' => $account->present()->taxRateOptions,
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
