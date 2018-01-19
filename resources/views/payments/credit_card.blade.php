@@ -155,10 +155,6 @@
             {{ Former::populateField('country_id', $client->account->country_id) }}
             {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
         @endif
-        @if (!$client->currency_id && $client->account->currency_id)
-            {{ Former::populateField('currency_id', $client->account->currency_id) }}
-            {{ Former::populateField('currency', $client->account->currency->code) }}
-        @endif
     @endif
 
     @if (Utils::isNinjaDev())

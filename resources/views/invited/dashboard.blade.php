@@ -348,14 +348,16 @@
                         @include('payments.paymentmethods_list')
                     </div>
                 @endif
-                @if ($client->hasRecurringInvoices())
-                    <div class="pull-right">
+                <div class="pull-right">
+                    @if ($client->hasRecurringInvoices())
                         {!! Button::primary(strtoupper(trans("texts.recurring")))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
-                        {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details')) !!}
-                    </div>
-                @endif
+                    @endif
+                    {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details')) !!}
+                </div>
             </div>
         </div>
+
+        <br/>
 
         <div class="row" id="account-row">
             <div class="col-md-2 invoices-from">

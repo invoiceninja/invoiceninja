@@ -18,15 +18,13 @@
                     ->addClass('payment-form')
                     ->id('payment-form')
                     ->rules(array(
-                        'first_name' => 'required',
-                        'last_name' => 'required',
+                        'name' => 'required',
+                        'vat_number' => 'required',
                         'address1' => 'required',
                         'city' => 'required',
                         'state' => 'required',
                         'postal_code' => 'required',
                         'country_id' => 'required',
-                        'phone' => 'required',
-                        'email' => 'required|email',
                     )) !!}
 
 
@@ -37,11 +35,6 @@
                 {{ Former::populateField('email', $contact->email) }}
                 @if (!$client->country_id && $client->account->country_id)
                     {{ Former::populateField('country_id', $client->account->country_id) }}
-                    {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
-                @endif
-                @if (!$client->currency_id && $client->account->currency_id)
-                    {{ Former::populateField('currency_id', $client->account->currency_id) }}
-                    {{ Former::populateField('currency', $client->account->currency->code) }}
                 @endif
             @endif
 
@@ -49,6 +42,7 @@
             <hr class="form-legend"/>
 
             <div style="padding-bottom: 22px;">
+
                 <div class="row">
                     <div class="col-md-6">
                         {!! Former::text('name')
@@ -62,35 +56,6 @@
                                     ->label('') !!}
                         </div>
                     @endif
-                </div>
-            </div>
-
-
-            <h3>{{ trans('texts.contact_information') }}</h3>
-            <hr class="form-legend"/>
-
-            <div style="padding-bottom: 22px;">
-                <div class="row">
-                    <div class="col-md-6">
-                        {!! Former::text('first_name')
-                                ->placeholder(trans('texts.first_name'))
-                                ->label('') !!}
-                    </div>
-                    <div class="col-md-6">
-                        {!! Former::text('last_name')
-                                ->placeholder(trans('texts.last_name'))
-                                ->autocomplete('family-name')
-                                ->label('') !!}
-                    </div>
-                </div>
-
-                <div class="row" style="display:{{ isset($paymentTitle) || empty($contact->email) ? 'block' : 'none' }}">
-                    <div class="col-md-12">
-                        {!! Former::text('email')
-                                ->placeholder(trans('texts.email'))
-                                ->autocomplete('email')
-                                ->label('') !!}
-                    </div>
                 </div>
             </div>
 
