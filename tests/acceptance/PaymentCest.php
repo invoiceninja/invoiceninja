@@ -55,7 +55,7 @@ class PaymentCest
         $I->fillField(['name' => 'transaction_reference'], $this->faker->text(12));
 
         $I->click('Save');
-        $I->wait(1);
+        $I->wait(2);
 
         $I->see('Successfully created payment');
         $I->seeInDatabase('payments', ['amount' => number_format($amount, 2)]);
