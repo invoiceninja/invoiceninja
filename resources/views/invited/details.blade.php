@@ -30,7 +30,6 @@
                         'country_id' => 'required',
                     )) !!}
 
-
             @if ($client)
                 {{ Former::populate($client) }}
                 {{ Former::populateField('first_name', $contact->first_name) }}

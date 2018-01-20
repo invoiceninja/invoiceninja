@@ -2653,6 +2653,7 @@ $LANG = array(
     'amount_greater_than_balance' => 'The amount is greater than the invoice balance, a credit will be created with the remaining amount.',
     'custom_fields_tip' => 'Use <code>Label|Option1,Option2</code> to show a select box.',
     'client_information' => 'Client Information',
+    'updated_client_details' => 'Successfully updated client details',
 
 );
 

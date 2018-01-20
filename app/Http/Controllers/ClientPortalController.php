@@ -978,19 +978,50 @@ class ClientPortalController extends BaseController
         return view('invited.details', $data);
     }
 
-    public function updateDetails()
+    public function updateDetails(\Illuminate\Http\Request $request)
     {
         if (! $contact = $this->getContact()) {
             return $this->returnError();
         }
 
+        $client = $contact->client;
+        $account = $contact->account;
+
+        if (! $account->enable_client_portal || ! $account->enable_client_portal_dashboard) {
+            return $this->returnError();
+        }
+
+        $rules = [
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'postal_code' => 'required',
+            'country_id' => 'required',
+        ];
+
+        if ($client->name) {
+            $rules['name'] = 'required';
+        } else {
+            $rules['first_name'] = 'required';
+            $rules['last_name'] = 'required';
+        }
+        if (! $contact->email) {
+            $rules['email'] = 'required';
+        }
+        if ($account->vat_number) {
+            $rules['vat_number'] = 'required';
+        }
+
+        $this->validate($request, $rules);
+
         $contact->fill(request()->all());
         $contact->save();
 
-        $client = $contact->client;
         $client->fill(request()->all());
         $client->save();
 
-        return redirect('/client/dashboard');
+        event(new \App\Events\ClientWasUpdated($client));
+
+        return redirect('/client/dashboard')->withMessage(trans('texts.updated_client_details'));
     }
 }
