@@ -123,11 +123,12 @@
                 <p><i>{!! nl2br(e($client->private_notes)) !!}</i></p>
             @endif
 
-  	        @if ($client->client_industry)
-                {{ $client->client_industry->name }}<br/>
-            @endif
-            @if ($client->client_size)
-                {{ $client->client_size->name }}<br/>
+  	        @if ($client->industry || $client->size)
+                {{ $client->industry->name }}
+                @if ($client->industry && $client->size)
+                    |
+                @endif
+                {{ $client->size->name }}<br/>
             @endif
 
 		  	@if ($client->website)
