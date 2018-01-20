@@ -19,6 +19,9 @@
                     ->id('payment-form')
                     ->rules(array(
                         'name' => 'required',
+                        'email' => 'required|email',
+                        'first_name' => 'required',
+                        'last_name' => 'required',
                         'vat_number' => 'required',
                         'address1' => 'required',
                         'city' => 'required',
@@ -44,11 +47,31 @@
             <div style="padding-bottom: 22px;">
 
                 <div class="row">
-                    <div class="col-md-6">
-                        {!! Former::text('name')
-                                ->placeholder(trans('texts.name'))
-                                ->label('') !!}
-                    </div>
+                    @if ($client->name)
+                        <div class="col-md-6">
+                            {!! Former::text('name')
+                                    ->placeholder(trans('texts.name'))
+                                    ->label('') !!}
+                        </div>
+                    @else
+                        <div class="col-md-6">
+                            {!! Former::text('first_name')
+                                    ->placeholder(trans('texts.first_name'))
+                                    ->label('') !!}
+                        </div>
+                        <div class="col-md-6">
+                            {!! Former::text('last_name')
+                                    ->placeholder(trans('texts.last_name'))
+                                    ->label('') !!}
+                        </div>
+                    @endif
+                    @if (! $contact->email)
+                        <div class="col-md-6">
+                            {!! Former::text('email')
+                                    ->placeholder(trans('texts.email'))
+                                    ->label('') !!}
+                        </div>
+                    @endif
                     @if ($account->vat_number)
                         <div class="col-md-6">
                             {!! Former::text('vat_number')
@@ -131,7 +154,7 @@
     <script type="text/javascript">
 
         $(function() {
-            $('#country_id, #shipping_country_id').combobox();
+            $('#country_id').combobox();
             $('#first_name').focus();
         });
 

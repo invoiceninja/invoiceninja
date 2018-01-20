@@ -977,4 +977,20 @@ class ClientPortalController extends BaseController
 
         return view('invited.details', $data);
     }
+
+    public function updateDetails()
+    {
+        if (! $contact = $this->getContact()) {
+            return $this->returnError();
+        }
+
+        $contact->fill(request()->all());
+        $contact->save();
+
+        $client = $contact->client;
+        $client->fill(request()->all());
+        $client->save();
+
+        return redirect('/client/dashboard');
+    }
 }
