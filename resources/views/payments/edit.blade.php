@@ -223,7 +223,7 @@
             var invoice = invoiceMap[invoiceId];
             var amount = $('#amount').val();
 
-            if (NINJA.praseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
+            if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
                 $('#saveButton').attr('disabled', true);
                 return true;
             } else {
