@@ -789,13 +789,13 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             } else if (field == 'tax') {
                 value = ' ';
                 if (item.tax_name1) {
-                    value += tax1.toString() + '%';
+                    value += (tax1 || '0') + '%';
                 }
                 if (item.tax_name2) {
                     if (item.tax_name1) {
                         value += '  ';
                     }
-                    value += tax2.toString() + '%';
+                    value += (tax2 || '0') + '%';
                 }
             } else if (field == 'line_total') {
                 value = lineTotal;
