@@ -10,7 +10,7 @@ class ProductReport extends AbstractReport
 {
     public function getColumns()
     {
-        return [
+        $columns = [
             'client',
             'invoice_number',
             'invoice_date',
@@ -21,6 +21,17 @@ class ProductReport extends AbstractReport
             //'tax_rate1',
             //'tax_rate2',
         ];
+
+        $account = auth()->user()->account;
+
+        if ($account->custom_invoice_item_label1) {
+            $columns[$account->custom_invoice_item_label1] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->custom_invoice_item_labe2) {
+            $columns[$account->custom_invoice_item_labe2] = ['columnSelector-false', 'custom'];
+        }
+
+        return $columns;
     }
 
     public function run()
@@ -44,7 +55,7 @@ class ProductReport extends AbstractReport
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
                 foreach ($invoice->invoice_items as $item) {
-                    $this->data[] = [
+                    $row = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
@@ -53,6 +64,16 @@ class ProductReport extends AbstractReport
                         Utils::roundSignificant($item->qty, 0),
                         Utils::roundSignificant($item->cost, 2),
                     ];
+
+                    if ($account->custom_invoice_item_label1) {
+                        $row[] = $item->custom_value1;
+                    }
+                    if ($account->custom_invoice_item_labe2) {
+                        $row[] = $item->custom_value2;
+                    }
+
+                    $this->data[] = $row;
+
                 }
 
                 //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);

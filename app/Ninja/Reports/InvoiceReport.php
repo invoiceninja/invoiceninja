@@ -10,7 +10,7 @@ class InvoiceReport extends AbstractReport
 {
     public function getColumns()
     {
-        return [
+        $columns = [
             'client',
             'invoice_number',
             'invoice_date',
@@ -21,6 +21,17 @@ class InvoiceReport extends AbstractReport
             'method',
             'private_notes' => ['columnSelector-false'],
         ];
+
+        $account = auth()->user()->account;
+
+        if ($account->custom_invoice_text_label1) {
+            $columns[$account->custom_invoice_text_label1] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->custom_invoice_text_label1) {
+            $columns[$account->custom_invoice_text_label1] = ['columnSelector-false', 'custom'];
+        }
+
+        return $columns;
     }
 
     public function run()
@@ -65,7 +76,7 @@ class InvoiceReport extends AbstractReport
             foreach ($client->invoices as $invoice) {
                 $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
-                    $this->data[] = [
+                    $row = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
@@ -76,6 +87,15 @@ class InvoiceReport extends AbstractReport
                         $payment ? $payment->present()->method : '',
                         $invoice->private_notes,
                     ];
+
+                    if ($account->custom_invoice_text_label1) {
+                        $row[] = $invoice->custom_text_value1;
+                    }
+                    if ($account->custom_invoice_text_label2) {
+                        $row[] = $invoice->custom_text_value2;
+                    }
+
+                    $this->data[] = $row;
 
                     $this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
                 }
