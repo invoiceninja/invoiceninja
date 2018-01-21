@@ -14,12 +14,12 @@ class IncreasePrecision extends Migration
     {
         Schema::table('products', function ($table) {
             $table->decimal('cost', 15, 4)->change();
-            $table->decimal('qty', 15, 4)->change();
+            $table->decimal('qty', 15, 4)->default(0)->change();
         });
 
         Schema::table('invoice_items', function ($table) {
             $table->decimal('cost', 15, 4)->change();
-            $table->decimal('qty', 15, 4)->change();
+            $table->decimal('qty', 15, 4)->default(0)->change();
         });
 
         Schema::table('clients', function ($table) {
