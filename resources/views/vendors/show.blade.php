@@ -98,7 +98,7 @@
                 {{ $vendor->getCityState() }}<br/>
             @endif
             @if ($vendor->country)
-                {{ $vendor->country->name }}<br/>
+                {{ $vendor->country->getName() }}<br/>
             @endif
 
             @if ($vendor->account->custom_vendor_label1 && $vendor->custom_value1)
@@ -228,7 +228,7 @@
             };
 
             var map = new google.maps.Map(mapCanvas, mapOptions)
-            var address = {!! json_encode(e("{$vendor->address1} {$vendor->address2} {$vendor->city} {$vendor->state} {$vendor->postal_code} " . ($vendor->country ? $vendor->country->name : ''))) !!};
+            var address = {!! json_encode(e("{$vendor->address1} {$vendor->address2} {$vendor->city} {$vendor->state} {$vendor->postal_code} " . ($vendor->country ? $vendor->country->getName() : ''))) !!};
 
             geocoder = new google.maps.Geocoder();
             geocoder.geocode( { 'address': address}, function(results, status) {

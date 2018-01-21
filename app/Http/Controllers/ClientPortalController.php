@@ -117,10 +117,10 @@ class ClientPortalController extends BaseController
 
         // translate the country names
         if ($invoice->client->country) {
-            $invoice->client->country->name = trans('texts.country_' . $invoice->client->country->name);
+            $invoice->client->country->name = $invoice->client->country->getName();
         }
         if ($invoice->account->country) {
-            $invoice->account->country->name = trans('texts.country_' . $invoice->account->country->name);
+            $invoice->account->country->name = $invoice->account->country->getName();
         }
 
         $data = [];

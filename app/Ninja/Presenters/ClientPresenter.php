@@ -8,12 +8,12 @@ class ClientPresenter extends EntityPresenter
 {
     public function country()
     {
-        return $this->entity->country ? $this->entity->country->name : '';
+        return $this->entity->country ? $this->entity->country->getName() : '';
     }
 
     public function shipping_country()
     {
-        return $this->entity->shipping_country ? $this->entity->shipping_country->name : '';
+        return $this->entity->shipping_country ? $this->entity->shipping_country->getName() : '';
     }
 
     public function balance()
@@ -72,7 +72,7 @@ class ClientPresenter extends EntityPresenter
             $str .= e($cityState) . '<br/>';
         }
         if ($country = $client->{$prefix . 'country'}) {
-            $str .= e($country->name) . '<br/>';
+            $str .= e($country->getName()) . '<br/>';
         }
 
         if ($str) {

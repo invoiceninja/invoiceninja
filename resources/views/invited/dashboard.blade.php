@@ -293,7 +293,7 @@
                     {{ $client->getCityState() }}<br/>
                 @endif
                 @if ($client->country)
-                    {{ $client->country->name }}<br/>
+                    {{ $client->country->getName() }}<br/>
                 @endif
                 <br>
                 @if ($contact->email)
@@ -381,7 +381,7 @@
                     {{ $account->getCityState() }}<br/>
                 @endif
                 @if ($account->country)
-                    {{ $account->country->name }}
+                    {{ $account->country->getName() }}
                 @endif
             </div>
             <div class="col-md-3 phone-web-details">
