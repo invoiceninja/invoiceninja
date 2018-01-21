@@ -8,13 +8,17 @@ use Barracuda\ArchiveStream\Archive;
 
 class QuoteReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'quote_number',
-        'quote_date',
-        'amount',
-        'status',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'quote_number',
+            'quote_date',
+            'amount',
+            'status',
+            'private_notes' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -58,6 +62,7 @@ class QuoteReport extends AbstractReport
                     $invoice->present()->invoice_date,
                     $account->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
+                    $invoice->private_notes,
                 ];
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);

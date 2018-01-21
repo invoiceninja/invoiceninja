@@ -9,13 +9,18 @@ use Utils;
 
 class ExpenseReport extends AbstractReport
 {
-    public $columns = [
-        'vendor',
-        'client',
-        'date',
-        'category',
-        'amount',
-    ];
+    public function getColumns()
+    {
+        return [
+            'vendor',
+            'client',
+            'date',
+            'category',
+            'amount',
+            'public_notes' => ['columnSelector-false'],
+            'private_notes' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -57,6 +62,8 @@ class ExpenseReport extends AbstractReport
                 $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
                 Utils::formatMoney($amount, $expense->currency_id),
+                $expense->public_notes,
+                $expense->private_notes,
             ];
 
             $this->addToTotals($expense->expense_currency_id, 'amount', $amount);

@@ -8,13 +8,16 @@ use Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
-    public $columns = [
-        'type',
-        'client',
-        'amount',
-        'date',
-        'notes',
-    ];
+    public function getColumns()
+    {
+        return [
+            'type',
+            'client',
+            'amount',
+            'date',
+            'notes',
+        ];
+    }
 
     public function run()
     {

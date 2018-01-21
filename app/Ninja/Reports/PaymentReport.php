@@ -8,15 +8,19 @@ use Utils;
 
 class PaymentReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice_number',
-        'invoice_date',
-        'amount',
-        'payment_date',
-        'paid',
-        'method',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'invoice_number',
+            'invoice_date',
+            'amount',
+            'payment_date',
+            'paid',
+            'method',
+            'private_notes' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -60,6 +64,7 @@ class PaymentReport extends AbstractReport
                 $payment->present()->payment_date,
                 $amount,
                 $payment->present()->method,
+                $payment->private_notes,
             ];
 
             if (! isset($invoiceMap[$invoice->id])) {

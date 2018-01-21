@@ -7,15 +7,19 @@ use Auth;
 
 class AgingReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice_number',
-        'invoice_date',
-        'due_date',
-        'age',
-        'amount',
-        'balance',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'invoice_number',
+            'invoice_date',
+            'due_date',
+            'age',
+            'amount',
+            'balance',
+        ];
+    }
+
 
     public function run()
     {

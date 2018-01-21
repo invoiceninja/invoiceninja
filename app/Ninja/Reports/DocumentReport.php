@@ -8,12 +8,16 @@ use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
 {
-    public $columns = [
-        'document',
-        'client',
-        'invoice_or_expense',
-        'date',
-    ];
+    public function getColumns()
+    {
+        return [
+            'document',
+            'client',
+            'invoice_or_expense',
+            'date',
+        ];
+    }
+
 
     public function run()
     {

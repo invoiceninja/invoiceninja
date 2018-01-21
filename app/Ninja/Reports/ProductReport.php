@@ -8,17 +8,20 @@ use Utils;
 
 class ProductReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice_number',
-        'invoice_date',
-        'product',
-        'description',
-        'qty',
-        'cost',
-        //'tax_rate1',
-        //'tax_rate2',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'invoice_number',
+            'invoice_date',
+            'product',
+            'description',
+            'qty',
+            'cost',
+            //'tax_rate1',
+            //'tax_rate2',
+        ];
+    }
 
     public function run()
     {

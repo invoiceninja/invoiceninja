@@ -8,16 +8,20 @@ use Barracuda\ArchiveStream\Archive;
 
 class InvoiceReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice_number',
-        'invoice_date',
-        'amount',
-        'status',
-        'payment_date',
-        'paid',
-        'method',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'invoice_number',
+            'invoice_date',
+            'amount',
+            'status',
+            'payment_date',
+            'paid',
+            'method',
+            'private_notes' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -70,6 +74,7 @@ class InvoiceReport extends AbstractReport
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
+                        $invoice->private_notes,
                     ];
 
                     $this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);

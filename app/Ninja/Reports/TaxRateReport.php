@@ -7,14 +7,17 @@ use Auth;
 
 class TaxRateReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice',
-        'tax_name',
-        'tax_rate',
-        'amount',
-        'paid',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'invoice',
+            'tax_name',
+            'tax_rate',
+            'amount',
+            'paid',
+        ];
+    }
 
     public function run()
     {

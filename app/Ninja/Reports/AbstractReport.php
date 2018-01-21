@@ -12,7 +12,6 @@ class AbstractReport
     public $options;
 
     public $totals = [];
-    public $columns = [];
     public $data = [];
 
     public function __construct($startDate, $endDate, $isExport, $options = false)
@@ -28,10 +27,15 @@ class AbstractReport
 
     }
 
+    public function getColumns()
+    {
+        return [];
+    }
+
     public function results()
     {
         return [
-            'columns' => $this->columns,
+            'columns' => $this->getColumns(),
             'displayData' => $this->data,
             'reportTotals' => $this->totals,
         ];
@@ -55,7 +59,7 @@ class AbstractReport
     public function tableHeaderArray() {
         $columns_labeled = [];
 
-        foreach ($this->columns as $key => $val) {
+        foreach ($this->getColumns() as $key => $val) {
             if (is_array($val)) {
                 $field = $key;
                 $class = $val;
@@ -74,8 +78,12 @@ class AbstractReport
                 $class[] = 'group-number-30';
             }
 
+            if (! in_array('custom', $class)) {
+                $label = trans("texts.{$field}");
+            } else {
+                $label = $field;
+            }
             $class = count($class) ? implode(' ', $class) : 'group-false';
-            $label = trans("texts.{$field}");
 
             $columns_labeled[] = [
                 'label' => $label,

@@ -7,14 +7,17 @@ use Utils;
 
 class TaskReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'date',
-        'project',
-        'description',
-        'duration',
-        'amount',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client',
+            'date',
+            'project',
+            'description',
+            'duration',
+            'amount',
+        ];
+    }
 
     public function run()
     {
