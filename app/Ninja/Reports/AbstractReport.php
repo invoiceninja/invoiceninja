@@ -75,7 +75,11 @@ class AbstractReport
             $class = count($class) ? implode(' ', $class) : 'group-false';
             $label = trans("texts.{$field}");
 
-            $columns_labeled[] = ['label' => $label, 'class' => $class, 'key' => $field];
+            $columns_labeled[] = [
+                'label' => $label,
+                'class' => $class,
+                'key' => $field
+            ];
         }
 
         return $columns_labeled;
@@ -87,7 +91,7 @@ class AbstractReport
         $str = '';
 
         foreach ($columns_labeled as $field => $attr)
-            $str .= "<th class=\"{$attr['class']}\">{$attr['label']}</th>";
+            $str .= "<th class=\"{$attr['class']}\" data-priority=\"3\">{$attr['label']}</th>";
 
         return $str;
     }

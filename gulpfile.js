@@ -125,6 +125,7 @@ elixir(function(mix) {
         bowerDir + '/tablesorter/dist/js/widgets/widget-grouping.min.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-uitheme.min.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-filter.min.js',
+        bowerDir + '/tablesorter/dist/js/widgets/widget-columnSelector.min.js',
     ], 'public/js/tablesorter.min.js');
 
     mix.scripts([

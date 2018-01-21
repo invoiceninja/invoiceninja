@@ -3,14 +3,14 @@
 @section('head')
 	@parent
 
-    <script src="{{ asset('js/daterangepicker.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/daterangepicker.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <link href="{{ asset('css/daterangepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
-    <link href="{{ asset('css/tablesorter.css') }}" rel="stylesheet" type="text/css"/>
-    <script src="{{ asset('js/tablesorter.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/tablesorter.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/tablesorter.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
-	<link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
-    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+	<link href="{{ asset('css/select2.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/select2.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
 	<style type="text/css">
 		table.tablesorter th {
@@ -20,6 +20,14 @@
 		.select2-selection {
 			background-color: #f9f9f9 !important;
 			width: 100%;
+		}
+
+		.tablesorter-column-selector label {
+			display: block;
+		}
+
+		.tablesorter-column-selector input {
+			margin-right: 8px;
 		}
 
 	</style>
@@ -232,11 +240,22 @@
 				->appendIcon(Icon::create('time')) !!}
 
 	 	</span> &nbsp;&nbsp;
+
 		{!! Button::success(trans('texts.run'))
 				->withAttributes(array('id' => 'submitButton'))
 				->submit()
 				->appendIcon(Icon::create('play'))
 				->large() !!}
+
+		<button id="popover" type="button" class="btn btn-default btn-lg">
+		  {{ trans('texts.columns') }}
+		  {!! Icon::create('th-list') !!}
+		</button>
+
+		<div class="hidden">
+		  <div id="popover-target"></div>
+		</div>
+
 	</center>
 
 	@if (request()->report_type)
@@ -278,16 +297,6 @@
         </table>
 		<p>&nbsp;</p>
         @endif
-
-		<!--
-		<div class="columnSelectorWrapper">
-		  <input id="colSelect1" type="checkbox" class="hidden">
-		  <label class="columnSelectorButton" for="colSelect1">Column</label>
-
-		  <div id="columnSelector" class="columnSelector">
-		  </div>
-		</div>
-		-->
 
         <table class="tablesorter tablesorter-data" style="display:none">
         <thead>
@@ -526,7 +535,7 @@
 					return direction ? a - b : b - a;
 				},
 				widgetOptions : {
-					columnSelector_container : $('#columnSelector'),
+					columnSelector_mediaqueryName: "{{ trans('texts.auto') }}",
 					filter_cssFilter: 'form-control',
 					group_collapsed: true,
 					group_saveGroups: false,
@@ -547,6 +556,16 @@
 			        },
 			    }
 			}).show();
+
+			// call this function to copy the column selection code into the popover
+			$.tablesorter.columnSelector.attachTo( $('.tablesorter-data'), '#popover-target');
+
+			$('#popover')
+			  .popover({
+				placement: 'right',
+				html: true, // required if content has HTML
+				content: $('#popover-target')
+			  });
 
 			$(".tablesorter-totals").tablesorter({
 				theme: 'bootstrap',
