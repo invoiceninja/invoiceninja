@@ -14,8 +14,10 @@ class TaxRateReport extends AbstractReport
             'invoice',
             'tax_name',
             'tax_rate',
-            'amount',
-            'paid',
+            'tax_amount',
+            'tax_paid',
+            'invoice_amount' => ['columnSelector-false'],
+            'payment_amount' => ['columnSelector-false'],
         ];
     }
 
@@ -77,6 +79,8 @@ class TaxRateReport extends AbstractReport
                             $tax['rate'] . '%',
                             $account->formatMoney($tax['amount'], $client),
                             $account->formatMoney($tax['paid'], $client),
+                            $invoice->present()->amount,
+                            $invoice->present()->paid,
                         ];
 
                         $this->addToTotals($client->currency_id, 'amount', $tax['amount']);

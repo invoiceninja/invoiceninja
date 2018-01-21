@@ -22,4 +22,18 @@ class InvoiceItemPresenter extends EntityPresenter
     {
         return Str::limit($this->entity->notes);
     }
+
+    public function tax1()
+    {
+        $item = $this->entity;
+
+        return $item->tax_name1 . ' ' . $item->tax_rate1 . '%';
+    }
+
+    public function tax2()
+    {
+        $item = $this->entity;
+
+        return $item->tax_name2 . ' ' . $item->tax_rate2 . '%';
+    }
 }

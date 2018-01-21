@@ -2655,6 +2655,8 @@ $LANG = array(
     'client_information' => 'Client Information',
     'updated_client_details' => 'Successfully updated client details',
     'auto' => 'Auto',
+    'tax_amount' => 'Tax Amount',
+    'tax_paid' => 'Tax Paid',
 
 );
 

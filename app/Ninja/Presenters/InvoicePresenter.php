@@ -38,6 +38,14 @@ class InvoicePresenter extends EntityPresenter
         return $account->formatMoney($invoice->balance, $invoice->client);
     }
 
+    public function paid()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        return $account->formatMoney($invoice->amount - $invoice->balance, $invoice->client);
+    }
+
     public function partial()
     {
         $invoice = $this->entity;

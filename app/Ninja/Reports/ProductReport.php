@@ -24,6 +24,13 @@ class ProductReport extends AbstractReport
 
         $account = auth()->user()->account;
 
+        if ($account->invoice_item_taxes) {
+            $columns['tax'] = ['columnSelector-false'];
+            if ($account->enable_second_tax_rate) {
+                $columns['tax'] = ['columnSelector-false'];
+            }
+        }
+
         if ($account->custom_invoice_item_label1) {
             $columns[$account->custom_invoice_item_label1] = ['columnSelector-false', 'custom'];
         }
@@ -64,6 +71,13 @@ class ProductReport extends AbstractReport
                         Utils::roundSignificant($item->qty, 0),
                         Utils::roundSignificant($item->cost, 2),
                     ];
+
+                    if ($account->invoice_item_taxes) {
+                        $row[] = $item->present()->tax1;
+                        if ($account->enable_second_tax_rate) {
+                            $row[] = $item->present()->tax2;
+                        }
+                    }
 
                     if ($account->custom_invoice_item_label1) {
                         $row[] = $item->custom_value1;
