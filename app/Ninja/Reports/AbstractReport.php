@@ -70,6 +70,8 @@ class AbstractReport
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
                 $class[] = 'group-number-50';
+            } elseif (in_array($field, ['age'])) {
+                $class[] = 'group-number-30';
             }
 
             $class = count($class) ? implode(' ', $class) : 'group-false';
@@ -90,8 +92,9 @@ class AbstractReport
         $columns_labeled = $this->tableHeaderArray();
         $str = '';
 
-        foreach ($columns_labeled as $field => $attr)
-            $str .= "<th class=\"{$attr['class']}\" data-priority=\"3\">{$attr['label']}</th>";
+        foreach ($columns_labeled as $field => $attr) {
+            $str .= sprintf('<th class="%s" data-priorityx="3">%s</th>', $attr['class'], $attr['label']);
+        }
 
         return $str;
     }

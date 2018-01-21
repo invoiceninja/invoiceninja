@@ -12,7 +12,7 @@ class AgingReport extends AbstractReport
         'invoice_number',
         'invoice_date',
         'due_date',
-        'age' => ['group-number-30'],
+        'age',
         'amount',
         'balance',
     ];

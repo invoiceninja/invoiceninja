@@ -247,14 +247,16 @@
 				->appendIcon(Icon::create('play'))
 				->large() !!}
 
-		<button id="popover" type="button" class="btn btn-default btn-lg">
-		  {{ trans('texts.columns') }}
-		  {!! Icon::create('th-list') !!}
-		</button>
+		@if (request()->report_type)
+			<button id="popover" type="button" class="btn btn-default btn-lg">
+			  {{ trans('texts.columns') }}
+			  {!! Icon::create('th-list') !!}
+			</button>
 
-		<div class="hidden">
-		  <div id="popover-target"></div>
-		</div>
+			<div class="hidden">
+			  <div id="popover-target"></div>
+			</div>
+		@endif
 
 	</center>
 
@@ -298,7 +300,7 @@
 		<p>&nbsp;</p>
         @endif
 
-        <table class="tablesorter tablesorter-data" style="display:none">
+        <table id="{{ request()->report_type }}Report" class="tablesorter tablesorter-data" style="display:none">
         <thead>
             <tr>
 				{!! $report ? $report->tableHeader() : '' !!}
@@ -424,7 +426,7 @@
 	function setFiltersShown() {
 		var val = $('#report_type').val();
 		$('#dateField').toggle(val == '{{ ENTITY_TAX_RATE }}');
-		$('#statusField').toggle(val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}');
+		$('#statusField').toggle(['invoice', 'quote', 'product'].indexOf(val) >= 0);
 		$('#invoiceOrExpenseField').toggle(val == '{{ ENTITY_DOCUMENT }}');
 		$('#currencyType').toggle(val == '{{ ENTITY_PAYMENT }}');
 	}
@@ -536,6 +538,9 @@
 				},
 				widgetOptions : {
 					columnSelector_mediaqueryName: "{{ trans('texts.auto') }}",
+					columnSelector_mediaqueryHidden: true,
+					columnSelector_saveColumns: true,
+					//storage_useSessionStorage: true,
 					filter_cssFilter: 'form-control',
 					group_collapsed: true,
 					group_saveGroups: false,
@@ -557,15 +562,15 @@
 			    }
 			}).show();
 
-			// call this function to copy the column selection code into the popover
-			$.tablesorter.columnSelector.attachTo( $('.tablesorter-data'), '#popover-target');
-
-			$('#popover')
-			  .popover({
-				placement: 'right',
-				html: true, // required if content has HTML
-				content: $('#popover-target')
-			  });
+			@if (request()->report_type)
+				$.tablesorter.columnSelector.attachTo( $('.tablesorter-data'), '#popover-target');
+				$('#popover')
+				.popover({
+					placement: 'right',
+					html: true, // required if content has HTML
+					content: $('#popover-target')
+				});
+			@endif
 
 			$(".tablesorter-totals").tablesorter({
 				theme: 'bootstrap',
