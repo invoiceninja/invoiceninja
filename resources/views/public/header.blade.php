@@ -106,17 +106,17 @@
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
                         </li>
                     @endif
-                    @if (isset($hasPaymentMethods) && $hasPaymentMethods)
-                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
-                            {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
-                        </li>
-                    @endif
                     <li {!! Request::is('*client/payments') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/payments', trans('texts.payments') ) !!}
                     </li>
                     @if (isset($hasCredits) && $hasCredits)
                         <li {!! Request::is('*client/credits') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/credits', trans('texts.credits') ) !!}
+                        </li>
+                    @endif
+                    @if (isset($hasPaymentMethods) && $hasPaymentMethods)
+                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>
                     @endif
                     @if ($account->enable_portal_password && request()->contact->password)

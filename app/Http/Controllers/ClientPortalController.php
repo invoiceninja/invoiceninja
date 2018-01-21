@@ -269,6 +269,7 @@ class ClientPortalController extends BaseController
         if (! $account->enable_client_portal) {
             return $this->returnError();
         } elseif (! $account->enable_client_portal_dashboard) {
+            session()->reflash();
             return redirect()->to('/client/invoices/');
         }
 
@@ -987,7 +988,7 @@ class ClientPortalController extends BaseController
         $client = $contact->client;
         $account = $contact->account;
 
-        if (! $account->enable_client_portal || ! $account->enable_client_portal_dashboard) {
+        if (! $account->enable_client_portal) {
             return $this->returnError();
         }
 
@@ -1022,6 +1023,7 @@ class ClientPortalController extends BaseController
 
         event(new \App\Events\ClientWasUpdated($client));
 
-        return redirect('/client/dashboard')->withMessage(trans('texts.updated_client_details'));
+        return redirect($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods')
+            ->withMessage(trans('texts.updated_client_details'));
     }
 }
