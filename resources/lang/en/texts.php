@@ -2406,6 +2406,7 @@ $LANG = array(
     'currency_peruvian_sol' => 'Peruvian Sol',
     'currency_botswana_pula' => 'Botswana Pula',
     'currency_hungarian_forint' => 'Hungarian Forint',
+    'currency_ugandan_shilling' => 'Ugandan Shilling',
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
