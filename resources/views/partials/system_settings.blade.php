@@ -33,23 +33,23 @@
           </div>
           <div class="panel-body form-padding-right">
             {!! Former::select('mail[driver]')->label('driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail', 'mailgun' => 'Mailgun'])
-                     ->value(isset($_ENV['MAIL_DRIVER']) ? $_ENV['MAIL_DRIVER'] : 'smtp')->setAttributes(['onchange' => 'mailDriverChange()']) !!}
+                     ->value(HTMLUtils::getEnvForAccount('MAIL_DRIVER', 'smtp'))->setAttributes(['onchange' => 'mailDriverChange()']) !!}
             {!! Former::text('mail[from][name]')->label('from_name')
-                     ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
+                     ->value(HTMLUtils::getEnvForAccount('MAIL_FROM_NAME'))  !!}
             {!! Former::text('mail[from][address]')->label('from_address')
-                     ->value(isset($_ENV['MAIL_FROM_ADDRESS']) ? $_ENV['MAIL_FROM_ADDRESS'] : '')  !!}
+                     ->value(HTMLUtils::getEnvForAccount('MAIL_FROM_ADDRESS'))  !!}
             {!! Former::text('mail[username]')->label('username')
-                     ->value(isset($_ENV['MAIL_USERNAME']) ? $_ENV['MAIL_USERNAME'] : '')  !!}
+                     ->value(HTMLUtils::getEnvForAccount('MAIL_USERNAME'))  !!}
             <div id="standardMailSetup">
               {!! Former::text('mail[host]')->label('host')
-                      ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
+                      ->value(HTMLUtils::getEnvForAccount('MAIL_HOST')) !!}
               {!! Former::text('mail[port]')->label('port')
-                      ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
+                      ->value(HTMLUtils::getEnvForAccount('MAIL_PORT', '587'))  !!}
               {!! Former::select('mail[encryption]')->label('encryption')
                       ->options(['tls' => 'TLS', 'ssl' => 'SSL', '' => trans('texts.none')])
-                      ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
+                      ->value(HTMLUtils::getEnvForAccount('MAIL_ENCRYPTION', 'tls'))  !!}
               {!! Former::password('mail[password]')->label('password')
-                      ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}
+                      ->value(HTMLUtils::getEnvForAccount('MAIL_PASSWORD'))  !!}
             </div>
             <div id="mailgunMailSetup">
               {!! Former::text('mail[mailgun_domain]')->label('mailgun_domain')

@@ -61,4 +61,17 @@ class HTMLUtils
             return $previous;
         }
     }
+
+    public static function getEnvForAccount($field, $default = '')
+    {
+        $key = '';
+
+        if ($user = auth()->user()) {
+            $key .= $user->account->id . '_';
+        }
+
+        $key .= $field;
+
+        return env($key, env($field, $default));
+    }
 }
