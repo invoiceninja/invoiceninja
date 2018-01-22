@@ -993,6 +993,7 @@ class ClientPortalController extends BaseController
         }
 
         $rules = [
+            'email' => 'required',
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -1005,9 +1006,6 @@ class ClientPortalController extends BaseController
         } else {
             $rules['first_name'] = 'required';
             $rules['last_name'] = 'required';
-        }
-        if (! $contact->email) {
-            $rules['email'] = 'required';
         }
         if ($account->vat_number) {
             $rules['vat_number'] = 'required';

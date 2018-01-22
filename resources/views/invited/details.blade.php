@@ -8,7 +8,7 @@
         <p>&nbsp;</p>
 
         <div class="panel panel-default">
-        <div class="panel-body">
+        <div class="panel-body client-details">
 
             <p>&nbsp;</p>
             <p>&nbsp;</p>
@@ -64,13 +64,11 @@
                                     ->label('') !!}
                         </div>
                     @endif
-                    @if (! $contact->email)
-                        <div class="col-md-6">
-                            {!! Former::text('email')
-                                    ->placeholder(trans('texts.email'))
-                                    ->label('') !!}
-                        </div>
-                    @endif
+                    <div class="col-md-6">
+                        {!! Former::text('email')
+                                ->placeholder(trans('texts.email'))
+                                ->label('') !!}
+                    </div>
                     @if ($account->vat_number)
                         <div class="col-md-6">
                             {!! Former::text('vat_number')
