@@ -1429,7 +1429,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $account = $this->account;
 
         if ($account->inclusive_taxes) {
-            return round(($taxable * 100) / (100 + ($rate * 100)), 2);
+            return round($taxable - ($taxable / (1 + ($rate / 100))), 2);
         } else {
             return round($taxable * ($rate / 100), 2);
         }
