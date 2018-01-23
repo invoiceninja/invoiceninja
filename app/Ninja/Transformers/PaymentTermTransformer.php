@@ -30,7 +30,7 @@ class PaymentTermTransformer extends EntityTransformer
             'name' => trans('texts.payment_terms_net') . ' ' . $paymentTerm->getNumDays(),
             'updated_at' => $this->getTimestamp($paymentTerm->updated_at),
             'archived_at' => $this->getTimestamp($paymentTerm->deleted_at),
-            'is_default' => $paymentTerm->account_id == 0 ? 1 : 0,
+            'is_default' => (bool) $paymentTerm->account_id == 0 ? true : false,
         ]);
     }
 }
