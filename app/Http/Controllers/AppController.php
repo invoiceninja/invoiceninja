@@ -122,6 +122,10 @@ class AppController extends BaseController
         fwrite($fp, $config);
         fclose($fp);
 
+        if (Utils::isDatabaseSetup()) {
+            return Redirect::to('/login');
+        }
+
         // == DB Migrate & Seed == //
         $sqlFile = base_path() . '/database/setup.sql';
         DB::unprepared(file_get_contents($sqlFile));
