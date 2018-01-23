@@ -1279,7 +1279,7 @@ class Utils
         $tax1 = round($amount * $taxRate1 / 100, 2);
         $tax2 = round($amount * $taxRate2 / 100, 2);
 
-        return round($amount + $tax1 + $tax2, 2);
+        return round($tax1 + $tax2, 2);
     }
 
     public static function roundSignificant($value, $precision = 2) {

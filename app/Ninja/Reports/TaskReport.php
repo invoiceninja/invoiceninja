@@ -10,12 +10,12 @@ class TaskReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'client',
-            'date',
-            'project',
-            'description',
-            'duration',
-            'amount',
+            'client' => [],
+            'date' => [],
+            'project' => [],
+            'description' => [],
+            'duration' => [],
+            'amount' => [],
         ];
     }
 

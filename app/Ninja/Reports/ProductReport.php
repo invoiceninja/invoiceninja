@@ -11,13 +11,13 @@ class ProductReport extends AbstractReport
     public function getColumns()
     {
         $columns = [
-            'client',
-            'invoice_number',
-            'invoice_date',
-            'product',
-            'description',
-            'qty',
-            'cost',
+            'client' => [],
+            'invoice_number' => [],
+            'invoice_date' => [],
+            'product' => [],
+            'description' => [],
+            'qty' => [],
+            'cost' => [],
             //'tax_rate1',
             //'tax_rate2',
         ];

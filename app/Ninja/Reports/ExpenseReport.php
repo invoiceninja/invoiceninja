@@ -12,11 +12,12 @@ class ExpenseReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'vendor',
-            'client',
-            'date',
-            'category',
-            'amount',
+            'vendor' => [],
+            'client' => [],
+            'date' => [],
+            'category' => [],
+            'amount' => [],
+            'tax' => ['columnSelector-false'],
             'public_notes' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
         ];
@@ -35,7 +36,7 @@ class ExpenseReport extends AbstractReport
         $expenses = Expense::scope()
                         ->orderBy('expense_date', 'desc')
                         ->withArchived()
-                        ->with('client.contacts', 'vendor')
+                        ->with('client.contacts', 'vendor', 'expense_category')
                         ->where('expense_date', '>=', $this->startDate)
                         ->where('expense_date', '<=', $this->endDate);
 
@@ -62,6 +63,7 @@ class ExpenseReport extends AbstractReport
                 $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
                 Utils::formatMoney($amount, $expense->currency_id),
+                $expense->present()->taxAmount,
                 $expense->public_notes,
                 $expense->private_notes,
             ];

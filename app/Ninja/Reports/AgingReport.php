@@ -10,13 +10,13 @@ class AgingReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'client',
-            'invoice_number',
-            'invoice_date',
-            'due_date',
-            'age',
-            'amount',
-            'balance',
+            'client' => [],
+            'invoice_number' => [],
+            'invoice_date' => [],
+            'due_date' => [],
+            'age' => [],
+            'amount' => [],
+            'balance' => [],
         ];
     }
 

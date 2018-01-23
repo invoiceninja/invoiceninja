@@ -445,10 +445,10 @@
 	}
 
 	var sumColumns = [];
-	@foreach ($columns as $column)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration']) ? trans("texts.{$column}") : false }}");
+	@foreach ($columns as $column => $class)
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration', 'tax']) ? trans("texts.{$column}") : false }}");
 	@endforeach
-
+	console.log(sumColumns);
     $(function() {
         $('.start_date .input-group-addon').click(function() {
             toggleDatePicker('start_date');

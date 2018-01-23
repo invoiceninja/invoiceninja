@@ -10,12 +10,12 @@ class TaxRateReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'client',
-            'invoice',
-            'tax_name',
-            'tax_rate',
-            'tax_amount',
-            'tax_paid',
+            'client' => [],
+            'invoice' => [],
+            'tax_name' => [],
+            'tax_rate' => [],
+            'tax_amount' => [],
+            'tax_paid' => [],
             'invoice_amount' => ['columnSelector-false'],
             'payment_amount' => ['columnSelector-false'],
         ];

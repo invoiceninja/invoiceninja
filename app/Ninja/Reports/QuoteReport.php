@@ -11,11 +11,11 @@ class QuoteReport extends AbstractReport
     public function getColumns()
     {
         $columns = [
-            'client',
-            'quote_number',
-            'quote_date',
-            'amount',
-            'status',
+            'client' => [],
+            'quote_number' => [],
+            'quote_date' => [],
+            'amount' => [],
+            'status' => [],
             'private_notes' => ['columnSelector-false'],
         ];
 

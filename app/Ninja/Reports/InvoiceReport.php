@@ -11,14 +11,14 @@ class InvoiceReport extends AbstractReport
     public function getColumns()
     {
         $columns = [
-            'client',
-            'invoice_number',
-            'invoice_date',
-            'amount',
-            'status',
-            'payment_date',
-            'paid',
-            'method',
+            'client' => [],
+            'invoice_number' => [],
+            'invoice_date' => [],
+            'amount' => [],
+            'status' => [],
+            'payment_date' => [],
+            'paid' => [],
+            'method' => [],
             'private_notes' => ['columnSelector-false'],
         ];
 

@@ -254,6 +254,11 @@ class Expense extends EntityModel
 
     public function amountWithTax()
     {
+        return $this->amount + $this->taxAmount();
+    }
+
+    public function taxAmount()
+    {
         return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
     }
 

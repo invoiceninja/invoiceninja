@@ -11,10 +11,10 @@ class DocumentReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'document',
-            'client',
-            'invoice_or_expense',
-            'date',
+            'document' => [],
+            'client' => [],
+            'invoice_or_expense' => [],
+            'date' => [],
         ];
     }
 

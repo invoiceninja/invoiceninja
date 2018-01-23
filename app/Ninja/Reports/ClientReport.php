@@ -10,10 +10,10 @@ class ClientReport extends AbstractReport
     public function getColumns()
     {
         $columns = [
-            'client',
-            'amount',
-            'paid',
-            'balance',
+            'client' => [],
+            'amount' => [],
+            'paid' => [],
+            'balance' => [],
             'public_notes' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
         ];

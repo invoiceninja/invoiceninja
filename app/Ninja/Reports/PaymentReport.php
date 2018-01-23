@@ -11,13 +11,13 @@ class PaymentReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'client',
-            'invoice_number',
-            'invoice_date',
-            'amount',
-            'payment_date',
-            'paid',
-            'method',
+            'client' => [],
+            'invoice_number' => [],
+            'invoice_date' => [],
+            'amount' => [],
+            'payment_date' => [],
+            'paid' => [],
+            'method' => [],
             'private_notes' => ['columnSelector-false'],
         ];
     }

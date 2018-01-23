@@ -10,10 +10,10 @@ class ActivityReport extends AbstractReport
     public function getColumns()
     {
         return [
-            'date',
-            'client',
-            'user',
-            'activity',
+            'date' => [],
+            'client' => [],
+            'user' => [],
+            'activity' => [],
         ];
     }
 
