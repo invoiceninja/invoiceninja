@@ -671,7 +671,7 @@ function calculateAmounts(invoice) {
     } else if (invoice.account.inclusive_taxes != '1') {
         var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
     } else {
-        var taxAmount1 = roundToTwo((lineTotal * 100) / (100 + (taxRate1 * 100)));
+        var taxAmount1 = roundToTwo(lineTotal - (lineTotal / (1 + (taxRate1 / 100))))
     }
     if (taxAmount1 != 0 || taxName1) {
       hasTaxes = true;
@@ -688,7 +688,7 @@ function calculateAmounts(invoice) {
     } else if (invoice.account.inclusive_taxes != '1') {
         var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
     } else {
-        var taxAmount2 = roundToTwo((lineTotal * 100) / (100 + (taxRate2 * 100)));
+        var taxAmount2 = roundToTwo(lineTotal - (lineTotal / (1 + (taxRate2 / 100))))
     }
     if (taxAmount2 != 0 || taxName2) {
       hasTaxes = true;
@@ -743,8 +743,8 @@ function calculateAmounts(invoice) {
         }
       }
   } else {
-     taxAmount1 = roundToTwo((total * 100) / (100 + (taxRate1 * 100)));
-     taxAmount2 = roundToTwo((total * 100) / (100 + (taxRate2 * 100)));
+     taxAmount1 = roundToTwo(total - (total / (1 + (taxRate1 / 100))))
+     taxAmount2 = roundToTwo(total - (total / (1 + (taxRate2 / 100))))
   }
 
   // custom fields w/o with taxes

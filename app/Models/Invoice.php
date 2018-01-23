@@ -1404,7 +1404,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         if ($this->tax_name1) {
             if ($account->inclusive_taxes) {
-                $invoiceTaxAmount = round(($taxable * 100) / (100 + ($this->tax_rate1 * 100)), 2);
+                $invoiceTaxAmount = round($taxable - ($taxable / (1 + ($this->tax_rate1 / 100))), 2);
             } else {
                 $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
             }
@@ -1414,7 +1414,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         if ($this->tax_name2) {
             if ($account->inclusive_taxes) {
-                $invoiceTaxAmount = round(($taxable * 100) / (100 + ($this->tax_rate2 * 100)), 2);
+                $invoiceTaxAmount = round($taxable - ($taxable / (1 + ($this->tax_rate2 / 100))), 2);
             } else {
                 $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
             }
@@ -1427,7 +1427,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
             if ($invoiceItem->tax_name1) {
                 if ($account->inclusive_taxes) {
-                    $itemTaxAmount = round(($itemTaxable * 100) / (100 + ($invoiceItem->tax_rate1 * 100)), 2);
+                    $itemTaxAmount = round($taxable - ($taxable / (1 + ($invoiceItem->tax_rate1 / 100))), 2);
                 } else {
                     $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate1 / 100), 2);
                 }
@@ -1437,7 +1437,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
             if ($invoiceItem->tax_name2) {
                 if ($account->inclusive_taxes) {
-                    $itemTaxAmount = round(($itemTaxable * 100) / (100 + ($invoiceItem->tax_rate2 * 100)), 2);
+                    $itemTaxAmount = round($taxable - ($taxable / (1 + ($invoiceItem->tax_rate2 / 100))), 2);
                 } else {
                     $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate2 / 100), 2);
                 }
