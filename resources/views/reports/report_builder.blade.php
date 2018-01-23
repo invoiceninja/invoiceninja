@@ -129,11 +129,6 @@
     {!! Former::populateField('start_date', $startDate) !!}
     {!! Former::populateField('end_date', $endDate) !!}
 
-	@if ( ! request()->report_type)
-		{!! Former::populateField('group_when_sorted', 1) !!}
-		{!! Former::populateField('group_dates_by', 'monthyear') !!}
-	@endif
-
 	<div class="row">
 		<div class="col-lg-12">
             <div class="panel panel-default">
@@ -162,6 +157,16 @@
                                 </div>
                             </div>
                         </div>
+
+                    </div>
+                    <div class="col-md-6">
+
+						{!! Former::select('group_dates_by')
+									->label('group_when_sorted')
+									->addOption(trans('texts.disabled'), '')
+									->addOption(trans('texts.day'), 'day')
+									->addOption(trans('texts.month'), 'monthyear')
+									->addOption(trans('texts.year'), 'year') !!}
 
 						<div id="statusField" style="display:none">
 
@@ -195,15 +200,6 @@
 									->addOption(trans('texts.invoice'), 'invoice')
 									->addOption(trans('texts.expense'), 'expense') !!}
 						</div>
-
-                    </div>
-                    <div class="col-md-6">
-
-						{!! Former::checkbox('group_when_sorted')->text('enable') !!}
-						{!! Former::select('group_dates_by')
-									->addOption(trans('texts.day'), 'day')
-									->addOption(trans('texts.month'), 'monthyear')
-									->addOption(trans('texts.year'), 'year') !!}
 
         		  </div>
         </div>
@@ -493,6 +489,12 @@
             }
         });
 
+		$('#group_dates_by').change(function() {
+            if (isStorageSupported()) {
+                localStorage.setItem('last:report_group', $('#group_dates_by').val());
+            }
+        });
+
 		// parse 1,000.00 or 1.000,00
 		function convertStringToNumber(str) {
 			str = str + '' || '';
@@ -522,11 +524,11 @@
 				}).maximizeSelect2Height();
 
   			$(".tablesorter-data").tablesorter({
-				@if (! request()->group_when_sorted)
+				@if (! request()->group_dates_by)
 					sortList: [[0,0]],
 				@endif
 				theme: 'bootstrap',
-				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
+				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_dates_by ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
 				@if ($report)
 					dateFormat: '{{ $report->convertDateFormat() }}',
@@ -587,6 +589,10 @@
 				var lastReportType = localStorage.getItem('last:report_type');
 				if (lastReportType) {
 					$('#report_type').val(lastReportType);
+				}
+				var lastGroup = localStorage.getItem('last:report_group');
+				if (group_dates_by) {
+					$('#group_dates_by').val(lastGroup);
 				}
 				var lastDocumentFilter = localStorage.getItem('last:document_filter');
 				if (lastDocumentFilter) {
