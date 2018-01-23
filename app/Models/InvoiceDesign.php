@@ -89,7 +89,7 @@ class InvoiceDesign extends Eloquent
                 if ($javascript = $account->getCustomDesign($design->id)) {
                     $design->javascript = $javascript;
                 } else {
-                    $designs->forget($design->id - 1);
+                    $data->forget($design->id - 1);
                 }
             }
         }
