@@ -158,6 +158,9 @@
 	}
 
     function loadChart(data) {
+        if (! data.duration) {
+            return;
+        }
         var ctx = document.getElementById('chart-canvas').getContext('2d');
         $('#chart-canvas').fadeIn();
         window.myChart = new Chart(ctx, {
