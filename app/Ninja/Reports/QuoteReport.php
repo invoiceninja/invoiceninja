@@ -19,19 +19,17 @@ class QuoteReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
-        $status = $this->options['invoice_status'];
+        $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
 
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function ($query) use ($status) {
-                            if ($status == 'draft') {
-                                $query->whereIsPublic(false);
-                            }
+                        ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->quotes()
                                   ->withArchived()
+                                  ->statusIds($statusIds)
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
                                   ->with(['invoice_items']);
