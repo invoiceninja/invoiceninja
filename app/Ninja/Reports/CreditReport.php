@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Ninja\Reports;
+
+use App\Models\Client;
+use Auth;
+
+class CreditReport extends AbstractReport
+{
+    public function getColumns()
+    {
+        $columns = [
+            'client' => [],
+            'amount' => [],
+            'balance' => [],
+        ];
+
+        return $columns;
+    }
+
+    public function run()
+    {
+        $account = Auth::user()->account;
+
+        $clients = Client::scope()
+                        ->orderBy('name')
+                        ->withArchived()
+                        ->with(['credits' => function ($query) {
+                            $query->where('credit_date', '>=', $this->startDate)
+                                  ->where('credit_date', '<=', $this->endDate)
+                                  ->withArchived();
+                        }]);
+
+        foreach ($clients->get() as $client) {
+            $amount = 0;
+            $balance = 0;
+
+            foreach ($client->credits as $credit) {
+                $amount += $credit->amount;
+                $balance += $credit->balance;
+            }
+
+            if (! $amount && ! $balance) {
+                continue;
+            }
+
+            $row = [
+                $this->isExport ? $client->getDisplayName() : $client->present()->link,
+                $account->formatMoney($amount, $client),
+                $account->formatMoney($balance, $client),
+            ];
+
+            $this->data[] = $row;
+
+            $this->addToTotals($client->currency_id, 'amount', $amount);
+            $this->addToTotals($client->currency_id, 'balance', $balance);
+        }
+    }
+}
