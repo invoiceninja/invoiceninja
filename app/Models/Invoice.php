@@ -1424,6 +1424,17 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $taxes;
     }
 
+    public function getTaxTotal()
+    {
+        $total = 0;
+
+        foreach ($this->getTaxes() as $tax) {
+            $total += $tax['amount'];
+        }
+
+        return $total;
+    }
+
     public function taxAmount($taxable, $rate)
     {
         $account = $this->account;

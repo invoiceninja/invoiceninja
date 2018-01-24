@@ -5,6 +5,7 @@ namespace App\Ninja\Reports;
 use App\Models\Client;
 use Auth;
 use Barracuda\ArchiveStream\Archive;
+use App\Models\TaxRate;
 
 class QuoteReport extends AbstractReport
 {
@@ -18,6 +19,10 @@ class QuoteReport extends AbstractReport
             'status' => [],
             'private_notes' => ['columnSelector-false'],
         ];
+
+        if (TaxRate::scope()->count()) {
+            $columns['tax'] = ['columnSelector-false'];
+        }
 
         $account = auth()->user()->account;
 
@@ -75,6 +80,10 @@ class QuoteReport extends AbstractReport
                     $invoice->present()->status(),
                     $invoice->private_notes,
                 ];
+
+                if (TaxRate::scope()->count()) {
+                    $row[] = $invoice->getTaxTotal();
+                }
 
                 if ($account->custom_invoice_text_label1) {
                     $row[] = $invoice->custom_text_value1;

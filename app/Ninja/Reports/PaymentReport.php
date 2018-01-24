@@ -42,6 +42,7 @@ class PaymentReport extends AbstractReport
                         ->where('payment_date', '>=', $this->startDate)
                         ->where('payment_date', '<=', $this->endDate);
 
+        $lastInvoiceId = 0;
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
             $client = $payment->client;
@@ -60,7 +61,7 @@ class PaymentReport extends AbstractReport
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                 $invoice->present()->invoice_date,
-                $account->formatMoney($invoice->amount, $client),
+                $lastInvoiceId == $invoice->id ? '' : $account->formatMoney($invoice->amount, $client),
                 $payment->present()->payment_date,
                 $amount,
                 $payment->present()->method,
@@ -76,6 +77,8 @@ class PaymentReport extends AbstractReport
                     $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 }
             }
+
+            $lastInvoiceId = $invoice->id;
         }
     }
 }

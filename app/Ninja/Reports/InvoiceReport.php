@@ -5,6 +5,7 @@ namespace App\Ninja\Reports;
 use App\Models\Client;
 use Auth;
 use Barracuda\ArchiveStream\Archive;
+use App\Models\TaxRate;
 
 class InvoiceReport extends AbstractReport
 {
@@ -21,6 +22,10 @@ class InvoiceReport extends AbstractReport
             'method' => [],
             'private_notes' => ['columnSelector-false'],
         ];
+
+        if (TaxRate::scope()->count()) {
+            $columns['tax'] = ['columnSelector-false'];
+        }
 
         $account = auth()->user()->account;
 
@@ -74,19 +79,24 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
+                $isFirst = true;
                 $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
                     $row = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
-                        $account->formatMoney($invoice->amount, $client),
+                        $isFirst ? $account->formatMoney($invoice->amount, $client) : '',
                         $invoice->statusLabel(),
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
                         $invoice->private_notes,
                     ];
+
+                    if (TaxRate::scope()->count()) {
+                        $row[] = $invoice->getTaxTotal();
+                    }
 
                     if ($account->custom_invoice_text_label1) {
                         $row[] = $invoice->custom_text_value1;
@@ -98,6 +108,7 @@ class InvoiceReport extends AbstractReport
                     $this->data[] = $row;
 
                     $this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
+                    $isFirst = false;
                 }
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
