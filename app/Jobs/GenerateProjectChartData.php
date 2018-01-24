@@ -75,7 +75,7 @@ class GenerateProjectChartData extends Job
             $sqlDate = $date->format('Y-m-d');
 
             if (isset($taskMap[$sqlDate])) {
-                $total += $taskMap[$sqlDate] / 60 / 60;
+                $total += round($taskMap[$sqlDate] / 60 / 60, 2);
             }
 
             $records[] = $total;
