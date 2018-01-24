@@ -41,6 +41,7 @@ class QuoteReport extends AbstractReport
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         $clients = Client::scope()
                         ->orderBy('name')
@@ -52,7 +53,7 @@ class QuoteReport extends AbstractReport
                                   ->statusIds($statusIds)
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items']);
+                                  ->with(['invoice_items', 'invoice_status']);
                         }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
@@ -81,7 +82,7 @@ class QuoteReport extends AbstractReport
                     $invoice->private_notes,
                 ];
 
-                if (TaxRate::scope()->count()) {
+                if ($hasTaxRates) {
                     $row[] = $account->formatMoney($invoice->getTaxTotal(), $client);
                 }
 

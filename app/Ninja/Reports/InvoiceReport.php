@@ -44,6 +44,7 @@ class InvoiceReport extends AbstractReport
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         $clients = Client::scope()
                         ->orderBy('name')
@@ -59,7 +60,7 @@ class InvoiceReport extends AbstractReport
                                       $query->withArchived()
                                               ->excludeFailed()
                                               ->with('payment_type', 'account_gateway.gateway');
-                                  }, 'invoice_items']);
+                                  }, 'invoice_items', 'invoice_status']);
                         }]);
 
 
@@ -94,7 +95,7 @@ class InvoiceReport extends AbstractReport
                         $invoice->private_notes,
                     ];
 
-                    if (TaxRate::scope()->count()) {
+                    if ($hasTaxRates) {
                         $row[] = $isFirst ? $account->formatMoney($invoice->getTaxTotal(), $client) : '';
                     }
 

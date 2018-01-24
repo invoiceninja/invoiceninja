@@ -34,6 +34,7 @@ class ExpenseReport extends AbstractReport
         $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
         $with = ['client.contacts', 'vendor'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         if ($exportFormat == 'zip') {
             $with[] = ['documents'];
@@ -73,7 +74,7 @@ class ExpenseReport extends AbstractReport
                 $expense->private_notes,
             ];
 
-            if (TaxRate::scope()->count()) {
+            if ($hasTaxRates) {
                 $row[] = $expense->present()->taxAmount;
             }
 
