@@ -4,6 +4,7 @@ namespace App\Ninja\Reports;
 
 use Barracuda\ArchiveStream\Archive;
 use App\Models\Expense;
+use App\Models\TaxRate;
 use Auth;
 use Utils;
 
@@ -11,16 +12,21 @@ class ExpenseReport extends AbstractReport
 {
     public function getColumns()
     {
-        return [
+        $columns = [
             'vendor' => [],
             'client' => [],
             'date' => [],
             'category' => [],
             'amount' => [],
-            'tax' => ['columnSelector-false'],
             'public_notes' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
         ];
+
+        if (TaxRate::scope()->count()) {
+            $columns['tax'] = ['columnSelector-false'];
+        }
+
+        return $columns;
     }
 
     public function run()
@@ -57,16 +63,21 @@ class ExpenseReport extends AbstractReport
         foreach ($expenses->get() as $expense) {
             $amount = $expense->amountWithTax();
 
-            $this->data[] = [
+            $row = [
                 $expense->vendor ? ($this->isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($this->isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
                 $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
                 Utils::formatMoney($amount, $expense->currency_id),
-                $expense->present()->taxAmount,
                 $expense->public_notes,
                 $expense->private_notes,
             ];
+
+            if (TaxRate::scope()->count()) {
+                $row[] = $expense->present()->taxAmount;
+            }
+
+            $this->data[] = $row;
 
             $this->addToTotals($expense->expense_currency_id, 'amount', $amount);
             $this->addToTotals($expense->invoice_currency_id, 'amount', 0);
