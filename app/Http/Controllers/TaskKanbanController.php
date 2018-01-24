@@ -26,7 +26,7 @@ class TaskKanbanController extends BaseController
             ->orderBy('id')
             ->get();
 
-        $projects = Project::scope()->get();
+        $projects = Project::scope()->with('client')->get();
         $clients = Client::scope()->with(['contacts'])->get();
 
         // check initial statuses exist

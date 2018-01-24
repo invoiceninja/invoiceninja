@@ -402,6 +402,16 @@
                     description: description,
                     task_status_sort_order: self.tasks().length,
                 })
+
+                if (model.filter_client_id()) {
+                    task.client(clientMap[model.filter_client_id()]);
+                } else if (model.filter_project_id()) {
+                    var project = projectMap[model.filter_project_id()];
+                    task.project(project);
+                    var client = clientMap[project.client.public_id()]
+                    task.client(client);
+                }
+
                 task.task_status_id(self.public_id())
 
                 var url = '{{ url('/tasks') }}';
@@ -457,9 +467,19 @@
             }
 
             self.toData = function() {
-                return 'description=' + encodeURIComponent(self.description()) +
+                var data = 'description=' + encodeURIComponent(self.description()) +
                     '&task_status_id=' + self.task_status_id() +
                     '&task_status_sort_order=' + self.task_status_sort_order();
+
+                if (! self.public_id() && self.client()) {
+                    data += '&client_id=' + self.client().public_id();
+                }
+
+                if (! self.public_id() && self.project()) {
+                    data += '&project_id=' + self.project().public_id();
+                }
+
+                return data;
             }
 
             self.matchesFilter = function(filter, clientId, projectId) {
@@ -537,6 +557,8 @@
             self.reset = function() {
                 self.is_editing_task(false);
                 self.is_blank(true);
+                self.client(false);
+                self.project(false);
                 self.description('');
             }
 
@@ -681,7 +703,7 @@
 
     <ol class="breadcrumb">
         @if ($project)
-            <li>{!! link_to('/projects', trans('texts.projects')) !!}</li>
+            <li>{!! link_to('/tasks', trans('texts.tasks')) !!}</li>
             <li>{!! $project->present()->link !!}</li>
         @elseif ($client)
             <li>{!! link_to('/tasks', trans('texts.tasks')) !!}</li>
