@@ -95,7 +95,7 @@ class InvoiceReport extends AbstractReport
                     ];
 
                     if (TaxRate::scope()->count()) {
-                        $row[] = $invoice->getTaxTotal();
+                        $row[] = $isFirst ? $account->formatMoney($invoice->getTaxTotal(), $client) : '';
                     }
 
                     if ($account->custom_invoice_text_label1) {
