@@ -220,10 +220,12 @@
 						->addGroupClass('verification-file') !!}
 			@endif
 
-            {!! Former::checkbox('enable_bitcoin')
-                ->label(trans('texts.bitcoin'))
-                ->text(trans('texts.enable_bitcoin'))
-                ->value(1) !!}
+			@if ($accountGateway && $accountGateway->getBitcoinEnabled())
+				{!! Former::checkbox('enable_bitcoin')
+					->label(trans('texts.bitcoin'))
+					->text(trans('texts.enable_bitcoin'))
+					->value(1) !!}
+			@endif
 
             {!! Former::checkbox('enable_alipay')
                 ->label(trans('texts.alipay'))
