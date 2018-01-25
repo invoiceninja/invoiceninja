@@ -37,7 +37,7 @@ class HistoryUtils
             ACTIVITY_TYPE_VIEW_QUOTE,
         ];
 
-        $activities = Activity::with(['client.contacts', 'invoice', 'task', 'expense'])
+        $activities = Activity::with(['client.contacts', 'invoice', 'task.project', 'expense'])
             ->whereIn('user_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
             ->orderBy('id', 'desc')
@@ -53,6 +53,12 @@ class HistoryUtils
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
+
+                if ($entity->project) {
+                    $project = $entity->project;
+                    $project->setRelation('client', $activity->client);
+                    static::trackViewed($project);
+                }
             } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_EXPENSE || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_EXPENSE) {
                 $entity = $activity->expense;
                 if (! $entity) {
@@ -80,6 +86,7 @@ class HistoryUtils
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_PROJECT,
             //ENTITY_RECURRING_EXPENSE,
         ];
 
