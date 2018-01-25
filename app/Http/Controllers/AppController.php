@@ -122,22 +122,24 @@ class AppController extends BaseController
         fwrite($fp, $config);
         fclose($fp);
 
-        if (Utils::isDatabaseSetup()) {
-            return Redirect::to('/login');
+        if (! Utils::isDatabaseSetup()) {
+            // == DB Migrate & Seed == //
+            $sqlFile = base_path() . '/database/setup.sql';
+            DB::unprepared(file_get_contents($sqlFile));
         }
 
-        // == DB Migrate & Seed == //
-        $sqlFile = base_path() . '/database/setup.sql';
-        DB::unprepared(file_get_contents($sqlFile));
         Cache::flush();
+        Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
         Artisan::call('optimize', ['--force' => true]);
 
-        $firstName = trim(Input::get('first_name'));
-        $lastName = trim(Input::get('last_name'));
-        $email = trim(strtolower(Input::get('email')));
-        $password = trim(Input::get('password'));
-        $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
-        $user = $account->users()->first();
+        if (! Account::count()) {
+            $firstName = trim(Input::get('first_name'));
+            $lastName = trim(Input::get('last_name'));
+            $email = trim(strtolower(Input::get('email')));
+            $password = trim(Input::get('password'));
+            $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
+            $user = $account->users()->first();
+        }
 
         return Redirect::to('/login');
     }

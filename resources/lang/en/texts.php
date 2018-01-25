@@ -2658,6 +2658,7 @@ $LANG = array(
     'auto' => 'Auto',
     'tax_amount' => 'Tax Amount',
     'tax_paid' => 'Tax Paid',
+    'none' => 'None',
 
 );
 
