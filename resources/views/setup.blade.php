@@ -34,11 +34,12 @@
         @endif
         @if (!@fopen(base_path()."/.env", 'a'))
             <div class="alert alert-warning">Warning: Permission denied to write .env config file
-                <pre>sudo chown www-data:www-data /path/to/ninja/.env</pre>
+                <pre>sudo chown www-data:www-data {{ base_path('.env') }}</pre>
             </div>
         @endif
-        If you need help you can either post to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using
-        or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
+        If you need help you can either post to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
+
+        @if (! env('PRECONFIGURED_INSTALL'))
         <p>
 <pre>-- Commands to create a MySQL database and user
 CREATE SCHEMA `ninja` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
@@ -46,6 +47,7 @@ CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
 GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
 FLUSH PRIVILEGES;</pre>
         </p>
+        @endif
     </div>
 
     {!! Former::open()->rules([
@@ -61,7 +63,9 @@ FLUSH PRIVILEGES;</pre>
         'terms_checkbox' => 'required'
       ]) !!}
 
-    @include('partials.system_settings')
+    <div style="display:{{ env('PRECONFIGURED_INSTALL') ? 'none' : 'block' }}">
+        @include('partials.system_settings')
+    </div>
 
     <div class="panel panel-default">
       <div class="panel-heading">
