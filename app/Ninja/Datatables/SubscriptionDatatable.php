@@ -20,7 +20,7 @@ class SubscriptionDatatable extends EntityDatatable
             [
                 'target',
                 function ($model) {
-                    return e(substr($model->target, 0, 40) . (strlen($model->target) > 40 ? '...' : ''));
+                    return $this->showWithTooltip($model->target, 40);
                 },
             ],
         ];

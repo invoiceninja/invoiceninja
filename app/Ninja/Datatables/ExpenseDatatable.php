@@ -85,7 +85,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes != null ? e(substr($model->public_notes, 0, 100)) : '';
+                    return $this->showWithTooltip($model->public_notes);
                 },
             ],
             [

@@ -59,7 +59,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'description',
                 function ($model) {
-                    return e(substr($model->description, 0, 80) . (strlen($model->description) > 80 ? '...' : ''));
+                    return $this->showWithTooltip($model->description);
                 },
             ],
             [
