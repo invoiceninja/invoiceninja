@@ -18,6 +18,7 @@ class QuoteReport extends AbstractReport
             'amount' => [],
             'status' => [],
             'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
 
         if (TaxRate::scope()->count()) {
@@ -46,7 +47,7 @@ class QuoteReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->quotes()
                                   ->withArchived()
@@ -80,6 +81,7 @@ class QuoteReport extends AbstractReport
                     $account->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
                     $invoice->private_notes,
+                    $invoice->user->getDisplayName(),
                 ];
 
                 if ($hasTaxRates) {

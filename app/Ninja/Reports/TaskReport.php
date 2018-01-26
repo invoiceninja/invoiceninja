@@ -16,6 +16,7 @@ class TaskReport extends AbstractReport
             'description' => [],
             'duration' => [],
             'amount' => [],
+            'user' => ['columnSelector-false'],
         ];
     }
 
@@ -26,7 +27,7 @@ class TaskReport extends AbstractReport
 
         $tasks = Task::scope()
                     ->orderBy('created_at', 'desc')
-                    ->with('client.contacts', 'project', 'account')
+                    ->with('client.contacts', 'project', 'account', 'user')
                     ->withArchived()
                     ->dateRange($startDate, $endDate);
 
@@ -45,6 +46,7 @@ class TaskReport extends AbstractReport
                 $task->description,
                 Utils::formatTime($task->getDuration()),
                 Utils::formatMoney($amount, $currencyId),
+                $task->user->getDisplayName(),
             ];
 
             $this->addToTotals($currencyId, 'duration', $task->getDuration());

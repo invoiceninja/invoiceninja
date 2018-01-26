@@ -13,6 +13,7 @@ class CreditReport extends AbstractReport
             'client' => [],
             'amount' => [],
             'balance' => [],
+            'user' => ['columnSelector-false'],
         ];
 
         return $columns;
@@ -25,7 +26,7 @@ class CreditReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with(['credits' => function ($query) {
+                        ->with(['user', 'credits' => function ($query) {
                             $query->where('credit_date', '>=', $this->startDate)
                                   ->where('credit_date', '<=', $this->endDate)
                                   ->withArchived();
@@ -48,6 +49,7 @@ class CreditReport extends AbstractReport
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $account->formatMoney($amount, $client),
                 $account->formatMoney($balance, $client),
+                $client->user->getDisplayName(),
             ];
 
             $this->data[] = $row;

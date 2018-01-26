@@ -21,6 +21,7 @@ class InvoiceReport extends AbstractReport
             'paid' => [],
             'method' => [],
             'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
 
         if (TaxRate::scope()->count()) {
@@ -49,7 +50,7 @@ class InvoiceReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
@@ -93,6 +94,7 @@ class InvoiceReport extends AbstractReport
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
                         $invoice->private_notes,
+                        $invoice->user->getDisplayName(),
                     ];
 
                     if ($hasTaxRates) {

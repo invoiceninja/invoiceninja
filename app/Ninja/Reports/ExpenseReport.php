@@ -20,6 +20,7 @@ class ExpenseReport extends AbstractReport
             'amount' => [],
             'public_notes' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
 
         if (TaxRate::scope()->count()) {
@@ -43,7 +44,7 @@ class ExpenseReport extends AbstractReport
         $expenses = Expense::scope()
                         ->orderBy('expense_date', 'desc')
                         ->withArchived()
-                        ->with('client.contacts', 'vendor', 'expense_category')
+                        ->with('client.contacts', 'vendor', 'expense_category', 'user')
                         ->where('expense_date', '>=', $this->startDate)
                         ->where('expense_date', '<=', $this->endDate);
 
@@ -72,6 +73,7 @@ class ExpenseReport extends AbstractReport
                 Utils::formatMoney($amount, $expense->currency_id),
                 $expense->public_notes,
                 $expense->private_notes,
+                $expense->user->getDisplayName(),
             ];
 
             if ($hasTaxRates) {

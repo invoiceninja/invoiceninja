@@ -19,6 +19,7 @@ class PaymentReport extends AbstractReport
             'paid' => [],
             'method' => [],
             'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
     }
 
@@ -38,7 +39,7 @@ class PaymentReport extends AbstractReport
                         ->whereHas('invoice', function ($query) {
                             $query->where('is_deleted', '=', false);
                         })
-                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
+                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway', 'user')
                         ->where('payment_date', '>=', $this->startDate)
                         ->where('payment_date', '<=', $this->endDate);
 
@@ -66,6 +67,7 @@ class PaymentReport extends AbstractReport
                 $amount,
                 $payment->present()->method,
                 $payment->private_notes,
+                $payment->user->getDisplayName(),
             ];
 
             if (! isset($invoiceMap[$invoice->id])) {

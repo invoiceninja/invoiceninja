@@ -16,6 +16,7 @@ class ClientReport extends AbstractReport
             'balance' => [],
             'public_notes' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
         ];
 
         $user = auth()->user();
@@ -38,7 +39,7 @@ class ClientReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with(['contacts', 'user'])
                         ->with(['invoices' => function ($query) {
                             $query->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
@@ -63,6 +64,7 @@ class ClientReport extends AbstractReport
                 $account->formatMoney($amount - $paid, $client),
                 $client->public_notes,
                 $client->private_notes,
+                $client->user->getDisplayName(),
             ];
 
             if ($account->custom_client_label1) {
