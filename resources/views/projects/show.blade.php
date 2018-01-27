@@ -89,7 +89,7 @@
 					<td><small>{{ trans('texts.duration') }}</small></td>
 					<td style="text-align: right">
                         {{ Utils::formatTime($chartData->duration) }}
-                        @if ($project->budgeted_hours)
+                        @if (floatval($project->budgeted_hours))
             				[{{ round($chartData->duration / ($project->budgeted_hours * 60 * 60) * 100) }}%]
                         @endif
                     </td>
