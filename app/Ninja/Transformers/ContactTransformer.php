@@ -20,6 +20,7 @@ class ContactTransformer extends EntityTransformer
      * @SWG\Property(property="first_name", type="string", example="John")
      * @SWG\Property(property="last_name", type="string", example="Doe")
      * @SWG\Property(property="email", type="string", example="john.doe@company.com")
+     * @SWG\Property(property="contact_key", type="string", example="1234567890")
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="is_primary", type="boolean", example=false)
@@ -36,6 +37,7 @@ class ContactTransformer extends EntityTransformer
             'first_name' => $contact->first_name,
             'last_name' => $contact->last_name,
             'email' => $contact->email,
+            'contact_key' => $contact->contact_key,
             'updated_at' => $this->getTimestamp($contact->updated_at),
             'archived_at' => $this->getTimestamp($contact->deleted_at),
             'is_primary' => (bool) $contact->is_primary,
