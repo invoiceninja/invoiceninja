@@ -1216,6 +1216,10 @@ class InvoiceRepository extends BaseRepository
         $frequencyId = $account->account_email_settings->frequency_id_reminder4;
         $frequency = Utils::getFromCache($frequencyId, 'frequencies');
 
+        if (! $frequencyId || ! $account->enable_reminder4) {
+            return [];
+        }
+
         $lastSentDate = date_create();
         $lastSentDate->sub(date_interval_create_from_date_string($frequency->date_interval));
 
