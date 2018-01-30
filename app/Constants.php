@@ -42,6 +42,10 @@ if (! defined('APP_NAME')) {
     define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
     define('ENTITY_CUSTOMER', 'customer');
     define('ENTITY_SUBSCRIPTION', 'subscription');
+    define('ENTITY_PROPOSAL', 'proposal');
+    define('ENTITY_PROPOSAL_TEMPLATE', 'proposal_template');
+    define('ENTITY_PROPOSAL_SNIPPET', 'proposal_snippet');
+    define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);

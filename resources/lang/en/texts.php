@@ -2659,6 +2659,8 @@ $LANG = array(
     'tax_amount' => 'Tax Amount',
     'tax_paid' => 'Tax Paid',
     'none' => 'None',
+    'proposals' => 'Proposals',
+    'new_proposal' => 'New Proposal',
 
 );
 
