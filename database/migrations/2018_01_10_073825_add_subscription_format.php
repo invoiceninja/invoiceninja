@@ -27,6 +27,7 @@ class AddSubscriptionFormat extends Migration
             $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
+            $table->boolean('is_deleted')->default(false);
 
             $table->string('name');
 
@@ -43,10 +44,12 @@ class AddSubscriptionFormat extends Migration
             $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
+            $table->boolean('is_deleted')->default(false);
 
             $table->unsignedInteger('proposal_category_id');
             $table->string('name');
-
+            $table->text('private_notes');
+            
             $table->mediumText('html');
             $table->mediumText('css');
 
@@ -63,6 +66,8 @@ class AddSubscriptionFormat extends Migration
             $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
+            $table->boolean('is_deleted')->default(false);
+            $table->text('private_notes');
 
             $table->string('name');
             $table->text('tags');
@@ -82,9 +87,11 @@ class AddSubscriptionFormat extends Migration
             $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
+            $table->boolean('is_deleted')->default(false);
 
             $table->unsignedInteger('quote_id')->index();
             $table->unsignedInteger('temlate_id')->index();
+            $table->text('private_notes');
             $table->mediumText('html');
             $table->mediumText('css');
 

@@ -46,17 +46,40 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-	@if (false && $entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
-		{!! DropdownButton::normal(trans('texts.recurring'))
-			->withAttributes(['class'=>'recurringDropdown'])
+	@if ($entityType == ENTITY_PROPOSAL)
+		{!! DropdownButton::normal(trans('texts.templates'))
+			->withAttributes(['class'=>'templatesDropdown'])
 			->withContents([
-			  ['label' => trans('texts.new_recurring_invoice'), 'url' => url('/recurring_invoices/create')],
+			  ['label' => trans('texts.new_template'), 'url' => url('/proposal_templates/create')],
+			]
+		  )->split() !!}
+		  {!! DropdownButton::normal(trans('texts.snippets'))
+  			->withAttributes(['class'=>'snippetsDropdown'])
+  			->withContents([
+  			  ['label' => trans('texts.new_snippet'), 'url' => url('/proposal_snippets/create')],
+  			]
+  		  )->split() !!}
+		<script type="text/javascript">
+			$(function() {
+				$('.templatesDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/proposal_templates') }}', event);
+				});
+				$('.snippetsDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/proposal_snippets') }}', event);
+				});
+			});
+		</script>
+	@elseif ($entityType == ENTITY_PROPOSAL_SNIPPET)
+		{!! DropdownButton::normal(trans('texts.categories'))
+			->withAttributes(['class'=>'categoriesDropdown'])
+			->withContents([
+			  ['label' => trans('texts.new_category'), 'url' => url('/proposal_categories/create')],
 			]
 		  )->split() !!}
 		<script type="text/javascript">
 			$(function() {
-				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/recurring_invoices') }}', event);
+				$('.categoriesDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/proposal_categories') }}', event);
 				});
 			});
 		</script>

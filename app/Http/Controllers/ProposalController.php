@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateProposalChartData;
 use App\Http\Requests\CreateProposalRequest;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
@@ -23,13 +22,11 @@ class ProposalController extends BaseController
     protected $proposalService;
     protected $entityType = ENTITY_PROPOSAL;
 
-    /*
     public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService)
     {
         $this->proposalRepo = $proposalRepo;
         $this->proposalService = $proposalService;
     }
-    */
 
     /**
      * Display a listing of the resource.
@@ -52,23 +49,6 @@ class ProposalController extends BaseController
 
         return $this->proposalService->getDatatable($search, $userId);
     }
-
-    /*
-    public function show(ProposalRequest $request)
-    {
-        $account = auth()->user()->account;
-        $proposal = $request->entity();
-
-        $data = [
-            'account' => auth()->user()->account,
-            'proposal' => $proposal,
-            'title' => trans('texts.view_proposal'),
-            'showBreadcrumbs' => false,
-        ];
-
-        return View::make('proposals.show', $data);
-    }
-    */
 
     public function create(ProposalRequest $request)
     {

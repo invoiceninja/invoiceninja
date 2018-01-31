@@ -207,15 +207,19 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('proposals/create/{quote_id?}', 'ProposalController@create');
     Route::resource('proposals', 'ProposalController');
+    Route::get('api/proposals', 'ProposalController@getDatatable');
 
     Route::get('proposal_templates/create', 'ProposalTemplateController@create');
     Route::resource('proposal_templates', 'ProposalTemplateController');
+    Route::get('api/proposal_templates', 'ProposalTemplateController@getDatatable');
 
     Route::get('proposal_snippets/create', 'ProposalSnippetController@create');
     Route::resource('proposal_snippets', 'ProposalSnippetController');
+    Route::get('api/proposal_snippets', 'ProposalSnippetController@getDatatable');
 
     Route::get('proposal_categories/create', 'ProposalCategoryController@create');
-    Route::resource('proposal_categories', 'ProposalController');
+    Route::resource('proposal_categories', 'ProposalCategoryController');
+    Route::get('api/proposal_categories', 'ProposalCategoryController@getDatatable');
 
     Route::resource('payments', 'PaymentController');
     Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');

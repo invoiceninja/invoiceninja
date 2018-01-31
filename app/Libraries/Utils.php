@@ -564,6 +564,8 @@ class Utils
 
         if ($type === ENTITY_EXPENSE_CATEGORY) {
             return 'expense_categories';
+        } elseif ($type === ENTITY_PROPOSAL_CATEGORY) {
+            return 'proposal_categories';
         } else {
             return $type . 's';
         }
