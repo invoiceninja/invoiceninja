@@ -1,4 +1,4 @@
-{!! Former::open(Utils::pluralizeEntityType($entityType) . '/bulk')
+{!! Former::open(\App\Models\EntityModel::getFormUrl($entityType) . '/bulk')
 		->addClass('listForm_' . $entityType) !!}
 
 <div style="display:none">
@@ -114,7 +114,7 @@
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
     	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))
 			->asLinkTo(url(
-				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) . 
+				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) .
 				'/create/' . (isset($clientId) ? ($clientId . (isset($projectId) ? '/' . $projectId : '')) : '')
 			))
 			->appendIcon(Icon::create('plus-sign')) !!}

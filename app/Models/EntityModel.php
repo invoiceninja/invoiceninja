@@ -355,6 +355,15 @@ class EntityModel extends Eloquent
         return false;
     }
 
+    public static function getFormUrl($entityType)
+    {
+        if (in_array($entityType, [ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_TEMPLATE])) {
+            return str_replace('_', 's/', Utils::pluralizeEntityType($entityType));
+        } else {
+            return Utils::pluralizeEntityType($entityType);
+        }
+    }
+
     public static function getStates($entityType = false)
     {
         $data = [];
