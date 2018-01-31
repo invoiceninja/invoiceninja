@@ -42,7 +42,7 @@ class ProposalSnippet extends EntityModel
      */
     public function getRoute()
     {
-        return "/proposal_snippets/{$this->public_id}";
+        return "/proposals/snippets/{$this->public_id}";
     }
 
     /**

@@ -22,6 +22,7 @@ class ProposalCategory extends EntityModel
      * @var array
      */
     protected $fillable = [
+        'name',
     ];
 
     /**
@@ -42,7 +43,7 @@ class ProposalCategory extends EntityModel
      */
     public function getRoute()
     {
-        return "/proposal_categories/{$this->public_id}";
+        return "/proposals/categories/{$this->public_id}";
     }
 
     /**

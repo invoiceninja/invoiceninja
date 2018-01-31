@@ -53,7 +53,7 @@ class ProposalCategoryController extends BaseController
     {
         $data = [
             'account' => auth()->user()->account,
-            'proposalCategory' => null,
+            'category' => null,
             'method' => 'POST',
             'url' => 'proposals/categories',
             'title' => trans('texts.new_proposal_category'),
@@ -71,7 +71,7 @@ class ProposalCategoryController extends BaseController
 
         $data = [
             'account' => auth()->user()->account,
-            'proposalCategory' => $proposalCategory,
+            'category' => $proposalCategory,
             'method' => 'PUT',
             'url' => 'proposals/categories/' . $proposalCategory->public_id,
             'title' => trans('texts.edit_proposal_category'),
