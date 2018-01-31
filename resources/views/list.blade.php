@@ -50,22 +50,22 @@
 		{!! DropdownButton::normal(trans('texts.proposal_templates'))
 			->withAttributes(['class'=>'templatesDropdown'])
 			->withContents([
-			  ['label' => trans('texts.new_proposal_template'), 'url' => url('/proposal_templates/create')],
+			  ['label' => trans('texts.new_proposal_template'), 'url' => url('/proposals/templates/create')],
 			]
 		  )->split() !!}
 		  {!! DropdownButton::normal(trans('texts.proposal_snippets'))
   			->withAttributes(['class'=>'snippetsDropdown'])
   			->withContents([
-  			  ['label' => trans('texts.new_proposal_snippet'), 'url' => url('/proposal_snippets/create')],
+  			  ['label' => trans('texts.new_proposal_snippet'), 'url' => url('/proposals/snippets/create')],
   			]
   		  )->split() !!}
 		<script type="text/javascript">
 			$(function() {
 				$('.templatesDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/proposal_templates') }}', event);
+					openUrlOnClick('{{ url('/proposals/templates') }}', event);
 				});
 				$('.snippetsDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/proposal_snippets') }}', event);
+					openUrlOnClick('{{ url('/proposals/snippets') }}', event);
 				});
 			});
 		</script>
@@ -73,13 +73,13 @@
 		{!! DropdownButton::normal(trans('texts.proposal_categories'))
 			->withAttributes(['class'=>'categoriesDropdown'])
 			->withContents([
-			  ['label' => trans('texts.new_proposal_category'), 'url' => url('/proposal_categories/create')],
+			  ['label' => trans('texts.new_proposal_category'), 'url' => url('/proposals/categories/create')],
 			]
 		  )->split() !!}
 		<script type="text/javascript">
 			$(function() {
 				$('.categoriesDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/proposal_categories') }}', event);
+					openUrlOnClick('{{ url('/proposals/categories') }}', event);
 				});
 			});
 		</script>
@@ -112,7 +112,12 @@
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
-    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? ($clientId . (isset($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('plus-sign')) !!}
+    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))
+			->asLinkTo(url(
+				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) . 
+				'/create/' . (isset($clientId) ? ($clientId . (isset($projectId) ? '/' . $projectId : '')) : '')
+			))
+			->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
 </div>

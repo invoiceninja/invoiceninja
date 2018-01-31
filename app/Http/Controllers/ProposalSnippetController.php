@@ -55,7 +55,7 @@ class ProposalSnippetController extends BaseController
             'account' => auth()->user()->account,
             'proposalSnippet' => null,
             'method' => 'POST',
-            'url' => 'proposal_snippets',
+            'url' => 'proposals/snippets',
             'title' => trans('texts.new_proposal_snippet'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
             'templates' => ProposalSnippet::scope()->orderBy('name')->get(),
@@ -73,13 +73,13 @@ class ProposalSnippetController extends BaseController
             'account' => auth()->user()->account,
             'proposalSnippet' => $proposalSnippet,
             'method' => 'PUT',
-            'url' => 'proposal_snippets/' . $proposalSnippet->public_id,
+            'url' => 'proposals/snippets/' . $proposalSnippet->public_id,
             'title' => trans('texts.edit_proposal_snippet'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $proposalSnippet->client ? $proposalSnippet->client->public_id : null,
         ];
 
-        return View::make('proposals/snippets/edit', $data);
+        return View::make('proposals/snippets.edit', $data);
     }
 
     public function store(CreateProposalSnippetRequest $request)

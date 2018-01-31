@@ -55,7 +55,7 @@ class ProposalTemplateController extends BaseController
             'account' => auth()->user()->account,
             'proposalTemplate' => null,
             'method' => 'POST',
-            'url' => 'proposal_templates',
+            'url' => 'proposals/templates',
             'title' => trans('texts.new_proposal_template'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
             'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
@@ -73,7 +73,7 @@ class ProposalTemplateController extends BaseController
             'account' => auth()->user()->account,
             'proposalTemplate' => $proposalTemplate,
             'method' => 'PUT',
-            'url' => 'proposal_templates/' . $proposalTemplate->public_id,
+            'url' => 'proposals/templates/' . $proposalTemplate->public_id,
             'title' => trans('texts.edit_proposal_template'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $proposalTemplate->client ? $proposalTemplate->client->public_id : null,
@@ -118,6 +118,6 @@ class ProposalTemplateController extends BaseController
             Session::flash('message', $message);
         }
 
-        return redirect()->to('/proposal_templates');
+        return redirect()->to('/proposals/templates');
     }
 }

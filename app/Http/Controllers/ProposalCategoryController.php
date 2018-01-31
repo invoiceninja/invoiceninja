@@ -55,14 +55,14 @@ class ProposalCategoryController extends BaseController
             'account' => auth()->user()->account,
             'proposalCategory' => null,
             'method' => 'POST',
-            'url' => 'proposal_categories',
+            'url' => 'proposals/categories',
             'title' => trans('texts.new_proposal_category'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
             'templates' => ProposalCategory::scope()->orderBy('name')->get(),
             'quotePublicId' => $request->quote_id,
         ];
 
-        return View::make('proposals/categories/edit', $data);
+        return View::make('proposals/categories.edit', $data);
     }
 
     public function edit(ProposalCategoryRequest $request)
@@ -73,7 +73,7 @@ class ProposalCategoryController extends BaseController
             'account' => auth()->user()->account,
             'proposalCategory' => $proposalCategory,
             'method' => 'PUT',
-            'url' => 'proposal_categories/' . $proposalCategory->public_id,
+            'url' => 'proposals/categories/' . $proposalCategory->public_id,
             'title' => trans('texts.edit_proposal_category'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $proposalCategory->client ? $proposalCategory->client->public_id : null,
@@ -118,6 +118,6 @@ class ProposalCategoryController extends BaseController
             Session::flash('message', $message);
         }
 
-        return redirect()->to('/proposal_categories');
+        return redirect()->to('/proposals/categories');
     }
 }
