@@ -62,7 +62,7 @@ class ProposalCategoryController extends BaseController
             'quotePublicId' => $request->quote_id,
         ];
 
-        return View::make('proposal_categories.edit', $data);
+        return View::make('proposals/categories/edit', $data);
     }
 
     public function edit(ProposalCategoryRequest $request)
@@ -79,7 +79,7 @@ class ProposalCategoryController extends BaseController
             'clientPublicId' => $proposalCategory->client ? $proposalCategory->client->public_id : null,
         ];
 
-        return View::make('proposal_categories.edit', $data);
+        return View::make('proposals/categories.edit', $data);
     }
 
     public function store(CreateProposalCategoryRequest $request)

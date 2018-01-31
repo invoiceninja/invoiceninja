@@ -47,16 +47,16 @@
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
 	@if ($entityType == ENTITY_PROPOSAL)
-		{!! DropdownButton::normal(trans('texts.templates'))
+		{!! DropdownButton::normal(trans('texts.proposal_templates'))
 			->withAttributes(['class'=>'templatesDropdown'])
 			->withContents([
-			  ['label' => trans('texts.new_template'), 'url' => url('/proposal_templates/create')],
+			  ['label' => trans('texts.new_proposal_template'), 'url' => url('/proposal_templates/create')],
 			]
 		  )->split() !!}
-		  {!! DropdownButton::normal(trans('texts.snippets'))
+		  {!! DropdownButton::normal(trans('texts.proposal_snippets'))
   			->withAttributes(['class'=>'snippetsDropdown'])
   			->withContents([
-  			  ['label' => trans('texts.new_snippet'), 'url' => url('/proposal_snippets/create')],
+  			  ['label' => trans('texts.new_proposal_snippet'), 'url' => url('/proposal_snippets/create')],
   			]
   		  )->split() !!}
 		<script type="text/javascript">
@@ -70,10 +70,10 @@
 			});
 		</script>
 	@elseif ($entityType == ENTITY_PROPOSAL_SNIPPET)
-		{!! DropdownButton::normal(trans('texts.categories'))
+		{!! DropdownButton::normal(trans('texts.proposal_categories'))
 			->withAttributes(['class'=>'categoriesDropdown'])
 			->withContents([
-			  ['label' => trans('texts.new_category'), 'url' => url('/proposal_categories/create')],
+			  ['label' => trans('texts.new_proposal_category'), 'url' => url('/proposal_categories/create')],
 			]
 		  )->split() !!}
 		<script type="text/javascript">

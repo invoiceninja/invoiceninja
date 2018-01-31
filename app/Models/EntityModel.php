@@ -321,7 +321,7 @@ class EntityModel extends Eloquent
             'recurring_expenses' => 'files-o',
             'credits' => 'credit-card',
             'quotes' => 'file-text-o',
-            'proposals' => 'tasks',
+            'proposals' => 'th-large',
             'tasks' => 'clock-o',
             'expenses' => 'file-image-o',
             'vendors' => 'building',

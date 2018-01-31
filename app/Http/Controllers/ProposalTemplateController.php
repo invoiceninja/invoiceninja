@@ -7,7 +7,6 @@ use App\Http\Requests\ProposalTemplateRequest;
 use App\Http\Requests\UpdateProposalTemplateRequest;
 use App\Models\Invoice;
 use App\Models\ProposalTemplate;
-use App\Models\ProposalTemplateTemplate;
 use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
 use App\Services\ProposalTemplateService;
@@ -59,11 +58,11 @@ class ProposalTemplateController extends BaseController
             'url' => 'proposal_templates',
             'title' => trans('texts.new_proposal_template'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
-            'templates' => ProposalTemplateTemplate::scope()->orderBy('name')->get(),
+            'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
             'quotePublicId' => $request->quote_id,
         ];
 
-        return View::make('proposal_templates.edit', $data);
+        return View::make('proposals/templates/edit', $data);
     }
 
     public function edit(ProposalTemplateRequest $request)
@@ -80,7 +79,7 @@ class ProposalTemplateController extends BaseController
             'clientPublicId' => $proposalTemplate->client ? $proposalTemplate->client->public_id : null,
         ];
 
-        return View::make('proposal_templates.edit', $data);
+        return View::make('proposals/templates/edit', $data);
     }
 
     public function store(CreateProposalTemplateRequest $request)

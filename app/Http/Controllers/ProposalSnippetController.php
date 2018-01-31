@@ -7,7 +7,6 @@ use App\Http\Requests\ProposalSnippetRequest;
 use App\Http\Requests\UpdateProposalSnippetRequest;
 use App\Models\Invoice;
 use App\Models\ProposalSnippet;
-use App\Models\ProposalSnippetTemplate;
 use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use App\Services\ProposalSnippetService;
@@ -59,11 +58,11 @@ class ProposalSnippetController extends BaseController
             'url' => 'proposal_snippets',
             'title' => trans('texts.new_proposal_snippet'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
-            'templates' => ProposalSnippetTemplate::scope()->orderBy('name')->get(),
+            'templates' => ProposalSnippet::scope()->orderBy('name')->get(),
             'quotePublicId' => $request->quote_id,
         ];
 
-        return View::make('proposal_snippets.edit', $data);
+        return View::make('proposals/snippets/edit', $data);
     }
 
     public function edit(ProposalSnippetRequest $request)
@@ -80,7 +79,7 @@ class ProposalSnippetController extends BaseController
             'clientPublicId' => $proposalSnippet->client ? $proposalSnippet->client->public_id : null,
         ];
 
-        return View::make('proposal_snippets.edit', $data);
+        return View::make('proposals/snippets/edit', $data);
     }
 
     public function store(CreateProposalSnippetRequest $request)

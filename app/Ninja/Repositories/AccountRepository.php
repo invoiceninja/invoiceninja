@@ -225,6 +225,7 @@ class AccountRepository
             ENTITY_PAYMENT,
             ENTITY_CREDIT,
             ENTITY_PROJECT,
+            ENTITY_PROPOSAL,
         ];
 
         foreach ($entityTypes as $entityType) {
