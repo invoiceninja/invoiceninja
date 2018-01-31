@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class CreateProposalSnippetRequest extends ProjectRequest
+class CreateProposalSnippetRequest extends ProposalSnippetRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class UpdateProposalCategoryRequest extends ProjectRequest
+class UpdateProposalCategoryRequest extends ProposalCategoryRequest
 {
     /**
      * Determine if the user is authorized to make this request.
