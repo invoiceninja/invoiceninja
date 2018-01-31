@@ -65,6 +65,13 @@ class ProposalCategoryController extends BaseController
         return View::make('proposals/categories.edit', $data);
     }
 
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect("proposals/categories/$publicId/edit");
+    }
+
     public function edit(ProposalCategoryRequest $request)
     {
         $proposalCategory = $request->entity();
@@ -75,8 +82,6 @@ class ProposalCategoryController extends BaseController
             'method' => 'PUT',
             'url' => 'proposals/categories/' . $proposalCategory->public_id,
             'title' => trans('texts.edit_proposal_category'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $proposalCategory->client ? $proposalCategory->client->public_id : null,
         ];
 
         return View::make('proposals/categories.edit', $data);

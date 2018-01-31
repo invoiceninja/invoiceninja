@@ -29,7 +29,7 @@ class ProposalCategoryDatatable extends EntityDatatable
             [
                 trans('texts.edit_category'),
                 function ($model) {
-                    return URL::to("proposal_categories/{$model->public_id}/edit");
+                    return URL::to("proposals/categories/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_CATEGORY, $model->user_id]);

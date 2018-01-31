@@ -205,18 +205,19 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/quotes/{client_id?}', 'QuoteController@getDatatable');
     Route::post('quotes/bulk', 'QuoteController@bulk');
 
+    Route::get('proposals/categories/{proposal_categories}/edit', 'ProposalCategoryController@edit');
     Route::get('proposals/categories/create', 'ProposalCategoryController@create');
     Route::resource('proposals/categories', 'ProposalCategoryController');
-    Route::get('api/proposal/categories', 'ProposalCategoryController@getDatatable');
-
+    Route::get('api/proposal_categories', 'ProposalCategoryController@getDatatable');
+    Route::get('proposals/snippets/{proposal_snippets}/edit', 'ProposalSnippetController@edit');
     Route::get('proposals/snippets/create', 'ProposalSnippetController@create');
     Route::resource('proposals/snippets', 'ProposalSnippetController');
-    Route::get('api/proposal/snippets', 'ProposalSnippetController@getDatatable');
-
+    Route::get('api/proposal_snippets', 'ProposalSnippetController@getDatatable');
+    Route::get('proposals/templates/{proposal_templates}/edit', 'ProposalTemplateController@edit');
     Route::get('proposals/templates/create', 'ProposalTemplateController@create');
     Route::resource('proposals/templates', 'ProposalTemplateController');
-    Route::get('api/proposals/templates', 'ProposalTemplateController@getDatatable');
-
+    Route::get('api/proposal_templates', 'ProposalTemplateController@getDatatable');
+    Route::get('proposals/{proposals}/edit', 'ProposalController@edit');
     Route::get('proposals/create/{quote_id?}', 'ProposalController@create');
     Route::resource('proposals', 'ProposalController');
     Route::get('api/proposals', 'ProposalController@getDatatable');

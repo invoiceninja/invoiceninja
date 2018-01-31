@@ -66,6 +66,13 @@ class ProposalController extends BaseController
         return View::make('proposals.edit', $data);
     }
 
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect("proposals/$publicId/edit");
+    }
+
     public function edit(ProposalRequest $request)
     {
         $proposal = $request->entity();

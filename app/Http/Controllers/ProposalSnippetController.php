@@ -65,6 +65,13 @@ class ProposalSnippetController extends BaseController
         return View::make('proposals/snippets/edit', $data);
     }
 
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect("proposals/snippets/$publicId/edit");
+    }
+
     public function edit(ProposalSnippetRequest $request)
     {
         $proposalSnippet = $request->entity();

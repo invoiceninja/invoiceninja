@@ -65,6 +65,13 @@ class ProposalTemplateController extends BaseController
         return View::make('proposals/templates/edit', $data);
     }
 
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect("proposals/templates/$publicId/edit");
+    }
+
     public function edit(ProposalTemplateRequest $request)
     {
         $proposalTemplate = $request->entity();
