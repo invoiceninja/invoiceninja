@@ -58,7 +58,6 @@ class TaskKanbanController extends BaseController
         // otherwise, check that the tasks orders are correct
         } else {
             $firstStatus = $statuses[0];
-            $adjustment = 0;
             $counts = [];
             foreach ($tasks as $task) {
                 if (! $task->task_status || $task->task_status->trashed()) {
@@ -118,7 +117,7 @@ class TaskKanbanController extends BaseController
         $origSortOrder = $status->sort_order;
         $newSortOrder = request('sort_order');
 
-        if ($newSortOrder != $origSortOrder) {
+        if (request()->has('sort_order') && $newSortOrder != $origSortOrder) {
             TaskStatus::scope()
                 ->where('sort_order', '>', $origSortOrder)
                 ->decrement('sort_order');
