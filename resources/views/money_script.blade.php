@@ -15,7 +15,7 @@
         countryMap[country.id] = country;
     }
 
-    fx.base = 'EUR';
+    fx.base = '{{ config('ninja.exchange_rates_base') }}';
     fx.rates = {!! cache('currencies')
                     ->keyBy('code')
                     ->map(function($item, $key) {
