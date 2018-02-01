@@ -22,6 +22,8 @@ class ProposalSnippet extends EntityModel
      * @var array
      */
     protected $fillable = [
+        'name',
+        'private_notes',
     ];
 
     /**

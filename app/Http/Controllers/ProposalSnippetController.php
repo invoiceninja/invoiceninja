@@ -7,6 +7,7 @@ use App\Http\Requests\ProposalSnippetRequest;
 use App\Http\Requests\UpdateProposalSnippetRequest;
 use App\Models\Invoice;
 use App\Models\ProposalSnippet;
+use App\Models\ProposalCategory;
 use App\Ninja\Datatables\ProposalSnippetDatatable;
 use App\Ninja\Repositories\ProposalSnippetRepository;
 use App\Services\ProposalSnippetService;
@@ -53,13 +54,11 @@ class ProposalSnippetController extends BaseController
     {
         $data = [
             'account' => auth()->user()->account,
-            'proposalSnippet' => null,
+            'snippet' => null,
             'method' => 'POST',
             'url' => 'proposals/snippets',
             'title' => trans('texts.new_proposal_snippet'),
-            'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
-            'templates' => ProposalSnippet::scope()->orderBy('name')->get(),
-            'quotePublicId' => $request->quote_id,
+            'categories' => ProposalCategory::scope()->orderBy('name')->get(),
         ];
 
         return View::make('proposals/snippets/edit', $data);
@@ -78,12 +77,11 @@ class ProposalSnippetController extends BaseController
 
         $data = [
             'account' => auth()->user()->account,
-            'proposalSnippet' => $proposalSnippet,
+            'snippet' => $proposalSnippet,
             'method' => 'PUT',
             'url' => 'proposals/snippets/' . $proposalSnippet->public_id,
             'title' => trans('texts.edit_proposal_snippet'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $proposalSnippet->client ? $proposalSnippet->client->public_id : null,
+            'categories' => ProposalCategory::scope()->orderBy('name')->get(),
         ];
 
         return View::make('proposals/snippets.edit', $data);

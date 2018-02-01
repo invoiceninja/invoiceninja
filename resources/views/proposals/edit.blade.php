@@ -24,8 +24,16 @@
             ->id('mainForm')
             ->rules([
                 'quote_id' => 'required',
-				'template_id' => 'required',
+                'template_id' => 'required',
             ]) !!}
+
+    @if ($proposal)
+        {!! Former::populate($proposal) !!}
+    @endif
+
+    <span style="display:none">
+        {!! Former::text('public_id') !!}
+    </span>
 
     <div class="row">
 		<div class="col-lg-12">

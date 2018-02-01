@@ -23,9 +23,18 @@
             ->method($method)
             ->id('mainForm')
             ->rules([
-                'quote_id' => 'required',
-				'template_id' => 'required',
+                'name' => 'required',
+                'category_id' => 'required',
             ]) !!}
+
+    @if ($snippet)
+        {!! Former::populate($snippet) !!}
+    @endif
+
+    <span style="display:none">
+        {!! Former::text('public_id') !!}
+    </span>
+
 
     <div class="row">
 		<div class="col-lg-12">
@@ -33,16 +42,14 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        {!! Former::select('quote_id')->addOption('', '')
-                                ->label(trans('texts.quote'))
-                                ->addGroupClass('quote-select') !!}
-
+                        {!! Former::text('name') !!}
+                        {!! Former::select('category_id')->addOption('', '')
+                                ->label(trans('texts.category'))
+                                ->addGroupClass('category-select') !!}
                     </div>
                     <div class="col-md-6">
-                        {!! Former::select('template_id')->addOption('', '')
-                                ->label(trans('texts.template'))
-                                ->addGroupClass('template-select') !!}
-
+                        {!! Former::textarea('private_notes')
+                                ->style('height:98px') !!}
                     </div>
                 </div>
             </div>
@@ -66,7 +73,22 @@
 
     <script type="text/javascript">
 
+    var categories = {!! $categories !!};
+    var categoryMap = {};
+
+    function onSaveClick() {
+        $('#mainForm').submit();
+    }
+
     $(function() {
+
+        var $proposal_categorySelect = $('select#category_id');
+        for (var i = 0; i < categories.length; i++) {
+            var category = categories[i];
+            categoryMap[category.public_id] = category;
+            $proposal_categorySelect.append(new Option(category.name, category.public_id));
+        }
+        @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_CATEGORY])
 
         var editor = grapesjs.init({
             container : '#gjs',
