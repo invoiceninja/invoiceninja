@@ -382,7 +382,7 @@
                             location.reload();
                         }
                     })
-                }, "{{ trans('texts.archive_status')}}");
+                }, "{{ trans('texts.delete_status')}}");
             }
 
             self.cancelNewTask = function() {
