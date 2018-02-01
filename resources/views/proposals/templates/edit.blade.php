@@ -19,7 +19,13 @@
 
 @section('content')
 
-    {!! Former::open() !!}
+    {!! Former::open($url)
+            ->method($method)
+            ->id('mainForm')
+            ->rules([
+                'quote_id' => 'required',
+				'template_id' => 'required',
+            ]) !!}
 
     <div class="row">
 		<div class="col-lg-12">

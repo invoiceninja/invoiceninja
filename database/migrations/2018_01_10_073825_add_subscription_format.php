@@ -49,7 +49,7 @@ class AddSubscriptionFormat extends Migration
             $table->unsignedInteger('proposal_category_id');
             $table->string('name');
             $table->text('private_notes');
-            
+
             $table->mediumText('html');
             $table->mediumText('css');
 
@@ -62,15 +62,14 @@ class AddSubscriptionFormat extends Migration
 
         Schema::create('proposal_templates', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('account_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('account_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->boolean('is_deleted')->default(false);
             $table->text('private_notes');
 
             $table->string('name');
-            $table->text('tags');
             $table->mediumText('html');
             $table->mediumText('css');
 
@@ -90,7 +89,7 @@ class AddSubscriptionFormat extends Migration
             $table->boolean('is_deleted')->default(false);
 
             $table->unsignedInteger('quote_id')->index();
-            $table->unsignedInteger('temlate_id')->index();
+            $table->unsignedInteger('template_id')->index();
             $table->text('private_notes');
             $table->mediumText('html');
             $table->mediumText('css');
@@ -98,7 +97,7 @@ class AddSubscriptionFormat extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('quote_id')->references('id')->on('invoices')->onDelete('cascade');
-            $table->foreign('temlate_id')->references('id')->on('proposal_templates')->onDelete('cascade');
+            $table->foreign('template_id')->references('id')->on('proposal_templates')->onDelete('cascade');
 
             $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);

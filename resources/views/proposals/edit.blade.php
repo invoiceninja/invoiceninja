@@ -19,7 +19,13 @@
 
 @section('content')
 
-    {!! Former::open() !!}
+    {!! Former::open($url)
+            ->method($method)
+            ->id('mainForm')
+            ->rules([
+                'quote_id' => 'required',
+				'template_id' => 'required',
+            ]) !!}
 
     <div class="row">
 		<div class="col-lg-12">
@@ -30,12 +36,12 @@
                         {!! Former::select('quote_id')->addOption('', '')
                                 ->label(trans('texts.quote'))
                                 ->addGroupClass('quote-select') !!}
-
-                    </div>
-                    <div class="col-md-6">
                         {!! Former::select('template_id')->addOption('', '')
                                 ->label(trans('texts.template'))
                                 ->addGroupClass('template-select') !!}
+
+                    </div>
+                    <div class="col-md-6">
 
                     </div>
                 </div>
@@ -65,8 +71,12 @@
     var templates = {!! $templates !!};
     var templateMap = {};
 
+    function onSaveClick() {
+        $('#mainForm').submit();
+    }
+
     $(function() {
-        var quoteId = {{ $quotePublicId ?: 0 }};
+        var quoteId = {{ ! empty($quotePublicId) ? $quotePublicId : 0 }};
         var $quoteSelect = $('select#quote_id');
         for (var i = 0; i < quotes.length; i++) {
             var quote = quotes[i];
@@ -79,7 +89,7 @@
         for (var i = 0; i < templates.length; i++) {
             var template = templates[i];
             templateMap[template.public_id] = template;
-            $templateSelect.append(new Option(template.name, template.public_id));
+            $proposal_templateSelect.append(new Option(template.name, template.public_id));
         }
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
 

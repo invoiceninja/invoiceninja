@@ -3,6 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Proposal;
+use App\Models\Invoice;
 use Auth;
 use DB;
 use Utils;
@@ -62,13 +63,16 @@ class ProposalRepository extends BaseRepository
 
     public function save($input, $proposal = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-
         if (! $proposal) {
             $proposal = Proposal::createNew();
         }
 
         $proposal->fill($input);
+
+        if (isset($input['quote_id'])) {
+            $proposal->quote_id = $input['quote_id'] ? Invoice::getPrivateId($input['quote_id']) : null;
+        }
+
         $proposal->save();
 
         return $proposal;

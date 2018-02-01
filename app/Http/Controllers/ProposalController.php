@@ -52,14 +52,16 @@ class ProposalController extends BaseController
 
     public function create(ProposalRequest $request)
     {
+        $account = auth()->user()->account;
+
         $data = [
-            'account' => auth()->user()->account,
+            'account' => $account,
             'proposal' => null,
             'method' => 'POST',
             'url' => 'proposals',
             'title' => trans('texts.new_proposal'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
-            'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
+            'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
             'quotePublicId' => $request->quote_id,
         ];
 
@@ -75,16 +77,17 @@ class ProposalController extends BaseController
 
     public function edit(ProposalRequest $request)
     {
+        $account = auth()->user()->account;
         $proposal = $request->entity();
 
         $data = [
-            'account' => auth()->user()->account,
+            'account' => $account,
             'proposal' => $proposal,
             'method' => 'PUT',
             'url' => 'proposals/' . $proposal->public_id,
             'title' => trans('texts.edit_proposal'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $proposal->client ? $proposal->client->public_id : null,
+            'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
+            'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
         ];
 
         return View::make('proposals.edit', $data);

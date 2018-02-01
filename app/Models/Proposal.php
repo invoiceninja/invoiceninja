@@ -22,6 +22,7 @@ class Proposal extends EntityModel
      * @var array
      */
     protected $fillable = [
+        'template_id',
     ];
 
     /**
