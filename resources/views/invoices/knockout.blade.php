@@ -820,7 +820,7 @@ function ItemModel(data) {
     self.product_key = ko.observable('');
     self.notes = ko.observable('');
     self.cost = ko.observable(0);
-    self.qty = ko.observable(0);
+    self.qty = ko.observable({{ $account->hasInvoiceField('product', 'product.quantity') ? 0 : 1 }});
     self.discount = ko.observable();
     self.custom_value1 = ko.observable('');
     self.custom_value2 = ko.observable('');
@@ -922,7 +922,7 @@ function ItemModel(data) {
     }
 
     this.isEmpty = function() {
-        return !self.product_key() && !self.notes() && !self.cost() && !self.qty();
+        return !self.product_key() && !self.notes() && !self.cost();
     }
 
     this.onSelect = function() {}
