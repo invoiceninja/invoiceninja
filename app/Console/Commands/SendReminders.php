@@ -190,7 +190,7 @@ class SendReminders extends Command
         $data = CurlUtils::get(config('ninja.exchange_rates_url'));
         $data = json_decode($data);
 
-        Currency::whereCode('EUR')->update(['exchange_rate' => 1]);
+        Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);
 
         foreach ($data->rates as $code => $rate) {
             Currency::whereCode($code)->update(['exchange_rate' => $rate]);
