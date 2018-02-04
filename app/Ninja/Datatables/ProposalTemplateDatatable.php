@@ -15,15 +15,21 @@ class ProposalTemplateDatatable extends EntityDatatable
     {
         return [
             [
-                'quote',
+                'name',
                 function ($model) {
                     if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->user_id])) {
                         return $model->name;
                     }
 
-                    return link_to("proposal_templates/{$model->public_id}", $model->name)->toHtml();
+                    return link_to("proposals/templates/{$model->public_id}", $model->name)->toHtml();
                     //$str = link_to("quotes/{$model->quote_public_id}", $model->quote_number)->toHtml();
                     //return $this->addNote($str, $model->private_notes);
+                },
+            ],
+            [
+                'private_notes',
+                function ($model) {
+                    return $this->showWithTooltip($model->private_notes);
                 },
             ],
         ];
@@ -33,9 +39,9 @@ class ProposalTemplateDatatable extends EntityDatatable
     {
         return [
             [
-                trans('texts.edit_template'),
+                trans('texts.edit_proposal_template'),
                 function ($model) {
-                    return URL::to("proposal_templates/{$model->public_id}/edit");
+                    return URL::to("proposals/templates/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->user_id]);

@@ -23,22 +23,13 @@ class ProposalTemplateRepository extends BaseRepository
     {
         $query = DB::table('proposal_templates')
                 ->where('proposal_templates.account_id', '=', Auth::user()->account_id)
-                ->leftjoin('invoices', 'invoices.id', '=', 'proposal_templates.quote_id')
-                ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
-                ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
-                ->where('clients.deleted_at', '=', null)
-                ->where('contacts.deleted_at', '=', null)
-                ->where('contacts.is_primary', '=', true)
                 ->select(
-                    'proposal_templates.name as proposal',
+                    'proposal_templates.name',
                     'proposal_templates.public_id',
                     'proposal_templates.user_id',
                     'proposal_templates.deleted_at',
                     'proposal_templates.is_deleted',
-                    'proposal_templates.private_notes',
-                    DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                    'clients.user_id as client_user_id',
-                    'clients.public_id as client_public_id'
+                    'proposal_templates.private_notes'
                 );
 
         $this->applyFilters($query, ENTITY_PROPOSAL_TEMPLATE);

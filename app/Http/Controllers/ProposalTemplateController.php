@@ -53,13 +53,11 @@ class ProposalTemplateController extends BaseController
     {
         $data = [
             'account' => auth()->user()->account,
-            'proposalTemplate' => null,
+            'template' => null,
             'method' => 'POST',
             'url' => 'proposals/templates',
             'title' => trans('texts.new_proposal_template'),
-            'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
             'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
-            'quotePublicId' => $request->quote_id,
         ];
 
         return View::make('proposals/templates/edit', $data);
@@ -78,12 +76,11 @@ class ProposalTemplateController extends BaseController
 
         $data = [
             'account' => auth()->user()->account,
-            'proposalTemplate' => $proposalTemplate,
+            'template' => $proposalTemplate,
             'method' => 'PUT',
             'url' => 'proposals/templates/' . $proposalTemplate->public_id,
             'title' => trans('texts.edit_proposal_template'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $proposalTemplate->client ? $proposalTemplate->client->public_id : null,
+            'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
         ];
 
         return View::make('proposals/templates/edit', $data);

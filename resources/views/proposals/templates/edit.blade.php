@@ -23,8 +23,7 @@
             ->method($method)
             ->id('mainForm')
             ->rules([
-                'quote_id' => 'required',
-                'template_id' => 'required',
+                'name' => 'required',
             ]) !!}
 
     @if ($template)
@@ -42,16 +41,16 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        {!! Former::select('quote_id')->addOption('', '')
-                                ->label(trans('texts.quote'))
-                                ->addGroupClass('quote-select') !!}
+                        {!! Former::text('name') !!}
 
-                    </div>
-                    <div class="col-md-6">
+                        <!--
                         {!! Former::select('template_id')->addOption('', '')
                                 ->label(trans('texts.template'))
                                 ->addGroupClass('template-select') !!}
-
+                        -->
+                    </div>
+                    <div class="col-md-6">
+                        {!! Former::textarea('private_notes') !!}
                     </div>
                 </div>
             </div>
@@ -77,7 +76,12 @@
     var templates = {!! $templates !!};
     var templateMap = {};
 
+    function onSaveClick() {
+        $('#mainForm').submit();
+    }
+
     $(function() {
+        /*
         var $proposal_templateSelect = $('select#template_id');
         for (var i = 0; i < templates.length; i++) {
             var template = templates[i];
@@ -85,6 +89,7 @@
             $templateSelect.append(new Option(template.name, template.public_id));
         }
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
+        */
 
         var editor = grapesjs.init({
             container : '#gjs',

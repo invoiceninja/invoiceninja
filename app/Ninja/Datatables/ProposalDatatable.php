@@ -17,31 +17,37 @@ class ProposalDatatable extends EntityDatatable
             [
                 'quote',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_QUOTE, $model->user_id])) {
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_QUOTE, $model->quote_user_id])) {
                         return $model->quote_number;
                     }
 
                     return link_to("quotes/{$model->quote_public_id}", $model->quote_number)->toHtml();
-                    //$str = link_to("quotes/{$model->quote_public_id}", $model->quote_number)->toHtml();
-                    //return $this->addNote($str, $model->private_notes);
                 },
             ],
             [
                 'template',
                 function ($model) {
-                    return $model->template_name;
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->template_user_id])) {
+                        return $model->template;
+                    }
+
+                    return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template)->toHtml();
                 },
             ],
             [
-                'created',
+                'created_at',
                 function ($model) {
-                    return Utils::fromSqlDate($model->created_at);
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_PROPOSAL, $model->user_id])) {
+                        return Utils::timestampToDateString(strtotime($model->created_at));
+                    }
+
+                    return link_to("proposals/{$model->public_id}/edit", Utils::timestampToDateString(strtotime($model->created_at)))->toHtml();
                 },
             ],
             [
-                'valid_until',
+                'private_notes',
                 function ($model) {
-                    return Utils::fromSqlDate($model->due_date);
+                    return $this->showWithTooltip($model->private_notes);
                 },
             ],
         ];

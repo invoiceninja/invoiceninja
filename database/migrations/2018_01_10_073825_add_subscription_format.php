@@ -46,7 +46,7 @@ class AddSubscriptionFormat extends Migration
             $table->softDeletes();
             $table->boolean('is_deleted')->default(false);
 
-            $table->unsignedInteger('proposal_category_id');
+            $table->unsignedInteger('proposal_category_id')->nullable();
             $table->string('name');
             $table->text('private_notes');
 
@@ -89,7 +89,7 @@ class AddSubscriptionFormat extends Migration
             $table->boolean('is_deleted')->default(false);
 
             $table->unsignedInteger('quote_id')->index();
-            $table->unsignedInteger('template_id')->index();
+            $table->unsignedInteger('proposal_template_id')->index();
             $table->text('private_notes');
             $table->mediumText('html');
             $table->mediumText('css');
@@ -97,7 +97,7 @@ class AddSubscriptionFormat extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('quote_id')->references('id')->on('invoices')->onDelete('cascade');
-            $table->foreign('template_id')->references('id')->on('proposal_templates')->onDelete('cascade');
+            $table->foreign('proposal_template_id')->references('id')->on('proposal_templates')->onDelete('cascade');
 
             $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);

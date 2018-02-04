@@ -34,6 +34,12 @@ class ProposalSnippetDatatable extends EntityDatatable
                     return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category)->toHtml();
                 },
             ],
+            [
+                'private_notes',
+                function ($model) {
+                    return $this->showWithTooltip($model->private_notes);
+                },
+            ],
         ];
     }
 

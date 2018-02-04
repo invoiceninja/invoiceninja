@@ -24,7 +24,7 @@
             ->id('mainForm')
             ->rules([
                 'quote_id' => 'required',
-                'template_id' => 'required',
+                'proposal_template_id' => 'required',
             ]) !!}
 
     @if ($proposal)
@@ -44,13 +44,14 @@
                         {!! Former::select('quote_id')->addOption('', '')
                                 ->label(trans('texts.quote'))
                                 ->addGroupClass('quote-select') !!}
-                        {!! Former::select('template_id')->addOption('', '')
+                        {!! Former::select('proposal_template_id')->addOption('', '')
                                 ->label(trans('texts.template'))
                                 ->addGroupClass('template-select') !!}
 
                     </div>
                     <div class="col-md-6">
-
+                        {!! Former::textarea('private_notes')
+                                ->style('height: 100px') !!}
                     </div>
                 </div>
             </div>
@@ -92,14 +93,23 @@
             $quoteSelect.append(new Option(quote.invoice_number + ' - ' + getClientDisplayName(quote.client), quote.public_id));
         }
         @include('partials/entity_combobox', ['entityType' => ENTITY_QUOTE])
+        if (quoteId) {
+            var quote = quoteMap[quoteId];
+            setComboboxValue($('.quote-select'), quote.public_id, quote.invoice_number + ' - ' + getClientDisplayName(quote.client));
+        }
 
-        var $proposal_templateSelect = $('select#template_id');
+        var templateId = {{ ! empty($templatePublicId) ? $templatePublicId : 0 }};
+        var $proposal_templateSelect = $('select#proposal_template_id');
         for (var i = 0; i < templates.length; i++) {
             var template = templates[i];
             templateMap[template.public_id] = template;
             $proposal_templateSelect.append(new Option(template.name, template.public_id));
         }
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
+        if (templateId) {
+            var template = templateMap[templateId];
+            setComboboxValue($('.template-select'), template.public_id, template.name);
+        }
 
         var editor = grapesjs.init({
             container : '#gjs',

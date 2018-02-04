@@ -22,7 +22,7 @@ class Proposal extends EntityModel
      * @var array
      */
     protected $fillable = [
-        'template_id',
+        'private_notes',
     ];
 
     /**
@@ -60,6 +60,14 @@ class Proposal extends EntityModel
     public function quote()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function proposal_template()
+    {
+        return $this->belongsTo('App\Models\ProposalTemplate')->withTrashed();
     }
 
     public function getDisplayName()

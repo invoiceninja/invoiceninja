@@ -88,6 +88,8 @@ class ProposalController extends BaseController
             'title' => trans('texts.edit_proposal'),
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
             'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
+            'quotePublicId' => $proposal->quote ? $proposal->quote->public_id : null,
+            'templatePublicId' => $proposal->proposal_template ? $proposal->proposal_template->public_id : null,
         ];
 
         return View::make('proposals.edit', $data);
