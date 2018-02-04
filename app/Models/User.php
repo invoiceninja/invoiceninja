@@ -138,6 +138,14 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
+    public function isPaidPro()
+    {
+        return $this->account->isPro() && ! $this->account->isTrial();
+    }
+
+    /**
+     * @return mixed
+     */
     public function hasActivePromo()
     {
         return $this->account->hasActivePromo();
