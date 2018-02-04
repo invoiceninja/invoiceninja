@@ -32,6 +32,8 @@
 
     <span style="display:none">
         {!! Former::text('public_id') !!}
+        {!! Former::text('html') !!}
+        {!! Former::text('css') !!}
     </span>
 
 
@@ -44,7 +46,7 @@
                         {!! Former::text('name') !!}
 
                         <!--
-                        {!! Former::select('template_id')->addOption('', '')
+                        {!! Former::select('proposal_template_id')->addOption('', '')
                                 ->label(trans('texts.template'))
                                 ->addGroupClass('template-select') !!}
                         -->
@@ -77,6 +79,8 @@
     var templateMap = {};
 
     function onSaveClick() {
+        $('#html').val(grapesjsEditor.getHtml());
+        $('#css').val(grapesjsEditor.getCss());
         $('#mainForm').submit();
     }
 
@@ -91,10 +95,10 @@
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
         */
 
-        var editor = grapesjs.init({
+        window.grapesjsEditor = grapesjs.init({
             container : '#gjs',
-            components: '',
-            style: '',
+            components: '{!! $template ? $template->html : '' !!}',
+            style: '{!! $template ? $template->css : '' !!}',
             showDevices: false,
             plugins: ['gjs-preset-newsletter'],
             //plugins: ['gjs-blocks-basic'],

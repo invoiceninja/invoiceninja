@@ -25,6 +25,8 @@ class ProposalSnippet extends EntityModel
         'name',
         'private_notes',
         'proposal_category_id',
+        'html',
+        'css',
     ];
 
     /**

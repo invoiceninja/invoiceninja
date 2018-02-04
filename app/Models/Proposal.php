@@ -23,6 +23,8 @@ class Proposal extends EntityModel
      */
     protected $fillable = [
         'private_notes',
+        'html',
+        'css',
     ];
 
     /**

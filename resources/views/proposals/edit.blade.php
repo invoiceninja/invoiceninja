@@ -33,6 +33,8 @@
 
     <span style="display:none">
         {!! Former::text('public_id') !!}
+        {!! Former::text('html') !!}
+        {!! Former::text('css') !!}
     </span>
 
     <div class="row">
@@ -81,6 +83,8 @@
     var templateMap = {};
 
     function onSaveClick() {
+        $('#html').val(grapesjsEditor.getHtml());
+        $('#css').val(grapesjsEditor.getCss());
         $('#mainForm').submit();
     }
 
@@ -111,10 +115,10 @@
             setComboboxValue($('.template-select'), template.public_id, template.name);
         }
 
-        var editor = grapesjs.init({
+        window.grapesjsEditor = grapesjs.init({
             container : '#gjs',
-            components: '',
-            style: '',
+            components: '{!! $proposal ? $proposal->html : '' !!}',
+            style: '{!! $proposal ? $proposal->css : '' !!}',
             showDevices: false,
             plugins: ['gjs-preset-newsletter'],
             //plugins: ['gjs-blocks-basic'],

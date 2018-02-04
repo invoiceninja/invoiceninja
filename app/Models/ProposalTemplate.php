@@ -24,6 +24,8 @@ class ProposalTemplate extends EntityModel
     protected $fillable = [
         'name',
         'private_notes',
+        'html',
+        'css',
     ];
 
     /**
