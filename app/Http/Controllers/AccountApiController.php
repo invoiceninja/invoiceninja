@@ -184,12 +184,10 @@ class AccountApiController extends BaseAPIController
 
         $devices = json_decode($account->devices, true);
 
-        foreach($devices as $key => $value)
+        for($x=0; $x<count($devices); $x++)
         {
-
-            if($request->token == $value['token'])
-                unset($devices[$key]);
-
+            if($request->token == $devices[$x]['token'])
+                unset($devices[$x]);
         }
 
         $account->devices = json_encode(array_values($devices));
