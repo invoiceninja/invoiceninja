@@ -13,6 +13,9 @@
     .gjs-block.fa {
         font-size: 4em !important;
     }
+    .icon-select {
+        font-family: sans-serif, 'FontAwesome';
+    }
     </style>
 
 @stop
@@ -24,7 +27,6 @@
             ->id('mainForm')
             ->rules([
                 'name' => 'required',
-                'proposal_category_id' => 'required',
             ]) !!}
 
     @if ($snippet)
@@ -48,6 +50,9 @@
                         {!! Former::select('proposal_category_id')->addOption('', '')
                                 ->label(trans('texts.category'))
                                 ->addGroupClass('category-select') !!}
+                        {!! Former::select('icon')
+                                ->addGroupClass('icon-select')
+                                ->options($icons) !!}
                     </div>
                     <div class="col-md-6">
                         {!! Former::textarea('private_notes')
@@ -98,40 +103,11 @@
             setComboboxValue($('.category-select'), category.public_id, category.name);
         }
 
-        window.grapesjsEditor = grapesjs.init({
-            container : '#gjs',
-            components: '{!! $snippet ? $snippet->html : '' !!}',
-            style: '{!! $snippet ? $snippet->css : '' !!}',
-            showDevices: false,
-            plugins: ['gjs-preset-newsletter'],
-            //plugins: ['gjs-blocks-basic'],
-            storageManager: {type: 'none'},
-            panels: {
-                Xdefaults  : [{
-                    id      : 'commands',
-                    buttons : [{
-                        id          : 'smile',
-                        className   : 'fa fa-smile-o',
-                        attributes  : { title: 'Smile' }
-                    }],
-                }],
-            }
-        });
-
-        /*
-        var blockManager = editor.BlockManager;
-        blockManager.add('h1-block', {
-        label: 'Heading',
-        category: 'Basic',
-        content: '<h1>Put your title here</h1>',
-        attributes: {
-        title: 'Insert h1 block',
-        class:'fa fa-smile-o'
-            }
-        });
-        */
-})
+        $('#icon').combobox();
+    })
 
 </script>
+
+@include('proposals.grapesjs', ['entity' => $snippet])
 
 @stop

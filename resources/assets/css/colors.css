@@ -40,11 +40,7 @@ thead th {
 }
 
 .sidebar-nav-dark {
-    background-color: #313131;
-}
-
-.sidebar-nav-dark li {
-    border-bottom:solid 1px #444444;
+    background-color: #2f2f2f;
 }
 
 .sidebar-nav-dark li > a {

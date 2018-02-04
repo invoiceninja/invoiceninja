@@ -48,6 +48,7 @@ class AddSubscriptionFormat extends Migration
 
             $table->unsignedInteger('proposal_category_id')->nullable();
             $table->string('name');
+            $table->string('icon');
             $table->text('private_notes');
 
             $table->mediumText('html');

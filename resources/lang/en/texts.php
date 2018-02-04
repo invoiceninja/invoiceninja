@@ -2723,6 +2723,7 @@ $LANG = array(
     'restored_proposal_category' => 'Successfully restored category',
     'delete_status' => 'Delete Status',
     'standard' => 'Standard',
+    'icon' => 'Icon',
 
 );
 

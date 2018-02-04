@@ -94,41 +94,10 @@
         }
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
         */
-
-        window.grapesjsEditor = grapesjs.init({
-            container : '#gjs',
-            components: '{!! $template ? $template->html : '' !!}',
-            style: '{!! $template ? $template->css : '' !!}',
-            showDevices: false,
-            plugins: ['gjs-preset-newsletter'],
-            //plugins: ['gjs-blocks-basic'],
-            storageManager: {type: 'none'},
-            panels: {
-                Xdefaults  : [{
-                    id      : 'commands',
-                    buttons : [{
-                        id          : 'smile',
-                        className   : 'fa fa-smile-o',
-                        attributes  : { title: 'Smile' }
-                    }],
-                }],
-            }
-        });
-
-        /*
-        var blockManager = editor.BlockManager;
-        blockManager.add('h1-block', {
-        label: 'Heading',
-        category: 'Basic',
-        content: '<h1>Put your title here</h1>',
-        attributes: {
-        title: 'Insert h1 block',
-        class:'fa fa-smile-o'
-            }
-        });
-        */
-})
+    })
 
 </script>
+
+@include('proposals.grapesjs', ['entity' => $template])
 
 @stop

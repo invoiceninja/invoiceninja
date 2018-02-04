@@ -23,6 +23,7 @@ class ProposalSnippet extends EntityModel
      */
     protected $fillable = [
         'name',
+        'icon',
         'private_notes',
         'proposal_category_id',
         'html',
