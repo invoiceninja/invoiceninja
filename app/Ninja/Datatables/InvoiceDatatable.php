@@ -196,7 +196,7 @@ class InvoiceDatatable extends EntityDatatable
                 'label' => mtrans($this->entityType, 'download_' . $this->entityType),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("download")',
             ];
-            if (Utils::isSelfHost() || auth()->user()->isPaidPro()) {
+            if (auth()->user()->isTrusted()) {
                 $actions[] = [
                     'label' => mtrans($this->entityType, 'email_' . $this->entityType),
                     'url' => 'javascript:submitForm_'.$this->entityType.'("emailInvoice")',

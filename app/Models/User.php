@@ -138,8 +138,12 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
-    public function isPaidPro()
+    public function isTrusted()
     {
+        if (Utils::isSelfHost()) {
+            true;
+        }
+
         return $this->account->isPro() && ! $this->account->isTrial();
     }
 
