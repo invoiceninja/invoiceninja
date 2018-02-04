@@ -60,7 +60,6 @@ class ProposalSnippetController extends BaseController
             'title' => trans('texts.new_proposal_snippet'),
             'categories' => ProposalCategory::scope()->orderBy('name')->get(),
             'categoryPublicId' => 0,
-            'snippets' => ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get(),
             'icons' => $this->getIcons(),
         ];
 
@@ -86,7 +85,6 @@ class ProposalSnippetController extends BaseController
             'title' => trans('texts.edit_proposal_snippet'),
             'categories' => ProposalCategory::scope()->orderBy('name')->get(),
             'categoryPublicId' => $proposalSnippet->proposal_category ? $proposalSnippet->proposal_category->public_id : null,
-            'snippets' => ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get(),
             'icons' => $this->getIcons(),
         ];
 

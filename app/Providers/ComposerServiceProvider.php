@@ -42,6 +42,15 @@ class ComposerServiceProvider extends ServiceProvider
              ],
              'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
+
+        view()->composer(
+            [
+                'proposals.edit',
+                'proposals.templates.edit',
+                'proposals.snippets.edit',
+            ],
+             'App\Http\ViewComposers\ProposalComposer'
+        );
     }
 
     /**

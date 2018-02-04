@@ -7,7 +7,6 @@ use App\Http\Requests\ProposalTemplateRequest;
 use App\Http\Requests\UpdateProposalTemplateRequest;
 use App\Models\Invoice;
 use App\Models\ProposalTemplate;
-use App\Models\ProposalSnippet;
 use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
 use App\Services\ProposalTemplateService;
@@ -59,7 +58,6 @@ class ProposalTemplateController extends BaseController
             'url' => 'proposals/templates',
             'title' => trans('texts.new_proposal_template'),
             'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
-            'snippets' => ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get(),
         ];
 
         return View::make('proposals/templates/edit', $data);
@@ -83,7 +81,6 @@ class ProposalTemplateController extends BaseController
             'url' => 'proposals/templates/' . $proposalTemplate->public_id,
             'title' => trans('texts.edit_proposal_template'),
             'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
-            'snippets' => ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get(),
         ];
 
         return View::make('proposals/templates/edit', $data);
