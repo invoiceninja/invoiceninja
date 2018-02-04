@@ -45,6 +45,12 @@ class ProposalDatatable extends EntityDatatable
                 },
             ],
             [
+                'content',
+                function ($model) {
+                    return $this->showWithTooltip(strip_tags($model->content));
+                },
+            ],
+            [
                 'private_notes',
                 function ($model) {
                     return $this->showWithTooltip($model->private_notes);

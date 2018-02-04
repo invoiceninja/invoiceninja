@@ -21,6 +21,11 @@ class ProposalComposer
      */
     public function compose(View $view)
     {
-        $view->with('snippets', ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get());
+        $snippets = ProposalSnippet::scope()
+            ->with('proposal_category')
+            ->orderBy('name')
+            ->get();
+
+        $view->with('snippets', $snippets);
     }
 }

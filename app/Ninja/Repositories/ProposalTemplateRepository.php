@@ -29,6 +29,7 @@ class ProposalTemplateRepository extends BaseRepository
                     'proposal_templates.user_id',
                     'proposal_templates.deleted_at',
                     'proposal_templates.is_deleted',
+                    'proposal_templates.html as content',
                     'proposal_templates.private_notes'
                 );
 

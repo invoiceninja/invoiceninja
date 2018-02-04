@@ -20,7 +20,7 @@ $(function() {
     var blockManager = grapesjsEditor.BlockManager;
 
     @foreach ($snippets as $snippet)
-        blockManager.add('h1-block', {
+        blockManager.add("h{{ ($loop->index + 1) }}-block", {
             label: '{{ $snippet->name }}',
             category: '{{ $snippet->proposal_category ? $snippet->proposal_category->name : trans('texts.custom') }}',
             content: '{!! $snippet->html !!}',

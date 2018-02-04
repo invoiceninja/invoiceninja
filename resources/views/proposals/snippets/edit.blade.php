@@ -52,11 +52,12 @@
                                 ->addGroupClass('category-select') !!}
                         {!! Former::select('icon')
                                 ->addGroupClass('icon-select')
+                                ->addOption('', '')
                                 ->options($icons) !!}
                     </div>
                     <div class="col-md-6">
                         {!! Former::textarea('private_notes')
-                                ->style('height:98px') !!}
+                                ->style('height:160px') !!}
                     </div>
                 </div>
             </div>
