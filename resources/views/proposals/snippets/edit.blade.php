@@ -24,7 +24,7 @@
             ->id('mainForm')
             ->rules([
                 'name' => 'required',
-                'category_id' => 'required',
+                'proposal_category_id' => 'required',
             ]) !!}
 
     @if ($snippet)
@@ -43,7 +43,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         {!! Former::text('name') !!}
-                        {!! Former::select('category_id')->addOption('', '')
+                        {!! Former::select('proposal_category_id')->addOption('', '')
                                 ->label(trans('texts.category'))
                                 ->addGroupClass('category-select') !!}
                     </div>
@@ -81,14 +81,18 @@
     }
 
     $(function() {
-
-        var $proposal_categorySelect = $('select#category_id');
+        var categoryId = {{ $categoryPublicId ?: 0 }};
+        var $proposal_categorySelect = $('select#proposal_category_id');
         for (var i = 0; i < categories.length; i++) {
             var category = categories[i];
             categoryMap[category.public_id] = category;
             $proposal_categorySelect.append(new Option(category.name, category.public_id));
         }
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_CATEGORY])
+        if (categoryId) {
+            var category = categoryMap[categoryId];
+            setComboboxValue($('.category-select'), category.public_id, category.name);
+        }
 
         var editor = grapesjs.init({
             container : '#gjs',

@@ -3,6 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\ProposalSnippet;
+use App\Models\ProposalCategory;
 use Auth;
 use DB;
 use Utils;
@@ -22,13 +23,8 @@ class ProposalSnippetRepository extends BaseRepository
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('proposal_snippets')
+                ->leftjoin('proposal_categories', 'proposal_categories.id', '=', 'proposal_snippets.proposal_category_id')
                 ->where('proposal_snippets.account_id', '=', Auth::user()->account_id)
-                ->leftjoin('invoices', 'invoices.id', '=', 'proposal_snippets.quote_id')
-                ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
-                ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
-                ->where('clients.deleted_at', '=', null)
-                ->where('contacts.deleted_at', '=', null)
-                ->where('contacts.is_primary', '=', true)
                 ->select(
                     'proposal_snippets.name as proposal',
                     'proposal_snippets.public_id',
@@ -36,9 +32,7 @@ class ProposalSnippetRepository extends BaseRepository
                     'proposal_snippets.deleted_at',
                     'proposal_snippets.is_deleted',
                     'proposal_snippets.private_notes',
-                    DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                    'clients.user_id as client_user_id',
-                    'clients.public_id as client_public_id'
+                    'proposal_categories.name'
                 );
 
         $this->applyFilters($query, ENTITY_PROPOSAL_SNIPPET);
@@ -69,6 +63,11 @@ class ProposalSnippetRepository extends BaseRepository
         }
 
         $proposal->fill($input);
+
+        if (isset($input['proposal_category_id'])) {
+            $proposal->proposal_category_id = $input['proposal_category_id'] ? ProposalCategory::getPrivateId($input['proposal_category_id']) : null;
+        }
+
         $proposal->save();
 
         return $proposal;

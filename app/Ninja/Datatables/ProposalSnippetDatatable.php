@@ -22,7 +22,7 @@ class ProposalSnippetDatatable extends EntityDatatable
                     }
 
                     return link_to("proposal_snippets/{$model->public_id}", $model->name)->toHtml();
-                    //$str = link_to("quotes/{$model->quote_public_id}", $model->quote_number)->toHtml();
+                    //$str = link_to("proposal_snippets/{$model->public_id}", $model->name)->toHtml();
                     //return $this->addNote($str, $model->private_notes);
                 },
             ],

@@ -651,7 +651,7 @@ class ImportService
         $this->checkForFile($fileName);
         $file = file_get_contents($fileName);
         $data = array_map("str_getcsv", preg_split('/\r*\n+|\r+/', $file));
-
+        dd($data);
         if (count($data) > 0) {
             $headers = $data[0];
 

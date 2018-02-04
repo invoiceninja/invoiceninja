@@ -59,6 +59,7 @@ class ProposalSnippetController extends BaseController
             'url' => 'proposals/snippets',
             'title' => trans('texts.new_proposal_snippet'),
             'categories' => ProposalCategory::scope()->orderBy('name')->get(),
+            'categoryPublicId' => 0,
         ];
 
         return View::make('proposals/snippets/edit', $data);
@@ -82,6 +83,7 @@ class ProposalSnippetController extends BaseController
             'url' => 'proposals/snippets/' . $proposalSnippet->public_id,
             'title' => trans('texts.edit_proposal_snippet'),
             'categories' => ProposalCategory::scope()->orderBy('name')->get(),
+            'categoryPublicId' => $proposalSnippet->proposal_category ? $proposalSnippet->proposal_category->public_id : null,
         ];
 
         return View::make('proposals/snippets.edit', $data);

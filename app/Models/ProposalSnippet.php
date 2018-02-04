@@ -24,6 +24,7 @@ class ProposalSnippet extends EntityModel
     protected $fillable = [
         'name',
         'private_notes',
+        'proposal_category_id',
     ];
 
     /**
@@ -53,6 +54,14 @@ class ProposalSnippet extends EntityModel
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function proposal_category()
+    {
+        return $this->belongsTo('App\Models\ProposalCategory')->withTrashed();
     }
 
     public function getDisplayName()

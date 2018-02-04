@@ -50,6 +50,10 @@ class PurgeAccountData extends Job
             'vendors',
             'contacts',
             'clients',
+            'proposals',
+            'proposal_templates',
+            'proposal_snippets',
+            'proposal_categories',
         ];
 
         foreach ($tables as $table) {
