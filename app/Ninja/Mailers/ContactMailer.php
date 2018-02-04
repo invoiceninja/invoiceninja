@@ -11,6 +11,8 @@ use App\Services\TemplateService;
 use App\Jobs\ConvertInvoiceToUbl;
 use Event;
 use Utils;
+use Cache;
+use Mail;
 
 class ContactMailer extends Mailer
 {
@@ -150,7 +152,7 @@ class ContactMailer extends Mailer
 
         if (! $user->email || ! $user->registered) {
             return trans('texts.email_error_user_unregistered');
-        } elseif (! $user->confirmed) {
+        } elseif (! $user->confirmed || $this->isThrottled($account)) {
             return trans('texts.email_error_user_unconfirmed');
         } elseif (! $invitation->contact->email) {
             return trans('texts.email_error_invalid_contact_email');
@@ -354,5 +356,49 @@ class ContactMailer extends Mailer
         ];
 
         $this->sendTo($contact->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    private function isThrottled($account)
+    {
+        if (Utils::isSelfHost()) {
+            return false;
+        }
+
+        $key = $account->company_id;
+
+        // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
+        $hour = 60 * 60;
+        $hour_limit = 50; // users are limited to 50 emails/hour
+        $hour_throttle = Cache::get("email_hour_throttle:{$key}", null);
+        $last_api_request = Cache::get("last_email_request:{$key}", 0);
+        $last_api_diff = time() - $last_api_request;
+
+        if (is_null($hour_throttle)) {
+            $new_hour_throttle = 0;
+        } else {
+            $new_hour_throttle = $hour_throttle - $last_api_diff;
+            $new_hour_throttle = $new_hour_throttle < 0 ? 0 : $new_hour_throttle;
+            $new_hour_throttle += $hour / $hour_limit;
+            $hour_hits_remaining = floor(($hour - $new_hour_throttle) * $hour_limit / $hour);
+            $hour_hits_remaining = $hour_hits_remaining >= 0 ? $hour_hits_remaining : 0;
+        }
+
+        Cache::put("email_hour_throttle:{$key}", $new_hour_throttle, 60);
+        Cache::put("last_email_request:{$key}", time(), 60);
+
+        if ($new_hour_throttle > $hour) {
+            $errorEmail = env('ERROR_EMAIL');
+            if ($errorEmail && ! Cache::get("throttle_notified:{$key}")) {
+                Mail::raw('Account Throttle', function ($message) use ($errorEmail, $account) {
+                    $message->to($errorEmail)
+                            ->from(CONTACT_EMAIL)
+                            ->subject("Email throttle triggered for account " . $account->id);
+                });
+            }
+            Cache::put("throttle_notified:{$key}", true, 60);
+            return true;
+        }
+
+        return false;
     }
 }
