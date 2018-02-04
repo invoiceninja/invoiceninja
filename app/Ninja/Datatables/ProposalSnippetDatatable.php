@@ -15,15 +15,23 @@ class ProposalSnippetDatatable extends EntityDatatable
     {
         return [
             [
-                'name',
+                'proposal',
                 function ($model) {
                     if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_SNIPPET, $model->user_id])) {
-                        return $model->name;
+                        return $model->proposal;
                     }
 
-                    return link_to("proposal_snippets/{$model->public_id}", $model->name)->toHtml();
-                    //$str = link_to("proposal_snippets/{$model->public_id}", $model->name)->toHtml();
-                    //return $this->addNote($str, $model->private_notes);
+                    return link_to("proposals/snippets/{$model->public_id}/edit", $model->proposal)->toHtml();
+                },
+            ],
+            [
+                'category',
+                function ($model) {
+                    if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_CATEGORY, $model->category_user_id])) {
+                        return $model->category;
+                    }
+
+                    return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category)->toHtml();
                 },
             ],
         ];
@@ -33,9 +41,9 @@ class ProposalSnippetDatatable extends EntityDatatable
     {
         return [
             [
-                trans('texts.edit_snippet'),
+                trans('texts.edit_proposal_snippet'),
                 function ($model) {
-                    return URL::to("proposals_snippets/{$model->public_id}/edit");
+                    return URL::to("proposals/snippets/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_SNIPPET, $model->user_id]);
