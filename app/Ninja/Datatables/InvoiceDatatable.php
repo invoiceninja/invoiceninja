@@ -196,10 +196,12 @@ class InvoiceDatatable extends EntityDatatable
                 'label' => mtrans($this->entityType, 'download_' . $this->entityType),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("download")',
             ];
-            $actions[] = [
-                'label' => mtrans($this->entityType, 'email_' . $this->entityType),
-                'url' => 'javascript:submitForm_'.$this->entityType.'("emailInvoice")',
-            ];
+            if (Utils::isSelfHost() || auth()->user()->isPaidPro()) {
+                $actions[] = [
+                    'label' => mtrans($this->entityType, 'email_' . $this->entityType),
+                    'url' => 'javascript:submitForm_'.$this->entityType.'("emailInvoice")',
+                ];
+            }
             $actions[] = \DropdownButton::DIVIDER;
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
