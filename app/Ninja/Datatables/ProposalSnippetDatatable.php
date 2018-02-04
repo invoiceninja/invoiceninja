@@ -15,13 +15,13 @@ class ProposalSnippetDatatable extends EntityDatatable
     {
         return [
             [
-                'proposal',
+                'name',
                 function ($model) {
                     if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_SNIPPET, $model->user_id])) {
-                        return $model->proposal;
+                        return $model->name;
                     }
 
-                    return link_to("proposals/snippets/{$model->public_id}/edit", $model->proposal)->toHtml();
+                    return link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
                 },
             ],
             [

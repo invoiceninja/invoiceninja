@@ -34,7 +34,7 @@
 
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/expense_categories'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/proposals/categories'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 

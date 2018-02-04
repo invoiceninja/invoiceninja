@@ -26,7 +26,7 @@ class ProposalSnippetRepository extends BaseRepository
                 ->leftjoin('proposal_categories', 'proposal_categories.id', '=', 'proposal_snippets.proposal_category_id')
                 ->where('proposal_snippets.account_id', '=', Auth::user()->account_id)
                 ->select(
-                    'proposal_snippets.name as proposal',
+                    'proposal_snippets.name',
                     'proposal_snippets.public_id',
                     'proposal_snippets.user_id',
                     'proposal_snippets.deleted_at',
