@@ -120,34 +120,39 @@
             components: '{!! $proposal ? $proposal->html : '' !!}',
             style: '{!! $proposal ? $proposal->css : '' !!}',
             showDevices: false,
+            categoryLabel: 'tes',
             plugins: ['gjs-preset-newsletter'],
-            //plugins: ['gjs-blocks-basic'],
+            pluginsOpts: {
+                'gjs-preset-newsletter': {
+                    'categoryLabel': "{{ trans('texts.standard') }}"
+                }
+            },
             storageManager: {type: 'none'},
-            panels: {
-                Xdefaults  : [{
-                    id      : 'commands',
-                    buttons : [{
-                        id          : 'smile',
-                        className   : 'fa fa-smile-o',
-                        attributes  : { title: 'Smile' }
-                    }],
-                }],
-            }
         });
 
-        /*
-        var blockManager = editor.BlockManager;
-        blockManager.add('h1-block', {
-        label: 'Heading',
-        category: 'Basic',
-        content: '<h1>Put your title here</h1>',
-        attributes: {
-        title: 'Insert h1 block',
-        class:'fa fa-smile-o'
+        var blockManager = grapesjsEditor.BlockManager;
+
+        @foreach ($snippets as $snippet)
+            blockManager.add('h1-block', {
+                label: '{{ $snippet->name }}',
+                category: '{{ $snippet->proposal_category ? $snippet->proposal_category->name : trans('texts.custom') }}',
+                content: '{!! $snippet->html !!}',
+                style: '{!! $snippet->css !!}',
+                attributes: {
+                    title: '{!! $snippet->private_notes !!}',
+                    class:'fa fa-smile-o'
+                }
+            });
+        @endforeach
+
+        @if (count($snippets))
+            var blockCategories = blockManager.getCategories();
+            for (var i=0; i<blockCategories.models.length; i++) {
+                var blockCategory = blockCategories.models[i];
+                blockCategory.set('open', false);
             }
-        });
-        */
-})
+        @endif
+	})
 
 </script>
 

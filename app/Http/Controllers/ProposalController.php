@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProposalRequest;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalTemplate;
+use App\Models\ProposalSnippet;
 use App\Ninja\Datatables\ProposalDatatable;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
@@ -63,6 +64,7 @@ class ProposalController extends BaseController
             'quotes' => Invoice::scope()->with('client.contacts')->quotes()->orderBy('id')->get(),
             'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
             'quotePublicId' => $request->quote_id,
+            'snippets' => ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get(),
         ];
 
         return View::make('proposals.edit', $data);
@@ -90,6 +92,7 @@ class ProposalController extends BaseController
             'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
             'quotePublicId' => $proposal->quote ? $proposal->quote->public_id : null,
             'templatePublicId' => $proposal->proposal_template ? $proposal->proposal_template->public_id : null,
+            'snippets' => ProposalSnippet::scope()->with('proposal_category')->orderBy('name')->get(),
         ];
 
         return View::make('proposals.edit', $data);

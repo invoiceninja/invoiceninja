@@ -2722,6 +2722,7 @@ $LANG = array(
     'deleted_proposal_categories' => 'Successfully archived :count categories',
     'restored_proposal_category' => 'Successfully restored category',
     'delete_status' => 'Delete Status',
+    'standard' => 'Standard',
 
 );
 
