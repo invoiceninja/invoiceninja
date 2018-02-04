@@ -1099,7 +1099,7 @@ class Account extends Eloquent
 
     public function isPaid()
     {
-        return Utils::isNinja() ? $this->isPro() : Utils::isWhiteLabel();
+        return Utils::isNinja() ? ($this->isPro() && ! $this->isTrial()) : Utils::isWhiteLabel();
     }
 
     /**
