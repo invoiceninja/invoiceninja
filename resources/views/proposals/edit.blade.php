@@ -88,7 +88,7 @@
         $('#mainForm').submit();
     }
 
-    function refreshProposal() {
+    function loadTemplate() {
         var templateId = $('select#proposal_template_id').val();
         var template = templateMap[templateId];
 
@@ -96,35 +96,42 @@
             return;
         }
 
-        var html = template.html;
-        var quoteId = $('select#quote_id').val();
-        var quote = quoteMap[quoteId];
-
-        if (quote) {
-            var regExp = new RegExp(/\$[a-z][\w\.]*/, 'g');
-            var matches = html.match(regExp);
-
-            if (matches) {
-                for (var i=0; i<matches.length; i++) {
-                    var match = matches[i];
-
-                    field = match.substring(1, match.length);
-                    field = toSnakeCase(field);
-
-                    if (field == 'quote_number') {
-                        field = 'invoice_number';
-                    }
-
-                    var value = getDescendantProp(quote, field) || ' ';
-                    value = doubleDollarSign(value) + '';
-                    value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
-                    html = html.replace(match, value);
-                }
-            }
-        }
+        var html = mergeTemplate(template.html);
 
         window.grapesjsEditor.setComponents(html);
         window.grapesjsEditor.setStyle(template.css);
+    }
+
+    function mergeTemplate(html) {
+        var quoteId = $('select#quote_id').val();
+        var quote = quoteMap[quoteId];
+
+        if (!quote) {
+            return html;
+        }
+
+        var regExp = new RegExp(/\$[a-z][\w\.]*/, 'g');
+        var matches = html.match(regExp);
+
+        if (matches) {
+            for (var i=0; i<matches.length; i++) {
+                var match = matches[i];
+
+                field = match.substring(1, match.length);
+                field = toSnakeCase(field);
+
+                if (field == 'quote_number') {
+                    field = 'invoice_number';
+                }
+
+                var value = getDescendantProp(quote, field) || ' ';
+                value = doubleDollarSign(value) + '';
+                value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+                html = html.replace(match, value);
+            }
+        }
+
+        return html;
     }
 
     $(function() {
@@ -141,7 +148,7 @@
             $quoteSelect.val(quote.public_id);
             setComboboxValue($('.quote-select'), quote.public_id, quote.invoice_number + ' - ' + getClientDisplayName(quote.client));
         }
-        $quoteSelect.change(refreshProposal);
+        $quoteSelect.change(loadTemplate);
 
         var templateId = {{ ! empty($templatePublicId) ? $templatePublicId : 0 }};
         var $proposal_templateSelect = $('select#proposal_template_id');
@@ -155,11 +162,22 @@
             var template = templateMap[templateId];
             setComboboxValue($('.template-select'), template.public_id, template.name);
         }
-        $proposal_templateSelect.change(refreshProposal);
+        $proposal_templateSelect.change(loadTemplate);
 	})
 
-</script>
+    </script>
 
-@include('proposals.grapesjs', ['entity' => $proposal])
+    @include('proposals.grapesjs', ['entity' => $proposal])
+
+    <script type="text/javascript">
+
+    $(function() {
+        grapesjsEditor.on('canvas:drop', function() {
+            var html = mergeTemplate(grapesjsEditor.getHtml());
+            grapesjsEditor.setComponents(html);
+        });
+    });
+
+    </script>
 
 @stop
