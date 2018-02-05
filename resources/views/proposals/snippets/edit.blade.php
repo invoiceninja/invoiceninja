@@ -3,20 +3,7 @@
 @section('head')
     @parent
 
-    <script src="{{ asset('js/grapesjs.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
-    <link href="{{ asset('css/grapesjs.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-
-    <style>
-    .gjs-four-color {
-        color: white !important;
-    }
-    .gjs-block.fa {
-        font-size: 4em !important;
-    }
-    .icon-select {
-        font-family: sans-serif, 'FontAwesome';
-    }
-    </style>
+    @include('proposals.grapesjs_header')
 
 @stop
 

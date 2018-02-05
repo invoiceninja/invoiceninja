@@ -23,7 +23,6 @@ class CreateProposalRequest extends ProposalRequest
     {
         return [
             'quote_id' => 'required',
-            'proposal_template_id' => 'required',
         ];
     }
 }

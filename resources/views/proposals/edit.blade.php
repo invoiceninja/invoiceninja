@@ -3,17 +3,8 @@
 @section('head')
     @parent
 
-    <script src="{{ asset('js/grapesjs.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
-    <link href="{{ asset('css/grapesjs.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-
-    <style>
-    .gjs-four-color {
-        color: white !important;
-    }
-    .gjs-block.fa {
-        font-size: 4em !important;
-    }
-    </style>
+    @include('money_script')
+    @include('proposals.grapesjs_header')
 
 @stop
 
@@ -24,7 +15,6 @@
             ->id('mainForm')
             ->rules([
                 'quote_id' => 'required',
-                'proposal_template_id' => 'required',
             ]) !!}
 
     @if ($proposal)
@@ -122,11 +112,22 @@
 
                 if (field == 'quote_number') {
                     field = 'invoice_number';
+                } else if (field == 'valid_until') {
+                    field = 'due_date';
+                } else if (field == 'quote_date') {
+                    field = 'invoice_date';
                 }
 
                 var value = getDescendantProp(quote, field) || ' ';
                 value = doubleDollarSign(value) + '';
                 value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+
+                if (field == 'amount' || field == 'partial') {
+                    value = formatMoneyInvoice(value, quote);
+                } else if (['invoice_date', 'due_date'].indexOf(field) >= 0) {
+                    value = moment.utc(value).format('{{ $account->getMomentDateFormat() }}');
+                }
+
                 html = html.replace(match, value);
             }
         }

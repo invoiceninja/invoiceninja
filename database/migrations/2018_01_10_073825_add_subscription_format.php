@@ -90,7 +90,7 @@ class AddSubscriptionFormat extends Migration
             $table->boolean('is_deleted')->default(false);
 
             $table->unsignedInteger('quote_id')->index();
-            $table->unsignedInteger('proposal_template_id')->index();
+            $table->unsignedInteger('proposal_template_id')->nullable()->index();
             $table->text('private_notes');
             $table->mediumText('html');
             $table->mediumText('css');
