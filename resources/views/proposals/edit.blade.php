@@ -88,6 +88,45 @@
         $('#mainForm').submit();
     }
 
+    function refreshProposal() {
+        var templateId = $('select#proposal_template_id').val();
+        var template = templateMap[templateId];
+
+        if (! template) {
+            return;
+        }
+
+        var html = template.html;
+        var quoteId = $('select#quote_id').val();
+        var quote = quoteMap[quoteId];
+
+        if (quote) {
+            var regExp = new RegExp(/\$[a-z][\w\.]*/, 'g');
+            var matches = html.match(regExp);
+
+            if (matches) {
+                for (var i=0; i<matches.length; i++) {
+                    var match = matches[i];
+
+                    field = match.substring(1, match.length);
+                    field = toSnakeCase(field);
+
+                    if (field == 'quote_number') {
+                        field = 'invoice_number';
+                    }
+
+                    var value = getDescendantProp(quote, field) || ' ';
+                    value = doubleDollarSign(value) + '';
+                    value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+                    html = html.replace(match, value);
+                }
+            }
+        }
+
+        window.grapesjsEditor.setComponents(html);
+        window.grapesjsEditor.setStyle(template.css);
+    }
+
     $(function() {
         var quoteId = {{ ! empty($quotePublicId) ? $quotePublicId : 0 }};
         var $quoteSelect = $('select#quote_id');
@@ -99,8 +138,10 @@
         @include('partials/entity_combobox', ['entityType' => ENTITY_QUOTE])
         if (quoteId) {
             var quote = quoteMap[quoteId];
+            $quoteSelect.val(quote.public_id);
             setComboboxValue($('.quote-select'), quote.public_id, quote.invoice_number + ' - ' + getClientDisplayName(quote.client));
         }
+        $quoteSelect.change(refreshProposal);
 
         var templateId = {{ ! empty($templatePublicId) ? $templatePublicId : 0 }};
         var $proposal_templateSelect = $('select#proposal_template_id');
@@ -114,6 +155,7 @@
             var template = templateMap[templateId];
             setComboboxValue($('.template-select'), template.public_id, template.name);
         }
+        $proposal_templateSelect.change(refreshProposal);
 	})
 
 </script>
