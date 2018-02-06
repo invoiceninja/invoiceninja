@@ -44,5 +44,10 @@ To run the `Codeception <http://codeception.com/>`_ tests you’ll need to insta
 
 - Create config file: ``cp tests/_bootstrap.php.default tests/_bootstrap.php``
 - Create test user: ``php artisan db:seed --class=UserTableSeeder``
+- edit the following files, replacing ``www.ninja.test:8000`` with your local test domain:
+  - /.travis.ylm
+  - /app/Libraries/Utils.php
+  - /tests/acceptance.suite.yml
+  - /tests/functional.suite.yml
 - Start the PhantomJS web server: ``phantomjs --webdriver=4444``
 - Run the tests: ``sudo ./vendor/codeception/codeception/codecept run --debug``
