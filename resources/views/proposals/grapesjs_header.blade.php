@@ -5,6 +5,7 @@
 .gjs-four-color {
     color: white !important;
 }
+.gjs-rte-actionbar,
 .gjs-block-label,
 .gjs-block-categories {
     font-size: 12px !important;

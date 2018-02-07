@@ -88,8 +88,9 @@
 
         var html = mergeTemplate(template.html);
 
-        window.grapesjsEditor.setComponents(html);
-        window.grapesjsEditor.setStyle(template.css);
+        // grapesjsEditor.CssComposer.getAll().reset();
+        grapesjsEditor.setComponents(html);
+        grapesjsEditor.setStyle(template.css);
     }
 
     function mergeTemplate(html) {
