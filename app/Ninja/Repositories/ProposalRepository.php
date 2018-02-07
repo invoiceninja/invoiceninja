@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Proposal;
 use App\Models\Invoice;
 use App\Models\ProposalTemplate;
+use App\Models\ProposalInvitation;
 use Auth;
 use DB;
 use Utils;
@@ -88,6 +89,34 @@ class ProposalRepository extends BaseRepository
         }
 
         $proposal->save();
+
+        // create invitations
+        $contactIds = [];
+
+        foreach ($proposal->invoice->invitations as $invitation) {
+            $conactIds[] = $invitation->contact_id;
+            $found = false;
+            foreach ($proposal->proposal_invitations as $proposalInvitation) {
+                if ($invitation->contact_id == $proposalInvitation->contact_id) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (! $found) {
+                $proposalInvitation = ProposalInvitation::createNew();
+                $proposalInvitation->proposal_id = $proposal->id;
+                $proposalInvitation->contact_id = $invitation->contact_id;
+                $proposalInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $proposalInvitation->save();
+            }
+        }
+
+        // delete invitations
+        foreach ($proposal->proposal_invitations as $proposalInvitation) {
+            if (! in_array($proposalInvitation->contact_id, $conactIds)) {
+                $proposalInvitation->delete();
+            }
+        }
 
         return $proposal;
     }

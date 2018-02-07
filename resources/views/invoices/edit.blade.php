@@ -878,7 +878,6 @@
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
             model.invoice().start_date_orig(model.invoice().start_date());
-
             @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
                 var client = clientMap[invoice.client.public_id];

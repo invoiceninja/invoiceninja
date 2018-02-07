@@ -46,6 +46,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_TEMPLATE', 'proposal_template');
     define('ENTITY_PROPOSAL_SNIPPET', 'proposal_snippet');
     define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
+    define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
