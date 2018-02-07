@@ -9,11 +9,12 @@
   @if (! Utils::isNinja() && $company->hasActivePlan() && $company->daysUntilPlanExpires() <= 10 && $company->daysUntilPlanExpires() > 0)
     <br/><b>{!! trans('texts.license_expiring', [
         'count' => $company->daysUntilPlanExpires(),
-        'link' => '<a href="#" onclick="buyWhiteLabel()">' . trans('texts.click_here') . '</a>',
+        'link' => '<a href="#" onclick="showWhiteLabelModal()">' . trans('texts.click_here') . '</a>',
     ]) !!}</b>
   @endif
 @else
   <a href="#" onclick="showWhiteLabelModal()">{{ trans('texts.white_label_link') }}</a>
+@endif
 
   <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -104,9 +105,6 @@
         </div>
       </div>
   </div>
-
-@endif
-
 
 <script type="text/javascript">
 
