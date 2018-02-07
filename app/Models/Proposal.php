@@ -59,7 +59,7 @@ class Proposal extends EntityModel
     /**
      * @return mixed
      */
-    public function quote()
+    public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }

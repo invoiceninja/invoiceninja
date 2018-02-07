@@ -17,11 +17,11 @@ class ProposalDatatable extends EntityDatatable
             [
                 'quote',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_QUOTE, $model->quote_user_id])) {
-                        return $model->quote_number;
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_QUOTE, $model->invoice_user_id])) {
+                        return $model->invoice_number;
                     }
 
-                    return link_to("quotes/{$model->quote_public_id}", $model->quote_number)->toHtml();
+                    return link_to("quotes/{$model->invoice_public_id}", $model->invoice_number)->toHtml();
                 },
             ],
             [

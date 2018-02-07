@@ -89,7 +89,7 @@ class AddSubscriptionFormat extends Migration
             $table->softDeletes();
             $table->boolean('is_deleted')->default(false);
 
-            $table->unsignedInteger('quote_id')->index();
+            $table->unsignedInteger('invoice_id')->index();
             $table->unsignedInteger('proposal_template_id')->nullable()->index();
             $table->text('private_notes');
             $table->mediumText('html');
@@ -97,8 +97,29 @@ class AddSubscriptionFormat extends Migration
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('quote_id')->references('id')->on('invoices')->onDelete('cascade');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->foreign('proposal_template_id')->references('id')->on('proposal_templates')->onDelete('cascade');
+
+            $table->unsignedInteger('public_id')->index();
+            $table->unique(['account_id', 'public_id']);
+        });
+
+        Schema::create('proposal_invitations', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('account_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('contact_id');
+            $table->unsignedInteger('proposal_id')->index();
+            $table->string('invitation_key')->index()->unique();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->timestamp('sent_date')->nullable();
+            $table->timestamp('viewed_date')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
+            $table->foreign('proposal_id')->references('id')->on('proposals')->onDelete('cascade');
 
             $table->unsignedInteger('public_id')->index();
             $table->unique(['account_id', 'public_id']);
@@ -125,5 +146,6 @@ class AddSubscriptionFormat extends Migration
         Schema::dropIfExists('proposal_templates');
         Schema::dropIfExists('proposal_snippets');
         Schema::dropIfExists('proposal_categories');
+        Schema::dropIfExists('proposal_invitations');
     }
 }

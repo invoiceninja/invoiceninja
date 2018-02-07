@@ -14,7 +14,7 @@
             ->method($method)
             ->id('mainForm')
             ->rules([
-                'quote_id' => 'required',
+                'invoice_id' => 'required',
             ]) !!}
 
     @if ($proposal)
@@ -33,9 +33,9 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        {!! Former::select('quote_id')->addOption('', '')
+                        {!! Former::select('invoice_id')->addOption('', '')
                                 ->label(trans('texts.quote'))
-                                ->addGroupClass('quote-select') !!}
+                                ->addGroupClass('invoice-select') !!}
                         {!! Former::select('proposal_template_id')->addOption('', '')
                                 ->label(trans('texts.template'))
                                 ->addGroupClass('template-select') !!}
@@ -66,8 +66,8 @@
     <div id="gjs"></div>
 
     <script type="text/javascript">
-    var quotes = {!! $quotes !!};
-    var quoteMap = {};
+    var invoices = {!! $invoices !!};
+    var invoiceMap = {};
 
     var templates = {!! $templates !!};
     var templateMap = {};
@@ -94,10 +94,10 @@
     }
 
     function mergeTemplate(html) {
-        var quoteId = $('select#quote_id').val();
-        var quote = quoteMap[quoteId];
+        var invoiceId = $('select#invoice_id').val();
+        var invoice = invoiceMap[invoiceId];
 
-        if (!quote) {
+        if (!invoice) {
             return html;
         }
 
@@ -111,20 +111,20 @@
                 field = match.substring(1, match.length);
                 field = toSnakeCase(field);
 
-                if (field == 'quote_number') {
+                if (field == 'invoice_number') {
                     field = 'invoice_number';
                 } else if (field == 'valid_until') {
                     field = 'due_date';
-                } else if (field == 'quote_date') {
+                } else if (field == 'invoice_date') {
                     field = 'invoice_date';
                 }
 
-                var value = getDescendantProp(quote, field) || ' ';
+                var value = getDescendantProp(invoice, field) || ' ';
                 value = doubleDollarSign(value) + '';
                 value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
 
                 if (field == 'amount' || field == 'partial') {
-                    value = formatMoneyInvoice(value, quote);
+                    value = formatMoneyInvoice(value, invoice);
                 } else if (['invoice_date', 'due_date'].indexOf(field) >= 0) {
                     value = moment.utc(value).format('{{ $account->getMomentDateFormat() }}');
                 }
@@ -137,20 +137,20 @@
     }
 
     $(function() {
-        var quoteId = {{ ! empty($quotePublicId) ? $quotePublicId : 0 }};
-        var $quoteSelect = $('select#quote_id');
-        for (var i = 0; i < quotes.length; i++) {
-            var quote = quotes[i];
-            quoteMap[quote.public_id] = quote;
-            $quoteSelect.append(new Option(quote.invoice_number + ' - ' + getClientDisplayName(quote.client), quote.public_id));
+        var invoiceId = {{ ! empty($invoicePublicId) ? $invoicePublicId : 0 }};
+        var $invoiceSelect = $('select#invoice_id');
+        for (var i = 0; i < invoices.length; i++) {
+            var invoice = invoices[i];
+            invoiceMap[invoice.public_id] = invoice;
+            $invoiceSelect.append(new Option(invoice.invoice_number + ' - ' + getClientDisplayName(invoice.client), invoice.public_id));
         }
-        @include('partials/entity_combobox', ['entityType' => ENTITY_QUOTE])
-        if (quoteId) {
-            var quote = quoteMap[quoteId];
-            $quoteSelect.val(quote.public_id);
-            setComboboxValue($('.quote-select'), quote.public_id, quote.invoice_number + ' - ' + getClientDisplayName(quote.client));
+        @include('partials/entity_combobox', ['entityType' => ENTITY_INVOICE])
+        if (invoiceId) {
+            var invoice = invoiceMap[invoiceId];
+            $invoiceSelect.val(invoice.public_id);
+            setComboboxValue($('.invoice-select'), invoice.public_id, invoice.invoice_number + ' - ' + getClientDisplayName(invoice.client));
         }
-        $quoteSelect.change(loadTemplate);
+        $invoiceSelect.change(loadTemplate);
 
         var templateId = {{ ! empty($templatePublicId) ? $templatePublicId : 0 }};
         var $proposal_templateSelect = $('select#proposal_template_id');

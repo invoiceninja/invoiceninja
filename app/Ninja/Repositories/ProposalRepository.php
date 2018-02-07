@@ -25,7 +25,7 @@ class ProposalRepository extends BaseRepository
     {
         $query = DB::table('proposals')
                 ->where('proposals.account_id', '=', Auth::user()->account_id)
-                ->leftjoin('invoices', 'invoices.id', '=', 'proposals.quote_id')
+                ->leftjoin('invoices', 'invoices.id', '=', 'proposals.invoice_id')
                 ->leftjoin('clients', 'clients.id', '=', 'invoices.client_id')
                 ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                 ->leftJoin('proposal_templates', 'proposal_templates.id', '=', 'proposals.proposal_template_id')
@@ -44,9 +44,9 @@ class ProposalRepository extends BaseRepository
                     'clients.user_id as client_user_id',
                     'clients.public_id as client_public_id',
                     'invoices.invoice_number as quote',
-                    'invoices.invoice_number as quote_number',
-                    'invoices.public_id as quote_public_id',
-                    'invoices.user_id as quote_user_id',
+                    'invoices.invoice_number as invoice_number',
+                    'invoices.public_id as invoice_public_id',
+                    'invoices.user_id as invoice_user_id',
                     'proposal_templates.name as template',
                     'proposal_templates.public_id as template_public_id',
                     'proposal_templates.user_id as template_user_id'
@@ -79,8 +79,8 @@ class ProposalRepository extends BaseRepository
 
         $proposal->fill($input);
 
-        if (isset($input['quote_id'])) {
-            $proposal->quote_id = $input['quote_id'] ? Invoice::getPrivateId($input['quote_id']) : null;
+        if (isset($input['invoice_id'])) {
+            $proposal->invoice_id = $input['invoice_id'] ? Invoice::getPrivateId($input['invoice_id']) : null;
         }
 
         if (isset($input['proposal_template_id'])) {
