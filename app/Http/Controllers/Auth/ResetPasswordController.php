@@ -59,14 +59,8 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
-        $passwordReset = PasswordReset::whereToken($token)->first();
-
-        if (! $passwordReset) {
-            return redirect('login')->withMessage(trans('texts.invalid_code'));
-        }
-
         return view('auth.passwords.reset')->with(
-            ['token' => $token, 'email' => $passwordReset->email]
+            ['token' => $token]
         );
     }
 }
