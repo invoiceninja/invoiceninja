@@ -147,8 +147,10 @@
         @include('partials/entity_combobox', ['entityType' => ENTITY_INVOICE])
         if (invoiceId) {
             var invoice = invoiceMap[invoiceId];
-            $invoiceSelect.val(invoice.public_id);
-            setComboboxValue($('.invoice-select'), invoice.public_id, invoice.invoice_number + ' - ' + getClientDisplayName(invoice.client));
+            if (invoice) {
+                $invoiceSelect.val(invoice.public_id);
+                setComboboxValue($('.invoice-select'), invoice.public_id, invoice.invoice_number + ' - ' + getClientDisplayName(invoice.client));
+            }
         }
         $invoiceSelect.change(loadTemplate);
 

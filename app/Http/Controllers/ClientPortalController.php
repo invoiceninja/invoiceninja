@@ -67,20 +67,16 @@ class ClientPortalController extends BaseController
 
         $account = $invitation->account;
         $proposal = $invitation->proposal;
+        $invitation = Invitation::whereContactId($invitation->contact_id)
+                ->whereInvoiceId($proposal->invoice_id)
+                ->firstOrFail();
 
         $data = [
             'proposalInvitation' => $invitation,
             'proposal' => $proposal,
             'account' => $account,
+            'invitation' => $invitation,
         ];
-
-        if (request()->raw) {
-            return view('invited.proposal_raw', $data);
-        }
-
-        $data['invitation'] = Invitation::whereContactId($invitation->contact_id)
-                ->whereInvoiceId($proposal->invoice_id)
-                ->firstOrFail();
 
         return view('invited.proposal', $data);
     }

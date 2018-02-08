@@ -54,6 +54,7 @@ class PurgeAccountData extends Job
             'proposal_templates',
             'proposal_snippets',
             'proposal_categories',
+            'proposal_invitations',
         ];
 
         foreach ($tables as $table) {

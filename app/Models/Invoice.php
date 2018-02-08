@@ -453,6 +453,23 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     /**
      * @param $query
+     *
+     * @return mixed
+     */
+    public function scopeUnapprovedQuotes($query, $includeInvoiceId = false)
+    {
+        return $query->quotes()
+                    ->where(function ($query) use ($includeInvoiceId) {
+                        $query->whereId($includeInvoiceId)
+                            ->orWhere(function ($query) {
+                                  $query->where('invoice_status_id', '<', INVOICE_STATUS_APPROVED)
+                                    ->whereNull('quote_invoice_id');
+                              });
+                    });
+    }
+
+    /**
+     * @param $query
      * @param $typeId
      *
      * @return mixed
@@ -846,7 +863,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isApproved()
     {
-        return $this->invoice_status_id >= INVOICE_STATUS_APPROVED;
+        return $this->invoice_status_id >= INVOICE_STATUS_APPROVED || $this->quote_invoice_id;
     }
 
     /**
