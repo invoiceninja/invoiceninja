@@ -469,6 +469,10 @@ class CheckData extends Command
                 ENTITY_INVOICE,
                 ENTITY_CLIENT,
                 ENTITY_USER,
+                ENTITY_TASK_STATUS,
+            ],
+            'task_statuses' => [
+                ENTITY_USER,
             ],
             'credits' => [
                 ENTITY_CLIENT,
@@ -495,6 +499,25 @@ class CheckData extends Command
             'projects' => [
                 ENTITY_USER,
                 ENTITY_CLIENT,
+            ],
+            'proposals' => [
+                ENTITY_USER,
+                ENTITY_INVOICE,
+                ENTITY_PROPOSAL_TEMPLATE,
+            ],
+            'proposal_categories' => [
+                ENTITY_USER,
+            ],
+            'proposal_templates' => [
+                ENTITY_USER,
+            ],
+            'proposal_snippets' => [
+                ENTITY_USER,
+                ENTITY_PROPOSAL_CATEGORY,
+            ],
+            'proposal_invitations' => [
+                ENTITY_USER,
+                ENTITY_PROPOSAL,
             ],
         ];
 

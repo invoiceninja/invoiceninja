@@ -58,6 +58,10 @@
         transition: all 0.5s ease;
     }
 
+    #left-sidebar-wrapper .btn-primary.btn-sm.pull-right {
+        margin-top: 7px;
+    }
+
     #wrapper.toggled-left #left-sidebar-wrapper {
         width: 250px;
     }
@@ -109,7 +113,8 @@
 
     #left-sidebar-wrapper .sidebar-nav li {
         text-indent: 14px;
-        line-height: 34px;
+        line-height: 32px;
+        font-size: 16px;
     }
 
     #left-sidebar-wrapper .sidebar-nav li span.badge {
@@ -129,7 +134,7 @@
     }
 
     #left-sidebar-wrapper ul {
-        min-height: 750px;
+        min-height: 760px;
     }
 
     @media (max-height: 744px) {

@@ -2,8 +2,9 @@
 <link href="{{ asset('css/grapesjs.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
 <style>
-.gjs-four-color {
-    color: white !important;
+.gjs-four-color,
+.gjs-four-color-h:hover {
+    color: #3b97ff !important;
 }
 .gjs-rte-actionbar,
 .gjs-block-label,

@@ -1652,6 +1652,7 @@ class Account extends Eloquent
             ENTITY_EXPENSE,
             ENTITY_VENDOR,
             ENTITY_PROJECT,
+            ENTITY_PROPOSAL,
         ])) {
             return true;
         }
@@ -1660,6 +1661,8 @@ class Account extends Eloquent
             $entityType = ENTITY_EXPENSE;
         } elseif ($entityType == ENTITY_PROJECT) {
             $entityType = ENTITY_TASK;
+        } elseif ($entityType == ENTITY_PROPOSAL) {
+            $entityType = ENTITY_QUOTE;
         }
 
         // note: single & checks bitmask match

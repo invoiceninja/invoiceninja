@@ -182,7 +182,8 @@ class HistoryUtils
                     $button = '';
                 }
 
-                $str .= sprintf('<li>%s<a href="%s"><div>%s %s</div></a></li>', $button, $link, $icon, $name);
+                $padding = $str ? 16 : 0;
+                $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
                 $lastClientId = $item->client_id;
             }
 
