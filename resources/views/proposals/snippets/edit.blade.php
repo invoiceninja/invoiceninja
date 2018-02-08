@@ -80,6 +80,9 @@
     $(function() {
         var categoryId = {{ $categoryPublicId ?: 0 }};
         var $proposal_categorySelect = $('select#proposal_category_id');
+        @if (Auth::user()->can('create', ENTITY_PROPOSAL_CATEGORY))
+            $proposal_categorySelect.append(new Option("{{ trans('texts.create_proposal_category') }}: $name", '-1'));
+        @endif
         for (var i = 0; i < categories.length; i++) {
             var category = categories[i];
             categoryMap[category.public_id] = category;

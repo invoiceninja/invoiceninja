@@ -2726,6 +2726,7 @@ $LANG = array(
     'standard' => 'Standard',
     'icon' => 'Icon',
     'proposal_not_found' => 'The requested proposal is not available',
+    'create_proposal_category' => 'Create category',
 
 );
 

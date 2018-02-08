@@ -137,7 +137,7 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:submitForm_{$entityType}('markSent', {$model->public_id})";
                 },
                 function ($model) {
-                    return $model->invoice_status_id < INVOICE_STATUS_SENT && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return ! $model->is_public && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 },
             ],
             [
@@ -165,6 +165,15 @@ class InvoiceDatatable extends EntityDatatable
                 },
                 function ($model) use ($entityType) {
                     return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                },
+            ],
+            [
+                trans('texts.new_proposal'),
+                function ($model) {
+                    return URL::to("proposals/create/{$model->public_id}");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && $model->invoice_status_id < INVOICE_STATUS_APPROVED && Auth::user()->can('create', ENTITY_PROPOSAL);
                 },
             ],
             [
