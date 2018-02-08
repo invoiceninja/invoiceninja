@@ -28,10 +28,10 @@ class ProposalDatatable extends EntityDatatable
                 'template',
                 function ($model) {
                     if (! Auth::user()->can('viewByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->template_user_id])) {
-                        return $model->template;
+                        return $model->template ?: ' ';
                     }
 
-                    return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template)->toHtml();
+                    return link_to("proposals/templates/{$model->template_public_id}/edit", $model->template ?: ' ')->toHtml();
                 },
             ],
             [

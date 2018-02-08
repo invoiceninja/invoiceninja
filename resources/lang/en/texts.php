@@ -794,7 +794,7 @@ $LANG = array(
     'default_invoice_footer' => 'Default Invoice Footer',
     'quote_footer' => 'Quote Footer',
     'free' => 'Free',
-    'quote_is_approved' => 'The quote has been approved',
+    'quote_is_approved' => 'Successfully approved',
     'apply_credit' => 'Apply Credit',
     'system_settings' => 'System Settings',
     'archive_token' => 'Archive Token',
@@ -2725,6 +2725,7 @@ $LANG = array(
     'delete_status' => 'Delete Status',
     'standard' => 'Standard',
     'icon' => 'Icon',
+    'proposal_not_found' => 'The requested proposal is not available',
 
 );
 

@@ -116,6 +116,9 @@ class AddSubscriptionFormat extends Migration
 
             $table->timestamp('sent_date')->nullable();
             $table->timestamp('viewed_date')->nullable();
+            $table->timestamp('opened_date')->nullable();
+            $table->string('message_id')->nullable();
+            $table->text('email_error')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');

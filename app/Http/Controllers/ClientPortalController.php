@@ -15,6 +15,7 @@ use App\Ninja\Repositories\DocumentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\TaskRepository;
+use App\Ninja\Repositories\ProposalRepository;
 use App\Services\PaymentService;
 use Auth;
 use Barracuda\ArchiveStream\ZipArchive;
@@ -36,6 +37,7 @@ class ClientPortalController extends BaseController
     private $invoiceRepo;
     private $paymentRepo;
     private $documentRepo;
+    private $propoosalRepo;
 
     public function __construct(
         InvoiceRepository $invoiceRepo,
@@ -44,7 +46,8 @@ class ClientPortalController extends BaseController
         DocumentRepository $documentRepo,
         PaymentService $paymentService,
         CreditRepository $creditRepo,
-        TaskRepository $taskRepo)
+        TaskRepository $taskRepo,
+        ProposalRepository $propoosalRepo)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
@@ -53,9 +56,36 @@ class ClientPortalController extends BaseController
         $this->paymentService = $paymentService;
         $this->creditRepo = $creditRepo;
         $this->taskRepo = $taskRepo;
+        $this->propoosalRepo = $propoosalRepo;
     }
 
-    public function view($invitationKey)
+    public function viewProposal($invitationKey)
+    {
+        if (! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
+            return $this->returnError(trans('texts.proposal_not_found'));
+        }
+
+        $account = $invitation->account;
+        $proposal = $invitation->proposal;
+
+        $data = [
+            'proposalInvitation' => $invitation,
+            'proposal' => $proposal,
+            'account' => $account,
+        ];
+
+        if (request()->raw) {
+            return view('invited.proposal_raw', $data);
+        }
+
+        $data['invitation'] = Invitation::whereContactId($invitation->contact_id)
+                ->whereInvoiceId($proposal->invoice_id)
+                ->firstOrFail();
+
+        return view('invited.proposal', $data);
+    }
+
+    public function viewInvoice($invitationKey)
     {
         if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();

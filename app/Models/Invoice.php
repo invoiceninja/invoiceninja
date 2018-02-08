@@ -844,6 +844,14 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return bool
      */
+    public function isApproved()
+    {
+        return $this->invoice_status_id >= INVOICE_STATUS_APPROVED;
+    }
+
+    /**
+     * @return bool
+     */
     public function isPartial()
     {
         return $this->invoice_status_id >= INVOICE_STATUS_PARTIAL;

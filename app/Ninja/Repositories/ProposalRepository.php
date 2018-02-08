@@ -120,4 +120,39 @@ class ProposalRepository extends BaseRepository
 
         return $proposal;
     }
+
+    /**
+     * @param $invitationKey
+     *
+     * @return Invitation|bool
+     */
+    public function findInvitationByKey($invitationKey)
+    {
+        // check for extra params at end of value (from website feature)
+        list($invitationKey) = explode('&', $invitationKey);
+        $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
+
+        /** @var \App\Models\Invitation $invitation */
+        $invitation = ProposalInvitation::where('invitation_key', '=', $invitationKey)->first();
+        if (! $invitation) {
+            return false;
+        }
+
+        $proposal = $invitation->proposal;
+        if (! $proposal || $proposal->is_deleted) {
+            return false;
+        }
+
+        $invoice = $proposal->invoice;
+        if (! $invoice || $invoice->is_deleted) {
+            return false;
+        }
+
+        $client = $invoice->client;
+        if (! $client || $client->is_deleted) {
+            return false;
+        }
+
+        return $invitation;
+    }
 }
