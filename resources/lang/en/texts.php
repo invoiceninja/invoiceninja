@@ -2727,6 +2727,7 @@ $LANG = array(
     'icon' => 'Icon',
     'proposal_not_found' => 'The requested proposal is not available',
     'create_proposal_category' => 'Create category',
+    'clone_proposal_template' => 'Clone Template',
 
 );
 

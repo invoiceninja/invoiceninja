@@ -70,20 +70,37 @@ class ProposalTemplateController extends BaseController
         return redirect("proposals/templates/$publicId/edit");
     }
 
-    public function edit(ProposalTemplateRequest $request)
+    public function edit(ProposalTemplateRequest $request, $publicId = false, $clone = false)
     {
-        $proposalTemplate = $request->entity();
+        $template = $request->entity();
+
+        if ($clone) {
+            $template->id = null;
+            $template->public_id = null;
+            $template->name = '';
+            $template->private_notes = '';
+            $method = 'POST';
+            $url = 'proposals/templates';
+        } else {
+            $method = 'PUT';
+            $url = 'proposals/templates/' . $template->public_id;
+        }
 
         $data = [
             'account' => auth()->user()->account,
-            'template' => $proposalTemplate,
-            'method' => 'PUT',
-            'url' => 'proposals/templates/' . $proposalTemplate->public_id,
+            'template' => $template,
+            'method' => $method,
+            'url' => $url,
             'title' => trans('texts.edit_proposal_template'),
             'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
         ];
 
         return View::make('proposals/templates/edit', $data);
+    }
+
+    public function cloneProposal(ProposalTemplateRequest $request, $publicId)
+    {
+        return self::edit($request, $publicId, true);
     }
 
     public function store(CreateProposalTemplateRequest $request)

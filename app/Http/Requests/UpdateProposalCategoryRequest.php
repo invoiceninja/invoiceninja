@@ -26,7 +26,7 @@ class UpdateProposalCategoryRequest extends ProposalCategoryRequest
         }
 
         return [
-            'name' => 'required',
+            'name' => sprintf('required|unique:proposal_categories,name,,id,account_id,%s', $this->user()->account_id),
         ];
     }
 }

@@ -218,6 +218,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::resource('proposals/snippets', 'ProposalSnippetController');
     Route::get('api/proposal_snippets', 'ProposalSnippetController@getDatatable');
 
+    Route::get('proposals/templates/{proposal_templates}/clone', 'ProposalTemplateController@cloneProposal');
     Route::post('proposals/templates/bulk', 'ProposalTemplateController@bulk');
     Route::get('proposals/templates/{proposal_templates}/edit', 'ProposalTemplateController@edit');
     Route::get('proposals/templates/create', 'ProposalTemplateController@create');

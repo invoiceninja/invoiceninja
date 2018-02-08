@@ -87,6 +87,7 @@ class HistoryUtils
             ENTITY_TASK,
             ENTITY_EXPENSE,
             ENTITY_PROJECT,
+            ENTITY_PROPOSAL,
             //ENTITY_RECURRING_EXPENSE,
         ];
 
@@ -142,6 +143,9 @@ class HistoryUtils
         } elseif (method_exists($entity, 'client') && $entity->client) {
             $object->client_id = $entity->client->public_id;
             $object->client_name = $entity->client->getDisplayName();
+        } elseif (method_exists($entity, 'invoice') && $entity->invoice) {
+            $object->client_id = $entity->invoice->client->public_id;
+            $object->client_name = $entity->invoice->client->getDisplayName();
         } else {
             $object->client_id = 0;
             $object->client_name = 0;

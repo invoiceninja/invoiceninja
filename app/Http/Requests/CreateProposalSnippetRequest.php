@@ -22,7 +22,7 @@ class CreateProposalSnippetRequest extends ProposalSnippetRequest
     public function rules()
     {
         return [
-            'name' => 'required',
+            'name' => sprintf('required|unique:proposal_snippets,name,,id,account_id,%s', $this->user()->account_id),
         ];
     }
 }

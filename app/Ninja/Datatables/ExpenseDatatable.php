@@ -115,7 +115,7 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("expenses/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
             [

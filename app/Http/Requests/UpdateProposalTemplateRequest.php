@@ -26,7 +26,7 @@ class UpdateProposalTemplateRequest extends ProposalTemplateRequest
         }
 
         return [
-            'name' => 'required',
+            'name' => sprintf('required|unique:proposal_templates,name,%s,id,account_id,%s', $this->entity()->id, $this->user()->account_id),
         ];
     }
 }

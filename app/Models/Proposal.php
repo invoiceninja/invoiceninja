@@ -17,6 +17,10 @@ class Proposal extends EntityModel
      * @var array
      */
     protected $dates = ['deleted_at'];
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ProposalPresenter';
 
     /**
      * @var array
@@ -82,7 +86,7 @@ class Proposal extends EntityModel
 
     public function getDisplayName()
     {
-        return 'TODO';
+        return $this->invoice->invoice_number;
     }
 }
 
