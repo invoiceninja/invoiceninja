@@ -12,7 +12,7 @@
 
     {!! Former::open($url)
             ->method($method)
-            ->id('mainForm')
+            ->onsubmit('return onFormSubmit(event)')
             ->rules([
                 'invoice_id' => 'required',
             ]) !!}
@@ -57,7 +57,7 @@
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}
 
         {!! Button::success(trans("texts.save"))
-                ->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))
+                ->submit()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
     </center>
 
@@ -72,10 +72,11 @@
     var templates = {!! $templates !!};
     var templateMap = {};
 
-    function onSaveClick() {
+    function onFormSubmit() {
         $('#html').val(grapesjsEditor.getHtml());
         $('#css').val(grapesjsEditor.getCss());
-        $('#mainForm').submit();
+
+        return true;
     }
 
     function loadTemplate() {

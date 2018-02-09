@@ -11,7 +11,7 @@
 
     {!! Former::open($url)
             ->method($method)
-            ->id('mainForm')
+            ->onsubmit('return onFormSubmit(event)')
             ->rules([
                 'name' => 'required',
             ]) !!}
@@ -25,7 +25,6 @@
         {!! Former::text('html') !!}
         {!! Former::text('css') !!}
     </span>
-
 
     <div class="row">
 		<div class="col-lg-12">
@@ -60,7 +59,7 @@
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}
 
         {!! Button::success(trans("texts.save"))
-                ->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))
+                ->submit()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
     </center>
 
@@ -73,10 +72,11 @@
     var categories = {!! $categories !!};
     var categoryMap = {};
 
-    function onSaveClick() {
+    function onFormSubmit() {
         $('#html').val(grapesjsEditor.getHtml());
         $('#css').val(grapesjsEditor.getCss());
-        $('#mainForm').submit();
+
+        return true;
     }
 
     $(function() {

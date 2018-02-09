@@ -11,7 +11,7 @@
 
     {!! Former::open($url)
             ->method($method)
-            ->id('mainForm')
+            ->onsubmit('return onFormSubmit(event)')
             ->rules([
                 'name' => 'required',
             ]) !!}
@@ -25,7 +25,6 @@
         {!! Former::text('html') !!}
         {!! Former::text('css') !!}
     </span>
-
 
     <div class="row">
 		<div class="col-lg-12">
@@ -57,9 +56,15 @@
                 ->appendIcon(Icon::create('remove-circle'))
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}
 
-        {!! Button::success(trans("texts.save"))
-                ->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))
+        {!! Button::success(trans('texts.save'))
+                ->submit()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
+
+        @if ($template)
+            {!! Button::primary(trans('texts.new_proposal'))
+                    ->asLinkTo(url('/proposals/create/0/' . $template->public_id)) !!}
+        @endif
+
     </center>
 
     {!! Former::close() !!}
@@ -70,10 +75,11 @@
     var templates = {!! $templates !!};
     var templateMap = {};
 
-    function onSaveClick() {
+    function onFormSubmit() {
         $('#html').val(grapesjsEditor.getHtml());
         $('#css').val(grapesjsEditor.getCss());
-        $('#mainForm').submit();
+
+        return true;
     }
 
     $(function() {
