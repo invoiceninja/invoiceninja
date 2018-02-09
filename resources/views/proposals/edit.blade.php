@@ -132,7 +132,7 @@
                 value = doubleDollarSign(value) + '';
                 value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
 
-                if (['amount', 'partial', 'balance', 'paid_to_date'].indexOf(field) >= 0) {
+                if (['amount', 'partial', 'client.balance', 'client.paid_to_date'].indexOf(field) >= 0) {
                     value = formatMoneyInvoice(value, invoice);
                 } else if (['invoice_date', 'due_date', 'partial_due_date'].indexOf(field) >= 0) {
                     value = moment.utc(value).format('{{ $account->getMomentDateFormat() }}');
