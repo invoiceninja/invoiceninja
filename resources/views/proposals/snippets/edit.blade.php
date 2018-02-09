@@ -53,6 +53,8 @@
     </div>
 
     <center class="buttons">
+        @include('proposals.grapesjs_help')
+
         {!! Button::normal(trans('texts.cancel'))
                 ->appendIcon(Icon::create('remove-circle'))
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}

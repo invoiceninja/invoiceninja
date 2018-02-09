@@ -101,6 +101,8 @@
             return html;
         }
 
+        invoice.account = {!! auth()->user()->account->load('country') !!};
+
         var regExp = new RegExp(/\$[a-z][\w\.]*/, 'g');
         var matches = html.match(regExp);
 
@@ -108,24 +110,31 @@
             for (var i=0; i<matches.length; i++) {
                 var match = matches[i];
 
-                field = match.substring(1, match.length);
+                field = match.replace('$quote.', '$');
+                field = field.substring(1, field.length);
                 field = toSnakeCase(field);
 
-                if (field == 'invoice_number') {
+                if (field == 'quote_number') {
                     field = 'invoice_number';
                 } else if (field == 'valid_until') {
                     field = 'due_date';
-                } else if (field == 'invoice_date') {
+                } else if (field == 'quote_date') {
                     field = 'invoice_date';
+                } else if (field == 'footer') {
+                    field = 'invoice_footer';
+                } else if (match == '$account.phone') {
+                    field = 'account.work_phone';
+                } else if (match == '$client.phone') {
+                    field = 'client.phone';
                 }
 
                 var value = getDescendantProp(invoice, field) || ' ';
                 value = doubleDollarSign(value) + '';
                 value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
 
-                if (field == 'amount' || field == 'partial') {
+                if (['amount', 'partial', 'balance', 'paid_to_date'].indexOf(field) >= 0) {
                     value = formatMoneyInvoice(value, invoice);
-                } else if (['invoice_date', 'due_date'].indexOf(field) >= 0) {
+                } else if (['invoice_date', 'due_date', 'partial_due_date'].indexOf(field) >= 0) {
                     value = moment.utc(value).format('{{ $account->getMomentDateFormat() }}');
                 }
 
