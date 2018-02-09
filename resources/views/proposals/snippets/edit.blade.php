@@ -5,6 +5,12 @@
 
     @include('proposals.grapesjs_header')
 
+    <style>
+    .icon-select {
+        font-family: FontAwesome, sans-serif;
+    }
+    </style>
+
 @stop
 
 @section('content')

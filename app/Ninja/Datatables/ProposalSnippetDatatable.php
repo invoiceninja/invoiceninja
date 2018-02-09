@@ -17,11 +17,13 @@ class ProposalSnippetDatatable extends EntityDatatable
             [
                 'name',
                 function ($model) {
+                    $icon = '<i class="fa fa-' . $model->icon . '"></i>&nbsp;&nbsp;';
+
                     if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_SNIPPET, $model->user_id])) {
-                        return $model->name;
+                        return $icon . $model->name;
                     }
 
-                    return link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
+                    return $icon . link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
                 },
             ],
             [
