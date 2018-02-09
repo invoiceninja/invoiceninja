@@ -63,6 +63,7 @@ class ProposalController extends BaseController
             'invoices' => Invoice::scope()->with('client.contacts', 'client.country')->unapprovedQuotes()->orderBy('id')->get(),
             'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
             'invoicePublicId' => $request->invoice_id,
+            'templatePublicId' => $request->proposal_template_id,
         ];
 
         return View::make('proposals.edit', $data);

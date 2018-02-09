@@ -174,6 +174,7 @@
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
         if (templateId) {
             var template = templateMap[templateId];
+            $proposal_templateSelect.val(template.public_id);
             setComboboxValue($('.template-select'), template.public_id, template.name);
         }
         $proposal_templateSelect.change(loadTemplate);
@@ -190,6 +191,10 @@
             var html = mergeTemplate(grapesjsEditor.getHtml());
             grapesjsEditor.setComponents(html);
         });
+
+        @if (! $proposal && $templatePublicId)
+            loadTemplate();
+        @endif
     });
 
     </script>

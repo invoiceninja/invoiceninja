@@ -62,6 +62,7 @@
 
         @if ($template)
             {!! Button::primary(trans('texts.new_proposal'))
+                    ->appendIcon(Icon::create('plus-sign'))
                     ->asLinkTo(url('/proposals/create/0/' . $template->public_id)) !!}
         @endif
 

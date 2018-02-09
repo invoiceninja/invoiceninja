@@ -62,6 +62,15 @@ class ProposalTemplateDatatable extends EntityDatatable
                     return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->user_id]);
                 },
             ],
+            [
+                trans('texts.new_proposal'),
+                function ($model) {
+                    return URL::to("proposals/create/0/{$model->public_id}");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', [ENTITY_PROPOSAL, $model->user_id]);
+                },
+            ],
         ];
     }
 }
