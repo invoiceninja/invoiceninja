@@ -12,6 +12,7 @@
     {!! Former::open($url)
             ->method($method)
             ->onsubmit('return onFormSubmit(event)')
+            ->addClass('warn-on-exit')
             ->rules([
                 'name' => 'required',
             ]) !!}

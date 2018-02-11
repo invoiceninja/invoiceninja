@@ -40,6 +40,10 @@ $(function() {
         }
     @endif
 
+    grapesjsEditor.on('component:update', function(a, b) {
+        NINJA.formIsChanged = true;
+    });
+
 });
 
 </script>
