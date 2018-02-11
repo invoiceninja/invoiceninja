@@ -57,7 +57,7 @@
                 ->appendIcon(Icon::create('remove-circle'))
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}
 
-        {!! Button::primary(trans('texts.download_pdf'))
+        {!! Button::primary(trans('texts.download'))
                 ->withAttributes(['onclick' => 'onDownloadClick()'])
                 ->appendIcon(Icon::create('download-alt')) !!}
 
@@ -90,9 +90,11 @@
         return true;
     }
 
-    function onDownloadClick() {
-        location.href = "{{ url("/proposals/{$proposal->public_id}/download") }}";
-    }
+    @if ($proposal)
+        function onDownloadClick() {
+            location.href = "{{ url("/proposals/{$proposal->public_id}/download") }}";
+        }
+    @endif
 
     function loadTemplate() {
         var templateId = $('select#proposal_template_id').val();

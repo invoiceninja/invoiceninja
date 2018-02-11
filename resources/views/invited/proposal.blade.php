@@ -26,10 +26,7 @@
 	}
 
 	$(function() {
-		var html = {!! json_encode($proposal->html) !!};
-		var css = {!! json_encode($proposal->css) !!};
-
-		var content = '<html><head><style>' + css + '</style></head><body>' + html + '</body></html>';
+		var content = {!! json_encode($proposal->present()->htmlDocument) !!};
 		var iFrame = document.getElementById('proposalIframe').contentWindow.document;
 
 		iFrame.write(content);

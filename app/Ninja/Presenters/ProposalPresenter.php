@@ -34,7 +34,21 @@ class ProposalPresenter extends EntityPresenter
     {
         $proposal = $this->entity;
 
-        return "<html><head><style>{$proposal->css}</style><head><body>{$proposal->html}</body></html>";
+        $html = "<html>
+                    <head>
+                        <style>
+                            @page {
+                                margin: 0px;
+                            }
+                            {$proposal->css}
+                        </style>
+                    </head>
+                    <body>
+                        {$proposal->html}
+                    </body>
+                </html>";
+
+        return $html;
     }
 
     public function filename()

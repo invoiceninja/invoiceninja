@@ -142,6 +142,8 @@ class ProposalController extends BaseController
 
         $mpdf = new mPDF();
         $mpdf->WriteHTML($proposal->present()->htmlDocument);
+
+        $mpdf->Output();
         $mpdf->Output($proposal->present()->filename, 'D');
     }
 }

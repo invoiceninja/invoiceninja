@@ -525,7 +525,7 @@
 		@endif
 
         @if ( $invoice->id && ! $invoice->is_recurring)
-		    {!! Button::primary(trans('texts.download_pdf'))
+		    {!! Button::primary(trans('texts.download'))
                     ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                     ->appendIcon(Icon::create('download-alt')) !!}
         @endif
