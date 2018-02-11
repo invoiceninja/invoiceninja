@@ -4,6 +4,7 @@
 
 	<div class="container" style="padding: 20px;">
 		<div class="pull-right">
+			{!! Button::normal(trans('texts.download'))->asLinkTo(url("/proposal/{$proposalInvitation->invitation_key}/download"))->large() !!}
 			@if (! $proposal->invoice->isApproved())
 				{!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()'])->large() !!}
 			@endif
@@ -17,7 +18,7 @@
 
 	function onApproveClick() {
 		$('#approveButton').prop('disabled', true);
-		location.href = "{{ url('/approve/' . $invitation->invitation_key) }}";
+		location.href = "{{ url('/approve/' . $invoiceInvitation->invitation_key) }}";
 	}
 
 	function resizeIframe(obj) {
