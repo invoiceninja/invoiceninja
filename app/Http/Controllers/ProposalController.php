@@ -134,4 +134,11 @@ class ProposalController extends BaseController
 
         return redirect()->to('/proposals');
     }
+
+    public function download(ProposalRequest $request)
+    {
+        $proposal = $request->entity();
+
+        
+    }
 }

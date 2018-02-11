@@ -7,6 +7,7 @@ use Closure;
 use App\Models\LookupAccount;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
+use App\Models\LookupProposalInvitation;
 use App\Models\LookupAccountToken;
 use App\Models\LookupUser;
 use Auth;
@@ -43,6 +44,8 @@ class DatabaseLookup
         } elseif ($guard == 'contact') {
             if ($key = request()->invitation_key) {
                 LookupInvitation::setServerByField('invitation_key', $key);
+            } elseif ($key = request()->proposal_invitation_key) {
+                LookupProposalInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
             } elseif ($key = request()->account_key) {

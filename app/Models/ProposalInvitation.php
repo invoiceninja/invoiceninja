@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-//use App\Models\LookupProposalInvitation;
+use App\Models\LookupProposalInvitation;
 use App\Models\Traits\Inviteable;
 
 /**
@@ -60,7 +60,6 @@ class ProposalInvitation extends EntityModel
     }
 }
 
-/*
 ProposalInvitation::creating(function ($invitation)
 {
     LookupProposalInvitation::createNew($invitation->account->account_key, [
@@ -68,7 +67,8 @@ ProposalInvitation::creating(function ($invitation)
     ]);
 });
 
-ProposalInvitation::updating(function ($invitation) {
+ProposalInvitation::updating(function ($invitation)
+{
     $dirty = $invitation->getDirty();
     if (array_key_exists('message_id', $dirty)) {
         LookupProposalInvitation::updateInvitation($invitation->account->account_key, $invitation);
@@ -83,4 +83,3 @@ ProposalInvitation::deleted(function ($invitation)
         ]);
     }
 });
-*/

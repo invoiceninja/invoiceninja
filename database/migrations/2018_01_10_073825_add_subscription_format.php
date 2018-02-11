@@ -128,6 +128,14 @@ class AddSubscriptionFormat extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
+        Schema::create('lookup_proposal_invitations', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('lookup_account_id')->index();
+            $table->string('invitation_key')->unique();
+            $table->string('message_id')->nullable()->unique();
+
+            $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
+        });
     }
 
     /**
@@ -150,5 +158,6 @@ class AddSubscriptionFormat extends Migration
         Schema::dropIfExists('proposal_snippets');
         Schema::dropIfExists('proposal_categories');
         Schema::dropIfExists('proposal_invitations');
+        Schema::dropIfExists('lookup_proposal_invitations');
     }
 }

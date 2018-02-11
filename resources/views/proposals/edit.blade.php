@@ -57,6 +57,10 @@
                 ->appendIcon(Icon::create('remove-circle'))
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}
 
+        {!! Button::primary(trans('texts.download_pdf'))
+                ->withAttributes(['onclick' => 'onDownloadClick()'])
+                ->appendIcon(Icon::create('download-alt')) !!}
+
         {!! Button::success(trans("texts.save"))
                 ->submit()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
@@ -84,6 +88,10 @@
         $('#css').val(grapesjsEditor.getCss());
 
         return true;
+    }
+
+    function onDownloadClick() {
+        location.href = "{{ url("/proposals/{$proposal->public_id}/download") }}";
     }
 
     function loadTemplate() {
@@ -164,7 +172,7 @@
             });
     	}
     @endif
-    
+
     $(function() {
         var invoiceId = {{ ! empty($invoicePublicId) ? $invoicePublicId : 0 }};
         var $invoiceSelect = $('select#invoice_id');

@@ -76,6 +76,7 @@ class PurgeAccountData extends Job
             $lookupAccount = LookupAccount::whereAccountKey($account->account_key)->firstOrFail();
             DB::table('lookup_contacts')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
             DB::table('lookup_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
+            DB::table('lookup_proposal_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
 
             config(['database.default' => $current]);
         }
