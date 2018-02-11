@@ -15,6 +15,7 @@ use Auth;
 use Input;
 use Session;
 use View;
+use mPDF;
 
 class ProposalController extends BaseController
 {
@@ -139,6 +140,8 @@ class ProposalController extends BaseController
     {
         $proposal = $request->entity();
 
-        
+        $mpdf = new mPDF();
+        $mpdf->WriteHTML($proposal->present()->htmlDocument);
+        $mpdf->Output($proposal->present()->filename, 'D');
     }
 }

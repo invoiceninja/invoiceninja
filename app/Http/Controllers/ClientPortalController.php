@@ -81,6 +81,19 @@ class ClientPortalController extends BaseController
         return view('invited.proposal', $data);
     }
 
+    public function downloadProposal($invitationKey)
+    {
+        if (! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
+            return $this->returnError(trans('texts.proposal_not_found'));
+        }
+
+        $proposal = $invitation->proposal;
+
+        $mpdf = new \mPDF();
+        $mpdf->WriteHTML($proposal->present()->htmlDocument);
+        $mpdf->Output($proposal->present()->filename, 'D');
+    }
+
     public function viewInvoice($invitationKey)
     {
         if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {

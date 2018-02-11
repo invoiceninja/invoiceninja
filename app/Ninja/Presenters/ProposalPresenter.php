@@ -30,4 +30,17 @@ class ProposalPresenter extends EntityPresenter
         return $actions;
     }
 
+    public function htmlDocument()
+    {
+        $proposal = $this->entity;
+
+        return "<html><head><style>{$proposal->css}</style><head><body>{$proposal->html}</body></html>";
+    }
+
+    public function filename()
+    {
+        $proposal = $this->entity;
+
+        return sprintf('%s_%s.pdf', trans('texts.proposal'), $proposal->invoice->invoice_number);
+    }
 }

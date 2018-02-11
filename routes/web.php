@@ -16,6 +16,7 @@ Route::post('/get_started', 'AccountController@getStarted');
 // Client visible pages
 Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
+    Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalController@downloadProposal');
     Route::get('proposal/{proposal_invitation_key}', 'ClientPortalController@viewProposal');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
