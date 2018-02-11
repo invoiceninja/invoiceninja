@@ -25,6 +25,16 @@ class ProposalDatatable extends EntityDatatable
                 },
             ],
             [
+                'client',
+                function ($model) {
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
+                        return $model->client;
+                    }
+
+                    return link_to("clients/{$model->client_public_id}", $model->client)->toHtml();
+                },
+            ],
+            [
                 'template',
                 function ($model) {
                     if (! Auth::user()->can('viewByOwner', [ENTITY_PROPOSAL_TEMPLATE, $model->template_user_id])) {

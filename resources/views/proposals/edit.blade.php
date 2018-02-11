@@ -60,6 +60,12 @@
         {!! Button::success(trans("texts.save"))
                 ->submit()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
+
+        @if ($proposal)
+            {!! DropdownButton::normal(trans('texts.more_actions'))
+                    ->withContents($proposal->present()->moreActions()) !!}
+        @endif
+
     </center>
 
     {!! Former::close() !!}
@@ -147,6 +153,18 @@
         return html;
     }
 
+    @if ($proposal)
+        function onArchiveClick() {
+            submitForm_proposal('archive', {{ $proposal->id }});
+    	}
+
+    	function onDeleteClick() {
+            sweetConfirm(function() {
+                submitForm_proposal('delete', {{ $proposal->id }});
+            });
+    	}
+    @endif
+    
     $(function() {
         var invoiceId = {{ ! empty($invoicePublicId) ? $invoicePublicId : 0 }};
         var $invoiceSelect = $('select#invoice_id');
@@ -183,6 +201,7 @@
 
     </script>
 
+    @include('partials.bulk_form', ['entityType' => ENTITY_PROPOSAL])
     @include('proposals.grapesjs', ['entity' => $proposal])
 
     <script type="text/javascript">

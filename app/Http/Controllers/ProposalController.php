@@ -121,8 +121,8 @@ class ProposalController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = Input::get('bulk_action') ?: Input::get('action');
+        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
 
         $count = $this->proposalService->bulk($ids, $action);
 
