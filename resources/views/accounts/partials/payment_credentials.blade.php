@@ -54,3 +54,7 @@
 
 {!! Former::populateField(GATEWAY_PAYFAST . '_merchantId', env('PAYFAST_TEST_MERCHANT_ID')) !!}
 {!! Former::populateField(GATEWAY_PAYFAST . '_merchantKey', env('PAYFAST_TEST_MERCHANT_KEY')) !!}
+
+{!! Former::populateField(GATEWAY_PAYTRACE . '_username', env('PAYTRACE_TEST_USERNAME')) !!}
+{!! Former::populateField(GATEWAY_PAYTRACE . '_password', env('PAYTRACE_TEST_PASSWORD')) !!}
+{!! Former::populateField(GATEWAY_PAYTRACE . '_testMode', 1) !!}

@@ -295,6 +295,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
     define('GATEWAY_CYBERSOURCE', 49);
+    define('GATEWAY_PAYTRACE', 56);
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
     define('GATEWAY_CUSTOM', 62);
