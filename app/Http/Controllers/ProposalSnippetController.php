@@ -127,7 +127,7 @@ class ProposalSnippetController extends BaseController
             Session::flash('message', $message);
         }
 
-        return redirect()->to('/proposal_snippets');
+        return redirect()->to('/proposals/snippets');
     }
 
     private function getIcons() {

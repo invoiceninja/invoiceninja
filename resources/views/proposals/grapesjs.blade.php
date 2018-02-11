@@ -27,7 +27,7 @@ $(function() {
             style: '{!! $snippet->css !!}',
             attributes: {
                 title: '{!! $snippet->private_notes !!}',
-                class:'fa fa-{!! $snippet->icon ?: 'book' !!}'
+                class:'fa fa-{!! $snippet->icon ?: 'font' !!}'
             }
         });
     @endforeach

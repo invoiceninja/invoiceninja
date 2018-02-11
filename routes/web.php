@@ -225,7 +225,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::resource('proposals/templates', 'ProposalTemplateController');
     Route::get('api/proposal_templates', 'ProposalTemplateController@getDatatable');
 
-    Route::post('proposals/proposals/bulk', 'ProposalController@bulk');
+    Route::post('proposals/bulk', 'ProposalController@bulk');
     Route::get('proposals/{proposals}/edit', 'ProposalController@edit');
     Route::get('proposals/create/{invoice_id?}/{proposal_template_id?}', 'ProposalController@create');
     Route::resource('proposals', 'ProposalController');
