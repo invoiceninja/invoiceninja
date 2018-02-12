@@ -27,7 +27,7 @@ class ProposalTemplatesSeeder extends Seeder
             $htmlFileName = $baseFileName . '.html';
             $cssFileName = $baseFileName . '.css';
             if (file_exists($htmlFileName) && file_exists($cssFileName)) {
-                $template = ProposalTemplate::whereName($design)->whereAccountId(0)->first();
+                $template = ProposalTemplate::whereName($design)->whereNull('account_id')->first();
 
                 if (! $template) {
                     $template = new ProposalTemplate();

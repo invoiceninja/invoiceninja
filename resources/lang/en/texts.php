@@ -2738,6 +2738,12 @@ $LANG = array(
     'proposal_message' => 'To view your proposal for :amount, click the link below.',
     'emailed_proposal' => 'Successfully emailed proposal',
     'load_template' => 'Load Template',
+    'no_assets' => 'No images, drag to upload',
+    'add_image' => 'Add Image',
+    'select_image' => 'Select Image',
+    'upgrade_to_upload_images' => 'Upgrade to the enterprise plan to upload images',
+    'delete_image' => 'Delete Image',
+    'delete_image_help' => 'Warning: deleting the image will remove it from all proposals.',
 
 );
 

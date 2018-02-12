@@ -109,7 +109,7 @@
         }
 
         // http://t4t5.github.io/sweetalert/
-        function sweetConfirm(success, text, title) {
+        function sweetConfirm(successCallback, text, title, cancelCallback) {
             title = title || "{!! trans("texts.are_you_sure") !!}";
             swal({
                 //type: "warning",
@@ -122,8 +122,12 @@
                 closeOnConfirm: false,
                 allowOutsideClick: true,
             }).then(function() {
-                success();
+                successCallback();
                 swal.close();
+            }).catch(function() {
+                if (cancelCallback) {
+                    cancelCallback();
+                }
             });
         }
 

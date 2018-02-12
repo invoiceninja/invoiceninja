@@ -18,9 +18,17 @@ $(function() {
             type: 'none'
         },
         assetManager: {
-            assets: [],
-            noAssets: 'no assets TODO',
-            upload: {!! json_encode(url('/documents')) !!},
+            assets: {!! json_encode($documents) !!},
+            noAssets: "{{ trans('texts.no_assets') }}",
+            addBtnText: "{{ trans('texts.add_image') }}",
+            modalTitle: "{{ trans('texts.select_image') }}",
+            @if (Utils::isSelfHost() || $account->isEnterprise())
+                upload: {!! json_encode(url('/documents')) !!},
+                uploadText: "{{ trans('texts.dropzone_default_message') }}",
+            @else
+                upload: false,
+                uploadText: "{{ trans('texts.upgrade_to_upload_images') }}",
+            @endif
             uploadName: 'files',
             params: {
                 '_token': '{{ Session::getToken() }}',
@@ -54,6 +62,21 @@ $(function() {
 
     grapesjsEditor.on('component:update', function(a, b) {
         NINJA.formIsChanged = true;
+    });
+
+    grapesjsEditor.on('asset:remove', function(asset) {
+        sweetConfirm(function() {
+            $.ajax({
+                url: "{{ url('/documents') }}/" + asset.attributes.public_id,
+                type: 'DELETE',
+                success: function(result) {
+                    console.log('result: %s', result);
+                }
+            });
+        }, "{{ trans('texts.delete_image_help') }}", "{{ trans('texts.delete_image') }}", function() {
+            var assetManager = grapesjsEditor.AssetManager;
+            assetManager.add([asset.attributes]);
+        });
     });
 
 });
