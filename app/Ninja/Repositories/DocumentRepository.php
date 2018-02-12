@@ -54,7 +54,11 @@ class DocumentRepository extends BaseRepository
 
     public function upload($data, &$doc_array = null)
     {
-        $uploaded = $data['file'];
+        if (! empty($data['files']) && is_array($data['files'])) {
+            $uploaded = $data['files'][0];
+        } else {
+            $uploaded = $data['file'];
+        }
         $extension = strtolower($uploaded->getClientOriginalExtension());
         if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
             $documentType = Document::$extraExtensions[$extension];

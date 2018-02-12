@@ -14,7 +14,19 @@ $(function() {
                 'categoryLabel': "{{ trans('texts.standard') }}"
             }
         },
-        storageManager: {type: 'none'},
+        storageManager: {
+            type: 'none'
+        },
+        assetManager: {
+            assets: [],
+            noAssets: 'no assets TODO',
+            upload: {!! json_encode(url('/documents')) !!},
+            uploadName: 'files',
+            params: {
+                '_token': '{{ Session::getToken() }}',
+                'grapesjs': true,
+            }
+        }
     });
 
     var blockManager = grapesjsEditor.BlockManager;

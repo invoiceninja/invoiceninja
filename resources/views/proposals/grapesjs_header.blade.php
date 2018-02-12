@@ -14,6 +14,10 @@
     font-size: 12px !important;
 }
 
+.gjs-mdl-title {
+    font-size: 1em !important;
+}
+.gjs-mdl-dialog,
 .gjs-toolbar-item {
     font-size: 2em !important;
 }
