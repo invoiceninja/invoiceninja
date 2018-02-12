@@ -100,7 +100,10 @@
             var template = customTemplateMap[templateId];
         }
 
-        
+        grapesjsEditor.CssComposer.getAll().reset();
+        grapesjsEditor.setComponents(template.html);
+        grapesjsEditor.setStyle(template.css);
+
         $('.template-select').val(null).blur();
     }
 

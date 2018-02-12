@@ -58,19 +58,15 @@ class ProposalController extends BaseController
 
     public function create(ProposalRequest $request)
     {
-        $account = auth()->user()->account;
-
-        $data = [
-            'account' => $account,
+        $data = array_merge($this->getViewmodel(), [
             'proposal' => null,
             'method' => 'POST',
             'url' => 'proposals',
             'title' => trans('texts.new_proposal'),
             'invoices' => Invoice::scope()->with('client.contacts', 'client.country')->unapprovedQuotes()->orderBy('id')->get(),
-            'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
             'invoicePublicId' => $request->invoice_id,
             'templatePublicId' => $request->proposal_template_id,
-        ];
+        ]);
 
         return View::make('proposals.edit', $data);
     }
@@ -84,22 +80,36 @@ class ProposalController extends BaseController
 
     public function edit(ProposalRequest $request)
     {
-        $account = auth()->user()->account;
         $proposal = $request->entity();
 
-        $data = [
-            'account' => $account,
+        $data = array_merge($this->getViewmodel(), [
             'proposal' => $proposal,
             'method' => 'PUT',
             'url' => 'proposals/' . $proposal->public_id,
             'title' => trans('texts.edit_proposal'),
             'invoices' => Invoice::scope()->with('client.contacts', 'client.country')->unapprovedQuotes($proposal->invoice_id)->orderBy('id')->get(),
-            'templates' => ProposalTemplate::whereAccountId($account->id)->orWhereNull('account_id')->orderBy('name')->get(),
             'invoicePublicId' => $proposal->invoice ? $proposal->invoice->public_id : null,
             'templatePublicId' => $proposal->proposal_template ? $proposal->proposal_template->public_id : null,
-        ];
+        ]);
 
         return View::make('proposals.edit', $data);
+    }
+
+    private function getViewmodel()
+    {
+        $account = auth()->user()->account;
+        $templates = ProposalTemplate::whereAccountId($account->id)->orderBy('name')->get();
+
+        if (! $templates->count()) {
+            $templates = ProposalTemplate::whereNull('account_id')->orderBy('name')->get();
+        }
+
+        $data = [
+            'templates' => $templates,
+            'account' => $account,
+        ];
+
+        return $data;
     }
 
     public function store(CreateProposalRequest $request)

@@ -128,7 +128,7 @@
 
         var html = mergeTemplate(template.html);
 
-        // grapesjsEditor.CssComposer.getAll().reset();
+        grapesjsEditor.CssComposer.getAll().reset();
         grapesjsEditor.setComponents(html);
         grapesjsEditor.setStyle(template.css);
     }
