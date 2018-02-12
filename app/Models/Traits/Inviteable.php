@@ -24,6 +24,10 @@ trait Inviteable
             $this->load('account');
         }
 
+        if ($this->proposal_id) {
+            $type = 'proposal';
+        }
+
         $account = $this->account;
         $iframe_url = $account->iframe_url;
         $url = trim(SITE_URL, '/');

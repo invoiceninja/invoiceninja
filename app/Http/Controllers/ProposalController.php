@@ -104,8 +104,14 @@ class ProposalController extends BaseController
     public function store(CreateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input());
+        $action = Input::get('action');
 
-        Session::flash('message', trans('texts.created_proposal'));
+        if ($action == 'email') {
+            $this->contactMailer->sendInvoice($proposal->invoice, false, false, $proposal);
+            Session::flash('message', trans('texts.emailed_proposal'));
+        } else {
+            Session::flash('message', trans('texts.created_proposal'));
+        }
 
         return redirect()->to($proposal->getRoute());
     }
@@ -120,7 +126,8 @@ class ProposalController extends BaseController
         }
 
         if ($action == 'email') {
-            $this->contactMailer->sendProposal($proposal);
+            $this->contactMailer->sendInvoice($proposal->invoice, false, false, $proposal);
+            Session::flash('message', trans('texts.emailed_proposal'));
         } else {
             Session::flash('message', trans('texts.updated_proposal'));
         }

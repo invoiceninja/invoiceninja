@@ -121,7 +121,12 @@ class Mailer
             }
 
             $notes = isset($data['notes']) ? $data['notes'] : false;
-            $invoice->markInvitationSent($invitation, $messageId, true, $notes);
+
+            if ($proposal = $data['proposal']) {
+                $invitation->markSent($messageId);
+            } else {
+                $invoice->markInvitationSent($invitation, $messageId, true, $notes);
+            }
         }
 
         return true;

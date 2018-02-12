@@ -64,14 +64,15 @@
                 ->appendIcon(Icon::create('download-alt')) !!}
 
         {!! Button::success(trans("texts.save"))
+                ->withAttributes(['id' => 'saveButton'])
                 ->submit()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
 
-        @if ($proposal)
-            {!! Button::info(trans('texts.email'))
-                    ->withAttributes(['onclick' => 'onEmailClick()'])
-                    ->appendIcon(Icon::create('send')) !!}
+        {!! Button::info(trans('texts.email'))
+                ->withAttributes(['id' => 'emailButton', 'onclick' => 'onEmailClick()'])
+                ->appendIcon(Icon::create('send')) !!}
 
+        @if ($proposal)
             {!! DropdownButton::normal(trans('texts.more_actions'))
                     ->withContents($proposal->present()->moreActions()) !!}
         @endif
@@ -88,21 +89,30 @@
 
     var templates = {!! $templates !!};
     var templateMap = {};
+    var isFormSubmitting = false;
 
     function onFormSubmit() {
+        // prevent duplicate form submissions
+        if (isFormSubmitting) {
+            return;
+        }
+        isFormSubmitting = true;
+        $('#saveButton, #emailButton').prop('disabled', true);
+
         $('#html').val(grapesjsEditor.getHtml());
         $('#css').val(grapesjsEditor.getCss());
 
         return true;
     }
 
+    function onEmailClick() {
+        $('#action').val('email');
+        $('#saveButton').click();
+    }
+
     @if ($proposal)
         function onDownloadClick() {
             location.href = "{{ url("/proposals/{$proposal->public_id}/download") }}";
-        }
-        function onEmailClick() {
-            $('#action').val('email');
-            $('#mainForm').submit();
         }
     @endif
 
