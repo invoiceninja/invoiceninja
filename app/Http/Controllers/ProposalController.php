@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProposalRequest;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalTemplate;
+use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Datatables\ProposalDatatable;
 use App\Ninja\Repositories\ProposalRepository;
 use App\Services\ProposalService;
@@ -21,12 +22,15 @@ class ProposalController extends BaseController
 {
     protected $proposalRepo;
     protected $proposalService;
+    protected $contactMailer;
+
     protected $entityType = ENTITY_PROPOSAL;
 
-    public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService)
+    public function __construct(ProposalRepository $proposalRepo, ProposalService $proposalService, ContactMailer $contactMailer)
     {
         $this->proposalRepo = $proposalRepo;
         $this->proposalService = $proposalService;
+        $this->contactMailer = $contactMailer;
     }
 
     /**
@@ -109,12 +113,16 @@ class ProposalController extends BaseController
     public function update(UpdateProposalRequest $request)
     {
         $proposal = $this->proposalService->save($request->input(), $request->entity());
-
-        Session::flash('message', trans('texts.updated_proposal'));
-
         $action = Input::get('action');
+
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
+        }
+
+        if ($action == 'email') {
+            $this->contactMailer->sendProposal($proposal);
+        } else {
+            Session::flash('message', trans('texts.updated_proposal'));
         }
 
         return redirect()->to($proposal->getRoute());
@@ -142,8 +150,6 @@ class ProposalController extends BaseController
 
         $mpdf = new mPDF();
         $mpdf->WriteHTML($proposal->present()->htmlDocument);
-
-        $mpdf->Output();
         $mpdf->Output($proposal->present()->filename, 'D');
     }
 }

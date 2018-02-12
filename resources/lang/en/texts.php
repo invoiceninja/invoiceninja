@@ -1022,6 +1022,7 @@ $LANG = array(
     'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
     'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
     'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
+    'email_error_inactive_proposal' => 'Emails can not be sent to inactive proposals',
     'email_error_user_unregistered' => 'Please register your account to send emails',
     'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
     'email_error_invalid_contact_email' => 'Invalid contact email',
@@ -2728,6 +2729,9 @@ $LANG = array(
     'proposal_not_found' => 'The requested proposal is not available',
     'create_proposal_category' => 'Create category',
     'clone_proposal_template' => 'Clone Template',
+    'proposal_email' => 'Proposal Email',
+    'proposal_subject' => 'New proposal :number from :account',
+    'proposal_message' => 'To view your proposal for :amount, click the link below.',
 
 );
 

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: ninja
 -- ------------------------------------------------------
--- Server version	5.7.20-0ubuntu0.16.04.1
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -49,6 +49,8 @@ CREATE TABLE `account_email_settings` (
   `email_subject_reminder4` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email_template_reminder4` text COLLATE utf8_unicode_ci,
   `frequency_id_reminder4` int(10) unsigned DEFAULT NULL,
+  `email_subject_proposal` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email_template_proposal` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `account_email_settings_account_id_index` (`account_id`),
   CONSTRAINT `account_email_settings_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
@@ -861,7 +863,7 @@ CREATE TABLE `currencies` (
   `swap_currency_symbol` tinyint(1) NOT NULL DEFAULT '0',
   `exchange_rate` decimal(13,4) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -870,7 +872,7 @@ CREATE TABLE `currencies` (
 
 LOCK TABLES `currencies` WRITE;
 /*!40000 ALTER TABLE `currencies` DISABLE KEYS */;
-INSERT INTO `currencies` VALUES (1,'US Dollar','$','2',',','.','USD',0,NULL),(2,'British Pound','£','2',',','.','GBP',0,NULL),(3,'Euro','€','2','.',',','EUR',0,NULL),(4,'South African Rand','R','2','.',',','ZAR',0,NULL),(5,'Danish Krone','kr','2','.',',','DKK',1,NULL),(6,'Israeli Shekel','NIS ','2',',','.','ILS',0,NULL),(7,'Swedish Krona','kr','2','.',',','SEK',1,NULL),(8,'Kenyan Shilling','KSh ','2',',','.','KES',0,NULL),(9,'Canadian Dollar','C$','2',',','.','CAD',0,NULL),(10,'Philippine Peso','P ','2',',','.','PHP',0,NULL),(11,'Indian Rupee','Rs. ','2',',','.','INR',0,NULL),(12,'Australian Dollar','$','2',',','.','AUD',0,NULL),(13,'Singapore Dollar','','2',',','.','SGD',0,NULL),(14,'Norske Kroner','kr','2','.',',','NOK',1,NULL),(15,'New Zealand Dollar','$','2',',','.','NZD',0,NULL),(16,'Vietnamese Dong','','0','.',',','VND',0,NULL),(17,'Swiss Franc','','2','\'','.','CHF',0,NULL),(18,'Guatemalan Quetzal','Q','2',',','.','GTQ',0,NULL),(19,'Malaysian Ringgit','RM','2',',','.','MYR',0,NULL),(20,'Brazilian Real','R$','2','.',',','BRL',0,NULL),(21,'Thai Baht','','2',',','.','THB',0,NULL),(22,'Nigerian Naira','','2',',','.','NGN',0,NULL),(23,'Argentine Peso','$','2','.',',','ARS',0,NULL),(24,'Bangladeshi Taka','Tk','2',',','.','BDT',0,NULL),(25,'United Arab Emirates Dirham','DH ','2',',','.','AED',0,NULL),(26,'Hong Kong Dollar','','2',',','.','HKD',0,NULL),(27,'Indonesian Rupiah','Rp','2',',','.','IDR',0,NULL),(28,'Mexican Peso','$','2',',','.','MXN',0,NULL),(29,'Egyptian Pound','E£','2',',','.','EGP',0,NULL),(30,'Colombian Peso','$','2','.',',','COP',0,NULL),(31,'West African Franc','CFA ','2',',','.','XOF',0,NULL),(32,'Chinese Renminbi','RMB ','2',',','.','CNY',0,NULL),(33,'Rwandan Franc','RF ','2',',','.','RWF',0,NULL),(34,'Tanzanian Shilling','TSh ','2',',','.','TZS',0,NULL),(35,'Netherlands Antillean Guilder','','2','.',',','ANG',0,NULL),(36,'Trinidad and Tobago Dollar','TT$','2',',','.','TTD',0,NULL),(37,'East Caribbean Dollar','EC$','2',',','.','XCD',0,NULL),(38,'Ghanaian Cedi','','2',',','.','GHS',0,NULL),(39,'Bulgarian Lev','','2',' ','.','BGN',0,NULL),(40,'Aruban Florin','Afl. ','2',' ','.','AWG',0,NULL),(41,'Turkish Lira','TL ','2','.',',','TRY',0,NULL),(42,'Romanian New Leu','','2',',','.','RON',0,NULL),(43,'Croatian Kuna','kn','2','.',',','HRK',0,NULL),(44,'Saudi Riyal','','2',',','.','SAR',0,NULL),(45,'Japanese Yen','¥','0',',','.','JPY',0,NULL),(46,'Maldivian Rufiyaa','','2',',','.','MVR',0,NULL),(47,'Costa Rican Colón','','2',',','.','CRC',0,NULL),(48,'Pakistani Rupee','Rs ','0',',','.','PKR',0,NULL),(49,'Polish Zloty','zł','2',' ',',','PLN',1,NULL),(50,'Sri Lankan Rupee','LKR','2',',','.','LKR',1,NULL),(51,'Czech Koruna','Kč','2',' ',',','CZK',1,NULL),(52,'Uruguayan Peso','$','2','.',',','UYU',0,NULL),(53,'Namibian Dollar','$','2',',','.','NAD',0,NULL),(54,'Tunisian Dinar','','2',',','.','TND',0,NULL),(55,'Russian Ruble','','2',',','.','RUB',0,NULL),(56,'Mozambican Metical','MT','2','.',',','MZN',1,NULL),(57,'Omani Rial','','2',',','.','OMR',0,NULL),(58,'Ukrainian Hryvnia','','2',',','.','UAH',0,NULL),(59,'Macanese Pataca','MOP$','2',',','.','MOP',0,NULL),(60,'Taiwan New Dollar','NT$','2',',','.','TWD',0,NULL),(61,'Dominican Peso','RD$','2',',','.','DOP',0,NULL),(62,'Chilean Peso','$','0','.',',','CLP',0,NULL),(63,'Icelandic Króna','kr','2','.',',','ISK',1,NULL),(64,'Papua New Guinean Kina','K','2',',','.','PGK',0,NULL),(65,'Jordanian Dinar','','2',',','.','JOD',0,NULL),(66,'Myanmar Kyat','K','2',',','.','MMK',0,NULL),(67,'Peruvian Sol','S/ ','2',',','.','PEN',0,NULL),(68,'Botswana Pula','P','2',',','.','BWP',0,NULL),(69,'Hungarian Forint','Ft','0','.',',','HUF',1,NULL),(70,'Ugandan Shilling','USh ','2',',','.','UGX',0,NULL);
+INSERT INTO `currencies` VALUES (1,'US Dollar','$','2',',','.','USD',0,NULL),(2,'British Pound','£','2',',','.','GBP',0,NULL),(3,'Euro','€','2','.',',','EUR',0,NULL),(4,'South African Rand','R','2','.',',','ZAR',0,NULL),(5,'Danish Krone','kr','2','.',',','DKK',1,NULL),(6,'Israeli Shekel','NIS ','2',',','.','ILS',0,NULL),(7,'Swedish Krona','kr','2','.',',','SEK',1,NULL),(8,'Kenyan Shilling','KSh ','2',',','.','KES',0,NULL),(9,'Canadian Dollar','C$','2',',','.','CAD',0,NULL),(10,'Philippine Peso','P ','2',',','.','PHP',0,NULL),(11,'Indian Rupee','Rs. ','2',',','.','INR',0,NULL),(12,'Australian Dollar','$','2',',','.','AUD',0,NULL),(13,'Singapore Dollar','','2',',','.','SGD',0,NULL),(14,'Norske Kroner','kr','2','.',',','NOK',1,NULL),(15,'New Zealand Dollar','$','2',',','.','NZD',0,NULL),(16,'Vietnamese Dong','','0','.',',','VND',0,NULL),(17,'Swiss Franc','','2','\'','.','CHF',0,NULL),(18,'Guatemalan Quetzal','Q','2',',','.','GTQ',0,NULL),(19,'Malaysian Ringgit','RM','2',',','.','MYR',0,NULL),(20,'Brazilian Real','R$','2','.',',','BRL',0,NULL),(21,'Thai Baht','','2',',','.','THB',0,NULL),(22,'Nigerian Naira','','2',',','.','NGN',0,NULL),(23,'Argentine Peso','$','2','.',',','ARS',0,NULL),(24,'Bangladeshi Taka','Tk','2',',','.','BDT',0,NULL),(25,'United Arab Emirates Dirham','DH ','2',',','.','AED',0,NULL),(26,'Hong Kong Dollar','','2',',','.','HKD',0,NULL),(27,'Indonesian Rupiah','Rp','2',',','.','IDR',0,NULL),(28,'Mexican Peso','$','2',',','.','MXN',0,NULL),(29,'Egyptian Pound','E£','2',',','.','EGP',0,NULL),(30,'Colombian Peso','$','2','.',',','COP',0,NULL),(31,'West African Franc','CFA ','2',',','.','XOF',0,NULL),(32,'Chinese Renminbi','RMB ','2',',','.','CNY',0,NULL),(33,'Rwandan Franc','RF ','2',',','.','RWF',0,NULL),(34,'Tanzanian Shilling','TSh ','2',',','.','TZS',0,NULL),(35,'Netherlands Antillean Guilder','','2','.',',','ANG',0,NULL),(36,'Trinidad and Tobago Dollar','TT$','2',',','.','TTD',0,NULL),(37,'East Caribbean Dollar','EC$','2',',','.','XCD',0,NULL),(38,'Ghanaian Cedi','','2',',','.','GHS',0,NULL),(39,'Bulgarian Lev','','2',' ','.','BGN',0,NULL),(40,'Aruban Florin','Afl. ','2',' ','.','AWG',0,NULL),(41,'Turkish Lira','TL ','2','.',',','TRY',0,NULL),(42,'Romanian New Leu','','2',',','.','RON',0,NULL),(43,'Croatian Kuna','kn','2','.',',','HRK',0,NULL),(44,'Saudi Riyal','','2',',','.','SAR',0,NULL),(45,'Japanese Yen','¥','0',',','.','JPY',0,NULL),(46,'Maldivian Rufiyaa','','2',',','.','MVR',0,NULL),(47,'Costa Rican Colón','','2',',','.','CRC',0,NULL),(48,'Pakistani Rupee','Rs ','0',',','.','PKR',0,NULL),(49,'Polish Zloty','zł','2',' ',',','PLN',1,NULL),(50,'Sri Lankan Rupee','LKR','2',',','.','LKR',1,NULL),(51,'Czech Koruna','Kč','2',' ',',','CZK',1,NULL),(52,'Uruguayan Peso','$','2','.',',','UYU',0,NULL),(53,'Namibian Dollar','$','2',',','.','NAD',0,NULL),(54,'Tunisian Dinar','','2',',','.','TND',0,NULL),(55,'Russian Ruble','','2',',','.','RUB',0,NULL),(56,'Mozambican Metical','MT','2','.',',','MZN',1,NULL),(57,'Omani Rial','','2',',','.','OMR',0,NULL),(58,'Ukrainian Hryvnia','','2',',','.','UAH',0,NULL),(59,'Macanese Pataca','MOP$','2',',','.','MOP',0,NULL),(60,'Taiwan New Dollar','NT$','2',',','.','TWD',0,NULL),(61,'Dominican Peso','RD$','2',',','.','DOP',0,NULL),(62,'Chilean Peso','$','0','.',',','CLP',0,NULL),(63,'Icelandic Króna','kr','2','.',',','ISK',1,NULL),(64,'Papua New Guinean Kina','K','2',',','.','PGK',0,NULL),(65,'Jordanian Dinar','','2',',','.','JOD',0,NULL),(66,'Myanmar Kyat','K','2',',','.','MMK',0,NULL),(67,'Peruvian Sol','S/ ','2',',','.','PEN',0,NULL),(68,'Botswana Pula','P','2',',','.','BWP',0,NULL),(69,'Hungarian Forint','Ft','0','.',',','HUF',1,NULL),(70,'Ugandan Shilling','USh ','2',',','.','UGX',0,NULL),(71,'Barbadian Dollar','$','2',',','.','BBD',0,NULL);
 /*!40000 ALTER TABLE `currencies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1228,7 +1230,7 @@ CREATE TABLE `gateways` (
 
 LOCK TABLES `gateways` WRITE;
 /*!40000 ALTER TABLE `gateways` DISABLE KEYS */;
-INSERT INTO `gateways` VALUES (1,'2018-01-23 08:47:44','2018-01-23 08:47:44','Authorize.Net AIM','AuthorizeNet_AIM',1,1,5,0,NULL,0,0),(2,'2018-01-23 08:47:44','2018-01-23 08:47:44','Authorize.Net SIM','AuthorizeNet_SIM',1,2,10000,0,NULL,0,0),(3,'2018-01-23 08:47:44','2018-01-23 08:47:44','CardSave','CardSave',1,1,10000,0,NULL,0,0),(4,'2018-01-23 08:47:44','2018-01-23 08:47:44','Eway Rapid','Eway_RapidShared',1,1,10000,0,NULL,1,0),(5,'2018-01-23 08:47:44','2018-01-23 08:47:44','FirstData Connect','FirstData_Connect',1,1,10000,0,NULL,0,0),(6,'2018-01-23 08:47:44','2018-01-23 08:47:44','GoCardless','GoCardless',1,2,10000,0,NULL,1,0),(7,'2018-01-23 08:47:44','2018-01-23 08:47:44','Migs ThreeParty','Migs_ThreeParty',1,1,10000,0,NULL,0,0),(8,'2018-01-23 08:47:44','2018-01-23 08:47:44','Migs TwoParty','Migs_TwoParty',1,1,10000,0,NULL,0,0),(9,'2018-01-23 08:47:44','2018-01-23 08:47:44','Mollie','Mollie',1,1,8,0,NULL,1,0),(10,'2018-01-23 08:47:44','2018-01-23 08:47:44','MultiSafepay','MultiSafepay',1,1,10000,0,NULL,0,0),(11,'2018-01-23 08:47:44','2018-01-23 08:47:44','Netaxept','Netaxept',1,1,10000,0,NULL,0,0),(12,'2018-01-23 08:47:44','2018-01-23 08:47:44','NetBanx','NetBanx',1,1,10000,0,NULL,0,0),(13,'2018-01-23 08:47:44','2018-01-23 08:47:44','PayFast','PayFast',1,1,10000,0,NULL,1,0),(14,'2018-01-23 08:47:44','2018-01-23 08:47:44','Payflow Pro','Payflow_Pro',1,1,10000,0,NULL,0,0),(15,'2018-01-23 08:47:44','2018-01-23 08:47:44','PaymentExpress PxPay','PaymentExpress_PxPay',1,1,10000,0,NULL,0,0),(16,'2018-01-23 08:47:44','2018-01-23 08:47:44','PaymentExpress PxPost','PaymentExpress_PxPost',1,1,10000,0,NULL,0,0),(17,'2018-01-23 08:47:44','2018-01-23 08:47:44','PayPal Express','PayPal_Express',1,1,4,0,NULL,1,0),(18,'2018-01-23 08:47:44','2018-01-23 08:47:44','PayPal Pro','PayPal_Pro',1,1,10000,0,NULL,0,0),(19,'2018-01-23 08:47:44','2018-01-23 08:47:44','Pin','Pin',1,1,10000,0,NULL,0,0),(20,'2018-01-23 08:47:44','2018-01-23 08:47:44','SagePay Direct','SagePay_Direct',1,1,10000,0,NULL,0,0),(21,'2018-01-23 08:47:44','2018-01-23 08:47:44','SagePay Server','SagePay_Server',1,1,10000,0,NULL,0,0),(22,'2018-01-23 08:47:44','2018-01-23 08:47:44','SecurePay DirectPost','SecurePay_DirectPost',1,1,10000,0,NULL,0,0),(23,'2018-01-23 08:47:44','2018-01-23 08:47:44','Stripe','Stripe',1,1,1,0,NULL,0,0),(24,'2018-01-23 08:47:44','2018-01-23 08:47:44','TargetPay Direct eBanking','TargetPay_Directebanking',1,1,10000,0,NULL,0,0),(25,'2018-01-23 08:47:44','2018-01-23 08:47:44','TargetPay Ideal','TargetPay_Ideal',1,1,10000,0,NULL,0,0),(26,'2018-01-23 08:47:44','2018-01-23 08:47:44','TargetPay Mr Cash','TargetPay_Mrcash',1,1,10000,0,NULL,0,0),(27,'2018-01-23 08:47:44','2018-01-23 08:47:44','TwoCheckout','TwoCheckout',1,1,10000,0,NULL,1,0),(28,'2018-01-23 08:47:44','2018-01-23 08:47:44','WorldPay','WorldPay',1,1,10000,0,NULL,0,0),(29,'2018-01-23 08:47:44','2018-01-23 08:47:44','BeanStream','BeanStream',1,2,10000,0,NULL,0,0),(30,'2018-01-23 08:47:44','2018-01-23 08:47:44','Psigate','Psigate',1,2,10000,0,NULL,0,0),(31,'2018-01-23 08:47:44','2018-01-23 08:47:44','moolah','AuthorizeNet_AIM',1,1,10000,0,NULL,0,0),(32,'2018-01-23 08:47:44','2018-01-23 08:47:44','Alipay','Alipay_Express',1,1,10000,0,NULL,0,0),(33,'2018-01-23 08:47:44','2018-01-23 08:47:44','Buckaroo','Buckaroo_CreditCard',1,1,10000,0,NULL,0,0),(34,'2018-01-23 08:47:44','2018-01-23 08:47:44','Coinbase','Coinbase',1,1,10000,0,NULL,0,0),(35,'2018-01-23 08:47:44','2018-01-23 08:47:44','DataCash','DataCash',1,1,10000,0,NULL,0,0),(36,'2018-01-23 08:47:44','2018-01-23 08:47:44','Neteller','Neteller',1,2,10000,0,NULL,0,0),(37,'2018-01-23 08:47:44','2018-01-23 08:47:44','Pacnet','Pacnet',1,1,10000,0,NULL,0,0),(38,'2018-01-23 08:47:44','2018-01-23 08:47:44','PaymentSense','PaymentSense',1,2,10000,0,NULL,0,0),(39,'2018-01-23 08:47:44','2018-01-23 08:47:44','Realex','Realex_Remote',1,1,10000,0,NULL,0,0),(40,'2018-01-23 08:47:44','2018-01-23 08:47:44','Sisow','Sisow',1,1,10000,0,NULL,0,0),(41,'2018-01-23 08:47:44','2018-01-23 08:47:44','Skrill','Skrill',1,1,10000,0,NULL,1,0),(42,'2018-01-23 08:47:44','2018-01-23 08:47:44','BitPay','BitPay',1,1,7,0,NULL,1,0),(43,'2018-01-23 08:47:44','2018-01-23 08:47:44','Dwolla','Dwolla',1,1,6,0,NULL,1,0),(44,'2018-01-23 08:47:44','2018-01-23 08:47:44','AGMS','Agms',1,1,10000,0,NULL,0,0),(45,'2018-01-23 08:47:44','2018-01-23 08:47:44','Barclays','BarclaysEpdq\\Essential',1,1,10000,0,NULL,0,0),(46,'2018-01-23 08:47:44','2018-01-23 08:47:44','Cardgate','Cardgate',1,1,10000,0,NULL,0,0),(47,'2018-01-23 08:47:44','2018-01-23 08:47:44','Checkout.com','CheckoutCom',1,1,10000,0,NULL,0,0),(48,'2018-01-23 08:47:44','2018-01-23 08:47:44','Creditcall','Creditcall',1,1,10000,0,NULL,0,0),(49,'2018-01-23 08:47:44','2018-01-23 08:47:44','Cybersource','Cybersource',1,1,10000,0,NULL,0,0),(50,'2018-01-23 08:47:44','2018-01-23 08:47:44','ecoPayz','Ecopayz',1,1,10000,0,NULL,0,0),(51,'2018-01-23 08:47:44','2018-01-23 08:47:44','Fasapay','Fasapay',1,1,10000,0,NULL,0,0),(52,'2018-01-23 08:47:44','2018-01-23 08:47:44','Komoju','Komoju',1,1,10000,0,NULL,0,0),(53,'2018-01-23 08:47:44','2018-01-23 08:47:44','Multicards','Multicards',1,2,10000,0,NULL,0,0),(54,'2018-01-23 08:47:44','2018-01-23 08:47:44','Pagar.Me','Pagarme',1,2,10000,0,NULL,0,0),(55,'2018-01-23 08:47:44','2018-01-23 08:47:44','Paysafecard','Paysafecard',1,1,10000,0,NULL,0,0),(56,'2018-01-23 08:47:44','2018-01-23 08:47:44','Paytrace','Paytrace_CreditCard',1,1,10000,0,NULL,0,0),(57,'2018-01-23 08:47:44','2018-01-23 08:47:44','Secure Trading','SecureTrading',1,1,10000,0,NULL,0,0),(58,'2018-01-23 08:47:44','2018-01-23 08:47:44','SecPay','SecPay',1,1,10000,0,NULL,0,0),(59,'2018-01-23 08:47:44','2018-01-23 08:47:44','WeChat Express','WeChat_Express',1,2,10000,0,NULL,0,0),(60,'2018-01-23 08:47:44','2018-01-23 08:47:44','WePay','WePay',1,1,3,0,NULL,0,0),(61,'2018-01-23 08:47:44','2018-01-23 08:47:44','Braintree','Braintree',1,1,3,0,NULL,0,0),(62,'2018-01-23 08:47:44','2018-01-23 08:47:44','Custom','Custom',1,1,20,0,NULL,1,0),(63,'2018-01-23 08:47:44','2018-01-23 08:47:44','FirstData Payeezy','FirstData_Payeezy',1,1,10000,0,NULL,0,0),(64,'2018-01-23 08:47:44','2018-01-23 08:47:44','GoCardless','GoCardlessV2\\Redirect',1,1,9,0,NULL,1,0),(65,'2018-01-23 08:47:44','2018-01-23 08:47:44','PagSeguro','PagSeguro',1,1,10000,0,NULL,0,0);
+INSERT INTO `gateways` VALUES (1,'2018-02-12 06:39:32','2018-02-12 06:39:32','Authorize.Net AIM','AuthorizeNet_AIM',1,1,5,0,NULL,0,0),(2,'2018-02-12 06:39:32','2018-02-12 06:39:32','Authorize.Net SIM','AuthorizeNet_SIM',1,2,10000,0,NULL,0,0),(3,'2018-02-12 06:39:32','2018-02-12 06:39:32','CardSave','CardSave',1,1,10000,0,NULL,0,0),(4,'2018-02-12 06:39:32','2018-02-12 06:39:32','Eway Rapid','Eway_RapidShared',1,1,10000,0,NULL,1,0),(5,'2018-02-12 06:39:32','2018-02-12 06:39:32','FirstData Connect','FirstData_Connect',1,1,10000,0,NULL,0,0),(6,'2018-02-12 06:39:32','2018-02-12 06:39:32','GoCardless','GoCardless',1,2,10000,0,NULL,1,0),(7,'2018-02-12 06:39:32','2018-02-12 06:39:32','Migs ThreeParty','Migs_ThreeParty',1,1,10000,0,NULL,0,0),(8,'2018-02-12 06:39:32','2018-02-12 06:39:32','Migs TwoParty','Migs_TwoParty',1,1,10000,0,NULL,0,0),(9,'2018-02-12 06:39:32','2018-02-12 06:39:32','Mollie','Mollie',1,1,8,0,NULL,1,0),(10,'2018-02-12 06:39:32','2018-02-12 06:39:32','MultiSafepay','MultiSafepay',1,1,10000,0,NULL,0,0),(11,'2018-02-12 06:39:32','2018-02-12 06:39:32','Netaxept','Netaxept',1,1,10000,0,NULL,0,0),(12,'2018-02-12 06:39:32','2018-02-12 06:39:32','NetBanx','NetBanx',1,1,10000,0,NULL,0,0),(13,'2018-02-12 06:39:32','2018-02-12 06:39:32','PayFast','PayFast',1,1,10000,0,NULL,1,0),(14,'2018-02-12 06:39:32','2018-02-12 06:39:32','Payflow Pro','Payflow_Pro',1,1,10000,0,NULL,0,0),(15,'2018-02-12 06:39:32','2018-02-12 06:39:32','PaymentExpress PxPay','PaymentExpress_PxPay',1,1,10000,0,NULL,0,0),(16,'2018-02-12 06:39:32','2018-02-12 06:39:32','PaymentExpress PxPost','PaymentExpress_PxPost',1,1,10000,0,NULL,0,0),(17,'2018-02-12 06:39:32','2018-02-12 06:39:32','PayPal Express','PayPal_Express',1,1,4,0,NULL,1,0),(18,'2018-02-12 06:39:32','2018-02-12 06:39:32','PayPal Pro','PayPal_Pro',1,1,10000,0,NULL,0,0),(19,'2018-02-12 06:39:32','2018-02-12 06:39:32','Pin','Pin',1,1,10000,0,NULL,0,0),(20,'2018-02-12 06:39:32','2018-02-12 06:39:32','SagePay Direct','SagePay_Direct',1,1,10000,0,NULL,0,0),(21,'2018-02-12 06:39:32','2018-02-12 06:39:32','SagePay Server','SagePay_Server',1,1,10000,0,NULL,0,0),(22,'2018-02-12 06:39:32','2018-02-12 06:39:32','SecurePay DirectPost','SecurePay_DirectPost',1,1,10000,0,NULL,0,0),(23,'2018-02-12 06:39:32','2018-02-12 06:39:32','Stripe','Stripe',1,1,1,0,NULL,0,0),(24,'2018-02-12 06:39:32','2018-02-12 06:39:32','TargetPay Direct eBanking','TargetPay_Directebanking',1,1,10000,0,NULL,0,0),(25,'2018-02-12 06:39:32','2018-02-12 06:39:32','TargetPay Ideal','TargetPay_Ideal',1,1,10000,0,NULL,0,0),(26,'2018-02-12 06:39:32','2018-02-12 06:39:32','TargetPay Mr Cash','TargetPay_Mrcash',1,1,10000,0,NULL,0,0),(27,'2018-02-12 06:39:32','2018-02-12 06:39:32','TwoCheckout','TwoCheckout',1,1,10000,0,NULL,1,0),(28,'2018-02-12 06:39:32','2018-02-12 06:39:32','WorldPay','WorldPay',1,1,10000,0,NULL,0,0),(29,'2018-02-12 06:39:32','2018-02-12 06:39:32','BeanStream','BeanStream',1,2,10000,0,NULL,0,0),(30,'2018-02-12 06:39:32','2018-02-12 06:39:32','Psigate','Psigate',1,2,10000,0,NULL,0,0),(31,'2018-02-12 06:39:32','2018-02-12 06:39:32','moolah','AuthorizeNet_AIM',1,1,10000,0,NULL,0,0),(32,'2018-02-12 06:39:32','2018-02-12 06:39:32','Alipay','Alipay_Express',1,1,10000,0,NULL,0,0),(33,'2018-02-12 06:39:32','2018-02-12 06:39:32','Buckaroo','Buckaroo_CreditCard',1,1,10000,0,NULL,0,0),(34,'2018-02-12 06:39:32','2018-02-12 06:39:32','Coinbase','Coinbase',1,1,10000,0,NULL,0,0),(35,'2018-02-12 06:39:32','2018-02-12 06:39:32','DataCash','DataCash',1,1,10000,0,NULL,0,0),(36,'2018-02-12 06:39:32','2018-02-12 06:39:32','Neteller','Neteller',1,2,10000,0,NULL,0,0),(37,'2018-02-12 06:39:32','2018-02-12 06:39:32','Pacnet','Pacnet',1,1,10000,0,NULL,0,0),(38,'2018-02-12 06:39:32','2018-02-12 06:39:32','PaymentSense','PaymentSense',1,2,10000,0,NULL,0,0),(39,'2018-02-12 06:39:32','2018-02-12 06:39:32','Realex','Realex_Remote',1,1,10000,0,NULL,0,0),(40,'2018-02-12 06:39:32','2018-02-12 06:39:32','Sisow','Sisow',1,1,10000,0,NULL,0,0),(41,'2018-02-12 06:39:32','2018-02-12 06:39:32','Skrill','Skrill',1,1,10000,0,NULL,1,0),(42,'2018-02-12 06:39:32','2018-02-12 06:39:32','BitPay','BitPay',1,1,7,0,NULL,1,0),(43,'2018-02-12 06:39:32','2018-02-12 06:39:32','Dwolla','Dwolla',1,1,6,0,NULL,1,0),(44,'2018-02-12 06:39:32','2018-02-12 06:39:32','AGMS','Agms',1,1,10000,0,NULL,0,0),(45,'2018-02-12 06:39:32','2018-02-12 06:39:32','Barclays','BarclaysEpdq\\Essential',1,1,10000,0,NULL,0,0),(46,'2018-02-12 06:39:32','2018-02-12 06:39:32','Cardgate','Cardgate',1,1,10000,0,NULL,0,0),(47,'2018-02-12 06:39:32','2018-02-12 06:39:32','Checkout.com','CheckoutCom',1,1,10000,0,NULL,0,0),(48,'2018-02-12 06:39:32','2018-02-12 06:39:32','Creditcall','Creditcall',1,1,10000,0,NULL,0,0),(49,'2018-02-12 06:39:32','2018-02-12 06:39:32','Cybersource','Cybersource',1,1,10000,0,NULL,0,0),(50,'2018-02-12 06:39:32','2018-02-12 06:39:32','ecoPayz','Ecopayz',1,1,10000,0,NULL,0,0),(51,'2018-02-12 06:39:32','2018-02-12 06:39:32','Fasapay','Fasapay',1,1,10000,0,NULL,0,0),(52,'2018-02-12 06:39:32','2018-02-12 06:39:32','Komoju','Komoju',1,1,10000,0,NULL,0,0),(53,'2018-02-12 06:39:32','2018-02-12 06:39:32','Multicards','Multicards',1,2,10000,0,NULL,0,0),(54,'2018-02-12 06:39:32','2018-02-12 06:39:32','Pagar.Me','Pagarme',1,2,10000,0,NULL,0,0),(55,'2018-02-12 06:39:32','2018-02-12 06:39:32','Paysafecard','Paysafecard',1,1,10000,0,NULL,0,0),(56,'2018-02-12 06:39:32','2018-02-12 06:39:32','Paytrace','Paytrace_CreditCard',1,1,10000,0,NULL,0,0),(57,'2018-02-12 06:39:32','2018-02-12 06:39:32','Secure Trading','SecureTrading',1,1,10000,0,NULL,0,0),(58,'2018-02-12 06:39:32','2018-02-12 06:39:32','SecPay','SecPay',1,1,10000,0,NULL,0,0),(59,'2018-02-12 06:39:32','2018-02-12 06:39:32','WeChat Express','WeChat_Express',1,2,10000,0,NULL,0,0),(60,'2018-02-12 06:39:32','2018-02-12 06:39:32','WePay','WePay',1,1,3,0,NULL,0,0),(61,'2018-02-12 06:39:32','2018-02-12 06:39:32','Braintree','Braintree',1,1,3,0,NULL,0,0),(62,'2018-02-12 06:39:32','2018-02-12 06:39:32','Custom','Custom',1,1,20,0,NULL,1,0),(63,'2018-02-12 06:39:32','2018-02-12 06:39:32','FirstData Payeezy','FirstData_Payeezy',1,1,10000,0,NULL,0,0),(64,'2018-02-12 06:39:32','2018-02-12 06:39:32','GoCardless','GoCardlessV2\\Redirect',1,1,9,0,NULL,1,0),(65,'2018-02-12 06:39:32','2018-02-12 06:39:32','PagSeguro','PagSeguro',1,1,10000,0,NULL,0,0);
 /*!40000 ALTER TABLE `gateways` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1705,6 +1707,34 @@ LOCK TABLES `lookup_invitations` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `lookup_proposal_invitations`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lookup_proposal_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `lookup_account_id` int(10) unsigned NOT NULL,
+  `invitation_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `message_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `lookup_proposal_invitations_invitation_key_unique` (`invitation_key`),
+  UNIQUE KEY `lookup_proposal_invitations_message_id_unique` (`message_id`),
+  KEY `lookup_proposal_invitations_lookup_account_id_index` (`lookup_account_id`),
+  CONSTRAINT `lookup_proposal_invitations_lookup_account_id_foreign` FOREIGN KEY (`lookup_account_id`) REFERENCES `lookup_accounts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lookup_proposal_invitations`
+--
+
+LOCK TABLES `lookup_proposal_invitations` WRITE;
+/*!40000 ALTER TABLE `lookup_proposal_invitations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lookup_proposal_invitations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `lookup_users`
 --
 
@@ -1808,7 +1838,7 @@ CREATE TABLE `payment_libraries` (
 
 LOCK TABLES `payment_libraries` WRITE;
 /*!40000 ALTER TABLE `payment_libraries` DISABLE KEYS */;
-INSERT INTO `payment_libraries` VALUES (1,'2018-01-23 08:47:43','2018-01-23 08:47:43','Omnipay',1),(2,'2018-01-23 08:47:43','2018-01-23 08:47:43','PHP-Payments [Deprecated]',1);
+INSERT INTO `payment_libraries` VALUES (1,'2018-02-12 06:39:31','2018-02-12 06:39:31','Omnipay',1),(2,'2018-02-12 06:39:31','2018-02-12 06:39:31','PHP-Payments [Deprecated]',1);
 /*!40000 ALTER TABLE `payment_libraries` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1915,7 +1945,7 @@ CREATE TABLE `payment_terms` (
 
 LOCK TABLES `payment_terms` WRITE;
 /*!40000 ALTER TABLE `payment_terms` DISABLE KEYS */;
-INSERT INTO `payment_terms` VALUES (1,7,'Net 7','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,1),(2,10,'Net 10','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,2),(3,14,'Net 14','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,3),(4,15,'Net 15','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,4),(5,30,'Net 30','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,5),(6,60,'Net 60','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,6),(7,90,'Net 90','2018-01-23 08:47:43','2018-01-23 08:47:43',NULL,0,0,7);
+INSERT INTO `payment_terms` VALUES (1,7,'Net 7','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,1),(2,10,'Net 10','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,2),(3,14,'Net 14','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,3),(4,15,'Net 15','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,4),(5,30,'Net 30','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,5),(6,60,'Net 60','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,6),(7,90,'Net 90','2018-02-12 06:39:31','2018-02-12 06:39:31',NULL,0,0,7);
 /*!40000 ALTER TABLE `payment_terms` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2100,6 +2130,202 @@ CREATE TABLE `projects` (
 LOCK TABLES `projects` WRITE;
 /*!40000 ALTER TABLE `projects` DISABLE KEYS */;
 /*!40000 ALTER TABLE `projects` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_categories`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_categories` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_categories_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposal_categories_user_id_foreign` (`user_id`),
+  KEY `proposal_categories_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_categories_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_categories_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_categories`
+--
+
+LOCK TABLES `proposal_categories` WRITE;
+/*!40000 ALTER TABLE `proposal_categories` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_invitations`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `contact_id` int(10) unsigned NOT NULL,
+  `proposal_id` int(10) unsigned NOT NULL,
+  `invitation_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `sent_date` timestamp NULL DEFAULT NULL,
+  `viewed_date` timestamp NULL DEFAULT NULL,
+  `opened_date` timestamp NULL DEFAULT NULL,
+  `message_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email_error` text COLLATE utf8_unicode_ci,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_invitations_account_id_public_id_unique` (`account_id`,`public_id`),
+  UNIQUE KEY `proposal_invitations_invitation_key_unique` (`invitation_key`),
+  KEY `proposal_invitations_user_id_foreign` (`user_id`),
+  KEY `proposal_invitations_contact_id_foreign` (`contact_id`),
+  KEY `proposal_invitations_proposal_id_index` (`proposal_id`),
+  KEY `proposal_invitations_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_invitations_contact_id_foreign` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_invitations_proposal_id_foreign` FOREIGN KEY (`proposal_id`) REFERENCES `proposals` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_invitations`
+--
+
+LOCK TABLES `proposal_invitations` WRITE;
+/*!40000 ALTER TABLE `proposal_invitations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_invitations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_snippets`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_snippets` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `proposal_category_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `private_notes` text COLLATE utf8_unicode_ci NOT NULL,
+  `html` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `css` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_snippets_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposal_snippets_user_id_foreign` (`user_id`),
+  KEY `proposal_snippets_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_snippets_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_snippets_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_snippets`
+--
+
+LOCK TABLES `proposal_snippets` WRITE;
+/*!40000 ALTER TABLE `proposal_snippets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_snippets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_templates`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_templates` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `private_notes` text COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `html` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `css` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_templates_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposal_templates_user_id_foreign` (`user_id`),
+  KEY `proposal_templates_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_templates_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_templates_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_templates`
+--
+
+LOCK TABLES `proposal_templates` WRITE;
+/*!40000 ALTER TABLE `proposal_templates` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_templates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposals`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposals` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `invoice_id` int(10) unsigned NOT NULL,
+  `proposal_template_id` int(10) unsigned DEFAULT NULL,
+  `private_notes` text COLLATE utf8_unicode_ci NOT NULL,
+  `html` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `css` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposals_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposals_user_id_foreign` (`user_id`),
+  KEY `proposals_invoice_id_index` (`invoice_id`),
+  KEY `proposals_proposal_template_id_index` (`proposal_template_id`),
+  KEY `proposals_public_id_index` (`public_id`),
+  CONSTRAINT `proposals_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposals_invoice_id_foreign` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposals_proposal_template_id_foreign` FOREIGN KEY (`proposal_template_id`) REFERENCES `proposal_templates` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposals`
+--
+
+LOCK TABLES `proposals` WRITE;
+/*!40000 ALTER TABLE `proposals` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposals` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2642,4 +2868,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-23 12:47:46
+-- Dump completed on 2018-02-12 10:39:35

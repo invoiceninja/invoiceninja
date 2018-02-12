@@ -13,6 +13,7 @@
     {!! Former::open($url)
             ->method($method)
             ->onsubmit('return onFormSubmit(event)')
+            ->id('mainForm')
             ->addClass('warn-on-exit')
             ->rules([
                 'invoice_id' => 'required',
@@ -24,6 +25,7 @@
 
     <span style="display:none">
         {!! Former::text('public_id') !!}
+        {!! Former::text('action') !!}
         {!! Former::text('html') !!}
         {!! Former::text('css') !!}
     </span>
@@ -66,6 +68,10 @@
                 ->appendIcon(Icon::create('floppy-disk')) !!}
 
         @if ($proposal)
+            {!! Button::info(trans('texts.email'))
+                    ->withAttributes(['onclick' => 'onEmailClick()'])
+                    ->appendIcon(Icon::create('send')) !!}
+
             {!! DropdownButton::normal(trans('texts.more_actions'))
                     ->withContents($proposal->present()->moreActions()) !!}
         @endif
@@ -93,6 +99,10 @@
     @if ($proposal)
         function onDownloadClick() {
             location.href = "{{ url("/proposals/{$proposal->public_id}/download") }}";
+        }
+        function onEmailClick() {
+            $('#action').val('email');
+            $('#mainForm').submit();
         }
     @endif
 

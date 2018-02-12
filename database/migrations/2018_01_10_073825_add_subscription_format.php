@@ -21,6 +21,11 @@ class AddSubscriptionFormat extends Migration
             $table->boolean('ubl_email_attachment')->default(false);
         });
 
+        Schema::table('account_email_settings', function ($table) {
+            $table->string('email_subject_proposal')->nullable();
+            $table->text('email_template_proposal')->nullable();
+        });
+
         Schema::create('proposal_categories', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
@@ -151,6 +156,11 @@ class AddSubscriptionFormat extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->dropColumn('ubl_email_attachment');
+        });
+
+        Schema::table('account_email_settings', function ($table) {
+            $table->dropColumn('email_subject_proposal');
+            $table->dropColumn('email_template_proposal');
         });
 
         Schema::dropIfExists('proposals');

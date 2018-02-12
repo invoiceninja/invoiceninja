@@ -458,6 +458,7 @@ if (! defined('APP_NAME')) {
 
     define('TEMPLATE_INVOICE', 'invoice');
     define('TEMPLATE_QUOTE', 'quote');
+    define('TEMPLATE_PROPOSAL', 'proposal');
     define('TEMPLATE_PARTIAL', 'partial');
     define('TEMPLATE_PAYMENT', 'payment');
     define('TEMPLATE_REMINDER1', 'reminder1');
