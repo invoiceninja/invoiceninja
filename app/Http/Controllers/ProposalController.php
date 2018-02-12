@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateProposalRequest;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
+use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalTemplate;
@@ -107,7 +108,7 @@ class ProposalController extends BaseController
         $action = Input::get('action');
 
         if ($action == 'email') {
-            $this->contactMailer->sendInvoice($proposal->invoice, false, false, $proposal);
+            $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
             Session::flash('message', trans('texts.emailed_proposal'));
         } else {
             Session::flash('message', trans('texts.created_proposal'));
@@ -126,7 +127,7 @@ class ProposalController extends BaseController
         }
 
         if ($action == 'email') {
-            $this->contactMailer->sendInvoice($proposal->invoice, false, false, $proposal);
+            $this->dispatch(new SendInvoiceEmail($proposal->invoice, auth()->user()->id, false, false, $proposal));
             Session::flash('message', trans('texts.emailed_proposal'));
         } else {
             Session::flash('message', trans('texts.updated_proposal'));

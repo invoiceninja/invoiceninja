@@ -106,8 +106,10 @@
     }
 
     function onEmailClick() {
-        $('#action').val('email');
-        $('#saveButton').click();
+        sweetConfirm(function() {
+            $('#action').val('email');
+            $('#saveButton').click();
+        })
     }
 
     @if ($proposal)

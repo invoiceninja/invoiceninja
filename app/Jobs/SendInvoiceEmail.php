@@ -44,6 +44,11 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $server;
 
     /**
+     * @var Proposal
+     */
+    protected $proposal;
+
+    /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
@@ -51,12 +56,13 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param bool    $reminder
      * @param mixed   $pdfString
      */
-    public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false)
+    public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false, $proposal = false)
     {
         $this->invoice = $invoice;
         $this->userId = $userId;
         $this->reminder = $reminder;
         $this->template = $template;
+        $this->proposal = $proposal;
         $this->server = config('database.default');
     }
 
@@ -72,7 +78,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
             Auth::onceUsingId($this->userId);
         }
 
-        $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);
+        $mailer->sendInvoice($this->invoice, $this->reminder, $this->template, $this->proposal);
 
         if (App::runningInConsole() && $this->userId) {
             Auth::logout();

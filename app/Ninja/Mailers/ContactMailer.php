@@ -146,12 +146,12 @@ class ContactMailer extends Mailer
         $subject,
         $reminder,
         $isFirst,
-        $data
+        $extra
     ) {
         $client = $invoice->client;
         $account = $invoice->account;
         $user = $invitation->user;
-        $proposal = $data['proposal'];
+        $proposal = $extra['proposal'];
 
         if ($user->trashed()) {
             $user = $account->users()->orderBy('id')->first();
@@ -197,7 +197,7 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invoice' => $invoice,
-            'documents' => $data['documentStrings'],
+            'documents' => $extra['documentStrings'],
             'notes' => $reminder,
             'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
@@ -205,11 +205,11 @@ class ContactMailer extends Mailer
 
         if (! $proposal) {
             if ($account->attachPDF()) {
-                $data['pdfString'] = $data['pdfString'];
+                $data['pdfString'] = $extra['pdfString'];
                 $data['pdfFileName'] = $invoice->getFileName();
             }
             if ($account->attachUBL()) {
-                $data['ublString'] = $data['ublString'];
+                $data['ublString'] = $extra['ublString'];
                 $data['ublFileName'] = $invoice->getFileName('xml');
             }
         }
