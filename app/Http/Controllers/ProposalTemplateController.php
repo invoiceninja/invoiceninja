@@ -117,6 +117,7 @@ class ProposalTemplateController extends BaseController
 
         $data = array_merge($this->getViewmodel(), [
             'template' => $template,
+            'entity' => $clone ? false : $template,
             'method' => $method,
             'url' => $url,
             'title' => trans('texts.edit_proposal_template'),

@@ -80,6 +80,7 @@ class ProposalSnippetController extends BaseController
         $data = [
             'account' => auth()->user()->account,
             'snippet' => $proposalSnippet,
+            'entity' => $proposalSnippet,
             'method' => 'PUT',
             'url' => 'proposals/snippets/' . $proposalSnippet->public_id,
             'title' => trans('texts.edit_proposal_snippet'),

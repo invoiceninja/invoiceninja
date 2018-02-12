@@ -33,7 +33,7 @@ class ProposalSnippet extends EntityModel
     /**
      * @var string
      */
-    //protected $presenter = 'App\Ninja\Presenters\ProjectPresenter';
+    protected $presenter = 'App\Ninja\Presenters\ProposalSnippetPresenter';
 
     /**
      * @return mixed

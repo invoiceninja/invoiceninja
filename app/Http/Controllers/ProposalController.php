@@ -84,6 +84,7 @@ class ProposalController extends BaseController
 
         $data = array_merge($this->getViewmodel(), [
             'proposal' => $proposal,
+            'entity' => $proposal,
             'method' => 'PUT',
             'url' => 'proposals/' . $proposal->public_id,
             'title' => trans('texts.edit_proposal'),
