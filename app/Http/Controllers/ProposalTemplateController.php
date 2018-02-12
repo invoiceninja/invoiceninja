@@ -51,16 +51,45 @@ class ProposalTemplateController extends BaseController
 
     public function create(ProposalTemplateRequest $request)
     {
-        $data = [
-            'account' => auth()->user()->account,
+        $data = array_merge($this->getViewmodel(), [
             'template' => null,
             'method' => 'POST',
             'url' => 'proposals/templates',
             'title' => trans('texts.new_proposal_template'),
-            'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
-        ];
+        ]);
 
         return View::make('proposals/templates/edit', $data);
+    }
+
+    private function getViewmodel()
+    {
+        $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
+        $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();
+
+        $customLabel = trans('texts.custom');
+        $defaultLabel = trans('texts.default');
+
+        foreach ($customTemplates as $template) {
+            if (! isset($options[$customLabel])) {
+                $options[$customLabel] = [];
+            }
+            $options[trans('texts.custom')][$template->public_id] = $template->name;
+        }
+        foreach ($defaultTemplates as $template) {
+            if (! isset($options[$defaultLabel])) {
+                $options[$defaultLabel] = [];
+            }
+            $options[trans('texts.default')][$template->public_id] = $template->name;
+        }
+
+        $data = [
+            'account' => auth()->user()->account,
+            'customTemplates' => $customTemplates,
+            'defaultTemplates' => $defaultTemplates,
+            'templateOptions' => $options,
+        ];
+
+        return $data;
     }
 
     public function show($publicId)
@@ -86,14 +115,12 @@ class ProposalTemplateController extends BaseController
             $url = 'proposals/templates/' . $template->public_id;
         }
 
-        $data = [
-            'account' => auth()->user()->account,
+        $data = array_merge($this->getViewmodel(), [
             'template' => $template,
             'method' => $method,
             'url' => $url,
             'title' => trans('texts.edit_proposal_template'),
-            'templates' => ProposalTemplate::scope()->orderBy('name')->get(),
-        ];
+        ]);
 
         return View::make('proposals/templates/edit', $data);
     }

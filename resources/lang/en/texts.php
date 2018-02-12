@@ -2733,6 +2733,7 @@ $LANG = array(
     'proposal_subject' => 'New proposal :number from :account',
     'proposal_message' => 'To view your proposal for :amount, click the link below.',
     'emailed_proposal' => 'Successfully emailed proposal',
+    'load_template' => 'Load Template',
 
 );
 

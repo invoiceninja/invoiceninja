@@ -34,12 +34,6 @@
                 <div class="row">
                     <div class="col-md-6">
                         {!! Former::text('name') !!}
-
-                        <!--
-                        {!! Former::select('proposal_template_id')->addOption('', '')
-                                ->label(trans('texts.template'))
-                                ->addGroupClass('template-select') !!}
-                        -->
                     </div>
                     <div class="col-md-6">
                         {!! Former::textarea('private_notes') !!}
@@ -51,6 +45,15 @@
     </div>
 
     <center class="buttons">
+
+        {!! Former::select()
+                ->style('display:inline;width:170px;background-color:white !important')
+                ->placeholder(trans('texts.load_template'))
+                ->onchange('onTemplateSelectChange()')
+                ->addClass('template-select')
+                ->options($templateOptions)
+                ->raw() !!}
+
         @include('proposals.grapesjs_help')
 
         {!! Button::normal(trans('texts.cancel'))
@@ -74,8 +77,11 @@
     <div id="gjs"></div>
 
     <script type="text/javascript">
-    var templates = {!! $templates !!};
-    var templateMap = {};
+    var customTemplates = {!! $customTemplates !!};
+    var customTemplateMap = {};
+
+    var defaultTemplates = {!! $defaultTemplates !!};
+    var defaultTemplateMap = {};
 
     function onFormSubmit() {
         $('#html').val(grapesjsEditor.getHtml());
@@ -84,16 +90,29 @@
         return true;
     }
 
-    $(function() {
-        /*
-        var $proposal_templateSelect = $('select#template_id');
-        for (var i = 0; i < templates.length; i++) {
-            var template = templates[i];
-            templateMap[template.public_id] = template;
-            $templateSelect.append(new Option(template.name, template.public_id));
+    function onTemplateSelectChange() {
+        var templateId = $('.template-select').val();
+        var group = $('.template-select :selected').parent().attr('label');
+
+        if (group == "{{ trans('texts.default') }}") {
+            var template = defaultTemplateMap[templateId];
+        } else {
+            var template = customTemplateMap[templateId];
         }
-        @include('partials/entity_combobox', ['entityType' => ENTITY_PROPOSAL_TEMPLATE])
-        */
+
+        
+        $('.template-select').val(null).blur();
+    }
+
+    $(function() {
+        for (var i=0; i<customTemplates.length; i++) {
+            var template = customTemplates[i];
+            customTemplateMap[template.public_id] = template;
+        }
+        for (var i=0; i<defaultTemplates.length; i++) {
+            var template = defaultTemplates[i];
+            defaultTemplateMap[template.public_id] = template;
+        }
     })
 
 </script>
