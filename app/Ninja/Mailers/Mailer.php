@@ -122,7 +122,7 @@ class Mailer
 
             $notes = isset($data['notes']) ? $data['notes'] : false;
 
-            if ($proposal = $data['proposal']) {
+            if (! empty($data['proposal'])) {
                 $invitation->markSent($messageId);
             } else {
                 $invoice->markInvitationSent($invitation, $messageId, true, $notes);
