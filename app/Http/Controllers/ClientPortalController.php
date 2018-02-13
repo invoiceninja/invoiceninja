@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
+use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Document;
 use App\Models\Gateway;
@@ -835,6 +836,16 @@ class ClientPortalController extends BaseController
         }, 200);
     }
 
+    /*
+    public function getProposalDocument($accountKey, $publicId)
+    {
+        $account = Account::whereAccountKey($accountKey)->firstOrFail();
+        $document = Document::whereAccountId($account->id)->wherePublicId($publicId)->firstOrFail();
+
+        return DocumentController::getDownloadResponse($document);
+    }
+    */
+    
     public function getDocument($invitationKey, $publicId)
     {
         if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {

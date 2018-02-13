@@ -239,9 +239,11 @@
     <script type="text/javascript">
 
     $(function() {
-        grapesjsEditor.on('canvas:drop', function() {
-            var html = mergeTemplate(grapesjsEditor.getHtml());
-            grapesjsEditor.setComponents(html);
+        grapesjsEditor.on('canvas:drop', function(event, block) {
+            if (! block.attributes || block.attributes.type != 'image') {
+                var html = mergeTemplate(grapesjsEditor.getHtml());
+                grapesjsEditor.setComponents(html);
+            }
         });
 
         @if (! $proposal && $templatePublicId)

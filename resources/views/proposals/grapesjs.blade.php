@@ -7,7 +7,6 @@ $(function() {
         components: '{!! $entity ? $entity->html : '' !!}',
         style: '{!! $entity ? $entity->css : '' !!}',
         showDevices: false,
-        categoryLabel: 'tes',
         plugins: ['gjs-preset-newsletter'],
         pluginsOpts: {
             'gjs-preset-newsletter': {
