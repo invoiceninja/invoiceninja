@@ -67,11 +67,6 @@ class ProposalSnippetRepository extends BaseRepository
         }
 
         $proposal->fill($input);
-
-        if (isset($input['proposal_category_id'])) {
-            $proposal->proposal_category_id = $input['proposal_category_id'] ? ProposalCategory::getPrivateId($input['proposal_category_id']) : null;
-        }
-
         $proposal->save();
 
         return $proposal;

@@ -19,7 +19,7 @@ Detailed Guides
 Automated Installers
 ^^^^^^^^^^^^^^^^^^^^
 
-- Dockerfile: `github.com/invoiceninja/dockerfiles <https://github.com/invoiceninja/dockerfiles>`_
+- Dockerfile: `github.com <https://github.com/invoiceninja/dockerfiles>`_
 
 - Cloudron: `cloudron.io <https://cloudron.io/store/com.invoiceninja.cloudronapp.html>`_
 
