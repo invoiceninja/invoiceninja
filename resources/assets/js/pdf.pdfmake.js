@@ -352,6 +352,11 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value) + '';
             value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+
+            if (['amount', 'partial', 'client.balance', 'client.paid_to_date'].indexOf(field) >= 0) {
+                value = formatMoneyInvoice(value, invoice);
+            }
+
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }
