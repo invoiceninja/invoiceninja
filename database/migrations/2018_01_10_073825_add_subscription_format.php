@@ -26,6 +26,11 @@ class AddSubscriptionFormat extends Migration
             $table->text('email_template_proposal')->nullable();
         });
 
+        Schema::table('documents', function ($table) {
+            $table->boolean('is_proposal')->default(false);
+            $table->string('document_key')->nullable()->unique();
+        });
+
         Schema::create('proposal_categories', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
@@ -163,11 +168,16 @@ class AddSubscriptionFormat extends Migration
             $table->dropColumn('email_template_proposal');
         });
 
+        Schema::table('documents', function ($table) {
+            $table->dropColumn('is_proposal');
+            $table->dropColumn('document_key');
+        });
+
+        Schema::dropIfExists('lookup_proposal_invitations');
+        Schema::dropIfExists('proposal_invitations');
         Schema::dropIfExists('proposals');
         Schema::dropIfExists('proposal_templates');
         Schema::dropIfExists('proposal_snippets');
         Schema::dropIfExists('proposal_categories');
-        Schema::dropIfExists('proposal_invitations');
-        Schema::dropIfExists('lookup_proposal_invitations');
     }
 }
