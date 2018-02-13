@@ -379,7 +379,7 @@ class ContactMailer extends Mailer
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $hour = 60 * 60;
-        $hour_limit = 50; // users are limited to 50 emails/hour
+        $hour_limit = MAX_EMAILS_SENT_PER_HOUR;
         $hour_throttle = Cache::get("email_hour_throttle:{$key}", null);
         $last_api_request = Cache::get("last_email_request:{$key}", 0);
         $last_api_diff = time() - $last_api_request;
