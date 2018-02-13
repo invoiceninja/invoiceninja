@@ -59,9 +59,11 @@
                 ->appendIcon(Icon::create('remove-circle'))
                 ->asLinkTo(HTMLUtils::previousUrl('/proposals')) !!}
 
-        {!! Button::primary(trans('texts.download'))
-                ->withAttributes(['onclick' => 'onDownloadClick()'])
-                ->appendIcon(Icon::create('download-alt')) !!}
+        @if ($proposal)
+            {!! Button::primary(trans('texts.download'))
+                    ->withAttributes(['onclick' => 'onDownloadClick()'])
+                    ->appendIcon(Icon::create('download-alt')) !!}
+        @endif
 
         {!! Button::success(trans("texts.save"))
                 ->withAttributes(['id' => 'saveButton'])

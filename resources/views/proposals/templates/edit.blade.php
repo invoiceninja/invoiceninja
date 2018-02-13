@@ -46,13 +46,15 @@
 
     <center class="buttons">
 
-        {!! Former::select()
-                ->style('display:inline;width:170px;background-color:white !important')
-                ->placeholder(trans('texts.load_template'))
-                ->onchange('onTemplateSelectChange()')
-                ->addClass('template-select')
-                ->options($templateOptions)
-                ->raw() !!}
+        @if (count($templateOptions))
+            {!! Former::select()
+                    ->style('display:inline;width:170px;background-color:white !important')
+                    ->placeholder(trans('texts.load_template'))
+                    ->onchange('onTemplateSelectChange()')
+                    ->addClass('template-select')
+                    ->options($templateOptions)
+                    ->raw() !!}
+        @endif
 
         @include('proposals.grapesjs_help')
 

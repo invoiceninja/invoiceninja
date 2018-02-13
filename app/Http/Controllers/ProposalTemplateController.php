@@ -66,6 +66,7 @@ class ProposalTemplateController extends BaseController
         $customTemplates = ProposalTemplate::scope()->orderBy('name')->get();
         $defaultTemplates = ProposalTemplate::whereNull('account_id')->orderBy('public_id')->get();
 
+        $options = [];
         $customLabel = trans('texts.custom');
         $defaultLabel = trans('texts.default');
 
