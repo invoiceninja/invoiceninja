@@ -16,9 +16,8 @@ Route::post('/get_started', 'AccountController@getStarted');
 // Client visible pages
 Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
-    Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalController@downloadProposal');
-    Route::get('proposal/{proposal_invitation_key}', 'ClientPortalController@viewProposal');
-    //Route::get('proposal/document/{account_key}/{public_id}/{filename?}', 'ClientPortalController@getProposalDocument');
+    Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalProposalController@downloadProposal');
+    Route::get('proposal/{proposal_invitation_key}', 'ClientPortalProposalController@viewProposal');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
     Route::get('view', 'HomeController@viewLogo');
@@ -107,6 +106,7 @@ Route::group(['middleware' => ['lookup:contact']], function () {
     Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
     Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
     Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
+    Route::get('/proposal/image/{account_key}/{document_key}/{filename?}', 'ClientPortalProposalController@getProposalImage');
 });
 
 if (Utils::isReseller()) {

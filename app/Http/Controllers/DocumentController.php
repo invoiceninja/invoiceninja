@@ -108,7 +108,7 @@ class DocumentController extends BaseController
             if ($request->grapesjs) {
                 $response = [
                     'data' => [
-                        $result->getUrl()
+                        $result->getProposalUrl()
                     ]
                 ];
             } else {

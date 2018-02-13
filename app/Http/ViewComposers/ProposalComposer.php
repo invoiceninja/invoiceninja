@@ -38,7 +38,7 @@ class ProposalComposer
         $data = [];
         foreach ($documents as $document) {
             $data[] = [
-                'src' => $document->getUrl(),
+                'src' => $document->getProposalUrl(),
                 'public_id' => $document->public_id,
             ];
         }

@@ -16,7 +16,6 @@ use App\Ninja\Repositories\DocumentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\TaskRepository;
-use App\Ninja\Repositories\ProposalRepository;
 use App\Services\PaymentService;
 use Auth;
 use Barracuda\ArchiveStream\ZipArchive;
@@ -38,7 +37,6 @@ class ClientPortalController extends BaseController
     private $invoiceRepo;
     private $paymentRepo;
     private $documentRepo;
-    private $propoosalRepo;
 
     public function __construct(
         InvoiceRepository $invoiceRepo,
@@ -47,8 +45,7 @@ class ClientPortalController extends BaseController
         DocumentRepository $documentRepo,
         PaymentService $paymentService,
         CreditRepository $creditRepo,
-        TaskRepository $taskRepo,
-        ProposalRepository $propoosalRepo)
+        TaskRepository $taskRepo)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
@@ -57,42 +54,6 @@ class ClientPortalController extends BaseController
         $this->paymentService = $paymentService;
         $this->creditRepo = $creditRepo;
         $this->taskRepo = $taskRepo;
-        $this->propoosalRepo = $propoosalRepo;
-    }
-
-    public function viewProposal($invitationKey)
-    {
-        if (! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
-            return $this->returnError(trans('texts.proposal_not_found'));
-        }
-
-        $account = $invitation->account;
-        $proposal = $invitation->proposal;
-        $invoiceInvitation = Invitation::whereContactId($invitation->contact_id)
-                ->whereInvoiceId($proposal->invoice_id)
-                ->firstOrFail();
-
-        $data = [
-            'proposal' => $proposal,
-            'account' => $account,
-            'invoiceInvitation' => $invoiceInvitation,
-            'proposalInvitation' => $invitation,
-        ];
-
-        return view('invited.proposal', $data);
-    }
-
-    public function downloadProposal($invitationKey)
-    {
-        if (! $invitation = $this->propoosalRepo->findInvitationByKey($invitationKey)) {
-            return $this->returnError(trans('texts.proposal_not_found'));
-        }
-
-        $proposal = $invitation->proposal;
-
-        $mpdf = new \mPDF();
-        $mpdf->WriteHTML($proposal->present()->htmlDocument);
-        $mpdf->Output($proposal->present()->filename, 'D');
     }
 
     public function viewInvoice($invitationKey)
@@ -836,16 +797,6 @@ class ClientPortalController extends BaseController
         }, 200);
     }
 
-    /*
-    public function getProposalDocument($accountKey, $publicId)
-    {
-        $account = Account::whereAccountKey($accountKey)->firstOrFail();
-        $document = Document::whereAccountId($account->id)->wherePublicId($publicId)->firstOrFail();
-
-        return DocumentController::getDownloadResponse($document);
-    }
-    */
-    
     public function getDocument($invitationKey, $publicId)
     {
         if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
