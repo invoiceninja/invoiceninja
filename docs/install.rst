@@ -8,11 +8,13 @@ Thanks for taking the time to setup Invoice Ninja.
 Detailed Guides
 ^^^^^^^^^^^^^^^
 
+- Ubuntu and Nginx: `websiteforstudents.com <https://websiteforstudents.com/install-invoiceninja-on-ubuntu-17-04-17-10-with-nginx-mariadb-and-php-support/>`_
+
 - Ubuntu and Apache: `technerdservices.com <http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/>`_
 
 - Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/>`_
 
-- CentOS, Nginx, MariaDB and PHP 7: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
+- CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
 Automated Installers
 ^^^^^^^^^^^^^^^^^^^^
