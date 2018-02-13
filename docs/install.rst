@@ -21,6 +21,8 @@ Automated Installers
 
 - Dockerfile: `github.com/invoiceninja/dockerfiles <https://github.com/invoiceninja/dockerfiles>`_
 
+- Cloudron: `cloudron.io <https://cloudron.io/store/com.invoiceninja.cloudronapp.html>`_
+
 - Softaculous: `softaculous.com <https://www.softaculous.com/apps/ecommerce/Invoice_Ninja>`_
 
 .. Tip:: You can use `github.com/turbo124/Plane2Ninja <https://github.com/turbo124/Plane2Ninja>`_ to migrate your data from InvoicePlane.
