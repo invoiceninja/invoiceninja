@@ -20,6 +20,7 @@ class InvoiceReport extends AbstractReport
             'payment_date' => [],
             'paid' => [],
             'method' => [],
+            'po_number' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
             'user' => ['columnSelector-false'],
         ];
@@ -93,6 +94,7 @@ class InvoiceReport extends AbstractReport
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
+                        $invoice->po_number,
                         $invoice->private_notes,
                         $invoice->user->getDisplayName(),
                     ];
