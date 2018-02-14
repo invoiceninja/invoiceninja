@@ -2,18 +2,6 @@
 
 @section('content')
 
-	<div class="container" style="padding: 20px;">
-		<div class="pull-right">
-			{!! Button::normal(trans('texts.download'))->asLinkTo(url("/proposal/{$proposalInvitation->invitation_key}/download"))->large() !!}
-			@if (! $proposal->invoice->isApproved())
-				{!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()'])->large() !!}
-			@endif
-		</div>
-		<div class="clearfix"></div><br/>
-		<iframe id="proposalIframe" scrolling="no" onload="resizeIframe(this)" frameborder="0" width="100%"
-			style="background-color:white; border: solid 1px #DDD;"></iframe>
-    </div>
-
 	<script type="text/javascript">
 
 	function onApproveClick() {
@@ -34,5 +22,17 @@
 	})
 
 	</script>
+
+	<div class="container" style="padding: 20px;">
+		<div class="pull-right">
+			{!! Button::normal(trans('texts.download'))->asLinkTo(url("/proposal/{$proposalInvitation->invitation_key}/download"))->large() !!}
+			@if (! $proposal->invoice->isApproved())
+				{!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()'])->large() !!}
+			@endif
+		</div>
+		<div class="clearfix"></div><br/>
+		<iframe id="proposalIframe" scrolling="no" onload="resizeIframe(this)" frameborder="0" width="100%"
+			style="background-color:white; border: solid 1px #DDD;"></iframe>
+    </div>
 
 @stop
