@@ -7,13 +7,13 @@ To update the app you just need to copy over the latest code. The app tracks the
 
 https://download.invoiceninja.com
 
+If you have trouble updating you can manually load /update to check for errors.
+
 .. TIP:: We recommend using this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process, run it as a daily cron to automatically keep your app up to date.
 
 If you're moving servers make sure to copy over the .env file.
 
-If the auto-update fails you can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.
-
-A common error with shared hosting is "open_basedir restriction in effect", if you see this you'll need to either temporarily modify your open_basedir settings or run the update from the command line.
+You can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.
 
 .. code-block:: shell
 
@@ -21,6 +21,8 @@ A common error with shared hosting is "open_basedir restriction in effect", if y
    php artisan optimize --force
    php artisan migrate
    php artisan db:seed --class=UpdateSeeder
+
+A common error with shared hosting is "open_basedir restriction in effect", if you see this you'll need to either temporarily modify your open_basedir settings or run the update from the command line.
 
 .. NOTE:: If you've downloaded the code from GitHub you also need to run ``composer install``
 
