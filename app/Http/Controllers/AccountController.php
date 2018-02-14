@@ -184,7 +184,7 @@ class AccountController extends BaseController
 
             $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
             $percent_used = $days_used / $days_total;
-            $credit = floatval($company->payment->amount) * (1 - $percent_used);
+            $credit = round(floatval($company->payment->amount) * (1 - $percent_used), 2);
         }
 
         if ($newPlan['price'] > $credit) {
