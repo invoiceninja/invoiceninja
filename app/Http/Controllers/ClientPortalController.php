@@ -77,8 +77,6 @@ class ClientPortalController extends BaseController
             ]);
         }
 
-        $account->loadLocalizationSettings($client);
-
         if (! Input::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
             && (! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
@@ -263,7 +261,6 @@ class ClientPortalController extends BaseController
             return redirect(request()->url());
         }
 
-        $account->loadLocalizationSettings($client);
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $customer = false;
 
@@ -336,7 +333,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $account->enable_client_portal) {
             return $this->returnError();
@@ -370,7 +366,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $account->enable_client_portal) {
             return $this->returnError();
@@ -416,7 +411,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $account->enable_client_portal) {
             return $this->returnError();
@@ -501,7 +495,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $account->enable_client_portal) {
             return $this->returnError();
@@ -537,7 +530,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $account->enable_client_portal) {
             return $this->returnError();
@@ -573,7 +565,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $contact->client->show_tasks_in_portal) {
             return redirect()->to($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
@@ -613,7 +604,6 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
-        $account->loadLocalizationSettings($contact->client);
 
         if (! $account->enable_client_portal) {
             return $this->returnError();

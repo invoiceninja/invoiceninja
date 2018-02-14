@@ -91,6 +91,7 @@ class Authenticate
 
             if ($authenticated) {
                 $request->merge(['contact' => $contact]);
+                $account->loadLocalizationSettings($contact->client);
             }
         }
 
