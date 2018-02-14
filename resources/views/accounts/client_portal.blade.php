@@ -423,7 +423,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 
         if (productId) {
             @if (Utils::isNinjaProd())
-                var domain = '{{ $account->present()->clientPortalLink(true) }}';
+                var domain = '{{ $account->present()->clientPortalLink(true) }}/buy_now';
             @else
                 var domain = '{{ url('/buy_now') }}';
             @endif
