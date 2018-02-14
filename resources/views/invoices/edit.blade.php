@@ -536,8 +536,8 @@
 			@elseif ($invoice->isSent() && config('ninja.lock_sent_invoices'))
 				@if (! $invoice->trashed())
 					{!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+					{!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
 				@endif
-
             @else
 				@if (!$invoice->is_deleted)
 					@if ($invoice->isSent())
