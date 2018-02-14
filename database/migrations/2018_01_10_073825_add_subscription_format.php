@@ -35,6 +35,10 @@ class AddSubscriptionFormat extends Migration
             $table->decimal('discount', 13, 2)->change();
         });
 
+        Schema::table('invoice_items', function ($table) {
+            $table->decimal('discount', 13, 2)->change();
+        });
+
         Schema::create('proposal_categories', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
