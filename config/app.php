@@ -175,7 +175,7 @@ return [
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
-
+	Aacotroneo\Saml2\Saml2ServiceProvider::class,
     ],
 
     /*
@@ -272,7 +272,7 @@ return [
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
         'Domain' => App\Constants\Domain::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-
+        'Saml2' => Aacotroneo\Saml2\Facades\Saml2Auth::class,
     ],
 
 ];

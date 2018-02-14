@@ -367,6 +367,10 @@ Route::get('/terms', function () {
     return Redirect::to(NINJA_WEB_URL.'/terms', 301);
 });
 
+Route::group(['middleware' => ['samlauth']], function () {
+	Route::get('loggedin', 'SAMLController@loggedin');
+});
+
 /*
 if (Utils::isNinjaDev())
 {

@@ -229,13 +229,13 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\SubdomainWasUpdated' => [
             'App\Listeners\DNSListener@addDNSRecord'
         ],
-        
+
         // SAML
         'Aacotroneo\Saml2\Events\Saml2LoginEvent' => [
             'App\Listeners\LoginListener',
         ],
-        
-		'Aacotroneo\Saml2\Events\Saml2LogoutEvent' => [
+
+	'Aacotroneo\Saml2\Events\Saml2LogoutEvent' => [
             'App\Listeners\LogoutListener',
         ],
 

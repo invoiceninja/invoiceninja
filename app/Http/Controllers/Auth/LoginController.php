@@ -71,6 +71,10 @@ class LoginController extends Controller
             }
         }
 
+	if(config('saml2_settings.samlEnabled')) {
+		return \Auth::guest() ? redirect('saml2/login') : \Redirect::intended('/');
+	}
+
         return self::showLoginForm($request);
     }
 
