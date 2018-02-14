@@ -18,11 +18,6 @@ class InvoiceItemPresenter extends EntityPresenter
         return $data;
     }
 
-    public function notes()
-    {
-        return Str::limit($this->entity->notes);
-    }
-
     public function tax1()
     {
         $item = $this->entity;

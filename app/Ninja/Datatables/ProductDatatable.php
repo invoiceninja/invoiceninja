@@ -24,7 +24,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'notes',
                 function ($model) {
-                    return e(Str::limit($model->notes, 100));
+                    return $this->showWithTooltip($model->notes);
                 },
             ],
             [

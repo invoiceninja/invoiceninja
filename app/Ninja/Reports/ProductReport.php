@@ -67,7 +67,7 @@ class ProductReport extends AbstractReport
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
                         $item->product_key,
-                        $this->isExport ? $item->notes : $item->present()->notes,
+                        $item->notes,
                         Utils::roundSignificant($item->qty, 0),
                         Utils::roundSignificant($item->cost, 2),
                     ];
