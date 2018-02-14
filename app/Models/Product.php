@@ -47,6 +47,8 @@ class Product extends EntityModel
             'product_key',
             'notes',
             'cost',
+            'custom_value1',
+            'custom_value2',
         ];
     }
 
@@ -59,6 +61,8 @@ class Product extends EntityModel
             'product|item' => 'product_key',
             'notes|description|details' => 'notes',
             'cost|amount|price' => 'cost',
+            'custom_value1' => 'custom_value1',
+            'custom_value2' => 'custom_value2',
         ];
     }
 
