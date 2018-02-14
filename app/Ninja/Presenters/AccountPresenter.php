@@ -208,7 +208,7 @@ class AccountPresenter extends Presenter
 
         foreach ($fields as $key => $val) {
             if ($this->$key) {
-                $data[$this->$key] = [
+                $data[Utils::getCustomLabel($this->$key)] = [
                     'value' => $val,
                     'name' => $val,
                 ];
