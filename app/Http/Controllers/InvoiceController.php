@@ -372,14 +372,10 @@ class InvoiceController extends BaseController
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        if (config('ninja.lock_sent_invoices')) {
-            $invoice = $request->entity();
-        } else {
-            $invoice = $this->invoiceService->save($data, $request->entity());
-            $entityType = $invoice->getEntityType();
-            $message = trans("texts.updated_{$entityType}");
-            Session::flash('message', $message);
-        }
+        $invoice = $this->invoiceService->save($data, $request->entity());
+        $entityType = $invoice->getEntityType();
+        $message = trans("texts.updated_{$entityType}");
+        Session::flash('message', $message);
 
         if ($action == 'clone_invoice') {
             return url(sprintf('invoices/%s/clone', $invoice->public_id));
