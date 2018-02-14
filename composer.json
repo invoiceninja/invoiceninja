@@ -16,6 +16,7 @@
         "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*",
+        "aacotroneo/laravel-saml2": "^0.11.0",
         "anahkiasen/former": "4.*",
         "asgrim/ofxparser": "^1.1",
         "bacon/bacon-qr-code": "^1.0",
