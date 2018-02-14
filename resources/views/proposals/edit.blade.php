@@ -145,7 +145,7 @@
 
         invoice.account = {!! auth()->user()->account->load('country') !!};
 
-        var regExp = new RegExp(/\$[a-z][\w\.]*/, 'g');
+        var regExp = new RegExp(/\$[a-z][\w\.]*/g);
         var matches = html.match(regExp);
 
         if (matches) {
