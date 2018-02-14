@@ -32,10 +32,10 @@ class InvoiceReport extends AbstractReport
         $account = auth()->user()->account;
 
         if ($account->custom_invoice_text_label1) {
-            $columns[$account->custom_invoice_text_label1] = ['columnSelector-false', 'custom'];
+            $columns[$account->present()->customInvoiceTextLabel1] = ['columnSelector-false', 'custom'];
         }
         if ($account->custom_invoice_text_label1) {
-            $columns[$account->custom_invoice_text_label1] = ['columnSelector-false', 'custom'];
+            $columns[$account->present()->customInvoiceTextLabel2] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;

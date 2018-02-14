@@ -23,10 +23,10 @@ class ClientReport extends AbstractReport
         $account = $user->account;
 
         if ($account->custom_client_label1) {
-            $columns[$account->custom_client_label1] = ['columnSelector-false', 'custom'];
+            $columns[$account->present()->customClientLabel1] = ['columnSelector-false', 'custom'];
         }
         if ($account->custom_client_label2) {
-            $columns[$account->custom_client_label2] = ['columnSelector-false', 'custom'];
+            $columns[$account->present()->customClientLabel2] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
