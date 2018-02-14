@@ -364,7 +364,9 @@ class Utils
             if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
-                if ($module) {
+                if (substr($field, 0, 1) == '-') {
+                    $data[] = substr($field, 1);
+                } elseif ($module) {
                     $data[] = mtrans($module, $field);
                 } else {
                     $data[] = trans("texts.$field");

@@ -32,10 +32,11 @@ class ProductReport extends AbstractReport
         }
 
         if ($account->custom_invoice_item_label1) {
-            $columns[$account->custom_invoice_item_label1] = ['columnSelector-false', 'custom'];
+            $columns[Utils::getCustomLabel($account->custom_invoice_item_label1)] = ['columnSelector-false', 'custom'];
         }
-        if ($account->custom_invoice_item_labe2) {
-            $columns[$account->custom_invoice_item_labe2] = ['columnSelector-false', 'custom'];
+
+        if ($account->custom_invoice_item_label2) {
+            $columns[Utils::getCustomLabel($account->custom_invoice_item_label2)] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -82,7 +83,8 @@ class ProductReport extends AbstractReport
                     if ($account->custom_invoice_item_label1) {
                         $row[] = $item->custom_value1;
                     }
-                    if ($account->custom_invoice_item_labe2) {
+
+                    if ($account->custom_invoice_item_label2) {
                         $row[] = $item->custom_value2;
                     }
 
