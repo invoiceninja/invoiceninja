@@ -726,7 +726,7 @@
                         <input class="edit" type="text" data-bind="value: name, valueUpdate: 'afterkeydown', hasfocus: is_editing_status, selected: is_editing_status,
                                 event: { blur: saveEditStatus }, enterkey: saveEditStatus, escapekey: saveEditStatus"/>
                     </div>
-                    <div class="pull-right" data-bind="click: archiveStatus, visible: is_header_hovered">
+                    <div class="pull-right" data-bind="click: archiveStatus, visible: is_header_hovered() &amp;&amp; ! is_editing_status()">
                         <i class="fa fa-times" title="{{ trans('texts.archive') }}"></i>
                     </div><br/>
                 </div>
