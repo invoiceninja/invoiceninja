@@ -74,6 +74,13 @@ Once you can access the site the initial setup screen will enable you to configu
 
 .. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
 
+Step 5: Enable auto updates
+"""""""""""""""""""""""""""
+
+Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process.
+
+You can run it as a daily cron to automatically keep your app up to date.
+
 Troubleshooting
 ^^^^^^^^^^^^^^^
 

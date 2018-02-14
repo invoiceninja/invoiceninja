@@ -306,7 +306,7 @@ class NinjaController extends BaseController
             'last_name' => $user->last_name,
             'email' => $user->email,
             'name' => $account->name,
-            'address1' =>  => $account->address1,
+            'address1' => $account->address1,
             'address2' => $account->address2,
             'city' => $account->city,
             'state' => $account->state,
