@@ -81,10 +81,18 @@ class QuoteCest
         $I->selectDropdown($I, $templateName, '.template-select .dropdown-toggle');
         $I->click('Save');
         $I->click('Download');
-        $I->click('More Actions');
-        $I->click('View as recipient');
-        $I->click('Download');
-        $I->click('Approve');
-        $I->see('Successfully approved');
+
+        $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId]);
+        $proposalId = $I->grabFromDatabase('proposals', 'id', ['invoice_id' => $invoiceId]);
+        $invitationKey = $I->grabFromDatabase('proposal_invitations', 'invitation_key', ['proposal_id' => $proposalId]);
+
+        $clientSession = $I->haveFriend('client');
+        $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
+            $I->amOnPage('/proposal/' . $invitationKey);
+            $I->click('Approve');
+            $I->see('Successfully approved');
+        });
+
     }
 }
