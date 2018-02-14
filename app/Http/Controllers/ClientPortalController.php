@@ -227,7 +227,7 @@ class ClientPortalController extends BaseController
         return $pdfString;
     }
 
-    public function sign($invitationKey)
+    public function authorizeInvoice($invitationKey)
     {
         if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return RESULT_FAILURE;

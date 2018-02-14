@@ -324,7 +324,7 @@
 					var data = false;
 				@endif
 				$.ajax({
-				    url: "{{ URL::to('sign/' . $invitation->invitation_key) }}",
+				    url: "{{ URL::to('authorize/' . $invitation->invitation_key) }}",
 				    type: 'PUT',
 					data: data,
 				    success: function(response) {

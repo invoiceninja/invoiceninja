@@ -148,6 +148,11 @@ class QuoteController extends BaseController
     {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.invitations')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
+        $account = $invoice->account;
+
+        if ($account->requiresAuthorization($invoice) && ! session('authorized:' . $invitation->invitation_key)) {
+            return redirect()->to('view/' . $invitation->invitation_key);
+        }
 
         if ($invoice->due_date) {
             $carbonDueDate = \Carbon::parse($invoice->due_date);
