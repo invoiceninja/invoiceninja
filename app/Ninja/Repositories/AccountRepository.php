@@ -152,16 +152,16 @@ class AccountRepository
         if ($user->hasPermission('view_all')) {
             $clients = Client::scope()
                         ->with('contacts', 'invoices')
-                        ->withArchived()
+                        ->withTrashed()
                         ->with(['contacts', 'invoices' => function ($query) use ($user) {
-                            $query->withArchived();
+                            $query->withTrashed();
                         }])->get();
         } else {
             $clients = Client::scope()
                         ->where('user_id', '=', $user->id)
-                        ->withArchived()
+                        ->withTrashed()
                         ->with(['contacts', 'invoices' => function ($query) use ($user) {
-                            $query->withArchived()
+                            $query->withTrashed()
                                   ->where('user_id', '=', $user->id);
                         }])->get();
         }
