@@ -93,7 +93,7 @@ class ClientPresenter extends EntityPresenter
 
         $city = e($client->{$prefix . 'city'});
         $state = e($client->{$prefix . 'state'});
-        $postalCode = e($client->{$prefix . 'post_code'});
+        $postalCode = e($client->{$prefix . 'postal_code'});
 
         if ($city || $state || $postalCode) {
             return Utils::cityStateZip($city, $state, $postalCode, $swap);
