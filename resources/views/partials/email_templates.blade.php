@@ -173,6 +173,9 @@
                             </ul>
                         @endif
                     </div>
+                </div><br/>
+                <div class="text-muted">
+                    {{ trans('texts.amount_variable_help') }}
                 </div>
             </div>
             </div>

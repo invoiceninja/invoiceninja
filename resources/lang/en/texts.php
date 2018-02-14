@@ -2745,6 +2745,7 @@ $LANG = array(
     'upgrade_to_upload_images' => 'Upgrade to the enterprise plan to upload images',
     'delete_image' => 'Delete Image',
     'delete_image_help' => 'Warning: deleting the image will remove it from all proposals.',
+    'amount_variable_help' => 'Note: the invoice $amount field will use the partial/deposit field if set otherwise it will use the invoice balance.',
 
 );
 
