@@ -56,7 +56,7 @@ class ClientPresenter extends EntityPresenter
         return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
     }
 
-    public function address($addressType = ADDRESS_BILLING)
+    public function address($addressType = ADDRESS_BILLING, $showHeader = false)
     {
         $str = '';
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
@@ -75,7 +75,7 @@ class ClientPresenter extends EntityPresenter
             $str .= e($country->getName()) . '<br/>';
         }
 
-        if ($str) {
+        if ($str && $showHeader) {
             $str = '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
         }
 

@@ -154,8 +154,12 @@
         <div class="col-md-3">
 			<h3>{{ trans('texts.address') }}</h3>
 
-            {!! $client->present()->address(ADDRESS_BILLING) !!}<br/>
-            {!! $client->present()->address(ADDRESS_SHIPPING) !!}
+            @if ($client->addressesMatch())
+                {!! $client->present()->address(ADDRESS_BILLING) !!}
+            @else
+                {!! $client->present()->address(ADDRESS_BILLING, true) !!}<br/>
+                {!! $client->present()->address(ADDRESS_SHIPPING, true) !!}
+            @endif
 
         </div>
 
