@@ -105,6 +105,7 @@ class AccountController extends BaseController
     public function getStarted()
     {
         $user = false;
+        $account = false;
         $guestKey = Input::get('guest_key'); // local storage key to login until registered
 
         if (Auth::check()) {
@@ -130,6 +131,12 @@ class AccountController extends BaseController
 
         Auth::login($user, true);
         event(new UserSignedUp());
+
+        if ($account && $account->language_id != DEFAULT_LANGUAGE) {
+            $link = link_to('/invoices/create?lang=en', 'click here');
+            $message = sprintf('Your account language has been set automatically, %s to change to English', $link);
+            Session::flash('warning', $message);
+        }
 
         $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
