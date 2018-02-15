@@ -20,7 +20,7 @@ class TaxRateDatatable extends EntityDatatable
             [
                 'rate',
                 function ($model) {
-                    return $model->rate . '%';
+                    return ($model->rate + 0) . '%';
                 },
             ],
             [
