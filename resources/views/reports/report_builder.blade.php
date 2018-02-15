@@ -92,7 +92,7 @@
 					$('#range').val(resolveRange(label));
 				}
 
-				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+				if (isStorageSupported() && label) {
 					localStorage.setItem('last:report_range', label);
 				}
             }
