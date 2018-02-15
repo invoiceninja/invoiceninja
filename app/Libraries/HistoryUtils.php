@@ -12,7 +12,8 @@ class HistoryUtils
     public static function loadHistory($users)
     {
         $userIds = [];
-
+        session([RECENTLY_VIEWED => false]);
+        
         if (is_array($users)) {
             foreach ($users as $user) {
                 $userIds[] = $user->user_id;
