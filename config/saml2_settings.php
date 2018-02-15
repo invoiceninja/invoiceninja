@@ -1,4 +1,5 @@
 <?php
+
 //This is variable is an example - Just make sure that the urls in the 'idp' config are ok.
 $idp_host = 'https://idp.ssocircle.com:443';
 return $settings = array(
@@ -46,10 +47,10 @@ return $settings = array(
     'givennameAttribute' => 'givenname',
     'accountAttribute' => 'ninja_account_key',
     /**
-      * Should we enable SAML logins?
-      */
+     * Should we enable SAML logins?
+     */
     'samlEnabled' => false,
-    /*****
+    /*     * ***
      * One Login Settings
      */
     // If 'strict' is True, then the PHP Toolkit will reject unsigned
@@ -107,13 +108,13 @@ return $settings = array(
         ),
         // Public x509 certificate of the IdP
         'x509cert' => 'MIIEYzCCAkugAwIBAgIDIAZmMA0GCSqGSIb3DQEBCwUAMC4xCzAJBgNVBAYTAkRFMRIwEAYDVQQKDAlTU09DaXJjbGUxCzAJBgNVBAMMAkNBMB4XDTE2MDgwMzE1MDMyM1oXDTI2MDMwNDE1MDMyM1owPTELMAkGA1UEBhMCREUxEjAQBgNVBAoTCVNTT0NpcmNsZTEaMBgGA1UEAxMRaWRwLnNzb2NpcmNsZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCAwWJyOYhYmWZF2TJvm1VyZccs3ZJ0TsNcoazr2pTWcY8WTRbIV9d06zYjngvWibyiylewGXcYONB106ZNUdNgrmFd5194Wsyx6bPvnjZEERny9LOfuwQaqDYeKhI6c+veXApnOfsY26u9Lqb9sga9JnCkUGRaoVrAVM3yfghv/Cg/QEg+I6SVES75tKdcLDTt/FwmAYDEBV8l52bcMDNF+JWtAuetI9/dWCBe9VTCasAr2Fxw1ZYTAiqGI9sW4kWS2ApedbqsgH3qqMlPA7tg9iKy8Yw/deEn0qQIx8GlVnQFpDgzG9k+jwBoebAYfGvMcO/BDXD2pbWTN+DvbURlAgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBQhAmCewE7aonAvyJfjImCRZDtccTAfBgNVHSMEGDAWgBTA1nEA+0za6ppLItkOX5yEp8cQaTANBgkqhkiG9w0BAQsFAAOCAgEAAhC5/WsF9ztJHgo+x9KV9bqVS0MmsgpG26yOAqFYwOSPmUuYmJmHgmKGjKrj1fdCINtzcBHFFBC1maGJ33lMk2bM2THx22/O93f4RFnFab7t23jRFcF0amQUOsDvltfJw7XCal8JdgPUg6TNC4Fy9XYv0OAHc3oDp3vl1Yj8/1qBg6Rc39kehmD5v8SKYmpE7yFKxDF1ol9DKDG/LvClSvnuVP0b4BWdBAA9aJSFtdNGgEvpEUqGkJ1osLVqCMvSYsUtHmapaX3hiM9RbX38jsSgsl44Rar5Ioc7KXOOZFGfEKyyUqucYpjWCOXJELAVAzp7XTvA2q55u31hO0w8Yx4uEQKlmxDuZmxpMz4EWARyjHSAuDKEW1RJvUr6+5uA9qeOKxLiKN1jo6eWAcl6Wr9MreXR9kFpS6kHllfdVSrJES4ST0uh1Jp4EYgmiyMmFCbUpKXifpsNWCLDenE3hllF0+q3wIdu+4P82RIM71n7qVgnDnK29wnLhHDat9rkC62CIbonpkVYmnReX0jze+7twRanJOMCJ+lFg16BDvBcG8u0n/wIDkHHitBI7bU1k6c6DydLQ+69h8SCo6sO9YuD+/3xAGKad4ImZ6vTwlB4zDCpu6YgQWocWRXE+VkOb+RBfvP755PUaLfL63AFVlpOnEpIio5++UjNJRuPuAA=',
-        /*
-         *  Instead of use the whole x509cert you can use a fingerprint
-         *  (openssl x509 -noout -fingerprint -in "idp.crt" to generate it)
-         */
-        // 'certFingerprint' => '',
+    /*
+     *  Instead of use the whole x509cert you can use a fingerprint
+     *  (openssl x509 -noout -fingerprint -in "idp.crt" to generate it)
+     */
+    // 'certFingerprint' => '',
     ),
-    /***
+    /*     * *
      *
      *  OneLogin advanced settings
      *
@@ -135,13 +136,13 @@ return $settings = array(
         // will be signed.
         'logoutResponseSigned' => false,
         /* Sign the Metadata
-         False || True (use sp certs) || array (
-                                                    keyFileName => 'metadata.key',
-                                                    certFileName => 'metadata.crt'
-                                                )
-        */
+          False || True (use sp certs) || array (
+          keyFileName => 'metadata.key',
+          certFileName => 'metadata.crt'
+          )
+         */
         'signMetadata' => false,
-        /** signatures and encryptions required **/
+        /** signatures and encryptions required * */
         // Indicates a requirement for the <samlp:Response>, <samlp:LogoutRequest> and
         // <samlp:LogoutResponse> elements received by this SP to be signed.
         'wantMessagesSigned' => false,
@@ -176,11 +177,11 @@ return $settings = array(
             'url' => 'http://url'
         ),
     ),
-/* Interoperable SAML 2.0 Web Browser SSO Profile [saml2int]   http://saml2int.org/profile/current
-   'authnRequestsSigned' => false,    // SP SHOULD NOT sign the <samlp:AuthnRequest>,
-                                      // MUST NOT assume that the IdP validates the sign
-   'wantAssertionsSigned' => true,
-   'wantAssertionsEncrypted' => true, // MUST be enabled if SSL/HTTPs is disabled
-   'wantNameIdEncrypted' => false,
-*/
+        /* Interoperable SAML 2.0 Web Browser SSO Profile [saml2int]   http://saml2int.org/profile/current
+          'authnRequestsSigned' => false,    // SP SHOULD NOT sign the <samlp:AuthnRequest>,
+          // MUST NOT assume that the IdP validates the sign
+          'wantAssertionsSigned' => true,
+          'wantAssertionsEncrypted' => true, // MUST be enabled if SSL/HTTPs is disabled
+          'wantNameIdEncrypted' => false,
+         */
 );
