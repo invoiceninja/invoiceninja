@@ -22,8 +22,4 @@ class SAMLController extends Controller
 			'sessionIndex'=>$sessionIndex
 		]);
 	}
-	public function loggedin()
-	{
-		return view('home');
-	}
 }
