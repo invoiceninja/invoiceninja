@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Http\Middleware;
+
 use Closure;
 
-class SamlAuth
-{
+class SamlAuth {
+
     /**
      * Handle an incoming request.
      *
@@ -11,20 +13,16 @@ class SamlAuth
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
-    {
-        if(\Auth::guest())
-		{
-			if($request->ajax())
-            {
+    public function handle($request, Closure $next) {
+        if (\Auth::guest()) {
+            if ($request->ajax()) {
                 return response('Unauthorized.', 401);
+            } else {
+                return \Redirect::guest('login');
             }
-            else
-            {
-				return \Redirect::guest('login');
-			}
-		}
-		
-		return $next($request);
+        }
+
+        return $next($request);
     }
+
 }
