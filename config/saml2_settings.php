@@ -32,7 +32,7 @@ return $settings = array(
     /**
      * Where to redirect after login if no other option was provided
      */
-    'loginRoute' => '/loggedin',
+    'loginRoute' => '/dashboard',
     /**
      * Where to redirect after login if no other option was provided
      */
@@ -44,6 +44,7 @@ return $settings = array(
     'firstnameAttribute' => '',
     'lastnameAttribute' => '',
     'givennameAttribute' => 'givenname',
+    'accountAttribute' => 'ninja_account_key',
     /**
       * Should we enable SAML logins?
       */
