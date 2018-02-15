@@ -1642,6 +1642,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         return false;
     }
 
+    public function isLocked()
+    {
+        if (! config('ninja.lock_sent_invoices')) {
+            return false;
+        }
+
+        return $this->isSent() && ! $this->is_recurring;
+    }
 }
 
 Invoice::creating(function ($invoice) {
