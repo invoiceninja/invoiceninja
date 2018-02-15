@@ -1162,7 +1162,9 @@
 
 	function createInvoiceModel() {
         var model = ko.toJS(window.model);
-        if(!model)return;
+        if (! model) {
+			return;
+		}
 		var invoice = model.invoice;
 		invoice.features = {
             customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
@@ -1193,6 +1195,10 @@
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
+
+		if (! invoice.public_id || NINJA.formIsChanged) {
+			invoice.watermark = "{{ trans('texts.preview') }}";
+		}
 
         return invoice;
 	}
