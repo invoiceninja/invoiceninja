@@ -162,6 +162,9 @@
     }
 
 	$(function() {
+        @if ($totalCredit)
+            $('#payment_type_id option:contains("{{ trans('texts.apply_credit') }}")').text("{{ trans('texts.apply_credit') }} | {{ $totalCredit}}");
+        @endif
 
         @if (Input::old('data'))
             // this means we failed so we'll reload the previous state
@@ -408,12 +411,14 @@
 
       if (invoiceId) {
         var invoice = invoiceMap[invoiceId];
-        var client = clientMap[invoice.client.public_id];
-        invoice.client = client;
-        setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' +
-                invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' +
-                formatMoneyInvoice(invoice.amount, invoice) + ' | ' + formatMoneyInvoice(invoice.balance, invoice)));
-        $invoiceSelect.trigger('change');
+        if (invoice) {
+            var client = clientMap[invoice.client.public_id];
+            invoice.client = client;
+            setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' +
+                    invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' +
+                    formatMoneyInvoice(invoice.amount, invoice) + ' | ' + formatMoneyInvoice(invoice.balance, invoice)));
+            $invoiceSelect.trigger('change');
+        }
       } else if (clientId) {
         var client = clientMap[clientId];
         setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
