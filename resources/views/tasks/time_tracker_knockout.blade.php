@@ -477,8 +477,10 @@
             if (self.selectedTask()) {
                 if (self.selectedTask().isRunning()) {
                     return "{{ trans('texts.stop') }}";
-                } else {
+                } else if (self.selectedTask().seconds() > 0) {
                     return "{{ trans('texts.resume') }}";
+                } else {
+                    return "{{ trans('texts.start') }}";
                 }
             } else {
                 return "{{ trans('texts.start') }}";
