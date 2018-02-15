@@ -132,7 +132,7 @@ class AccountController extends BaseController
         Auth::login($user, true);
         event(new UserSignedUp());
 
-        if ($account && $account->language_id != DEFAULT_LANGUAGE) {
+        if ($account && $account->language_id && $account->language_id != DEFAULT_LANGUAGE) {
             $link = link_to('/invoices/create?lang=en', 'click here');
             $message = sprintf('Your account language has been set automatically, %s to change to English', $link);
             Session::flash('warning', $message);
