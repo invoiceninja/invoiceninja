@@ -211,9 +211,7 @@ class InvoiceApiController extends BaseAPIController
                     $invoice = $recurringInvoice;
                 }
                 $reminder = isset($data['email_type']) ? $data['email_type'] : false;
-                if (auth()->user()->isTrusted()) {
-                    $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder));
-                }
+                $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder));
             }
         }
 
@@ -344,10 +342,6 @@ class InvoiceApiController extends BaseAPIController
 
     public function emailInvoice(InvoiceRequest $request)
     {
-        if (! auth()->user()->isTrusted()) {
-            return $this->errorResponse('Requires paid pro plan', 400);
-        }
-
         $invoice = $request->entity();
 
         if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
