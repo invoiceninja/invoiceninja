@@ -5,10 +5,9 @@
         <link href="{!! $fontsUrl !!}" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-
-    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('css/built.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('css/built.login.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/bootstrap.min.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/built.login.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
     @if (!empty($clientauth))
         <style type="text/css">{!! Utils::clientViewCSS() !!}</style>
