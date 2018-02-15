@@ -37,6 +37,17 @@ return $settings = array(
      * Where to redirect after login if no other option was provided
      */
     'errorRoute' => '/error',
+    /**
+     * Configure attribute mapping
+     */
+    'emailAttribute' => 'email',
+    'firstnameAttribute' => '',
+    'lastnameAttribute' => '',
+    'givennameAttribute' => 'givenname',
+    /**
+      * Should we enable SAML logins?
+      */
+    'samlEnabled' => false,
     /*****
      * One Login Settings
      */
