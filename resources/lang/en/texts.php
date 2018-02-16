@@ -1739,15 +1739,6 @@ $LANG = array(
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
     'lang_Thai' => 'Thai',
 
-    // Frequencies
-    'freq_weekly' => 'Weekly',
-    'freq_two_weeks' => 'Two weeks',
-    'freq_four_weeks' => 'Four weeks',
-    'freq_monthly' => 'Monthly',
-    'freq_three_months' => 'Three months',
-    'freq_six_months' => 'Six months',
-    'freq_annually' => 'Annually',
-
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
