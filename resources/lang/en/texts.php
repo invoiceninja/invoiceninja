@@ -2746,6 +2746,10 @@ $LANG = array(
     'delete_image' => 'Delete Image',
     'delete_image_help' => 'Warning: deleting the image will remove it from all proposals.',
     'amount_variable_help' => 'Note: the invoice $amount field will use the partial/deposit field if set otherwise it will use the invoice balance.',
+    'taxes_are_included_help' => 'Taxes are included with the cost.',
+    'taxes_are_not_included_help' => 'Taxes are excluded from the cost.',
+    'change_requires_purge' => 'Changing this setting requires :link the account data.',
+    'purging' => 'purging',
 
 );
 
