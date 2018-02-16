@@ -6,7 +6,7 @@
 
       $('#signUpModal').on('shown.bs.modal', function () {
         trackEvent('/account', '/view_sign_up');
-        // change the type after page load to prevent errors in Chrome console 
+        // change the type after page load to prevent errors in Chrome console
         $('#new_password').attr('type', 'password');
         $(['first_name','last_name','email','password']).each(function(i, field) {
           var $input = $('form.signUpForm #new_'+field);
@@ -36,7 +36,11 @@
 
 
   function showSignUp() {
-    $('#signUpModal').modal('show');
+    if (location.href.indexOf('/dashboard') == -1) {
+        location.href = "{{ url('/dashboard') }}?sign_up=true";
+    } else {
+        $('#signUpModal').modal('show');
+    }
   }
 
   function hideSignUp() {
@@ -214,18 +218,22 @@
                 {!! Former::text('new_first_name')
                         ->placeholder(trans('texts.first_name'))
                         ->autocomplete('given-name')
+                        ->data_lpignore('true')
                         ->label(' ') !!}
                 {!! Former::text('new_last_name')
                         ->placeholder(trans('texts.last_name'))
                         ->autocomplete('family-name')
+                        ->data_lpignore('true')
                         ->label(' ') !!}
                 {!! Former::text('new_email')
                         ->placeholder(trans('texts.email'))
                         ->autocomplete('email')
+                        ->data_lpignore('true')
                         ->label(' ') !!}
                 {!! Former::text('new_password')
                         ->placeholder(trans('texts.password'))
                         ->autocomplete('new-password')
+                        ->data_lpignore('true')
                         ->label(' ') !!}
 
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}

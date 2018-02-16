@@ -138,7 +138,7 @@ class AccountController extends BaseController
             Session::flash('warning', $message);
         }
 
-        $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
+        $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'dashboard';
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
     }
 
