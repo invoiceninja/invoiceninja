@@ -3,6 +3,8 @@
 @section('head')
 	@parent
 
+	@include('money_script')
+
     <script src="{{ asset('js/daterangepicker.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/daterangepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
@@ -446,9 +448,9 @@
 
 	var sumColumns = [];
 	@foreach ($columns as $column => $class)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration', 'tax']) ? trans("texts.{$column}") : false }}");
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration', 'tax', 'qty']) ? trans("texts.{$column}") : false }}");
 	@endforeach
-	console.log(sumColumns);
+
     $(function() {
         $('.start_date .input-group-addon').click(function() {
             toggleDatePicker('start_date');
@@ -501,6 +503,7 @@
 			if (str.indexOf(':') >= 0) {
 				return roundToTwo(moment.duration(str).asHours());
 			} else {
+				return NINJA.parseFloat(str);
 				var number = Number(str.replace(/[^0-9\-]+/g, ''));
 				return number / 100;
 			}
