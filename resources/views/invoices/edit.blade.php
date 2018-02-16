@@ -1197,7 +1197,7 @@
 		@endif
 
 		if (! invoice.public_id || NINJA.formIsChanged) {
-			invoice.watermark = "{{ trans('texts.preview') }}";
+			invoice.watermark = "{{ strtoupper(trans('texts.preview')) }}";
 		}
 
         return invoice;
