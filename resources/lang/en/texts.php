@@ -2741,6 +2741,7 @@ $LANG = array(
     'taxes_are_not_included_help' => 'Taxes are excluded from the cost.',
     'change_requires_purge' => 'Changing this setting requires :link the account data.',
     'purging' => 'purging',
+    'warning_local_refund' => 'The refund will be recorded in the app but will NOT be processed by the payment gateway.',
 
 );
 

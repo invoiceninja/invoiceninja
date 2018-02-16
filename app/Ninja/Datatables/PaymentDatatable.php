@@ -146,8 +146,9 @@ class PaymentDatatable extends EntityDatatable
                     $max_refund = number_format($model->amount - $model->refunded, 2);
                     $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
                     $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol;
+                    $local = in_array($model->gateway_id, [GATEWAY_BRAINTREE, GATEWAY_STRIPE, GATEWAY_WEPAY]) || ! $model->gateway_id ? 0 : 1;
 
-                    return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
+                    return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}', {$local})";
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id])
