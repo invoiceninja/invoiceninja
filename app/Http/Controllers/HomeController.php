@@ -161,7 +161,7 @@ class HomeController extends BaseController
                 }
                 $subject .= '] ';
             } else {
-                $subject .= 'Self-Host | ';
+                $subject .= 'Self-Host] | ';
             }
             $subject .= date('M jS, g:ia');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
