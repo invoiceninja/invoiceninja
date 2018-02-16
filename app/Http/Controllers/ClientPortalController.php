@@ -998,7 +998,7 @@ class ClientPortalController extends BaseController
             $rules['first_name'] = 'required';
             $rules['last_name'] = 'required';
         }
-        if ($account->vat_number) {
+        if ($account->vat_number || $account->isNinjaAccount()) {
             $rules['vat_number'] = 'required';
         }
 

@@ -69,7 +69,7 @@
                                 ->placeholder(trans('texts.email'))
                                 ->label('') !!}
                     </div>
-                    @if ($account->vat_number)
+                    @if ($account->vat_number || $account->isNinjaAccount())
                         <div class="col-md-6">
                             {!! Former::text('vat_number')
                                     ->placeholder(trans('texts.vat_number'))
