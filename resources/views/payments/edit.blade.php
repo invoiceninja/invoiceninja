@@ -162,7 +162,7 @@
     }
 
 	$(function() {
-        @if ($totalCredit)
+        @if (! empty($totalCredit))
             $('#payment_type_id option:contains("{{ trans('texts.apply_credit') }}")').text("{{ trans('texts.apply_credit') }} | {{ $totalCredit}}");
         @endif
 
