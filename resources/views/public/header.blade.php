@@ -72,14 +72,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
+                @if (empty($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                     {{-- Per our license, please do not remove or modify this link. --}}
                     <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img
                                 src="{{ asset('images/invoiceninja-logo.png') }}" style="height:27px"></a>
                 @endif
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                @if (isset($account) && $account->enable_client_portal)
+                @if (!empty($account) && $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
                     @if (isset($account) && $account->enable_client_portal_dashboard)
                         <li {!! Request::is('*client/dashboard*') ? 'class="active"' : '' !!}>
@@ -99,7 +99,7 @@
                     <li {!! Request::is('*client/invoices') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                     </li>
-                    @if (isset($account)
+                    @if (!empty($account)
                         && $account->hasFeature(FEATURE_DOCUMENTS)
                         && (isset($hasDocuments) && $hasDocuments))
                         <li {!! Request::is('*client/documents') ? 'class="active"' : '' !!}>
@@ -155,7 +155,7 @@
 <footer id="footer" role="contentinfo">
     <div class="top">
         <div class="wrap">
-            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
+            @if (empty($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
                     <li id="menu-item-31" class="menu-item-31">
@@ -178,7 +178,7 @@
 
     <div class="bottom">
         <div class="wrap">
-            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
+            @if (empty($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                 <div class="copy">Copyright &copy;{{ date('Y') }} <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
             @endif
         </div><!-- .wrap -->
