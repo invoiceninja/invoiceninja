@@ -76,7 +76,7 @@
         }
 
         .kanban-column-row .panel.hovered {
-            xborder-color: #6394e8 !important;
+            background-color: #FDFDFD;
         }
 
         .kanban-column-row div {
@@ -247,7 +247,7 @@
 
             self.startNewStatus = function() {
                 self.is_adding_status(true);
-                $('.kanban-column-last .kanban-column-row.editing textarea').focus();
+                $('#newStatusName').val('').focus();
             }
 
             self.cancelNewStatus = function() {
@@ -787,17 +787,15 @@
                     </a>
                 </div>
                 <div class="edit">
-                    <input data-bind="value: new_status, valueUpdate: 'afterkeydown',
-                        hasfocus: is_adding_status, selected: is_adding_status, enterkey: saveNewStatus"></textarea>
+                    <input id="newStatusName" data-bind="value: new_status, valueUpdate: 'afterkeydown',
+                        enterkey: saveNewStatus, escapekey: cancelNewStatus"></textarea>
                     <div class="pull-right" style="padding-top:6px">
                         <button type='button' class='btn btn-default btn-sm' data-bind="click: cancelNewStatus">
                             {{ trans('texts.cancel') }}
                         </button>
-                        <!--
                         <button type='button' class='btn btn-success btn-sm' data-bind="click: saveNewStatus">
                             {{ trans('texts.save') }}
                         </button>
-                        -->
                     </div>
                 </div>
             </div>
