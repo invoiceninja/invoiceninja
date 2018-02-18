@@ -231,6 +231,25 @@
                 window['pjsc_meta'].remainingTasks++;
             }
 
+			function waitForSignature() {
+				if (window.signatureAsPNG) {
+					writePdfAsString();
+				} else {
+					window.setTimeout(waitForSignature, 100);
+				}
+			}
+
+			function writePdfAsString() {
+				doc = getPDFString();
+				doc.getDataUrl(function(pdfString) {
+					document.write(pdfString);
+					document.close();
+					if (window.hasOwnProperty('pjsc_meta')) {
+						window['pjsc_meta'].remainingTasks--;
+					}
+				});
+			}
+
 			$(function() {
                 @if (Input::has('phantomjs'))
 					@if (Input::has('phantomjs_balances'))
@@ -240,14 +259,12 @@
 							window['pjsc_meta'].remainingTasks--;
 						}
 					@else
-		                doc = getPDFString();
-		                doc.getDataUrl(function(pdfString) {
-		                    document.write(pdfString);
-		                    document.close();
-		                    if (window.hasOwnProperty('pjsc_meta')) {
-		                        window['pjsc_meta'].remainingTasks--;
-		                    }
-		                });
+						@if ($account->signature_on_pdf)
+							refreshPDF();
+							waitForSignature();
+						@else
+							writePdfAsString();
+						@endif
 					@endif
                 @else
                     refreshPDF();
