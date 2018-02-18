@@ -23,6 +23,7 @@ class VerifyCsrfToken extends BaseVerifier
         'payment_hook/*',
         'buy_now*',
         'hook/bot/*',
+        'saml2/*',
     ];
 
     /**
