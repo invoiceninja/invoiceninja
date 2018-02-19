@@ -295,13 +295,18 @@ class AccountController extends BaseController
         } elseif ($section === ACCOUNT_SYSTEM_SETTINGS) {
             return self::showSystemSettings();
         } else {
+            $view = "accounts.{$section}";
+            if (! view()->exists($view)) {
+                return redirect('/settings/company_details');
+            }
+
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'title' => trans("texts.{$section}"),
                 'section' => $section,
             ];
 
-            return View::make("accounts.{$section}", $data);
+            return View::make($view, $data);
         }
     }
 
