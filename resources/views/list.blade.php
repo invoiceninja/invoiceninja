@@ -90,12 +90,18 @@
 			  ['label' => trans('texts.new_recurring_expense'), 'url' => url('/recurring_expenses/create')],
 			]
 		  )->split() !!}
-	    {!! DropdownButton::normal(trans('texts.categories'))
-			->withAttributes(['class'=>'categoriesDropdown'])
-			->withContents([
-			  ['label' => trans('texts.new_expense_category'), 'url' => url('/expense_categories/create')],
-			]
-		  )->split() !!}
+		@if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+			{!! DropdownButton::normal(trans('texts.categories'))
+                ->withAttributes(['class'=>'categoriesDropdown'])
+                ->withContents([
+                  ['label' => trans('texts.new_expense_category'), 'url' => url('/expense_categories/create')],
+                ]
+              )->split() !!}
+		@else
+			{!! DropdownButton::normal(trans('texts.categories'))
+                ->withAttributes(['class'=>'categoriesDropdown'])
+                ->split() !!}
+		@endif
 	  	<script type="text/javascript">
 		  	$(function() {
 				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
