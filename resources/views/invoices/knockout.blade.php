@@ -345,6 +345,7 @@ function InvoiceModel(data) {
             return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate1IsInclusive(parts.shift());
             self.tax_rate1(parts.shift());
@@ -357,6 +358,7 @@ function InvoiceModel(data) {
             return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate2IsInclusive(parts.shift());
             self.tax_rate2(parts.shift());
@@ -844,6 +846,7 @@ function ItemModel(data) {
             return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate1IsInclusive(parts.shift());
             self.tax_rate1(parts.shift());
@@ -856,6 +859,7 @@ function ItemModel(data) {
             return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate2IsInclusive(parts.shift());
             self.tax_rate2(parts.shift());
