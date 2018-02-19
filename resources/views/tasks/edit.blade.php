@@ -638,8 +638,10 @@
 
         if (projectId) {
            var project = projectMap[projectId];
-           setComboboxValue($('.project-select'), project.public_id, project.name);
-           $projectSelect.trigger('change');
+           if (project) {
+               setComboboxValue($('.project-select'), project.public_id, project.name);
+               $projectSelect.trigger('change');
+           }
         } else {
            $clientSelect.trigger('change');
         }
