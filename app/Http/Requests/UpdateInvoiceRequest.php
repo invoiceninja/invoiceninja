@@ -31,7 +31,7 @@ class UpdateInvoiceRequest extends InvoiceRequest
 
         $rules = [
             'client' => 'required',
-            'invoice_items' => 'valid_invoice_items',
+            'invoice_items' => 'required|valid_invoice_items',
             'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',
             'invoice_date' => 'required',
