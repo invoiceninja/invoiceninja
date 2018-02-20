@@ -225,9 +225,14 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\InvoiceListener@jobFailed'
         ],
 
-        //DNS
+        //DNS Add A record to Cloudflare
         'App\Events\SubdomainWasUpdated' => [
             'App\Listeners\DNSListener@addDNSRecord'
+        ],
+
+        //DNS Remove A record from Cloudflare
+        'App\Events\SubdomainWasRemoved' => [
+            'App\Listeners\DNSListener@removeDNSRecord'
         ]
 
         /*
