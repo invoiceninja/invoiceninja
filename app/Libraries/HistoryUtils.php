@@ -13,7 +13,7 @@ class HistoryUtils
     {
         $userIds = [];
         session([RECENTLY_VIEWED => false]);
-        
+
         if (is_array($users)) {
             foreach ($users as $user) {
                 $userIds[] = $user->user_id;
@@ -93,6 +93,10 @@ class HistoryUtils
         ];
 
         if (! in_array($entityType, $trackedTypes)) {
+            return;
+        }
+
+        if ($entity->is_deleted) {
             return;
         }
 
