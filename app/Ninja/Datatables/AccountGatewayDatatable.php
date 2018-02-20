@@ -22,17 +22,19 @@ class AccountGatewayDatatable extends EntityDatatable
             [
                 'gateway',
                 function ($model) {
+                    $accountGateway = $this->getAccountGateway($model->id);
                     if ($model->deleted_at) {
                         return $model->name;
                     } elseif ($model->gateway_id == GATEWAY_CUSTOM) {
-                        $accountGateway = $this->getAccountGateway($model->id);
                         $name = $accountGateway->getConfigField('name') . ' [' . trans('texts.custom') . ']';
-
                         return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
                     } elseif ($model->gateway_id != GATEWAY_WEPAY) {
-                        return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
+                        $name = $model->name;
+                        if ($accountGateway->isTestMode()) {
+                            $name .= sprintf(' [%s]', trans('texts.test'));
+                        }
+                        return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
                     } else {
-                        $accountGateway = $this->getAccountGateway($model->id);
                         $config = $accountGateway->getConfig();
                         $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
                         $wepayAccountId = $config->accountId;
