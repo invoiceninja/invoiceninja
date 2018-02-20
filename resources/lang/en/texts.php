@@ -99,9 +99,9 @@ $LANG = array(
         <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
         <p>Examples of dynamic invoice variables:</p>
         <ul>
-          <li>"Gym membership for the month of :MONTH" => "Gym membership for the month of July"</li>
-          <li>":YEAR+1 yearly subscription" => "2015 Yearly Subscription"</li>
-          <li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
+          <li>"Gym membership for the month of :MONTH" >> "Gym membership for the month of July"</li>
+          <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
+          <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
         </ul>',
     'in_total_revenue' => 'in total revenue',
     'billed_client' => 'billed client',
@@ -200,7 +200,7 @@ $LANG = array(
     'limit_clients' => 'Sorry, this will exceed the limit of :count clients',
     'payment_error' => 'There was an error processing your payment. Please try again later.',
     'registration_required' => 'Please sign up to email an invoice',
-    'confirmation_required' => 'Please confirm your email address, <a href=\'/resend_confirmation\'>click here</a> to resend the confirmation email.',
+    'confirmation_required' => 'Please confirm your email address, :link to resend the confirmation email.',
     'updated_client' => 'Successfully updated client',
     'created_client' => 'Successfully created client',
     'archived_client' => 'Successfully archived client',
@@ -655,8 +655,10 @@ $LANG = array(
     'created_by_invoice' => 'Created by :invoice',
     'primary_user' => 'Primary User',
     'help' => 'Help',
-    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
+    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
+                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
+    'playground' => 'playground',
+    'support_forum' => 'support forum',
     'invoice_due_date' => 'Due Date',
     'quote_due_date' => 'Valid Until',
     'valid_until' => 'Valid Until',
@@ -1009,9 +1011,11 @@ $LANG = array(
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
     'limit_users' => 'Sorry, this will exceed the limit of :limit users',
     'more_designs_self_host_header' => 'Get 6 more invoice designs for just $:price',
-    'old_browser' => 'Please use a <a href=":link" target="_blank">newer browser</a>',
+    'old_browser' => 'Please use a :link',
+    'newer_browser' => 'newer browser',
     'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and :link.',
+    'us_banks' => '400+ US banks',
 
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
@@ -1825,7 +1829,7 @@ $LANG = array(
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_product_to_invoice' => 'Add 1 :product',
     'not_authorized' => 'You are not authorized',
-    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account on <a href="https://www.invoiceninja.com">invoiceninja.com</a> to use this bot.<br/>Send me your account email address to get started.',
+    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>You need to create a free account to use this bot.<br/>Send me your account email address to get started.',
     'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
     'bot_welcome' => 'That\'s it, your account is verified.<br/>',
     'email_not_found' => 'I wasn\'t able to find an available account for :email',
@@ -2400,7 +2404,8 @@ $LANG = array(
     'currency_ugandan_shilling' => 'Ugandan Shilling',
     'currency_barbadian_dollar' => 'Barbadian Dollar',
     'currency_brunei_dollar' => 'Brunei Dollar',
-    'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
+    'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
+    'writing_a_review' => 'writing a review',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
@@ -2611,7 +2616,7 @@ $LANG = array(
     'unable_to_delete_primary' => 'Note: to delete this company first delete all linked companies.',
     'please_register' => 'Please register your account',
     'processing_request' => 'Processing request',
-    'mcrypt_warning' => 'Warning: Mcrypt is deprecated, run <code>php artisan ninja:update-key --legacy=true</code> to update your cipher.',
+    'mcrypt_warning' => 'Warning: Mcrypt is deprecated, run :command to update your cipher.',
     'edit_times' => 'Edit Times',
     'inclusive_taxes_help' => 'Include <b>taxes in the cost</b>',
     'inclusive_taxes_notice' => 'This setting can not be changed once an invoice has been created.',

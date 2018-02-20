@@ -228,7 +228,11 @@
 		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
 		  <div class="panel panel-default">
 		  <div class="panel-body">
-	            {!! trans('texts.customize_help') !!}<br/>
+	            {!! trans('texts.customize_help', [
+						'pdfmake_link' => link_to('http://pdfmake.org', 'pdfmake', ['target' => '_blank']),
+						'playground_link' => link_to('http://pdfmake.org/playground.html', trans('texts.playground'), ['target' => '_blank']),
+						'forum_link' => link_to('https://www.invoiceninja.com/forums/forum/support', trans('texts.support_forum'), ['target' => '_blank']),
+					]) !!}<br/>
 
 				@include('partials/variables_help', ['entityType' => ENTITY_INVOICE, 'account' => $account])
 

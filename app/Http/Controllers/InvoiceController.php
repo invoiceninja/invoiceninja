@@ -403,7 +403,11 @@ class InvoiceController extends BaseController
         }
 
         if (! Auth::user()->confirmed) {
-            $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
+            if (Auth::user()->registered) {
+                $errorMessage = trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]);
+            } else {
+                $errorMessage = trans('texts.registration_required');
+            }
             Session::flash('error', $errorMessage);
 
             return Redirect::to('invoices/'.$invoice->public_id.'/edit');

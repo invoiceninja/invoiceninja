@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon;
 use App\Libraries\CurlUtils;
 use DB;
+use App;
 use Exception;
 use Illuminate\Console\Command;
 use Mail;
@@ -81,6 +82,7 @@ class CheckData extends Command
         }
 
         //$this->checkInvoices();
+        $this->checkTranslations();
         $this->checkInvoiceBalances();
         $this->checkClientBalances();
         $this->checkContacts();
@@ -113,6 +115,44 @@ class CheckData extends Command
         $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
+    }
+
+    private function checkTranslations()
+    {
+        $invalid = 0;
+
+        foreach (cache('languages') as $language) {
+            App::setLocale($language->locale);
+            foreach (trans('texts') as $text) {
+                if ($language->locale != 'en') {
+                    continue;
+                }
+
+                if (strpos($text, '=') !== false) {
+                    $invalid++;
+                    $this->logMessage($language->locale . ' is invalid: ' . $text);
+                }
+
+                preg_match('/(.script)/', strtolower($text), $matches);
+                if (count($matches)) {
+                    foreach ($matches as $match) {
+                        if (in_array($match, ['escript', 'bscript', 'nscript'])) {
+                            continue;
+                        }
+                        $invalid++;
+                        $this->logMessage($language->locale . ' is invalid: ' . $text);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($invalid > 0) {
+            $this->isValid = false;
+        }
+
+        App::setLocale('en');
+        $this->logMessage($invalid . ' invalid languages');
     }
 
     private function checkDraftSentInvoices()
