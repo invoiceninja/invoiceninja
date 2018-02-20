@@ -347,13 +347,23 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 continue;
             }
 
+            field = match.replace('$invoice.', '$');
+
             // legacy style had 'Value' at the end
-            if (endsWith(match, 'Value"')) {
-                field = match.substring(2, match.indexOf('Value'));
+            if (endsWith(field, 'Value"')) {
+                field = field.substring(2, field.indexOf('Value'));
             } else {
-                field = match.substring(2, match.length - 1);
+                field = field.substring(2, field.length - 1);
             }
             field = toSnakeCase(field);
+
+            if (field == 'footer') {
+                field = 'invoice_footer';
+            } else if (match == '$account.phone') {
+                field = 'account.work_phone';
+            } else if (match == '$client.phone') {
+                field = 'client.phone';
+            }
 
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value) + '';

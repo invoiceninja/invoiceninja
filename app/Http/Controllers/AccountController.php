@@ -627,21 +627,6 @@ class AccountController extends BaseController
             } else {
                 $data['customDesign'] = $design;
             }
-
-            // sample invoice to help determine variables
-            $invoice = Invoice::scope()
-                            ->invoiceType(INVOICE_TYPE_STANDARD)
-                            ->with('client', 'account')
-                            ->where('is_recurring', '=', false)
-                            ->first();
-
-            if ($invoice) {
-                $invoice->hidePrivateFields();
-                unset($invoice->account);
-                unset($invoice->invoice_items);
-                unset($invoice->client->contacts);
-                $data['sampleInvoice'] = $invoice;
-            }
         }
 
         return View::make("accounts.{$section}", $data);
