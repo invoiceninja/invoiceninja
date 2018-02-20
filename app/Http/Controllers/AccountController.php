@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SubdomainWasRemoved;
 use App\Events\SubdomainWasUpdated;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
@@ -630,10 +631,10 @@ class AccountController extends BaseController
 
             // sample invoice to help determine variables
             $invoice = Invoice::scope()
-                            ->invoiceType(INVOICE_TYPE_STANDARD)
-                            ->with('client', 'account')
-                            ->where('is_recurring', '=', false)
-                            ->first();
+                ->invoiceType(INVOICE_TYPE_STANDARD)
+                ->with('client', 'account')
+                ->where('is_recurring', '=', false)
+                ->first();
 
             if ($invoice) {
                 $invoice->hidePrivateFields();
@@ -824,18 +825,27 @@ class AccountController extends BaseController
             }
         }
 
+
+        (bool) $fireUpdateSubdomainEvent = false;
+
         if ($account->subdomain !== $request->subdomain) {
-            event(new SubdomainWasUpdated($account));
+            $fireUpdateSubdomainEvent = true;
+            event(new SubdomainWasRemoved($account));
         }
 
         $account->fill($request->all());
         $account->client_view_css = $request->client_view_css;
-		$account->subdomain = $request->subdomain;
+        $account->subdomain = $request->subdomain;
         $account->iframe_url = $request->iframe_url;
         $account->save();
 
+        if ($fireUpdateSubdomainEvent) {
+            event(new SubdomainWasUpdated($account));
+        }
+
+
         return redirect('settings/' . ACCOUNT_CLIENT_PORTAL)
-                ->with('message', trans('texts.updated_settings'));
+            ->with('message', trans('texts.updated_settings'));
     }
 
     /**
@@ -852,7 +862,7 @@ class AccountController extends BaseController
         $settings->save();
 
         return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
-                ->with('message', trans('texts.updated_settings'));
+            ->with('message', trans('texts.updated_settings'));
     }
 
     /**
@@ -1007,8 +1017,8 @@ class AccountController extends BaseController
                 }
 
                 if (! $account->share_counter
-                        && $account->invoice_number_prefix == $account->quote_number_prefix
-                        && $account->invoice_number_pattern == $account->quote_number_pattern) {
+                    && $account->invoice_number_prefix == $account->quote_number_prefix
+                    && $account->invoice_number_pattern == $account->quote_number_pattern) {
                     Session::flash('error', trans('texts.invalid_counter'));
 
                     return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
@@ -1311,8 +1321,8 @@ class AccountController extends BaseController
         }
 
         $email = User::withTrashed()->where('email', '=', $email)
-                                    ->where('id', '<>', $user->registered ? 0 : $user->id)
-                                    ->first();
+            ->where('id', '<>', $user->registered ? 0 : $user->id)
+            ->first();
 
         if ($email) {
             return 'taken';
@@ -1520,8 +1530,8 @@ class AccountController extends BaseController
     {
         $template = Input::get('template');
         $invitation = \App\Models\Invitation::scope()
-                        ->with('invoice.client.contacts')
-                        ->first();
+            ->with('invoice.client.contacts')
+            ->first();
 
         if (! $invitation) {
             return trans('texts.create_invoice_for_sample');
