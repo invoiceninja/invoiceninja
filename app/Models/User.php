@@ -319,9 +319,7 @@ class User extends Authenticatable
      */
     public function isEmailBeingChanged()
     {
-        return Utils::isNinjaProd()
-                && $this->email != $this->getOriginal('email')
-                && $this->getOriginal('confirmed');
+        return Utils::isNinjaProd() && $this->email != $this->getOriginal('email');
     }
 
      /**

@@ -2742,6 +2742,8 @@ $LANG = array(
     'change_requires_purge' => 'Changing this setting requires :link the account data.',
     'purging' => 'purging',
     'warning_local_refund' => 'The refund will be recorded in the app but will NOT be processed by the payment gateway.',
+    'email_address_changed' => 'Email address has been changed',
+    'email_address_changed_message' => 'The email address for your account has been changed from :old_email to :new_email.',
 
 );
 

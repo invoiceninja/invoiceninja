@@ -46,6 +46,8 @@ class HandleUserSettingsChanged
 
         if ($event->user && $event->user->isEmailBeingChanged()) {
             $this->userMailer->sendConfirmation($event->user);
+            $this->userMailer->sendEmailChanged($event->user);
+            
             Session::flash('warning', trans('texts.verify_email'));
         }
     }
