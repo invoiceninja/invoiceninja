@@ -193,7 +193,7 @@ class AccountRepository
 
             foreach ($client->contacts as $contact) {
                 $data['contacts'][] = [
-                    'value' => $contact->getDisplayName(),
+                    'value' => $contact->getSearchName(),
                     'tokens' => implode(',', [$contact->first_name, $contact->last_name, $contact->email, $contact->phone]),
                     'url' => $client->present()->url,
                 ];
