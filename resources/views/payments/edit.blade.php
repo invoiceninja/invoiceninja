@@ -227,6 +227,10 @@
             var amount = $('#amount').val();
 
             if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
+                if (NINJA.formIsSubmitted) {
+        			return false;
+        		}
+        		NINJA.formIsSubmitted = true;
                 $('#saveButton').attr('disabled', true);
                 return true;
             } else {

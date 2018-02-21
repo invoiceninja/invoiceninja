@@ -10,10 +10,6 @@
             $(function() {
                 $('.payment-form').unbind('submit').submit(function(event) {
                     event.preventDefault();
-                    if (NINJA.formIsSubmitted) {
-                        return false;
-                    }
-                    NINJA.formIsSubmitted = true;
 
                     if ($('[name=plaidAccountId]').length) {
                         return;
@@ -53,6 +49,11 @@
                         }
                     }
 
+                    if (NINJA.formIsSubmitted) {
+                        return false;
+                    }
+                    NINJA.formIsSubmitted = true;
+
                     // Disable the submit button to prevent repeated clicks
                     $form.find('button').prop('disabled', true);
                     $('#js-error-message').hide();
@@ -72,6 +73,7 @@
                     // Show the errors on the form
                     var error = response.error.message;
                     $form.find('button').prop('disabled', false);
+                    NINJA.formIsSubmitted = false;
                     $('#js-error-message').html(error).fadeIn();
                 } else {
                     // response contains id and card, which contains additional card details

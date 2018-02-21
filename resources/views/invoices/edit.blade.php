@@ -1465,9 +1465,10 @@
         }
 
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
-            if ($('#saveButton').is(':disabled')) {
-                return false;
-            }
+			if (NINJA.formIsSubmitted) {
+				return false;
+			}
+			NINJA.formIsSubmitted = true;
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
@@ -1489,6 +1490,7 @@
 	function handleSaveFailed(data) {
 		$('#saveButton, #emailButton, #draftButton').attr('disabled', false);
 		$('#emailModal div.modal-footer button').attr('disabled', false);
+		NINJA.formIsSubmitted = false;
 		var error = '';
 		if (data) {
 			var error = firstJSONError(data.responseJSON) || data.statusText;
