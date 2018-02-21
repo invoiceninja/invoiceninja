@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use Crawler;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -51,11 +50,12 @@ class Handler extends ExceptionHandler
             return false;
         }
 
-        if (! class_exists('Utils')) {
+        // if these classes don't exist the install is broken, maybe due to permissions
+        if (! class_exists('Utils') || ! class_exists('Crawler')) {
             return parent::report($e);
         }
 
-        if (Crawler::isCrawler()) {
+        if (\Crawler::isCrawler()) {
             return false;
         }
 
