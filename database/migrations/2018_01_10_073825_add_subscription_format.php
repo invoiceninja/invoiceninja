@@ -154,6 +154,8 @@ class AddSubscriptionFormat extends Migration
 
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
         });
+
+        DB::table('languages')->where('locale', '=', 'en_UK')->update(['locale' => 'en_GB']);
     }
 
     /**

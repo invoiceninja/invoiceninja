@@ -31,7 +31,7 @@ class LanguageSeeder extends Seeder
             ['name' => 'Croatian', 'locale' => 'hr'],
             ['name' => 'Albanian', 'locale' => 'sq'],
             ['name' => 'Greek', 'locale' => 'el'],
-            ['name' => 'English - United Kingdom', 'locale' => 'en_UK'],
+            ['name' => 'English - United Kingdom', 'locale' => 'en_GB'],
             ['name' => 'Portuguese - Portugal', 'locale' => 'pt_PT'],
             ['name' => 'Slovenian', 'locale' => 'sl'],
             ['name' => 'Finnish', 'locale' => 'fi'],

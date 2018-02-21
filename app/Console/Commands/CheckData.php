@@ -124,10 +124,6 @@ class CheckData extends Command
         foreach (cache('languages') as $language) {
             App::setLocale($language->locale);
             foreach (trans('texts') as $text) {
-                if ($language->locale != 'en') {
-                    continue;
-                }
-
                 if (strpos($text, '=') !== false) {
                     $invalid++;
                     $this->logMessage($language->locale . ' is invalid: ' . $text);
@@ -140,7 +136,7 @@ class CheckData extends Command
                             continue;
                         }
                         $invalid++;
-                        $this->logMessage($language->locale . ' is invalid: ' . $text);
+                        $this->logMessage(sprintf('%s is invalid: %s', $language->locale, $text));
                         break;
                     }
                 }
@@ -152,7 +148,7 @@ class CheckData extends Command
         }
 
         App::setLocale('en');
-        $this->logMessage($invalid . ' invalid languages');
+        $this->logMessage($invalid . ' invalid text strings');
     }
 
     private function checkDraftSentInvoices()

@@ -99,9 +99,9 @@ $LANG = array(
     <p>Utiliser :MONTH, :QUARTER ou :YEAR pour des dates dynamiques. Les opérations simples fonctionnent également, par exemple :MONTH-1.</p>
     <p>Exemples de variables dynamiques pour les factures:</p>
     <ul>
-    <li>"Adhésion au club de gym pour le mois de :MONTH" => "Adhésion au club de gym pour le mois de Juillet"</li>
-    <li>":YEAR+1 - abonnement annuel" => "2015 - abonnement annuel"</li>
-    <li>"Acompte pour le :QUARTER+1" => "Acompte pour le Q2"</li>
+    <li>"Adhésion au club de gym pour le mois de :MONTH" >> "Adhésion au club de gym pour le mois de Juillet"</li>
+    <li>":YEAR+1 - abonnement annuel" >> "2015 - abonnement annuel"</li>
+    <li>"Acompte pour le :QUARTER+1" >> "Acompte pour le Q2"</li>
     </ul>',
     'in_total_revenue' => 'de bénéfice total',
     'billed_client' => 'client facturé',
@@ -649,9 +649,8 @@ $LANG = array(
     'created_by_invoice' => 'Créée par :invoice',
     'primary_user' => 'Utilisateur principal',
     'help' => 'Aide',
-    'customize_help' => '<p>Nous utilisons <a href="http://pdfmake.org/" target="_blank">pdfmake</a> pour définir la présentation graphique des factures de manière déclarative. Pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> fournit une excellente façon de voir la librairie en action.</p>
-                        <p>Vous pouvez accéder une propriété enfant en utilisant la notation par point. Par exemple, pour afficher le nom du client, vous pouvez utiliser <code>$client.name</code>.</p>
-                        <p>Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur notre <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forum d\'aide</a> avec la présentation graphique que vous utilisez.</p>',
+    'customize_help' => '<p>Nous utilisons :pdfmake_link pour définir la présentation graphique des factures de manière déclarative. Pdfmake :playground_link fournit une excellente façon de voir la librairie en action.</p>
+                        <p>Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur notre :forum_link avec la présentation graphique que vous utilisez.</p>',
     'playground' => 'environnement',
     'support_forum' => 'Forum de support',
     'invoice_due_date' => 'Échéance',
@@ -1821,7 +1820,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'bot_emailed_notify_paid' => 'Recevez un courriel lorsqu\'elle sera payée.',
     'add_product_to_invoice' => 'Ajouter 1 :product',
     'not_authorized' => 'Vous n\'êtes pas autorisé',
-    'bot_get_email' => 'Salut! (wave)<br/>Merci de vouloir essayer le Bot de Invoice Ninja.<br/>Tu dois te créer un compte gratuit à <a href="https://www.invoiceninja.com">invoiceninja.com</a> pour pouvoir utiliser de bot.<br/>Envoie-moi l\'adresse courriel de ton compte pour commencer.',
+    'bot_get_email' => 'Salut! (wave)<br/>Merci de vouloir essayer le Bot de Invoice Ninja.<br/>Envoie-moi l\'adresse courriel de ton compte pour commencer.',
     'bot_get_code' => 'Merci! Je vous ai envoyé un courriel avec votre code de sécurité.',
     'bot_welcome' => 'Ça y est, votre compte est maintenant vérifié.>br/>',
     'email_not_found' => 'Je n\'ai pas pu trouver un compte disponible pour :email',
