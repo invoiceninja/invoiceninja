@@ -43,14 +43,14 @@ class ProductDatatable extends EntityDatatable
                 $account->invoice_item_taxes,
             ],
             [
-                '-' . Utils::getCustomLabel($account->custom_invoice_item_label1),
+                'custom_value1',
                 function ($model) {
                     return $model->custom_value1;
                 },
                 $account->custom_invoice_item_label1
             ],
             [
-                '-' . Utils::getCustomLabel($account->custom_invoice_item_label2),
+                'custom_value2',
                 function ($model) {
                     return $model->custom_value2;
                 },

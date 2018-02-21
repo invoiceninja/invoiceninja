@@ -41,7 +41,9 @@ class ProductRepository extends BaseRepository
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('products.product_key', 'like', '%'.$filter.'%')
-                      ->orWhere('products.notes', 'like', '%'.$filter.'%');
+                      ->orWhere('products.notes', 'like', '%'.$filter.'%')
+                      ->orWhere('products.custom_value1', 'like', '%'.$filter.'%')
+                      ->orWhere('products.custom_value2', 'like', '%'.$filter.'%');
             });
         }
 
