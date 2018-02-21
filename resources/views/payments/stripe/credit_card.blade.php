@@ -8,9 +8,16 @@
         <script type="text/javascript">
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
             $(function() {
-                var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
                 $('.payment-form').unbind('submit').submit(function(event) {
-                    if($('[name=plaidAccountId]').length)return;
+                    event.preventDefault();
+                    if (NINJA.formIsSubmitted) {
+                        return false;
+                    }
+                    NINJA.formIsSubmitted = true;
+
+                    if ($('[name=plaidAccountId]').length) {
+                        return;
+                    }
 
                     var $form = $(this);
 

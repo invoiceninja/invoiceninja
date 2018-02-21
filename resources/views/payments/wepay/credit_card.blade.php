@@ -11,6 +11,12 @@
             WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
             var $form = $('.payment-form');
             $('.payment-form').submit(function(event) {
+                event.preventDefault();
+                if (NINJA.formIsSubmitted) {
+                    return false;
+                }
+                NINJA.formIsSubmitted = true;
+
                 var data = {
                     client_id: {{ WEPAY_CLIENT_ID }},
                     user_name: $('#first_name').val() + ' ' + $('#last_name').val(),

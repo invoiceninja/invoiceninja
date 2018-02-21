@@ -9,7 +9,15 @@
         $(function() {
             var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
             $('.payment-form').submit(function(event) {
-                if($('[name=plaidAccountId]').length)return;
+                if ($('[name=plaidAccountId]').length) {
+                    return false;
+                }
+
+                event.preventDefault();
+                if (NINJA.formIsSubmitted) {
+                    return false;
+                }
+                NINJA.formIsSubmitted = true;
 
                 var $form = $(this);
 
