@@ -194,6 +194,10 @@ class AccountController extends BaseController
         } else {
             if ($plan == PLAN_FREE) {
                 $company->discount = 0;
+
+                $ninjaClient = $this->accountRepo->getNinjaClient($account);
+                $ninjaClient->send_reminders = false;
+                $ninjaClient->save();
             } else {
                 $company->plan_term = $term;
                 $company->plan_price = $newPlan['price'];
