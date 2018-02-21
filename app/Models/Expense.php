@@ -61,6 +61,7 @@ class Expense extends EntityModel
             'vendor',
             'amount',
             'public_notes',
+            'private_notes',
             'expense_category',
             'expense_date',
         ];
@@ -73,7 +74,8 @@ class Expense extends EntityModel
             'category' => 'expense_category',
             'client' => 'client',
             'vendor' => 'vendor',
-            'notes|details' => 'public_notes',
+            'notes|details^private' => 'public_notes',
+            'notes|details^public' => 'private_notes',
             'date' => 'expense_date',
         ];
     }
@@ -253,6 +255,11 @@ class Expense extends EntityModel
     }
 
     public function amountWithTax()
+    {
+        return $this->amount + $this->taxAmount();
+    }
+
+    public function taxAmount()
     {
         return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
     }

@@ -20,8 +20,37 @@ class QuoteCest
     {
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->text(10);
+        $categoryName = $this->faker->text(11);
+        $snippetName = $this->faker->text(12);
+        $templateName = $this->faker->text(13);
 
-        $I->wantTo('create a quote');
+        $I->wantTo('create a quote and proposal');
+
+        // create proposal category
+        $I->amOnPage('/proposals/categories/create');
+        $I->fillField(['name' => 'name'], $categoryName);
+        $I->click('Save');
+        $I->see('Successfully created category');
+        $I->amOnPage('/proposals/categories');
+        $I->see($categoryName);
+
+        // create proposal snippet
+        $I->amOnPage('/proposals/snippets/create');
+        $I->fillField(['name' => 'name'], $snippetName);
+        $I->selectDropdown($I, $categoryName, '.category-select .dropdown-toggle');
+        $I->click('Save');
+        $I->see('Successfully created snippet');
+        $I->amOnPage('/proposals/snippets');
+        $I->see($snippetName);
+        $I->see($categoryName);
+
+        // create proposal template
+        $I->amOnPage('/proposals/templates/create');
+        $I->fillField(['name' => 'name'], $templateName);
+        $I->click('Save');
+        $I->see('Successfully created template');
+        $I->amOnPage('/proposals/templates');
+        $I->see($templateName);
 
         // create client
         $I->amOnPage('/clients/create');
@@ -35,8 +64,7 @@ class QuoteCest
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
         $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1, 20));
         $I->click('Save');
-        $I->wait(1);
-        //$I->see($productKey);
+        $I->see('Successfully created product');
 
         // create quote
         $I->amOnPage('/quotes/create');
@@ -46,16 +74,24 @@ class QuoteCest
         $I->click('Mark Sent');
         $I->see($clientEmail);
 
-        // enter payment
+        $I->click('More Actions');
+        $I->click('New Proposal');
+        $I->see('Create');
+
+        $I->selectDropdown($I, $templateName, '.template-select .dropdown-toggle');
+        $I->click('Save');
+        $I->click('Download');
+
         $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId]);
-        $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
+        $proposalId = $I->grabFromDatabase('proposals', 'id', ['invoice_id' => $invoiceId]);
+        $invitationKey = $I->grabFromDatabase('proposal_invitations', 'invitation_key', ['proposal_id' => $proposalId]);
 
         $clientSession = $I->haveFriend('client');
         $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
-            $I->amOnPage('/view/' . $invitationKey);
+            $I->amOnPage('/proposal/' . $invitationKey);
             $I->click('Approve');
-            $I->see('The quote has been approved');
+            $I->see('Successfully approved');
         });
 
     }

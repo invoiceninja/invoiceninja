@@ -3,14 +3,16 @@
 @section('head')
 	@parent
 
-    <script src="{{ asset('js/daterangepicker.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
+	@include('money_script')
 
-    <link href="{{ asset('css/tablesorter.css') }}" rel="stylesheet" type="text/css"/>
-    <script src="{{ asset('js/tablesorter.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/daterangepicker.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <link href="{{ asset('css/daterangepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
-	<link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
-    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/tablesorter.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/tablesorter.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+
+	<link href="{{ asset('css/select2.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/select2.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
 	<style type="text/css">
 		table.tablesorter th {
@@ -20,6 +22,14 @@
 		.select2-selection {
 			background-color: #f9f9f9 !important;
 			width: 100%;
+		}
+
+		.tablesorter-column-selector label {
+			display: block;
+		}
+
+		.tablesorter-column-selector input {
+			margin-right: 8px;
 		}
 
 	</style>
@@ -84,7 +94,7 @@
 					$('#range').val(resolveRange(label));
 				}
 
-				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+				if (isStorageSupported() && label) {
 					localStorage.setItem('last:report_range', label);
 				}
             }
@@ -121,11 +131,6 @@
     {!! Former::populateField('start_date', $startDate) !!}
     {!! Former::populateField('end_date', $endDate) !!}
 
-	@if ( ! request()->report_type)
-		{!! Former::populateField('group_when_sorted', 1) !!}
-		{!! Former::populateField('group_dates_by', 'monthyear') !!}
-	@endif
-
 	<div class="row">
 		<div class="col-lg-12">
             <div class="panel panel-default">
@@ -154,6 +159,16 @@
                                 </div>
                             </div>
                         </div>
+
+                    </div>
+                    <div class="col-md-6">
+
+						{!! Former::select('group_dates_by')
+									->label('group_when_sorted')
+									->addOption(trans('texts.disabled'), '')
+									->addOption(trans('texts.day'), 'day')
+									->addOption(trans('texts.month'), 'monthyear')
+									->addOption(trans('texts.year'), 'year') !!}
 
 						<div id="statusField" style="display:none">
 
@@ -187,15 +202,6 @@
 									->addOption(trans('texts.invoice'), 'invoice')
 									->addOption(trans('texts.expense'), 'expense') !!}
 						</div>
-
-                    </div>
-                    <div class="col-md-6">
-
-						{!! Former::checkbox('group_when_sorted')->text('enable') !!}
-						{!! Former::select('group_dates_by')
-									->addOption(trans('texts.day'), 'day')
-									->addOption(trans('texts.month'), 'monthyear')
-									->addOption(trans('texts.year'), 'year') !!}
 
         		  </div>
         </div>
@@ -232,11 +238,24 @@
 				->appendIcon(Icon::create('time')) !!}
 
 	 	</span> &nbsp;&nbsp;
+
 		{!! Button::success(trans('texts.run'))
 				->withAttributes(array('id' => 'submitButton'))
 				->submit()
 				->appendIcon(Icon::create('play'))
 				->large() !!}
+
+		@if (request()->report_type)
+			<button id="popover" type="button" class="btn btn-default btn-lg">
+			  {{ trans('texts.columns') }}
+			  {!! Icon::create('th-list') !!}
+			</button>
+
+			<div class="hidden">
+			  <div id="popover-target"></div>
+			</div>
+		@endif
+
 	</center>
 
 	@if (request()->report_type)
@@ -279,17 +298,7 @@
 		<p>&nbsp;</p>
         @endif
 
-		<!--
-		<div class="columnSelectorWrapper">
-		  <input id="colSelect1" type="checkbox" class="hidden">
-		  <label class="columnSelectorButton" for="colSelect1">Column</label>
-
-		  <div id="columnSelector" class="columnSelector">
-		  </div>
-		</div>
-		-->
-
-        <table class="tablesorter tablesorter-data" style="display:none">
+        <table id="{{ request()->report_type }}Report" class="tablesorter tablesorter-data" style="display:none">
         <thead>
             <tr>
 				{!! $report ? $report->tableHeader() : '' !!}
@@ -415,7 +424,7 @@
 	function setFiltersShown() {
 		var val = $('#report_type').val();
 		$('#dateField').toggle(val == '{{ ENTITY_TAX_RATE }}');
-		$('#statusField').toggle(val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}');
+		$('#statusField').toggle(['invoice', 'quote', 'product'].indexOf(val) >= 0);
 		$('#invoiceOrExpenseField').toggle(val == '{{ ENTITY_DOCUMENT }}');
 		$('#currencyType').toggle(val == '{{ ENTITY_PAYMENT }}');
 	}
@@ -438,8 +447,8 @@
 	}
 
 	var sumColumns = [];
-	@foreach ($columns as $column)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration']) ? trans("texts.{$column}") : false }}");
+	@foreach ($columns as $column => $class)
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration', 'tax', 'qty']) ? trans("texts.{$column}") : false }}");
 	@endforeach
 
     $(function() {
@@ -482,12 +491,19 @@
             }
         });
 
+		$('#group_dates_by').change(function() {
+            if (isStorageSupported()) {
+                localStorage.setItem('last:report_group', $('#group_dates_by').val());
+            }
+        });
+
 		// parse 1,000.00 or 1.000,00
 		function convertStringToNumber(str) {
 			str = str + '' || '';
 			if (str.indexOf(':') >= 0) {
 				return roundToTwo(moment.duration(str).asHours());
 			} else {
+				return NINJA.parseFloat(str);
 				var number = Number(str.replace(/[^0-9\-]+/g, ''));
 				return number / 100;
 			}
@@ -511,11 +527,11 @@
 				}).maximizeSelect2Height();
 
   			$(".tablesorter-data").tablesorter({
-				@if (! request()->group_when_sorted)
+				@if (! request()->group_dates_by)
 					sortList: [[0,0]],
 				@endif
 				theme: 'bootstrap',
-				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
+				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_dates_by ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
 				@if ($report)
 					dateFormat: '{{ $report->convertDateFormat() }}',
@@ -526,7 +542,10 @@
 					return direction ? a - b : b - a;
 				},
 				widgetOptions : {
-					columnSelector_container : $('#columnSelector'),
+					columnSelector_mediaqueryName: "{{ trans('texts.auto') }}",
+					columnSelector_mediaqueryHidden: true,
+					columnSelector_saveColumns: true,
+					//storage_useSessionStorage: true,
 					filter_cssFilter: 'form-control',
 					group_collapsed: true,
 					group_saveGroups: false,
@@ -548,6 +567,16 @@
 			    }
 			}).show();
 
+			@if (request()->report_type)
+				$.tablesorter.columnSelector.attachTo( $('.tablesorter-data'), '#popover-target');
+				$('#popover')
+				.popover({
+					placement: 'right',
+					html: true, // required if content has HTML
+					content: $('#popover-target')
+				});
+			@endif
+
 			$(".tablesorter-totals").tablesorter({
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme'],
@@ -563,6 +592,10 @@
 				var lastReportType = localStorage.getItem('last:report_type');
 				if (lastReportType) {
 					$('#report_type').val(lastReportType);
+				}
+				var lastGroup = localStorage.getItem('last:report_group');
+				if (group_dates_by) {
+					$('#group_dates_by').val(lastGroup);
 				}
 				var lastDocumentFilter = localStorage.getItem('last:document_filter');
 				if (lastDocumentFilter) {

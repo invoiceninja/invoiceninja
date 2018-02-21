@@ -146,6 +146,7 @@ class Account extends Eloquent
         'invoice_fields',
         'invoice_embed_documents',
         'document_email_attachment',
+        'ubl_email_attachment',
         'enable_client_portal_dashboard',
         'page_size',
         'live_preview',
@@ -237,6 +238,8 @@ class Account extends Eloquent
         'hours',
         'id_number',
         'invoice',
+        'invoice_date',
+        'invoice_number',
         'item',
         'line_total',
         'outstanding',
@@ -245,6 +248,8 @@ class Account extends Eloquent
         'po_number',
         'quantity',
         'quote',
+        'quote_date',
+        'quote_number',
         'rate',
         'service',
         'subtotal',
@@ -500,7 +505,7 @@ class Account extends Eloquent
         if ($gatewayId) {
             return $this->getGatewayConfig($gatewayId) != false;
         } else {
-            return count($this->account_gateways) > 0;
+            return $this->account_gateways->count() > 0;
         }
     }
 
@@ -1485,6 +1490,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return bool
+     */
+    public function attachUBL()
+    {
+        return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->ubl_email_attachment;
+    }
+
+    /**
      * @return mixed
      */
     public function getEmailDesignId()
@@ -1643,6 +1656,7 @@ class Account extends Eloquent
             ENTITY_EXPENSE,
             ENTITY_VENDOR,
             ENTITY_PROJECT,
+            ENTITY_PROPOSAL,
         ])) {
             return true;
         }
@@ -1651,6 +1665,8 @@ class Account extends Eloquent
             $entityType = ENTITY_EXPENSE;
         } elseif ($entityType == ENTITY_PROJECT) {
             $entityType = ENTITY_TASK;
+        } elseif ($entityType == ENTITY_PROPOSAL) {
+            $entityType = ENTITY_QUOTE;
         }
 
         // note: single & checks bitmask match

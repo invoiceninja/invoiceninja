@@ -15,6 +15,7 @@ class CalendarController extends BaseController
     public function showCalendar()
     {
         $data = [
+            'title' => trans('texts.calendar'),
             'account' => auth()->user()->account,
         ];
 

@@ -11,6 +11,8 @@
             WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
             var $form = $('.payment-form');
             $('.payment-form').submit(function(event) {
+                event.preventDefault();
+
                 var data = {
                     client_id: {{ WEPAY_CLIENT_ID }},
                     user_name: $('#first_name').val() + ' ' + $('#last_name').val(),
@@ -43,8 +45,13 @@
                         // Show the errors on the form
                         var error = response.error_description;
                         $form.find('button').prop('disabled', false);
+                        NINJA.formIsSubmitted = false;
                         $('#js-error-message').text(error).fadeIn();
                     } else {
+                        if (NINJA.formIsSubmitted) {
+                            return false;
+                        }
+                        NINJA.formIsSubmitted = true;
                         // response contains id and card, which contains additional card details
                         var token = response.credit_card_id;
                         // Insert the token into the form so it gets submitted to the server
@@ -58,6 +65,7 @@
                     // Show the errors on the form
                     var error = response.error_description;
                     $form.find('button').prop('disabled', false);
+                    NINJA.formIsSubmitted = false;
                     $('#js-error-message').text(error).fadeIn();
                 }
 

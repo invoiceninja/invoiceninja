@@ -97,7 +97,7 @@ class QuoteController extends BaseController
 
         return [
           'entityType' => ENTITY_QUOTE,
-          'account' => $account,
+          'account' => Auth::user()->account->load('country'),
           'products' => Product::scope()->orderBy('product_key')->get(),
           'taxRateOptions' => $account->present()->taxRateOptions,
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
@@ -148,6 +148,11 @@ class QuoteController extends BaseController
     {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.invitations')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
+        $account = $invoice->account;
+
+        if ($account->requiresAuthorization($invoice) && ! session('authorized:' . $invitation->invitation_key)) {
+            return redirect()->to('view/' . $invitation->invitation_key);
+        }
 
         if ($invoice->due_date) {
             $carbonDueDate = \Carbon::parse($invoice->due_date);

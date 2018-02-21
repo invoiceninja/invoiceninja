@@ -589,7 +589,7 @@ function calculateAmounts(invoice) {
     if (invoice.is_statement) {
         var lineTotal = roundToTwo(NINJA.parseFloat(item.balance));
     } else {
-        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
+        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
         var discount = roundToTwo(NINJA.parseFloat(item.discount));
         if (discount != 0) {
             if (parseInt(invoice.is_amount_discount)) {
@@ -645,7 +645,7 @@ function calculateAmounts(invoice) {
     }
 
     // calculate line item tax
-    var lineTotal = roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
+    var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
     var discount = roundToTwo(NINJA.parseFloat(item.discount));
     if (discount != 0) {
         hasDiscount = true;

@@ -33,13 +33,17 @@ class ProductRepository extends BaseRepository
                     'products.tax_name1 as tax_name',
                     'products.tax_rate1 as tax_rate',
                     'products.deleted_at',
-                    'products.is_deleted'
+                    'products.is_deleted',
+                    'products.custom_value1',
+                    'products.custom_value2'
                 );
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('products.product_key', 'like', '%'.$filter.'%')
-                      ->orWhere('products.notes', 'like', '%'.$filter.'%');
+                      ->orWhere('products.notes', 'like', '%'.$filter.'%')
+                      ->orWhere('products.custom_value1', 'like', '%'.$filter.'%')
+                      ->orWhere('products.custom_value2', 'like', '%'.$filter.'%');
             });
         }
 

@@ -254,19 +254,30 @@ class SubscriptionListener
             return;
         }
 
+        // generate JSON data
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
         $manager->parseIncludes($include);
 
         $resource = new Item($entity, $transformer, $entity->getEntityType());
-        $data = $manager->createData($resource)->toArray();
+        $jsonData = $manager->createData($resource)->toArray();
 
         // For legacy Zapier support
-        if (isset($data['client_id'])) {
-            $data['client_name'] = $entity->client->getDisplayName();
+        if (isset($jsonData['client_id'])) {
+            $jsonData['client_name'] = $entity->client->getDisplayName();
         }
 
+        
+
         foreach ($subscriptions as $subscription) {
+            switch ($subscription->format) {
+                case SUBSCRIPTION_FORMAT_JSON:
+                    $data = $jsonData;
+                    break;
+                case SUBSCRIPTION_FORMAT_UBL:
+                    $data = $ublData;
+                    break;
+            }
             self::notifySubscription($subscription, $data);
         }
     }

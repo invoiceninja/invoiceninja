@@ -9,8 +9,11 @@
         $(function() {
             var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
             $('.payment-form').submit(function(event) {
-                if($('[name=plaidAccountId]').length)return;
+                if ($('[name=plaidAccountId]').length) {
+                    return false;
+                }
 
+                event.preventDefault();
                 var $form = $(this);
 
                 var data = {
@@ -43,6 +46,11 @@
                     $('#js-error-message').html('{{ trans('texts.invalid_account_number') }}').fadeIn();
                     return false;
                 }
+
+                if (NINJA.formIsSubmitted) {
+                    return false;
+                }
+                NINJA.formIsSubmitted = true;
 
                 // Disable the submit button to prevent repeated clicks
                 $form.find('button').prop('disabled', true);
@@ -90,6 +98,7 @@
                     error = "{{trans('texts.country_not_supported')}}";
                 }
                 $form.find('button').prop('disabled', false);
+                NINJA.formIsSubmitted = false;
                 $('#js-error-message').html(error).fadeIn();
             } else {
                 // response contains id and card, which contains additional card details

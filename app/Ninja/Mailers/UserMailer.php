@@ -39,6 +39,31 @@ class UserMailer extends Mailer
     }
 
     /**
+     * @param User      $user
+     * @param User|null $invitor
+     */
+    public function sendEmailChanged(User $user)
+    {
+        $oldEmail = $user->getOriginal('email');
+        $newEmail = $user->email;
+
+        if (! $oldEmail || ! $newEmail) {
+            return;
+        }
+
+        $view = 'user_message';
+        $subject = trans('texts.email_address_changed');
+
+        $data = [
+            'user' => $user,
+            'userName' => $user->getDisplayName(),
+            'primaryMessage' => trans('texts.email_address_changed_message', ['old_email' => $oldEmail, 'new_email' => $newEmail]),
+        ];
+
+        $this->sendTo($oldEmail, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    /**
      * @param User    $user
      * @param Invoice $invoice
      * @param $notificationType

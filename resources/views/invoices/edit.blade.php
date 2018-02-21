@@ -187,10 +187,10 @@
 		</div>
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
-				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
+				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label($account->getLabel("{$entityType}_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label($account->getLabel($invoice->getDueDateLabel()))
-							->placeholder($invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
+							->placeholder($invoice->id ? ' ' : $account->present()->dueDatePlaceholder())
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
 
 				<div class="form-group partial">
@@ -225,7 +225,11 @@
             @endif
 
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
-                {!! Former::text('custom_text_value1')->label(e($account->custom_invoice_text_label1) ?: ' ')->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
+				@include('partials.custom_field', [
+					'field' => 'custom_text_value1',
+					'label' => $account->custom_invoice_text_label1,
+					'databind' => "value: custom_text_value1, valueUpdate: 'afterkeydown'",
+				])
             @endif
 		</div>
 
@@ -273,7 +277,11 @@
 			) !!}
 
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
-                {!! Former::text('custom_text_value2')->label(e($account->custom_invoice_text_label2) ?: ' ')->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
+				@include('partials.custom_field', [
+					'field' => 'custom_text_value2',
+					'label' => $account->custom_invoice_text_label2,
+					'databind' => "value: custom_text_value2, valueUpdate: 'afterkeydown'",
+				])
             @endif
 
             @if ($entityType == ENTITY_INVOICE)
@@ -517,7 +525,7 @@
 		@endif
 
         @if ( $invoice->id && ! $invoice->is_recurring)
-		    {!! Button::primary(trans('texts.download_pdf'))
+		    {!! Button::primary(trans('texts.download'))
                     ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                     ->appendIcon(Icon::create('download-alt')) !!}
         @endif
@@ -525,11 +533,11 @@
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
             @if ($invoice->isClientTrashed())
                 <!-- do nothing -->
-			@elseif ($invoice->isSent() && config('ninja.lock_sent_invoices'))
+			@elseif ($invoice->isLocked())
 				@if (! $invoice->trashed())
 					{!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+					{!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
 				@endif
-
             @else
 				@if (!$invoice->is_deleted)
 					@if ($invoice->isSent())
@@ -617,14 +625,18 @@
 
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
                     @if ($account->custom_client_label1)
-                        {!! Former::text('client[custom_value1]')
-                            ->label(e($account->custom_client_label1))
-                            ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
+						@include('partials.custom_field', [
+							'field' => 'client[custom_value1]',
+							'label' => $account->custom_client_label1,
+							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown'",
+						])
                     @endif
                     @if ($account->custom_client_label2)
-                        {!! Former::text('client[custom_value2]')
-                            ->label(e($account->custom_client_label2))
-                            ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
+						@include('partials.custom_field', [
+							'field' => 'client[custom_value2]',
+							'label' => $account->custom_client_label2,
+							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown'",
+						])
                     @endif
                 @endif
 
@@ -673,18 +685,24 @@
                             attr: {name: 'client[contacts][' + \$index() + '][phone]'}") !!}
                     @if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
                         {!! Former::password('password')->data_bind("value: (typeof password=='function'?password():null)?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
-                            attr: {name: 'client[contacts][' + \$index() + '][password]'}")->autocomplete('new-password') !!}
+                            attr: {name: 'client[contacts][' + \$index() + '][password]'}")->autocomplete('new-password')->data_lpignore('true') !!}
                     @endif
 					@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
 	                    @if ($account->custom_contact_label1)
-	                        {!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
-		                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}")
-	                            ->label(e($account->custom_contact_label1)) !!}
+							@include('partials.custom_field', [
+								'field' => 'custom_contact1',
+								'label' => $account->custom_contact_label1,
+								'databind' => "value: custom_value1, valueUpdate: 'afterkeydown',
+			                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}",
+							])
 	                    @endif
 	                    @if ($account->custom_contact_label2)
-							{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
-									attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}")
-								->label(e($account->custom_contact_label2)) !!}
+							@include('partials.custom_field', [
+								'field' => 'custom_contact2',
+								'label' => $account->custom_contact_label2,
+								'databind' => "value: custom_value2, valueUpdate: 'afterkeydown',
+			                            attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}",
+							])
 	                    @endif
 	                @endif
                     <div class="form-group">
@@ -860,7 +878,6 @@
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
             model.invoice().start_date_orig(model.invoice().start_date());
-
             @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
                 var client = clientMap[invoice.client.public_id];
@@ -1145,7 +1162,9 @@
 
 	function createInvoiceModel() {
         var model = ko.toJS(window.model);
-        if(!model)return;
+        if (! model) {
+			return;
+		}
 		var invoice = model.invoice;
 		invoice.features = {
             customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
@@ -1177,11 +1196,14 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
+		if (! invoice.public_id || NINJA.formIsChanged) {
+			invoice.watermark = "{{ strtoupper(trans('texts.preview')) }}";
+		}
+
         return invoice;
 	}
 
 	var origInvoiceNumber = false;
-	var checkedInvoiceBalances = false;
 
 	function getPDFString(cb, force) {
 		@if (! $invoice->id && $account->credit_number_counter > 0)
@@ -1196,27 +1218,12 @@
 			}
 		@endif
 
-		var invoice = createInvoiceModel();
-		var design = getDesignJavascript();
-
-		@if ($invoice->exists)
-			if (! checkedInvoiceBalances) {
-				checkedInvoiceBalances = true;
-				var phpBalance = roundSignificant(invoice.balance);
-				var koBalance = roundSignificant(model.invoice().totals.rawTotal());
-				var jsBalance = roundSignificant(calculateAmounts(invoice).total_amount);
-				if (phpBalance == koBalance && koBalance == jsBalance) {
-					// do nothing
-				} else {
-					var invitationKey = invoice.invitations[0].invitation_key;
-					window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
-				}
-			}
-		@endif
-
 		@if ( ! $account->live_preview)
 			return;
 		@endif
+
+		var invoice = createInvoiceModel();
+		var design = getDesignJavascript();
 
 		if (! design) {
 			return;
@@ -1458,9 +1465,10 @@
         }
 
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
-            if ($('#saveButton').is(':disabled')) {
-                return false;
-            }
+			if (NINJA.formIsSubmitted) {
+				return false;
+			}
+			NINJA.formIsSubmitted = true;
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
@@ -1482,6 +1490,7 @@
 	function handleSaveFailed(data) {
 		$('#saveButton, #emailButton, #draftButton').attr('disabled', false);
 		$('#emailModal div.modal-footer button').attr('disabled', false);
+		NINJA.formIsSubmitted = false;
 		var error = '';
 		if (data) {
 			var error = firstJSONError(data.responseJSON) || data.statusText;

@@ -36,8 +36,13 @@ class StartupCheck
         // Set up trusted X-Forwarded-Proto proxies
         // TRUSTED_PROXIES accepts a comma delimited list of subnets
         // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
+        // set TRUSTED_PROXIES=* if you want to trust every proxy.
         if (isset($_ENV['TRUSTED_PROXIES'])) {
-            $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
+            if (env('TRUSTED_PROXIES') == '*') {
+                $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')]);
+            } else{
+                $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
+            }
         }
 
         // Ensure all request are over HTTPS in production
@@ -218,7 +223,7 @@ class StartupCheck
 
         // Show message to IE 8 and before users
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
-            Session::flash('error', trans('texts.old_browser', ['link' => OUTDATE_BROWSER_URL]));
+            Session::flash('error', trans('texts.old_browser', ['link' => link_to(OUTDATE_BROWSER_URL, trans('texts.newer_browser'), ['target' => '_blank'])]));
         }
 
         $response = $next($request);

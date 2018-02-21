@@ -96,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Form::macro('breadcrumbs', function ($status = false) {
+
             $str = '<ol class="breadcrumb">';
 
             // Get the breadcrumbs by exploding the current path.
@@ -133,6 +134,9 @@ class AppServiceProvider extends ServiceProvider
                 if ($i == count($crumbs) - 1) {
                     $str .= "<li class='active'>$name</li>";
                 } else {
+                    if (count($crumbs) > 2 && $crumbs[1] == 'proposals' && $crumb != 'proposals') {
+                        $crumb = 'proposals/' . $crumb;
+                    }
                     $str .= '<li>'.link_to($crumb, $name).'</li>';
                 }
             }

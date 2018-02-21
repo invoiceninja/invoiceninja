@@ -356,12 +356,14 @@ class OnlinePaymentController extends BaseController
                 return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
             }
 
-            $data = [
-                'currency_id' => $account->currency_id,
-                'contact' => Input::all(),
-                'custom_value1' => Input::get('custom_client1'),
-                'custom_value2' => Input::get('custom_client2'),
-            ];
+            $data = request()->all();
+            $data['currency_id'] = $account->currency_id;
+            $data['custom_value1'] = request()->custom_client1;
+            $data['custom_value2'] = request()->custom_client2;
+            $data['contact'] = request()->all();
+            $data['contact']['custom_value1'] = request()->custom_contact1;
+            $data['contact']['custom_value2'] = request()->custom_contact2;
+
             if (request()->currency_code) {
                 $data['currency_code'] = request()->currency_code;
             }
@@ -425,20 +427,23 @@ class OnlinePaymentController extends BaseController
     {
         if (Utils::isNinja()) {
             $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+            if (! $subdomain || $subdomain == 'app') {
+                exit('Invalid subdomain');
+            }
             $account = Account::whereSubdomain($subdomain)->first();
         } else {
             $account = Account::first();
         }
 
         if (! $account) {
-            exit("Account not found");
+            exit('Account not found');
         }
 
         $accountGateway = $account->account_gateways()
             ->whereGatewayId(GATEWAY_STRIPE)->first();
 
         if (! $account) {
-            exit("Apple merchant id not set");
+            exit('Apple merchant id not set');
         }
 
         echo $accountGateway->getConfigField('appleMerchantId');

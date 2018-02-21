@@ -29,21 +29,35 @@ class Mailer
             return true;
         }
 
-        /*
-        if (isset($_ENV['POSTMARK_API_TOKEN'])) {
-            $views = 'emails.'.$view.'_html';
-        } else {
-            $views = [
-                'emails.'.$view.'_html',
-                'emails.'.$view.'_text',
-            ];
-        }
-        */
-
         $views = [
             'emails.'.$view.'_html',
             'emails.'.$view.'_text',
         ];
+
+        if (Utils::isSelfHost()) {
+            if (isset($data['account'])) {
+                $account = $data['account'];
+                if (env($account->id . '_MAIL_FROM_ADDRESS')) {
+                    $fields = [
+                        'driver',
+                        'host',
+                        'port',
+                        'from.address',
+                        'from.name',
+                        'encryption',
+                        'username',
+                        'password',
+                    ];
+                    foreach ($fields as $field) {
+                        $envKey = strtoupper(str_replace('.', '_', $field));
+                        if ($value = env($account->id . '_MAIL_' . $envKey)) {
+                            config(['mail.' . $field => $value]);
+                        }
+                    }
+                    (new \Illuminate\Mail\MailServiceProvider(app()))->register();
+                }
+            }
+        }
 
         try {
             $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
@@ -67,12 +81,13 @@ class Mailer
                     $message->bcc($data['bccEmail']);
                 }
 
-                // Attach the PDF to the email
+                // Handle invoice attachments
                 if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
-
-                // Attach documents to the email
+                if (! empty($data['ublString']) && ! empty($data['ublFileName'])) {
+                    $message->attachData($data['ublString'], $data['ublFileName']);
+                }
                 if (! empty($data['documents'])) {
                     foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
@@ -106,7 +121,12 @@ class Mailer
             }
 
             $notes = isset($data['notes']) ? $data['notes'] : false;
-            $invoice->markInvitationSent($invitation, $messageId, true, $notes);
+
+            if (! empty($data['proposal'])) {
+                $invitation->markSent($messageId);
+            } else {
+                $invoice->markInvitationSent($invitation, $messageId, true, $notes);
+            }
         }
 
         return true;

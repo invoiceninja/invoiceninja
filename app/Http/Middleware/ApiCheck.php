@@ -100,8 +100,8 @@ class ApiCheck
                 return Response::json("Please wait {$wait} second(s)", 403, $headers);
             }
 
-            Cache::put("hour_throttle:{$key}", $new_hour_throttle, 10);
-            Cache::put("last_api_request:{$key}", time(), 10);
+            Cache::put("hour_throttle:{$key}", $new_hour_throttle, 60);
+            Cache::put("last_api_request:{$key}", time(), 60);
         }
 
         return $next($request);

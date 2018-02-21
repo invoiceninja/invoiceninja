@@ -34,6 +34,10 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\PaymentTerm::class => \App\Policies\PaymentTermPolicy::class,
         \App\Models\Project::class => \App\Policies\ProjectPolicy::class,
         \App\Models\AccountGatewayToken::class => \App\Policies\CustomerPolicy::class,
+        \App\Models\Proposal::class => \App\Policies\ProposalPolicy::class,
+        \App\Models\ProposalSnippet::class => \App\Policies\ProposalSnippetPolicy::class,
+        \App\Models\ProposalTemplate::class => \App\Policies\ProposalTemplatePolicy::class,
+        \App\Models\ProposalCategory::class => \App\Policies\ProposalCategoryPolicy::class,
     ];
 
     /**

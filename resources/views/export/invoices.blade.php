@@ -18,24 +18,24 @@
     <td>{{ trans('texts.public_notes') }}</td>
     <td>{{ trans('texts.private_notes') }}</td>
     @if ($account->custom_invoice_label1)
-        <td>{{ $account->custom_invoice_label1 }}</td>
+        <td>{{ $account->present()->customInvoiceLabel1 }}</td>
     @endif
     @if ($account->custom_invoice_label2)
-        <td>{{ $account->custom_invoice_label2 }}</td>
+        <td>{{ $account->present()->customInvoiceLabel2 }}</td>
     @endif
     @if ($account->custom_invoice_text_label1)
-        <td>{{ $account->custom_invoice_text_label1 }}</td>
+        <td>{{ $account->present()->customInvoiceTextLabel1 }}</td>
     @endif
     @if ($account->custom_invoice_text_label2)
-        <td>{{ $account->custom_invoice_text_label2 }}</td>
+        <td>{{ $account->present()->customInvoiceTextLabel1 }}</td>
     @endif
     <td>{{ trans('texts.item_product') }}</td>
     <td>{{ trans('texts.item_notes') }}</td>
     @if ($account->custom_invoice_item_label1)
-        <td>{{ $account->custom_invoice_item_label1 }}</td>
+        <td>{{ $account->present()->customProductLabel1 }}</td>
     @endif
     @if ($account->custom_invoice_item_label2)
-        <td>{{ $account->custom_invoice_item_label2 }}</td>
+        <td>{{ $account->present()->customProductLabel2 }}</td>
     @endif
     <td>{{ trans('texts.item_cost') }}</td>
     <td>{{ trans('texts.item_quantity') }}</td>

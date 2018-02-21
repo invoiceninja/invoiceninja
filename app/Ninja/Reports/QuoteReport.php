@@ -5,37 +5,63 @@ namespace App\Ninja\Reports;
 use App\Models\Client;
 use Auth;
 use Barracuda\ArchiveStream\Archive;
+use App\Models\TaxRate;
 
 class QuoteReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'quote_number',
-        'quote_date',
-        'amount',
-        'status',
-    ];
+    public function getColumns()
+    {
+        $columns = [
+            'client' => [],
+            'quote_number' => [],
+            'quote_date' => [],
+            'amount' => [],
+            'status' => [],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+        ];
+
+        if (TaxRate::scope()->count()) {
+            $columns['tax'] = ['columnSelector-false'];
+        }
+
+        $account = auth()->user()->account;
+
+        if ($account->custom_invoice_text_label1) {
+            $columns[$account->present()->customInvoiceTextLabel1] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->custom_invoice_text_label1) {
+            $columns[$account->present()->customInvoiceTextLabel2] = ['columnSelector-false', 'custom'];
+        }
+
+        return $columns;
+    }
 
     public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->quotes()
                                   ->withArchived()
                                   ->statusIds($statusIds)
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['invoice_items']);
+                                  ->with(['invoice_items', 'invoice_status']);
                         }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
+            if (! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
+            }
+
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.quote_documents')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
@@ -52,13 +78,28 @@ class QuoteReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                $this->data[] = [
+                $row = [
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $invoice->present()->invoice_date,
                     $account->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
+                    $invoice->private_notes,
+                    $invoice->user->getDisplayName(),
                 ];
+
+                if ($hasTaxRates) {
+                    $row[] = $account->formatMoney($invoice->getTaxTotal(), $client);
+                }
+
+                if ($account->custom_invoice_text_label1) {
+                    $row[] = $invoice->custom_text_value1;
+                }
+                if ($account->custom_invoice_text_label2) {
+                    $row[] = $invoice->custom_text_value2;
+                }
+
+                $this->data[] = $row;
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
             }

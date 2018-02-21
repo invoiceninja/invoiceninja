@@ -7,14 +7,19 @@ use Auth;
 
 class TaxRateReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice',
-        'tax_name',
-        'tax_rate',
-        'amount',
-        'paid',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client' => [],
+            'invoice' => [],
+            'tax_name' => [],
+            'tax_rate' => [],
+            'tax_amount' => [],
+            'tax_paid' => [],
+            'invoice_amount' => ['columnSelector-false'],
+            'payment_amount' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -74,6 +79,8 @@ class TaxRateReport extends AbstractReport
                             $tax['rate'] . '%',
                             $account->formatMoney($tax['amount'], $client),
                             $account->formatMoney($tax['paid'], $client),
+                            $invoice->present()->amount,
+                            $invoice->present()->paid,
                         ];
 
                         $this->addToTotals($client->currency_id, 'amount', $tax['amount']);

@@ -8,15 +8,20 @@ use Utils;
 
 class PaymentReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice_number',
-        'invoice_date',
-        'amount',
-        'payment_date',
-        'paid',
-        'method',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client' => [],
+            'invoice_number' => [],
+            'invoice_date' => [],
+            'amount' => [],
+            'payment_date' => [],
+            'paid' => [],
+            'method' => [],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -34,10 +39,11 @@ class PaymentReport extends AbstractReport
                         ->whereHas('invoice', function ($query) {
                             $query->where('is_deleted', '=', false);
                         })
-                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
+                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway', 'user')
                         ->where('payment_date', '>=', $this->startDate)
                         ->where('payment_date', '<=', $this->endDate);
 
+        $lastInvoiceId = 0;
         foreach ($payments->get() as $payment) {
             $invoice = $payment->invoice;
             $client = $payment->client;
@@ -56,10 +62,12 @@ class PaymentReport extends AbstractReport
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                 $invoice->present()->invoice_date,
-                $account->formatMoney($invoice->amount, $client),
+                $lastInvoiceId == $invoice->id ? '' : $account->formatMoney($invoice->amount, $client),
                 $payment->present()->payment_date,
                 $amount,
                 $payment->present()->method,
+                $payment->private_notes,
+                $payment->user->getDisplayName(),
             ];
 
             if (! isset($invoiceMap[$invoice->id])) {
@@ -71,6 +79,8 @@ class PaymentReport extends AbstractReport
                     $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 }
             }
+
+            $lastInvoiceId = $invoice->id;
         }
     }
 }

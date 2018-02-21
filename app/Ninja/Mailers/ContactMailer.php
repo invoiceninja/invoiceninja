@@ -4,12 +4,15 @@ namespace App\Ninja\Mailers;
 
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
-use App\Models\Invitation;
 use App\Models\Invoice;
+use App\Models\Proposal;
 use App\Models\Payment;
 use App\Services\TemplateService;
+use App\Jobs\ConvertInvoiceToUbl;
 use Event;
 use Utils;
+use Cache;
+use Mail;
 
 class ContactMailer extends Mailer
 {
@@ -35,18 +38,22 @@ class ContactMailer extends Mailer
      *
      * @return bool|null|string
      */
-    public function sendInvoice(Invoice $invoice, $reminder = false, $template = false)
+    public function sendInvoice(Invoice $invoice, $reminder = false, $template = false, $proposal = false)
     {
         if ($invoice->is_recurring) {
             return false;
         }
 
         $invoice->load('invitations', 'client.language', 'account');
-        $entityType = $invoice->getEntityType();
+
+        if ($proposal) {
+            $entityType = ENTITY_PROPOSAL;
+        } else {
+            $entityType = $invoice->getEntityType();
+        }
 
         $client = $invoice->client;
         $account = $invoice->account;
-
         $response = null;
 
         if ($client->trashed()) {
@@ -61,9 +68,13 @@ class ContactMailer extends Mailer
 
         $sent = false;
         $pdfString = false;
+        $ublString = false;
 
-        if ($account->attachPDF()) {
+        if ($account->attachPDF() && ! $proposal) {
             $pdfString = $invoice->getPDFString();
+        }
+        if ($account->attachUBL() && ! $proposal) {
+            $ublString = dispatch(new ConvertInvoiceToUbl($invoice));
         }
 
         $documentStrings = [];
@@ -87,8 +98,15 @@ class ContactMailer extends Mailer
         }
 
         $isFirst = true;
-        foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder, $isFirst);
+        $invitations = $proposal ? $proposal->invitations : $invoice->invitations;
+        foreach ($invitations as $invitation) {
+            $data = [
+                'pdfString' => $pdfString,
+                'documentStrings' => $documentStrings,
+                'ublString' => $ublString,
+                'proposal' => $proposal,
+            ];
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $reminder, $isFirst, $data);
             $isFirst = false;
             if ($response === true) {
                 $sent = true;
@@ -97,7 +115,7 @@ class ContactMailer extends Mailer
 
         $account->loadLocalizationSettings();
 
-        if ($sent === true) {
+        if ($sent === true && ! $proposal) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteWasEmailed($invoice, $reminder));
             } else {
@@ -122,18 +140,18 @@ class ContactMailer extends Mailer
      * @return bool|string
      */
     private function sendInvitation(
-        Invitation $invitation,
+        $invitation,
         Invoice $invoice,
         $body,
         $subject,
-        $pdfString,
-        $documentStrings,
         $reminder,
-        $isFirst
+        $isFirst,
+        $extra
     ) {
         $client = $invoice->client;
         $account = $invoice->account;
         $user = $invitation->user;
+        $proposal = $extra['proposal'];
 
         if ($user->trashed()) {
             $user = $account->users()->orderBy('id')->first();
@@ -141,7 +159,7 @@ class ContactMailer extends Mailer
 
         if (! $user->email || ! $user->registered) {
             return trans('texts.email_error_user_unregistered');
-        } elseif (! $user->confirmed) {
+        } elseif (! $user->confirmed || $this->isThrottled($account)) {
             return trans('texts.email_error_user_unconfirmed');
         } elseif (! $invitation->contact->email) {
             return trans('texts.email_error_invalid_contact_email');
@@ -156,16 +174,18 @@ class ContactMailer extends Mailer
             'amount' => $invoice->getRequestedAmount(),
         ];
 
-        // Let the client know they'll be billed later
-        if ($client->autoBillLater()) {
-            $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
-        }
+        if (! $proposal) {
+            // Let the client know they'll be billed later
+            if ($client->autoBillLater()) {
+                $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
+            }
 
-        if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
-            // The contact needs a password
-            $variables['password'] = $password = $this->generatePassword();
-            $invitation->contact->password = bcrypt($password);
-            $invitation->contact->save();
+            if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
+                // The contact needs a password
+                $variables['password'] = $password = $this->generatePassword();
+                $invitation->contact->password = bcrypt($password);
+                $invitation->contact->save();
+            }
         }
 
         $data = [
@@ -177,15 +197,21 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invoice' => $invoice,
-            'documents' => $documentStrings,
+            'documents' => $extra['documentStrings'],
             'notes' => $reminder,
             'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
         ];
 
-        if ($account->attachPDF()) {
-            $data['pdfString'] = $pdfString;
-            $data['pdfFileName'] = $invoice->getFileName();
+        if (! $proposal) {
+            if ($account->attachPDF()) {
+                $data['pdfString'] = $extra['pdfString'];
+                $data['pdfFileName'] = $invoice->getFileName();
+            }
+            if ($account->attachUBL()) {
+                $data['ublString'] = $extra['ublString'];
+                $data['ublFileName'] = $invoice->getFileName('xml');
+            }
         }
 
         $subject = $this->templateService->processVariables($subject, $variables);
@@ -257,7 +283,7 @@ class ContactMailer extends Mailer
             $invitation = $payment->invitation;
         } else {
             $user = $payment->user;
-            $contact = count($client->contacts) ? $client->contacts[0] : '';
+            $contact = $client->contacts->count() ? $client->contacts[0] : '';
             $invitation = $payment->invoice->invitations[0];
         }
 
@@ -341,5 +367,49 @@ class ContactMailer extends Mailer
         ];
 
         $this->sendTo($contact->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    private function isThrottled($account)
+    {
+        if (Utils::isSelfHost()) {
+            return false;
+        }
+
+        $key = $account->company_id;
+
+        // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
+        $hour = 60 * 60;
+        $hour_limit = MAX_EMAILS_SENT_PER_HOUR;
+        $hour_throttle = Cache::get("email_hour_throttle:{$key}", null);
+        $last_api_request = Cache::get("last_email_request:{$key}", 0);
+        $last_api_diff = time() - $last_api_request;
+
+        if (is_null($hour_throttle)) {
+            $new_hour_throttle = 0;
+        } else {
+            $new_hour_throttle = $hour_throttle - $last_api_diff;
+            $new_hour_throttle = $new_hour_throttle < 0 ? 0 : $new_hour_throttle;
+            $new_hour_throttle += $hour / $hour_limit;
+            $hour_hits_remaining = floor(($hour - $new_hour_throttle) * $hour_limit / $hour);
+            $hour_hits_remaining = $hour_hits_remaining >= 0 ? $hour_hits_remaining : 0;
+        }
+
+        Cache::put("email_hour_throttle:{$key}", $new_hour_throttle, 60);
+        Cache::put("last_email_request:{$key}", time(), 60);
+
+        if ($new_hour_throttle > $hour) {
+            $errorEmail = env('ERROR_EMAIL');
+            if ($errorEmail && ! Cache::get("throttle_notified:{$key}")) {
+                Mail::raw('Account Throttle', function ($message) use ($errorEmail, $account) {
+                    $message->to($errorEmail)
+                            ->from(CONTACT_EMAIL)
+                            ->subject("Email throttle triggered for account " . $account->id);
+                });
+            }
+            Cache::put("throttle_notified:{$key}", true, 60);
+            return true;
+        }
+
+        return false;
     }
 }

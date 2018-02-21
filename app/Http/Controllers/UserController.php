@@ -118,7 +118,7 @@ class UserController extends BaseController
         }
 
         if (! Auth::user()->confirmed) {
-            Session::flash('error', trans('texts.confirmation_required'));
+            Session::flash('error', trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]));
 
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }

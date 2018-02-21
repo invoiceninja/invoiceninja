@@ -15,34 +15,115 @@ class Cloudflare
         foreach($zones as $zone)
         {
 
-            $curl = curl_init();
-            $jsonEncodedData = json_encode(['type'=>'A', 'name'=>$account->subdomain, 'content'=>env('CLOUDFLARE_TARGET_IP_ADDRESS',''),'proxied'=>true]);
+            if($account->subdomain != "")
+            {
 
-            $opts = [
-                CURLOPT_URL => 'https://api.cloudflare.com/client/v4/zones/'.$zone.'/dns_records',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POST => 1,
-                CURLOPT_POSTFIELDS => $jsonEncodedData,
-                CURLOPT_HTTPHEADER => [ 'Content-Type: application/json',
-                    'Content-Length: '.strlen($jsonEncodedData),
-                    'X-Auth-Email: '.env('CLOUDFLARE_EMAIL', ''),
-                    'X-Auth-Key: '.env('CLOUDFLARE_API_KEY', '')
-                ],
-            ];
+                $jsonEncodedData = json_encode(['type' => 'A', 'name' => $account->subdomain, 'content' => env('CLOUDFLARE_TARGET_IP_ADDRESS', ''), 'proxied' => true]);
 
-            curl_setopt_array($curl, $opts);
+                $requestType = 'POST';
 
-            $result = curl_exec($curl);
-            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records';
 
-            curl_close($curl);
+                $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
 
-            if ($status != 200)
-                Utils::logError('unable to update subdomain ' . $account->subdomain . ' @ Cloudflare - '.$result);
+                if ($response['status'] != 200)
+                    Utils::logError('Unable to update subdomain ' . $account->subdomain . ' @ Cloudflare - ' . $response['result']['result']);
+
+            }
 
         }
 
+
+    }
+
+    public static function removeDNSRecord(Account $account) {
+
+        $zones = json_decode(env('CLOUDFLARE_ZONE_IDS',''), true);
+
+        foreach($zones as $zone)
+        {
+
+            if($account->subdomain != "")
+            {
+
+                $dnsRecordId = self::getDNSRecord($zone, $account->subdomain);
+
+                $jsonEncodedData = json_encode([]);
+
+                $requestType = 'DELETE';
+
+                $url = 'https://api.cloudflare.com/client/v4/zones/' . $zone . '/dns_records/'. $dnsRecordId .'';
+
+                $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
+
+                if ($response['status'] != 200)
+                    Utils::logError('Unable to delete subdomain ' . $account->subdomain . ' @ Cloudflare - ' . $response['result']['result']);
+
+            }
+
+        }
+
+    }
+
+    public static function getDNSRecord($zone, $aRecord)
+    {
+        //harvest the zone_name
+        $url = 'https://api.cloudflare.com/client/v4/zones/'. $zone .'/dns_records?type=A&per_page=1';
+
+        $requestType = 'GET';
+
+        $jsonEncodedData = json_encode([]);
+
+        $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
+
+        if ($response['status'] != 200)
+            Utils::logError('Unable to get the zone name for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
+
+        $zoneName = $response['result']['result'][0]['zone_name'];
+
+        //get the A record
+        $url = 'https://api.cloudflare.com/client/v4/zones/'. $zone .'/dns_records?type=A&name='. $aRecord .'.'. $zoneName .' ';
+
+        $response = self::curlCloudFlare($requestType, $url, $jsonEncodedData);
+
+        if ($response['status'] != 200)
+            Utils::logError('Unable to get the record ID for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
+
+        return $response['result']['result'][0]['id'];
+
+    }
+
+    private static function curlCloudFlare($requestType, $url, $jsonEncodedData)
+    {
+
+        $curl = curl_init();
+
+        $opts = [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => $requestType,
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $jsonEncodedData,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json',
+                'Content-Length: ' . strlen($jsonEncodedData),
+                'X-Auth-Email: ' . env('CLOUDFLARE_EMAIL', ''),
+                'X-Auth-Key: ' . env('CLOUDFLARE_API_KEY', '')
+            ],
+        ];
+
+        curl_setopt_array($curl, $opts);
+
+        $result = curl_exec($curl);
+
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        $data['status'] = $status;
+
+        $data['result'] = \json_decode($result, true);
+
+        curl_close($curl);
+
+        return $data;
 
     }
 

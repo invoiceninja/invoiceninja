@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use Event;
 use Illuminate\Http\Request;
-use App\Models\PasswordReset;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;

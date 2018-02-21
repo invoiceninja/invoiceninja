@@ -89,16 +89,29 @@ class PaymentController extends BaseController
      */
     public function create(PaymentRequest $request)
     {
+        $user = auth()->user();
+        $account = $user->account;
+
         $invoices = Invoice::scope()
                     ->invoices()
                     ->where('invoices.invoice_status_id', '!=', INVOICE_STATUS_PAID)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
 
+        $clientPublicId = Input::old('client') ? Input::old('client') : ($request->client_id ?: 0);
+        $invoicePublicId = Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0);
+
+        $totalCredit = false;
+        if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
+            $totalCredit = $account->formatMoney($client->getTotalCredit(), $client);
+        } elseif ($invoicePublicId && $invoice = Invoice::scope($invoicePublicId)->first()) {
+            $totalCredit = $account->formatMoney($invoice->client->getTotalCredit(), $client);
+        }
+
         $data = [
             'account' => Auth::user()->account,
-            'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
-            'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0),
+            'clientPublicId' => $clientPublicId,
+            'invoicePublicId' => $invoicePublicId,
             'invoice' => null,
             'invoices' => $invoices,
             'payment' => null,
@@ -106,7 +119,9 @@ class PaymentController extends BaseController
             'url' => 'payments',
             'title' => trans('texts.new_payment'),
             'paymentTypeId' => Input::get('paymentTypeId'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), ];
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'totalCredit' => $totalCredit,
+        ];
 
         return View::make('payments.edit', $data);
     }

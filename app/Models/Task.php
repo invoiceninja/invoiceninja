@@ -129,17 +129,27 @@ class Task extends EntityModel
      *
      * @return int
      */
-    public static function calcDuration($task)
+    public static function calcDuration($task, $startTimeCutoff = 0, $endTimeCutoff = 0)
     {
         $duration = 0;
         $parts = json_decode($task->time_log) ?: [];
 
         foreach ($parts as $part) {
+            $startTime = $part[0];
             if (count($part) == 1 || ! $part[1]) {
-                $duration += time() - $part[0];
+                $endTime = time();
             } else {
-                $duration += $part[1] - $part[0];
+                $endTime = $part[1];
             }
+
+            if ($startTimeCutoff) {
+                $startTime = max($startTime, $startTimeCutoff);
+            }
+            if ($endTimeCutoff) {
+                $endTime = min($endTime, $endTimeCutoff);
+            }
+
+            $duration += $endTime - $startTime;
         }
 
         return $duration;
@@ -148,9 +158,9 @@ class Task extends EntityModel
     /**
      * @return int
      */
-    public function getDuration()
+    public function getDuration($startTimeCutoff = 0, $endTimeCutoff = 0)
     {
-        return self::calcDuration($this);
+        return self::calcDuration($this, $startTimeCutoff, $endTimeCutoff);
     }
 
     /**
@@ -230,8 +240,11 @@ class Task extends EntityModel
 
     public function scopeDateRange($query, $startDate, $endDate)
     {
-        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) >= ' . $startDate->format('U'));
-        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->modify('+1 day')->format('U'));
+        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->modify('+1 day')->format('U'))
+            ->whereRaw('case
+                when is_running then unix_timestamp()
+                else cast(substring(time_log, length(time_log) - 11, 10) as unsigned)
+            end >= ' . $startDate->format('U'));
 
         return $query;
     }

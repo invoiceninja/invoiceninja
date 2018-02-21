@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.0.0 <7.2",
         "ext-gd": "*",
         "ext-gmp": "*",
         "anahkiasen/former": "4.*",
@@ -25,6 +25,7 @@
         "barryvdh/laravel-ide-helper": "~2.2",
         "cerdic/css-tidy": "~v1.5",
         "chumper/datatable": "dev-develop#04ef2bf",
+        "cleverit/ubl_invoice": "1.*",
         "codedge/laravel-selfupdater": "5.x-dev",
         "collizo4sky/omnipay-wepay": "dev-address-fix",
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",

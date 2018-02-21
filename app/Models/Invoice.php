@@ -453,6 +453,23 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     /**
      * @param $query
+     *
+     * @return mixed
+     */
+    public function scopeUnapprovedQuotes($query, $includeInvoiceId = false)
+    {
+        return $query->quotes()
+                    ->where(function ($query) use ($includeInvoiceId) {
+                        $query->whereId($includeInvoiceId)
+                            ->orWhere(function ($query) {
+                                  $query->where('invoice_status_id', '<', INVOICE_STATUS_APPROVED)
+                                    ->whereNull('quote_invoice_id');
+                              });
+                    });
+    }
+
+    /**
+     * @param $query
      * @param $typeId
      *
      * @return mixed
@@ -710,11 +727,11 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return string
      */
-    public function getFileName()
+    public function getFileName($extension = 'pdf')
     {
         $entityType = $this->getEntityType();
 
-        return trans("texts.$entityType") . '_' . $this->invoice_number . '.pdf';
+        return trans("texts.$entityType") . '_' . $this->invoice_number . '.' . $extension;
     }
 
     /**
@@ -839,6 +856,14 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function isViewed()
     {
         return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isApproved()
+    {
+        return $this->invoice_status_id >= INVOICE_STATUS_APPROVED || $this->quote_invoice_id;
     }
 
     /**
@@ -1403,21 +1428,12 @@ class Invoice extends EntityModel implements BalanceAffecting
         $paidAmount = $this->getAmountPaid($calculatePaid);
 
         if ($this->tax_name1) {
-            if ($account->inclusive_taxes) {
-                $invoiceTaxAmount = round($taxable - ($taxable / (1 + ($this->tax_rate1 / 100))), 2);
-            } else {
-                $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
-            }
+            $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate1);
             $invoicePaidAmount = floatval($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
         }
-
         if ($this->tax_name2) {
-            if ($account->inclusive_taxes) {
-                $invoiceTaxAmount = round($taxable - ($taxable / (1 + ($this->tax_rate2 / 100))), 2);
-            } else {
-                $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
-            }
+            $invoiceTaxAmount = $this->taxAmount($taxable, $this->tax_rate2);
             $invoicePaidAmount = floatval($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
         }
@@ -1426,27 +1442,40 @@ class Invoice extends EntityModel implements BalanceAffecting
             $itemTaxable = $this->getItemTaxable($invoiceItem, $taxable);
 
             if ($invoiceItem->tax_name1) {
-                if ($account->inclusive_taxes) {
-                    $itemTaxAmount = round($taxable - ($taxable / (1 + ($invoiceItem->tax_rate1 / 100))), 2);
-                } else {
-                    $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate1 / 100), 2);
-                }
+                $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate1);
                 $itemPaidAmount = floatval($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
             }
-
             if ($invoiceItem->tax_name2) {
-                if ($account->inclusive_taxes) {
-                    $itemTaxAmount = round($taxable - ($taxable / (1 + ($invoiceItem->tax_rate2 / 100))), 2);
-                } else {
-                    $itemTaxAmount = round($itemTaxable * ($invoiceItem->tax_rate2 / 100), 2);
-                }
+                $itemTaxAmount = $this->taxAmount($itemTaxable, $invoiceItem->tax_rate2);
                 $itemPaidAmount = floatval($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
             }
         }
 
         return $taxes;
+    }
+
+    public function getTaxTotal()
+    {
+        $total = 0;
+
+        foreach ($this->getTaxes() as $tax) {
+            $total += $tax['amount'];
+        }
+
+        return $total;
+    }
+
+    public function taxAmount($taxable, $rate)
+    {
+        $account = $this->account;
+
+        if ($account->inclusive_taxes) {
+            return round($taxable - ($taxable / (1 + ($rate / 100))), 2);
+        } else {
+            return round($taxable * ($rate / 100), 2);
+        }
     }
 
     /**
@@ -1484,18 +1513,18 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function countDocuments($expenses = false)
     {
-        $count = count($this->documents);
+        $count = $this->documents->count();
 
         foreach ($this->expenses as $expense) {
             if ($expense->invoice_documents) {
-                $count += count($expense->documents);
+                $count += $expense->documents->count();
             }
         }
 
         if ($expenses) {
             foreach ($expenses as $expense) {
                 if ($expense->invoice_documents) {
-                    $count += count($expense->documents);
+                    $count += $expense->documents->count();
                 }
             }
         }
@@ -1525,7 +1554,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function hasExpenseDocuments()
     {
         foreach ($this->expenses as $expense) {
-            if ($expense->invoice_documents && count($expense->documents)) {
+            if ($expense->invoice_documents && $expense->documents->count()) {
                 return true;
             }
         }
@@ -1605,6 +1634,28 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return true;
+    }
+
+    public function hasTaxes()
+    {
+        if ($this->tax_name1 || $this->tax_rate1) {
+            return true;
+        }
+
+        if ($this->tax_name2 || $this->tax_rate2) {
+            return false;
+        }
+
+        return false;
+    }
+
+    public function isLocked()
+    {
+        if (! config('ninja.lock_sent_invoices')) {
+            return false;
+        }
+
+        return $this->isSent() && ! $this->is_recurring;
     }
 }
 

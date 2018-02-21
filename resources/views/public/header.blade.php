@@ -5,7 +5,7 @@
         <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-    <style type="text/css">{!! isset($account)?$account->clientViewCSS():'' !!}</style>
+    <style type="text/css">{!! !empty($account)?$account->clientViewCSS():'' !!}</style>
 @stop
 
 @section('body')
@@ -72,14 +72,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
+                @if (empty($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                     {{-- Per our license, please do not remove or modify this link. --}}
                     <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img
                                 src="{{ asset('images/invoiceninja-logo.png') }}" style="height:27px"></a>
                 @endif
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                @if (isset($account) && $account->enable_client_portal)
+                @if (!empty($account) && $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
                     @if (isset($account) && $account->enable_client_portal_dashboard)
                         <li {!! Request::is('*client/dashboard*') ? 'class="active"' : '' !!}>
@@ -99,16 +99,11 @@
                     <li {!! Request::is('*client/invoices') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                     </li>
-                    @if (isset($account)
+                    @if (!empty($account)
                         && $account->hasFeature(FEATURE_DOCUMENTS)
                         && (isset($hasDocuments) && $hasDocuments))
                         <li {!! Request::is('*client/documents') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
-                        </li>
-                    @endif
-                    @if (isset($hasPaymentMethods) && $hasPaymentMethods)
-                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
-                            {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>
                     @endif
                     <li {!! Request::is('*client/payments') ? 'class="active"' : '' !!}>
@@ -117,6 +112,11 @@
                     @if (isset($hasCredits) && $hasCredits)
                         <li {!! Request::is('*client/credits') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/credits', trans('texts.credits') ) !!}
+                        </li>
+                    @endif
+                    @if (isset($hasPaymentMethods) && $hasPaymentMethods)
+                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>
                     @endif
                     @if ($account->enable_portal_password && request()->contact->password)
@@ -155,7 +155,7 @@
 <footer id="footer" role="contentinfo">
     <div class="top">
         <div class="wrap">
-            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
+            @if (empty($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
                     <li id="menu-item-31" class="menu-item-31">
@@ -178,7 +178,7 @@
 
     <div class="bottom">
         <div class="wrap">
-            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
+            @if (empty($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                 <div class="copy">Copyright &copy;{{ date('Y') }} <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
             @endif
         </div><!-- .wrap -->

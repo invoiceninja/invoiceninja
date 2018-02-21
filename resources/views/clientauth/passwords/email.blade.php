@@ -44,6 +44,12 @@
                     ->withAttributes(['class' => 'green'])
                     ->large()->submit()->block() !!}
 
+        <div class="row meta">
+            <div class="col-md-12 col-sm-12" style="text-align:center;padding-top:8px;">
+                {!! link_to('/client/login' . (request()->account_key ? '?account_key=' . request()->account_key : ''), trans('texts.return_to_login')) !!}
+            </div>
+        </div>
+
         {!! Former::close() !!}
     </div>
 

@@ -54,7 +54,14 @@ class DocumentRepository extends BaseRepository
 
     public function upload($data, &$doc_array = null)
     {
-        $uploaded = $data['file'];
+        if (! empty($data['grapesjs']) && $data['grapesjs']) {
+            $isProposal = true;
+            $uploaded = $data['files'][0];
+        } else {
+            $isProposal = false;
+            $uploaded = $data['file'];
+        }
+
         $extension = strtolower($uploaded->getClientOriginalExtension());
         if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
             $documentType = Document::$extraExtensions[$extension];
@@ -86,6 +93,11 @@ class DocumentRepository extends BaseRepository
 
         $document = Document::createNew();
         $document->fill($data);
+
+        if ($isProposal) {
+            $document->is_proposal = true;
+            $document->document_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+        }
 
         $disk = $document->getDisk();
         if (! $disk->exists($filename)) {// Have we already stored the same file

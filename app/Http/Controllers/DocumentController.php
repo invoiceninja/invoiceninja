@@ -105,11 +105,20 @@ class DocumentController extends BaseController
                 'code' => 400,
             ], 400);
         } else {
-            return Response::json([
-                'error' => false,
-                'document' => $doc_array,
-                'code' => 200,
-            ], 200);
+            if ($request->grapesjs) {
+                $response = [
+                    'data' => [
+                        $result->getProposalUrl()
+                    ]
+                ];
+            } else {
+                $response = [
+                    'error' => false,
+                    'document' => $doc_array,
+                    'code' => 200,
+                ];
+            }
+            return Response::json($response, 200);
         }
     }
 

@@ -59,7 +59,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    $amount = Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
+                    $amount = $model->amount + Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
                     $str = Utils::formatMoney($amount, $model->expense_currency_id);
 
                     // show both the amount and the converted amount
@@ -85,7 +85,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes != null ? e(substr($model->public_notes, 0, 100)) : '';
+                    return $this->showWithTooltip($model->public_notes);
                 },
             ],
             [
@@ -115,7 +115,7 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("expenses/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
             [

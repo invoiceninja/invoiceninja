@@ -75,6 +75,7 @@ class ReportController extends BaseController
             'activity',
             'aging',
             'client',
+            'credit',
             'document',
             'expense',
             'invoice',

@@ -175,14 +175,18 @@ class AppController extends BaseController
         $_ENV['DB_PASSWORD'] = $db['type']['password'];
 
         if ($mail) {
-            $_ENV['MAIL_DRIVER'] = $mail['driver'];
-            $_ENV['MAIL_PORT'] = $mail['port'];
-            $_ENV['MAIL_ENCRYPTION'] = $mail['encryption'];
-            $_ENV['MAIL_HOST'] = $mail['host'];
-            $_ENV['MAIL_USERNAME'] = $mail['username'];
-            $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
-            $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
-            $_ENV['MAIL_PASSWORD'] = $mail['password'];
+            $prefix = '';
+            if (($user = auth()->user()) && Account::count() > 1) {
+                $prefix = $user->account_id . '_';
+            }
+            $_ENV[$prefix . 'MAIL_DRIVER'] = $mail['driver'];
+            $_ENV[$prefix . 'MAIL_PORT'] = $mail['port'];
+            $_ENV[$prefix . 'MAIL_ENCRYPTION'] = $mail['encryption'];
+            $_ENV[$prefix . 'MAIL_HOST'] = $mail['host'];
+            $_ENV[$prefix . 'MAIL_USERNAME'] = $mail['username'];
+            $_ENV[$prefix . 'MAIL_FROM_NAME'] = $mail['from']['name'];
+            $_ENV[$prefix . 'MAIL_FROM_ADDRESS'] = $mail['from']['address'];
+            $_ENV[$prefix . 'MAIL_PASSWORD'] = $mail['password'];
             $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
             $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
         }

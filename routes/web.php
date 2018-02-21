@@ -15,9 +15,11 @@ Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
-    Route::get('view/{invitation_key}', 'ClientPortalController@view');
+    Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
+    Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalProposalController@downloadProposal');
+    Route::get('proposal/{proposal_invitation_key}', 'ClientPortalProposalController@viewProposal');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
-    Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
+    Route::put('authorize/{invitation_key}', 'ClientPortalController@authorizeInvoice');
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
@@ -29,6 +31,8 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::post('client/payment_methods/verify', 'ClientPortalController@verifyPaymentMethod');
     Route::post('client/payment_methods/default', 'ClientPortalController@setDefaultPaymentMethod');
     Route::post('client/payment_methods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
+    Route::get('client/details', 'ClientPortalController@showDetails');
+    Route::post('client/details', 'ClientPortalController@updateDetails');
     Route::get('client/quotes', 'ClientPortalController@quoteIndex');
     Route::get('client/credits', 'ClientPortalController@creditIndex');
     Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
@@ -102,6 +106,7 @@ Route::group(['middleware' => ['lookup:contact']], function () {
     Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
     Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
     Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
+    Route::get('/proposal/image/{account_key}/{document_key}/{filename?}', 'ClientPortalProposalController@getProposalImage');
 });
 
 if (Utils::isReseller()) {
@@ -202,6 +207,32 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('quotes', 'QuoteController@index');
     Route::get('api/quotes/{client_id?}', 'QuoteController@getDatatable');
     Route::post('quotes/bulk', 'QuoteController@bulk');
+
+    Route::post('proposals/categories/bulk', 'ProposalCategoryController@bulk');
+    Route::get('proposals/categories/{proposal_categories}/edit', 'ProposalCategoryController@edit');
+    Route::get('proposals/categories/create', 'ProposalCategoryController@create');
+    Route::resource('proposals/categories', 'ProposalCategoryController');
+    Route::get('api/proposal_categories', 'ProposalCategoryController@getDatatable');
+
+    Route::post('proposals/snippets/bulk', 'ProposalSnippetController@bulk');
+    Route::get('proposals/snippets/{proposal_snippets}/edit', 'ProposalSnippetController@edit');
+    Route::get('proposals/snippets/create', 'ProposalSnippetController@create');
+    Route::resource('proposals/snippets', 'ProposalSnippetController');
+    Route::get('api/proposal_snippets', 'ProposalSnippetController@getDatatable');
+
+    Route::get('proposals/templates/{proposal_templates}/clone', 'ProposalTemplateController@cloneProposal');
+    Route::post('proposals/templates/bulk', 'ProposalTemplateController@bulk');
+    Route::get('proposals/templates/{proposal_templates}/edit', 'ProposalTemplateController@edit');
+    Route::get('proposals/templates/create', 'ProposalTemplateController@create');
+    Route::resource('proposals/templates', 'ProposalTemplateController');
+    Route::get('api/proposal_templates', 'ProposalTemplateController@getDatatable');
+
+    Route::post('proposals/bulk', 'ProposalController@bulk');
+    Route::get('proposals/{proposals}/edit', 'ProposalController@edit');
+    Route::get('proposals/{proposals}/download', 'ProposalController@download');
+    Route::get('proposals/create/{invoice_id?}/{proposal_template_id?}', 'ProposalController@create');
+    Route::resource('proposals', 'ProposalController');
+    Route::get('api/proposals', 'ProposalController@getDatatable');
 
     Route::resource('payments', 'PaymentController');
     Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');

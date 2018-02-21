@@ -132,6 +132,21 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     }
 
     /**
+     * @return mixed|string
+     */
+    public function getSearchName()
+    {
+        $name = $this->getFullName();
+        $email = $this->email;
+
+        if ($name && $email) {
+            return sprintf('%s <%s>', $name, $email);
+        } else {
+            return $name ?: $email;
+        }
+    }
+
+    /**
      * @param $contact_key
      *
      * @return mixed

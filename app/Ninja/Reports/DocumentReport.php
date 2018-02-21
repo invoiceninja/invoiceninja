@@ -8,12 +8,16 @@ use Barracuda\ArchiveStream\Archive;
 
 class DocumentReport extends AbstractReport
 {
-    public $columns = [
-        'document',
-        'client',
-        'invoice_or_expense',
-        'date',
-    ];
+    public function getColumns()
+    {
+        return [
+            'document' => [],
+            'client' => [],
+            'invoice_or_expense' => [],
+            'date' => [],
+        ];
+    }
+
 
     public function run()
     {
@@ -47,6 +51,10 @@ class DocumentReport extends AbstractReport
         }
 
         if ($this->isExport && $exportFormat == 'zip') {
+            if (! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
+            }
+
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')));
             foreach ($records as $record) {
                 foreach ($record->documents as $document) {

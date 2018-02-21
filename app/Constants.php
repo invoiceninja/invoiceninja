@@ -42,6 +42,11 @@ if (! defined('APP_NAME')) {
     define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
     define('ENTITY_CUSTOMER', 'customer');
     define('ENTITY_SUBSCRIPTION', 'subscription');
+    define('ENTITY_PROPOSAL', 'proposal');
+    define('ENTITY_PROPOSAL_TEMPLATE', 'proposal_template');
+    define('ENTITY_PROPOSAL_SNIPPET', 'proposal_snippet');
+    define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
+    define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
@@ -153,6 +158,7 @@ if (! defined('APP_NAME')) {
     define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000)); // KB
     define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000)); // Total KB
     define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000)); // Total KB (uncompressed)
+    define('MAX_EMAILS_SENT_PER_HOUR', 90);
     define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300)); // pixels
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_HEADER_FONT', 1); // Roboto
@@ -290,6 +296,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
     define('GATEWAY_CYBERSOURCE', 49);
+    define('GATEWAY_PAYTRACE', 56);
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
     define('GATEWAY_CUSTOM', 62);
@@ -331,7 +338,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.1.5' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.2.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -452,6 +459,7 @@ if (! defined('APP_NAME')) {
 
     define('TEMPLATE_INVOICE', 'invoice');
     define('TEMPLATE_QUOTE', 'quote');
+    define('TEMPLATE_PROPOSAL', 'proposal');
     define('TEMPLATE_PARTIAL', 'partial');
     define('TEMPLATE_PAYMENT', 'payment');
     define('TEMPLATE_REMINDER1', 'reminder1');
@@ -516,6 +524,9 @@ if (! defined('APP_NAME')) {
     define('PLAN_WHITE_LABEL', 'white_label');
     define('PLAN_TERM_MONTHLY', 'month');
     define('PLAN_TERM_YEARLY', 'year');
+
+    define('SUBSCRIPTION_FORMAT_JSON', 'JSON');
+    define('SUBSCRIPTION_FORMAT_UBL', 'UBL');
 
     // Pro
     define('FEATURE_CUSTOMIZE_INVOICE_DESIGN', 'customize_invoice_design');
@@ -602,7 +613,6 @@ if (! defined('APP_NAME')) {
         'dateFormats' => 'App\Models\DateFormat',
         'datetimeFormats' => 'App\Models\DatetimeFormat',
         'languages' => 'App\Models\Language',
-        'paymentTerms' => 'App\Models\PaymentTerm',
         'paymentTypes' => 'App\Models\PaymentType',
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',

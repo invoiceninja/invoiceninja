@@ -205,11 +205,11 @@
 			{!! Former::checkbox('enable_apple_pay')
                 ->label(trans('texts.apple_pay'))
                 ->text(trans('texts.enable_apple_pay'))
-				->disabled(Utils::isNinja() && ! $account->subdomain)
-				->help((Utils::isNinja() && ! $account->subdomain) ? trans('texts.requires_subdomain', [
+				->disabled(Utils::isNinjaProd() && ! $account->subdomain)
+				->help((Utils::isNinjaProd() && ! $account->subdomain) ? trans('texts.requires_subdomain', [
 					'link' => link_to('/settings/client_portal', trans('texts.subdomain_is_set'), ['target' => '_blank'])
 				]) : ($accountGateway && $accountGateway->getApplePayEnabled() && Utils::isRootFolder() && ! $accountGateway->getAppleMerchantId() ? 'verification_file_missing' :
-					Utils::isNinja() ? trans('texts.apple_pay_domain', [
+					Utils::isNinjaProd() ? trans('texts.apple_pay_domain', [
 						'domain' => $account->subdomain . '.' . APP_DOMAIN, 'link' => link_to('https://dashboard.stripe.com/account/apple_pay', 'Stripe', ['target' => '_blank']),
 					]) : ''))
                 ->value(1) !!}
@@ -245,7 +245,7 @@
                 </div>
             </div>
 
-            <div class="stripe-ach-options">
+            <div class="stripe-ach-options" style="display:none">
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <h4>{{trans('texts.plaid')}}</h4>

@@ -294,6 +294,7 @@ class NinjaController extends BaseController
         }
 
         $user = Auth::user();
+        $account = $user->account;
         $url = NINJA_APP_URL . '/buy_now';
         $contactKey = $user->primaryAccount()->account_key;
 
@@ -301,9 +302,17 @@ class NinjaController extends BaseController
             'account_key' => NINJA_LICENSE_ACCOUNT_KEY,
             'contact_key' => $contactKey,
             'product_id' => PRODUCT_WHITE_LABEL,
-            'first_name' => Auth::user()->first_name,
-            'last_name' => Auth::user()->last_name,
-            'email' => Auth::user()->email,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'name' => $account->name,
+            'address1' => $account->address1,
+            'address2' => $account->address2,
+            'city' => $account->city,
+            'state' => $account->state,
+            'postal_code' => $account->postal_code,
+            'country_id' => $account->country_id,
+            'vat_number' => $account->vat_number,
             'return_link' => true,
         ];
 

@@ -152,7 +152,7 @@ class AccountGatewayController extends BaseController
             'config' => false,
             'gateways' => $gateways,
             'creditCardTypes' => $creditCards,
-            'countGateways' => count($currentGateways),
+            'countGateways' => $currentGateways->count(),
         ];
     }
 

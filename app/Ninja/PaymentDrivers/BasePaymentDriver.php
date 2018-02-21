@@ -822,11 +822,6 @@ class BasePaymentDriver
         $invoiceItem = $payment->invoice->invoice_items->first();
         $invoiceItem->notes .= "\n\n#{$license->license_key}";
         $invoiceItem->save();
-
-        // Add the license key to the redirect URL
-        $key = 'redirect_url:' . $payment->invitation->invitation_key;
-        $redirectUrl = session($key);
-        session([$key => "{$redirectUrl}?license_key={$license->license_key}&product_id={$productId}"]);
     }
 
     protected function creatingPayment($payment, $paymentMethod)

@@ -23,6 +23,7 @@ class ComposerServiceProvider extends ServiceProvider
                 'expenses.edit',
                 'accounts.localization',
                 'payments.credit_card',
+                'invited.details',
             ],
             'App\Http\ViewComposers\TranslationComposer'
         );
@@ -40,6 +41,15 @@ class ComposerServiceProvider extends ServiceProvider
                  'public.header',
              ],
              'App\Http\ViewComposers\ClientPortalHeaderComposer'
+        );
+
+        view()->composer(
+            [
+                'proposals.edit',
+                'proposals.templates.edit',
+                'proposals.snippets.edit',
+            ],
+             'App\Http\ViewComposers\ProposalComposer'
         );
     }
 

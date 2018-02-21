@@ -38,6 +38,14 @@ class InvoicePresenter extends EntityPresenter
         return $account->formatMoney($invoice->balance, $invoice->client);
     }
 
+    public function paid()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        return $account->formatMoney($invoice->amount - $invoice->balance, $invoice->client);
+    }
+
     public function partial()
     {
         $invoice = $this->entity;
@@ -175,7 +183,7 @@ class InvoicePresenter extends EntityPresenter
     {
         $client = $this->entity->client;
 
-        return count($client->contacts) ? $client->contacts[0]->email : '';
+        return $client->contacts->count() ? $client->contacts[0]->email : '';
     }
 
     public function autoBillEmailMessage()
@@ -253,6 +261,9 @@ class InvoicePresenter extends EntityPresenter
             if ($invoice->quote_invoice_id) {
                 $actions[] = ['url' => url("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
             } else {
+                if (! $invoice->isApproved()) {
+                    $actions[] = ['url' => url("proposals/create/{$invoice->public_id}"), 'label' => trans('texts.new_proposal')];
+                }
                 $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
             }
         } elseif ($entityType == ENTITY_INVOICE) {
@@ -271,7 +282,7 @@ class InvoicePresenter extends EntityPresenter
 
             foreach ($invoice->payments as $payment) {
                 $label = trans('texts.view_payment');
-                if (count($invoice->payments) > 1) {
+                if ($invoice->payments->count() > 1) {
                     $label .= ' - ' . $invoice->account->formatMoney($payment->amount, $invoice->client);
                 }
                 $actions[] = ['url' => $payment->present()->url, 'label' => $label];

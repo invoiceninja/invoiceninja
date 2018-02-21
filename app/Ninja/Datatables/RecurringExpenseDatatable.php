@@ -70,7 +70,7 @@ class RecurringExpenseDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
-                    $amount = Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
+                    $amount = $model->amount + Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
                     $str = Utils::formatMoney($amount, $model->expense_currency_id);
 
                     /*
@@ -98,7 +98,7 @@ class RecurringExpenseDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
+                    return $this->showWithTooltip($model->public_notes, 100);
                 },
             ],
         ];

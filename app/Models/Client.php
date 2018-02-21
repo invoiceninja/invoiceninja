@@ -351,7 +351,7 @@ class Client extends EntityModel
             return $this->name;
         }
 
-        if (! count($this->contacts)) {
+        if (! $this->contacts->count()) {
             return '';
         }
 
@@ -384,6 +384,29 @@ class Client extends EntityModel
     public function showMap()
     {
         return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function addressesMatch()
+    {
+        $fields = [
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'country_id',
+        ];
+
+        foreach ($fields as $field) {
+            if ($this->$field != $this->{'shipping_' . $field}) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

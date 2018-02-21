@@ -7,12 +7,30 @@ use Auth;
 
 class ClientReport extends AbstractReport
 {
-    public $columns = [
-            'client',
-            'amount',
-            'paid',
-            'balance',
-    ];
+    public function getColumns()
+    {
+        $columns = [
+            'client' => [],
+            'amount' => [],
+            'paid' => [],
+            'balance' => [],
+            'public_notes' => ['columnSelector-false'],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+        ];
+
+        $user = auth()->user();
+        $account = $user->account;
+
+        if ($account->custom_client_label1) {
+            $columns[$account->present()->customClientLabel1] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->custom_client_label2) {
+            $columns[$account->present()->customClientLabel2] = ['columnSelector-false', 'custom'];
+        }
+
+        return $columns;
+    }
 
     public function run()
     {
@@ -21,7 +39,7 @@ class ClientReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with(['contacts', 'user'])
                         ->with(['invoices' => function ($query) {
                             $query->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
@@ -39,12 +57,24 @@ class ClientReport extends AbstractReport
                 $paid += $invoice->getAmountPaid();
             }
 
-            $this->data[] = [
+            $row = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $account->formatMoney($amount, $client),
                 $account->formatMoney($paid, $client),
                 $account->formatMoney($amount - $paid, $client),
+                $client->public_notes,
+                $client->private_notes,
+                $client->user->getDisplayName(),
             ];
+
+            if ($account->custom_client_label1) {
+                $row[] = $client->custom_value1;
+            }
+            if ($account->custom_client_label2) {
+                $row[] = $client->custom_value2;
+            }
+
+            $this->data[] = $row;
 
             $this->addToTotals($client->currency_id, 'amount', $amount);
             $this->addToTotals($client->currency_id, 'paid', $paid);

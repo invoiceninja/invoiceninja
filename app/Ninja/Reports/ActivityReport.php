@@ -7,12 +7,15 @@ use Auth;
 
 class ActivityReport extends AbstractReport
 {
-    public $columns = [
-        'date',
-        'client',
-        'user',
-        'activity',
-    ];
+    public function getColumns()
+    {
+        return [
+            'date' => [],
+            'client' => [],
+            'user' => [],
+            'activity' => [],
+        ];
+    }
 
     public function run()
     {

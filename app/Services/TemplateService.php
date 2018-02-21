@@ -27,7 +27,13 @@ class TemplateService
         /** @var \App\Models\Invitation $invitation */
         $invitation = $data['invitation'];
 
-        $invoice = $invitation->invoice;
+        // check if it's a proposal
+        if ($invitation->proposal) {
+            $invoice = $invitation->proposal->invoice;
+        } else {
+            $invoice = $invitation->invoice;
+        }
+
         $contact = $invitation->contact;
         $passwordHTML = isset($data['password']) ? '<p>'.trans('texts.password').': '.$data['password'].'<p>' : false;
         $documentsHTML = '';

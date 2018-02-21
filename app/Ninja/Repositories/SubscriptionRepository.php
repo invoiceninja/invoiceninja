@@ -21,7 +21,8 @@ class SubscriptionRepository extends BaseRepository
                     'subscriptions.public_id',
                     'subscriptions.target_url as target',
                     'subscriptions.event_id as event',
-                    'subscriptions.deleted_at'
+                    'subscriptions.deleted_at',
+                    'subscriptions.format'
                 );
 
         return $query;

@@ -14,6 +14,8 @@ class ProductDatatable extends EntityDatatable
 
     public function columns()
     {
+        $account = Auth::user()->account;
+
         return [
             [
                 'product_key',
@@ -24,7 +26,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'notes',
                 function ($model) {
-                    return e(Str::limit($model->notes, 100));
+                    return $this->showWithTooltip($model->notes);
                 },
             ],
             [
@@ -38,8 +40,22 @@ class ProductDatatable extends EntityDatatable
                 function ($model) {
                     return $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : '';
                 },
-                Auth::user()->account->invoice_item_taxes,
+                $account->invoice_item_taxes,
             ],
+            [
+                'custom_value1',
+                function ($model) {
+                    return $model->custom_value1;
+                },
+                $account->custom_invoice_item_label1
+            ],
+            [
+                'custom_value2',
+                function ($model) {
+                    return $model->custom_value2;
+                },
+                $account->custom_invoice_item_label2
+            ]
         ];
     }
 

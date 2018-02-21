@@ -53,17 +53,5 @@ class Kernel extends ConsoleKernel
             ->command('ninja:send-reminders --force')
             ->sendOutputTo($logFile)
             ->daily();
-
-        if (Utils::isNinja()) {
-            $schedule
-                ->command('ninja:send-renewals --force')
-                ->sendOutputTo($logFile)
-                ->daily();
-        }
-
-        $schedule
-            ->command('updater:check-for-update --prefixVersionWith=v')
-            ->sendOutputTo($logFile)
-            ->daily();
     }
 }

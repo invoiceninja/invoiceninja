@@ -66,9 +66,9 @@
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customClientLabel1 }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label1 }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customClientLabel1 }}</span>'
             }
           }
           @endif
@@ -77,9 +77,9 @@
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customClientLabel2 }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label2 }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customClientLabel2 }}</span>'
             }
           }
           @endif
@@ -250,7 +250,7 @@
         @if (Auth::check())
           @if (!Auth::user()->registered)
               @if (!Auth::user()->confirmed)
-                {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
+                {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'onclick' => 'showSignUp()', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
               @endif
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
             @if (Auth::user()->account->company->hasActivePromo())
@@ -350,6 +350,7 @@
             'recurring_invoices' => 'recurring',
             'credits' => false,
             'quotes' => false,
+            'proposals' => false,
             'projects' => false,
             'tasks' => false,
             'expenses' => false,
@@ -378,6 +379,7 @@
                 'recurring_invoices',
                 'credits',
                 'quotes',
+                'proposals',
                 'projects',
                 'tasks',
                 'expenses',

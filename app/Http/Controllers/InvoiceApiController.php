@@ -68,6 +68,11 @@ class InvoiceApiController extends BaseAPIController
             $invoices->whereInvoiceNumber($invoiceNumber);
         }
 
+        // Fllter by status
+        if ($statusId = Input::get('status_id')) {
+            $invoices->where('invoice_status_id', '>=', $statusId);
+        }
+
         return $this->listResponse($invoices);
     }
 

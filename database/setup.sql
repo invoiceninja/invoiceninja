@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: ninja
 -- ------------------------------------------------------
--- Server version	5.7.20-0ubuntu0.16.04.1
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -19,7 +19,6 @@
 -- Table structure for table `account_email_settings`
 --
 
-DROP TABLE IF EXISTS `account_email_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_email_settings` (
@@ -50,6 +49,8 @@ CREATE TABLE `account_email_settings` (
   `email_subject_reminder4` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `email_template_reminder4` text COLLATE utf8_unicode_ci,
   `frequency_id_reminder4` int(10) unsigned DEFAULT NULL,
+  `email_subject_proposal` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email_template_proposal` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `account_email_settings_account_id_index` (`account_id`),
   CONSTRAINT `account_email_settings_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
@@ -69,7 +70,6 @@ UNLOCK TABLES;
 -- Table structure for table `account_gateway_settings`
 --
 
-DROP TABLE IF EXISTS `account_gateway_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_gateway_settings` (
@@ -109,7 +109,6 @@ UNLOCK TABLES;
 -- Table structure for table `account_gateway_tokens`
 --
 
-DROP TABLE IF EXISTS `account_gateway_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_gateway_tokens` (
@@ -150,7 +149,6 @@ UNLOCK TABLES;
 -- Table structure for table `account_gateways`
 --
 
-DROP TABLE IF EXISTS `account_gateways`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_gateways` (
@@ -192,7 +190,6 @@ UNLOCK TABLES;
 -- Table structure for table `account_tokens`
 --
 
-DROP TABLE IF EXISTS `account_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_tokens` (
@@ -228,7 +225,6 @@ UNLOCK TABLES;
 -- Table structure for table `accounts`
 --
 
-DROP TABLE IF EXISTS `accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `accounts` (
@@ -379,6 +375,7 @@ CREATE TABLE `accounts` (
   `convert_products` tinyint(1) NOT NULL DEFAULT '0',
   `enable_reminder4` tinyint(1) NOT NULL DEFAULT '0',
   `signature_on_pdf` tinyint(1) NOT NULL DEFAULT '0',
+  `ubl_email_attachment` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `accounts_account_key_unique` (`account_key`),
   KEY `accounts_timezone_id_foreign` (`timezone_id`),
@@ -417,7 +414,6 @@ UNLOCK TABLES;
 -- Table structure for table `activities`
 --
 
-DROP TABLE IF EXISTS `activities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `activities` (
@@ -462,7 +458,6 @@ UNLOCK TABLES;
 -- Table structure for table `affiliates`
 --
 
-DROP TABLE IF EXISTS `affiliates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `affiliates` (
@@ -493,7 +488,6 @@ UNLOCK TABLES;
 -- Table structure for table `bank_accounts`
 --
 
-DROP TABLE IF EXISTS `bank_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bank_accounts` (
@@ -532,7 +526,6 @@ UNLOCK TABLES;
 -- Table structure for table `bank_subaccounts`
 --
 
-DROP TABLE IF EXISTS `bank_subaccounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bank_subaccounts` (
@@ -570,7 +563,6 @@ UNLOCK TABLES;
 -- Table structure for table `banks`
 --
 
-DROP TABLE IF EXISTS `banks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `banks` (
@@ -597,7 +589,6 @@ UNLOCK TABLES;
 -- Table structure for table `clients`
 --
 
-DROP TABLE IF EXISTS `clients`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `clients` (
@@ -679,7 +670,6 @@ UNLOCK TABLES;
 -- Table structure for table `companies`
 --
 
-DROP TABLE IF EXISTS `companies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `companies` (
@@ -730,7 +720,6 @@ UNLOCK TABLES;
 -- Table structure for table `contacts`
 --
 
-DROP TABLE IF EXISTS `contacts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `contacts` (
@@ -779,7 +768,6 @@ UNLOCK TABLES;
 -- Table structure for table `countries`
 --
 
-DROP TABLE IF EXISTS `countries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `countries` (
@@ -819,7 +807,6 @@ UNLOCK TABLES;
 -- Table structure for table `credits`
 --
 
-DROP TABLE IF EXISTS `credits`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `credits` (
@@ -863,7 +850,6 @@ UNLOCK TABLES;
 -- Table structure for table `currencies`
 --
 
-DROP TABLE IF EXISTS `currencies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `currencies` (
@@ -877,7 +863,7 @@ CREATE TABLE `currencies` (
   `swap_currency_symbol` tinyint(1) NOT NULL DEFAULT '0',
   `exchange_rate` decimal(13,4) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -886,7 +872,7 @@ CREATE TABLE `currencies` (
 
 LOCK TABLES `currencies` WRITE;
 /*!40000 ALTER TABLE `currencies` DISABLE KEYS */;
-INSERT INTO `currencies` VALUES (1,'US Dollar','$','2',',','.','USD',0,NULL),(2,'British Pound','£','2',',','.','GBP',0,NULL),(3,'Euro','€','2','.',',','EUR',0,NULL),(4,'South African Rand','R','2','.',',','ZAR',0,NULL),(5,'Danish Krone','kr','2','.',',','DKK',1,NULL),(6,'Israeli Shekel','NIS ','2',',','.','ILS',0,NULL),(7,'Swedish Krona','kr','2','.',',','SEK',1,NULL),(8,'Kenyan Shilling','KSh ','2',',','.','KES',0,NULL),(9,'Canadian Dollar','C$','2',',','.','CAD',0,NULL),(10,'Philippine Peso','P ','2',',','.','PHP',0,NULL),(11,'Indian Rupee','Rs. ','2',',','.','INR',0,NULL),(12,'Australian Dollar','$','2',',','.','AUD',0,NULL),(13,'Singapore Dollar','','2',',','.','SGD',0,NULL),(14,'Norske Kroner','kr','2','.',',','NOK',1,NULL),(15,'New Zealand Dollar','$','2',',','.','NZD',0,NULL),(16,'Vietnamese Dong','','0','.',',','VND',0,NULL),(17,'Swiss Franc','','2','\'','.','CHF',0,NULL),(18,'Guatemalan Quetzal','Q','2',',','.','GTQ',0,NULL),(19,'Malaysian Ringgit','RM','2',',','.','MYR',0,NULL),(20,'Brazilian Real','R$','2','.',',','BRL',0,NULL),(21,'Thai Baht','','2',',','.','THB',0,NULL),(22,'Nigerian Naira','','2',',','.','NGN',0,NULL),(23,'Argentine Peso','$','2','.',',','ARS',0,NULL),(24,'Bangladeshi Taka','Tk','2',',','.','BDT',0,NULL),(25,'United Arab Emirates Dirham','DH ','2',',','.','AED',0,NULL),(26,'Hong Kong Dollar','','2',',','.','HKD',0,NULL),(27,'Indonesian Rupiah','Rp','2',',','.','IDR',0,NULL),(28,'Mexican Peso','$','2',',','.','MXN',0,NULL),(29,'Egyptian Pound','E£','2',',','.','EGP',0,NULL),(30,'Colombian Peso','$','2','.',',','COP',0,NULL),(31,'West African Franc','CFA ','2',',','.','XOF',0,NULL),(32,'Chinese Renminbi','RMB ','2',',','.','CNY',0,NULL),(33,'Rwandan Franc','RF ','2',',','.','RWF',0,NULL),(34,'Tanzanian Shilling','TSh ','2',',','.','TZS',0,NULL),(35,'Netherlands Antillean Guilder','','2','.',',','ANG',0,NULL),(36,'Trinidad and Tobago Dollar','TT$','2',',','.','TTD',0,NULL),(37,'East Caribbean Dollar','EC$','2',',','.','XCD',0,NULL),(38,'Ghanaian Cedi','','2',',','.','GHS',0,NULL),(39,'Bulgarian Lev','','2',' ','.','BGN',0,NULL),(40,'Aruban Florin','Afl. ','2',' ','.','AWG',0,NULL),(41,'Turkish Lira','TL ','2','.',',','TRY',0,NULL),(42,'Romanian New Leu','','2',',','.','RON',0,NULL),(43,'Croatian Kuna','kn','2','.',',','HRK',0,NULL),(44,'Saudi Riyal','','2',',','.','SAR',0,NULL),(45,'Japanese Yen','¥','0',',','.','JPY',0,NULL),(46,'Maldivian Rufiyaa','','2',',','.','MVR',0,NULL),(47,'Costa Rican Colón','','2',',','.','CRC',0,NULL),(48,'Pakistani Rupee','Rs ','0',',','.','PKR',0,NULL),(49,'Polish Zloty','zł','2',' ',',','PLN',1,NULL),(50,'Sri Lankan Rupee','LKR','2',',','.','LKR',1,NULL),(51,'Czech Koruna','Kč','2',' ',',','CZK',1,NULL),(52,'Uruguayan Peso','$','2','.',',','UYU',0,NULL),(53,'Namibian Dollar','$','2',',','.','NAD',0,NULL),(54,'Tunisian Dinar','','2',',','.','TND',0,NULL),(55,'Russian Ruble','','2',',','.','RUB',0,NULL),(56,'Mozambican Metical','MT','2','.',',','MZN',1,NULL),(57,'Omani Rial','','2',',','.','OMR',0,NULL),(58,'Ukrainian Hryvnia','','2',',','.','UAH',0,NULL),(59,'Macanese Pataca','MOP$','2',',','.','MOP',0,NULL),(60,'Taiwan New Dollar','NT$','2',',','.','TWD',0,NULL),(61,'Dominican Peso','RD$','2',',','.','DOP',0,NULL),(62,'Chilean Peso','$','0','.',',','CLP',0,NULL),(63,'Icelandic Króna','kr','2','.',',','ISK',1,NULL),(64,'Papua New Guinean Kina','K','2',',','.','PGK',0,NULL),(65,'Jordanian Dinar','','2',',','.','JOD',0,NULL),(66,'Myanmar Kyat','K','2',',','.','MMK',0,NULL),(67,'Peruvian Sol','S/ ','2',',','.','PEN',0,NULL),(68,'Botswana Pula','P','2',',','.','BWP',0,NULL),(69,'Hungarian Forint','Ft','0','.',',','HUF',1,NULL);
+INSERT INTO `currencies` VALUES (1,'US Dollar','$','2',',','.','USD',0,NULL),(2,'British Pound','£','2',',','.','GBP',0,NULL),(3,'Euro','€','2','.',',','EUR',0,NULL),(4,'South African Rand','R','2','.',',','ZAR',0,NULL),(5,'Danish Krone','kr','2','.',',','DKK',1,NULL),(6,'Israeli Shekel','NIS ','2',',','.','ILS',0,NULL),(7,'Swedish Krona','kr','2','.',',','SEK',1,NULL),(8,'Kenyan Shilling','KSh ','2',',','.','KES',0,NULL),(9,'Canadian Dollar','C$','2',',','.','CAD',0,NULL),(10,'Philippine Peso','P ','2',',','.','PHP',0,NULL),(11,'Indian Rupee','Rs. ','2',',','.','INR',0,NULL),(12,'Australian Dollar','$','2',',','.','AUD',0,NULL),(13,'Singapore Dollar','','2',',','.','SGD',0,NULL),(14,'Norske Kroner','kr','2','.',',','NOK',1,NULL),(15,'New Zealand Dollar','$','2',',','.','NZD',0,NULL),(16,'Vietnamese Dong','','0','.',',','VND',0,NULL),(17,'Swiss Franc','','2','\'','.','CHF',0,NULL),(18,'Guatemalan Quetzal','Q','2',',','.','GTQ',0,NULL),(19,'Malaysian Ringgit','RM','2',',','.','MYR',0,NULL),(20,'Brazilian Real','R$','2','.',',','BRL',0,NULL),(21,'Thai Baht','','2',',','.','THB',0,NULL),(22,'Nigerian Naira','','2',',','.','NGN',0,NULL),(23,'Argentine Peso','$','2','.',',','ARS',0,NULL),(24,'Bangladeshi Taka','Tk','2',',','.','BDT',0,NULL),(25,'United Arab Emirates Dirham','DH ','2',',','.','AED',0,NULL),(26,'Hong Kong Dollar','','2',',','.','HKD',0,NULL),(27,'Indonesian Rupiah','Rp','2',',','.','IDR',0,NULL),(28,'Mexican Peso','$','2',',','.','MXN',0,NULL),(29,'Egyptian Pound','E£','2',',','.','EGP',0,NULL),(30,'Colombian Peso','$','2','.',',','COP',0,NULL),(31,'West African Franc','CFA ','2',',','.','XOF',0,NULL),(32,'Chinese Renminbi','RMB ','2',',','.','CNY',0,NULL),(33,'Rwandan Franc','RF ','2',',','.','RWF',0,NULL),(34,'Tanzanian Shilling','TSh ','2',',','.','TZS',0,NULL),(35,'Netherlands Antillean Guilder','','2','.',',','ANG',0,NULL),(36,'Trinidad and Tobago Dollar','TT$','2',',','.','TTD',0,NULL),(37,'East Caribbean Dollar','EC$','2',',','.','XCD',0,NULL),(38,'Ghanaian Cedi','','2',',','.','GHS',0,NULL),(39,'Bulgarian Lev','','2',' ','.','BGN',0,NULL),(40,'Aruban Florin','Afl. ','2',' ','.','AWG',0,NULL),(41,'Turkish Lira','TL ','2','.',',','TRY',0,NULL),(42,'Romanian New Leu','','2',',','.','RON',0,NULL),(43,'Croatian Kuna','kn','2','.',',','HRK',0,NULL),(44,'Saudi Riyal','','2',',','.','SAR',0,NULL),(45,'Japanese Yen','¥','0',',','.','JPY',0,NULL),(46,'Maldivian Rufiyaa','','2',',','.','MVR',0,NULL),(47,'Costa Rican Colón','','2',',','.','CRC',0,NULL),(48,'Pakistani Rupee','Rs ','0',',','.','PKR',0,NULL),(49,'Polish Zloty','zł','2',' ',',','PLN',1,NULL),(50,'Sri Lankan Rupee','LKR','2',',','.','LKR',1,NULL),(51,'Czech Koruna','Kč','2',' ',',','CZK',1,NULL),(52,'Uruguayan Peso','$','2','.',',','UYU',0,NULL),(53,'Namibian Dollar','$','2',',','.','NAD',0,NULL),(54,'Tunisian Dinar','','2',',','.','TND',0,NULL),(55,'Russian Ruble','','2',',','.','RUB',0,NULL),(56,'Mozambican Metical','MT','2','.',',','MZN',1,NULL),(57,'Omani Rial','','2',',','.','OMR',0,NULL),(58,'Ukrainian Hryvnia','','2',',','.','UAH',0,NULL),(59,'Macanese Pataca','MOP$','2',',','.','MOP',0,NULL),(60,'Taiwan New Dollar','NT$','2',',','.','TWD',0,NULL),(61,'Dominican Peso','RD$','2',',','.','DOP',0,NULL),(62,'Chilean Peso','$','0','.',',','CLP',0,NULL),(63,'Icelandic Króna','kr','2','.',',','ISK',1,NULL),(64,'Papua New Guinean Kina','K','2',',','.','PGK',0,NULL),(65,'Jordanian Dinar','','2',',','.','JOD',0,NULL),(66,'Myanmar Kyat','K','2',',','.','MMK',0,NULL),(67,'Peruvian Sol','S/ ','2',',','.','PEN',0,NULL),(68,'Botswana Pula','P','2',',','.','BWP',0,NULL),(69,'Hungarian Forint','Ft','0','.',',','HUF',1,NULL),(70,'Ugandan Shilling','USh ','2',',','.','UGX',0,NULL),(71,'Barbadian Dollar','$','2',',','.','BBD',0,NULL),(72,'Brunei Dollar','B$','2',',','.','BND',0,NULL);
 /*!40000 ALTER TABLE `currencies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -894,7 +880,6 @@ UNLOCK TABLES;
 -- Table structure for table `date_formats`
 --
 
-DROP TABLE IF EXISTS `date_formats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `date_formats` (
@@ -920,7 +905,6 @@ UNLOCK TABLES;
 -- Table structure for table `datetime_formats`
 --
 
-DROP TABLE IF EXISTS `datetime_formats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `datetime_formats` (
@@ -945,7 +929,6 @@ UNLOCK TABLES;
 -- Table structure for table `db_servers`
 --
 
-DROP TABLE IF EXISTS `db_servers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `db_servers` (
@@ -969,7 +952,6 @@ UNLOCK TABLES;
 -- Table structure for table `documents`
 --
 
-DROP TABLE IF EXISTS `documents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `documents` (
@@ -991,8 +973,11 @@ CREATE TABLE `documents` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `is_default` tinyint(1) DEFAULT '0',
+  `is_proposal` tinyint(1) NOT NULL DEFAULT '0',
+  `document_key` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `documents_account_id_public_id_unique` (`account_id`,`public_id`),
+  UNIQUE KEY `documents_document_key_unique` (`document_key`),
   KEY `documents_user_id_foreign` (`user_id`),
   KEY `documents_invoice_id_foreign` (`invoice_id`),
   KEY `documents_expense_id_foreign` (`expense_id`),
@@ -1016,7 +1001,6 @@ UNLOCK TABLES;
 -- Table structure for table `expense_categories`
 --
 
-DROP TABLE IF EXISTS `expense_categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `expense_categories` (
@@ -1052,7 +1036,6 @@ UNLOCK TABLES;
 -- Table structure for table `expenses`
 --
 
-DROP TABLE IF EXISTS `expenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `expenses` (
@@ -1118,7 +1101,6 @@ UNLOCK TABLES;
 -- Table structure for table `failed_jobs`
 --
 
-DROP TABLE IF EXISTS `failed_jobs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `failed_jobs` (
@@ -1144,7 +1126,6 @@ UNLOCK TABLES;
 -- Table structure for table `fonts`
 --
 
-DROP TABLE IF EXISTS `fonts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fonts` (
@@ -1177,7 +1158,6 @@ UNLOCK TABLES;
 -- Table structure for table `frequencies`
 --
 
-DROP TABLE IF EXISTS `frequencies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `frequencies` (
@@ -1202,7 +1182,6 @@ UNLOCK TABLES;
 -- Table structure for table `gateway_types`
 --
 
-DROP TABLE IF EXISTS `gateway_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gateway_types` (
@@ -1227,7 +1206,6 @@ UNLOCK TABLES;
 -- Table structure for table `gateways`
 --
 
-DROP TABLE IF EXISTS `gateways`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gateways` (
@@ -1255,7 +1233,7 @@ CREATE TABLE `gateways` (
 
 LOCK TABLES `gateways` WRITE;
 /*!40000 ALTER TABLE `gateways` DISABLE KEYS */;
-INSERT INTO `gateways` VALUES (1,'2018-01-08 16:45:21','2018-01-08 16:45:21','Authorize.Net AIM','AuthorizeNet_AIM',1,1,5,0,NULL,0,0),(2,'2018-01-08 16:45:21','2018-01-08 16:45:21','Authorize.Net SIM','AuthorizeNet_SIM',1,2,10000,0,NULL,0,0),(3,'2018-01-08 16:45:21','2018-01-08 16:45:21','CardSave','CardSave',1,1,10000,0,NULL,0,0),(4,'2018-01-08 16:45:21','2018-01-08 16:45:21','Eway Rapid','Eway_RapidShared',1,1,10000,0,NULL,1,0),(5,'2018-01-08 16:45:21','2018-01-08 16:45:21','FirstData Connect','FirstData_Connect',1,1,10000,0,NULL,0,0),(6,'2018-01-08 16:45:21','2018-01-08 16:45:21','GoCardless','GoCardless',1,2,10000,0,NULL,1,0),(7,'2018-01-08 16:45:21','2018-01-08 16:45:21','Migs ThreeParty','Migs_ThreeParty',1,1,10000,0,NULL,0,0),(8,'2018-01-08 16:45:21','2018-01-08 16:45:21','Migs TwoParty','Migs_TwoParty',1,1,10000,0,NULL,0,0),(9,'2018-01-08 16:45:21','2018-01-08 16:45:21','Mollie','Mollie',1,1,8,0,NULL,1,0),(10,'2018-01-08 16:45:21','2018-01-08 16:45:21','MultiSafepay','MultiSafepay',1,1,10000,0,NULL,0,0),(11,'2018-01-08 16:45:21','2018-01-08 16:45:21','Netaxept','Netaxept',1,1,10000,0,NULL,0,0),(12,'2018-01-08 16:45:21','2018-01-08 16:45:21','NetBanx','NetBanx',1,1,10000,0,NULL,0,0),(13,'2018-01-08 16:45:21','2018-01-08 16:45:21','PayFast','PayFast',1,1,10000,0,NULL,1,0),(14,'2018-01-08 16:45:21','2018-01-08 16:45:21','Payflow Pro','Payflow_Pro',1,1,10000,0,NULL,0,0),(15,'2018-01-08 16:45:21','2018-01-08 16:45:21','PaymentExpress PxPay','PaymentExpress_PxPay',1,1,10000,0,NULL,0,0),(16,'2018-01-08 16:45:21','2018-01-08 16:45:21','PaymentExpress PxPost','PaymentExpress_PxPost',1,1,10000,0,NULL,0,0),(17,'2018-01-08 16:45:21','2018-01-08 16:45:21','PayPal Express','PayPal_Express',1,1,4,0,NULL,1,0),(18,'2018-01-08 16:45:21','2018-01-08 16:45:21','PayPal Pro','PayPal_Pro',1,1,10000,0,NULL,0,0),(19,'2018-01-08 16:45:21','2018-01-08 16:45:21','Pin','Pin',1,1,10000,0,NULL,0,0),(20,'2018-01-08 16:45:21','2018-01-08 16:45:21','SagePay Direct','SagePay_Direct',1,1,10000,0,NULL,0,0),(21,'2018-01-08 16:45:21','2018-01-08 16:45:21','SagePay Server','SagePay_Server',1,1,10000,0,NULL,0,0),(22,'2018-01-08 16:45:21','2018-01-08 16:45:21','SecurePay DirectPost','SecurePay_DirectPost',1,1,10000,0,NULL,0,0),(23,'2018-01-08 16:45:21','2018-01-08 16:45:21','Stripe','Stripe',1,1,1,0,NULL,0,0),(24,'2018-01-08 16:45:21','2018-01-08 16:45:21','TargetPay Direct eBanking','TargetPay_Directebanking',1,1,10000,0,NULL,0,0),(25,'2018-01-08 16:45:21','2018-01-08 16:45:21','TargetPay Ideal','TargetPay_Ideal',1,1,10000,0,NULL,0,0),(26,'2018-01-08 16:45:21','2018-01-08 16:45:21','TargetPay Mr Cash','TargetPay_Mrcash',1,1,10000,0,NULL,0,0),(27,'2018-01-08 16:45:21','2018-01-08 16:45:21','TwoCheckout','TwoCheckout',1,1,10000,0,NULL,1,0),(28,'2018-01-08 16:45:21','2018-01-08 16:45:21','WorldPay','WorldPay',1,1,10000,0,NULL,0,0),(29,'2018-01-08 16:45:21','2018-01-08 16:45:21','BeanStream','BeanStream',1,2,10000,0,NULL,0,0),(30,'2018-01-08 16:45:21','2018-01-08 16:45:21','Psigate','Psigate',1,2,10000,0,NULL,0,0),(31,'2018-01-08 16:45:21','2018-01-08 16:45:21','moolah','AuthorizeNet_AIM',1,1,10000,0,NULL,0,0),(32,'2018-01-08 16:45:21','2018-01-08 16:45:21','Alipay','Alipay_Express',1,1,10000,0,NULL,0,0),(33,'2018-01-08 16:45:21','2018-01-08 16:45:21','Buckaroo','Buckaroo_CreditCard',1,1,10000,0,NULL,0,0),(34,'2018-01-08 16:45:21','2018-01-08 16:45:21','Coinbase','Coinbase',1,1,10000,0,NULL,0,0),(35,'2018-01-08 16:45:21','2018-01-08 16:45:21','DataCash','DataCash',1,1,10000,0,NULL,0,0),(36,'2018-01-08 16:45:21','2018-01-08 16:45:21','Neteller','Neteller',1,2,10000,0,NULL,0,0),(37,'2018-01-08 16:45:21','2018-01-08 16:45:21','Pacnet','Pacnet',1,1,10000,0,NULL,0,0),(38,'2018-01-08 16:45:21','2018-01-08 16:45:21','PaymentSense','PaymentSense',1,2,10000,0,NULL,0,0),(39,'2018-01-08 16:45:21','2018-01-08 16:45:21','Realex','Realex_Remote',1,1,10000,0,NULL,0,0),(40,'2018-01-08 16:45:21','2018-01-08 16:45:21','Sisow','Sisow',1,1,10000,0,NULL,0,0),(41,'2018-01-08 16:45:21','2018-01-08 16:45:21','Skrill','Skrill',1,1,10000,0,NULL,1,0),(42,'2018-01-08 16:45:21','2018-01-08 16:45:21','BitPay','BitPay',1,1,7,0,NULL,1,0),(43,'2018-01-08 16:45:21','2018-01-08 16:45:21','Dwolla','Dwolla',1,1,6,0,NULL,1,0),(44,'2018-01-08 16:45:21','2018-01-08 16:45:21','AGMS','Agms',1,1,10000,0,NULL,0,0),(45,'2018-01-08 16:45:21','2018-01-08 16:45:21','Barclays','BarclaysEpdq\\Essential',1,1,10000,0,NULL,0,0),(46,'2018-01-08 16:45:21','2018-01-08 16:45:21','Cardgate','Cardgate',1,1,10000,0,NULL,0,0),(47,'2018-01-08 16:45:21','2018-01-08 16:45:21','Checkout.com','CheckoutCom',1,1,10000,0,NULL,0,0),(48,'2018-01-08 16:45:21','2018-01-08 16:45:21','Creditcall','Creditcall',1,1,10000,0,NULL,0,0),(49,'2018-01-08 16:45:21','2018-01-08 16:45:21','Cybersource','Cybersource',1,1,10000,0,NULL,0,0),(50,'2018-01-08 16:45:21','2018-01-08 16:45:21','ecoPayz','Ecopayz',1,1,10000,0,NULL,0,0),(51,'2018-01-08 16:45:21','2018-01-08 16:45:21','Fasapay','Fasapay',1,1,10000,0,NULL,0,0),(52,'2018-01-08 16:45:21','2018-01-08 16:45:21','Komoju','Komoju',1,1,10000,0,NULL,0,0),(53,'2018-01-08 16:45:21','2018-01-08 16:45:21','Multicards','Multicards',1,1,10000,0,NULL,0,0),(54,'2018-01-08 16:45:21','2018-01-08 16:45:21','Pagar.Me','Pagarme',1,2,10000,0,NULL,0,0),(55,'2018-01-08 16:45:21','2018-01-08 16:45:21','Paysafecard','Paysafecard',1,1,10000,0,NULL,0,0),(56,'2018-01-08 16:45:21','2018-01-08 16:45:21','Paytrace','Paytrace_CreditCard',1,1,10000,0,NULL,0,0),(57,'2018-01-08 16:45:21','2018-01-08 16:45:21','Secure Trading','SecureTrading',1,1,10000,0,NULL,0,0),(58,'2018-01-08 16:45:21','2018-01-08 16:45:21','SecPay','SecPay',1,1,10000,0,NULL,0,0),(59,'2018-01-08 16:45:21','2018-01-08 16:45:21','WeChat Express','WeChat_Express',1,2,10000,0,NULL,0,0),(60,'2018-01-08 16:45:21','2018-01-08 16:45:21','WePay','WePay',1,1,3,0,NULL,0,0),(61,'2018-01-08 16:45:21','2018-01-08 16:45:21','Braintree','Braintree',1,1,3,0,NULL,0,0),(62,'2018-01-08 16:45:21','2018-01-08 16:45:21','Custom','Custom',1,1,20,0,NULL,1,0),(63,'2018-01-08 16:45:21','2018-01-08 16:45:21','FirstData Payeezy','FirstData_Payeezy',1,1,10000,0,NULL,0,0),(64,'2018-01-08 16:45:21','2018-01-08 16:45:21','GoCardless','GoCardlessV2\\Redirect',1,1,9,0,NULL,1,0),(65,'2018-01-08 16:45:21','2018-01-08 16:45:21','PagSeguro','PagSeguro',1,1,10000,0,NULL,0,0);
+INSERT INTO `gateways` VALUES (1,'2018-02-21 16:58:00','2018-02-21 16:58:00','Authorize.Net AIM','AuthorizeNet_AIM',1,1,5,0,NULL,0,0),(2,'2018-02-21 16:58:00','2018-02-21 16:58:00','Authorize.Net SIM','AuthorizeNet_SIM',1,2,10000,0,NULL,0,0),(3,'2018-02-21 16:58:00','2018-02-21 16:58:00','CardSave','CardSave',1,1,10000,0,NULL,0,0),(4,'2018-02-21 16:58:00','2018-02-21 16:58:00','Eway Rapid','Eway_RapidShared',1,1,10000,0,NULL,1,0),(5,'2018-02-21 16:58:00','2018-02-21 16:58:00','FirstData Connect','FirstData_Connect',1,1,10000,0,NULL,0,0),(6,'2018-02-21 16:58:00','2018-02-21 16:58:00','GoCardless','GoCardless',1,2,10000,0,NULL,1,0),(7,'2018-02-21 16:58:00','2018-02-21 16:58:00','Migs ThreeParty','Migs_ThreeParty',1,1,10000,0,NULL,0,0),(8,'2018-02-21 16:58:00','2018-02-21 16:58:00','Migs TwoParty','Migs_TwoParty',1,1,10000,0,NULL,0,0),(9,'2018-02-21 16:58:00','2018-02-21 16:58:00','Mollie','Mollie',1,1,8,0,NULL,1,0),(10,'2018-02-21 16:58:00','2018-02-21 16:58:00','MultiSafepay','MultiSafepay',1,1,10000,0,NULL,0,0),(11,'2018-02-21 16:58:00','2018-02-21 16:58:00','Netaxept','Netaxept',1,1,10000,0,NULL,0,0),(12,'2018-02-21 16:58:00','2018-02-21 16:58:00','NetBanx','NetBanx',1,1,10000,0,NULL,0,0),(13,'2018-02-21 16:58:00','2018-02-21 16:58:00','PayFast','PayFast',1,1,10000,0,NULL,1,0),(14,'2018-02-21 16:58:00','2018-02-21 16:58:00','Payflow Pro','Payflow_Pro',1,1,10000,0,NULL,0,0),(15,'2018-02-21 16:58:00','2018-02-21 16:58:00','PaymentExpress PxPay','PaymentExpress_PxPay',1,1,10000,0,NULL,0,0),(16,'2018-02-21 16:58:00','2018-02-21 16:58:00','PaymentExpress PxPost','PaymentExpress_PxPost',1,1,10000,0,NULL,0,0),(17,'2018-02-21 16:58:00','2018-02-21 16:58:00','PayPal Express','PayPal_Express',1,1,4,0,NULL,1,0),(18,'2018-02-21 16:58:00','2018-02-21 16:58:00','PayPal Pro','PayPal_Pro',1,1,10000,0,NULL,0,0),(19,'2018-02-21 16:58:00','2018-02-21 16:58:00','Pin','Pin',1,1,10000,0,NULL,0,0),(20,'2018-02-21 16:58:00','2018-02-21 16:58:00','SagePay Direct','SagePay_Direct',1,1,10000,0,NULL,0,0),(21,'2018-02-21 16:58:00','2018-02-21 16:58:00','SagePay Server','SagePay_Server',1,1,10000,0,NULL,0,0),(22,'2018-02-21 16:58:00','2018-02-21 16:58:00','SecurePay DirectPost','SecurePay_DirectPost',1,1,10000,0,NULL,0,0),(23,'2018-02-21 16:58:00','2018-02-21 16:58:00','Stripe','Stripe',1,1,1,0,NULL,0,0),(24,'2018-02-21 16:58:00','2018-02-21 16:58:00','TargetPay Direct eBanking','TargetPay_Directebanking',1,1,10000,0,NULL,0,0),(25,'2018-02-21 16:58:00','2018-02-21 16:58:00','TargetPay Ideal','TargetPay_Ideal',1,1,10000,0,NULL,0,0),(26,'2018-02-21 16:58:00','2018-02-21 16:58:00','TargetPay Mr Cash','TargetPay_Mrcash',1,1,10000,0,NULL,0,0),(27,'2018-02-21 16:58:00','2018-02-21 16:58:00','TwoCheckout','TwoCheckout',1,1,10000,0,NULL,1,0),(28,'2018-02-21 16:58:00','2018-02-21 16:58:00','WorldPay','WorldPay',1,1,10000,0,NULL,0,0),(29,'2018-02-21 16:58:00','2018-02-21 16:58:00','BeanStream','BeanStream',1,2,10000,0,NULL,0,0),(30,'2018-02-21 16:58:00','2018-02-21 16:58:00','Psigate','Psigate',1,2,10000,0,NULL,0,0),(31,'2018-02-21 16:58:00','2018-02-21 16:58:00','moolah','AuthorizeNet_AIM',1,1,10000,0,NULL,0,0),(32,'2018-02-21 16:58:00','2018-02-21 16:58:00','Alipay','Alipay_Express',1,1,10000,0,NULL,0,0),(33,'2018-02-21 16:58:00','2018-02-21 16:58:00','Buckaroo','Buckaroo_CreditCard',1,1,10000,0,NULL,0,0),(34,'2018-02-21 16:58:00','2018-02-21 16:58:00','Coinbase','Coinbase',1,1,10000,0,NULL,0,0),(35,'2018-02-21 16:58:00','2018-02-21 16:58:00','DataCash','DataCash',1,1,10000,0,NULL,0,0),(36,'2018-02-21 16:58:00','2018-02-21 16:58:00','Neteller','Neteller',1,2,10000,0,NULL,0,0),(37,'2018-02-21 16:58:00','2018-02-21 16:58:00','Pacnet','Pacnet',1,1,10000,0,NULL,0,0),(38,'2018-02-21 16:58:00','2018-02-21 16:58:00','PaymentSense','PaymentSense',1,2,10000,0,NULL,0,0),(39,'2018-02-21 16:58:00','2018-02-21 16:58:00','Realex','Realex_Remote',1,1,10000,0,NULL,0,0),(40,'2018-02-21 16:58:00','2018-02-21 16:58:00','Sisow','Sisow',1,1,10000,0,NULL,0,0),(41,'2018-02-21 16:58:00','2018-02-21 16:58:00','Skrill','Skrill',1,1,10000,0,NULL,1,0),(42,'2018-02-21 16:58:00','2018-02-21 16:58:00','BitPay','BitPay',1,1,7,0,NULL,1,0),(43,'2018-02-21 16:58:00','2018-02-21 16:58:00','Dwolla','Dwolla',1,1,6,0,NULL,1,0),(44,'2018-02-21 16:58:00','2018-02-21 16:58:00','AGMS','Agms',1,1,10000,0,NULL,0,0),(45,'2018-02-21 16:58:00','2018-02-21 16:58:00','Barclays','BarclaysEpdq\\Essential',1,1,10000,0,NULL,0,0),(46,'2018-02-21 16:58:00','2018-02-21 16:58:00','Cardgate','Cardgate',1,1,10000,0,NULL,0,0),(47,'2018-02-21 16:58:00','2018-02-21 16:58:00','Checkout.com','CheckoutCom',1,1,10000,0,NULL,0,0),(48,'2018-02-21 16:58:00','2018-02-21 16:58:00','Creditcall','Creditcall',1,1,10000,0,NULL,0,0),(49,'2018-02-21 16:58:00','2018-02-21 16:58:00','Cybersource','Cybersource',1,1,10000,0,NULL,0,0),(50,'2018-02-21 16:58:00','2018-02-21 16:58:00','ecoPayz','Ecopayz',1,1,10000,0,NULL,0,0),(51,'2018-02-21 16:58:00','2018-02-21 16:58:00','Fasapay','Fasapay',1,1,10000,0,NULL,0,0),(52,'2018-02-21 16:58:00','2018-02-21 16:58:00','Komoju','Komoju',1,1,10000,0,NULL,0,0),(53,'2018-02-21 16:58:00','2018-02-21 16:58:00','Multicards','Multicards',1,2,10000,0,NULL,0,0),(54,'2018-02-21 16:58:00','2018-02-21 16:58:00','Pagar.Me','Pagarme',1,2,10000,0,NULL,0,0),(55,'2018-02-21 16:58:00','2018-02-21 16:58:00','Paysafecard','Paysafecard',1,1,10000,0,NULL,0,0),(56,'2018-02-21 16:58:00','2018-02-21 16:58:00','Paytrace','Paytrace_CreditCard',1,1,10000,0,NULL,0,0),(57,'2018-02-21 16:58:00','2018-02-21 16:58:00','Secure Trading','SecureTrading',1,1,10000,0,NULL,0,0),(58,'2018-02-21 16:58:00','2018-02-21 16:58:00','SecPay','SecPay',1,1,10000,0,NULL,0,0),(59,'2018-02-21 16:58:00','2018-02-21 16:58:00','WeChat Express','WeChat_Express',1,2,10000,0,NULL,0,0),(60,'2018-02-21 16:58:00','2018-02-21 16:58:00','WePay','WePay',1,1,3,0,NULL,0,0),(61,'2018-02-21 16:58:00','2018-02-21 16:58:00','Braintree','Braintree',1,1,3,0,NULL,0,0),(62,'2018-02-21 16:58:00','2018-02-21 16:58:00','Custom','Custom',1,1,20,0,NULL,1,0),(63,'2018-02-21 16:58:00','2018-02-21 16:58:00','FirstData Payeezy','FirstData_Payeezy',1,1,10000,0,NULL,0,0),(64,'2018-02-21 16:58:00','2018-02-21 16:58:00','GoCardless','GoCardlessV2\\Redirect',1,1,9,0,NULL,1,0),(65,'2018-02-21 16:58:00','2018-02-21 16:58:00','PagSeguro','PagSeguro',1,1,10000,0,NULL,0,0);
 /*!40000 ALTER TABLE `gateways` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1263,7 +1241,6 @@ UNLOCK TABLES;
 -- Table structure for table `industries`
 --
 
-DROP TABLE IF EXISTS `industries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `industries` (
@@ -1287,7 +1264,6 @@ UNLOCK TABLES;
 -- Table structure for table `invitations`
 --
 
-DROP TABLE IF EXISTS `invitations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invitations` (
@@ -1335,7 +1311,6 @@ UNLOCK TABLES;
 -- Table structure for table `invoice_designs`
 --
 
-DROP TABLE IF EXISTS `invoice_designs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invoice_designs` (
@@ -1361,7 +1336,6 @@ UNLOCK TABLES;
 -- Table structure for table `invoice_items`
 --
 
-DROP TABLE IF EXISTS `invoice_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invoice_items` (
@@ -1376,7 +1350,7 @@ CREATE TABLE `invoice_items` (
   `product_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `notes` text COLLATE utf8_unicode_ci NOT NULL,
   `cost` decimal(15,4) NOT NULL,
-  `qty` decimal(15,4) DEFAULT NULL,
+  `qty` decimal(15,4) DEFAULT '0.0000',
   `tax_name1` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `tax_rate1` decimal(13,3) DEFAULT NULL,
   `public_id` int(10) unsigned NOT NULL,
@@ -1385,7 +1359,7 @@ CREATE TABLE `invoice_items` (
   `tax_name2` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `tax_rate2` decimal(13,3) NOT NULL,
   `invoice_item_type_id` smallint(6) NOT NULL DEFAULT '1',
-  `discount` double(8,2) NOT NULL,
+  `discount` decimal(13,2) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `invoice_items_account_id_public_id_unique` (`account_id`,`public_id`),
   KEY `invoice_items_product_id_foreign` (`product_id`),
@@ -1410,7 +1384,6 @@ UNLOCK TABLES;
 -- Table structure for table `invoice_statuses`
 --
 
-DROP TABLE IF EXISTS `invoice_statuses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invoice_statuses` (
@@ -1434,7 +1407,6 @@ UNLOCK TABLES;
 -- Table structure for table `invoices`
 --
 
-DROP TABLE IF EXISTS `invoices`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `invoices` (
@@ -1447,7 +1419,7 @@ CREATE TABLE `invoices` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `invoice_number` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `discount` double(8,2) NOT NULL,
+  `discount` decimal(13,2) NOT NULL,
   `po_number` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `invoice_date` date DEFAULT NULL,
   `due_date` date DEFAULT NULL,
@@ -1519,7 +1491,6 @@ UNLOCK TABLES;
 -- Table structure for table `jobs`
 --
 
-DROP TABLE IF EXISTS `jobs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `jobs` (
@@ -1549,7 +1520,6 @@ UNLOCK TABLES;
 -- Table structure for table `languages`
 --
 
-DROP TABLE IF EXISTS `languages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `languages` (
@@ -1566,7 +1536,7 @@ CREATE TABLE `languages` (
 
 LOCK TABLES `languages` WRITE;
 /*!40000 ALTER TABLE `languages` DISABLE KEYS */;
-INSERT INTO `languages` VALUES (1,'English','en'),(2,'Italian','it'),(3,'German','de'),(4,'French','fr'),(5,'Portuguese - Brazilian','pt_BR'),(6,'Dutch','nl'),(7,'Spanish','es'),(8,'Norwegian','nb_NO'),(9,'Danish','da'),(10,'Japanese','ja'),(11,'Swedish','sv'),(12,'Spanish - Spain','es_ES'),(13,'French - Canada','fr_CA'),(14,'Lithuanian','lt'),(15,'Polish','pl'),(16,'Czech','cs'),(17,'Croatian','hr'),(18,'Albanian','sq'),(19,'Greek','el'),(20,'English - United Kingdom','en_UK'),(21,'Portuguese - Portugal','pt_PT'),(22,'Slovenian','sl'),(23,'Finnish','fi'),(24,'Romanian','ro'),(25,'Turkish - Turkey','tr_TR'),(26,'Thai','th');
+INSERT INTO `languages` VALUES (1,'English','en'),(2,'Italian','it'),(3,'German','de'),(4,'French','fr'),(5,'Portuguese - Brazilian','pt_BR'),(6,'Dutch','nl'),(7,'Spanish','es'),(8,'Norwegian','nb_NO'),(9,'Danish','da'),(10,'Japanese','ja'),(11,'Swedish','sv'),(12,'Spanish - Spain','es_ES'),(13,'French - Canada','fr_CA'),(14,'Lithuanian','lt'),(15,'Polish','pl'),(16,'Czech','cs'),(17,'Croatian','hr'),(18,'Albanian','sq'),(19,'Greek','el'),(20,'English - United Kingdom','en_GB'),(21,'Portuguese - Portugal','pt_PT'),(22,'Slovenian','sl'),(23,'Finnish','fi'),(24,'Romanian','ro'),(25,'Turkish - Turkey','tr_TR'),(26,'Thai','th');
 /*!40000 ALTER TABLE `languages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1574,7 +1544,6 @@ UNLOCK TABLES;
 -- Table structure for table `licenses`
 --
 
-DROP TABLE IF EXISTS `licenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `licenses` (
@@ -1610,7 +1579,6 @@ UNLOCK TABLES;
 -- Table structure for table `lookup_account_tokens`
 --
 
-DROP TABLE IF EXISTS `lookup_account_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lookup_account_tokens` (
@@ -1637,7 +1605,6 @@ UNLOCK TABLES;
 -- Table structure for table `lookup_accounts`
 --
 
-DROP TABLE IF EXISTS `lookup_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lookup_accounts` (
@@ -1666,7 +1633,6 @@ UNLOCK TABLES;
 -- Table structure for table `lookup_companies`
 --
 
-DROP TABLE IF EXISTS `lookup_companies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lookup_companies` (
@@ -1693,7 +1659,6 @@ UNLOCK TABLES;
 -- Table structure for table `lookup_contacts`
 --
 
-DROP TABLE IF EXISTS `lookup_contacts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lookup_contacts` (
@@ -1720,7 +1685,6 @@ UNLOCK TABLES;
 -- Table structure for table `lookup_invitations`
 --
 
-DROP TABLE IF EXISTS `lookup_invitations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lookup_invitations` (
@@ -1746,10 +1710,37 @@ LOCK TABLES `lookup_invitations` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `lookup_proposal_invitations`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lookup_proposal_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `lookup_account_id` int(10) unsigned NOT NULL,
+  `invitation_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `message_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `lookup_proposal_invitations_invitation_key_unique` (`invitation_key`),
+  UNIQUE KEY `lookup_proposal_invitations_message_id_unique` (`message_id`),
+  KEY `lookup_proposal_invitations_lookup_account_id_index` (`lookup_account_id`),
+  CONSTRAINT `lookup_proposal_invitations_lookup_account_id_foreign` FOREIGN KEY (`lookup_account_id`) REFERENCES `lookup_accounts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lookup_proposal_invitations`
+--
+
+LOCK TABLES `lookup_proposal_invitations` WRITE;
+/*!40000 ALTER TABLE `lookup_proposal_invitations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lookup_proposal_invitations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `lookup_users`
 --
 
-DROP TABLE IF EXISTS `lookup_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lookup_users` (
@@ -1785,7 +1776,6 @@ UNLOCK TABLES;
 -- Table structure for table `migrations`
 --
 
-DROP TABLE IF EXISTS `migrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `migrations` (
@@ -1793,7 +1783,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1802,7 +1792,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,'2013_11_05_180133_confide_setup_users_table',1),(2,'2013_11_28_195703_setup_countries_table',1),(3,'2014_02_13_151500_add_cascase_drops',1),(4,'2014_02_19_151817_add_support_for_invoice_designs',1),(5,'2014_03_03_155556_add_phone_to_account',1),(6,'2014_03_19_201454_add_language_support',1),(7,'2014_03_20_200300_create_payment_libraries',1),(8,'2014_03_23_051736_enable_forcing_jspdf',1),(9,'2014_03_25_102200_add_sort_and_recommended_to_gateways',1),(10,'2014_04_03_191105_add_pro_plan',1),(11,'2014_04_17_100523_add_remember_token',1),(12,'2014_04_17_145108_add_custom_fields',1),(13,'2014_04_23_170909_add_products_settings',1),(14,'2014_04_29_174315_add_advanced_settings',1),(15,'2014_05_17_175626_add_quotes',1),(16,'2014_06_17_131940_add_accepted_credit_cards_to_account_gateways',1),(17,'2014_07_13_142654_one_click_install',1),(18,'2014_07_17_205900_support_hiding_quantity',1),(19,'2014_07_24_171214_add_zapier_support',1),(20,'2014_10_01_141248_add_company_vat_number',1),(21,'2014_10_05_141856_track_last_seen_message',1),(22,'2014_10_06_103529_add_timesheets',1),(23,'2014_10_06_195330_add_invoice_design_table',1),(24,'2014_10_13_054100_add_invoice_number_settings',1),(25,'2014_10_14_225227_add_danish_translation',1),(26,'2014_10_22_174452_add_affiliate_price',1),(27,'2014_10_30_184126_add_company_id_number',1),(28,'2014_11_04_200406_allow_null_client_currency',1),(29,'2014_12_03_154119_add_discount_type',1),(30,'2015_02_12_102940_add_email_templates',1),(31,'2015_02_17_131714_support_token_billing',1),(32,'2015_02_27_081836_add_invoice_footer',1),(33,'2015_03_03_140259_add_tokens',1),(34,'2015_03_09_151011_add_ip_to_activity',1),(35,'2015_03_15_174122_add_pdf_email_attachment_option',1),(36,'2015_03_30_100000_create_password_resets_table',1),(37,'2015_04_12_093447_add_sv_language',1),(38,'2015_04_13_100333_add_notify_approved',1),(39,'2015_04_16_122647_add_partial_amount_to_invoices',1),(40,'2015_05_21_184104_add_font_size',1),(41,'2015_05_27_121828_add_tasks',1),(42,'2015_05_27_170808_add_custom_invoice_labels',1),(43,'2015_06_09_134208_add_has_tasks_to_invoices',1),(44,'2015_06_14_093410_enable_resuming_tasks',1),(45,'2015_06_14_173025_multi_company_support',1),(46,'2015_07_07_160257_support_locking_account',1),(47,'2015_07_08_114333_simplify_tasks',1),(48,'2015_07_19_081332_add_custom_design',1),(49,'2015_07_27_183830_add_pdfmake_support',1),(50,'2015_08_13_084041_add_formats_to_datetime_formats_table',1),(51,'2015_09_04_080604_add_swap_postal_code',1),(52,'2015_09_07_135935_add_account_domain',1),(53,'2015_09_10_185135_add_reminder_emails',1),(54,'2015_10_07_135651_add_social_login',1),(55,'2015_10_21_075058_add_default_tax_rates',1),(56,'2015_10_21_185724_add_invoice_number_pattern',1),(57,'2015_10_27_180214_add_is_system_to_activities',1),(58,'2015_10_29_133747_add_default_quote_terms',1),(59,'2015_11_01_080417_encrypt_tokens',1),(60,'2015_11_03_181318_improve_currency_localization',1),(61,'2015_11_30_133206_add_email_designs',1),(62,'2015_12_27_154513_add_reminder_settings',1),(63,'2015_12_30_042035_add_client_view_css',1),(64,'2016_01_04_175228_create_vendors_table',1),(65,'2016_01_06_153144_add_invoice_font_support',1),(66,'2016_01_17_155725_add_quote_to_invoice_option',1),(67,'2016_01_18_195351_add_bank_accounts',1),(68,'2016_01_24_112646_add_bank_subaccounts',1),(69,'2016_01_27_173015_add_header_footer_option',1),(70,'2016_02_01_135956_add_source_currency_to_expenses',1),(71,'2016_02_25_152948_add_client_password',1),(72,'2016_02_28_081424_add_custom_invoice_fields',1),(73,'2016_03_14_066181_add_user_permissions',1),(74,'2016_03_14_214710_add_support_three_decimal_taxes',1),(75,'2016_03_22_168362_add_documents',1),(76,'2016_03_23_215049_support_multiple_tax_rates',1),(77,'2016_04_16_103943_enterprise_plan',1),(78,'2016_04_18_174135_add_page_size',1),(79,'2016_04_23_182223_payments_changes',1),(80,'2016_05_16_102925_add_swap_currency_symbol_to_currency',1),(81,'2016_05_18_085739_add_invoice_type_support',1),(82,'2016_05_24_164847_wepay_ach',1),(83,'2016_07_08_083802_support_new_pricing',1),(84,'2016_07_13_083821_add_buy_now_buttons',1),(85,'2016_08_10_184027_add_support_for_bots',1),(86,'2016_09_05_150625_create_gateway_types',1),(87,'2016_10_20_191150_add_expense_to_activities',1),(88,'2016_11_03_113316_add_invoice_signature',1),(89,'2016_11_03_161149_add_bluevine_fields',1),(90,'2016_11_28_092904_add_task_projects',1),(91,'2016_12_13_113955_add_pro_plan_discount',1),(92,'2017_01_01_214241_add_inclusive_taxes',1),(93,'2017_02_23_095934_add_custom_product_fields',1),(94,'2017_03_16_085702_add_gateway_fee_location',1),(95,'2017_04_16_101744_add_custom_contact_fields',1),(96,'2017_04_30_174702_add_multiple_database_support',1),(97,'2017_05_10_144928_add_oauth_to_lookups',1),(98,'2017_05_16_101715_add_default_note_to_client',1),(99,'2017_06_19_111515_update_dark_mode',1),(100,'2017_07_18_124150_add_late_fees',1),(101,'2017_08_14_085334_increase_precision',1),(102,'2017_10_17_083846_add_default_rates',1),(103,'2017_11_15_114422_add_subdomain_to_lookups',1),(104,'2017_12_13_074024_add_remember_2fa_token',1);
+INSERT INTO `migrations` VALUES (1,'2013_11_05_180133_confide_setup_users_table',1),(2,'2013_11_28_195703_setup_countries_table',1),(3,'2014_02_13_151500_add_cascase_drops',1),(4,'2014_02_19_151817_add_support_for_invoice_designs',1),(5,'2014_03_03_155556_add_phone_to_account',1),(6,'2014_03_19_201454_add_language_support',1),(7,'2014_03_20_200300_create_payment_libraries',1),(8,'2014_03_23_051736_enable_forcing_jspdf',1),(9,'2014_03_25_102200_add_sort_and_recommended_to_gateways',1),(10,'2014_04_03_191105_add_pro_plan',1),(11,'2014_04_17_100523_add_remember_token',1),(12,'2014_04_17_145108_add_custom_fields',1),(13,'2014_04_23_170909_add_products_settings',1),(14,'2014_04_29_174315_add_advanced_settings',1),(15,'2014_05_17_175626_add_quotes',1),(16,'2014_06_17_131940_add_accepted_credit_cards_to_account_gateways',1),(17,'2014_07_13_142654_one_click_install',1),(18,'2014_07_17_205900_support_hiding_quantity',1),(19,'2014_07_24_171214_add_zapier_support',1),(20,'2014_10_01_141248_add_company_vat_number',1),(21,'2014_10_05_141856_track_last_seen_message',1),(22,'2014_10_06_103529_add_timesheets',1),(23,'2014_10_06_195330_add_invoice_design_table',1),(24,'2014_10_13_054100_add_invoice_number_settings',1),(25,'2014_10_14_225227_add_danish_translation',1),(26,'2014_10_22_174452_add_affiliate_price',1),(27,'2014_10_30_184126_add_company_id_number',1),(28,'2014_11_04_200406_allow_null_client_currency',1),(29,'2014_12_03_154119_add_discount_type',1),(30,'2015_02_12_102940_add_email_templates',1),(31,'2015_02_17_131714_support_token_billing',1),(32,'2015_02_27_081836_add_invoice_footer',1),(33,'2015_03_03_140259_add_tokens',1),(34,'2015_03_09_151011_add_ip_to_activity',1),(35,'2015_03_15_174122_add_pdf_email_attachment_option',1),(36,'2015_03_30_100000_create_password_resets_table',1),(37,'2015_04_12_093447_add_sv_language',1),(38,'2015_04_13_100333_add_notify_approved',1),(39,'2015_04_16_122647_add_partial_amount_to_invoices',1),(40,'2015_05_21_184104_add_font_size',1),(41,'2015_05_27_121828_add_tasks',1),(42,'2015_05_27_170808_add_custom_invoice_labels',1),(43,'2015_06_09_134208_add_has_tasks_to_invoices',1),(44,'2015_06_14_093410_enable_resuming_tasks',1),(45,'2015_06_14_173025_multi_company_support',1),(46,'2015_07_07_160257_support_locking_account',1),(47,'2015_07_08_114333_simplify_tasks',1),(48,'2015_07_19_081332_add_custom_design',1),(49,'2015_07_27_183830_add_pdfmake_support',1),(50,'2015_08_13_084041_add_formats_to_datetime_formats_table',1),(51,'2015_09_04_080604_add_swap_postal_code',1),(52,'2015_09_07_135935_add_account_domain',1),(53,'2015_09_10_185135_add_reminder_emails',1),(54,'2015_10_07_135651_add_social_login',1),(55,'2015_10_21_075058_add_default_tax_rates',1),(56,'2015_10_21_185724_add_invoice_number_pattern',1),(57,'2015_10_27_180214_add_is_system_to_activities',1),(58,'2015_10_29_133747_add_default_quote_terms',1),(59,'2015_11_01_080417_encrypt_tokens',1),(60,'2015_11_03_181318_improve_currency_localization',1),(61,'2015_11_30_133206_add_email_designs',1),(62,'2015_12_27_154513_add_reminder_settings',1),(63,'2015_12_30_042035_add_client_view_css',1),(64,'2016_01_04_175228_create_vendors_table',1),(65,'2016_01_06_153144_add_invoice_font_support',1),(66,'2016_01_17_155725_add_quote_to_invoice_option',1),(67,'2016_01_18_195351_add_bank_accounts',1),(68,'2016_01_24_112646_add_bank_subaccounts',1),(69,'2016_01_27_173015_add_header_footer_option',1),(70,'2016_02_01_135956_add_source_currency_to_expenses',1),(71,'2016_02_25_152948_add_client_password',1),(72,'2016_02_28_081424_add_custom_invoice_fields',1),(73,'2016_03_14_066181_add_user_permissions',1),(74,'2016_03_14_214710_add_support_three_decimal_taxes',1),(75,'2016_03_22_168362_add_documents',1),(76,'2016_03_23_215049_support_multiple_tax_rates',1),(77,'2016_04_16_103943_enterprise_plan',1),(78,'2016_04_18_174135_add_page_size',1),(79,'2016_04_23_182223_payments_changes',1),(80,'2016_05_16_102925_add_swap_currency_symbol_to_currency',1),(81,'2016_05_18_085739_add_invoice_type_support',1),(82,'2016_05_24_164847_wepay_ach',1),(83,'2016_07_08_083802_support_new_pricing',1),(84,'2016_07_13_083821_add_buy_now_buttons',1),(85,'2016_08_10_184027_add_support_for_bots',1),(86,'2016_09_05_150625_create_gateway_types',1),(87,'2016_10_20_191150_add_expense_to_activities',1),(88,'2016_11_03_113316_add_invoice_signature',1),(89,'2016_11_03_161149_add_bluevine_fields',1),(90,'2016_11_28_092904_add_task_projects',1),(91,'2016_12_13_113955_add_pro_plan_discount',1),(92,'2017_01_01_214241_add_inclusive_taxes',1),(93,'2017_02_23_095934_add_custom_product_fields',1),(94,'2017_03_16_085702_add_gateway_fee_location',1),(95,'2017_04_16_101744_add_custom_contact_fields',1),(96,'2017_04_30_174702_add_multiple_database_support',1),(97,'2017_05_10_144928_add_oauth_to_lookups',1),(98,'2017_05_16_101715_add_default_note_to_client',1),(99,'2017_06_19_111515_update_dark_mode',1),(100,'2017_07_18_124150_add_late_fees',1),(101,'2017_08_14_085334_increase_precision',1),(102,'2017_10_17_083846_add_default_rates',1),(103,'2017_11_15_114422_add_subdomain_to_lookups',1),(104,'2017_12_13_074024_add_remember_2fa_token',1),(105,'2018_01_10_073825_add_subscription_format',1);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1810,7 +1800,6 @@ UNLOCK TABLES;
 -- Table structure for table `password_resets`
 --
 
-DROP TABLE IF EXISTS `password_resets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `password_resets` (
@@ -1834,7 +1823,6 @@ UNLOCK TABLES;
 -- Table structure for table `payment_libraries`
 --
 
-DROP TABLE IF EXISTS `payment_libraries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payment_libraries` (
@@ -1853,7 +1841,7 @@ CREATE TABLE `payment_libraries` (
 
 LOCK TABLES `payment_libraries` WRITE;
 /*!40000 ALTER TABLE `payment_libraries` DISABLE KEYS */;
-INSERT INTO `payment_libraries` VALUES (1,'2018-01-08 16:45:19','2018-01-08 16:45:19','Omnipay',1),(2,'2018-01-08 16:45:19','2018-01-08 16:45:19','PHP-Payments [Deprecated]',1);
+INSERT INTO `payment_libraries` VALUES (1,'2018-02-21 16:57:58','2018-02-21 16:57:58','Omnipay',1),(2,'2018-02-21 16:57:58','2018-02-21 16:57:58','PHP-Payments [Deprecated]',1);
 /*!40000 ALTER TABLE `payment_libraries` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1861,7 +1849,6 @@ UNLOCK TABLES;
 -- Table structure for table `payment_methods`
 --
 
-DROP TABLE IF EXISTS `payment_methods`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payment_methods` (
@@ -1914,7 +1901,6 @@ UNLOCK TABLES;
 -- Table structure for table `payment_statuses`
 --
 
-DROP TABLE IF EXISTS `payment_statuses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payment_statuses` (
@@ -1938,7 +1924,6 @@ UNLOCK TABLES;
 -- Table structure for table `payment_terms`
 --
 
-DROP TABLE IF EXISTS `payment_terms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payment_terms` (
@@ -1963,7 +1948,7 @@ CREATE TABLE `payment_terms` (
 
 LOCK TABLES `payment_terms` WRITE;
 /*!40000 ALTER TABLE `payment_terms` DISABLE KEYS */;
-INSERT INTO `payment_terms` VALUES (1,7,'Net 7','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,1),(2,10,'Net 10','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,2),(3,14,'Net 14','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,3),(4,15,'Net 15','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,4),(5,30,'Net 30','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,5),(6,60,'Net 60','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,6),(7,90,'Net 90','2018-01-08 16:45:19','2018-01-08 16:45:19',NULL,0,0,7);
+INSERT INTO `payment_terms` VALUES (1,7,'Net 7','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,1),(2,10,'Net 10','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,2),(3,14,'Net 14','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,3),(4,15,'Net 15','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,4),(5,30,'Net 30','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,5),(6,60,'Net 60','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,6),(7,90,'Net 90','2018-02-21 16:57:58','2018-02-21 16:57:58',NULL,0,0,7);
 /*!40000 ALTER TABLE `payment_terms` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1971,7 +1956,6 @@ UNLOCK TABLES;
 -- Table structure for table `payment_types`
 --
 
-DROP TABLE IF EXISTS `payment_types`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payment_types` (
@@ -1998,7 +1982,6 @@ UNLOCK TABLES;
 -- Table structure for table `payments`
 --
 
-DROP TABLE IF EXISTS `payments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payments` (
@@ -2071,7 +2054,6 @@ UNLOCK TABLES;
 -- Table structure for table `products`
 --
 
-DROP TABLE IF EXISTS `products`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `products` (
@@ -2084,7 +2066,7 @@ CREATE TABLE `products` (
   `product_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `notes` text COLLATE utf8_unicode_ci NOT NULL,
   `cost` decimal(15,4) NOT NULL,
-  `qty` decimal(15,4) DEFAULT NULL,
+  `qty` decimal(15,4) DEFAULT '0.0000',
   `public_id` int(10) unsigned NOT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
   `custom_value1` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -2115,7 +2097,6 @@ UNLOCK TABLES;
 -- Table structure for table `projects`
 --
 
-DROP TABLE IF EXISTS `projects`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `projects` (
@@ -2155,10 +2136,205 @@ LOCK TABLES `projects` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `proposal_categories`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_categories` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_categories_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposal_categories_user_id_foreign` (`user_id`),
+  KEY `proposal_categories_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_categories_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_categories_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_categories`
+--
+
+LOCK TABLES `proposal_categories` WRITE;
+/*!40000 ALTER TABLE `proposal_categories` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_invitations`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `contact_id` int(10) unsigned NOT NULL,
+  `proposal_id` int(10) unsigned NOT NULL,
+  `invitation_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `sent_date` timestamp NULL DEFAULT NULL,
+  `viewed_date` timestamp NULL DEFAULT NULL,
+  `opened_date` timestamp NULL DEFAULT NULL,
+  `message_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email_error` text COLLATE utf8_unicode_ci,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_invitations_account_id_public_id_unique` (`account_id`,`public_id`),
+  UNIQUE KEY `proposal_invitations_invitation_key_unique` (`invitation_key`),
+  KEY `proposal_invitations_user_id_foreign` (`user_id`),
+  KEY `proposal_invitations_contact_id_foreign` (`contact_id`),
+  KEY `proposal_invitations_proposal_id_index` (`proposal_id`),
+  KEY `proposal_invitations_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_invitations_contact_id_foreign` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_invitations_proposal_id_foreign` FOREIGN KEY (`proposal_id`) REFERENCES `proposals` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_invitations`
+--
+
+LOCK TABLES `proposal_invitations` WRITE;
+/*!40000 ALTER TABLE `proposal_invitations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_invitations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_snippets`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_snippets` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `proposal_category_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `private_notes` text COLLATE utf8_unicode_ci NOT NULL,
+  `html` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `css` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_snippets_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposal_snippets_user_id_foreign` (`user_id`),
+  KEY `proposal_snippets_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_snippets_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_snippets_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_snippets`
+--
+
+LOCK TABLES `proposal_snippets` WRITE;
+/*!40000 ALTER TABLE `proposal_snippets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_snippets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposal_templates`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposal_templates` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `private_notes` text COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `html` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `css` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposal_templates_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposal_templates_user_id_foreign` (`user_id`),
+  KEY `proposal_templates_public_id_index` (`public_id`),
+  CONSTRAINT `proposal_templates_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposal_templates_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposal_templates`
+--
+
+LOCK TABLES `proposal_templates` WRITE;
+/*!40000 ALTER TABLE `proposal_templates` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposal_templates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `proposals`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proposals` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `invoice_id` int(10) unsigned NOT NULL,
+  `proposal_template_id` int(10) unsigned DEFAULT NULL,
+  `private_notes` text COLLATE utf8_unicode_ci NOT NULL,
+  `html` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `css` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `public_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proposals_account_id_public_id_unique` (`account_id`,`public_id`),
+  KEY `proposals_user_id_foreign` (`user_id`),
+  KEY `proposals_invoice_id_index` (`invoice_id`),
+  KEY `proposals_proposal_template_id_index` (`proposal_template_id`),
+  KEY `proposals_public_id_index` (`public_id`),
+  CONSTRAINT `proposals_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposals_invoice_id_foreign` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposals_proposal_template_id_foreign` FOREIGN KEY (`proposal_template_id`) REFERENCES `proposal_templates` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `proposals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `proposals`
+--
+
+LOCK TABLES `proposals` WRITE;
+/*!40000 ALTER TABLE `proposals` DISABLE KEYS */;
+/*!40000 ALTER TABLE `proposals` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `recurring_expenses`
 --
 
-DROP TABLE IF EXISTS `recurring_expenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `recurring_expenses` (
@@ -2216,7 +2392,6 @@ UNLOCK TABLES;
 -- Table structure for table `scheduled_reports`
 --
 
-DROP TABLE IF EXISTS `scheduled_reports`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `scheduled_reports` (
@@ -2252,7 +2427,6 @@ UNLOCK TABLES;
 -- Table structure for table `security_codes`
 --
 
-DROP TABLE IF EXISTS `security_codes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `security_codes` (
@@ -2288,7 +2462,6 @@ UNLOCK TABLES;
 -- Table structure for table `sizes`
 --
 
-DROP TABLE IF EXISTS `sizes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sizes` (
@@ -2312,7 +2485,6 @@ UNLOCK TABLES;
 -- Table structure for table `subscriptions`
 --
 
-DROP TABLE IF EXISTS `subscriptions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `subscriptions` (
@@ -2325,6 +2497,7 @@ CREATE TABLE `subscriptions` (
   `target_url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `public_id` int(10) unsigned DEFAULT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
+  `format` enum('JSON','UBL') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'JSON',
   PRIMARY KEY (`id`),
   UNIQUE KEY `subscriptions_account_id_public_id_unique` (`account_id`,`public_id`),
   CONSTRAINT `subscriptions_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE
@@ -2344,7 +2517,6 @@ UNLOCK TABLES;
 -- Table structure for table `task_statuses`
 --
 
-DROP TABLE IF EXISTS `task_statuses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_statuses` (
@@ -2380,7 +2552,6 @@ UNLOCK TABLES;
 -- Table structure for table `tasks`
 --
 
-DROP TABLE IF EXISTS `tasks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tasks` (
@@ -2431,7 +2602,6 @@ UNLOCK TABLES;
 -- Table structure for table `tax_rates`
 --
 
-DROP TABLE IF EXISTS `tax_rates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tax_rates` (
@@ -2467,7 +2637,6 @@ UNLOCK TABLES;
 -- Table structure for table `themes`
 --
 
-DROP TABLE IF EXISTS `themes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `themes` (
@@ -2491,7 +2660,6 @@ UNLOCK TABLES;
 -- Table structure for table `timezones`
 --
 
-DROP TABLE IF EXISTS `timezones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `timezones` (
@@ -2516,7 +2684,6 @@ UNLOCK TABLES;
 -- Table structure for table `user_accounts`
 --
 
-DROP TABLE IF EXISTS `user_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_accounts` (
@@ -2553,7 +2720,6 @@ UNLOCK TABLES;
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
@@ -2611,7 +2777,6 @@ UNLOCK TABLES;
 -- Table structure for table `vendor_contacts`
 --
 
-DROP TABLE IF EXISTS `vendor_contacts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vendor_contacts` (
@@ -2651,7 +2816,6 @@ UNLOCK TABLES;
 -- Table structure for table `vendors`
 --
 
-DROP TABLE IF EXISTS `vendors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vendors` (
@@ -2707,4 +2871,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-08 20:45:23
+-- Dump completed on 2018-02-21 20:58:03

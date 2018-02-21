@@ -134,6 +134,7 @@ class SubscriptionController extends BaseController
                 $subscription = Subscription::scope($subscriptionPublicId)->firstOrFail();
             } else {
                 $subscription = Subscription::createNew();
+                $subscriptionPublicId = $subscription->public_id;
             }
 
             $validator = Validator::make(Input::all(), $rules);
@@ -154,6 +155,14 @@ class SubscriptionController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+        return redirect('/settings/api_tokens');
+
+        /*
+        if ($subscriptionPublicId) {
+            return Redirect::to('subscriptions/' . $subscriptionPublicId . '/edit');
+        } else {
+            return redirect('/settings/api_tokens');
+        }
+        */
     }
 }

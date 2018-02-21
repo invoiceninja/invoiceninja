@@ -8,9 +8,12 @@
         <script type="text/javascript">
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
             $(function() {
-                var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
                 $('.payment-form').unbind('submit').submit(function(event) {
-                    if($('[name=plaidAccountId]').length)return;
+                    event.preventDefault();
+
+                    if ($('[name=plaidAccountId]').length) {
+                        return;
+                    }
 
                     var $form = $(this);
 
@@ -46,6 +49,11 @@
                         }
                     }
 
+                    if (NINJA.formIsSubmitted) {
+                        return false;
+                    }
+                    NINJA.formIsSubmitted = true;
+
                     // Disable the submit button to prevent repeated clicks
                     $form.find('button').prop('disabled', true);
                     $('#js-error-message').hide();
@@ -65,6 +73,7 @@
                     // Show the errors on the form
                     var error = response.error.message;
                     $form.find('button').prop('disabled', false);
+                    NINJA.formIsSubmitted = false;
                     $('#js-error-message').html(error).fadeIn();
                 } else {
                     // response contains id and card, which contains additional card details
@@ -76,7 +85,7 @@
                         $form.get(0).submit();
                     } else {
                         $('#js-error-message').html('An error occurred').fadeIn();
-                        logError('STRIPE_ERROR:' + JSON.stringify(response));
+                        logError('STRIPE_ERROR: ' + JSON.stringify(response));
                     }
                 }
             };

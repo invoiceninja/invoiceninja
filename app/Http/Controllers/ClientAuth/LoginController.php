@@ -58,7 +58,7 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
-        $hasAccountIndentifier = request()->account_key || ($subdomain && $subdomain != 'app');
+        $hasAccountIndentifier = request()->account_key || ($subdomain && ! in_array($subdomain, ['www', 'app']));
 
         if (! session('contact_key')) {
             if (Utils::isNinja()) {

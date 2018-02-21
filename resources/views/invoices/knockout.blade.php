@@ -25,18 +25,16 @@ function ViewModel(data) {
     }
 
     self.setDueDate = function() {
-        @if ($entityType == ENTITY_INVOICE)
-            var paymentTerms = parseInt(self.invoice().client().payment_terms());
-            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date()) {
-                if (paymentTerms == -1) paymentTerms = 0;
-                var dueDate = $('#invoice_date').datepicker('getDate');
-                dueDate.setDate(dueDate.getDate() + paymentTerms);
-                dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
-                $('#due_date').attr('placeholder', dueDate);
-            } else {
-                $('#due_date').attr('placeholder', "{{ $invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
-            }
-        @endif
+        var paymentTerms = parseInt(self.invoice().client().payment_terms());
+        if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date()) {
+            if (paymentTerms == -1) paymentTerms = 0;
+            var dueDate = $('#invoice_date').datepicker('getDate');
+            dueDate.setDate(dueDate.getDate() + paymentTerms);
+            dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
+            $('#due_date').attr('placeholder', dueDate);
+        } else {
+            $('#due_date').attr('placeholder', "{{ $invoice->id ? ' ' : $account->present()->dueDatePlaceholder() }}");
+        }
     }
 
     self.clearBlankContacts = function() {
@@ -345,6 +343,7 @@ function InvoiceModel(data) {
             return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate1IsInclusive(parts.shift());
             self.tax_rate1(parts.shift());
@@ -357,6 +356,7 @@ function InvoiceModel(data) {
             return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate2IsInclusive(parts.shift());
             self.tax_rate2(parts.shift());
@@ -844,6 +844,7 @@ function ItemModel(data) {
             return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate1IsInclusive(parts.shift());
             self.tax_rate1(parts.shift());
@@ -856,6 +857,7 @@ function ItemModel(data) {
             return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
+            value = value || '';
             var parts = value.split(' ');
             self.tax_rate2IsInclusive(parts.shift());
             self.tax_rate2(parts.shift());

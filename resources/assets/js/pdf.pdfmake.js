@@ -157,7 +157,13 @@ function GetPdfMake(invoice, javascript, callback) {
     // set page size
     dd.pageSize = invoice.account.page_size;
 
-    //dd.watermark = {text: 'PAID', color: 'blue', opacity: 0.3};
+    if (invoice.watermark) {
+        dd.watermark = {
+            text: invoice.watermark,
+            color: 'black',
+            opacity: 0.04,
+        };
+    }
 
     pdfMake.fonts = {}
     fonts = window.invoiceFonts || invoice.invoice_fonts;
@@ -341,17 +347,32 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 continue;
             }
 
+            field = match.replace('$invoice.', '$');
+
             // legacy style had 'Value' at the end
-            if (endsWith(match, 'Value"')) {
-                field = match.substring(2, match.indexOf('Value'));
+            if (endsWith(field, 'Value"')) {
+                field = field.substring(2, field.indexOf('Value'));
             } else {
-                field = match.substring(2, match.length - 1);
+                field = field.substring(2, field.length - 1);
             }
             field = toSnakeCase(field);
+
+            if (field == 'footer') {
+                field = 'invoice_footer';
+            } else if (match == '$account.phone') {
+                field = 'account.work_phone';
+            } else if (match == '$client.phone') {
+                field = 'client.phone';
+            }
 
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value) + '';
             value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+
+            if (['amount', 'partial', 'client.balance', 'client.paid_to_date'].indexOf(field) >= 0) {
+                value = formatMoneyInvoice(value, invoice);
+            }
+
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }
@@ -646,13 +667,13 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
         if (field == 'custom_value1') {
             if (invoice.has_custom_item_value1) {
-                value = account.custom_invoice_item_label1;
+                value = NINJA.getCustomLabel(account.custom_invoice_item_label1);
             } else {
                 continue;
             }
         } else if (field == 'custom_value2') {
             if (invoice.has_custom_item_value2) {
-                value = account.custom_invoice_item_label2;
+                value = NINJA.getCustomLabel(account.custom_invoice_item_label2);
             } else {
                 continue;
             }
@@ -683,8 +704,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var productKey = item.product_key;
         var tax1 = '';
         var tax2 = '';
-        var custom_value1 = item.custom_value1;
-        var custom_value2 = item.custom_value2;
+        var customValue1 = item.custom_value1;
+        var customValue2 = item.custom_value2;
 
         if (isTasks) {
             if (item.invoice_item_type_id != 2) {
@@ -714,8 +735,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         if (invoice.is_recurring) {
             notes = processVariables(notes);
             productKey = processVariables(productKey);
-            custom_value1 = processVariables(item.custom_value1);
-            custom_value2 = processVariables(item.custom_value2);
+            customValue1 = processVariables(item.custom_value1);
+            customValue2 = processVariables(item.custom_value2);
         }
 
         var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
@@ -766,10 +787,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
 
             if (field == 'item' || field == 'service') {
-                value = item.product_key;
+                value = productKey;
                 styles.push('productKey');
             } else if (field == 'description') {
-                value = item.notes;
+                value = notes;
             } else if (field == 'unit_cost' || field == 'rate') {
                 value = cost;
                 styles.push('cost');
@@ -778,6 +799,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 if (field == 'hours') {
                     styles.push('cost');
                 }
+            } else if (field == 'custom_value1') {
+                value = customValue1;
+            } else if (field == 'custom_value2') {
+                value = customValue2;
             } else if (field == 'discount') {
                 if (parseInt(invoice.is_amount_discount)) {
                     value = formatMoneyInvoice(discount, invoice);
@@ -1132,22 +1157,22 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = contact.phone;
     } else if (field == 'client.custom_value1') {
         if (account.custom_client_label1 && client.custom_value1) {
-            label = account.custom_client_label1;
+            label = NINJA.getCustomLabel(account.custom_client_label1);
             value = client.custom_value1;
         }
     } else if (field == 'client.custom_value2') {
         if (account.custom_client_label2 && client.custom_value2) {
-            label = account.custom_client_label2;
+            label = NINJA.getCustomLabel(account.custom_client_label2);
             value = client.custom_value2;
         }
     } else if (field == 'contact.custom_value1') {
         if (account.custom_contact_label1 && contact.custom_value1) {
-            label = account.custom_contact_label1;
+            label = NINJA.getCustomLabel(account.custom_contact_label1);
             value = contact.custom_value1;
         }
     } else if (field == 'contact.custom_value2') {
         if (account.custom_contact_label2 && contact.custom_value2) {
-            label = account.custom_contact_label2;
+            label = NINJA.getCustomLabel(account.custom_contact_label2);
             value = contact.custom_value2;
         }
     } else if (field == 'account.company_name') {
@@ -1218,12 +1243,12 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         }
     } else if (field == 'invoice.custom_text_value1') {
         if (invoice.custom_text_value1 && account.custom_invoice_text_label1) {
-            label = invoice.account.custom_invoice_text_label1;
+            label = NINJA.getCustomLabel(invoice.account.custom_invoice_text_label1);
             value = invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1;
         }
     } else if (field == 'invoice.custom_text_value2') {
         if (invoice.custom_text_value2 && account.custom_invoice_text_label2) {
-            label = invoice.account.custom_invoice_text_label2;
+            label = NINJA.getCustomLabel(invoice.account.custom_invoice_text_label2);
             value = invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2;
         }
     } else if (field == 'invoice.balance_due') {
@@ -1473,4 +1498,12 @@ NINJA.parseRegExpLine = function(line, regExp, formatter, groupText)
     }
 
     return line;
+}
+
+NINJA.getCustomLabel = function(value) {
+    if (value && value.indexOf('|') > 0) {
+        return value.split('|')[0];
+    } else {
+        return value;
+    }
 }

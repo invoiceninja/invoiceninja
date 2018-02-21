@@ -8,12 +8,12 @@ class ClientPresenter extends EntityPresenter
 {
     public function country()
     {
-        return $this->entity->country ? $this->entity->country->name : '';
+        return $this->entity->country ? $this->entity->country->getName() : '';
     }
 
     public function shipping_country()
     {
-        return $this->entity->shipping_country ? $this->entity->shipping_country->name : '';
+        return $this->entity->shipping_country ? $this->entity->shipping_country->getName() : '';
     }
 
     public function balance()
@@ -56,7 +56,7 @@ class ClientPresenter extends EntityPresenter
         return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
     }
 
-    public function address($addressType = ADDRESS_BILLING)
+    public function address($addressType = ADDRESS_BILLING, $showHeader = false)
     {
         $str = '';
         $prefix = $addressType == ADDRESS_BILLING ? '' : 'shipping_';
@@ -72,10 +72,10 @@ class ClientPresenter extends EntityPresenter
             $str .= e($cityState) . '<br/>';
         }
         if ($country = $client->{$prefix . 'country'}) {
-            $str .= e($country->name) . '<br/>';
+            $str .= e($country->getName()) . '<br/>';
         }
 
-        if ($str) {
+        if ($str && $showHeader) {
             $str = '<b>' . trans('texts.' . $addressType) . '</b><br/>' . $str;
         }
 

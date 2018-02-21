@@ -57,8 +57,14 @@
         var NINJA = NINJA || {};
         NINJA.fontSize = 9;
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
+        NINJA.loggedErrorCount = 0;
 
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
+            if (NINJA.loggedErrorCount > 5) {
+                return;
+            }
+            NINJA.loggedErrorCount++;
+
             // Error in hosted third party library
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;
@@ -109,7 +115,7 @@
         }
 
         // http://t4t5.github.io/sweetalert/
-        function sweetConfirm(success, text, title) {
+        function sweetConfirm(successCallback, text, title, cancelCallback) {
             title = title || "{!! trans("texts.are_you_sure") !!}";
             swal({
                 //type: "warning",
@@ -122,8 +128,12 @@
                 closeOnConfirm: false,
                 allowOutsideClick: true,
             }).then(function() {
-                success();
+                successCallback();
                 swal.close();
+            }).catch(function() {
+                if (cancelCallback) {
+                    cancelCallback();
+                }
             });
         }
 
@@ -267,6 +277,7 @@
 
 <script type="text/javascript">
     NINJA.formIsChanged = {{ isset($formIsChanged) && $formIsChanged ? 'true' : 'false' }};
+    NINJA.formIsSubmitted = false;
 
     $(function () {
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function () {

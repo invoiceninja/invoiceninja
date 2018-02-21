@@ -38,6 +38,7 @@ class AccountEmailSettings extends Eloquent
     public static $templates = [
         TEMPLATE_INVOICE,
         TEMPLATE_QUOTE,
+        TEMPLATE_PROPOSAL,
         //TEMPLATE_PARTIAL,
         TEMPLATE_PAYMENT,
         TEMPLATE_REMINDER1,

@@ -364,7 +364,9 @@ class Utils
             if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
-                if ($module) {
+                if (substr($field, 0, 1) == '-') {
+                    $data[] = substr($field, 1);
+                } elseif ($module) {
                     $data[] = mtrans($module, $field);
                 } else {
                     $data[] = trans("texts.$field");
@@ -564,6 +566,10 @@ class Utils
 
         if ($type === ENTITY_EXPENSE_CATEGORY) {
             return 'expense_categories';
+        } elseif ($type === ENTITY_PROPOSAL_CATEGORY) {
+            return 'proposal_categories';
+        } elseif ($type === ENTITY_TASK_STATUS) {
+            return 'task_statuses';
         } else {
             return $type . 's';
         }
@@ -1087,6 +1093,25 @@ class Utils
         }
     }
 
+    public static function getCustomLabel($value)
+    {
+        if (strpos($value, '|') !== false) {
+            return explode('|', $value)[0];
+        } else {
+            return $value;
+        }
+    }
+
+    public static function getCustomValues($value)
+    {
+        if (strpos($value, '|') !== false) {
+            $values = explode(',', explode('|', $value)[1]);
+            return array_combine($values, $values);
+        } else {
+            return $value;
+        }
+    }
+
     public static function formatWebsite($link)
     {
         if (! $link) {
@@ -1260,7 +1285,7 @@ class Utils
         $tax1 = round($amount * $taxRate1 / 100, 2);
         $tax2 = round($amount * $taxRate2 / 100, 2);
 
-        return round($amount + $tax1 + $tax2, 2);
+        return round($tax1 + $tax2, 2);
     }
 
     public static function roundSignificant($value, $precision = 2) {

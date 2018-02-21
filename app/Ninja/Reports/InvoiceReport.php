@@ -5,30 +5,53 @@ namespace App\Ninja\Reports;
 use App\Models\Client;
 use Auth;
 use Barracuda\ArchiveStream\Archive;
+use App\Models\TaxRate;
 
 class InvoiceReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'invoice_number',
-        'invoice_date',
-        'amount',
-        'status',
-        'payment_date',
-        'paid',
-        'method',
-    ];
+    public function getColumns()
+    {
+        $columns = [
+            'client' => [],
+            'invoice_number' => [],
+            'invoice_date' => [],
+            'amount' => [],
+            'status' => [],
+            'payment_date' => [],
+            'paid' => [],
+            'method' => [],
+            'po_number' => ['columnSelector-false'],
+            'private_notes' => ['columnSelector-false'],
+            'user' => ['columnSelector-false'],
+        ];
+
+        if (TaxRate::scope()->count()) {
+            $columns['tax'] = ['columnSelector-false'];
+        }
+
+        $account = auth()->user()->account;
+
+        if ($account->custom_invoice_text_label1) {
+            $columns[$account->present()->customInvoiceTextLabel1] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->custom_invoice_text_label1) {
+            $columns[$account->present()->customInvoiceTextLabel2] = ['columnSelector-false', 'custom'];
+        }
+
+        return $columns;
+    }
 
     public function run()
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
+        $hasTaxRates = TaxRate::scope()->count();
 
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
@@ -39,11 +62,15 @@ class InvoiceReport extends AbstractReport
                                       $query->withArchived()
                                               ->excludeFailed()
                                               ->with('payment_type', 'account_gateway.gateway');
-                                  }, 'invoice_items']);
+                                  }, 'invoice_items', 'invoice_status']);
                         }]);
 
 
         if ($this->isExport && $exportFormat == 'zip') {
+            if (! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
+            }
+
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_documents')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
@@ -59,20 +86,38 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-                $payments = count($invoice->payments) ? $invoice->payments : [false];
+                $isFirst = true;
+                $payments = $invoice->payments->count() ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
-                    $this->data[] = [
+                    $row = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
-                        $account->formatMoney($invoice->amount, $client),
+                        $isFirst ? $account->formatMoney($invoice->amount, $client) : '',
                         $invoice->statusLabel(),
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
+                        $invoice->po_number,
+                        $invoice->private_notes,
+                        $invoice->user->getDisplayName(),
                     ];
 
+                    if ($hasTaxRates) {
+                        $row[] = $isFirst ? $account->formatMoney($invoice->getTaxTotal(), $client) : '';
+                    }
+
+                    if ($account->custom_invoice_text_label1) {
+                        $row[] = $invoice->custom_text_value1;
+                    }
+                    if ($account->custom_invoice_text_label2) {
+                        $row[] = $invoice->custom_text_value2;
+                    }
+
+                    $this->data[] = $row;
+
                     $this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
+                    $isFirst = false;
                 }
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);

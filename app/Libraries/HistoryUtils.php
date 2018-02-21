@@ -12,6 +12,7 @@ class HistoryUtils
     public static function loadHistory($users)
     {
         $userIds = [];
+        session([RECENTLY_VIEWED => false]);
 
         if (is_array($users)) {
             foreach ($users as $user) {
@@ -37,7 +38,7 @@ class HistoryUtils
             ACTIVITY_TYPE_VIEW_QUOTE,
         ];
 
-        $activities = Activity::with(['client.contacts', 'invoice', 'task', 'expense'])
+        $activities = Activity::with(['client.contacts', 'invoice', 'task.project', 'expense'])
             ->whereIn('user_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
             ->orderBy('id', 'desc')
@@ -53,6 +54,12 @@ class HistoryUtils
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
+
+                if ($entity->project) {
+                    $project = $entity->project;
+                    $project->setRelation('client', $activity->client);
+                    static::trackViewed($project);
+                }
             } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_EXPENSE || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_EXPENSE) {
                 $entity = $activity->expense;
                 if (! $entity) {
@@ -80,10 +87,16 @@ class HistoryUtils
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_PROJECT,
+            ENTITY_PROPOSAL,
             //ENTITY_RECURRING_EXPENSE,
         ];
 
         if (! in_array($entityType, $trackedTypes)) {
+            return;
+        }
+
+        if ($entity->is_deleted) {
             return;
         }
 
@@ -135,6 +148,9 @@ class HistoryUtils
         } elseif (method_exists($entity, 'client') && $entity->client) {
             $object->client_id = $entity->client->public_id;
             $object->client_name = $entity->client->getDisplayName();
+        } elseif (method_exists($entity, 'invoice') && $entity->invoice) {
+            $object->client_id = $entity->invoice->client->public_id;
+            $object->client_name = $entity->invoice->client->getDisplayName();
         } else {
             $object->client_id = 0;
             $object->client_name = 0;
@@ -175,7 +191,8 @@ class HistoryUtils
                     $button = '';
                 }
 
-                $str .= sprintf('<li>%s<a href="%s"><div>%s %s</div></a></li>', $button, $link, $icon, $name);
+                $padding = $str ? 16 : 0;
+                $str .= sprintf('<li style="margin-top: %spx">%s<a href="%s"><div>%s %s</div></a></li>', $padding, $button, $link, $icon, $name);
                 $lastClientId = $item->client_id;
             }
 

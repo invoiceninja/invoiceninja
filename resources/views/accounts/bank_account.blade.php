@@ -39,19 +39,21 @@
                             ->data_bind('combobox: bank_id')
                             ->addOption('', '')
                             ->fromQuery($banks, 'name', 'id')
-                            ->blockHelp(trans('texts.bank_accounts_help', ['link' => OFX_HOME_URL]))  !!}
+                            ->blockHelp(trans('texts.bank_accounts_help', ['link' => link_to(OFX_HOME_URL, trans('texts.us_banks'), ['target' => '_blank'])]))  !!}
                 @endif
 
                 <br/>
 
                 {!! Former::password('bank_username')
                         ->data_bind("value: bank_username, valueUpdate: 'afterkeydown'")
-                        ->label(trans('texts.username')) !!}
+                        ->label(trans('texts.username'))
+                        ->data_lpignore('true') !!}
 
                 {!! Former::password('bank_password')
                         ->label(trans('texts.password'))
                         ->data_bind("value: bank_password, valueUpdate: 'afterkeydown'")
-                        ->blockHelp(trans(Request::secure() ? 'texts.bank_password_help' : 'texts.bank_password_warning')) !!}
+                        ->blockHelp(trans(Request::secure() ? 'texts.bank_password_help' : 'texts.bank_password_warning'))
+                        ->data_lpignore('true') !!}
 
                 <br/>
 

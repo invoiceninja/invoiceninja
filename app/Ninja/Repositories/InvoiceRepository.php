@@ -240,7 +240,7 @@ class InvoiceRepository extends BaseRepository
 
         $table = \Datatable::query($query)
             ->addColumn('frequency', function ($model) {
-                return $model->frequency;
+                return trans('texts.freq_' . \Str::snake($model->frequency));
             })
             ->addColumn('start_date', function ($model) {
                 return Utils::fromSqlDate($model->start_date);
@@ -390,7 +390,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
 
             // set the default due date
-            if ($entityType == ENTITY_INVOICE && empty($data['partial_due_date'])) {
+            if (empty($data['partial_due_date'])) {
                 $client = Client::scope()->whereId($data['client_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
             }
@@ -403,7 +403,7 @@ class InvoiceRepository extends BaseRepository
 
         if ($invoice->is_deleted) {
             return $invoice;
-        } elseif ($invoice->isSent() && config('ninja.lock_sent_invoices')) {
+        } elseif ($invoice->isLocked()) {
             return $invoice;
         }
 
@@ -742,7 +742,7 @@ class InvoiceRepository extends BaseRepository
                         if ($product && (Auth::user()->can('edit', $product))) {
                             $product->notes = ($task || $expense) ? '' : $item['notes'];
                             if (! $account->convert_products) {
-                                $product->cost = $expense ? 0 : $item['cost'];
+                                $product->cost = $expense ? 0 : Utils::parseFloat($item['cost']);
                             }
                             $product->tax_name1 = isset($item['tax_name1']) ? $item['tax_name1'] : null;
                             $product->tax_rate1 = isset($item['tax_rate1']) ? $item['tax_rate1'] : 0;
@@ -804,7 +804,7 @@ class InvoiceRepository extends BaseRepository
         $client->load('contacts');
         $sendInvoiceIds = [];
 
-        if (! count($client->contacts)) {
+        if (! $client->contacts->count()) {
             return $invoice;
         }
 
@@ -1213,13 +1213,14 @@ class InvoiceRepository extends BaseRepository
 
     public function findNeedingEndlessReminding(Account $account)
     {
-        $frequencyId = $account->account_email_settings->frequency_id_reminder4;
-        $frequency = Utils::getFromCache($frequencyId, 'frequencies');
+        $settings = $account->account_email_settings;
+        $frequencyId = $settings->frequency_id_reminder4;
 
         if (! $frequencyId || ! $account->enable_reminder4) {
             return [];
         }
 
+        $frequency = Utils::getFromCache($frequencyId, 'frequencies');
         $lastSentDate = date_create();
         $lastSentDate->sub(date_interval_create_from_date_string($frequency->date_interval));
 

@@ -98,7 +98,7 @@ class SendRecurringInvoices extends Command
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->get();
-        $this->info(count($invoices).' recurring invoice(s) found');
+        $this->info($invoices->count() . ' recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
@@ -140,7 +140,7 @@ class SendRecurringInvoices extends Command
                 [$today->format('Y-m-d')])
             ->orderBy('invoices.id', 'asc')
             ->get();
-        $this->info(count($delayedAutoBillInvoices).' due recurring invoice instance(s) found');
+        $this->info($delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
@@ -165,7 +165,7 @@ class SendRecurringInvoices extends Command
                         ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
                         ->orderBy('id', 'asc')
                         ->get();
-        $this->info(count($expenses).' recurring expenses(s) found');
+        $this->info($expenses->count() . ' recurring expenses(s) found');
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();

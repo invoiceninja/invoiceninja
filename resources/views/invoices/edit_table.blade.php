@@ -10,10 +10,10 @@
         <th style="min-width:120px;width:25%">{{ $invoiceLabels[$isTasks ? 'service' : 'item'] }}</th>
         <th style="width:100%">{{ $invoiceLabels['description'] }}</th>
         @if ($account->showCustomField('custom_invoice_item_label1'))
-            <th style="min-width:120px">{{ $account->custom_invoice_item_label1 }}</th>
+            <th style="min-width:120px">{{ $account->present()->customProductLabel1 }}</th>
         @endif
         @if ($account->showCustomField('custom_invoice_item_label2'))
-            <th style="min-width:120px">{{ $account->custom_invoice_item_label2 }}</th>
+            <th style="min-width:120px">{{ $account->present()->customProductLabel2 }}</th>
         @endif
         <th style="min-width:120px">{{ $invoiceLabels[$isTasks ? 'rate' : 'unit_cost'] }}</th>
         <th style="min-width:120px;display:{{ $account->hasInvoiceField($isTasks ? 'task' : 'product', $isTasks ? 'product.hours' : 'product.quantity') ? 'table-cell' : 'none' }}">{{ $invoiceLabels[$isTasks ? 'hours' : 'quantity'] }}</th>
@@ -44,12 +44,24 @@
         </td>
         @if ($account->showCustomField('custom_invoice_item_label1'))
             <td>
-                <input data-bind="value: custom_value1, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][custom_value1]'}" class="form-control invoice-item"/>
+                @include('partials.custom_field', [
+					'field' => 'custom_invoice_item_label1',
+					'label' => $account->custom_invoice_item_label1,
+					'databind' => "value: custom_value1, valueUpdate: 'afterkeydown',
+                        attr: {name: 'invoice_items[" . ($isTasks ? 'T' : '') . "' + \$index() + '][custom_value1]'}",
+                    'raw' => true,
+				])
             </td>
         @endif
         @if ($account->showCustomField('custom_invoice_item_label2'))
             <td>
-                <input data-bind="value: custom_value2, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][custom_value2]'}" class="form-control invoice-item"/>
+                @include('partials.custom_field', [
+					'field' => 'custom_invoice_item_label2',
+					'label' => $account->custom_invoice_item_label2,
+					'databind' => "value: custom_value2, valueUpdate: 'afterkeydown',
+                        attr: {name: 'invoice_items[" . ($isTasks ? 'T' : '') . "' + \$index() + '][custom_value2]'}",
+                    'raw' => true,
+				])
             </td>
         @endif
         <td>

@@ -268,4 +268,13 @@ class AccountGateway extends EntityModel
 
         return \URL::to(env('WEBHOOK_PREFIX', '').'payment_hook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX', ''));
     }
+
+    public function isTestMode()
+    {
+        if ($this->isGateway(GATEWAY_STRIPE)) {
+            return strpos($this->getPublishableStripeKey(), 'test') !== false;
+        } else {
+            return $this->getConfigField('testMode');
+        }
+    }
 }

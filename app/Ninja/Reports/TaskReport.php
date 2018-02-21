@@ -7,14 +7,18 @@ use Utils;
 
 class TaskReport extends AbstractReport
 {
-    public $columns = [
-        'client',
-        'date',
-        'project',
-        'description',
-        'duration',
-        'amount',
-    ];
+    public function getColumns()
+    {
+        return [
+            'client' => [],
+            'start_date' => [],
+            'project' => [],
+            'description' => [],
+            'duration' => [],
+            'amount' => [],
+            'user' => ['columnSelector-false'],
+        ];
+    }
 
     public function run()
     {
@@ -23,12 +27,13 @@ class TaskReport extends AbstractReport
 
         $tasks = Task::scope()
                     ->orderBy('created_at', 'desc')
-                    ->with('client.contacts', 'project', 'account')
+                    ->with('client.contacts', 'project', 'account', 'user')
                     ->withArchived()
                     ->dateRange($startDate, $endDate);
 
         foreach ($tasks->get() as $task) {
-            $amount = $task->getRate() * ($task->getDuration() / 60 / 60);
+            $duration = $task->getDuration($startDate->format('U'), $endDate->modify('+1 day')->format('U'));
+            $amount = $task->getRate() * ($duration / 60 / 60);
             if ($task->client && $task->client->currency_id) {
                 $currencyId = $task->client->currency_id;
             } else {
@@ -40,11 +45,12 @@ class TaskReport extends AbstractReport
                 $this->isExport ? $task->getStartTime() : link_to($task->present()->url, $task->getStartTime()),
                 $task->present()->project,
                 $task->description,
-                Utils::formatTime($task->getDuration()),
+                Utils::formatTime($duration),
                 Utils::formatMoney($amount, $currencyId),
+                $task->user->getDisplayName(),
             ];
 
-            $this->addToTotals($currencyId, 'duration', $task->getDuration());
+            $this->addToTotals($currencyId, 'duration', $duration);
             $this->addToTotals($currencyId, 'amount', $amount);
         }
     }

@@ -35,6 +35,7 @@ class EntityRequest extends Request
         if (! $publicId) {
             $publicId = Input::get('public_id') ?: Input::get('id');
         }
+
         if (! $publicId) {
             return null;
         }

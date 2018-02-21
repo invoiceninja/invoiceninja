@@ -272,6 +272,15 @@ class Document extends EntityModel
         return url('client/documents/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
     }
 
+    public function getProposalUrl()
+    {
+        if (! $this->is_proposal || ! $this->document_key) {
+            return '';
+        }
+
+        return url('proposal/image/'. $this->account->account_key . '/' . $this->document_key . '/' . $this->name);
+    }
+
     /**
      * @return bool
      */

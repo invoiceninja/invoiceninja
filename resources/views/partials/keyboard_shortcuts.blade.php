@@ -112,7 +112,7 @@
                           </ul>
                       </p>
                       <p>
-                          {!! trans('texts.voice_commands_feedback', ['email' => HTML::mailto(CONTACT_EMAIL)]) !!}
+                          {!! trans('texts.voice_commands_feedback', ['email' => HTML::mailto(env('CONTACT_EMAIL', CONTACT_EMAIL))]) !!}
                       </p>
                   </div>
               </div>

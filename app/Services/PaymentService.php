@@ -153,7 +153,7 @@ class PaymentService extends BaseService
     public function save($input, $payment = null, $invoice = null)
     {
         // if the payment amount is more than the balance create a credit
-        if ($invoice && $input['amount'] > $invoice->balance) {
+        if ($invoice && Utils::parseFloat($input['amount']) > $invoice->balance) {
             $credit = Credit::createNew();
             $credit->client_id = $invoice->client_id;
             $credit->credit_date = date_create()->format('Y-m-d');

@@ -8,16 +8,20 @@ Thanks for taking the time to setup Invoice Ninja.
 Detailed Guides
 ^^^^^^^^^^^^^^^
 
+- Ubuntu and Nginx: `websiteforstudents.com <https://websiteforstudents.com/install-invoiceninja-on-ubuntu-17-04-17-10-with-nginx-mariadb-and-php-support/>`_
+
 - Ubuntu and Apache: `technerdservices.com <http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/>`_
 
 - Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/>`_
 
-- CentOS, Nginx, MariaDB and PHP 7: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
+- CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
 Automated Installers
 ^^^^^^^^^^^^^^^^^^^^
 
-- Dockerfile: `github.com/invoiceninja/dockerfiles <https://github.com/invoiceninja/dockerfiles>`_
+- Dockerfile: `github.com <https://github.com/invoiceninja/dockerfiles>`_
+
+- Cloudron: `cloudron.io <https://cloudron.io/store/com.invoiceninja.cloudronapp.html>`_
 
 - Softaculous: `softaculous.com <https://www.softaculous.com/apps/ecommerce/Invoice_Ninja>`_
 
@@ -70,6 +74,13 @@ Once you can access the site the initial setup screen will enable you to configu
 
 .. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
 
+Step 5: Enable auto updates
+"""""""""""""""""""""""""""
+
+Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process.
+
+You can run it as a daily cron to automatically keep your app up to date.
+
 Troubleshooting
 ^^^^^^^^^^^^^^^
 
@@ -80,4 +91,4 @@ Troubleshooting
 - Running ``composer install`` and ``composer dump-autoload`` can sometimes help with composer problems.
 - If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to public/.htaccess otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
-- PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php
+- PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php. If the file doesn't exist the steps `https://stackoverflow.com/a/37266353/497368 <here>`_ may help.

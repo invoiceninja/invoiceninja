@@ -95,7 +95,7 @@
 				@endif
 
 				@if (Auth::user()->created_at->diffInMonths() >= 3)
-					{!! Former::plaintext(' ')->help('review_app_help') !!}
+					{!! Former::plaintext(' ')->help(trans('texts.review_app_help', ['link' => link_to('http://www.capterra.com/p/145215/Invoice-Ninja', trans('texts.writing_a_review'), ['target' => '_blank'])])) !!}
 				@endif
 			</div>
 		</div>

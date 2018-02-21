@@ -99,10 +99,10 @@
             @endif
 
             @if ($client->account->custom_client_label1 && $client->custom_value1)
-                {{ $client->account->custom_client_label1 . ': ' . $client->custom_value1 }}<br/>
+                {{ $client->account->present()->customClientLabel1 . ': ' . $client->custom_value1 }}<br/>
             @endif
             @if ($client->account->custom_client_label2 && $client->custom_value2)
-                {{ $client->account->custom_client_label2 . ': ' . $client->custom_value2 }}<br/>
+                {{ $client->account->present()->customClientLabel2 . ': ' . $client->custom_value2 }}<br/>
             @endif
 
             @if ($client->work_phone)
@@ -123,11 +123,12 @@
                 <p><i>{!! nl2br(e($client->private_notes)) !!}</i></p>
             @endif
 
-  	        @if ($client->client_industry)
-                {{ $client->client_industry->name }}<br/>
-            @endif
-            @if ($client->client_size)
-                {{ $client->client_size->name }}<br/>
+  	        @if ($client->industry || $client->size)
+                {{ $client->industry->name }}
+                @if ($client->industry && $client->size)
+                    |
+                @endif
+                {{ $client->size->name }}<br/>
             @endif
 
 		  	@if ($client->website)
@@ -153,8 +154,12 @@
         <div class="col-md-3">
 			<h3>{{ trans('texts.address') }}</h3>
 
-            {!! $client->present()->address(ADDRESS_BILLING) !!}<br/>
-            {!! $client->present()->address(ADDRESS_SHIPPING) !!}
+            @if ($client->addressesMatch())
+                {!! $client->present()->address(ADDRESS_BILLING) !!}
+            @else
+                {!! $client->present()->address(ADDRESS_BILLING, true) !!}<br/>
+                {!! $client->present()->address(ADDRESS_SHIPPING, true) !!}
+            @endif
 
         </div>
 
@@ -172,10 +177,10 @@
                 @endif
 
                 @if ($client->account->custom_contact_label1 && $contact->custom_value1)
-                    {{ $client->account->custom_contact_label1 . ': ' . $contact->custom_value1 }}<br/>
+                    {{ $client->account->present()->customContactLabel1() . ': ' . $contact->custom_value1 }}<br/>
                 @endif
                 @if ($client->account->custom_contact_label2 && $contact->custom_value2)
-                    {{ $client->account->custom_contact_label2 . ': ' . $contact->custom_value2 }}<br/>
+                    {{ $client->account->present()->customContactLabel2() . ': ' . $contact->custom_value2 }}<br/>
                 @endif
 
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
@@ -371,7 +376,7 @@
             };
 
             var map = new google.maps.Map(mapCanvas, mapOptions)
-            var address = {!! json_encode(e("{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : ''))) !!};
+            var address = {!! json_encode(e("{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->getName() : ''))) !!};
 
             geocoder = new google.maps.Geocoder();
             geocoder.geocode( { 'address': address}, function(results, status) {

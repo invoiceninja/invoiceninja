@@ -8,13 +8,16 @@ use Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
-    public $columns = [
-        'type',
-        'client',
-        'amount',
-        'date',
-        'notes',
-    ];
+    public function getColumns()
+    {
+        return [
+            'type' => [],
+            'client' => [],
+            'amount' => [],
+            'date' => [],
+            'notes' => [],
+        ];
+    }
 
     public function run()
     {
@@ -65,8 +68,8 @@ class ProfitAndLossReport extends AbstractReport
             ];
 
             $this->addToTotals($expense->expense_currency_id, 'revenue', 0, $expense->present()->month);
-            $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amount, $expense->present()->month);
-            $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amount * -1, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amountWithTax(), $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amountWithTax() * -1, $expense->present()->month);
         }
 
         //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);

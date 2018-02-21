@@ -25,20 +25,20 @@
     <td>{{ trans('texts.public_notes') }}</td>
     <td>{{ trans('texts.private_notes') }}</td>
     @if ($account->custom_client_label1)
-        <td>{{ $account->custom_client_label1 }}</td>
+        <td>{{ $account->present()->customClientLabel1 }}</td>
     @endif
     @if ($account->custom_client_label2)
-        <td>{{ $account->custom_client_label2 }}</td>
+        <td>{{ $account->present()->customClientLabel2 }}</td>
     @endif
     <td>{{ trans('texts.first_name') }}</td>
     <td>{{ trans('texts.last_name') }}</td>
     <td>{{ trans('texts.email') }}</td>
     <td>{{ trans('texts.phone') }}</td>
     @if ($account->custom_contact_label1)
-        <td>{{ $account->custom_contact_label1 }}</td>
+        <td>{{ $account->present()->customContactLabel1 }}</td>
     @endif
     @if ($account->custom_contact_label2)
-        <td>{{ $account->custom_contact_label2 }}</td>
+        <td>{{ $account->present()->customContactLabel2 }}</td>
     @endif
 </tr>
 

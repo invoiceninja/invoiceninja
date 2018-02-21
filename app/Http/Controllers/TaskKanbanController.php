@@ -55,8 +55,16 @@ class TaskKanbanController extends BaseController
                 $task->task_status_sort_order = $i++;
                 $task->save();
             }
-        // otherwise, check that the tasks orders are correct
+        // otherwise, check that the orders are correct
         } else {
+            for ($i=0; $i<$statuses->count(); $i++) {
+                $status = $statuses[$i];
+                if ($status->sort_order != $i) {
+                    $status->sort_order = $i;
+                    $status->save();
+                }
+            }
+
             $firstStatus = $statuses[0];
             $counts = [];
             foreach ($tasks as $task) {

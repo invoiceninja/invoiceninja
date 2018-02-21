@@ -1,4 +1,4 @@
-{!! Former::open(Utils::pluralizeEntityType($entityType) . '/bulk')
+{!! Former::open(\App\Models\EntityModel::getFormUrl($entityType) . '/bulk')
 		->addClass('listForm_' . $entityType) !!}
 
 <div style="display:none">
@@ -46,17 +46,40 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-	@if (false && $entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
-		{!! DropdownButton::normal(trans('texts.recurring'))
-			->withAttributes(['class'=>'recurringDropdown'])
+	@if ($entityType == ENTITY_PROPOSAL)
+		{!! DropdownButton::normal(trans('texts.proposal_templates'))
+			->withAttributes(['class'=>'templatesDropdown'])
 			->withContents([
-			  ['label' => trans('texts.new_recurring_invoice'), 'url' => url('/recurring_invoices/create')],
+			  ['label' => trans('texts.new_proposal_template'), 'url' => url('/proposals/templates/create')],
+			]
+		  )->split() !!}
+		  {!! DropdownButton::normal(trans('texts.proposal_snippets'))
+  			->withAttributes(['class'=>'snippetsDropdown'])
+  			->withContents([
+  			  ['label' => trans('texts.new_proposal_snippet'), 'url' => url('/proposals/snippets/create')],
+  			]
+  		  )->split() !!}
+		<script type="text/javascript">
+			$(function() {
+				$('.templatesDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/proposals/templates') }}', event);
+				});
+				$('.snippetsDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/proposals/snippets') }}', event);
+				});
+			});
+		</script>
+	@elseif ($entityType == ENTITY_PROPOSAL_SNIPPET)
+		{!! DropdownButton::normal(trans('texts.proposal_categories'))
+			->withAttributes(['class'=>'categoriesDropdown'])
+			->withContents([
+			  ['label' => trans('texts.new_proposal_category'), 'url' => url('/proposals/categories/create')],
 			]
 		  )->split() !!}
 		<script type="text/javascript">
 			$(function() {
-				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
-					openUrlOnClick('{{ url('/recurring_invoices') }}', event);
+				$('.categoriesDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/proposals/categories') }}', event);
 				});
 			});
 		</script>
@@ -67,12 +90,18 @@
 			  ['label' => trans('texts.new_recurring_expense'), 'url' => url('/recurring_expenses/create')],
 			]
 		  )->split() !!}
-	    {!! DropdownButton::normal(trans('texts.categories'))
-			->withAttributes(['class'=>'categoriesDropdown'])
-			->withContents([
-			  ['label' => trans('texts.new_expense_category'), 'url' => url('/expense_categories/create')],
-			]
-		  )->split() !!}
+		@if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+			{!! DropdownButton::normal(trans('texts.categories'))
+                ->withAttributes(['class'=>'categoriesDropdown'])
+                ->withContents([
+                  ['label' => trans('texts.new_expense_category'), 'url' => url('/expense_categories/create')],
+                ]
+              )->split() !!}
+		@else
+			{!! DropdownButton::normal(trans('texts.categories'))
+                ->withAttributes(['class'=>'categoriesDropdown'])
+                ->split() !!}
+		@endif
 	  	<script type="text/javascript">
 		  	$(function() {
 				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
@@ -89,7 +118,12 @@
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
-    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? ($clientId . (isset($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('plus-sign')) !!}
+    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))
+			->asLinkTo(url(
+				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) .
+				'/create/' . (isset($clientId) ? ($clientId . (isset($projectId) ? '/' . $projectId : '')) : '')
+			))
+			->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
 </div>

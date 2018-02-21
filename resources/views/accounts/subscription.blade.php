@@ -7,6 +7,7 @@
     {!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
         'event_id' => 'required',
         'target_url' => 'required|url',
+        //'format' => 'required',
     )); !!}
 
     <div class="panel panel-default">
@@ -60,9 +61,17 @@
                     ->label('event') !!}
 
             {!! Former::text('target_url')
-                    ->help('target_url_help')
                     ->placeholder('https://example.com')!!}
 
+            <!--
+            {!! Former::select('format')
+                    ->options([
+                        SUBSCRIPTION_FORMAT_JSON => SUBSCRIPTION_FORMAT_JSON,
+                        SUBSCRIPTION_FORMAT_UBL => SUBSCRIPTION_FORMAT_UBL
+                    ])
+                    ->help('target_url_help') !!}
+            -->
+            
         </div>
     </div>
 

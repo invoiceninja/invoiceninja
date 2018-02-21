@@ -98,4 +98,14 @@ class EntityDatatable
 
         return $str . '&nbsp; <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="' . e($note) . '"></span>';
     }
+
+    public function showWithTooltip($str, $max = 60) {
+        $str = e($str);
+
+        if (strlen($str) > $max) {
+            return '<span data-toggle="tooltip" data-placement="bottom" title="' . $str . '">' . trim(substr($str, 0, $max)) . '...' . '</span>';
+        } else {
+            return $str;
+        }
+    }
 }
