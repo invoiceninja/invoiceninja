@@ -150,13 +150,6 @@ class SendRecurringInvoices extends Command
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info('Processing Autobill-delayed Invoice: ' . $invoice->id);
-
-                // TODO don't skip
-                if ($invoice->user->trashed()) {
-                    $this->info('Archived user: skipping');
-                    continue;
-                }
-
                 Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
                 Auth::logout();
