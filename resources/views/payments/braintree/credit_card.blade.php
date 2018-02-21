@@ -37,7 +37,7 @@
                 onError: function(e) {
                     $form.find('button').prop('disabled', false);
                     NINJA.formIsSubmitted = false;
-                    
+
                     // Show the errors on the form
                     if (e.details && e.details.invalidFieldKeys.length) {
                         var invalidField = e.details.invalidFieldKeys[0];
@@ -58,7 +58,6 @@
                 },
                 onPaymentMethodReceived: function(e) {
                     if (NINJA.formIsSubmitted) {
-                        event.preventDefault();
                         return false;
                     }
                     NINJA.formIsSubmitted = true;
