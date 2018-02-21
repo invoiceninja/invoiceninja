@@ -390,7 +390,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
 
             // set the default due date
-            if ($entityType == ENTITY_INVOICE && empty($data['partial_due_date'])) {
+            if (empty($data['partial_due_date'])) {
                 $client = Client::scope()->whereId($data['client_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
             }
