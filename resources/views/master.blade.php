@@ -57,8 +57,14 @@
         var NINJA = NINJA || {};
         NINJA.fontSize = 9;
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
+        NINJA.loggedErrorCount = 0;
 
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
+            if (NINJA.loggedErrorCount > 5) {
+                return;
+            }
+            NINJA.loggedErrorCount++;
+
             // Error in hosted third party library
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;

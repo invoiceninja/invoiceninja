@@ -85,7 +85,7 @@
                         $form.get(0).submit();
                     } else {
                         $('#js-error-message').html('An error occurred').fadeIn();
-                        logError('STRIPE_ERROR:' + JSON.stringify(response));
+                        logError('STRIPE_ERROR: ' + JSON.stringify(response));
                     }
                 }
             };
