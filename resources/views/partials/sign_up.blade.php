@@ -154,6 +154,7 @@
 
 </script>
 
+@if (\Request::is('dashboard'))
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -319,3 +320,4 @@
     </div>
   </div>
 </div>
+@endif
