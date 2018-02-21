@@ -53,13 +53,15 @@
                         'link_docs' => link_to('http://docs.invoiceninja.com/en/latest/configure.html#phantomjs', 'PhantomJS', ['target' => '_blank'])
                     ])) : false) !!}
 
-            {!! Former::checkbox('ubl_email_attachment')
-                    ->text(trans('texts.enable'))
-                    ->value(1) !!}
-
             {!! Former::checkbox('document_email_attachment')
                     ->text(trans('texts.enable'))
                     ->value(1) !!}
+
+            {!! Former::checkbox('ubl_email_attachment')
+                    ->text(trans('texts.enable'))
+                    ->label(sprintf('%s [%s]', trans('texts.ubl_email_attachment'), trans('texts.beta')))
+                    ->value(1) !!}
+
 
             &nbsp;
 

@@ -2749,6 +2749,7 @@ $LANG = array(
     'email_address_changed' => 'Email address has been changed',
     'email_address_changed_message' => 'The email address for your account has been changed from :old_email to :new_email.',
     'test' => 'Test',
+    'beta' => 'Beta',
 
 );
 
