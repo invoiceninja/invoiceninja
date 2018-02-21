@@ -58,6 +58,10 @@ class QuoteReport extends AbstractReport
                         }]);
 
         if ($this->isExport && $exportFormat == 'zip') {
+            if (! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
+            }
+
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.quote_documents')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {

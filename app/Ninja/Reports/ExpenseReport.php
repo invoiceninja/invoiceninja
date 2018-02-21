@@ -49,6 +49,10 @@ class ExpenseReport extends AbstractReport
                         ->where('expense_date', '<=', $this->endDate);
 
         if ($this->isExport && $exportFormat == 'zip') {
+            if (! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
+            }
+
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.expense_documents')));
             foreach ($expenses->get() as $expense) {
                 foreach ($expense->documents as $document) {

@@ -2750,6 +2750,7 @@ $LANG = array(
     'email_address_changed_message' => 'The email address for your account has been changed from :old_email to :new_email.',
     'test' => 'Test',
     'beta' => 'Beta',
+    'gmp_required' => 'Exporting to ZIP requires the GMP extension',
 
 );
 
