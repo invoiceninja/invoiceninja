@@ -25,6 +25,7 @@
                     <center class="buttons">
                         {!! Former::text('one_time_password')
                                 ->placeholder('one_time_password')
+                                ->data_lpignore('true')
                                 ->style('width:300px;font-size:18px')
                                 ->raw() !!}
                         <p>&nbsp;</p>
