@@ -24,7 +24,6 @@
         "barryvdh/laravel-debugbar": "~2.2",
         "barryvdh/laravel-ide-helper": "~2.2",
         "cerdic/css-tidy": "~v1.5",
-        "chumper/datatable": "dev-develop#04ef2bf",
         "cleverit/ubl_invoice": "1.*",
         "codedge/laravel-selfupdater": "5.x-dev",
         "collizo4sky/omnipay-wepay": "dev-address-fix",
@@ -41,11 +40,10 @@
         "jlapp/swaggervel": "master-dev",
         "jonnyw/php-phantomjs": "4.*",
         "laracasts/presenter": "dev-master",
-        "laravel/framework": "5.3.*",
+        "laravel/framework": "5.4.*",
         "laravel/legacy-encrypter": "^1.0",
-        "laravel/socialite": "~2.0",
-        "laravelcollective/bus": "5.3.*",
-        "laravelcollective/html": "5.3.*",
+        "laravel/socialite": "~3.0",
+        "laravelcollective/html": "5.4.*",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-rackspace": "~1.0",
         "league/fractal": "0.13.*",
@@ -70,7 +68,7 @@
         "codeception/c3": "~2.0",
         "codeception/codeception": "2.3.3",
         "phpspec/phpspec": "~2.1",
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~5.7"
     },
     "autoload": {
         "classmap": [

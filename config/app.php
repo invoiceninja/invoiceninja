@@ -149,7 +149,6 @@ return [
         'Bootstrapper\BootstrapperL5ServiceProvider',
         'Former\FormerServiceProvider',
         'Barryvdh\Debugbar\ServiceProvider',
-        'Chumper\Datatable\DatatableServiceProvider',
         'Intervention\Image\ImageServiceProvider',
         'Webpatser\Countries\CountriesServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
@@ -157,7 +156,7 @@ return [
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
         Websight\GcsProvider\CloudStorageServiceProvider::class,
-        'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
+        //'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
         Codedge\Updater\UpdaterServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
@@ -174,7 +173,7 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        //'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
 
     ],
 
@@ -253,7 +252,6 @@ return [
         'Typeahead'       => 'Bootstrapper\Facades\Typeahead',
         'Typography'      => 'Bootstrapper\Facades\Typography',
         'Former'          => 'Former\Facades\Former',
-        'Datatable'       => 'Chumper\Datatable\Facades\DatatableFacade',
         'Omnipay'         => 'Omnipay\Omnipay',
         'CreditCard'      => 'Omnipay\Common\CreditCard',
         'Image'           => 'Intervention\Image\Facades\Image',
@@ -262,8 +260,8 @@ return [
         'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
         'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
-        'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
-        'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        //'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
+        //'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
         'Updater' => Codedge\Updater\UpdaterFacade::class,
         'Module' => Nwidart\Modules\Facades\Module::class,
 

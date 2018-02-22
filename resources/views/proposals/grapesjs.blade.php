@@ -30,7 +30,7 @@ $(function() {
             @endif
             uploadName: 'files',
             params: {
-                '_token': '{{ Session::getToken() }}',
+                '_token': '{{ Session::token() }}',
                 'grapesjs': true,
             }
         }
