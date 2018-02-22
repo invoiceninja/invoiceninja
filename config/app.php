@@ -161,6 +161,8 @@ return [
         Nwidart\Modules\LaravelModulesServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
+        'Chumper\Datatable\DatatableServiceProvider',
+
 
         /*
          * Application Service Providers...
@@ -262,6 +264,7 @@ return [
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
         //'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
         //'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        'Datatable' => 'Chumper\Datatable\Facades\DatatableFacade',
         'Updater' => Codedge\Updater\UpdaterFacade::class,
         'Module' => Nwidart\Modules\Facades\Module::class,
 

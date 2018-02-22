@@ -24,6 +24,7 @@
         "barryvdh/laravel-debugbar": "~2.2",
         "barryvdh/laravel-ide-helper": "~2.2",
         "cerdic/css-tidy": "~v1.5",
+        "chumper/datatable": "dev-add-back-options",
         "cleverit/ubl_invoice": "1.*",
         "codedge/laravel-selfupdater": "5.x-dev",
         "collizo4sky/omnipay-wepay": "dev-address-fix",
@@ -146,7 +147,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/hillelcoren/omnipay-authorizenet"
+            "url": "https://github.com/hillelcoren/datatable"
         }
     ]
 }
