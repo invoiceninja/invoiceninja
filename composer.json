@@ -50,7 +50,7 @@
         "league/fractal": "0.13.*",
         "maatwebsite/excel": "~2.0",
         "mpdf/mpdf": "6.1.3",
-        "nwidart/laravel-modules": "^1.14",
+        "nwidart/laravel-modules": "1.*",
         "omnipay/authorizenet": "dev-solution-id as 2.5.0",
         "patricktalmadge/bootstrapper": "5.5.x",
         "pragmarx/google2fa-laravel": "^0.1.2",

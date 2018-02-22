@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "73cc6cc4d5ef1dc765346e16d08ab20f",
-    "content-hash": "aebd89b4966c82948f90bf1dfe6dc67e",
+    "hash": "5b06c2acfc8bddcbf559e41191aa7dce",
+    "content-hash": "aadd859625636a9b39cc0a124f690335",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
