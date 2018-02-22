@@ -146,6 +146,18 @@ trait HasLogo
     }
 
     /**
+     * @return string|null
+     */
+    public function getLogoName()
+    {
+        if (! $this->hasLogo()) {
+            return null;
+        }
+
+        return $this->logo;
+    }
+
+    /**
      * @return bool
      */
     public function isLogoTooLarge()

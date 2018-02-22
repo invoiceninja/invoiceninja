@@ -130,7 +130,7 @@ return [
         'Illuminate\Filesystem\FilesystemServiceProvider',
         'Illuminate\Foundation\Providers\FoundationServiceProvider',
         'Illuminate\Hashing\HashServiceProvider',
-        (isset($_ENV['POSTMARK_API_TOKEN']) ? 'Postmark\Adapters\LaravelMailProvider' : 'Illuminate\Mail\MailServiceProvider'),
+        'Illuminate\Mail\MailServiceProvider',
         'Illuminate\Pagination\PaginationServiceProvider',
         'Illuminate\Pipeline\PipelineServiceProvider',
         'Illuminate\Queue\QueueServiceProvider',

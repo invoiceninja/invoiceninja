@@ -62,7 +62,7 @@
         "webpatser/laravel-countries": "dev-master",
         "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
-        "wildbit/laravel-postmark-provider": "dev-master#134f359"
+        "wildbit/postmark-php": "^2.5"
     },
     "require-dev": {
         "symfony/dom-crawler": "~3.1",

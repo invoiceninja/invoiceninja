@@ -6,6 +6,9 @@ use App\Models\Invoice;
 use Exception;
 use Mail;
 use Utils;
+use Postmark\PostmarkClient;
+use Postmark\Models\PostmarkException;
+use Postmark\Models\PostmarkAttachment;
 
 /**
  * Class Mailer.
@@ -34,6 +37,25 @@ class Mailer
             'emails.'.$view.'_text',
         ];
 
+        $toEmail = strtolower($toEmail);
+        $replyEmail = $fromEmail;
+        $fromEmail = CONTACT_EMAIL;
+        //\Log::info("{$toEmail} | {$replyEmail} | $fromEmail");
+
+        // Optionally send for alternate domain
+        if (! empty($data['fromEmail'])) {
+            $fromEmail = $data['fromEmail'];
+        }
+
+        if (config('services.postmark')) {
+            return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        } else {
+            return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        }
+    }
+
+    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    {
         if (Utils::isSelfHost()) {
             if (isset($data['account'])) {
                 $account = $data['account'];
@@ -60,17 +82,7 @@ class Mailer
         }
 
         try {
-            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
-                $toEmail = strtolower($toEmail);
-                $replyEmail = $fromEmail;
-                $fromEmail = CONTACT_EMAIL;
-                //\Log::info("{$toEmail} | {$replyEmail} | $fromEmail");
-
-                // Optionally send for alternate domain
-                if (! empty($data['fromEmail'])) {
-                    $fromEmail = $data['fromEmail'];
-                }
-
+            $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data) {
                 $message->to($toEmail)
                         ->from($fromEmail, $fromName)
                         ->replyTo($replyEmail, $fromName)
@@ -95,9 +107,64 @@ class Mailer
                 }
             });
 
-            return $this->handleSuccess($response, $data);
+            return $this->handleSuccess($data);
         } catch (Exception $exception) {
-            return $this->handleFailure($exception);
+            return $this->handleFailure($data, $exception->getMessage());
+        }
+    }
+
+    private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    {
+        $htmlBody = view($views[0], $data)->render();
+        $textBody = view($views[1], $data)->render();
+        $attachments = [];
+
+        if (isset($data['account'])) {
+            $account = $data['account'];
+            $logoName = $account->getLogoName();
+            $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
+        }
+
+        // Handle invoice attachments
+        if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
+            $attachments[] = PostmarkAttachment::fromRawData($document['pdfString'], $document['pdfFileName']);
+        }
+        if (! empty($data['ublString']) && ! empty($data['ublFileName'])) {
+            $attachments[] = PostmarkAttachment::fromRawData($document['ublString'], $document['ublFileName']);
+        }
+        if (! empty($data['documents'])) {
+            foreach ($data['documents'] as $document) {
+                $attachments[] = PostmarkAttachment::fromRawData($document['data'], $document['name']);
+            }
+        }
+
+        try {
+            $client = new PostmarkClient(config('services.postmark'));
+            $message = [
+                'To' => $toEmail,
+                'From' => $fromEmail,
+                'ReplyTo' => $replyEmail,
+                'Subject' => $subject,
+                'TextBody' => $textBody,
+                'HtmlBody' => $htmlBody,
+                'Attachments' => $attachments,
+            ];
+
+            if (! empty($data['bccEmail'])) {
+                $message['Bcc'] = $data['bccEmail'];
+            }
+
+            $response = $client->sendEmailBatch([$message]);
+            if ($messageId = $response[0]->messageid) {
+                return $this->handleSuccess($data, $messageId);
+            } else {
+                return $this->handleFailure($data, $response[0]->message);
+            }
+        } catch (PostmarkException $exception) {
+            return $this->handleFailure($data, $exception->getMessage());
+        } catch (Exception $exception) {
+            Utils::logError(Utils::getErrorString($exception));
+            throw $exception;
         }
     }
 
@@ -107,19 +174,11 @@ class Mailer
      *
      * @return bool
      */
-    private function handleSuccess($response, $data)
+    private function handleSuccess($data, $messageId = false)
     {
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
             $invoice = $invitation->invoice;
-            $messageId = false;
-
-            // Track the Postmark message id
-            if (isset($_ENV['POSTMARK_API_TOKEN']) && $response) {
-                $json = json_decode((string) $response->getBody());
-                $messageId = $json->MessageID;
-            }
-
             $notes = isset($data['notes']) ? $data['notes'] : false;
 
             if (! empty($data['proposal'])) {
@@ -137,35 +196,14 @@ class Mailer
      *
      * @return string
      */
-    private function handleFailure($exception)
+    private function handleFailure($data, $emailError)
     {
-        if (isset($_ENV['POSTMARK_API_TOKEN']) && method_exists($exception, 'getResponse')) {
-            $response = $exception->getResponse();
-
-            if (! $response) {
-                $error = trans('texts.postmark_error', ['link' => link_to('https://status.postmarkapp.com/')]);
-                Utils::logError($error);
-
-                if (config('queue.default') === 'sync') {
-                    return $error;
-                } else {
-                    throw $exception;
-                }
-            }
-
-            $response = $response->getBody()->getContents();
-            $response = json_decode($response);
-            $emailError = nl2br($response->Message);
-        } else {
-            $emailError = $exception->getMessage();
-        }
-
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
             $invitation->email_error = $emailError;
             $invitation->save();
         } elseif (! Utils::isNinjaProd()) {
-            Utils::logError(Utils::getErrorString($exception));
+            Utils::logError($emailError);
         }
 
         return $emailError;
