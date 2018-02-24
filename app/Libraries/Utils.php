@@ -1003,8 +1003,12 @@ class Utils
         return $str;
     }
 
-    public static function getSubdomain($url)
+    public static function getSubdomain($url = false)
     {
+        if (! $url) {
+            $url = Request::server('HTTP_HOST');
+        }
+
         $parts = parse_url($url);
         $subdomain = '';
 
