@@ -37,6 +37,11 @@
 @stop
 
 @section('top-right')
+	@if (config('services.postmark'))
+		{!! Button::normal(trans('texts.emails'))
+				->asLinkTo(url('/reports/emails'))
+				->appendIcon(Icon::create('envelope')) !!}
+	@endif
 	{!! Button::normal(trans('texts.calendar'))
 			->asLinkTo(url('/calendar'))
 			->appendIcon(Icon::create('calendar')) !!}

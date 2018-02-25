@@ -2752,6 +2752,9 @@ $LANG = array(
     'processing' => 'Processing',
     'reactivate' => 'Reactivate',
     'reactivated_email' => 'The email address has been reactivated',
+    'emails' => 'Emails',
+    'opened' => 'Opened',
+    'bounced' => 'Bounced',
 
 );
 

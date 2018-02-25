@@ -12,6 +12,10 @@ use Utils;
 use View;
 use Carbon;
 use Validator;
+use stdClass;
+use DateInterval;
+use DatePeriod;
+
 
 /**
  * Class ReportController.
@@ -172,5 +176,80 @@ class ReportController extends BaseController
             ->delete();
 
         session()->flash('message', trans('texts.deleted_scheduled_report'));
+    }
+
+    public function showEmailReport()
+    {
+        $data = [
+            'account' => auth()->user()->account,
+        ];
+
+        return view('reports.emails', $data);
+    }
+
+    public function loadEmailReport($startDate, $endDate)
+    {
+        $account = auth()->user()->account;
+        $startDate = date_create($startDate);
+        $endDate = date_create($endDate);
+        $postmark = new \Postmark\PostmarkClient(config('services.postmark'));
+        $obj = new stdClass;
+
+        $eventTypes = ['sent', 'opened'];
+
+        foreach ($eventTypes as $eventType) {
+            $data = [];
+            $endDate->modify('+1 day');
+            $interval = new DateInterval('P1D');
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            $endDate->modify('-1 day');
+            $records = [];
+
+            if ($eventType == 'sent') {
+                $response = $postmark->getOutboundSendStatistics(null, request()->start_date, request()->end_date);
+            } else {
+                $response = $postmark->getOutboundOpenStatistics(null, request()->start_date, request()->end_date);
+            }
+
+            foreach ($response->days as $key => $val) {
+                $field = $eventType == 'opened' ? 'unique' : $eventType;
+                $data[$val['date']] = $val[$field];
+            }
+
+            foreach ($period as $day) {
+                $date = $day->format('Y-m-d');
+                $records[] = isset($data[$date]) ? $data[$date] : 0;
+
+                if ($eventType == 'sent') {
+                    $labels[] = $day->format('m/d/Y');
+                }
+            }
+
+            if ($eventType == 'sent') {
+                $color = '51,122,183';
+            } elseif ($eventType == 'opened') {
+                $color = '54,193,87';
+            } elseif ($eventType == 'bounced') {
+                $color = '128,128,128';
+            }
+
+            $group = new stdClass();
+            $group->data = $records;
+            $group->label = trans("texts.{$eventType}");
+            $group->lineTension = 0;
+            $group->borderWidth = 4;
+            $group->borderColor = "rgba({$color}, 1)";
+            $group->backgroundColor = "rgba({$color}, 0.1)";
+            $datasets[] = $group;
+        }
+
+        $data = new stdClass();
+        $data->labels = $labels;
+        $data->datasets = $datasets;
+
+        $response = new stdClass();
+        $response->data = $data;
+
+        return response()->json($response);
     }
 }
