@@ -57,21 +57,16 @@ class ConvertInvoiceToUbl extends Job
 
         $ublInvoice->setInvoiceLines($invoiceLines);
 
-        if ($invoice->hasTaxes()) {
-            $taxtotal = new TaxTotal();
-            $taxAmount1 = $taxAmount2 = 0;
+        $taxtotal = new TaxTotal();
+        $taxAmount1 = $taxAmount2 = 0;
 
-            if ($invoice->tax_name1 || floatval($invoice->tax_rate1)) {
-                $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
-            }
-
-            if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
-                $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
-            }
-
-            $taxtotal->setTaxAmount($taxAmount1 + $taxAmount2);
-            $ublInvoice->setTaxTotal($taxtotal);
+        $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
+        if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
+            $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
         }
+
+        $taxtotal->setTaxAmount($taxAmount1 + $taxAmount2);
+        $ublInvoice->setTaxTotal($taxtotal);
 
         $ublInvoice->setLegalMonetaryTotal((new LegalMonetaryTotal())
             //->setLineExtensionAmount()
@@ -118,21 +113,16 @@ class ConvertInvoiceToUbl extends Job
                 ->setDescription($item->description));
                 //->setSellersItemIdentification("1ABCD"));
 
-        if ($item->hasTaxes()) {
-            $taxtotal = new TaxTotal();
-            $itemTaxAmount1 = $itemTaxAmount2 = 0;
+        $taxtotal = new TaxTotal();
+        $itemTaxAmount1 = $itemTaxAmount2 = 0;
 
-            if ($item->tax_name1 || floatval($item->tax_rate1)) {
-                $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
-            }
-
-            if ($item->tax_name2 || floatval($item->tax_rate2)) {
-                $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
-            }
-
-            $taxtotal->setTaxAmount($itemTaxAmount1 + $itemTaxAmount2);
-            $invoiceLine->setTaxTotal($taxtotal);
+        $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
+        if ($item->tax_name2 || floatval($item->tax_rate2)) {
+            $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
+
+        $taxtotal->setTaxAmount($itemTaxAmount1 + $itemTaxAmount2);
+        $invoiceLine->setTaxTotal($taxtotal);
 
         return $invoiceLine;
     }

@@ -127,10 +127,10 @@ class Mailer
 
         // Handle invoice attachments
         if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
-            $attachments[] = PostmarkAttachment::fromRawData($document['pdfString'], $document['pdfFileName']);
+            $attachments[] = PostmarkAttachment::fromRawData($data['pdfString'], $data['pdfFileName']);
         }
         if (! empty($data['ublString']) && ! empty($data['ublFileName'])) {
-            $attachments[] = PostmarkAttachment::fromRawData($document['ublString'], $document['ublFileName']);
+            $attachments[] = PostmarkAttachment::fromRawData($data['ublString'], $data['ublFileName']);
         }
         if (! empty($data['documents'])) {
             foreach ($data['documents'] as $document) {

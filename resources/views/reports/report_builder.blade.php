@@ -43,7 +43,7 @@
 				->appendIcon(Icon::create('envelope')) !!}
 	@endif
 	{!! Button::normal(trans('texts.calendar'))
-			->asLinkTo(url('/calendar'))
+			->asLinkTo(url('/reports/calendar'))
 			->appendIcon(Icon::create('calendar')) !!}
 @stop
 
