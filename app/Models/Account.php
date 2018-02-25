@@ -682,6 +682,17 @@ class Account extends Eloquent
         return Utils::formatMoney($amount, $currencyId, $countryId, $decorator);
     }
 
+    public function formatNumber($amount, $precision = 0)
+    {
+        if ($this->currency_id) {
+            $currencyId = $this->currency_id;
+        } else {
+            $currencyId = DEFAULT_CURRENCY;
+        }
+
+        return Utils::formatNumber($amount, $currencyId, $precision);
+    }
+
     /**
      * @return mixed
      */

@@ -500,6 +500,21 @@ class Utils
         return $data->first();
     }
 
+    public static function formatNumber($value, $currencyId = false, $precision = 0)
+    {
+        $value = floatval($value);
+
+        if (! $currencyId) {
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
+        }
+
+        $currency = self::getFromCache($currencyId, 'currencies');
+        $thousand = $currency->thousand_separator;
+        $decimal = $currency->decimal_separator;
+
+        return number_format($value, $precision, $decimal, $thousand);
+    }
+
     public static function formatMoney($value, $currencyId = false, $countryId = false, $decorator = false)
     {
         $value = floatval($value);

@@ -66,11 +66,6 @@
 							}
 						}
 					},
-					title: {
-						display: false,
-						fontSize: 18,
-						text: '{{ trans('texts.total_revenue') }}'
-					},
 					scales: {
 						xAxes: [{
 							type: 'time',
@@ -164,8 +159,14 @@
 		function loadData() {
 			var url = "{!! url('/reports/emails_report') !!}/" + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD');
 			$.get(url, function(response) {
-				//response = JSON.parse(response);
 				loadChart(response.data);
+				$('#totalSentDiv').html(response.totals['sent']);
+				$('#totalOpenedDiv').html(response.totals['opened']);
+				$('#totalBouncedDiv').html(response.totals['bounced']);
+				//$('#totalSpamDiv').html(response.totals['spam']);
+
+				$('#platformsTable').html(response.platforms);
+				$('#emailClientsTable').html(response.emailClients);
 			})
 		}
 
@@ -174,6 +175,68 @@
 
 	</script>
 
+
+	<div class="row">
+	    <div class="col-md-4">
+	        <div class="panel panel-default">
+	            <div class="panel-body">
+	                <div style="overflow:hidden">
+	                    <div class="in-thin">
+	                        {{ trans('texts.total_sent') }}
+	                    </div>
+	                    <div class="in-bold" id="totalSentDiv">
+							&nbsp;
+						</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <div class="col-md-4">
+	        <div class="panel panel-default">
+				<div class="panel-body">
+	                <div style="overflow:hidden">
+	                    <div class="in-thin">
+	                        {{ trans('texts.total_opened') }}
+	                    </div>
+	                    <div class="in-bold" id="totalOpenedDiv">
+							&nbsp;
+						</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+		<div class="col-md-4">
+	        <div class="panel panel-default">
+	            <div class="panel-body">
+	                <div style="overflow:hidden">
+	                    <div class="in-thin">
+	                        {{ trans('texts.total_bounced') }}
+	                    </div>
+	                    <div class="in-bold" id="totalBouncedDiv">
+							&nbsp;
+						</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+		<!--
+		<div class="col-md-3">
+	        <div class="panel panel-default">
+	            <div class="panel-body outstanding-panel">
+	                <div style="overflow:hidden">
+	                    <div class="in-thin">
+	                        {{ trans('texts.total_spam') }}
+	                    </div>
+	                    <div class="in-bold" id="totalSpamDiv">
+							&nbsp;
+						</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+		-->
+	</div>
+
 	<div class="row">
 	    <div class="col-md-12">
 	        <div id="progress-div" class="progress">
@@ -181,6 +244,37 @@
 	                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
 	        </div>
 	        <canvas id="chart-canvas" height="70px" style="background-color:white;padding:20px;display:none"></canvas>
+	    </div>
+	</div>
+
+	<p>&nbsp;</p>
+
+	<div class="row">
+	    <div class="col-md-6">
+	        <div class="panel panel-default">
+				<div class="panel-heading" style="background-color:#777 !important">
+	                <h3 class="panel-title in-bold-white">
+	                    <i class="glyphicon glyphicon-phone"></i> {{ trans('texts.platforms') }}
+	                </h3>
+	            </div>
+				<div class="panel-body" style="height:260px;overflow-y:auto;">
+	                <table class="table table-striped" id="platformsTable">
+					</table>
+				</div>
+	        </div>
+	    </div>
+	    <div class="col-md-6">
+	        <div class="panel panel-default">
+				<div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
+	                <h3 class="panel-title" style="color: black !important">
+	                    <i class="glyphicon glyphicon-inbox"></i> {{ trans('texts.email_clients') }}
+	                </h3>
+	            </div>
+				<div class="panel-body" style="height:260px;overflow-y:auto;">
+	                <table class="table table-striped" id="emailClientsTable">
+					</table>
+				</div>
+	        </div>
 	    </div>
 	</div>
 

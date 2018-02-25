@@ -2755,6 +2755,15 @@ $LANG = array(
     'emails' => 'Emails',
     'opened' => 'Opened',
     'bounced' => 'Bounced',
+    'total_sent' => 'Total Sent',
+    'total_opened' => 'Total Opened',
+    'total_bounced' => 'Total Bounced',
+    'total_spam' => 'Total Spam',
+    'platforms' => 'Platforms',
+    'email_clients' => 'Email Clients',
+    'mobile' => 'Mobile',
+    'desktop' => 'Desktop',
+    'webmail' => 'Webmail',
 
 );
 
