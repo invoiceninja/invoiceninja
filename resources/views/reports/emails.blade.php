@@ -239,10 +239,12 @@
 
 	<div class="row">
 	    <div class="col-md-12">
+			@if (Auth::user()->hasPermission('view_all'))
 	        <div id="progress-div" class="progress">
 	            <div class="progress-bar progress-bar-striped active" role="progressbar"
 	                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
 	        </div>
+			@endif
 	        <canvas id="chart-canvas" height="70px" style="background-color:white;padding:20px;display:none"></canvas>
 	    </div>
 	</div>
@@ -257,7 +259,7 @@
 	                    <i class="glyphicon glyphicon-phone"></i> {{ trans('texts.platforms') }}
 	                </h3>
 	            </div>
-				<div class="panel-body" style="height:260px;overflow-y:auto;">
+				<div class="panel-body" style="height:280px;overflow-y:auto;">
 	                <table class="table table-striped" id="platformsTable">
 					</table>
 				</div>
@@ -270,7 +272,7 @@
 	                    <i class="glyphicon glyphicon-inbox"></i> {{ trans('texts.email_clients') }}
 	                </h3>
 	            </div>
-				<div class="panel-body" style="height:260px;overflow-y:auto;">
+				<div class="panel-body" style="height:280px;overflow-y:auto;">
 	                <table class="table table-striped" id="emailClientsTable">
 					</table>
 				</div>
