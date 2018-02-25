@@ -2746,6 +2746,10 @@ $LANG = array(
     'test' => 'Test',
     'beta' => 'Beta',
     'gmp_required' => 'Exporting to ZIP requires the GMP extension',
+    'email_history' => 'Email History',
+    'loading' => 'Loading',
+    'no_messages_found' => 'No messages found',
+    'processing' => 'Processing',
 
 );
 

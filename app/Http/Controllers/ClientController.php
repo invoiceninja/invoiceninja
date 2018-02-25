@@ -273,4 +273,42 @@ class ClientController extends BaseController
 
         return view('clients.statement', $data);
     }
+
+    public function getEmailHistory()
+    {
+        $str = '';
+
+        if (config('services.postmark')) {
+            $email = request()->email;
+            $account = auth()->user()->account;
+            $postmark = new \Postmark\PostmarkClient(config('services.postmark'));
+            $response = $postmark->getOutboundMessages(5, 0, $email, null, $account->account_key);
+
+            foreach ($response['messages'] as $message) {
+                $details = $postmark->getOutboundMessageDetails($message['MessageID']);
+                $str .= sprintf('<b>%s</b><br/>', $details['subject']);
+
+                if (count($details['messageevents'])) {
+                    $event = $details['messageevents'][0];
+                    $str .= sprintf('%s | %s<br/>', $event['Type'], $account->getDateTime($event['ReceivedAt'], true));
+                    if ($message = $event['Details']['DeliveryMessage']) {
+                        $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
+                    }
+                    if ($server = $event['Details']['DestinationServer']) {
+                        $str .= sprintf('<span class="text-muted">%s</span><br/>', $server);
+                    }
+                } else {
+                    $str .= trans('texts.processing') . '...';
+                }
+
+                $str .= '<p/>';
+            }
+        }
+
+        if (! $str) {
+            $str = trans('texts.no_messages_found');
+        }
+
+        return $str;
+    }
 }

@@ -624,12 +624,12 @@ class Account extends Eloquent
      *
      * @return DateTime|null|string
      */
-    public function getDateTime($date = 'now')
+    public function getDateTime($date = 'now', $formatted = false)
     {
         $date = $this->getDate($date);
         $date->setTimeZone(new \DateTimeZone($this->getTimezone()));
 
-        return $date;
+        return $formatted ? $date->format($this->getCustomDateTimeFormat()) : $date;
     }
 
     /**

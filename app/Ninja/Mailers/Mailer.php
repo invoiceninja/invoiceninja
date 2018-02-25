@@ -154,6 +154,10 @@ class Mailer
                 $message['Bcc'] = $data['bccEmail'];
             }
 
+            if (! empty($data['account'])) {
+                $message['Tag'] = $data['account']->account_key;
+            }
+
             $response = $client->sendEmailBatch([$message]);
             if ($messageId = $response[0]->messageid) {
                 return $this->handleSuccess($data, $messageId);
