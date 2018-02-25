@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Jobs\LoadPostmarkHistory;
+use App\Jobs\ReactivatePostmarkEmail;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
@@ -276,39 +278,15 @@ class ClientController extends BaseController
 
     public function getEmailHistory()
     {
-        $str = '';
+        $history = dispatch(new LoadPostmarkHistory(request()->email));
 
-        if (config('services.postmark')) {
-            $email = request()->email;
-            $account = auth()->user()->account;
-            $postmark = new \Postmark\PostmarkClient(config('services.postmark'));
-            $response = $postmark->getOutboundMessages(5, 0, $email, null, $account->account_key);
+        return response()->json($history);
+    }
 
-            foreach ($response['messages'] as $message) {
-                $details = $postmark->getOutboundMessageDetails($message['MessageID']);
-                $str .= sprintf('<b>%s</b><br/>', $details['subject']);
+    public function reactivateEmail()
+    {
+        $result = dispatch(new ReactivatePostmarkEmail(request()->bounce_id));
 
-                if (count($details['messageevents'])) {
-                    $event = $details['messageevents'][0];
-                    $str .= sprintf('%s | %s<br/>', $event['Type'], $account->getDateTime($event['ReceivedAt'], true));
-                    if ($message = $event['Details']['DeliveryMessage']) {
-                        $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
-                    }
-                    if ($server = $event['Details']['DestinationServer']) {
-                        $str .= sprintf('<span class="text-muted">%s</span><br/>', $server);
-                    }
-                } else {
-                    $str .= trans('texts.processing') . '...';
-                }
-
-                $str .= '<p/>';
-            }
-        }
-
-        if (! $str) {
-            $str = trans('texts.no_messages_found');
-        }
-
-        return $str;
+        return response()->json($result);
     }
 }

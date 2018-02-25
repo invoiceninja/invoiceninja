@@ -337,6 +337,7 @@
 
                 <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
                     <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
+                    <button type="button" class="btn btn-danger" onclick="onReactivateClick()" id="reactivateButton" style="display:none;">{{ trans('texts.reactivate') }} </button>
                 </div>
             </div>
         </div>
@@ -397,10 +398,21 @@
 	}
 
     function showEmailHistory(email) {
+        window.emailBounceId = false;
         $('#emailHistoryModal .panel-body').html("{{ trans('texts.loading') }}...");
+        $('#reactivateButton').hide();
         $('#emailHistoryModal').modal('show');
         $.post('{{ url('/email_history') }}', {email: email}, function(data) {
-            $('#emailHistoryModal .panel-body').html(data);
+            $('#emailHistoryModal .panel-body').html(data.str);
+            window.emailBounceId = data.bounce_id;
+            $('#reactivateButton').toggle(!! window.emailBounceId);
+        })
+    }
+
+    function onReactivateClick() {
+        $.post('{{ url('/reactivate_email') }}/' + window.emailBounceId, function(data) {
+            $('#emailHistoryModal').modal('hide');
+            swal("{{ trans('texts.reactivated_email') }}")
         })
     }
 

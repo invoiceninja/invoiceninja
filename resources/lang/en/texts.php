@@ -2750,6 +2750,8 @@ $LANG = array(
     'loading' => 'Loading',
     'no_messages_found' => 'No messages found',
     'processing' => 'Processing',
+    'reactivate' => 'Reactivate',
+    'reactivated_email' => 'The email address has been reactivated',
 
 );
 

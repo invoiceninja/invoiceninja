@@ -141,12 +141,13 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
-    Route::post('email_history', 'ClientController@getEmailHistory');
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
     Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
+    Route::post('email_history', 'ClientController@getEmailHistory');
+    Route::post('reactivate_email/{bounce_id}', 'ClientController@reactivateEmail');
 
     Route::get('time_tracker', 'TimeTrackerController@index');
     Route::get('tasks/kanban/{client_id?}/{project_id?}', 'TaskKanbanController@index');
