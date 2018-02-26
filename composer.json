@@ -39,7 +39,7 @@
         "invoiceninja/omnipay-collection": "0.6@dev",
         "jaybizzle/laravel-crawler-detect": "1.*",
         "jlapp/swaggervel": "master-dev",
-        "jonnyw/php-phantomjs": "4.*",
+        "jonnyw/php-phantomjs": "dev-fixes",
         "laracasts/presenter": "dev-master",
         "laravel/framework": "5.4.*",
         "laravel/legacy-encrypter": "^1.0",
@@ -149,6 +149,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/datatable"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/php-phantomjs"
         }
     ]
 }

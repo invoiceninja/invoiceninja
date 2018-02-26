@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b245d8f131368587ccdcd9969342f1d2",
-    "content-hash": "8173dc58022cdba175727f4273851989",
+    "hash": "81d723559b4f8e4a6d26278465f31e39",
+    "content-hash": "7b387697df5c07a23060e43666935990",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -3897,20 +3897,20 @@
         },
         {
             "name": "jonnyw/php-phantomjs",
-            "version": "v4.5.1",
+            "version": "dev-fixes",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jonnnnyw/php-phantomjs.git",
-                "reference": "cf8d9a221f4c624aa1537c55a2e181f4b50367d7"
+                "url": "https://github.com/hillelcoren/php-phantomjs.git",
+                "reference": "4b62f0b1235b3ff4020c0362238d765de37b2795"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jonnnnyw/php-phantomjs/zipball/cf8d9a221f4c624aa1537c55a2e181f4b50367d7",
-                "reference": "cf8d9a221f4c624aa1537c55a2e181f4b50367d7",
+                "url": "https://api.github.com/repos/hillelcoren/php-phantomjs/zipball/4b62f0b1235b3ff4020c0362238d765de37b2795",
+                "reference": "4b62f0b1235b3ff4020c0362238d765de37b2795",
                 "shasum": ""
             },
             "require": {
-                "jakoch/phantomjs-installer": "2.1.1",
+                "jakoch/phantomjs-installer": "^2.1",
                 "php": ">=5.3.0",
                 "symfony/config": "~2.3|~3.0",
                 "symfony/dependency-injection": "~2.3|~3.0",
@@ -3932,7 +3932,14 @@
                     "src/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "post-install-cmd": [
+                    "PhantomInstaller\\Installer::installPhantomJS"
+                ],
+                "post-update-cmd": [
+                    "PhantomInstaller\\Installer::installPhantomJS"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -3946,10 +3953,13 @@
             "description": "A PHP wrapper for loading pages through PhantomJS",
             "keywords": [
                 "Headless Browser",
-                "phantomjs",
-                "testing"
+                "PhantomJS",
+                "Testing"
             ],
-            "time": "2016-06-28 16:00:15"
+            "support": {
+                "source": "https://github.com/hillelcoren/php-phantomjs/tree/fixes"
+            },
+            "time": "2018-02-26 18:39:21"
         },
         {
             "name": "justinbusschau/omnipay-secpay",
@@ -13035,6 +13045,7 @@
         "intervention/image": 20,
         "invoiceninja/omnipay-collection": 20,
         "jlapp/swaggervel": 20,
+        "jonnyw/php-phantomjs": 20,
         "laracasts/presenter": 20,
         "omnipay/authorizenet": 20,
         "roave/security-advisories": 20,
