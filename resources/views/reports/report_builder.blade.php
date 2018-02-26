@@ -5,6 +5,8 @@
 
 	@include('money_script')
 
+	<script src="{!! asset('js/Chart.min.js') !!}" type="text/javascript"></script>
+
     <script src="{{ asset('js/daterangepicker.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/daterangepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
@@ -264,6 +266,9 @@
 	</center>
 
 	@if (request()->report_type)
+
+		@include('reports.chart_builder')
+
         <div class="panel panel-default">
         <div class="panel-body">
 

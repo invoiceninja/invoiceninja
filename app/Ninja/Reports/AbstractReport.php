@@ -3,6 +3,9 @@
 namespace App\Ninja\Reports;
 
 use Auth;
+use DateInterval;
+use DatePeriod;
+use stdClass;
 
 class AbstractReport
 {
@@ -13,6 +16,7 @@ class AbstractReport
 
     public $totals = [];
     public $data = [];
+    public $chartData = [];
 
     public function __construct($startDate, $endDate, $isExport, $options = false)
     {
@@ -140,5 +144,102 @@ class AbstractReport
         }
 
         return join('', $reportParts);
+    }
+
+    protected function addChartData($dimension, $date, $amount)
+    {
+        if (! isset($this->chartData[$dimension])) {
+            $this->chartData[$dimension] = [];
+        }
+
+        $date = $this->formatDate($date);
+
+        if (! isset($this->chartData[$dimension][$date])) {
+            $this->chartData[$dimension][$date] = 0;
+        }
+
+        $this->chartData[$dimension][$date] += $amount;
+    }
+
+    public function chartGroupBy()
+    {
+        $groupBy = empty($this->options['group_dates_by']) ? 'day' : $this->options['group_dates_by'];
+
+        if ($groupBy == 'monthyear') {
+            $groupBy = 'month';
+        }
+
+        return strtoupper($groupBy);
+    }
+
+    protected function formatDate($date)
+    {
+        $groupBy = $this->chartGroupBy();
+        $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
+
+        return $date->format('Y' . $dateFormat);
+    }
+
+    public function getChartData()
+    {
+        $startDate = date_create($this->startDate);
+        $endDate = date_create($this->endDate);
+        $groupBy = $this->chartGroupBy();
+
+        /*
+        if ($groupBy == 'DAY') {
+            $groupBy = 'DAYOFYEAR';
+        }
+        */
+
+        $datasets = [];
+        $labels = [];
+        $totals = new stdClass();
+
+        foreach ($this->chartData as $dimension => $data) {
+            $endDate->modify('+1 '.$groupBy);
+            $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            $endDate->modify('-1 '.$groupBy);
+            $records = [];
+
+            foreach ($period as $date) {
+                $labels[] = $date->format('m/d/Y');
+                /*
+                if ($entityType == ENTITY_INVOICE) {
+                    $labels[] = $d->format('m/d/Y');
+                }
+                */
+
+                $date = $this->formatDate($date);
+                $records[] = isset($data[$date]) ? $data[$date] : 0;
+            }
+
+            $color = '51,122,183';
+            /*
+            if ($entityType == ENTITY_INVOICE) {
+                $color = '51,122,183';
+            } elseif ($entityType == ENTITY_PAYMENT) {
+                $color = '54,193,87';
+            } elseif ($entityType == ENTITY_EXPENSE) {
+                $color = '128,128,128';
+            }
+            */
+
+            $record = new stdClass();
+            $record->data = $records;
+            $record->label = trans("texts.{$dimension}");
+            $record->lineTension = 0;
+            $record->borderWidth = 4;
+            $record->borderColor = "rgba({$color}, 1)";
+            $record->backgroundColor = "rgba({$color}, 0.1)";
+            $datasets[] = $record;
+        }
+
+        $data = new stdClass();
+        $data->labels = $labels;
+        $data->datasets = $datasets;
+
+        return $data;
     }
 }

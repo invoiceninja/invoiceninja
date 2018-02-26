@@ -81,7 +81,7 @@
 							ticks: {
 								beginAtZero: true,
 								callback: function(label, index, labels) {
-									return label;
+									return roundSignificant(label);
 								}
 							},
 						}]

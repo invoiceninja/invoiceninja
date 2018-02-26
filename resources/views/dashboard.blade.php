@@ -17,7 +17,6 @@
 
     @if (Auth::user()->hasPermission('view_all'))
         function loadChart(data) {
-			console.log(data);
             var ctx = document.getElementById('chart-canvas').getContext('2d');
             if (window.myChart) {
                 window.myChart.config.data = data;

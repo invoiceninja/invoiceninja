@@ -37,8 +37,10 @@ class ActivityReport extends AbstractReport
                 $activity->present()->user,
                 $this->isExport ? strip_tags($activity->getMessage()) : $activity->getMessage(),
             ];
+
+            $this->addChartData(ENTITY_ACTIVITY, $activity->created_at, 1);
         }
 
-
+        //dd($this->getChartData());
     }
 }
