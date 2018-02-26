@@ -122,7 +122,16 @@ class Mailer
         if (isset($data['account'])) {
             $account = $data['account'];
             $logoName = $account->getLogoName();
-            $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
+            if (strpos($htmlBody, 'cid:' . $logoName) !== false && $account->hasLogo()) {
+                $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
+            }
+        }
+
+        if (strpos($htmlBody, 'cid:invoiceninja-logo.png') !== false) {
+            $attachments[] = PostmarkAttachment::fromFile(public_path('images/invoiceninja-logo.png'), 'invoiceninja-logo.png', null, 'cid:invoiceninja-logo.png');
+            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-facebook.png'), 'icon-facebook.png', null, 'cid:icon-facebook.png');
+            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-twitter.png'), 'icon-twitter.png', null, 'cid:icon-twitter.png');
+            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-github.png'), 'icon-github.png', null, 'cid:icon-github.png');
         }
 
         // Handle invoice attachments
