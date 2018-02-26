@@ -128,7 +128,9 @@
                 @if ($client->industry && $client->size)
                     |
                 @endif
-                {{ $client->size->name }}<br/>
+                @if ($client->size)
+                    {{ $client->size->name }}<br/>
+                @endif
             @endif
 
 		  	@if ($client->website)
