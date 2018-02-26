@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0 <7.2",
+        "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*",
         "anahkiasen/former": "4.*",
