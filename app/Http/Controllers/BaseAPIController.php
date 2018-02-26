@@ -103,7 +103,7 @@ class BaseAPIController extends Controller
                 $updatedAt = intval(Input::get('updated_at'));
                 $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
- 
+
         if (Input::get('client_id') > 0) {
                 $clientPublicId = Input::get('client_id');
                 $filter = function ($query) use ($clientPublicId) {
@@ -213,6 +213,10 @@ class BaseAPIController extends Controller
         foreach ($included as $include) {
             if ($include == 'invoices') {
                 $data[] = 'invoices.invoice_items';
+                $data[] = 'invoices.client.contacts';
+            } elseif ($include == 'invoice') {
+                $data[] = 'invoice.invoice_items';
+                $data[] = 'invoice.client.contacts';
             } elseif ($include == 'client') {
                 $data[] = 'client.contacts';
             } elseif ($include == 'clients') {
