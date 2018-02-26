@@ -67,7 +67,7 @@ class HomeController extends BaseController
     {
         // Track the referral/campaign code
         if (Input::has('rc')) {
-            Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
+            session([SESSION_REFERRAL_CODE => Input::get('rc')]);
         }
 
         if (Auth::check()) {

@@ -142,7 +142,7 @@ class StartupCheck
         if (Input::has('lang')) {
             $locale = Input::get('lang');
             App::setLocale($locale);
-            Session::set(SESSION_LOCALE, $locale);
+            session([SESSION_LOCALE => $locale]);
 
             if (Auth::check()) {
                 if ($language = Language::whereLocale($locale)->first()) {
