@@ -35,6 +35,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\StartupCheck::class,
         ],
         'api' => [
+            \App\Http\Middleware\QueryLogging::class,
             \App\Http\Middleware\ApiCheck::class,
         ],
         /*
