@@ -162,7 +162,7 @@ return [
         Barryvdh\Cors\ServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
         'Chumper\Datatable\DatatableServiceProvider',
-
+        Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
          * Application Service Providers...
