@@ -1217,7 +1217,7 @@ class InvoiceRepository extends BaseRepository
         $frequencyId = $settings->frequency_id_reminder4;
 
         if (! $frequencyId || ! $account->enable_reminder4) {
-            return [];
+            return collect();
         }
 
         $frequency = Utils::getFromCache($frequencyId, 'frequencies');
