@@ -23,7 +23,7 @@ class APICest
         $response = $this->sendRequest('login', $data);
         $userAccounts = $response->data;
 
-        PHPUnit_Framework_Assert::assertGreaterThan(0, count($userAccounts));
+        PHPUnit_Framework_Assert::assertGreaterThan(0, count((array) $userAccounts));
 
         $userAccount = $userAccounts[0];
         $this->token = $userAccount->token;
