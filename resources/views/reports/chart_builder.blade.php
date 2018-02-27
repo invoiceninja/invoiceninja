@@ -2,7 +2,7 @@
 
 function loadLineChart(data) {
     var ctx = document.getElementById('lineChartCanvas').getContext('2d');
-    window.myChart = new Chart(ctx, {
+    new Chart(ctx, {
         type: 'line',
         data: data,
         options: {
@@ -51,17 +51,31 @@ function loadLineChart(data) {
     });
 }
 
+function loadPieChart(data) {
+
+}
+
+
 $(function() {
     var lineChartData = {!! json_encode($report->getLineChartData()) !!};
-    //console.log(chartData);
     loadLineChart(lineChartData);
+    //console.log(chartData);
+
+    /*
+    var pieChartData = {!! json_encode($report->getPieChartData()) !!};
+    loadPieChart(pieChartData);
+    console.log(pieChartData);
+    */
 });
 
 </script>
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
         <canvas id="lineChartCanvas" style="background-color:white; padding:20px; width:100%; height: 250px;"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="pieChartCanvas" style="background-color:white; padding:20px; width:100%; height: 250px;"></canvas>
     </div>
 </div>
 

@@ -246,4 +246,9 @@ class AbstractReport
 
         return $data;
     }
+
+    public function getPieChartData()
+    {
+        
+    }
 }
