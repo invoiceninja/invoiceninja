@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "81d723559b4f8e4a6d26278465f31e39",
-    "content-hash": "7b387697df5c07a23060e43666935990",
+    "hash": "e4bd7f1c6df05029be7e5bab91095207",
+    "content-hash": "9876fba19235b093e868c2fa8f13b244",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -8697,6 +8697,70 @@
             "time": "2018-01-17 18:53:01"
         },
         {
+            "name": "sly/notification-pusher",
+            "version": "v2.2.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Ph3nol/NotificationPusher.git",
+                "reference": "3542d8bc8cf622568b85392e83141bfdeee7e6ff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Ph3nol/NotificationPusher/zipball/3542d8bc8cf622568b85392e83141bfdeee7e6ff",
+                "reference": "3542d8bc8cf622568b85392e83141bfdeee7e6ff",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/inflector": "~1.0",
+                "php": ">=5.5",
+                "symfony/console": "~2.3|~3.0",
+                "symfony/options-resolver": "~2.3|~3.0",
+                "symfony/process": "~2.3|~3.0",
+                "zendframework/zendservice-apple-apns": "^1.1.0",
+                "zendframework/zendservice-google-gcm": "1.*"
+            },
+            "require-dev": {
+                "atoum/atoum": "dev-master"
+            },
+            "bin": [
+                "np"
+            ],
+            "type": "standalone",
+            "autoload": {
+                "psr-0": {
+                    "Sly": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cédric Dugat",
+                    "email": "cedric@dugat.me"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/Ph3nol/NotificationPusher/contributors"
+                }
+            ],
+            "description": "Standalone PHP library for easy devices notifications push.",
+            "homepage": "https://github.com/Ph3nol/NotificationPusher",
+            "keywords": [
+                "android",
+                "apns",
+                "apple",
+                "gcm",
+                "iphone",
+                "message",
+                "notification",
+                "push",
+                "pusher"
+            ],
+            "time": "2016-10-10 07:02:47"
+        },
+        {
             "name": "softcommerce/omnipay-paytrace",
             "version": "v1.2.1",
             "source": {
@@ -10166,22 +10230,22 @@
         },
         {
             "name": "turbo124/laravel-push-notification",
-            "version": "v2.0.0",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/laravel-push-notification.git",
-                "reference": "10a2cf7702a90cdc3064eaa9a157b973ad69bfb3"
+                "reference": "96132aa4c7c8a6a3d411c4488f81aac50491a7bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/laravel-push-notification/zipball/10a2cf7702a90cdc3064eaa9a157b973ad69bfb3",
-                "reference": "10a2cf7702a90cdc3064eaa9a157b973ad69bfb3",
+                "url": "https://api.github.com/repos/turbo124/laravel-push-notification/zipball/96132aa4c7c8a6a3d411c4488f81aac50491a7bd",
+                "reference": "96132aa4c7c8a6a3d411c4488f81aac50491a7bd",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "5.*",
                 "php": ">=5.3.0",
-                "turbo124/notification-pusher": "3.*"
+                "sly/notification-pusher": "2.*"
             },
             "type": "library",
             "autoload": {
@@ -10204,71 +10268,7 @@
                 "notification",
                 "push"
             ],
-            "time": "2017-01-09 08:49:59"
-        },
-        {
-            "name": "turbo124/notification-pusher",
-            "version": "v3.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/turbo124/NotificationPusher.git",
-                "reference": "52e8298895ebbbaed3cd6b325057767f15c77b4c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/NotificationPusher/zipball/52e8298895ebbbaed3cd6b325057767f15c77b4c",
-                "reference": "52e8298895ebbbaed3cd6b325057767f15c77b4c",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/inflector": "~1.0",
-                "php": ">=5.5",
-                "symfony/console": "~2.3|~3.0",
-                "symfony/options-resolver": "~2.3|~3.0",
-                "symfony/process": "~2.3|~3.0",
-                "zendframework/zendservice-apple-apns": "^1.1.0",
-                "zendframework/zendservice-google-gcm": "1.*"
-            },
-            "require-dev": {
-                "atoum/atoum": "dev-master"
-            },
-            "bin": [
-                "np"
-            ],
-            "type": "standalone",
-            "autoload": {
-                "psr-0": {
-                    "Sly": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Cédric Dugat",
-                    "email": "cedric@dugat.me"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/Ph3nol/NotificationPusher/contributors"
-                }
-            ],
-            "description": "Standalone PHP library for easy devices notifications push.",
-            "homepage": "https://github.com/Ph3nol/NotificationPusher",
-            "keywords": [
-                "android",
-                "apns",
-                "apple",
-                "gcm",
-                "iphone",
-                "message",
-                "notification",
-                "push",
-                "pusher"
-            ],
-            "time": "2017-01-10 02:17:34"
+            "time": "2018-02-22 10:05:05"
         },
         {
             "name": "twbs/bootstrap",
@@ -12934,6 +12934,70 @@
             "time": "2018-01-03 07:37:34"
         },
         {
+            "name": "turbo124/notification-pusher",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/turbo124/NotificationPusher.git",
+                "reference": "52e8298895ebbbaed3cd6b325057767f15c77b4c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/turbo124/NotificationPusher/zipball/52e8298895ebbbaed3cd6b325057767f15c77b4c",
+                "reference": "52e8298895ebbbaed3cd6b325057767f15c77b4c",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/inflector": "~1.0",
+                "php": ">=5.5",
+                "symfony/console": "~2.3|~3.0",
+                "symfony/options-resolver": "~2.3|~3.0",
+                "symfony/process": "~2.3|~3.0",
+                "zendframework/zendservice-apple-apns": "^1.1.0",
+                "zendframework/zendservice-google-gcm": "1.*"
+            },
+            "require-dev": {
+                "atoum/atoum": "dev-master"
+            },
+            "bin": [
+                "np"
+            ],
+            "type": "standalone",
+            "autoload": {
+                "psr-0": {
+                    "Sly": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cédric Dugat",
+                    "email": "cedric@dugat.me"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/Ph3nol/NotificationPusher/contributors"
+                }
+            ],
+            "description": "Standalone PHP library for easy devices notifications push.",
+            "homepage": "https://github.com/Ph3nol/NotificationPusher",
+            "keywords": [
+                "android",
+                "apns",
+                "apple",
+                "gcm",
+                "iphone",
+                "message",
+                "notification",
+                "push",
+                "pusher"
+            ],
+            "time": "2017-01-10 02:17:34"
+        },
+        {
             "name": "webmozart/assert",
             "version": "1.3.0",
             "source": {
@@ -13056,7 +13120,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.0.0 <7.2",
+        "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*"
     },

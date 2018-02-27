@@ -175,7 +175,7 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-        //'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
 
     ],
 
@@ -262,7 +262,7 @@ return [
         'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
         'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
-        //'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
+        'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
         'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
         'Datatable' => 'Chumper\Datatable\Facades\DatatableFacade',
         'Updater' => Codedge\Updater\UpdaterFacade::class,
