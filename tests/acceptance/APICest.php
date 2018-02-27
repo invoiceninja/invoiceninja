@@ -110,7 +110,7 @@ class APICest
         Debug::debug("List {$entityType}");
         $response = $this->sendRequest("{$entityType}", null, 'GET');
 
-        PHPUnit_Framework_Assert::assertGreaterThan(0, count($response->data));
+        PHPUnit_Framework_Assert::assertGreaterThan(0, count((array) $response->data));
 
         return $response;
     }
