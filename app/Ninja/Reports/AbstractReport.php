@@ -198,7 +198,6 @@ class AbstractReport
 
         $datasets = [];
         $labels = [];
-        $totals = new stdClass();
 
         foreach ($this->chartData as $dimension => $data) {
             $endDate->modify('+1 '.$groupBy);
@@ -220,6 +219,7 @@ class AbstractReport
             }
 
             $color = '51,122,183';
+
             /*
             if ($entityType == ENTITY_INVOICE) {
                 $color = '51,122,183';
@@ -234,7 +234,7 @@ class AbstractReport
             $record->data = $records;
             $record->label = trans("texts.{$dimension}");
             $record->lineTension = 0;
-            $record->borderWidth = 4;
+            $record->borderWidth = 3;
             $record->borderColor = "rgba({$color}, 1)";
             $record->backgroundColor = "rgba({$color}, 0.1)";
             $datasets[] = $record;
@@ -249,6 +249,40 @@ class AbstractReport
 
     public function getPieChartData()
     {
-        
+        $datasets = [];
+        $labels = [];
+        $totals = [];
+
+        $color = '51,122,183';
+
+        foreach ($this->chartData as $dimension => $data) {
+            foreach ($data as $date => $value) {
+                if (! isset($totals[$dimension])) {
+                    $totals[$dimension] = 0;
+                }
+
+                $totals[$dimension] += $value;
+            }
+        }
+
+        $response = new stdClass();
+        $response->labels = [];
+
+        $datasets = new stdClass();
+        $datasets->data = [];
+        $datasets->backgroundColor = [];
+
+        foreach ($totals as $dimension => $value) {
+            $response->labels[] = $dimension;
+            $datasets->data[] = $value;
+            $datasets->lineTension = 0;
+            $datasets->borderWidth = 3;
+            $datasets->borderColor = "rgba({$color}, 1)";
+            $datasets->backgroundColor = "rgba({$color}, 0.1)";
+        }
+
+        $response->datasets = [$datasets];
+
+        return $response;
     }
 }

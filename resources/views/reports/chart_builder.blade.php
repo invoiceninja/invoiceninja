@@ -52,6 +52,51 @@ function loadLineChart(data) {
 }
 
 function loadPieChart(data) {
+    var ctx = document.getElementById('pieChartCanvas').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            /*
+            tooltips: {
+                mode: 'x-axis',
+                titleFontSize: 15,
+                titleMarginBottom: 12,
+                bodyFontSize: 15,
+                bodySpacing: 10,
+                callbacks: {
+                    title: function(item) {
+                        return moment(item[0].xLabel).format("{{ $account->getMomentDateFormat() }}");
+                    },
+                    label: function(item, data) {
+                        //return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
+                        return item.yLabel;
+                    }
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    time: {
+                        unit: "{{ $report->chartGroupBy() }}",
+                        round: "{{ $report->chartGroupBy() }}",
+                    },
+                    gridLines: {
+                        display: false,
+                    },
+                }],
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        callback: function(label, index, labels) {
+                            return roundSignificant(label);
+                        }
+                    },
+                }]
+            }
+            */
+        }
+    });
 
 }
 
@@ -61,11 +106,9 @@ $(function() {
     loadLineChart(lineChartData);
     //console.log(chartData);
 
-    /*
     var pieChartData = {!! json_encode($report->getPieChartData()) !!};
     loadPieChart(pieChartData);
     console.log(pieChartData);
-    */
 });
 
 </script>
