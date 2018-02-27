@@ -25,19 +25,14 @@ function loadChart(data) {
                             return moment(item[0].xLabel).format("{{ $account->getMomentDateFormat() }}");
                         },
                         label: function(item, data) {
+                            //return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
+
                             /*
-                            if (item.datasetIndex == 0) {
-                                var label = " {!! trans('texts.invoices') !!}: ";
-                            } else if (item.datasetIndex == 1) {
-                                var label = " {!! trans('texts.payments') !!}: ";
-                            } else if (item.datasetIndex == 2) {
-                                var label = " {!! trans('texts.expenses') !!}: ";
-                            }
-
-                            return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
+                            console.log('tooltip:');
+                            console.log(item);
+                            console.log(data);
                             */
-
-                            return 'test';
+                            return item.yLabel;
                         }
                     }
                 },
@@ -76,7 +71,7 @@ var chartGroupBy = "{{ $report->chartGroupBy() }}";
 
 $(function() {
     var chartData = {!! json_encode($report->getChartData()) !!};
-    console.log(chartData);
+    //console.log(chartData);
     loadChart(chartData);
 });
 

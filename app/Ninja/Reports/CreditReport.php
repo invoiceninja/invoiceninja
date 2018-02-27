@@ -39,6 +39,8 @@ class CreditReport extends AbstractReport
             foreach ($client->credits as $credit) {
                 $amount += $credit->amount;
                 $balance += $credit->balance;
+
+                $this->addChartData(ENTITY_CREDIT, $credit->credit_date, $credit->amount);
             }
 
             if (! $amount && ! $balance) {

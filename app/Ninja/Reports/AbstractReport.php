@@ -174,6 +174,10 @@ class AbstractReport
 
     protected function formatDate($date)
     {
+        if (! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
+        }
+
         $groupBy = $this->chartGroupBy();
         $dateFormat = $groupBy == 'DAY' ? 'z' : ($groupBy == 'MONTH' ? 'm' : '');
 

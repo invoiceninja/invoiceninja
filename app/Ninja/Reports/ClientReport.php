@@ -55,6 +55,8 @@ class ClientReport extends AbstractReport
             foreach ($client->invoices as $invoice) {
                 $amount += $invoice->amount;
                 $paid += $invoice->getAmountPaid();
+
+                $this->addChartData(ENTITY_INVOICE, $invoice->invoice_date, $invoice->amount);
             }
 
             $row = [
