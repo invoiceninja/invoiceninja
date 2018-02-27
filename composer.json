@@ -60,7 +60,7 @@
         "simshaun/recurr": "dev-master",
         "symfony/css-selector": "~3.1",
         "turbo124/laravel-push-notification": "2.*",
-        "webpatser/laravel-countries": "dev-master",
+        "webpatser/laravel-countries": "dev-master#75992ad",
         "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
         "wildbit/postmark-php": "^2.5"

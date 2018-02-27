@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e4bd7f1c6df05029be7e5bab91095207",
-    "content-hash": "9876fba19235b093e868c2fa8f13b244",
+    "hash": "8c61bb54d84a6fcf49038e56aa706561",
+    "content-hash": "189d617b1ea403a147b9fe61c0b2185b",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -10490,12 +10490,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/webpatser/laravel-countries.git",
-                "reference": "2568394dd6bcc983be190086576ff2715c236f42"
+                "reference": "75992ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webpatser/laravel-countries/zipball/2568394dd6bcc983be190086576ff2715c236f42",
-                "reference": "2568394dd6bcc983be190086576ff2715c236f42",
+                "url": "https://api.github.com/repos/webpatser/laravel-countries/zipball/75992ad",
+                "reference": "75992ad",
                 "shasum": ""
             },
             "require": {
