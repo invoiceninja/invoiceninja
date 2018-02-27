@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Reports;
 
+use Utils;
 use Auth;
 use DateInterval;
 use DatePeriod;
@@ -233,26 +234,16 @@ class AbstractReport
                 $records[] = isset($data[$date]) ? $data[$date] : 0;
             }
 
-            $color = '51,122,183';
-
-            /*
-            if ($entityType == ENTITY_INVOICE) {
-                $color = '51,122,183';
-            } elseif ($entityType == ENTITY_PAYMENT) {
-                $color = '54,193,87';
-            } elseif ($entityType == ENTITY_EXPENSE) {
-                $color = '128,128,128';
-            }
-            */
-
             $record = new stdClass();
+            $datasets[] = $record;
+            $color = Utils::brewerColorRGB(count($datasets));
+
             $record->data = $records;
             $record->label = trans("texts.{$dimension}");
             $record->lineTension = 0;
             $record->borderWidth = 3;
             $record->borderColor = "rgba({$color}, 1)";
             $record->backgroundColor = "rgba({$color}, 0.1)";
-            $datasets[] = $record;
         }
 
         $data = new stdClass();
@@ -282,8 +273,6 @@ class AbstractReport
         $labels = [];
         $totals = [];
 
-        $color = '51,122,183';
-
         foreach ($this->chartData as $dimension => $data) {
             foreach ($data as $date => $value) {
                 if (! isset($totals[$dimension])) {
@@ -306,8 +295,10 @@ class AbstractReport
             $datasets->data[] = $value;
             $datasets->lineTension = 0;
             $datasets->borderWidth = 3;
-            $datasets->borderColor = "rgba({$color}, 1)";
-            $datasets->backgroundColor = "rgba({$color}, 0.1)";
+
+            $color = count($totals) ? Utils::brewerColorRGB(count($response->labels)) : '51,122,183';
+            $datasets->borderColor[] = "rgba({$color}, 1)";
+            $datasets->backgroundColor[] = "rgba({$color}, 0.1)";
         }
 
         $response->datasets = [$datasets];

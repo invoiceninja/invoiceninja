@@ -1343,6 +1343,28 @@ class Utils
 
     public static function brewerColor($number) {
         $colors = [
+            '#337AB7',
+            '#3cb44b',
+            '#e6194b',
+            '#f58231',
+            '#911eb4',
+            '#46f0f0',
+            '#f032e6',
+            '#d2f53c',
+            '#fabebe',
+            '#008080',
+            '#e6beff',
+            '#aa6e28',
+            '#fffac8',
+            '#800000',
+            '#aaffc3',
+            '#808000',
+            '#000080',
+            '#808080',
+        ];
+
+        /*
+        $colors = [
             '#1c9f77',
             '#d95d02',
             '#716cb1',
@@ -1352,9 +1374,16 @@ class Utils
             '#a87821',
             '#676767',
         ];
+        */
         $number = ($number-1) % count($colors);
 
         return $colors[$number];
+    }
+
+    public static function brewerColorRGB($number) {
+        $color = static::brewerColor($number);
+        list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
+        return "{$r},{$g},{$b}";
     }
 
     /**
