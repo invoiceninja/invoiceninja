@@ -101,25 +101,30 @@ function loadPieChart(data) {
 }
 
 
+@if ($report->isLineChartEnabled())
 $(function() {
     var lineChartData = {!! json_encode($report->getLineChartData()) !!};
     loadLineChart(lineChartData);
     //console.log(chartData);
 
     var pieChartData = {!! json_encode($report->getPieChartData()) !!};
-    loadPieChart(pieChartData);
-    console.log(pieChartData);
+    if (pieChartData) {
+        loadPieChart(pieChartData);
+    }
 });
+@endif
 
 </script>
 
+@if ($report->isLineChartEnabled())
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-{{ $report->isPieChartEnabled() ? 6 : 12 }}">
         <canvas id="lineChartCanvas" style="background-color:white; padding:20px; width:100%; height: 250px;"></canvas>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" style="display:{{ $report->isPieChartEnabled() ? 'block' : 'none' }}">
         <canvas id="pieChartCanvas" style="background-color:white; padding:20px; width:100%; height: 250px;"></canvas>
     </div>
 </div>
 
 <p>&nbsp;</p>
+@endif

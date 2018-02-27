@@ -73,7 +73,7 @@ class AbstractReport
             }
 
             if (strpos($field, 'date') !== false) {
-                $class[] = 'group-date-' . (isset($this->options['group_dates_by']) ? $this->options['group_dates_by'] : 'monthyear');
+                $class[] = 'group-date-' . (isset($this->options['group']) ? $this->options['group'] : 'monthyear');
             } elseif (in_array($field, ['client', 'vendor', 'product', 'user', 'method', 'category', 'project'])) {
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
@@ -163,7 +163,7 @@ class AbstractReport
 
     public function chartGroupBy()
     {
-        $groupBy = empty($this->options['group_dates_by']) ? 'day' : $this->options['group_dates_by'];
+        $groupBy = empty($this->options['group']) ? 'day' : $this->options['group'];
 
         if ($groupBy == 'monthyear') {
             $groupBy = 'month';
@@ -247,8 +247,22 @@ class AbstractReport
         return $data;
     }
 
+    public function isLineChartEnabled()
+    {
+        return $this->options['group'];
+    }
+
+    public function isPieChartEnabled()
+    {
+        return $this->options['subgroup'];
+    }
+
     public function getPieChartData()
     {
+        if (! $this->isPieChartEnabled()) {
+            return false;
+        }
+
         $datasets = [];
         $labels = [];
         $totals = [];

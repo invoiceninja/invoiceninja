@@ -103,7 +103,8 @@ class ReportController extends BaseController
             $config = [
                 'date_field' => $dateField,
                 'status_ids' => request()->status_ids,
-                'group_dates_by' => request()->group_dates_by,
+                'group' => request()->group,
+                'subgroup' => request()->subgroup,
                 'document_filter' => request()->document_filter,
                 'currency_type' => request()->currency_type,
                 'export_format' => $format,
@@ -154,7 +155,8 @@ class ReportController extends BaseController
 
             unset($options['start_date']);
             unset($options['end_date']);
-            unset($options['group_dates_by']);
+            unset($options['group']);
+            unset($options['subgroup']);
 
             $schedule = ScheduledReport::createNew();
             $schedule->config = json_encode($options);

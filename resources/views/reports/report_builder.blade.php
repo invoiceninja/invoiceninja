@@ -170,12 +170,14 @@
                     </div>
                     <div class="col-md-6">
 
-						{!! Former::select('group_dates_by')
-									->label('group_when_sorted')
-									->addOption(trans('texts.disabled'), '')
+						{!! Former::select('group')
+									->addOption('', '')
 									->addOption(trans('texts.day'), 'day')
 									->addOption(trans('texts.month'), 'monthyear')
 									->addOption(trans('texts.year'), 'year') !!}
+
+						{!! Former::select('subgroup')
+									->addOption('', '') !!}
 
 						<div id="statusField" style="display:none">
 
@@ -456,6 +458,36 @@
 		$('#cancelSchduleButton').toggle(!! scheduledReportMap[reportType]);
 	}
 
+	function setSubgroupOptions() {
+		var reportType = $('#report_type').val();
+		var $subgroup = $('#subgroup');
+
+		$subgroup.find('option').remove().end();
+		$subgroup.append(new Option('', ''));
+
+		if (['client'].indexOf(reportType) == -1) {
+			$subgroup.append(new Option("{{ trans('texts.client') }}", 'client'));
+		}
+
+		$subgroup.append(new Option("{{ trans('texts.user') }}", 'user'));
+
+		if (['activity', 'expense'].indexOf(reportType) >= 0) {
+			$subgroup.append(new Option("{{ trans('texts.category') }}", 'category'));
+		}
+
+		if (reportType == 'aging') {
+			$subgroup.append(new Option("{{ trans('texts.age') }}", 'age'));
+		} else if (reportType == 'expense') {
+			$subgroup.append(new Option("{{ trans('texts.vendor') }}", 'vendor'));
+		} else if (reportType == 'payment') {
+			$subgroup.append(new Option("{{ trans('texts.method') }}", 'method'));
+		} else if (reportType == 'profit_and_loss') {
+			$subgroup.append(new Option("{{ trans('texts.type') }}", 'type'));
+		} else if (reportType == 'task') {
+			$subgroup.append(new Option("{{ trans('texts.project') }}", 'project'));
+		}
+	}
+
 	var sumColumns = [];
 	@foreach ($columns as $column => $class)
 		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration', 'tax', 'qty']) ? trans("texts.{$column}") : false }}");
@@ -491,19 +523,22 @@
 			@if (! auth()->user()->hasFeature(FEATURE_REPORTS))
 				return;
 			@endif
+
 			var val = $('#report_type').val();
 			setFiltersShown();
 			setDocumentZipShown();
 			setScheduleButton();
+			setSubgroupOptions();
+
 			$('#scheduleButton').prop('disabled', $('#format').val() == 'zip');
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_type', val);
             }
         });
 
-		$('#group_dates_by').change(function() {
+		$('#group').change(function() {
             if (isStorageSupported()) {
-                localStorage.setItem('last:report_group', $('#group_dates_by').val());
+                localStorage.setItem('last:report_group', $('#group').val());
             }
         });
 
@@ -537,11 +572,11 @@
 				}).maximizeSelect2Height();
 
   			$(".tablesorter-data").tablesorter({
-				@if (! request()->group_dates_by)
+				@if (! request()->group)
 					sortList: [[0,0]],
 				@endif
 				theme: 'bootstrap',
-				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_dates_by ? ", 'group'" : "" !!}, 'columnSelector'],
+				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
 				@if ($report)
 					dateFormat: '{{ $report->convertDateFormat() }}',
@@ -596,6 +631,7 @@
 				setFiltersShown();
 				setDocumentZipShown();
 				setScheduleButton();
+				setSubgroupOptions();
 			}, 1);
 
 			if (isStorageSupported()) {
@@ -604,8 +640,8 @@
 					$('#report_type').val(lastReportType);
 				}
 				var lastGroup = localStorage.getItem('last:report_group');
-				if (group_dates_by) {
-					$('#group_dates_by').val(lastGroup);
+				if (lastGroup) {
+					$('#group').val(lastGroup);
 				}
 				var lastDocumentFilter = localStorage.getItem('last:document_filter');
 				if (lastDocumentFilter) {

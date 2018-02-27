@@ -2764,6 +2764,8 @@ $LANG = array(
     'mobile' => 'Mobile',
     'desktop' => 'Desktop',
     'webmail' => 'Webmail',
+    'group' => 'Group',
+    'subgroup' => 'Subgroup',
 
 );
 
