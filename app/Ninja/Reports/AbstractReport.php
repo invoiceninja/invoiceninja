@@ -184,7 +184,7 @@ class AbstractReport
         return $date->format('Y' . $dateFormat);
     }
 
-    public function getChartData()
+    public function getLineChartData()
     {
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
