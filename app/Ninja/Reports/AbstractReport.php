@@ -146,6 +146,21 @@ class AbstractReport
         return join('', $reportParts);
     }
 
+    protected function getDimension($entity)
+    {
+        $subgroup = $this->options['subgroup'];
+
+        if ($subgroup == 'user') {
+            return $entity->user->getDisplayName();
+        } elseif ($subgroup == 'client') {
+            if ($entity->client) {
+                return $entity->client->getDisplayName();
+            } else {
+                return trans('texts.unset');
+            }
+        }
+    }
+
     protected function addChartData($dimension, $date, $amount)
     {
         if (! isset($this->chartData[$dimension])) {

@@ -471,20 +471,26 @@
 
 		$subgroup.append(new Option("{{ trans('texts.user') }}", 'user'));
 
-		if (['activity', 'expense'].indexOf(reportType) >= 0) {
+		if (reportType == 'activity') {
 			$subgroup.append(new Option("{{ trans('texts.category') }}", 'category'));
-		}
-
-		if (reportType == 'aging') {
+		} else if (reportType == 'aging') {
 			$subgroup.append(new Option("{{ trans('texts.age') }}", 'age'));
 		} else if (reportType == 'expense') {
 			$subgroup.append(new Option("{{ trans('texts.vendor') }}", 'vendor'));
+			$subgroup.append(new Option("{{ trans('texts.category') }}", 'category'));
 		} else if (reportType == 'payment') {
 			$subgroup.append(new Option("{{ trans('texts.method') }}", 'method'));
 		} else if (reportType == 'profit_and_loss') {
 			$subgroup.append(new Option("{{ trans('texts.type') }}", 'type'));
 		} else if (reportType == 'task') {
 			$subgroup.append(new Option("{{ trans('texts.project') }}", 'project'));
+		}
+
+		if (isStorageSupported()) {
+			var lastSubgroup = localStorage.getItem('last:report_subgroup');
+			if (lastSubgroup) {
+				$('#subgroup').val(lastSubgroup);
+			}
 		}
 	}
 
@@ -539,6 +545,12 @@
 		$('#group').change(function() {
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_group', $('#group').val());
+            }
+        });
+
+		$('#subgroup').change(function() {
+            if (isStorageSupported()) {
+                localStorage.setItem('last:report_subgroup', $('#subgroup').val());
             }
         });
 
@@ -642,6 +654,10 @@
 				var lastGroup = localStorage.getItem('last:report_group');
 				if (lastGroup) {
 					$('#group').val(lastGroup);
+				}
+				var lastSubgroup = localStorage.getItem('last:report_subgroup');
+				if (lastSubgroup) {
+					$('#subgroup').val(lastSubgroup);
 				}
 				var lastDocumentFilter = localStorage.getItem('last:document_filter');
 				if (lastDocumentFilter) {

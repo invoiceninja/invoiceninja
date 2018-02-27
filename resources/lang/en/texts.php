@@ -2766,6 +2766,7 @@ $LANG = array(
     'webmail' => 'Webmail',
     'group' => 'Group',
     'subgroup' => 'Subgroup',
+    'unset' => 'Unset',
 
 );
 

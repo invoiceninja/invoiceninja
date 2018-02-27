@@ -105,7 +105,6 @@ function loadPieChart(data) {
 $(function() {
     var lineChartData = {!! json_encode($report->getLineChartData()) !!};
     loadLineChart(lineChartData);
-    //console.log(chartData);
 
     var pieChartData = {!! json_encode($report->getPieChartData()) !!};
     if (pieChartData) {

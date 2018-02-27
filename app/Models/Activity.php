@@ -137,4 +137,71 @@ class Activity extends Eloquent
 
         return trans("texts.activity_{$activityTypeId}", $data);
     }
+
+    public function relatedEntityType()
+    {
+        switch ($this->activity_type_id) {
+            case ACTIVITY_TYPE_CREATE_CLIENT:
+            case ACTIVITY_TYPE_ARCHIVE_CLIENT:
+            case ACTIVITY_TYPE_DELETE_CLIENT:
+            case ACTIVITY_TYPE_RESTORE_CLIENT:
+            case ACTIVITY_TYPE_CREATE_CREDIT:
+            case ACTIVITY_TYPE_ARCHIVE_CREDIT:
+            case ACTIVITY_TYPE_DELETE_CREDIT:
+            case ACTIVITY_TYPE_RESTORE_CREDIT:
+                return ENTITY_CLIENT;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_INVOICE:
+            case ACTIVITY_TYPE_UPDATE_INVOICE:
+            case ACTIVITY_TYPE_EMAIL_INVOICE:
+            case ACTIVITY_TYPE_VIEW_INVOICE:
+            case ACTIVITY_TYPE_ARCHIVE_INVOICE:
+            case ACTIVITY_TYPE_DELETE_INVOICE:
+            case ACTIVITY_TYPE_RESTORE_INVOICE:
+                return ENTITY_INVOICE;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_PAYMENT:
+            case ACTIVITY_TYPE_ARCHIVE_PAYMENT:
+            case ACTIVITY_TYPE_DELETE_PAYMENT:
+            case ACTIVITY_TYPE_RESTORE_PAYMENT:
+            case ACTIVITY_TYPE_VOIDED_PAYMENT:
+            case ACTIVITY_TYPE_REFUNDED_PAYMENT:
+            case ACTIVITY_TYPE_FAILED_PAYMENT:
+                return ENTITY_PAYMENT;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_QUOTE:
+            case ACTIVITY_TYPE_UPDATE_QUOTE:
+            case ACTIVITY_TYPE_EMAIL_QUOTE:
+            case ACTIVITY_TYPE_VIEW_QUOTE:
+            case ACTIVITY_TYPE_ARCHIVE_QUOTE:
+            case ACTIVITY_TYPE_DELETE_QUOTE:
+            case ACTIVITY_TYPE_RESTORE_QUOTE:
+            case ACTIVITY_TYPE_APPROVE_QUOTE:
+                return ENTITY_QUOTE;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_VENDOR:
+            case ACTIVITY_TYPE_ARCHIVE_VENDOR:
+            case ACTIVITY_TYPE_DELETE_VENDOR:
+            case ACTIVITY_TYPE_RESTORE_VENDOR:
+            case ACTIVITY_TYPE_CREATE_EXPENSE:
+            case ACTIVITY_TYPE_ARCHIVE_EXPENSE:
+            case ACTIVITY_TYPE_DELETE_EXPENSE:
+            case ACTIVITY_TYPE_RESTORE_EXPENSE:
+            case ACTIVITY_TYPE_UPDATE_EXPENSE:
+                return ENTITY_EXPENSE;
+                break;
+
+            case ACTIVITY_TYPE_CREATE_TASK:
+            case ACTIVITY_TYPE_UPDATE_TASK:
+            case ACTIVITY_TYPE_ARCHIVE_TASK:
+            case ACTIVITY_TYPE_DELETE_TASK:
+            case ACTIVITY_TYPE_RESTORE_TASK:
+                return ENTITY_TASK;
+                break;
+        }
+    }
 }
