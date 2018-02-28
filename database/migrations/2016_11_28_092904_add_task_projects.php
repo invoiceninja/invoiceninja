@@ -72,7 +72,7 @@ class AddTaskProjects extends Migration
                 $table->boolean('is_public')->default(false);
             });
         }
-        
+
         DB::table('invoices')->update(['is_public' => true]);
     }
 

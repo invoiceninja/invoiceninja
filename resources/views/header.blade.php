@@ -385,11 +385,11 @@
                 'expenses',
                 'vendors',
             ] as $option)
-                @if (in_array($option, ['dashboard', 'settings'])
-                    || Auth::user()->can('view', substr($option, 0, -1))
-                    || Auth::user()->can('create', substr($option, 0, -1)))
-                    @include('partials.navigation_option')
-                @endif
+            @if (in_array($option, ['dashboard', 'settings'])
+                || Auth::user()->can('view', substr($option, 0, -1))
+                || Auth::user()->can('create', substr($option, 0, -1)))
+                @include('partials.navigation_option')
+            @endif
             @endforeach
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::all() as $module)

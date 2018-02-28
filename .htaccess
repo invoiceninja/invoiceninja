@@ -4,6 +4,9 @@
   RewriteRule "^storage" - [F,L]
   RewriteRule ^(.well-known)($|/) - [L]
   
+  # Whitelist Let's Encrypt common folder for SSL certificate update requests
+  RewriteRule ^(.well-known)($|/) - [L]
+  
   # https://coderwall.com/p/erbaig/laravel-s-htaccess-to-remove-public-from-url
   # RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
