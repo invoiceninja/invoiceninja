@@ -7,6 +7,7 @@ use Auth;
 use DateInterval;
 use DatePeriod;
 use stdClass;
+use App\Models\Client;
 
 class AbstractReport
 {
@@ -154,7 +155,9 @@ class AbstractReport
         if ($subgroup == 'user') {
             return $entity->user->getDisplayName();
         } elseif ($subgroup == 'client') {
-            if ($entity->client) {
+            if ($entity instanceof Client) {
+                return $entity->getDisplayName();
+            } elseif ($entity->client) {
                 return $entity->client->getDisplayName();
             } else {
                 return trans('texts.unset');
