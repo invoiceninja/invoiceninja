@@ -468,7 +468,6 @@
 		if (['client'].indexOf(reportType) == -1) {
 			$subgroup.append(new Option("{{ trans('texts.client') }}", 'client'));
 		}
-
 		$subgroup.append(new Option("{{ trans('texts.user') }}", 'user'));
 
 		if (reportType == 'activity') {
@@ -484,6 +483,12 @@
 			$subgroup.append(new Option("{{ trans('texts.type') }}", 'type'));
 		} else if (reportType == 'task') {
 			$subgroup.append(new Option("{{ trans('texts.project') }}", 'project'));
+		} else if (reportType == 'client') {
+			$subgroup.append(new Option("{{ trans('texts.country') }}", 'country'));
+		} else if (reportType == 'invoice' || reportType == 'quote') {
+			$subgroup.append(new Option("{{ trans('texts.status') }}", 'status'));
+		} else if (reportType == 'product') {
+			$subgroup.append(new Option("{{ trans('texts.product') }}", 'product'));
 		}
 
 		if (isStorageSupported()) {

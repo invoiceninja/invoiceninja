@@ -46,11 +46,12 @@ class ProductReport extends AbstractReport
     {
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
+        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts')
+                        ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
@@ -90,6 +91,13 @@ class ProductReport extends AbstractReport
 
                     $this->data[] = $row;
 
+                    if ($subgroup == 'product') {
+                        $dimension = $item->product_key;
+                    } else {
+                        $dimension = $this->getDimension($client);
+                    }
+
+                    $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
                 }
 
                 //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);

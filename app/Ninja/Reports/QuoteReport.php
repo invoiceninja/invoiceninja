@@ -43,6 +43,7 @@ class QuoteReport extends AbstractReport
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
         $hasTaxRates = TaxRate::scope()->count();
+        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
                         ->orderBy('name')
@@ -102,6 +103,14 @@ class QuoteReport extends AbstractReport
                 $this->data[] = $row;
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+
+                if ($subgroup == 'status') {
+                    $dimension = $invoice->statusLabel();
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
+
+                $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
         }
     }

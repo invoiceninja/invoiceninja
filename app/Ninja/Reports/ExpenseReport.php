@@ -89,6 +89,16 @@ class ExpenseReport extends AbstractReport
 
             $this->addToTotals($expense->expense_currency_id, 'amount', $amount);
             $this->addToTotals($expense->invoice_currency_id, 'amount', 0);
+
+            if ($subgroup == 'category') {
+                $dimension = $expense->present()->category;
+            } elseif ($subgroup == 'vendor') {
+                $dimension = $expense->vendor ? $expense->vendor->name : trans('texts.unset');
+            } else {
+                $dimension = $this->getDimension($expense);
+            }
+
+            $this->addChartData($dimension, $expense->expense_date, $amount);
         }
     }
 }

@@ -246,7 +246,7 @@ class AbstractReport
             $record->lineTension = 0;
             $record->borderWidth = 3;
             $record->borderColor = "rgba({$color}, 1)";
-            $record->backgroundColor = "rgba({$color}, 0.1)";
+            $record->backgroundColor = "rgba(255,255,255,0)";
         }
 
         $data = new stdClass();

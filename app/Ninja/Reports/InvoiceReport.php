@@ -46,6 +46,7 @@ class InvoiceReport extends AbstractReport
         $account = Auth::user()->account;
         $statusIds = $this->options['status_ids'];
         $exportFormat = $this->options['export_format'];
+        $subgroup = $this->options['subgroup'];
         $hasTaxRates = TaxRate::scope()->count();
 
         $clients = Client::scope()
@@ -122,6 +123,14 @@ class InvoiceReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 $this->addToTotals($client->currency_id, 'balance', $invoice->balance);
+
+                if ($subgroup == 'status') {
+                    $dimension = $invoice->statusLabel();
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
+
+                $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
         }
     }

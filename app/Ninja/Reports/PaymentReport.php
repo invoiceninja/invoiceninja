@@ -28,6 +28,7 @@ class PaymentReport extends AbstractReport
         $account = Auth::user()->account;
         $currencyType = $this->options['currency_type'];
         $invoiceMap = [];
+        $subgroup = $this->options['subgroup'];
 
         $payments = Payment::scope()
                         ->orderBy('payment_date', 'desc')
@@ -79,6 +80,15 @@ class PaymentReport extends AbstractReport
                     $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 }
             }
+
+            if ($subgroup == 'method') {
+                $dimension = $payment->present()->method;
+            } else {
+                $dimension = $this->getDimension($payment);
+            }
+
+            $convertedAmount = $currencyType == 'converted' ? ($invoice->amount * $payment->exchange_rate) : $invoice->amount;
+            $this->addChartData($dimension, $payment->payment_date, $convertedAmount);
 
             $lastInvoiceId = $invoice->id;
         }
