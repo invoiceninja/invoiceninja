@@ -15,6 +15,7 @@ class TaskTransformer extends EntityTransformer
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
+     * @SWG\Property(property="rate", type="number", format="float", example=10, readOnly=true)
      */
     protected $availableIncludes = [
         'client',
@@ -62,6 +63,7 @@ class TaskTransformer extends EntityTransformer
             'is_deleted' => (bool) $task->is_deleted,
             'time_log' => $task->time_log,
             'is_running' => (bool) $task->is_running,
+            'rate' => $task->getRate(),
         ]);
     }
 }
