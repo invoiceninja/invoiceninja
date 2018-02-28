@@ -242,7 +242,7 @@ class AbstractReport
             $color = Utils::brewerColorRGB(count($datasets));
 
             $record->data = $records;
-            $record->label = trans("texts.{$dimension}");
+            $record->label = $dimension;
             $record->lineTension = 0;
             $record->borderWidth = 3;
             $record->borderColor = "rgba({$color}, 1)";

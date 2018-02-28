@@ -35,6 +35,7 @@ class ClientReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
+        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
                         ->orderBy('name')
@@ -56,7 +57,8 @@ class ClientReport extends AbstractReport
                 $amount += $invoice->amount;
                 $paid += $invoice->getAmountPaid();
 
-                $this->addChartData(ENTITY_INVOICE, $invoice->invoice_date, $invoice->amount);
+                $dimension = $this->getDimension($client);
+                $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
             }
 
             $row = [

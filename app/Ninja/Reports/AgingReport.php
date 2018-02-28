@@ -63,7 +63,6 @@ class AgingReport extends AbstractReport
                 } else {
                     $dimension = $this->getDimension($client);
                 }
-
                 $this->addChartData($dimension, $invoice->invoice_date, $invoice->balance);
             }
         }

@@ -34,6 +34,7 @@ class ExpenseReport extends AbstractReport
     {
         $account = Auth::user()->account;
         $exportFormat = $this->options['export_format'];
+        $subgroup = $this->options['subgroup'];
         $with = ['client.contacts', 'vendor'];
         $hasTaxRates = TaxRate::scope()->count();
 
