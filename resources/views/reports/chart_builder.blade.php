@@ -2,6 +2,9 @@
 
 function loadLineChart(data) {
     var ctx = document.getElementById('lineChartCanvas').getContext('2d');
+    @if (! $report->isPieChartEnabled())
+        document.getElementById('lineChartCanvas').height = 80;
+    @endif
     new Chart(ctx, {
         type: 'line',
         data: data,
@@ -18,11 +21,6 @@ function loadLineChart(data) {
                     },
                     label: function(item, data) {
                         //return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
-                        /*
-                        console.log('tooltip:');
-                        console.log(item);
-                        console.log(data);
-                        */
                         return item.yLabel;
                     }
                 }
@@ -30,10 +28,6 @@ function loadLineChart(data) {
             scales: {
                 xAxes: [{
                     type: 'time',
-                    time: {
-                        unit: "{{ $report->chartGroupBy() }}",
-                        round: "{{ $report->chartGroupBy() }}",
-                    },
                     gridLines: {
                         display: false,
                     },
@@ -56,48 +50,7 @@ function loadPieChart(data) {
     new Chart(ctx, {
         type: 'doughnut',
         data: data,
-        options: {
-            /*
-            tooltips: {
-                mode: 'x-axis',
-                titleFontSize: 15,
-                titleMarginBottom: 12,
-                bodyFontSize: 15,
-                bodySpacing: 10,
-                callbacks: {
-                    title: function(item) {
-                        return moment(item[0].xLabel).format("{{ $account->getMomentDateFormat() }}");
-                    },
-                    label: function(item, data) {
-                        //return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
-                        return item.yLabel;
-                    }
-                }
-            },
-            scales: {
-                xAxes: [{
-                    type: 'time',
-                    time: {
-                        unit: "{{ $report->chartGroupBy() }}",
-                        round: "{{ $report->chartGroupBy() }}",
-                    },
-                    gridLines: {
-                        display: false,
-                    },
-                }],
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        callback: function(label, index, labels) {
-                            return roundSignificant(label);
-                        }
-                    },
-                }]
-            }
-            */
-        }
     });
-
 }
 
 
