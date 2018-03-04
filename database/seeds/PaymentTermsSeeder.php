@@ -13,7 +13,7 @@ class PaymentTermsSeeder extends Seeder
         ];
 
         foreach ($paymentTerms as $paymentTerm) {
-            if (! DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->get()) {
+            if (! DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->first()) {
                 PaymentTerm::create($paymentTerm);
             }
         }
