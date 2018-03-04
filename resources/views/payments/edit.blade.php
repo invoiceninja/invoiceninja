@@ -309,7 +309,8 @@
         };
 
         self.exchangeCurrencyCode = ko.computed(function() {
-            return self.getCurrency(self.exchange_currency_id()).code;
+            var currency = self.getCurrency(self.exchange_currency_id());
+            return currency ? currency.code : '';
         });
 
         self.paymentCurrencyCode = ko.computed(function() {
@@ -319,7 +320,8 @@
             } else {
                 var currencyId = self.account_currency_id();
             }
-            return self.getCurrency(currencyId).code;
+            var currency = self.getCurrency(currencyId);
+            return currency ? currency.code : '';
         });
 
         self.enableExchangeRate = ko.computed(function() {
