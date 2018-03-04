@@ -1151,6 +1151,8 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         } else {
             value = client.country ? client.country.name : '';
         }
+    } else if (field == 'client.website') {
+        value = client.website;
     } else if (field == 'client.email') {
         value = contact.email == clientName ? '' : contact.email;
     } else if (field == 'client.phone') {
