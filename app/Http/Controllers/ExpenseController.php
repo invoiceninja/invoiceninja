@@ -142,6 +142,9 @@ class ExpenseController extends BaseController
             $expense->payment_date = null;
             $expense->payment_type_id = null;
             $expense->transaction_reference = null;
+            while ($expense->documents->count()) {
+                $expense->documents->pop();
+            }
             $method = 'POST';
             $url = 'expenses';
         } else {
