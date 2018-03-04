@@ -46,9 +46,9 @@
   <form class="form-inline" role="form">
     {{ trans('texts.group_by') }} &nbsp;&nbsp;
     <select id="groupBySelect" class="form-control" onchange="update()" style="background-color:white !important">
-      <option>{{ trans('texts.clients') }}</option>
-      <option>{{ trans('texts.invoices') }}</option>
-      <option>{{ trans('texts.products') }}</option>
+      <option value="clients">{{ trans('texts.clients') }}</option>
+      <option value="invoices">{{ trans('texts.invoices') }}</option>
+      <option value="products">{{ trans('texts.products') }}</option>
     </select>
     &nbsp;&nbsp; <b>{!! $message !!}</b>
   </form>
