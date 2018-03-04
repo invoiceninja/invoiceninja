@@ -209,30 +209,16 @@ class AbstractReport
         $endDate = date_create($this->endDate);
         $groupBy = $this->chartGroupBy();
 
-        /*
-        if ($groupBy == 'DAY') {
-            $groupBy = 'DAYOFYEAR';
-        }
-        */
-
         $datasets = [];
         $labels = [];
 
         foreach ($this->chartData as $dimension => $data) {
-            $endDate->modify('+1 '.$groupBy);
             $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
             $period = new DatePeriod($startDate, $interval, $endDate);
-            $endDate->modify('-1 '.$groupBy);
             $records = [];
 
             foreach ($period as $date) {
                 $labels[] = $date->format('m/d/Y');
-                /*
-                if ($entityType == ENTITY_INVOICE) {
-                    $labels[] = $d->format('m/d/Y');
-                }
-                */
-
                 $date = $this->formatDate($date);
                 $records[] = isset($data[$date]) ? $data[$date] : 0;
             }
