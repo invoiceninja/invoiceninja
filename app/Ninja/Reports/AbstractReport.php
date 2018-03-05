@@ -4,6 +4,7 @@ namespace App\Ninja\Reports;
 
 use Utils;
 use Auth;
+use Carbon;
 use DateInterval;
 use DatePeriod;
 use stdClass;
@@ -214,7 +215,22 @@ class AbstractReport
 
         foreach ($this->chartData as $dimension => $data) {
             $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
-            $period = new DatePeriod($startDate, $interval, $endDate);
+            $intervalStartDate = Carbon::instance($startDate);
+            $intervalEndDate = Carbon::instance($endDate);
+
+            // round dates to match grouping
+            $intervalStartDate->hour(0)->minute(0)->second(0);
+            $intervalEndDate->hour(24)->minute(0)->second(0);
+            if ($groupBy == 'MONTHYEAR' || $groupBy == 'YEAR') {
+                $intervalStartDate->day(1);
+                $intervalEndDate->addMonth(1)->day(1);
+            }
+            if ($groupBy == 'YEAR') {
+                $intervalStartDate->month(1);
+                $intervalEndDate->month(12);
+            }
+
+            $period = new DatePeriod($intervalStartDate, $interval, $intervalEndDate);
             $records = [];
 
             foreach ($period as $date) {
