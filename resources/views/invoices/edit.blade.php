@@ -470,7 +470,7 @@
 								<input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
 							</div>
 						</div>
-						@if ($invoice->hasExpenseDocuments() || count($expenses))
+						@if ($invoice->hasExpenseDocuments() || $expenses->count())
 							<h4>{{trans('texts.documents_from_expenses')}}</h4>
 							@foreach($invoice->expenses as $expense)
 								@if ($expense->invoice_documents)

@@ -155,17 +155,17 @@ class EntityModel extends Eloquent
      */
     public function scopeScope($query, $publicId = false, $accountId = false)
     {
-        if (! $accountId) {
-            $accountId = Auth::user()->account_id;
-        }
-
-        $query->where($this->getTable() .'.account_id', '=', $accountId);
-
         // If 'false' is passed as the publicId return nothing rather than everything
         if (func_num_args() > 1 && ! $publicId && ! $accountId) {
             $query->where('id', '=', 0);
             return $query;
         }
+
+        if (! $accountId) {
+            $accountId = Auth::user()->account_id;
+        }
+
+        $query->where($this->getTable() .'.account_id', '=', $accountId);
 
         if ($publicId) {
             if (is_array($publicId)) {
