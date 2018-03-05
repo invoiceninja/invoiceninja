@@ -9,13 +9,13 @@
 		{"canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 190, "h": "$invoiceDetailsHeight","r":5, "lineWidth": 1,"color":"$primaryColor:#009d91"}],"width":10,"margin":[200,0,0,0]},
 		{
 			"width":400,
-			"table": { 
+			"table": {
 				"body": "$invoiceDetails"
 			},
 			"layout": "noBorders",
 			"margin": [210, 10, 10, 0]
 		}
-		] 
+		]
 	},
 	{
 		"margin": [0, 18, 0, 0],
@@ -43,8 +43,8 @@
 			},
 			{"columns":[
 				"$accountDetails",
-				"$accountAddress"    
-			], "columnGap": 4},                    
+				"$accountAddress"
+			], "columnGap": 4},
 			{"canvas": [{ "type": "line", "x1": 0, "y1": 9, "x2": 250, "y2": 9, "lineWidth": 1,"dash": { "length": 3 },"lineColor":"$primaryColor:#009d91"}]}
 			]
 		}
@@ -62,12 +62,12 @@
 			"hLineWidth": "$notFirst:.5",
 			"vLineWidth": "$none",
 			"hLineColor": "$primaryColor:#009d91",
-			"paddingLeft": "$amount:8", 
-			"paddingRight": "$amount:8", 
-			"paddingTop": "$amount:8", 
+			"paddingLeft": "$amount:8",
+			"paddingRight": "$amount:8",
+			"paddingTop": "$amount:8",
 			"paddingBottom": "$amount:8"
 		}
-	},    
+	},
 	{
 		"columns": [
 			"$notesAndTerms",
@@ -92,9 +92,9 @@
 				"canvas": [
 				{
 					"type": "rect",
-					"x": 76,
+					"x": 50,
 					"y": 20,
-					"w": 182,
+					"w": 208,
 					"h": 30,
 					"r": 4,
 					"lineWidth": 1,
@@ -105,7 +105,7 @@
 			{
 				"style": "subtotalsBalance",
 				"table": {
-					"widths": ["*", "35%"],
+					"widths": ["*", "50%"],
 					"body": "$subtotalsBalance"
 				},
 				"layout": {
@@ -120,7 +120,7 @@
 			]
 		}
 		]
-	},    
+	},
 	{
 		"stack": [
 		{
@@ -149,7 +149,7 @@
 		],
 		"style": "invoiceDocuments"
 	}
-	],    
+	],
 	"footer": [
 	{"canvas": [{ "type": "line", "x1": 0, "y1": 38, "x2": 68, "y2": 38, "lineWidth": 6,"lineColor":"#009d91"}]},
 	{"canvas": [{ "type": "line", "x1": 68, "y1": 0, "x2": 135, "y2": 0, "lineWidth": 6,"lineColor":"#1d766f"}]},
@@ -225,7 +225,7 @@
 		},
 		"lineTotalTableHeader": {
 			"alignment": "right"
-		},        
+		},
 		"subtotalsBalanceDueLabel": {
 			"fontSize": "$fontSizeLargest",
 			"color":"#FFFFFF",
@@ -269,11 +269,11 @@
 		},
 		"subtotals": {
 			"alignment": "right"
-		},            
+		},
 		"subtotalsBalance": {
 			"alignment": "right",
 			"margin": [0, -25, 0, 0]
-		},            
+		},
 		"termsLabel": {
 			"bold": true,
 			"margin": [0, 0, 0, 4]
