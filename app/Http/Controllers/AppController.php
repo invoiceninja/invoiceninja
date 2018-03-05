@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\UserSettingsChanged;
 use App\Models\Account;
 use App\Models\Industry;
+use App\Models\Invoice;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\EmailService;
@@ -424,5 +425,18 @@ class AppController extends BaseController
         }
 
         return json_encode($data);
+    }
+
+    public function testHeadless()
+    {
+        $invoice = Invoice::scope()->first();
+
+        if (! $invoice) {
+            dd('Please create an invoice to run this test');
+        }
+
+        header('Content-type:application/pdf');
+        echo $invoice->getPDFString();
+        exit;
     }
 }

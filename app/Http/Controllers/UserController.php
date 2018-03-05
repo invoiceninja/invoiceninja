@@ -45,15 +45,6 @@ class UserController extends BaseController
         return $this->userService->getDatatable(Auth::user()->account_id);
     }
 
-    public function setTheme()
-    {
-        $user = User::find(Auth::user()->id);
-        $user->theme_id = Input::get('theme_id');
-        $user->save();
-
-        return Redirect::to(Input::get('path'));
-    }
-
     public function forcePDFJS()
     {
         $user = Auth::user();

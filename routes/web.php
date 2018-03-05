@@ -302,6 +302,7 @@ Route::group([
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
     Route::get('/errors', 'AppController@errors');
+    Route::get('/test_headless', 'AppController@testHeadless');
 
     Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');
@@ -325,8 +326,6 @@ Route::group([
     Route::post('settings/purge_data', 'AccountController@purgeData');
     Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::post('settings/{section?}', 'AccountController@doSection');
-
-    Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
 
     Route::post('/export', 'ExportController@doExport');
@@ -355,9 +354,10 @@ Route::group([
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
     Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
     Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
-    Route::get('self-update', 'SelfUpdateController@index');
-    Route::post('self-update', 'SelfUpdateController@update');
-    Route::get('self-update/download', 'SelfUpdateController@download');
+
+    //Route::get('self-update', 'SelfUpdateController@index');
+    //Route::post('self-update', 'SelfUpdateController@update');
+    //Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
 Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
