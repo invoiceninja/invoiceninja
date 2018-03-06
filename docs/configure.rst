@@ -66,6 +66,7 @@ Troubleshooting
 - To determine the path you can run ``which phantomjs`` from the command line.
 - We suggest using PhantomJS version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
 - You can use `this script <https://raw.githubusercontent.com/invoiceninja/invoiceninja/develop/resources/test.pjs>`_ to test from the command line, change ``__YOUR_LINK_HERE__`` to the link in the error and then run ``phantomjs test.pjs``.
+- It may help to test with HTTP to check the problem isn't related to the SSL certificate.
 - You may need to add an entry in the /etc/hosts file to resolve the domain name.
 - If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
 - If you're using a proxy and/or self-signed certificate `this comment <https://github.com/invoiceninja/dockerfiles/issues/39#issuecomment-282489039>`_ may help.
