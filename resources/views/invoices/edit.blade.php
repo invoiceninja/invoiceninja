@@ -910,7 +910,7 @@
 		        }
             @endif
 
-            @if (isset($tasks) && $tasks)
+            @if (isset($tasks) && count($tasks))
                 var tasks = {!! json_encode($tasks) !!};
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
@@ -924,7 +924,7 @@
 				NINJA.formIsChanged = true;
             @endif
 
-            @if (isset($expenses) && $expenses)
+            @if (isset($expenses) && $expenses->count())
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
