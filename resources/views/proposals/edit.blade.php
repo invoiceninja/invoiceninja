@@ -170,7 +170,16 @@
                     field = 'client.phone';
                 }
 
-                var value = getDescendantProp(invoice, field) || ' ';
+                if (field == 'logo_url') {
+                    var value = "{{ $account->getLogoURL() }}";
+                } else if (field == 'quote_image_url') {
+                    var value = "{{ asset('/images/quote.png') }}";
+                } else if (match == '$client.name') {
+                    var value = getClientDisplayName(invoice.client);
+                } else {
+                    var value = getDescendantProp(invoice, field) || ' ';
+                }
+
                 value = doubleDollarSign(value) + '';
                 value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
 
