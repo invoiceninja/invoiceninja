@@ -172,13 +172,12 @@
                     <div class="col-md-6">
 
 						{!! Former::select('group')
-									->addOption('', '')
-									->addOption(trans('texts.day'), 'day')
-									->addOption(trans('texts.month'), 'monthyear')
-									->addOption(trans('texts.year'), 'year') !!}
+									->data_bind("options: groups, optionsText: 'transPeriod', optionsValue: 'period', value: group") !!}
 
-						{!! Former::select('subgroup')
-									->data_bind("options: subgroups, optionsText: 'transField', optionsValue: 'field', value: subgroup") !!}
+						<span data-bind="visible: showSubgroup">
+							{!! Former::select('subgroup')
+										->data_bind("options: subgroups, optionsText: 'transField', optionsValue: 'field', value: subgroup") !!}
+						</span>
 
 						<div id="statusField" style="display:none" data-bind="visible: showStatus">
 							<div class="form-group">
@@ -470,9 +469,12 @@
         });
 
 		$('#group').change(function() {
-            if (isStorageSupported()) {
-                localStorage.setItem('last:report_group', $('#group').val());
-            }
+			if (! isStorageSupported()) {
+				return;
+			}
+			setTimeout(function() {
+				localStorage.setItem('last:report_group', model.group());
+			}, 1);
         });
 
 		$('#subgroup').change(function() {
@@ -508,6 +510,12 @@
 			self.transFormat = transFormat;
 		}
 
+		function GroupModel(period, transPeriod) {
+			var self = this;
+			self.period = period;
+			self.transPeriod = transPeriod;
+		}
+
 		function SubgroupModel(field, transField) {
 			var self = this;
 			self.field = field;
@@ -527,6 +535,13 @@
 			@foreach ($reportTypes as $key => $val)
 				self.report_types.push(new ReportTypeModel("{{ $key }}", "{{ $val}}"));
 			@endforeach
+
+			self.groups = ko.observableArray([
+				new GroupModel('', ''),
+				new GroupModel('day', '{{ trans('texts.day') }}'),
+				new GroupModel('monthyear', '{{ trans('texts.month') }}'),
+				new GroupModel('year', '{{ trans('texts.year') }}'),
+			]);
 
 			self.subgroups = ko.computed(function() {
 				var reportType = self.report_type();
@@ -584,6 +599,10 @@
 				if (lastReportType) {
 					self.report_type(lastReportType);
 				}
+				var lastGroup = localStorage.getItem('last:report_group');
+				if (lastGroup) {
+					self.group(lastGroup);
+				}
 				var lastSubgroup = localStorage.getItem('last:report_subgroup');
 				if (lastSubgroup) {
 					self.subgroup(lastSubgroup);
@@ -593,6 +612,10 @@
 					self.export_format(lastFormat);
 				}
 			}
+
+			self.showSubgroup = ko.computed(function() {
+				return self.group();
+			})
 
 			self.showInvoiceOrPaymentDate = ko.computed(function() {
 				return self.report_type() == '{{ ENTITY_TAX_RATE }}';
@@ -700,10 +723,6 @@
 			}).show();
 
 			if (isStorageSupported()) {
-				var lastGroup = localStorage.getItem('last:report_group');
-				if (lastGroup) {
-					$('#group').val(lastGroup);
-				}
 				var lastDocumentFilter = localStorage.getItem('last:document_filter');
 				if (lastDocumentFilter) {
 					$('#document_filter').val(lastDocumentFilter);
