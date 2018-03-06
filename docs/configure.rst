@@ -70,7 +70,6 @@ Troubleshooting
 - If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
 - If you're using a proxy and/or self-signed certificate `this comment <https://github.com/invoiceninja/dockerfiles/issues/39#issuecomment-282489039>`_ may help.
 - If you're using a custom design try using a standard one, if the PDF is outside the printable area it can fail.
-- If you installed PhantomJS using APT `these steps <https://www.invoiceninja.com/forums/topic/local-phantomjs-test-works-but-still-no-email-attachements/#post-11745>`_ may help.
 
 Custom Fonts
 """"""""""""
