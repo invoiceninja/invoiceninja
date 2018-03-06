@@ -1,0 +1,165 @@
+body {
+    font-family: 'Open Sans', Helvetica, arial, sans-serif;
+    color: #161616;
+}
+
+.grey-upper {
+	font-size: 11px;
+	letter-spacing: 3px;
+	text-transform: uppercase;
+	color: #9a9a9a;
+}
+
+.blue-upper {
+	font-size: 11px;
+	letter-spacing: 3px;
+	text-transform: uppercase;
+	color: #37a3c6;
+	margin: 0;
+}
+
+p span.client  {
+	margin:5px 0px 0px 0px;
+}
+
+h1.heading {
+	font-size: 48px;
+	line-height: 53px;
+	text-transform: uppercase;
+	font-weight: 100;
+	letter-spacing: 3px;
+	padding: 0 50px;
+}
+
+h3.client.name {
+	padding: 0;
+	margin: 0 0 -10px 0;
+	font-size:18px;
+	font-weight: 600;
+}
+
+span.client.address1, span.client.city, span.client.state, span.client.postal-code {
+	font-size: 14px;
+	line-height: 18.5px;
+}
+
+h3.account.name {
+	padding: 0;
+	margin: 0 0 -10px 0;
+	font-size:18px;
+	font-weight: 600;
+}
+
+span.account.address1, span.account.city, span.account.state, span.account.postal-code {
+	font-size: 14px;
+	line-height: 18.5px;
+}
+
+
+.card-title {
+	font-size: 13px;
+	letter-spacing: 3px;
+	text-transform: uppercase;
+	color: #37a3c6;
+	font-weight: 600;
+}
+
+.card-text {
+	font-size: 15px;
+	line-height: 21px;
+}
+
+
+a.button {
+	background: #37a3c6;
+	padding: 12px 25px;
+	border-radius: 2px;
+	color: #fff;
+	text-transform: uppercase;
+	font-size: 12px;
+	text-decoration: none;
+	letter-spacing: 3px;
+	font-weight: 600;
+	margin: 15px 0;
+}
+
+a.button:hover {
+	background: #161616;
+}
+
+/****** Table *****************************************/
+
+.grey-bg {
+	background: #eeefef;
+}
+
+table td {
+	padding: 20px 30px;
+}
+
+tr.top-header {
+	height: 350px;
+}
+
+tr.top-header td {
+	padding: 80px 0 0 0;
+	border-bottom: 1px solid #dddcdc;
+}
+
+tr.top-header h1.heading {
+	margin: 0;
+}
+
+tr.top-header p {
+	margin: 5px 0 0 0;
+}
+
+.proposal-info {
+	height: 350px;
+}
+
+.proposal-info td {
+	padding: 0 0 120px 0;
+}
+
+.card-content {
+	padding: 80px 30px;
+}
+
+tr.block-quote {
+	margin: 50px 0 ;
+}
+
+tr.block-quote td {
+	background: #fbfbfb;
+	font-style: italic;
+	padding: 0 75px;
+	font-size: 17px;
+	line-height: 24px;
+	padding: 80px 120px;
+	color: #686766;
+	border-top: 1px solid #dddcdc;
+	border-bottom: 1px solid #dddcdc;
+}
+
+tr.footer td {
+	background: #f0efef;
+	font-size: 12px;
+	letter-spacing: 3px;
+	color: #8c8b8a;
+	padding: 50px 0;
+	text-transform: uppercase;
+}
+
+/****** Misc *****************************************/
+
+
+hr {
+	border: 0;
+	height: 1px;
+	background: #dddada;
+}
+
+.footer img {
+	vertical-align: middle;
+}
