@@ -29,10 +29,13 @@ class AcceptanceTester extends \Codeception\Actor
         //if ($I->loadSessionSnapshot('login')) return;
 
         $I->amOnPage('/login?lang=en');
-        $I->see('Login');
-        $I->fillField(['name' => 'email'], Fixtures::get('username'));
-        $I->fillField(['name' => 'password'], Fixtures::get('password'));
-        $I->click('Login');
+
+        if ($I->findElementPresent('Login')) {
+            $I->see('Login');
+            $I->fillField(['name' => 'email'], Fixtures::get('username'));
+            $I->fillField(['name' => 'password'], Fixtures::get('password'));
+            $I->click('Login');
+        }
 
         //$I->saveSessionSnapshot('login');
     }
