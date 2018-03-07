@@ -30,7 +30,7 @@ class AcceptanceTester extends \Codeception\Actor
 
         $I->amOnPage('/login?lang=en');
 
-        if ($I->findElementPresent('Login')) {
+        if ($I->seePageHasElement('Login')) {
             $I->see('Login');
             $I->fillField(['name' => 'email'], Fixtures::get('username'));
             $I->fillField(['name' => 'password'], Fixtures::get('password'));
