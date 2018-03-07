@@ -301,6 +301,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_BRAINTREE', 61);
     define('GATEWAY_CUSTOM', 62);
     define('GATEWAY_GOCARDLESS', 64);
+    define('GATEWAY_PAYMILL', 66);
 
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers

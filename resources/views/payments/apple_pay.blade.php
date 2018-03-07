@@ -6,7 +6,7 @@
     <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
     <script type="text/javascript">
         // https://stripe.com/docs/stripe-js/elements/payment-request-button
-        var stripe = Stripe('{{ $accountGateway->getPublishableStripeKey() }}');
+        var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
         var paymentRequest = stripe.paymentRequest({
             country: '{{ $client->getCountryCode() }}',
             currency: '{{ strtolower($client->getCurrencyCode()) }}',

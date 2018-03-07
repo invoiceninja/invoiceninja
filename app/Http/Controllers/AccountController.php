@@ -473,7 +473,7 @@ class AccountController extends BaseController
         $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
-            if (! $accountGateway->getPublishableStripeKey()) {
+            if (! $accountGateway->getPublishableKey()) {
                 Session::now('warning', trans('texts.missing_publishable_key'));
             }
         }

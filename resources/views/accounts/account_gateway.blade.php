@@ -34,7 +34,7 @@
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('show_shipping_address', intval($accountGateway->show_shipping_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
-        {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
+        {!! Former::populateField('publishable_key', $accountGateway->getPublishableKey() ? str_repeat('*', strlen($accountGateway->getPublishableKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
 		{!! Former::populateField('enable_apple_pay', $accountGateway->getApplePayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_sofort', $accountGateway->getSofortEnabled() ? 1 : 0) !!}
@@ -84,13 +84,12 @@
         @endif
     @endif
 
+	<span id="publishableKey" style="display: none">
+		{!! Former::text('publishable_key') !!}
+	</span>
+
     @foreach ($gateways as $gateway)
-
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
-            @if ($gateway->id == GATEWAY_STRIPE)
-                {!! Former::text('publishable_key') !!}
-            @endif
-
             @foreach ($gateway->fields as $field => $details)
 
                 @if ($details && (!$accountGateway || !$accountGateway->getConfigField($field)) && !is_array($details) && !is_bool($details))
@@ -321,6 +320,8 @@
         } else {
             $('.stripe-ach').hide();
         }
+
+		$('#publishableKey').toggle([{{ GATEWAY_STRIPE }}, {{ GATEWAY_PAYMILL }}].indexOf(gateway.id) >= 0);
     }
 
     function gatewayLink(url) {

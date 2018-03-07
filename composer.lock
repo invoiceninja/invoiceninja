@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8c61bb54d84a6fcf49038e56aa706561",
-    "content-hash": "189d617b1ea403a147b9fe61c0b2185b",
+    "hash": "7ee707d4d8d5e695a06f09148055a914",
+    "content-hash": "6d17fba6edb89baff674e8d4a89e00e5",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -837,6 +837,50 @@
             ],
             "description": "Braintree PHP Client Library",
             "time": "2018-02-27 22:51:38"
+        },
+        {
+            "name": "bramdevries/omnipay-paymill",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bramdevries/omnipay-paymill.git",
+                "reference": "df264a980b4b6005899f659d55b24d5c125d7e2e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bramdevries/omnipay-paymill/zipball/df264a980b4b6005899f659d55b24d5c125d7e2e",
+                "reference": "df264a980b4b6005899f659d55b24d5c125d7e2e",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Paymill\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Bram Devries",
+                    "email": "bramdevries93@gmail.com"
+                }
+            ],
+            "description": "Paymill driver for the Omnipay payment processing library",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "paymill"
+            ],
+            "time": "2014-12-14 17:00:43"
         },
         {
             "name": "cardgate/omnipay-cardgate",
@@ -3493,16 +3537,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.6",
+            "version": "v0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "2ca215e97e3b436b26b0b8f52e865ed94eb61408"
+                "reference": "12d9c8d40d62301e2226db63d1e5534747f660fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/2ca215e97e3b436b26b0b8f52e865ed94eb61408",
-                "reference": "2ca215e97e3b436b26b0b8f52e865ed94eb61408",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/12d9c8d40d62301e2226db63d1e5534747f660fe",
+                "reference": "12d9c8d40d62301e2226db63d1e5534747f660fe",
                 "shasum": ""
             },
             "require": {
@@ -3510,6 +3554,7 @@
                 "agmscode/omnipay-agms": "~1.0",
                 "alfaproject/omnipay-skrill": "dev-master",
                 "andreas22/omnipay-fasapay": "1.*",
+                "bramdevries/omnipay-paymill": "^1.0",
                 "cardgate/omnipay-cardgate": "~2.0",
                 "delatbabel/omnipay-fatzebra": "dev-master",
                 "dercoder/omnipay-ecopayz": "~1.0",
@@ -3549,7 +3594,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2018-01-17 13:51:24"
+            "time": "2018-03-07 13:26:16"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -9243,7 +9288,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.35",
+            "version": "v2.8.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -9401,7 +9446,7 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v3.4.5",
+            "version": "v3.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",

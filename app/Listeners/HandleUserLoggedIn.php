@@ -71,7 +71,7 @@ class HandleUserLoggedIn
 
         // if they're using Stripe make sure they're using Stripe.js
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
-        if ($accountGateway && ! $accountGateway->getPublishableStripeKey()) {
+        if ($accountGateway && ! $accountGateway->getPublishableKey()) {
             Session::flash('warning', trans('texts.missing_publishable_key'));
         } elseif ($account->isLogoTooLarge()) {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));

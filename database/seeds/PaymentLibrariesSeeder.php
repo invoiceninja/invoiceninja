@@ -74,6 +74,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'FirstData Payeezy', 'provider' => 'FirstData_Payeezy'],
             ['name' => 'GoCardless', 'provider' => 'GoCardlessV2\Redirect', 'sort_order' => 9, 'is_offsite' => true],
             ['name' => 'PagSeguro', 'provider' => 'PagSeguro'],
+            ['name' => 'PAYMILL', 'provider' => 'Paymill'],
         ];
 
         foreach ($gateways as $gateway) {
