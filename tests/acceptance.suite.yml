@@ -11,6 +11,7 @@ modules:
             url: 'http://www.ninja.test:8000'
             window_size: 1024x768
             wait: 5
+            restart: true
             browser: firefox
             capabilities:
                 unexpectedAlertBehaviour: 'accept'
