@@ -911,6 +911,7 @@
             @endif
 
             @if (isset($tasks) && count($tasks))
+                NINJA.formIsChanged = true;
                 var tasks = {!! json_encode($tasks) !!};
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
@@ -925,6 +926,7 @@
             @endif
 
             @if (isset($expenses) && $expenses->count())
+                NINJA.formIsChanged = true;
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
@@ -1084,14 +1086,6 @@
 		setComboboxValue($('.client_select'),
 			client.public_id(),
 			client.name.display());
-
-        @if (isset($tasks) && $tasks)
-            NINJA.formIsChanged = true;
-        @endif
-
-        @if (isset($expenses) && $expenses)
-            NINJA.formIsChanged = true;
-        @endif
 
         applyComboboxListeners();
 

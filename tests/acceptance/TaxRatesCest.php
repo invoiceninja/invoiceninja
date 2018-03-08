@@ -141,12 +141,10 @@ class TaxRatesCest
        // check total is right in list view
        $I->see("\${$total}");
 
-       /*
        // enable line item taxes
        $I->amOnPage('/settings/tax_rates');
        $I->selectOption('#tax_select1', '');
        $I->click('Save');
-       */
   }
 
 }
