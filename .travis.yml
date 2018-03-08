@@ -76,10 +76,10 @@ before_script:
 script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
