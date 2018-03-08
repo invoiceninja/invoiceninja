@@ -1067,6 +1067,7 @@ class AccountController extends BaseController
         $user->notify_viewed = Input::get('notify_viewed');
         $user->notify_paid = Input::get('notify_paid');
         $user->notify_approved = Input::get('notify_approved');
+        $user->slack_webhook_url = Input::get('slack_webhook_url');
         $user->save();
 
         $account = $user->account;

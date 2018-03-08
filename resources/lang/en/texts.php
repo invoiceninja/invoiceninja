@@ -2767,6 +2767,9 @@ $LANG = array(
     'group' => 'Group',
     'subgroup' => 'Subgroup',
     'unset' => 'Unset',
+    'received_new_payment' => 'You\'ve received a new payment!',
+    'slack_webhook_help' => 'Receive payment notifications using Slack :link.',
+    'incoming_webhooks' => 'incoming webhooks',
 
 );
 

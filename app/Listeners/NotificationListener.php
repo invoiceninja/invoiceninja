@@ -10,6 +10,7 @@ use App\Events\QuoteInvitationWasApproved;
 use App\Events\PaymentWasCreated;
 use App\Services\PushService;
 use App\Jobs\SendNotificationEmail;
+use App\Notifications\PaymentCreated;
 
 /**
  * Class NotificationListener
@@ -47,13 +48,16 @@ class NotificationListener
      * @param $type
      * @param null $payment
      */
-    private function sendEmails($invoice, $type, $payment = null, $notes = false)
+    private function sendNotifications($invoice, $type, $payment = null, $notes = false)
     {
         foreach ($invoice->account->users as $user)
         {
-            if ($user->{"notify_{$type}"})
-            {
+            if ($user->{"notify_{$type}"}) {
                 dispatch(new SendNotificationEmail($user, $invoice, $type, $payment, $notes));
+            }
+
+            if ($payment && $user->slack_webhook_url) {
+                $user->notify(new PaymentCreated($payment, $invoice));
             }
         }
     }
@@ -63,7 +67,7 @@ class NotificationListener
      */
     public function emailedInvoice(InvoiceWasEmailed $event)
     {
-        $this->sendEmails($event->invoice, 'sent', null, $event->notes);
+        $this->sendNotifications($event->invoice, 'sent', null, $event->notes);
         $this->pushService->sendNotification($event->invoice, 'sent');
     }
 
@@ -72,7 +76,7 @@ class NotificationListener
      */
     public function emailedQuote(QuoteWasEmailed $event)
     {
-        $this->sendEmails($event->quote, 'sent', null, $event->notes);
+        $this->sendNotifications($event->quote, 'sent', null, $event->notes);
         $this->pushService->sendNotification($event->quote, 'sent');
     }
 
@@ -85,7 +89,7 @@ class NotificationListener
             return;
         }
 
-        $this->sendEmails($event->invoice, 'viewed');
+        $this->sendNotifications($event->invoice, 'viewed');
         $this->pushService->sendNotification($event->invoice, 'viewed');
     }
 
@@ -98,7 +102,7 @@ class NotificationListener
             return;
         }
 
-        $this->sendEmails($event->quote, 'viewed');
+        $this->sendNotifications($event->quote, 'viewed');
         $this->pushService->sendNotification($event->quote, 'viewed');
     }
 
@@ -107,7 +111,7 @@ class NotificationListener
      */
     public function approvedQuote(QuoteInvitationWasApproved $event)
     {
-        $this->sendEmails($event->quote, 'approved');
+        $this->sendNotifications($event->quote, 'approved');
         $this->pushService->sendNotification($event->quote, 'approved');
     }
 
@@ -122,7 +126,7 @@ class NotificationListener
         }
 
         $this->contactMailer->sendPaymentConfirmation($event->payment);
-        $this->sendEmails($event->payment->invoice, 'paid', $event->payment);
+        $this->sendNotifications($event->payment->invoice, 'paid', $event->payment);
 
         $this->pushService->sendNotification($event->payment->invoice, 'paid');
     }

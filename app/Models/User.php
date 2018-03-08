@@ -70,6 +70,7 @@ class User extends Authenticatable
         'google_2fa_secret',
         'google_2fa_phone',
         'remember_2fa_token',
+        'slack_webhook_url',
     ];
 
     /**
@@ -445,6 +446,11 @@ class User extends Authenticatable
     {
         //$this->notify(new ResetPasswordNotification($token));
         app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
+    }
+
+    public function routeNotificationForSlack()
+    {
+        return $this->slack_webhook_url;
     }
 }
 
