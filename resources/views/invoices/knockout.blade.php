@@ -1043,11 +1043,11 @@ ko.bindingHandlers.productTypeahead = {
                 if (model.expense_public_id()) {
                     return;
                 }
-                if (datum.notes && (!model.notes() || !model.task_public_id())) {
+                if (datum.notes && (! model.notes() || ! model.isTask())) {
                     model.notes(datum.notes);
                 }
                 if (parseFloat(datum.cost)) {
-                    if (! NINJA.parseFloat(model.cost()) || ! model.task_public_id()) {
+                    if (! NINJA.parseFloat(model.cost()) || ! model.isTask()) {
                         var cost = datum.cost;
 
                         // optionally handle curency conversion
@@ -1077,7 +1077,7 @@ ko.bindingHandlers.productTypeahead = {
                         model.cost(roundToTwo(cost, true));
                     }
                 }
-                if (!model.qty() && ! model.task_public_id()) {
+                if (! model.qty() && ! model.isTask()) {
                     model.qty(1);
                 }
                 @if ($account->invoice_item_taxes)
