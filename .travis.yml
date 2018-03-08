@@ -6,13 +6,9 @@ sudo: true
 group: deprecated-2017Q4
 
 php:
-#  - 5.5.9
-#  - 5.6
-#  - 5.6
 #  - 7.0
-#  - 7.1
+  - 7.1
   - 7.2
-#  - hhvm
 
 addons:
   hosts:
