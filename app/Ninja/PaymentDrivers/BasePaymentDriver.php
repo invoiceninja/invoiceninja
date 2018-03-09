@@ -164,8 +164,8 @@ class BasePaymentDriver
         }
 
         $url = 'payment/' . $this->invitation->invitation_key;
-        if (request()->update) {
-            $url .= '?update=true';
+        if (request()->capture) {
+            $url .= '?capture=true';
         }
 
         $data = [
@@ -303,7 +303,7 @@ class BasePaymentDriver
             }
         }
 
-        if ($this->isTwoStep() || request()->update) {
+        if ($this->isTwoStep() || request()->capture) {
             return;
         }
 
