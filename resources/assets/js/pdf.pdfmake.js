@@ -158,11 +158,14 @@ function GetPdfMake(invoice, javascript, callback) {
     dd.pageSize = invoice.account.page_size;
 
     if (invoice.watermark) {
+        /*
         dd.watermark = {
             text: invoice.watermark,
             color: 'black',
             opacity: 0.04,
         };
+        */
+        dd.watermark = invoice.watermark;
     }
 
     pdfMake.fonts = {}
