@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\LookupInvitation;
 use App\Models\Traits\Inviteable;
+use Utils;
 
 /**
  * Class Invitation.
