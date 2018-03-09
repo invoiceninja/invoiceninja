@@ -431,7 +431,7 @@ NINJA.signatureDate = function(invoice) {
 
 NINJA.formatDateTime = function(date, account) {
     var format = account.datetime_format ? account.datetime_format.format_moment : 'LLL';
-    var timezone = account.timezone ? account.timezone.name : '{{ DEFAULT_TIMEZONE }}';
+    var timezone = account.timezone ? account.timezone.name : 'US/Eastern';
 
     return date ? moment.utc(date).tz(timezone).format(format) : '';
 }
