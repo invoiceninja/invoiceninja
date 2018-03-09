@@ -1303,6 +1303,9 @@ class Invoice extends EntityModel implements BalanceAffecting
                     if (strpos($pdfString, 'data') === 0) {
                         break;
                     } else {
+                        if (Utils::isNinjaDev() || Utils::isTravis()) {
+                            Utils::logError('Failed to generate: ' . $i);
+                        }
                         $pdfString = false;
                         sleep(2);
                     }
