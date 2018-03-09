@@ -66,6 +66,7 @@ class InvoiceCest
     {
         $I->selectOption('#invoice_design_id', $designId);
         $I->click('#saveButton');
+        $I->wait(2);
     }
 
     /*
