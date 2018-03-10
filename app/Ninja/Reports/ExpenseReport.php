@@ -74,7 +74,7 @@ class ExpenseReport extends AbstractReport
                 $expense->client ? ($this->isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
                 $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
-                Utils::formatMoney($amount, $expense->currency_id),
+                Utils::formatMoney($amount, $expense->expense_currency_id),
                 $expense->public_notes,
                 $expense->private_notes,
                 $expense->user->getDisplayName(),
