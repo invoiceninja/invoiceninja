@@ -266,6 +266,7 @@ class BasePaymentDriver
 
     public function completeOnsitePurchase($input = false, $paymentMethod = false)
     {
+        \Log::info('completeOnsitePurchase...');
         $this->input = count($input) ? $input : false;
         $gateway = $this->gateway();
 
@@ -306,7 +307,7 @@ class BasePaymentDriver
         if ($this->isTwoStep() || request()->capture) {
             return;
         }
-
+        \Log::info('starting paymnet...');
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
         // TODO move to payment driver class
@@ -333,6 +334,7 @@ class BasePaymentDriver
 
         // wrap up
         if ($response->isSuccessful() && $ref) {
+            \Log::info('creating paymnet...');
             $payment = $this->createPayment($ref, $paymentMethod);
 
             // TODO move this to stripe driver
