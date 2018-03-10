@@ -50,7 +50,7 @@ class InvoiceCest
         $this->fillItem($I, 1, 'Item', 'Notes', 64.50, 3);
 
         $I->click('#saveButton');
-        $I->wait(1);
+        $I->wait(2);
         $I->see($invoiceNumber);
         $I->see('199.01');
 
