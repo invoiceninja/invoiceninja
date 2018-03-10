@@ -119,6 +119,8 @@ after_script:
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from fonts;' ninja
   - mysql -u root -e 'select * from banks;' ninja
+  - mysql -u root -e 'select * from account_gateway_tokens;' ninja
+  - mysql -u root -e 'select * from payment_methods;' ninja
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)
   - for i in $FILES; do echo $i; base64 "$i"; break; done
 
