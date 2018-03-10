@@ -10,6 +10,8 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8) | [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
 
+### We're on Slack, email contact@invoiceninja.com to be added to the group
+
 All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $20 per year white-label license to remove our branding for personal use.
 
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
