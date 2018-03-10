@@ -82,7 +82,7 @@ class OnlinePaymentController extends BaseController
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
         $account = $invitation->account;
 
-        if ($account->requiresAuthorization($invitation->invoice) && ! session('authorized:' . $invitation->invitation_key)) {
+        if ($account->requiresAuthorization($invitation->invoice) && ! session('authorized:' . $invitation->invitation_key) && ! request()->update) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
