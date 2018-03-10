@@ -135,11 +135,9 @@ class PaymentService extends BaseService
         }
 
         try {
-            \Log::info('paymentDriver->completeOnsitePurchase');
             return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
         } catch (Exception $exception) {
             if (! Auth::check()) {
-                \Log::info('error: ' . $exception->getMessage());
                 $subject = trans('texts.auto_bill_failed', ['invoice_number' => $invoice->invoice_number]);
                 $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $exception->getMessage());
                 $mailer = app('App\Ninja\Mailers\UserMailer');
