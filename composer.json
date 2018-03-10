@@ -98,10 +98,12 @@
     },
     "scripts": {
         "post-install-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
             "php artisan clear-compiled",
             "php artisan optimize"
         ],
         "post-update-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
             "php artisan clear-compiled",
             "php artisan optimize"
         ],
