@@ -958,6 +958,7 @@ class InvoiceRepository extends BaseRepository
                 'tax_rate2',
                 'custom_value1',
                 'custom_value2',
+                'discount',
             ] as $field) {
                 $cloneItem->$field = $item->$field;
             }
@@ -1140,6 +1141,7 @@ class InvoiceRepository extends BaseRepository
             $item->tax_rate2 = $recurItem->tax_rate2;
             $item->custom_value1 = Utils::processVariables($recurItem->custom_value1, $client);
             $item->custom_value2 = Utils::processVariables($recurItem->custom_value2, $client);
+            $item->discount = $recurItem->discount;
             $invoice->invoice_items()->save($item);
         }
 
