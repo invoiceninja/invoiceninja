@@ -113,7 +113,7 @@ after_script:
   - mysql -u root -e 'select id, account_id, invoice_number, amount, balance from invoices;' ninja
   - mysql -u root -e 'select * from invoice_items;' ninja
   - mysql -u root -e 'select * from invitations;' ninja
-  - mysql -u root -e 'select id, account_id, amount, transaction_reference from payments;' ninja
+  - mysql -u root -e 'select id, account_id, invoice_id, amount, transaction_reference from payments;' ninja
   - mysql -u root -e 'select * from credits;' ninja
   - mysql -u root -e 'select * from expenses;' ninja
   - mysql -u root -e 'select * from accounts;' ninja

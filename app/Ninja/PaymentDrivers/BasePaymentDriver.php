@@ -288,7 +288,7 @@ class BasePaymentDriver
             if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
-
+                \Log::info('error 1...');
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         } else {
@@ -299,12 +299,13 @@ class BasePaymentDriver
             if (! $this->meetsGatewayTypeLimits($this->gatewayType)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
-
+                \Log::info('error 2...');
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         }
-
+        \Log::info('capture check...');
         if ($this->isTwoStep() || request()->capture) {
+            \Log::info('errro 3...');
             return;
         }
         \Log::info('starting paymnet...');
@@ -334,7 +335,6 @@ class BasePaymentDriver
 
         // wrap up
         if ($response->isSuccessful() && $ref) {
-            \Log::info('creating paymnet...');
             $payment = $this->createPayment($ref, $paymentMethod);
 
             // TODO move this to stripe driver
