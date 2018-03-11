@@ -41,7 +41,7 @@ class TaskCest
         $I->fillField('#description', $description);
 
         $I->click('Start');
-        $I->wait(rand(2, 5));
+        $I->wait(rand(3, 6));
         $I->click('Stop');
 
         $I->seeInDatabase('tasks', [
@@ -51,6 +51,7 @@ class TaskCest
         $I->seeInDatabase('projects', ['name' => $project]);
 
         $I->click('More Actions');
+        $I->wait(2);
         $I->click('Invoice Task');
         $I->wait(2);
         $I->click('Mark Sent');
@@ -58,7 +59,7 @@ class TaskCest
         $I->wait(2);
         $I->see('Successfully created invoice');
     }
-    /*
+
     public function createManualTask(AcceptanceTester $I)
     {
         $description = $this->faker->text(100);
@@ -98,7 +99,7 @@ class TaskCest
 
         $I->seeNumberOfElements('tbody tr[role=row]', [1, 10]);
     }
-    */
+
     /*
     public function deleteTask(AcceptanceTester $I)
     {
