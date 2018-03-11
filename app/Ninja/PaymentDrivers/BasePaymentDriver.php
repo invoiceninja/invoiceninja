@@ -273,22 +273,23 @@ class BasePaymentDriver
         if ($input) {
             $this->updateClient();
         }
-
+        \Log::info('1');
         // load or create token
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
+            \Log::info('2');
             if (! $paymentMethod) {
                 $paymentMethod = PaymentMethod::clientId($this->client()->id)
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
             }
-
+            \Log::info('3');
             $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
             $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
-
+            \Log::info('4');
             if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
-                \Log::info('error 1...');
+
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         } else {
@@ -299,13 +300,12 @@ class BasePaymentDriver
             if (! $this->meetsGatewayTypeLimits($this->gatewayType)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
-                \Log::info('error 2...');
+
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         }
-        \Log::info('capture check...');
+        \Log::info('5');
         if ($this->isTwoStep() || request()->capture) {
-            \Log::info('errro 3...');
             return;
         }
         \Log::info('starting paymnet...');
