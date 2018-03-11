@@ -134,6 +134,8 @@ class PaymentService extends BaseService
             }
         }
 
+        return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
+        /*
         try {
             return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
         } catch (Exception $exception) {
@@ -149,6 +151,7 @@ class PaymentService extends BaseService
 
             return false;
         }
+        */
     }
 
     public function save($input, $payment = null, $invoice = null)
