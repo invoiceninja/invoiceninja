@@ -378,26 +378,26 @@ class ContactMailer extends Mailer
         $key = $account->company_id;
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
-        $hour = 60 * 60;
-        $hour_limit = MAX_EMAILS_SENT_PER_HOUR;
-        $hour_throttle = Cache::get("email_hour_throttle:{$key}", null);
+        $day = 60 * 60 * 24;
+        $day_limit = MAX_EMAILS_SENT_PER_DAY;
+        $day_throttle = Cache::get("email_day_throttle:{$key}", null);
         $last_api_request = Cache::get("last_email_request:{$key}", 0);
         $last_api_diff = time() - $last_api_request;
 
-        if (is_null($hour_throttle)) {
-            $new_hour_throttle = 0;
+        if (is_null($day_throttle)) {
+            $new_day_throttle = 0;
         } else {
-            $new_hour_throttle = $hour_throttle - $last_api_diff;
-            $new_hour_throttle = $new_hour_throttle < 0 ? 0 : $new_hour_throttle;
-            $new_hour_throttle += $hour / $hour_limit;
-            $hour_hits_remaining = floor(($hour - $new_hour_throttle) * $hour_limit / $hour);
-            $hour_hits_remaining = $hour_hits_remaining >= 0 ? $hour_hits_remaining : 0;
+            $new_day_throttle = $day_throttle - $last_api_diff;
+            $new_day_throttle = $new_day_throttle < 0 ? 0 : $new_day_throttle;
+            $new_day_throttle += $day / $day_limit;
+            $day_hits_remaining = floor(($day - $new_day_throttle) * $day_limit / $day);
+            $day_hits_remaining = $day_hits_remaining >= 0 ? $day_hits_remaining : 0;
         }
 
-        Cache::put("email_hour_throttle:{$key}", $new_hour_throttle, 60);
+        Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60);
         Cache::put("last_email_request:{$key}", time(), 60);
 
-        if ($new_hour_throttle > $hour) {
+        if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');
             if ($errorEmail && ! Cache::get("throttle_notified:{$key}")) {
                 Mail::raw('Account Throttle', function ($message) use ($errorEmail, $account) {
@@ -406,7 +406,7 @@ class ContactMailer extends Mailer
                             ->subject("Email throttle triggered for account " . $account->id);
                 });
             }
-            Cache::put("throttle_notified:{$key}", true, 60);
+            Cache::put("throttle_notified:{$key}", true, 60 * 24);
             return true;
         }
 
