@@ -266,7 +266,7 @@ class BasePaymentDriver
 
     public function completeOnsitePurchase($input = false, $paymentMethod = false)
     {
-        $this->input = count($input) ? $input : false;
+        $this->input = $input && $input->count() ? $input : false;
         $gateway = $this->gateway();
 
         if ($input) {
