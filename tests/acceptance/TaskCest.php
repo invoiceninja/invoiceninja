@@ -43,7 +43,6 @@ class TaskCest
         $I->click('Start');
         $I->wait(rand(2, 5));
         $I->click('Stop');
-        $I->click('Save');
 
         $I->seeInDatabase('tasks', [
             'description' => $description,
@@ -51,7 +50,6 @@ class TaskCest
         ]);
         $I->seeInDatabase('projects', ['name' => $project]);
 
-        $I->wait(5);
         $I->click('More Actions');
         $I->click('Invoice Task');
         $I->click('Mark Sent');
