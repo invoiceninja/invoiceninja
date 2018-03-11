@@ -34,7 +34,7 @@
         "fzaninotto/faker": "^1.5",
         "gatepay/FedACHdir": "dev-master@dev",
         "google/apiclient": "^2.0",
-        "guzzlehttp/guzzle": "~6.0",
+        "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "dev-master",
         "invoiceninja/omnipay-collection": "0.7@dev",
         "jaybizzle/laravel-crawler-detect": "1.*",

@@ -254,23 +254,18 @@ class BasePaymentDriver
 
     protected function gateway()
     {
-        \Log::info('gateway...');
         if ($this->gateway) {
-            \Log::info('g1');
             return $this->gateway;
         }
 
-        \Log::info('g2: ' . $this->accountGateway->gateway->provider);
         $this->gateway = Omnipay::create($this->accountGateway->gateway->provider);
-        \Log::info('g3');
         $this->gateway->initialize((array) $this->accountGateway->getConfig());
-        \Log::info('g4');
+
         return $this->gateway;
     }
 
     public function completeOnsitePurchase($input = false, $paymentMethod = false)
     {
-        \Log::info('completeOnsitePurchase...');
         $this->input = count($input) ? $input : false;
         $gateway = $this->gateway();
 
@@ -311,7 +306,7 @@ class BasePaymentDriver
         if ($this->isTwoStep() || request()->capture) {
             return;
         }
-        \Log::info('starting paymnet...');
+
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
         // TODO move to payment driver class
