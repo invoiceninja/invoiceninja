@@ -23,7 +23,7 @@
 
 			{!! Former::text('slack_webhook_url')
 					->label('webhook_url')
-			 		->help(trans('texts.slack_webhook_help', ['link' => link_to('https://my.slack.com/services/new/incoming-webhook/', trans('texts.incoming_webhooks'), ['target' => '_blank'])])) !!}
+			 		->help(trans('texts.slack_webhook_help', ['link' => link_to('https://my.slack.com/services/new/incoming-webhook/', trans('texts.slack_incoming_webhooks'), ['target' => '_blank'])])) !!}
 
 		</div>
     </div>
