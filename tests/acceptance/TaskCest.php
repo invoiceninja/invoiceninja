@@ -52,12 +52,13 @@ class TaskCest
 
         $I->click('More Actions');
         $I->click('Invoice Task');
+        $I->wait(2);
         $I->click('Mark Sent');
         $I->see('Sent');
-        $I->wait(1);
+        $I->wait(2);
         $I->see('Successfully created invoice');
     }
-
+    /*
     public function createManualTask(AcceptanceTester $I)
     {
         $description = $this->faker->text(100);
@@ -97,7 +98,7 @@ class TaskCest
 
         $I->seeNumberOfElements('tbody tr[role=row]', [1, 10]);
     }
-
+    */
     /*
     public function deleteTask(AcceptanceTester $I)
     {
