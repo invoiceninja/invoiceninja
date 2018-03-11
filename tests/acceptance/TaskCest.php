@@ -51,7 +51,7 @@ class TaskCest
         ]);
         $I->seeInDatabase('projects', ['name' => $project]);
 
-        $I->wait(2);
+        $I->wait(5);
         $I->click('More Actions');
         $I->click('Invoice Task');
         $I->click('Mark Sent');
