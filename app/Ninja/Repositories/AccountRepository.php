@@ -32,6 +32,10 @@ class AccountRepository
     public function create($firstName = '', $lastName = '', $email = '', $password = '', $company = false)
     {
         if (! $company) {
+            if (Utils::isNinja()) {
+                $this->checkForSpammer();
+            }
+
             $company = new Company();
             $company->utm_source = Input::get('utm_source');
             $company->utm_medium = Input::get('utm_medium');
@@ -120,6 +124,15 @@ class AccountRepository
         $account->account_email_settings()->save($emailSettings);
 
         return $account;
+    }
+
+    private function checkForSpammer()
+    {
+        $count = Account::whereIp(Request::getClientIp())->count();
+
+        if ($count > 1) {
+
+        }
     }
 
     public function getSearchData($user)

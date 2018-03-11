@@ -254,13 +254,17 @@ class BasePaymentDriver
 
     protected function gateway()
     {
+        \Log::info('gateway...');
         if ($this->gateway) {
+            \Log::info('g1');
             return $this->gateway;
         }
 
+        \Log::info('g2: ' . $this->accountGateway->gateway->provider);
         $this->gateway = Omnipay::create($this->accountGateway->gateway->provider);
+        \Log::info('g3');
         $this->gateway->initialize((array) $this->accountGateway->getConfig());
-
+        \Log::info('g4');
         return $this->gateway;
     }
 
@@ -269,14 +273,11 @@ class BasePaymentDriver
         \Log::info('completeOnsitePurchase...');
         $this->input = count($input) ? $input : false;
         $gateway = $this->gateway();
-        \Log::info('CP: 1');
+
         if ($input) {
-            \Log::info('CP: 2');
             $this->updateClient();
-            \Log::info('CP: 3');
         }
-        \Log::info('CP: 4');
-        
+
         // load or create token
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
             if (! $paymentMethod) {
