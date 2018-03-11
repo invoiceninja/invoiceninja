@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d690d598db58964feb20dbbcdce8a92f",
-    "content-hash": "859622bff39b3e438703dcc641ada711",
+    "hash": "ae45c2266041f1b35b089951a326e52b",
+    "content-hash": "043005b04015d60c3fe4667a661420f9",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -7080,6 +7080,64 @@
             "time": "2017-11-10 08:10:43"
         },
         {
+            "name": "omnipay/payu",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/efesaid/omnipay-payu.git",
+                "reference": "a0ac83241fef6c9964668193ab654ad73c1efcc6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/efesaid/omnipay-payu/zipball/a0ac83241fef6c9964668193ab654ad73c1efcc6",
+                "reference": "a0ac83241fef6c9964668193ab654ad73c1efcc6",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\PayU\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Said İmamoğlu",
+                    "email": "said.imamoglu@biberltd.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/efesaid/omnipay-payu/contributors"
+                }
+            ],
+            "description": "PayU driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/efesaid/omnipay-payu",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "payu",
+                "purchase"
+            ],
+            "time": "2016-05-13 07:10:43"
+        },
+        {
             "name": "omnipay/pin",
             "version": "v2.2.2",
             "source": {
@@ -13082,6 +13140,7 @@
         "jonnyw/php-phantomjs": 20,
         "laracasts/presenter": 20,
         "omnipay/authorizenet": 20,
+        "omnipay/payu": 20,
         "roave/security-advisories": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,
