@@ -32,6 +32,10 @@ class AccountRepository
     public function create($firstName = '', $lastName = '', $email = '', $password = '', $company = false)
     {
         if (! $company) {
+            if (Utils::isNinja()) {
+                $this->checkForSpammer();
+            }
+
             $company = new Company();
             $company->utm_source = Input::get('utm_source');
             $company->utm_medium = Input::get('utm_medium');
@@ -120,6 +124,23 @@ class AccountRepository
         $account->account_email_settings()->save($emailSettings);
 
         return $account;
+    }
+
+    private function checkForSpammer()
+    {
+        $ip = Request::getClientIp();
+        $count = Account::whereIp($ip)->count();
+
+        if ($count > 1 && $errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw($ip, function ($message) use ($ip, $errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('Duplicate company for IP: ' . $ip);
+            });
+            if ($count >= 5) {
+                abort();
+            }
+        }
     }
 
     public function getSearchData($user)
