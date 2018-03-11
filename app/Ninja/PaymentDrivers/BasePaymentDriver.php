@@ -269,23 +269,25 @@ class BasePaymentDriver
         \Log::info('completeOnsitePurchase...');
         $this->input = count($input) ? $input : false;
         $gateway = $this->gateway();
-
+        \Log::info('CP: 1');
         if ($input) {
+            \Log::info('CP: 2');
             $this->updateClient();
+            \Log::info('CP: 3');
         }
-        \Log::info('1');
+        \Log::info('CP: 4');
+        
         // load or create token
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
-            \Log::info('2');
             if (! $paymentMethod) {
                 $paymentMethod = PaymentMethod::clientId($this->client()->id)
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
             }
-            \Log::info('3');
+
             $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
             $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
-            \Log::info('4');
+
             if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
@@ -304,7 +306,7 @@ class BasePaymentDriver
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         }
-        \Log::info('5');
+
         if ($this->isTwoStep() || request()->capture) {
             return;
         }
