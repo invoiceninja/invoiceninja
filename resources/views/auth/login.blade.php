@@ -146,13 +146,14 @@
                     showCancelButton: true,
                     confirmButtonText: 'Save',
                 }).then(function (value) {
-                    if (!value) {
+                    if (! value || value.indexOf('http') !== 0) {
+                        swal("{{ trans('texts.invalid_url') }}")
                         return;
                     }
                     value = value.replace(/\/+$/, '') + '/time_tracker';
                     localStorage.setItem('last:time_tracker:url', value);
                     location.reload();
-                })
+                }).catch(swal.noop);
             }
         @endif
 

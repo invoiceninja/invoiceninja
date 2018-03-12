@@ -2772,6 +2772,7 @@ $LANG = array(
     'slack_incoming_webhooks' => 'Slack incoming webhooks',
     'accept' => 'Accept',
     'accepted_terms' => 'Successfully accepted the latest terms of service',
+    'invalid_url' => 'Invalid URL',
 
 );
 
