@@ -914,10 +914,14 @@ NINJA.subtotals = function(invoice, hideBalance)
     var customValue2 = NINJA.parseFloat(invoice.custom_value2);
     var customValue2Label = account.custom_invoice_label2 || invoiceLabels.surcharge;
 
+    var taxRates = [];
+    
     if (customValue1 && invoice.custom_taxes1 == '1') {
+        taxRates.push(customValue1Label);
         data.push([{text: customValue1Label, style: ['subtotalsLabel', 'customTax1Label']}, {text: formatMoneyInvoice(invoice.custom_value1, invoice), style: ['subtotals', 'customTax1']}]);
     }
     if (customValue2 && invoice.custom_taxes2 == '1') {
+        taxRates.push(customValue2Label);
         data.push([{text: customValue2Label, style: ['subtotalsLabel', 'customTax2Label']}, {text: formatMoneyInvoice(invoice.custom_value2, invoice), style: ['subtotals', 'customTax2']}]);
     }
 
@@ -925,19 +929,31 @@ NINJA.subtotals = function(invoice, hideBalance)
         if (invoice.item_taxes.hasOwnProperty(key)) {
             var taxRate = invoice.item_taxes[key];
             var taxStr = taxRate.name + ' ' + (taxRate.rate*1).toString() + '%';
+            taxRates.push(taxStr);
             data.push([{text: taxStr, style: ['subtotalsLabel', 'taxLabel']}, {text: formatMoneyInvoice(taxRate.amount, invoice), style: ['subtotals', 'tax']}]);
         }
     }
 
     if (parseFloat(invoice.tax_rate1 || 0) != 0 || invoice.tax_name1) {
         var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
+        taxRates.push(taxStr);
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax1Label']}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice), style: ['subtotals', 'tax1']}]);
     }
     if (parseFloat(invoice.tax_rate2 || 0) != 0 || invoice.tax_name2) {
         var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
+        taxRates.push(taxStr);
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax2Label']}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice), style: ['subtotals', 'tax2']}]);
     }
-
+    
+    var regExp = new RegExp('.+ [0-9.,]+%', 'g');
+    
+    if (!customValue1 && invoice.custom_taxes1 == '1' && taxRates.indexOf(customValue1Label) === -1 && customValue1Label.match(regExp)){
+        data.push([{text: customValue1Label, style: ['subtotalsLabel', 'taxLabel']}, {text: formatMoneyInvoice(0, invoice), style: ['subtotals', 'tax']}]);
+    }
+    if (!customValue2 && invoice.custom_taxes2 == '1' && taxRates.indexOf(customValue2Label) === -1 && customValue2Label.match(regExp)){
+        data.push([{text: customValue2Label, style: ['subtotalsLabel', 'taxLabel']}, {text: formatMoneyInvoice(0, invoice), style: ['subtotals', 'tax']}]);
+    }
+    
     if (customValue1 && invoice.custom_taxes1 != '1') {
         data.push([{text: customValue1Label, style: ['subtotalsLabel', 'custom1Label']}, {text: formatMoneyInvoice(invoice.custom_value1, invoice), style: ['subtotals', 'custom1']}]);
     }
