@@ -13,7 +13,10 @@
         <div class="container" style="width: 100%; padding-bottom: 0px !important">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    {!! Former::checkbox('accepted_terms')->text('agree_to_terms')->raw()->value(1) !!}
+                    {!! Former::checkbox('accepted_terms')->text(trans('texts.agree_to_terms', [
+                        'terms' => link_to(Utils::getTermsLink(), trans('texts.terms_of_service'), ['target' => '_blank']),
+                        'privacy' => link_to(Utils::getTermsLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
+                    ]))->raw()->value(1) !!}
                 </div>
             </div>
         </div>
