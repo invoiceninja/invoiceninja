@@ -390,7 +390,7 @@ class OnlinePaymentController extends BaseController
                 'product_key' => $product->product_key,
                 'notes' => $product->notes,
                 'cost' => $product->cost,
-                'qty' => 1,
+                'qty' => request()->quantity ?: (request()->qty ?: 1),
                 'tax_rate1' => $product->tax_rate1,
                 'tax_name1' => $product->tax_name1 ?: '',
                 'tax_rate2' => $product->tax_rate2,
