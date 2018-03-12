@@ -257,6 +257,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSizeSmaller': NINJA.fontSize - 1,
         'bodyFont': NINJA.bodyFont,
         'headerFont': NINJA.headerFont,
+        'signature': NINJA.signature(invoice),
         'signatureBase64': NINJA.signatureImage(invoice),
         'signatureDate': NINJA.signatureDate(invoice),
     }
@@ -380,53 +381,65 @@ NINJA.decodeJavascript = function(invoice, javascript)
     return javascript;
 }
 
+NINJA.signature = function(invoice) {
+    var invitation = NINJA.getSignatureInvitation(invoice);
+    if (invitation) {
+        return {
+            "stack": [
+                {
+                    "image": "$signatureBase64",
+                    "margin": [200, 10, 0, 0]
+                },
+                {
+                    "canvas": [{
+                        "type": "line",
+                        "x1": 200,
+                        "y1": -65,
+                        "x2": 504,
+                        "y2": -65,
+                        "lineWidth": 1,
+                        "lineColor": "#888888"
+                    }]
+                },
+                {
+                    "text": [invoiceLabels.date, ": ", "$signatureDate"],
+                    "margin": [200, -60, 0, 0]
+                }
+            ]
+        };
+    } else {
+        return '';
+    }
+}
+
 NINJA.signatureImage = function(invoice) {
     var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
-
-    if (! invoice.invitations || ! invoice.invitations.length) {
-        return blankImage;
-    }
-
-    if (! parseInt(invoice.account.signature_on_pdf)) {
-        return blankImage;
-    }
-
-    for (var i=0; i<invoice.invitations.length; i++) {
-        var invitation = invoice.invitations[i];
-        if (invitation.signature_base64) {
-            break;
-        }
-    }
-
-    if (! invitation.signature_base64) {
-        return blankImage;
-    }
-
-    return invitation.signature_base64 || blankImage;
+    var invitation = NINJA.getSignatureInvitation(invoice);
+    return invitation ? invitation.signature_base64 : blankImage;
 }
 
 NINJA.signatureDate = function(invoice) {
+    var invitation = NINJA.getSignatureInvitation(invoice);
+    return invitation ? NINJA.formatDateTime(invitation.signature_date, invoice.account) : '';
+}
+
+NINJA.getSignatureInvitation = function(invoice) {
     if (! invoice.invitations || ! invoice.invitations.length) {
-        return '';
+        return false;
     }
 
     if (! parseInt(invoice.account.signature_on_pdf)) {
-        return '';
+        return false;
     }
 
     for (var i=0; i<invoice.invitations.length; i++) {
         var invitation = invoice.invitations[i];
         if (invitation.signature_base64) {
-            break;
+            return invitation;
         }
     }
 
-    if (! invitation.signature_base64) {
-        return '';
-    }
-
-    var date = invitation.signature_date;
-    return NINJA.formatDateTime(date, invoice.account);
+    return false;
 }
 
 NINJA.formatDateTime = function(date, account) {

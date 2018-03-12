@@ -235,25 +235,6 @@
 					]) !!}<br/>
 
 				@include('partials/variables_help', ['entityType' => ENTITY_INVOICE, 'account' => $account])
-
-				@if ($account->require_invoice_signature || $account->require_invoice_signature)
-					<p>&nbsp;</p>
-					{{ trans('texts.signature_on_invoice_help') }}
-					<pre style="padding-top:16px;">
-{
-	"stack": [
-	{
-		"image": "$signatureBase64",
-		"margin": [200, 10, 0, 0]
-	},
-	{
-		"text": ["{{ trans('texts.signed') }}: ", "$signatureDate"],
-		"margin": [200, -40, 0, 0]
-	}
-	]
-},
-					</pre>
-				@endif
           </div>
 	  	  </div>
   		  </div>
