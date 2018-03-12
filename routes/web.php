@@ -129,6 +129,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
     Route::post('handle_command', 'BotController@handleCommand');
+    Route::post('accept_terms', 'UserController@acceptTerms');
 
     Route::post('signup/validate', 'AccountController@checkEmail');
     Route::post('signup/submit', 'AccountController@submitSignup');

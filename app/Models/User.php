@@ -452,6 +452,23 @@ class User extends Authenticatable
     {
         return $this->slack_webhook_url;
     }
+
+    public function hasAcceptedLatestTerms()
+    {
+        if (! NINJA_TERMS_VERSION) {
+            return true;
+        }
+
+        return $this->accepted_terms_version == NINJA_TERMS_VERSION;
+    }
+
+    public function acceptedLatestTerms($ip)
+    {
+        $this->accepted_terms_version = NINJA_TERMS_VERSION;
+        $this->accepted_terms_timestamp = date('Y-m-d H:i:s');
+        $this->accepted_terms_ip = $ip;
+        $this->save();
+    }
 }
 
 User::created(function ($user)

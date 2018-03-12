@@ -2770,6 +2770,8 @@ $LANG = array(
     'received_new_payment' => 'You\'ve received a new payment!',
     'slack_webhook_help' => 'Receive payment notifications using :link.',
     'slack_incoming_webhooks' => 'Slack incoming webhooks',
+    'accept' => 'Accept',
+    'accepted_terms' => 'Successfully accepted the latest terms of service',
 
 );
 

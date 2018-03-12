@@ -392,4 +392,18 @@ class UserController extends BaseController
 
         return RESULT_SUCCESS;
     }
+
+    public function acceptTerms()
+    {
+        $ip = Request::getClientIp();
+        $referer = Request::server('HTTP_REFERER');
+        $message = '';
+
+        if (request()->accepted_terms) {
+            auth()->user()->acceptedLatestTerms($ip);
+            $message = trans('texts.accepted_terms');
+        }
+
+        return redirect($referer)->withMessage($message);
+    }
 }

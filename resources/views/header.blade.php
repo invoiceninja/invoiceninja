@@ -501,6 +501,10 @@
 @include('partials.sign_up')
 @include('partials.keyboard_shortcuts')
 
+@if (auth()->check() && ! auth()->user()->hasAcceptedLatestTerms())
+    @include('partials.accept_terms')
+@endif
+
 </div>
 
 <p>&nbsp;</p>
