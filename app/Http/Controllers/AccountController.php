@@ -1327,6 +1327,7 @@ class AccountController extends BaseController
     public function submitSignup()
     {
         $user = Auth::user();
+        $ip = Request::getClientIp();
         $account = $user->account;
 
         $rules = [
@@ -1358,6 +1359,7 @@ class AccountController extends BaseController
         if ($user->registered) {
             $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
             $newUser = $newAccount->users()->first();
+            $newUser->acceptLatestTerms($ip)->save();
             $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
 
             Session::flash('message', trans('texts.created_new_company'));
@@ -1372,6 +1374,7 @@ class AccountController extends BaseController
             $user->username = $user->email;
             $user->password = bcrypt($password);
             $user->registered = true;
+            $newUser->acceptLatestTerms($ip);
             $user->save();
 
             $user->account->startTrial(PLAN_PRO);

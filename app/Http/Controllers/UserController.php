@@ -400,7 +400,7 @@ class UserController extends BaseController
         $message = '';
 
         if (request()->accepted_terms) {
-            auth()->user()->acceptedLatestTerms($ip);
+            auth()->user()->acceptLatestTerms($ip)->save();
             $message = trans('texts.accepted_terms');
         }
 

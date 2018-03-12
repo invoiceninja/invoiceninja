@@ -462,12 +462,13 @@ class User extends Authenticatable
         return $this->accepted_terms_version == NINJA_TERMS_VERSION;
     }
 
-    public function acceptedLatestTerms($ip)
+    public function acceptLatestTerms($ip)
     {
         $this->accepted_terms_version = NINJA_TERMS_VERSION;
         $this->accepted_terms_timestamp = date('Y-m-d H:i:s');
         $this->accepted_terms_ip = $ip;
-        $this->save();
+
+        return $this;
     }
 }
 

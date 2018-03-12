@@ -25,7 +25,7 @@
       @endif
 
       // Ensure terms is checked for sign up form
-      @if (Auth::check() && ! Auth::user()->registered)
+      @if (Auth::check())
           setSignupEnabled(false);
           $("#terms_checkbox").change(function() {
               setSignupEnabled(this.checked);
@@ -78,11 +78,9 @@
       }
     });
 
-    @if (! Auth::user()->registered)
-        if (!$('#terms_checkbox').is(':checked')) {
-          isFormValid = false;
-        }
-    @endif
+    if (!$('#terms_checkbox').is(':checked')) {
+      isFormValid = false;
+    }
 
     $('#saveSignUpButton').prop('disabled', !isFormValid);
 
@@ -182,17 +180,15 @@
         </div>
 
         <div class="row signup-form">
-            @if (! Auth::user()->registered)
-                <div class="col-md-12">
-                    {!! Former::checkbox('terms_checkbox')
-                        ->label(' ')
-                        ->value(1)
-                        ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.Utils::getTermsLink().'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
-                        ->raw() !!}
-                    <br/>
-                </div>
-                <br/>&nbsp;<br/>
-            @endif
+            <div class="col-md-12">
+                {!! Former::checkbox('terms_checkbox')
+                    ->label(' ')
+                    ->value(1)
+                    ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.Utils::getTermsLink().'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
+                    ->raw() !!}
+                <br/>
+            </div>
+            <br/>&nbsp;<br/>
             @if (Utils::isOAuthEnabled() && ! Auth::user()->registered)
                 <div class="col-md-5">
                     @foreach (App\Services\AuthService::$providers as $provider)
