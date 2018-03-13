@@ -242,10 +242,13 @@ class BasePaymentDriver
                 $rules = array_merge($rules, [
                     'address1' => 'required',
                     'city' => 'required',
-                    'state' => 'required',
                     'postal_code' => 'required',
                     'country_id' => 'required',
                 ]);
+
+                if ($this->account()->requiresAddressState()) {
+                    $rules['state'] = 'required';
+                }
             }
         }
 

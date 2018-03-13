@@ -988,7 +988,7 @@ class ClientPortalController extends BaseController
             'email' => 'required',
             'address1' => 'required',
             'city' => 'required',
-            'state' => 'required',
+            'state' => $account->requiresAddressState() ? 'required' : '',
             'postal_code' => 'required',
             'country_id' => 'required',
         ];

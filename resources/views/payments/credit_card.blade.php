@@ -133,7 +133,7 @@
                 'cvv' => 'required',
                 'address1' => 'required',
                 'city' => 'required',
-                'state' => 'required',
+                'state' => $account->requiresAddressState() ? 'required' : '',
                 'postal_code' => 'required',
                 'country_id' => 'required',
                 'phone' => 'required',
@@ -146,7 +146,7 @@
                 'account_holder_type' => 'required',
                 'shipping_address1' => 'required',
                 'shipping_city' => 'required',
-                'shipping_state' => 'required',
+                'shipping_state' => $account->requiresAddressState() ? 'required' : '',
                 'shipping_postal_code' => 'required',
                 'shipping_country_id' => 'required',
             )) !!}

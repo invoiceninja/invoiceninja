@@ -1791,6 +1791,11 @@ class Account extends Eloquent
             return url('/');
         }
     }
+
+    public function requiresAddressState() {
+        return true;
+        //return ! $this->country_id || $this->country_id == DEFAULT_COUNTRY;
+    }
 }
 
 Account::creating(function ($account)
