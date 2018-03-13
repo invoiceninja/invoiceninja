@@ -11,7 +11,9 @@
                     @include('payments.paymentmethods_list')
                 </div>
                 <div class="pull-right">
-                    {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details'))->withAttributes(['id' => 'editDetailsButton']) !!}
+                    @if (! empty($account) && $account->enable_client_portal || $account->enable_client_portal_dashboard)
+                        {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details'))->withAttributes(['id' => 'editDetailsButton']) !!}
+                    @endif
                 </div>
             </div>
         </div>
