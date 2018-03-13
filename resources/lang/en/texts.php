@@ -366,6 +366,7 @@ $LANG = array(
     'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
     'confirm_email_quote' => 'Are you sure you want to email this quote?',
     'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
+    'confirm_recurring_email_invoice_not_sent' => 'Are you sure you want to start the recurrence?',
     'cancel_account' => 'Delete Account',
     'cancel_account_message' => 'Warning: This will permanently delete your account, there is no undo.',
     'go_back' => 'Go Back',
@@ -614,6 +615,7 @@ $LANG = array(
     'or' => 'or',
     'email_error' => 'There was a problem sending the email',
     'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
+    'confirm_recurring_timing_not_sent' => 'Note: invoices are created at the start of the hour.',
     'payment_terms_help' => 'Sets the default <b>invoice due date</b>',
     'unlink_account' => 'Unlink Account',
     'unlink' => 'Unlink',
@@ -978,7 +980,7 @@ $LANG = array(
     'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
     'status_approved' => 'Approved',
     'quote_settings' => 'Quote Settings',
-    'auto_convert_quote' => 'Auto convert quote',
+    'auto_convert_quote' => 'Auto Convert Quote',
     'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
     'validate' => 'Validate',
     'info' => 'Info',
@@ -1327,6 +1329,7 @@ $LANG = array(
     'debit_cards' => 'Debit Cards',
 
     'warn_start_date_changed' => 'The next invoice will be sent on the new start date.',
+    'warn_start_date_changed_not_sent' => 'The next invoice will be created on the new start date.',
     'original_start_date' => 'Original start date',
     'new_start_date' => 'New start date',
     'security' => 'Security',
@@ -2773,6 +2776,11 @@ $LANG = array(
     'accept' => 'Accept',
     'accepted_terms' => 'Successfully accepted the latest terms of service',
     'invalid_url' => 'Invalid URL',
+    'workflow_settings' => 'Workflow Settings',
+    'auto_email_invoice' => 'Auto Email Invoice',
+    'auto_email_invoice_help' => 'Automatically email recurring invoices when they are created.',
+    'auto_archive_invoice' => 'Auto Archive Invoice',
+    'auto_archive_invoice_help' => 'Automatically archive invoices once they are paid.',
 
 );
 

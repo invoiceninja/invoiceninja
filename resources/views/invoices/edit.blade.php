@@ -1340,13 +1340,22 @@
 				return false;
 			}
 
-			var title = "{!! trans("texts.confirm_recurring_email_invoice") !!}";
+			@if ($account->auto_email_invoice)
+				var title = "{!! trans("texts.confirm_recurring_email_invoice") !!}";
+			@else
+				var title = "{!! trans("texts.confirm_recurring_email_invoice_not_sent") !!}";
+			@endif
+
 			var text = '\n' + getSendToEmails();
 			var startDate = moment($('#start_date').datepicker('getDate'));
 
 			// warn invoice will be emailed when saving new recurring invoice
 			if (model.invoice().start_date() == "{{ Utils::fromSqlDate(date('Y-m-d')) }}") {
-				text += '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+				@if ($account->auto_email_invoice)
+					text += '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+				@else
+					text += '\n\n' + "{!! trans("texts.confirm_recurring_timing_not_sent") !!}";
+				@endif
 			// check if the start date is in the future
 			} else if (startDate.isAfter(moment(), 'day')) {
 				var message = "{!! trans("texts.email_will_be_sent_on") !!}";
@@ -1370,7 +1379,11 @@
 	            if (model.invoice().start_date() != model.invoice().start_date_orig()) {
 	                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
 	                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
-	                var title = "{!! trans("texts.warn_start_date_changed") !!}";
+					@if ($account->auto_email_invoice)
+						var title = "{!! trans("texts.warn_start_date_changed") !!}";
+					@else
+						var title = "{!! trans("texts.warn_start_date_changed_not_sent") !!}";
+					@endif
 	                sweetConfirm(function() {
 	                    submitAction('');
 	                }, text, title);

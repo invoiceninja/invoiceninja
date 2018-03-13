@@ -134,6 +134,8 @@ class Account extends Eloquent
         'header_font_id',
         'body_font_id',
         'auto_convert_quote',
+        'auto_archive_invoice',
+        'auto_email_invoice',
         'all_pages_footer',
         'all_pages_header',
         'show_currency_code',

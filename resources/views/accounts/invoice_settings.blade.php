@@ -23,6 +23,8 @@
     {!! Former::open()->rules(['iframe_url' => 'url'])->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('auto_convert_quote', intval($account->auto_convert_quote)) }}
+    {{ Former::populateField('auto_archive_invoice', intval($account->auto_archive_invoice)) }}
+    {{ Former::populateField('auto_email_invoice', intval($account->auto_email_invoice)) }}
     {{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
     {{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
@@ -316,9 +318,19 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.quote_settings') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.workflow_settings') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
+            {!! Former::checkbox('auto_email_invoice')
+                    ->text(trans('texts.enable'))
+                    ->blockHelp(trans('texts.auto_email_invoice_help'))
+                    ->value(1) !!}
+
+            {!! Former::checkbox('auto_archive_invoice')
+                    ->text(trans('texts.enable'))
+                    ->blockHelp(trans('texts.auto_archive_invoice_help'))
+                    ->value(1) !!}
+
             {!! Former::checkbox('auto_convert_quote')
                     ->text(trans('texts.enable'))
                     ->blockHelp(trans('texts.auto_convert_quote_help'))

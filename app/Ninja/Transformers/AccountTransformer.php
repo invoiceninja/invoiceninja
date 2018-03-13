@@ -237,6 +237,8 @@ class AccountTransformer extends EntityTransformer
             'header_font_id' => (int) $account->header_font_id,
             'body_font_id' => (int) $account->body_font_id,
             'auto_convert_quote' => (bool) $account->auto_convert_quote,
+            'auto_archive_invoice' => (bool) $account->auto_archive_invoice,
+            'auto_email_invoice' => (bool) $account->auto_email_invoice,
             'all_pages_footer' => (bool) $account->all_pages_footer,
             'all_pages_header' => (bool) $account->all_pages_header,
             'show_currency_code' => (bool) $account->show_currency_code,
