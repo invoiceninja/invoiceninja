@@ -103,7 +103,7 @@ class EntityDatatable
         $str = e($str);
 
         if (strlen($str) > $max) {
-            return '<span data-toggle="tooltip" data-placement="bottom" title="' . $str . '">' . trim(substr($str, 0, $max)) . '...' . '</span>';
+            return '<span data-toggle="tooltip" data-placement="bottom" title="' . mb_substr($str, 0, 500) . '">' . trim(mb_substr($str, 0, $max)) . '...' . '</span>';
         } else {
             return $str;
         }
