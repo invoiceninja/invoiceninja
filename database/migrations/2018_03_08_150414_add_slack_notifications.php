@@ -22,6 +22,7 @@ class AddSlackNotifications extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->boolean('auto_archive_invoice')->default(false)->nullable();
+            $table->boolean('auto_archive_quote')->default(false)->nullable();
             $table->boolean('auto_email_invoice')->default(true)->nullable();
         });
     }
@@ -42,6 +43,7 @@ class AddSlackNotifications extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->dropColumn('auto_archive_invoice');
+            $table->dropColumn('auto_archive_quote');
             $table->dropColumn('auto_email_invoice');
         });
     }

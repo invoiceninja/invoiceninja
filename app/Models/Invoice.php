@@ -369,7 +369,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function quote()
     {
-        return $this->belongsTo('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     /**

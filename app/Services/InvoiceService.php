@@ -110,7 +110,14 @@ class InvoiceService extends BaseService
      */
     public function convertQuote($quote)
     {
-        return $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+        $account = $quote->account;
+        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+
+        if ($account->auto_archive_quote) {
+            $this->invoiceRepo->archive($quote);
+        }
+
+        return $invoice;
     }
 
     /**
@@ -139,6 +146,10 @@ class InvoiceService extends BaseService
             }
         } else {
             $quote->markApproved();
+        }
+
+        if ($account->auto_archive_quote) {
+            $this->invoiceRepo->archive($quote);
         }
 
         return $invitation->invitation_key;

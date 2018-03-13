@@ -976,6 +976,7 @@ class AccountController extends BaseController
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
+                $account->auto_archive_quote = Input::get('auto_archive_quote');
                 $account->auto_archive_invoice = Input::get('auto_archive_invoice');
                 $account->auto_email_invoice = Input::get('auto_email_invoice');
                 $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');

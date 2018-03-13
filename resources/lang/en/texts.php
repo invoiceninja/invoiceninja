@@ -980,7 +980,7 @@ $LANG = array(
     'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
     'status_approved' => 'Approved',
     'quote_settings' => 'Quote Settings',
-    'auto_convert_quote' => 'Auto Convert Quote',
+    'auto_convert_quote' => 'Auto Convert',
     'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
     'validate' => 'Validate',
     'info' => 'Info',
@@ -2777,10 +2777,14 @@ $LANG = array(
     'accepted_terms' => 'Successfully accepted the latest terms of service',
     'invalid_url' => 'Invalid URL',
     'workflow_settings' => 'Workflow Settings',
-    'auto_email_invoice' => 'Auto Email Invoice',
+    'auto_email_invoice' => 'Auto Email',
     'auto_email_invoice_help' => 'Automatically email recurring invoices when they are created.',
-    'auto_archive_invoice' => 'Auto Archive Invoice',
-    'auto_archive_invoice_help' => 'Automatically archive invoices once they are paid.',
+    'auto_archive_invoice' => 'Auto Archive',
+    'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
+    'auto_archive_quote' => 'Auto Archive',
+    'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'invoice_workflow' => 'Invoice Workflow',
+    'quote_workflow' => 'Quote Workflow',
 
 );
 
