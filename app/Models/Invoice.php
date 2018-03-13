@@ -1129,32 +1129,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @return null
-     */
-    public function getNextSendDate()
-    {
-        if (! $this->is_public) {
-            return null;
-        }
-
-        if ($this->start_date && ! $this->last_sent_date) {
-            $startDate = $this->getOriginal('start_date') . ' ' . $this->account->recurring_hour . ':00:00';
-
-            return $this->account->getDateTime($startDate);
-        }
-
-        if (! $schedule = $this->getSchedule()) {
-            return null;
-        }
-
-        if (count($schedule) < 2) {
-            return null;
-        }
-
-        return $schedule[1]->getStart();
-    }
-
-    /**
      * @param null $invoice_date
      *
      * @return mixed|null
