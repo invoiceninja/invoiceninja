@@ -328,7 +328,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values
-    var regExp = new RegExp('"\\$[a-z][\\\w\\\.]*?[Value]?"', 'g');
+    var regExp = new RegExp('\\$[a-zA-Z\\.]*[Value]?', 'g');
     var matches = javascript.match(regExp);
 
     if (matches) {
@@ -337,13 +337,13 @@ NINJA.decodeJavascript = function(invoice, javascript)
 
             // reserved words
             if ([
-                '"$none"',
-                '"$firstAndLast"',
-                '"$notFirstAndLastColumn"',
-                '"$notFirst"',
-                '"$amount"',
-                '"$primaryColor"',
-                '"$secondaryColor"',
+                '$none',
+                '$firstAndLast',
+                '$notFirstAndLastColumn',
+                '$notFirst',
+                '$amount',
+                '$primaryColor',
+                '$secondaryColor',
             ].indexOf(match) >= 0) {
                 continue;
             }
@@ -351,11 +351,16 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = match.replace('$invoice.', '$');
 
             // legacy style had 'Value' at the end
-            if (endsWith(field, 'Value"')) {
-                field = field.substring(2, field.indexOf('Value'));
+            if (endsWith(field, 'Value')) {
+                field = field.substring(1, field.indexOf('Value'));
             } else {
-                field = field.substring(2, field.length - 1);
+                field = field.substring(1, field.length);
             }
+
+            if (! field) {
+                continue;
+            }
+
             field = toSnakeCase(field);
 
             if (field == 'footer') {
@@ -374,7 +379,9 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 value = formatMoneyInvoice(value, invoice);
             }
 
-            javascript = javascript.replace(match, '"'+value+'"');
+            if ($.trim(value)) {
+                javascript = javascript.replace(match, value);
+            }
         }
     }
 
