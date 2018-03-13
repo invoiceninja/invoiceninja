@@ -124,7 +124,9 @@
             @endif
 
   	        @if ($client->industry || $client->size)
-                {{ $client->industry->name }}
+                @if ($client->industry)
+                    {{ $client->industry->name }}
+                @endif
                 @if ($client->industry && $client->size)
                     |
                 @endif
