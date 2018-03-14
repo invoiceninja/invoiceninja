@@ -54,8 +54,8 @@ class ExpenseRepository extends BaseRepository
                     ->leftJoin('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
                     ->where('expenses.account_id', '=', $accountid)
                     ->where('contacts.deleted_at', '=', null)
-                    ->where('vendors.deleted_at', '=', null)
-                    ->where('clients.deleted_at', '=', null)
+                    //->where('vendors.deleted_at', '=', null)
+                    //->where('clients.deleted_at', '=', null)
                     ->where(function ($query) { // handle when client isn't set
                         $query->where('contacts.is_primary', '=', true)
                               ->orWhere('contacts.is_primary', '=', null);
