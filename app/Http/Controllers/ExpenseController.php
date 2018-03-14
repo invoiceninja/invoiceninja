@@ -18,6 +18,7 @@ use Auth;
 use Cache;
 use Input;
 use Redirect;
+use Request;
 use Session;
 use URL;
 use Utils;
@@ -223,6 +224,7 @@ class ExpenseController extends BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $referer = Request::server('HTTP_REFERER');
 
         switch ($action) {
             case 'invoice':
@@ -234,27 +236,25 @@ class ExpenseController extends BaseController
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense) {
                     if ($expense->client) {
+                        if ($expense->client->trashed()) {
+                            return redirect($referer)->withError(trans('texts.client_must_be_active'));
+                        }
+
                         if (! $clientPublicId) {
                             $clientPublicId = $expense->client->public_id;
                         } elseif ($clientPublicId != $expense->client->public_id) {
-                            Session::flash('error', trans('texts.expense_error_multiple_clients'));
-
-                            return Redirect::to('expenses');
+                            return redirect($referer)->withError(trans('texts.expense_error_multiple_clients'));
                         }
                     }
 
                     if (! $currencyId) {
                         $currencyId = $expense->invoice_currency_id;
                     } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
-                        Session::flash('error', trans('texts.expense_error_multiple_currencies'));
-
-                        return Redirect::to('expenses');
+                        return redirect($referer)->withError(trans('texts.expense_error_multiple_currencies'));
                     }
 
                     if ($expense->invoice_id) {
-                        Session::flash('error', trans('texts.expense_error_invoiced'));
-
-                        return Redirect::to('expenses');
+                        return redirect($referer)->withError(trans('texts.expense_error_invoiced'));
                     }
                 }
 

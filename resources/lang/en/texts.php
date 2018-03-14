@@ -2785,6 +2785,7 @@ $LANG = array(
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
+    'client_must_be_active' => 'Error: the client must be active',
 
 );
 
