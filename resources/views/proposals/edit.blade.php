@@ -201,11 +201,9 @@
             submitForm_proposal('archive', {{ $proposal->id }});
     	}
 
-    	function onDeleteClick() {
-            sweetConfirm(function() {
-                submitForm_proposal('delete', {{ $proposal->id }});
-            });
-    	}
+        function onDeleteClick() {
+            submitForm_proposal('delete', {{ $proposal->id }});
+        }
     @endif
 
     $(function() {
