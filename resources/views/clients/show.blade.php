@@ -52,6 +52,8 @@
                             ->withContents([
                               ($client->trashed() ? false : ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"]),
                               ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
+                              auth()->user()->is_admin ? \DropdownButton::DIVIDER : false,
+                              auth()->user()->is_admin ? ['label' => trans('texts.purge_client'), 'url' => "javascript:onPurgeClick()"] : false,
                             ]
                           )->split() !!}
                     @endcan
@@ -394,11 +396,18 @@
 		$('.mainForm').submit();
 	}
 
-	function onDeleteClick() {
+    function onDeleteClick() {
 		sweetConfirm(function() {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		});
+	}
+
+    function onPurgeClick() {
+		sweetConfirm(function() {
+			$('#action').val('purge');
+			$('.mainForm').submit();
+		}, "{{ trans('texts.purge_client_warning') . "\\n\\n" . trans('texts.no_undo') }}");
 	}
 
     function showEmailHistory(email) {

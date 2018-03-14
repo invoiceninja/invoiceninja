@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Jobs\PurgeClientData;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
 use App\Models\Client;
@@ -73,6 +74,11 @@ class ClientRepository extends BaseRepository
         }
 
         return $query;
+    }
+
+    public function purge($client)
+    {
+        dispatch(new PurgeClientData($client));
     }
 
     public function save($data, $client = null)

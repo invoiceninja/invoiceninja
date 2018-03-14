@@ -218,12 +218,21 @@ class ClientController extends BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+
+        if ($action == 'purge' && ! auth()->user()->is_admin) {
+            return redirect('dashboard')->withError(trans('texts.not_authorized'));
+        }
+
         $count = $this->clientService->bulk($ids, $action);
 
         $message = Utils::pluralize($action.'d_client', $count);
         Session::flash('message', $message);
 
-        return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
+        if ($action == 'purge') {
+            return redirect('dashboard')->withMessage($message);
+        } else {
+            return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
+        }
     }
 
     public function statement($clientPublicId, $statusId = false, $startDate = false, $endDate = false)

@@ -30,7 +30,7 @@ class ActivityRepository
 
         $activity->activity_type_id = $activityTypeId;
         $activity->adjustment = $balanceChange;
-        $activity->client_id = $client ? $client->id : 0;
+        $activity->client_id = $client ? $client->id : null;
         $activity->balance = $client ? ($client->balance + $balanceChange) : 0;
         $activity->notes = $notes ?: '';
 

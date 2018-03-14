@@ -25,6 +25,27 @@ class AddSlackNotifications extends Migration
             $table->boolean('auto_archive_quote')->default(false)->nullable();
             $table->boolean('auto_email_invoice')->default(true)->nullable();
         });
+
+        Schema::table('expenses', function ($table) {
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+        });
+
+        Schema::table('activities', function ($table) {
+            $table->integer('task_id')->unsigned()->change();
+        });
+
+        DB::statement('UPDATE activities SET client_id = NULL WHERE client_id = 0');
+
+        Schema::table('activities', function ($table) {
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
+            $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+            $table->foreign('credit_id')->references('id')->on('credits')->onDelete('cascade');
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
+            $table->foreign('invitation_id')->references('id')->on('invitations')->onDelete('cascade');
+            $table->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
+        });
     }
 
     /**
