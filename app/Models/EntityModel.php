@@ -182,6 +182,15 @@ class EntityModel extends Eloquent
         return $query;
     }
 
+    public function scopeWithActiveOrSelected($query, $id = false)
+    {
+        return $query->withTrashed()
+                      ->where(function ($query) use ($id) {
+                            $query->whereNull('deleted_at')
+                                  ->orWhere('id', '=', $id);
+                });
+    }
+
     /**
      * @param $query
      *

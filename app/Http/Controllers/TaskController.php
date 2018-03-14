@@ -189,7 +189,7 @@ class TaskController extends BaseController
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($task));
 
         return View::make('tasks.edit', $data);
     }
@@ -211,12 +211,12 @@ class TaskController extends BaseController
     /**
      * @return array
      */
-    private static function getViewModel()
+    private static function getViewModel($task = false)
     {
         return [
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clients' => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
-            'projects' => Project::scope()->with('client.contacts')->orderBy('name')->get(),
+            'projects' => Project::scope()->withActiveOrSelected($task ? $task->project_id : false)->with('client.contacts')->orderBy('name')->get(),
         ];
     }
 
