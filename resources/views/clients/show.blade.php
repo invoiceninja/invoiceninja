@@ -33,7 +33,7 @@
         </div>
         <div class="col-md-5">
             <div class="pull-right">
-                {!! Former::open('clients/bulk')->addClass('mainForm') !!}
+                {!! Former::open('clients/bulk')->autocomplete('off')->addClass('mainForm') !!}
                 <div style="display:none">
                     {!! Former::text('action') !!}
                     {!! Former::text('public_id')->value($client->public_id) !!}

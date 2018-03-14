@@ -4,6 +4,7 @@
 
 	{!! Former::open($url)
             ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
+			->autocomplete('off')
             ->method($method)
             ->rules([
                 'name' => 'required',

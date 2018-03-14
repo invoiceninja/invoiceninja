@@ -18,6 +18,7 @@
         ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
         ->onsubmit('return onFormSubmit(event)')
         ->method($method)
+        ->autocomplete('off')
         ->rules(array(
     		'client' => 'required',
     		'invoice' => 'required',

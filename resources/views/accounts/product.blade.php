@@ -5,6 +5,7 @@
 
     {!! Former::open($url)
             ->method($method)
+            ->autocomplete('off')
             ->rules(['product_key' => 'required|max:255'])
             ->addClass('col-lg-10 col-lg-offset-1 main-form warn-on-exit') !!}
 

@@ -4,7 +4,7 @@
   @parent
   @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT])
 
-  {!! Former::open($url)->method($method)->addClass('warn-on-exit user-form')->rules(array(
+  {!! Former::open($url)->autocomplete('off')->method($method)->addClass('warn-on-exit user-form')->rules(array(
       'first_name' => 'required',
       'last_name' => 'required',
       'email' => 'required|email',

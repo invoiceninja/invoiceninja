@@ -25,6 +25,7 @@
     {!! Former::open($url)
             ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit task-form')
             ->onsubmit('return onFormSubmit(event)')
+            ->autocomplete('off')
             ->method($method) !!}
 
     @if ($task)

@@ -21,7 +21,7 @@
         <div class="col-md-5">
             <div class="pull-right">
 
-                {!! Former::open('projects/bulk')->addClass('mainForm') !!}
+                {!! Former::open('projects/bulk')->autocomplete('off')->addClass('mainForm') !!}
             		<div style="display:none">
             			{!! Former::text('action') !!}
             			{!! Former::text('public_id')->value($project->public_id) !!}

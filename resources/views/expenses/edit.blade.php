@@ -17,6 +17,7 @@
 	{!! Former::open($url)
             ->addClass('warn-on-exit main-form')
             ->onsubmit('return onFormSubmit(event)')
+            ->autocomplete('off')
             ->method($method) !!}
     <div style="display:none">
         {!! Former::text('action') !!}

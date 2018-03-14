@@ -14,6 +14,7 @@
             ->method($method)
             ->onsubmit('return onFormSubmit(event)')
             ->id('mainForm')
+            ->autocomplete('off')
             ->addClass('warn-on-exit')
             ->rules([
                 'invoice_id' => 'required',
