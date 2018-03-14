@@ -46,6 +46,7 @@ use Utils;
 
 use Validator;
 use View;
+use App\Jobs\PurgeClientData;
 
 /**
  * Class AccountController.
@@ -389,7 +390,9 @@ class AccountController extends BaseController
         $planDetails = $account->getPlanDetails(true);
         $portalLink = false;
 
-        if (Utils::isNinja() && $planDetails && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
+        if (Utils::isNinja() && $planDetails
+            && $account->getPrimaryAccount()->id == auth()->user()->account_id
+            && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
             $contact = $ninjaClient->getPrimaryContact();
             $portalLink = $contact->link;
         }
@@ -1459,7 +1462,7 @@ class AccountController extends BaseController
             $refunded = $company->processRefund(Auth::user());
 
             $ninjaClient = $this->accountRepo->getNinjaClient($account);
-            $ninjaClient->delete();
+            dispatch(new \App\Jobs\PurgeClientData($ninjaClient));
         }
 
         Document::scope()->each(function ($item, $key) {
