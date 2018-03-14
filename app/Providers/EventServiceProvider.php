@@ -27,6 +27,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ClientWasDeleted' => [
             'App\Listeners\ActivityListener@deletedClient',
             'App\Listeners\SubscriptionListener@deletedClient',
+            'App\Listeners\HistoryListener@deletedClient',
         ],
         'App\Events\ClientWasRestored' => [
             'App\Listeners\ActivityListener@restoredClient',
@@ -54,6 +55,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@deletedInvoice',
             'App\Listeners\TaskListener@deletedInvoice',
             'App\Listeners\ExpenseListener@deletedInvoice',
+            'App\Listeners\HistoryListener@deletedInvoice',
         ],
         'App\Events\InvoiceWasRestored' => [
             'App\Listeners\ActivityListener@restoredInvoice',
@@ -89,6 +91,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\QuoteWasDeleted' => [
             'App\Listeners\ActivityListener@deletedQuote',
+            'App\Listeners\HistoryListener@deletedQuote',
         ],
         'App\Events\QuoteWasRestored' => [
             'App\Listeners\ActivityListener@restoredQuote',
@@ -188,6 +191,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\TaskWasDeleted' => [
             'App\Listeners\ActivityListener@deletedTask',
             'App\Listeners\SubscriptionListener@deletedTask',
+            'App\Listeners\HistoryListener@deletedTask',
         ],
 
         // Vendor events
@@ -219,6 +223,17 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ExpenseWasDeleted' => [
             'App\Listeners\ActivityListener@deletedExpense',
             'App\Listeners\SubscriptionListener@deletedExpense',
+            'App\Listeners\HistoryListener@deletedExpense',
+        ],
+
+        // Project events
+        'App\Events\ProjectWasDeleted' => [
+            'App\Listeners\HistoryListener@deletedProject',
+        ],
+
+        // Proposal events
+        'App\Events\ProposalWasDeleted' => [
+            'App\Listeners\HistoryListener@deletedProposal',
         ],
 
         'Illuminate\Queue\Events\JobExceptionOccurred' => [

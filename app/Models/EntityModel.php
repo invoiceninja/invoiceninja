@@ -427,4 +427,13 @@ class EntityModel extends Eloquent
             throw $exception;
         }
     }
+
+    public function equalTo($obj)
+    {
+        if (empty($obj->id)) {
+            return false;
+        }
+
+        return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
+    }
 }
