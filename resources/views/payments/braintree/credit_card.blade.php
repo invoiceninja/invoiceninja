@@ -56,16 +56,13 @@
                     }
                 },
                 onPaymentMethodReceived: function(event) {
-                    if ($form.find('button').is(':disabled')) {
-                        return false;
-                    }
-
                     // Disable the submit button to prevent repeated clicks
                     $form.find('button').prop('disabled', true);
                     $('#js-error-message').hide();
 
                     // Insert the token into the form so it gets submitted to the server
                     $form.append($('<input type="hidden" name="sourceToken"/>').val(event.nonce));
+
                     // and submit
                     $form.get(0).submit();
                 }
