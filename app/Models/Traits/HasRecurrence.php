@@ -117,6 +117,41 @@ trait HasRecurrence
     }
 
     /**
+     * @throws \Recurr\Exception\MissingData
+     *
+     * @return bool|\Recurr\RecurrenceCollection
+     */
+    public function getSchedule()
+    {
+        if (! $this->start_date || ! $this->frequency_id) {
+            return false;
+        }
+
+        $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
+        $startDate .= ' ' . $this->account->recurring_hour . ':00:00';
+        $startDate = $this->account->getDateTime($startDate);
+        $endDate = $this->end_date ? $this->account->getDateTime($this->getOriginal('end_date')) : null;
+        $timezone = $this->account->getTimezone();
+
+        $rule = $this->getRecurrenceRule();
+        $rule = new \Recurr\Rule("{$rule}", $startDate);
+
+        // Fix for months with less than 31 days
+        $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
+        $transformerConfig->enableLastDayOfMonthFix();
+
+        $transformer = new \Recurr\Transformer\ArrayTransformer();
+        $transformer->setConfig($transformerConfig);
+        $dates = $transformer->transform($rule);
+
+        if (count($dates) < 2) {
+            return false;
+        }
+
+        return $dates;
+    }
+
+    /**
      * @return null
      */
     public function getNextSendDate()
@@ -183,7 +218,7 @@ trait HasRecurrence
         }
 
         if ($this->end_date) {
-            $rule .= 'UNTIL=' . $this->getOriginal('end_date');
+            $rule .= 'UNTIL=' . $this->getOriginal('end_date') . ' 24:00:00';
         }
 
         return $rule;
