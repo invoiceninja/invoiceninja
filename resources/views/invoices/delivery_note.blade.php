@@ -43,7 +43,7 @@
 
 @section('top-right')
     <div class="pull-right">
-        {!! Button::normal(trans('texts.download_pdf'))
+        {!! Button::normal(trans('texts.download'))
                 ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                 ->appendIcon(Icon::create('download-alt')) !!}
 
