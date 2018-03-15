@@ -45,13 +45,11 @@
                         // Show the errors on the form
                         var error = response.error_description;
                         $form.find('button').prop('disabled', false);
-                        NINJA.formIsSubmitted = false;
                         $('#js-error-message').text(error).fadeIn();
                     } else {
-                        if (NINJA.formIsSubmitted) {
+                        if ($form.find('button').is(':disabled')) {
                             return false;
-                        }
-                        NINJA.formIsSubmitted = true;
+                        }                        
                         // response contains id and card, which contains additional card details
                         var token = response.credit_card_id;
                         // Insert the token into the form so it gets submitted to the server
@@ -65,7 +63,6 @@
                     // Show the errors on the form
                     var error = response.error_description;
                     $form.find('button').prop('disabled', false);
-                    NINJA.formIsSubmitted = false;
                     $('#js-error-message').text(error).fadeIn();
                 }
 

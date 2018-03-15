@@ -30,7 +30,7 @@
 
             }
         };
-        
+
         paymill.embedFrame('paymillCardFields', options, callback);
 
         $('.payment-form').unbind('submit').submit(function(event) {
@@ -56,7 +56,6 @@
                             }
                         }
                         $('.payment-form').find('button').prop('disabled', false);
-                        NINJA.formIsSubmitted = false;
                         $('#js-error-message').html(message).fadeIn();
                     } else {
                         $('#sourceToken').val(result.token);
@@ -64,10 +63,9 @@
                     }
                 }
 
-                if (NINJA.formIsSubmitted) {
+                if ($('.payment-form').find('button').is(':disabled')) {
                     return false;
                 }
-                NINJA.formIsSubmitted = true;
 
                 // Disable the submit button to prevent repeated clicks
                 $('.payment-form').find('button').prop('disabled', true);
