@@ -2788,7 +2788,7 @@ $LANG = array(
     'client_must_be_active' => 'Error: the client must be active',
     'purge_client' => 'Purge Client',
     'purged_client' => 'Successfully purged client',
-    'purge_client_warning' => 'All related records (invoices, tasks, expenses, documents, etc) will also be deleted.'
+    'purge_client_warning' => 'All related records (invoices, tasks, expenses, documents, etc) will also be deleted.',
 
 );
 

@@ -1190,7 +1190,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      *
      * @return null
      */
-    public function getPrettySchedule($min = 1, $max = 10)
+    public function getPrettySchedule($min = 0, $max = 10)
     {
         if (! $schedule = $this->getSchedule($max)) {
             return null;

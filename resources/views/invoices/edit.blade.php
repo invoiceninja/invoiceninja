@@ -293,8 +293,8 @@
                         @if (isset($lastSent) && $lastSent)
                             {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <p/>
                         @endif
-                        @if ($invoice->is_recurring && $invoice->getNextSendDate())
-                           {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
+                        @if ($invoice->is_recurring)
+                           {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate() ?: $invoice->start_date).
                                 '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
                             @if ($invoice->getDueDate())
                                 <br>
