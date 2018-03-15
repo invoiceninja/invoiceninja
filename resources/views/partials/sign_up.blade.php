@@ -246,7 +246,7 @@
                 <div style="padding-top:20px;padding-bottom:10px;">
                     @if (Auth::user()->registered)
                         {!! trans('texts.email_alias_message') !!}
-                    @elseif (Utils::isNinja())
+                    @elseif (Utils::isNinjaProd())
                         @if (Utils::isPro())
                             {{ trans('texts.free_year_message') }}
                         @else
