@@ -235,10 +235,13 @@
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! Form::tab_link('#activity', trans('texts.activity'), true) !!}
-        @if ($hasTasks && Utils::isPro())
+        @if ($hasTasks)
             {!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
         @endif
-		@if ($hasQuotes && Utils::isPro())
+        @if ($hasExpenses)
+            {!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
+        @endif
+		@if ($hasQuotes)
 			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
         @if ($hasRecurringInvoices)
@@ -246,7 +249,9 @@
         @endif
 		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
 		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
-		{!! Form::tab_link('#credits', trans('texts.credits')) !!}
+        @if ($account->isModuleEnabled(ENTITY_CREDIT))
+            {!! Form::tab_link('#credits', trans('texts.credits')) !!}
+        @endif
 	</ul><br/>
 
 	<div class="tab-content">
@@ -278,6 +283,15 @@
         </div>
     @endif
 
+    @if ($hasExpenses)
+        <div class="tab-pane" id="expenses">
+            @include('list', [
+                'entityType' => ENTITY_EXPENSE,
+                'datatable' => new \App\Ninja\Datatables\ExpenseDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
+        </div>
+    @endif
 
     @if (Utils::hasFeature(FEATURE_QUOTES) && $hasQuotes)
         <div class="tab-pane" id="quotes">
@@ -315,6 +329,7 @@
             ])
         </div>
 
+    @if ($account->isModuleEnabled(ENTITY_CREDIT))
         <div class="tab-pane" id="credits">
             @include('list', [
                 'entityType' => ENTITY_CREDIT,
@@ -322,6 +337,7 @@
                 'clientId' => $client->public_id,
             ])
         </div>
+    @endif
 
     </div>
 
