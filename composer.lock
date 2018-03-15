@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d690d598db58964feb20dbbcdce8a92f",
-    "content-hash": "859622bff39b3e438703dcc641ada711",
+    "hash": "93215ce9d9ac2c8e7c17b6dbcba0bb7e",
+    "content-hash": "86384f0cd8e6d0d2d2f929beb00c9126",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -3538,16 +3538,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.7",
+            "version": "v0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "12d9c8d40d62301e2226db63d1e5534747f660fe"
+                "reference": "774660bd13d08bffd8877c24075dcbba829cf62f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/12d9c8d40d62301e2226db63d1e5534747f660fe",
-                "reference": "12d9c8d40d62301e2226db63d1e5534747f660fe",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/774660bd13d08bffd8877c24075dcbba829cf62f",
+                "reference": "774660bd13d08bffd8877c24075dcbba829cf62f",
                 "shasum": ""
             },
             "require": {
@@ -3575,7 +3575,7 @@
                 "mfauveau/omnipay-pacnet": "~2.0",
                 "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
                 "omnipay/bitpay": "dev-master",
-                "omnipay/braintree": "~2.0@dev",
+                "omnipay/braintree": "^1.1",
                 "omnipay/gocardless": "dev-master",
                 "omnipay/mollie": "3.*",
                 "omnipay/omnipay": "~2.3",
@@ -3595,7 +3595,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2018-03-07 13:26:16"
+            "time": "2018-03-15 18:33:17"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -5786,7 +5786,7 @@
         },
         {
             "name": "omnipay/braintree",
-            "version": "dev-master",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-braintree.git",
@@ -13077,7 +13077,6 @@
         "digitickets/omnipay-gocardlessv2": 20,
         "gatepay/fedachdir": 20,
         "intervention/image": 20,
-        "invoiceninja/omnipay-collection": 20,
         "jlapp/swaggervel": 20,
         "jonnyw/php-phantomjs": 20,
         "laracasts/presenter": 20,
