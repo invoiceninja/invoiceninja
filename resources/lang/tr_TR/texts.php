@@ -974,7 +974,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'username' => 'Kullanıcı Adı',
     'account_number' => 'Hesap Numarası',
     'account_name' => 'Hesap Adı',
-    'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
+    'bank_account_error' => 'Failed to retrieve account details, please check your credentials.',
     'status_approved' => 'Approved',
     'quote_settings' => 'Quote Settings',
     'auto_convert_quote' => 'Auto convert quote',
