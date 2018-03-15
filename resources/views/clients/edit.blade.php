@@ -30,6 +30,7 @@
 	@else
 		{!! Former::populateField('invoice_number_counter', 1) !!}
 		{!! Former::populateField('quote_number_counter', 1) !!}
+		{!! Former::populateField('send_reminders', 1) !!}
 		@if ($account->client_number_counter)
 			{!! Former::populateField('id_number', $account->getNextNumber()) !!}
 		@endif
