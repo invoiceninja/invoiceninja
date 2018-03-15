@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreatePaymentTermAPIRequest;
+use App\Http\Requests\CreatePaymentTermRequest;
 use App\Http\Requests\PaymentTermRequest;
 use App\Http\Requests\UpdatePaymentTermRequest;
 use App\Libraries\Utils;
@@ -110,7 +110,7 @@ class PaymentTermApiController extends BaseAPIController
          *   )
          * )
          */
-    public function store(CreatePaymentTermAPIRequest $request)
+    public function store(CreatePaymentTermRequest $request)
     {
 
         $paymentTerm = PaymentTerm::createNew();
