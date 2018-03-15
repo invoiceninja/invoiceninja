@@ -30,6 +30,9 @@
     @if ($account->custom_client_label2)
         <td>{{ $account->present()->customClientLabel2 }}</td>
     @endif
+    @if ($account->hasReminders())
+        <td>{{ trans('texts.reminders') }}</td>
+    @endif
     <td>{{ trans('texts.first_name') }}</td>
     <td>{{ trans('texts.last_name') }}</td>
     <td>{{ trans('texts.email') }}</td>
@@ -74,6 +77,9 @@
         @endif
         @if ($account->custom_client_label2)
             <td>{{ $client->custom_value2 }}</td>
+        @endif
+        @if ($account->hasReminders())
+            <td>{{ $client->send_reminders ? trans('texts.yes') : trans('texts.no') }}</td>
         @endif
         <td>{{ $client->contacts[0]->first_name }}</td>
         <td>{{ $client->contacts[0]->last_name }}</td>
