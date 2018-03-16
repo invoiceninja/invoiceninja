@@ -57,11 +57,6 @@
                     }
                 },
                 onPaymentMethodReceived: function(e) {
-                    if (NINJA.formIsSubmitted) {
-                        return false;
-                    }
-                    NINJA.formIsSubmitted = true;
-
                     // Disable the submit button to prevent repeated clicks
                     $form.find('button').prop('disabled', true);
                     $('#js-error-message').hide();
