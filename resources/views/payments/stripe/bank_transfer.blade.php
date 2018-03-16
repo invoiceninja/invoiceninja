@@ -47,10 +47,9 @@
                     return false;
                 }
 
-                if (NINJA.formIsSubmitted) {
+                if ($form.find('button').is(':disabled')) {
                     return false;
                 }
-                NINJA.formIsSubmitted = true;
 
                 // Disable the submit button to prevent repeated clicks
                 $form.find('button').prop('disabled', true);
@@ -98,7 +97,6 @@
                     error = "{{trans('texts.country_not_supported')}}";
                 }
                 $form.find('button').prop('disabled', false);
-                NINJA.formIsSubmitted = false;
                 $('#js-error-message').html(error).fadeIn();
             } else {
                 // response contains id and card, which contains additional card details
