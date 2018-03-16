@@ -47,14 +47,14 @@
 
         $(function() {
             $('.payment-form').submit(function(event) {
-                if (NINJA.formIsSubmitted) {
+                var $form = $(this);
+
+                if ($form.find('button').is(':disabled')) {
                     event.preventDefault();
                     return false;
                 }
-                NINJA.formIsSubmitted = true;
 
                 // Disable the submit button to prevent repeated clicks
-                var $form = $(this);
                 $form.find('button').prop('disabled', true);
 
                 return true;
