@@ -303,6 +303,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
                     } else if (field == 'invoice_to') {
                         field = 'statement_to';
                     }
+                } else if (invoice.is_delivery_note) {
+                    field = 'delivery_note';
                 } else if (invoice.balance_amount < 0) {
                     if (field == 'your_invoice') {
                         field = 'your_credit';
