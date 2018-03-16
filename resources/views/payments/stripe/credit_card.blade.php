@@ -83,6 +83,7 @@
                         $form.get(0).submit();
                     } else {
                         $('#js-error-message').html('An error occurred').fadeIn();
+                        $form.find('button').prop('disabled', false);
                         logError('STRIPE_ERROR: ' + JSON.stringify(response));
                     }
                 }
