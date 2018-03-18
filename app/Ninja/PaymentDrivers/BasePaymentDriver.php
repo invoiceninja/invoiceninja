@@ -313,7 +313,8 @@ class BasePaymentDriver
         if ($this->isGateway(GATEWAY_SAGE_PAY_DIRECT) || $this->isGateway(GATEWAY_SAGE_PAY_SERVER)) {
             $items = null;
         } else {
-            $items = $this->paymentItems();
+            //$items = $this->paymentItems();
+            $items = null;
         }
         $response = $gateway->purchase($data)
                         ->setItems($items)
