@@ -1380,7 +1380,7 @@ class AccountController extends BaseController
             $user->username = $user->email;
             $user->password = bcrypt($password);
             $user->registered = true;
-            $newUser->acceptLatestTerms($ip);
+            $user->acceptLatestTerms($ip);
             $user->save();
 
             $user->account->startTrial(PLAN_PRO);
