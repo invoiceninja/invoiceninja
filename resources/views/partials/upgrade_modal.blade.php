@@ -69,7 +69,7 @@
         swal("{!! trans('texts.please_register') !!}");
         return;
     @elseif ( ! Auth::check() || ! Auth::user()->confirmed)
-        swal("{!! trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]) !!}");
+        swal({!! json_encode(trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))])) !!});
         return;
     @endif
 
