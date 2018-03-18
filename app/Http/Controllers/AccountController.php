@@ -387,7 +387,7 @@ class AccountController extends BaseController
     private function showAccountManagement()
     {
         $account = Auth::user()->account;
-        $planDetails = $account->getPlanDetails(true);
+        $planDetails = $account->getPlanDetails(true, false);
         $portalLink = false;
 
         if (Utils::isNinja() && $planDetails
