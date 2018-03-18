@@ -130,7 +130,7 @@ class AccountRepository
     {
         $ip = Request::getClientIp();
         $count = Account::whereIp($ip)->whereHas('users', function ($query) {
-            $query->whereConfirmed(true);
+            $query->whereRegistered(true);
         })->count();
 
         if ($count > 1 && $errorEmail = env('ERROR_EMAIL')) {
