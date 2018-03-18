@@ -129,7 +129,9 @@ class AccountRepository
     private function checkForSpammer()
     {
         $ip = Request::getClientIp();
-        $count = Account::whereIp($ip)->count();
+        $count = Account::whereIp($ip)->whereHas('users', function ($query) {
+            $query->whereConfirmed(true);
+        })->count();
 
         if ($count > 1 && $errorEmail = env('ERROR_EMAIL')) {
             \Mail::raw($ip, function ($message) use ($ip, $errorEmail) {
