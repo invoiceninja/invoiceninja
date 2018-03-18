@@ -247,6 +247,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/credits/{client_id?}', 'CreditController@getDatatable');
     Route::post('credits/bulk', 'CreditController@bulk');
 
+    Route::get('products/{products}/clone', 'ProductController@cloneProduct');
     Route::get('api/products', 'ProductController@getDatatable');
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
