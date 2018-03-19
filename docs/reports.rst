@@ -27,7 +27,7 @@ The Report Settings section enables you to set parameters and filter the data to
 To schedule receiving the defined report, click the blue Schedule button.
 
 In the pop-up box, select the Frequency you'd like to receive the report. Options include Daily, Weekly, Biweekly or Monthly. Then select the Start Date from when you want to begin receiving the report.
-Click the blue Schedule button.
+
 After the report has been scheduled, you'll see a gray Cancel Schedule button on your Reports page. You can cancel the scheduled report at any time by clicking on the cancel button.
 
 Calendar
