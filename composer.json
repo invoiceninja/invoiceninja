@@ -14,7 +14,8 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "ext-gd": "*",
+        "doctrine/inflector": "v1.2.*",
+	"ext-gd": "*",
         "ext-gmp": "*",
         "anahkiasen/former": "4.*",
         "asgrim/ofxparser": "^1.1",
