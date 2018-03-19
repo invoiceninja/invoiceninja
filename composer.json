@@ -31,6 +31,7 @@
         "davibennun/laravel-push-notification": "dev-laravel5",
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",
         "doctrine/dbal": "2.5.x",
+        "doctrine/inflector": "v1.2.*",
         "ezyang/htmlpurifier": "~v4.7",
         "fzaninotto/faker": "^1.5",
         "gatepay/FedACHdir": "dev-master@dev",
