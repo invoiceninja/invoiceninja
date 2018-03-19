@@ -4,8 +4,8 @@ $(function() {
 
     window.grapesjsEditor = grapesjs.init({
         container : '#gjs',
-        components: '{!! $entity ? $entity->html : '' !!}',
-        style: '{!! $entity ? $entity->css : '' !!}',
+        components: {!! json_encode($entity ? $entity->html : '') !!},
+        style: {!! json_encode($entity ? $entity->css : '') !!},
         showDevices: false,
         plugins: ['gjs-preset-newsletter'],
         pluginsOpts: {
@@ -42,11 +42,11 @@ $(function() {
         blockManager.add("h{{ ($loop->index + 1) }}-block", {
             label: '{{ $snippet->name }}',
             category: '{{ $snippet->proposal_category ? $snippet->proposal_category->name : trans('texts.custom') }}',
-            content: '{!! $snippet->html !!}',
-            style: '{!! $snippet->css !!}',
+            content: {!! json_encode($snippet->html) !!},
+            style: {!! json_encode($snippet->css) !!},
             attributes: {
-                title: '{!! $snippet->private_notes !!}',
-                class:'fa fa-{!! $snippet->icon ?: 'font' !!}'
+                title: {!! json_encode($snippet->private_notes) !!},
+                class:'fa fa-{{ $snippet->icon ?: 'font' }}'
             }
         });
     @endforeach
