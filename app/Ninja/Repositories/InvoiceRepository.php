@@ -1194,7 +1194,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if (! count($dates)) {
-            return [];
+            return collect();
         }
 
         $sql = implode(' OR ', $dates);
