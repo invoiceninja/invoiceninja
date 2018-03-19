@@ -904,7 +904,7 @@ function ItemModel(data) {
             if (parseInt(model.invoice().is_amount_discount())) {
                 value -= discount;
             } else {
-                value -= (value * discount / 100);
+                value -= roundToTwo(value * discount / 100);
             }
         }
         return value ? roundToTwo(value) : 0;

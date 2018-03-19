@@ -595,7 +595,7 @@ function calculateAmounts(invoice) {
             if (parseInt(invoice.is_amount_discount)) {
                 lineTotal -= discount;
             } else {
-                lineTotal -= (lineTotal * discount / 100);
+                lineTotal -= roundToTwo(lineTotal * discount / 100);
             }
         }
     }
@@ -652,7 +652,7 @@ function calculateAmounts(invoice) {
         if (parseInt(invoice.is_amount_discount)) {
             lineTotal -= discount;
         } else {
-            lineTotal -= (lineTotal * discount / 100);
+            lineTotal -= roundToTwo(lineTotal * discount / 100);
         }
     }
     lineTotal = roundToTwo(lineTotal);
