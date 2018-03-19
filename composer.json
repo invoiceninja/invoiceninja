@@ -28,7 +28,7 @@
         "cleverit/ubl_invoice": "1.*",
         "codedge/laravel-selfupdater": "5.x-dev",
         "collizo4sky/omnipay-wepay": "dev-address-fix",
-        "turbo124/laravel-push-notification": "2.0.3",
+        "turbo124/laravel-push-notification": "2.0.4",
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",
         "doctrine/dbal": "2.5.x",
         "doctrine/inflector": "v1.2.*",
