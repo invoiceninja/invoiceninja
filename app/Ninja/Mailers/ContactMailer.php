@@ -201,6 +201,7 @@ class ContactMailer extends Mailer
             'notes' => $reminder,
             'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
+            'proposal' => $proposal,
         ];
 
         if (! $proposal) {

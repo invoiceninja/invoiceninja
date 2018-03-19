@@ -2659,7 +2659,7 @@ $LANG = array(
     'tax_amount' => 'Tax Amount',
     'tax_paid' => 'Tax Paid',
     'none' => 'None',
-
+    'proposal_message_button' => 'To view your proposal for :amount, click the button below.',
     'proposal' => 'Proposal',
     'proposals' => 'Proposals',
     'list_proposals' => 'List Proposals',
