@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "dbca83882a655b60b327f511033e7d6d",
+    "content-hash": "1ac136644e2b5eecd8753e3aa529e369",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -1256,6 +1256,48 @@
             "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
             "homepage": "https://github.com/container-interop/container-interop",
             "time": "2017-02-14T19:40:03+00:00"
+        },
+        {
+            "name": "davibennun/laravel-push-notification",
+            "version": "dev-laravel5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/davibennun/laravel-push-notification.git",
+                "reference": "6970bbe4f1e1744677208f895bc08032f4baf3be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/davibennun/laravel-push-notification/zipball/6970bbe4f1e1744677208f895bc08032f4baf3be",
+                "reference": "6970bbe4f1e1744677208f895bc08032f4baf3be",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "5.*",
+                "php": ">=5.3.0",
+                "sly/notification-pusher": "2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Davibennun\\LaravelPushNotification": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "DaviBenNun",
+                    "email": "davi@andradenunes.org"
+                }
+            ],
+            "description": "Laravel package to send push notifications to mobile devices (apns, gcm)",
+            "keywords": [
+                "apns",
+                "gcm",
+                "laravel",
+                "notification",
+                "push"
+            ],
+            "time": "2017-01-31T10:24:01+00:00"
         },
         {
             "name": "delatbabel/omnipay-fatzebra",
@@ -10297,48 +10339,6 @@
             "time": "2016-11-16T10:37:54+00:00"
         },
         {
-            "name": "turbo124/laravel-push-notification",
-            "version": "2.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/turbo124/laravel-push-notification.git",
-                "reference": "96132aa4c7c8a6a3d411c4488f81aac50491a7bd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/laravel-push-notification/zipball/96132aa4c7c8a6a3d411c4488f81aac50491a7bd",
-                "reference": "96132aa4c7c8a6a3d411c4488f81aac50491a7bd",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "5.*",
-                "php": ">=5.3.0",
-                "sly/notification-pusher": "2.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Davibennun\\LaravelPushNotification": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "DaviBenNun",
-                    "email": "davi@andradenunes.org"
-                }
-            ],
-            "description": "Laravel package to send push notifications to mobile devices (apns, gcm)",
-            "keywords": [
-                "apns",
-                "gcm",
-                "laravel",
-                "notification",
-                "push"
-            ],
-            "time": "2018-02-22T10:05:05+00:00"
-        },
-        {
             "name": "twbs/bootstrap",
             "version": "v3.3.7",
             "source": {
@@ -13095,6 +13095,7 @@
         "chumper/datatable": 20,
         "codedge/laravel-selfupdater": 20,
         "collizo4sky/omnipay-wepay": 20,
+        "davibennun/laravel-push-notification": 20,
         "digitickets/omnipay-gocardlessv2": 20,
         "gatepay/fedachdir": 20,
         "intervention/image": 20,
