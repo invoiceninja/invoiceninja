@@ -14,4 +14,11 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
 
         return $data;
     }
+
+    public function createPayment($ref = false, $paymentMethod = null)
+    {
+        $ref = $this->purchaseResponse['transactionResponse']['transId'] ?: $this->purchaseResponse['refId'];
+
+        parent::createPayment($ref, $paymentMethod);
+    }
 }
