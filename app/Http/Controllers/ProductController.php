@@ -82,7 +82,7 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit($publicId, $clone = false)
+    public function edit(ProductRequest $request, $publicId, $clone = false)
     {
         $account = Auth::user()->account;
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();

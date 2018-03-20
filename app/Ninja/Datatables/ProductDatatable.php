@@ -71,7 +71,7 @@ class ProductDatatable extends EntityDatatable
             [
                 trans('texts.clone_product'),
                 function ($model) {
-                    return "javascript:submitForm_product('clone', {$model->public_id})";
+                    return URL::to("products/{$model->public_id}/clone");
                 },
                 function ($model) {
                     return Auth::user()->can('create', ENTITY_PRODUCT);
