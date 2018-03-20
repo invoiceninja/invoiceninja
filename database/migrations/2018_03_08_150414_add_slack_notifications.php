@@ -64,6 +64,16 @@ class AddSlackNotifications extends Migration
             $table->index('user_id4');
             $table->index('user_id5');
         });
+
+        Schema::table('jobs', function (Blueprint $table) {
+            $table->dropIndex('jobs_queue_reserved_reserved_at_index');
+            $table->dropColumn('reserved');
+            $table->index(['queue', 'reserved_at']);
+        });
+
+        Schema::table('failed_jobs', function (Blueprint $table) {
+            $table->longText('exception')->after('payload');
+        });
     }
 
     /**
@@ -85,5 +95,15 @@ class AddSlackNotifications extends Migration
             $table->dropColumn('auto_archive_quote');
             $table->dropColumn('auto_email_invoice');
         });
+
+        Schema::table('jobs', function (Blueprint $table) {
+            $table->tinyInteger('reserved')->unsigned();
+            $table->index(['queue', 'reserved', 'reserved_at']);
+            $table->dropIndex('jobs_queue_reserved_at_index');
+        });
+
+        Schema::table('failed_jobs', function (Blueprint $table) {
+            $table->dropColumn('exception');
+        });        
     }
 }
