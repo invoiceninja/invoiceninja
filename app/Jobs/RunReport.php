@@ -69,10 +69,6 @@ class RunReport extends Job
         $report = new $reportClass($startDate, $endDate, $isExport, $config);
         $report->run();
 
-        if (App::runningInConsole() && $this->user) {
-            auth()->logout();
-        }
-
         $params = [
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -80,6 +76,10 @@ class RunReport extends Job
         ];
 
         $report->exportParams = array_merge($params, $report->results());
+
+        if (App::runningInConsole() && $this->user) {
+            auth()->logout();
+        }
 
         return $report;
     }
