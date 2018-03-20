@@ -435,6 +435,7 @@ class Utils
             'url' => Input::get('url', Request::url()),
             'previous' => url()->previous(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+            'locale' => App::getLocale(),
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
             'is_console' => App::runningInConsole() ? 'yes' : 'no',
