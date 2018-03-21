@@ -38,22 +38,25 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
-## Tools
-* [InvoicePlane Import](https://github.com/turbo124/Plane2Ninja)
-* [Toggl Sync](https://github.com/Matth--/toggl-invoiceninja-sync)
-* [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
-
 ## Development
 * [API Documentation](http://docs.invoiceninja.com/en/latest/api.html)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
 * [Zend Framework](https://github.com/alexz707/InvoiceNinjaModule)
 * [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 
+## Third Party Modules
+* [Event Scheduler](https://github.com/cytech/Scheduler-InvoiceNinja)
+
+> Feel free to email us for help if you're working on a module, we're happy to provide developer support.
+
+## Third Party Tools
+* [InvoicePlane Import](https://github.com/turbo124/Plane2Ninja)
+* [Toggl Sync](https://github.com/Matth--/toggl-invoiceninja-sync)
+* [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
+
 ## Third Party Developers
 * [Some Techie](https://www.sometechie.com/customize-invoice-ninja/)
 * [theDevelopers](https://www.thedevelopers.ro/customisation-request-invoiceninja)
-
-Email us to be added to the list
 
 ## Contributing
 All contributors are welcome!  
