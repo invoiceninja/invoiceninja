@@ -63,11 +63,6 @@ class RunReport extends Job
             $endDate = $config['end_date'];
         }
 
-        // send email as user
-        if (App::runningInConsole() && $this->user) {
-            auth()->onceUsingId($this->user->id);
-        }
-
         $report = new $reportClass($startDate, $endDate, $isExport, $config);
         $report->run();
 
@@ -78,10 +73,6 @@ class RunReport extends Job
         ];
 
         $report->exportParams = array_merge($params, $report->results());
-
-        if (App::runningInConsole() && $this->user) {
-            auth()->logout();
-        }
 
         return $report;
     }

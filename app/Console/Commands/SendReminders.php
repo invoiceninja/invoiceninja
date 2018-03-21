@@ -172,6 +172,9 @@ class SendReminders extends Command
             $config = (array) json_decode($scheduledReport->config);
             $reportType = $config['report_type'];
 
+            // send email as user
+            auth()->onceUsingId($user->id);
+
             $report = dispatch(new RunReport($scheduledReport->user, $reportType, $config, true));
             $file = dispatch(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
@@ -180,6 +183,8 @@ class SendReminders extends Command
             }
 
             $scheduledReport->updateSendDate();
+
+            auth()->logout();
         }
     }
 
