@@ -82,9 +82,9 @@ class ProfitAndLossReport extends AbstractReport
             if ($subgroup == 'type') {
                 $dimension = trans('texts.expense');
             } else {
-                $dimension = $this->getDimension($payment);
+                $dimension = $this->getDimension($expense);
             }
-            $this->addChartData($dimension, $payment->expense_date, $expense->amountWithTax());
+            $this->addChartData($dimension, $expense->expense_date, $expense->amountWithTax());
         }
 
         //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
