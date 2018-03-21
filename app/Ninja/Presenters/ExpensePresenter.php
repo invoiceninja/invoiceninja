@@ -36,7 +36,7 @@ class ExpensePresenter extends EntityPresenter
 
     public function month()
     {
-        return Carbon::parse($this->entity->payment_date)->format('Y m');
+        return Carbon::parse($this->entity->expense_date)->format('Y m');
     }
 
     public function amount()
