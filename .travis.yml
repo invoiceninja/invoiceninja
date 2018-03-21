@@ -132,4 +132,6 @@ notifications:
     on_success: never
     on_failure: change
   slack: 
-    invoiceninja: SLraaKBDvjeRuRtY9o3Yvp1b
+    secure: "wQQufQysqhW/eFoPvRRd7eCGl6tH1Y6eNeWiAmwwEn+MqTMbAbIZamjTHfxihOA88cpSGvOoE3B8ivGmE3ei+pDU35xJ7mHJhV0AKATmGAC0gE5+0zTumpO5J/K0InGTq5za5J5YTuDHdm3omw41Vsnp2ijG3nCBxgav5F8M2KYWUK0aF9vD+lXi9X3at7NsuxfMBFWokPbgJ9W3rOduYSWJRl7e/eGBUf9AzyRXuqK7Mj8dgG9eSF0WPjpWi0yGUtJsQYVvROvHwGgA1jcCSznyHTny6nPCaEMWJHHXPwydaC8bqp2HiURXzJYprF29VorXTEUhZtLvBWompYaBi9Y/W/tyEPbmumshb9JP8t7uvk31cXU06kyDFbdjqvx6oYxIgu8A8tQ1z5KJiDP0oSz2oukg9WVZiIRkZY3bxvSPI+vw2j/Wcnh0kV6MyzCvbwZUlNn8hVa/GMRnpiE5VulWnxAR/Ez6DOt/w8B3ljRUlXW0/Y0o4WgLQ96k/PCfmumeGQ6yK4iKn0B1BT8hmMfuc3UQJTMM4Wroxho9lQbD2ylVrUadvTJbOlARBqTycumVWdMOV3r8S6D4oZKYF8mZZ/6ID/FmHklMBPViSY2o6ABUJAGmKIGW7clsaFenZnusjFPNWPpiIIsmIxeCNO8SQSo3iApxVxA21+CBx8w="    on_success: always
+    on_failure: always
+    on_success: always
