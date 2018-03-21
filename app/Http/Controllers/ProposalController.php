@@ -168,7 +168,7 @@ class ProposalController extends BaseController
         $proposal = $request->entity();
 
         $mpdf = new mPDF();
-        $mpdf->showImageErrors = true;
+        $mpdf->showImageErrors = config('app.debug');
         $mpdf->WriteHTML($proposal->present()->htmlDocument);
 
         //$mpdf->Output();
