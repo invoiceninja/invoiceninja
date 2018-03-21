@@ -133,3 +133,5 @@ notifications:
     on_failure: change
   slack: 
     invoiceninja: SLraaKBDvjeRuRtY9o3Yvp1b
+    on_success: always
+    on_failure: always
