@@ -31,6 +31,8 @@ class RunReport extends Job
 
         $reportType = $this->reportType;
         $config = $this->config;
+        $config['subgroup'] = false; // don't yet support charts in export
+
         $isExport = $this->isExport;
         $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
 
