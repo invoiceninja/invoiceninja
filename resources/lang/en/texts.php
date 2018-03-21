@@ -2406,6 +2406,8 @@ $LANG = array(
     'currency_ugandan_shilling' => 'Ugandan Shilling',
     'currency_barbadian_dollar' => 'Barbadian Dollar',
     'currency_brunei_dollar' => 'Brunei Dollar',
+    'currency_georgian_lari' => 'Georgian Lari',
+
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
 
