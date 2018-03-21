@@ -168,11 +168,13 @@ class ProposalController extends BaseController
         $proposal = $request->entity();
 
         $mpdf = new mPDF();
-        $mpdf->showImageErrors = config('app.debug');
+        //$mpdf->showImageErrors = config('app.debug');
         $mpdf->WriteHTML($proposal->present()->htmlDocument);
 
-        //$mpdf->Output();
-
-        $mpdf->Output($proposal->present()->filename, 'D');
+        if ($request->debug) {
+            $mpdf->Output();
+        } else {
+            $mpdf->Output($proposal->present()->filename, 'D');
+        }
     }
 }
