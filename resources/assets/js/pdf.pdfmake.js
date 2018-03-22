@@ -1258,9 +1258,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = invoice.invoice_date;
     } else if (field == 'invoice.due_date') {
         label = invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date;
-        if (invoice.is_recurring) {
-            value = false;
-        } else if (invoice.partial_due_date) {
+        if (invoice.partial_due_date) {
             value = invoice.partial_due_date;
         } else {
             value = invoice.due_date;

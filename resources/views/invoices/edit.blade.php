@@ -1170,9 +1170,12 @@
 
         if (invoice.is_recurring) {
             invoice.invoice_number = "{!! trans('texts.assigned_when_sent') !!}";
+			invoice.due_date = "{!! trans('texts.assigned_when_sent') !!}";
             if (invoice.start_date) {
                 invoice.invoice_date = invoice.start_date;
-            }
+            } else {
+				invoice.invoice_date = invoice.due_date;
+			}
         }
 
         @if (!$invoice->id || $invoice->is_recurring)
