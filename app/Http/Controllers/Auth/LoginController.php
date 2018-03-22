@@ -105,8 +105,11 @@ class LoginController extends Controller
             */
         } else {
             $stacktrace = sprintf("%s %s %s %s\n", date('Y-m-d h:i:s'), $request->input('email'), \Request::getClientIp(), array_get($_SERVER, 'HTTP_USER_AGENT'));
-            file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
-            error_log('login failed');
+            if (config('app.log') == 'single') {
+                file_put_contents(storage_path('logs/failed-logins.log'), $stacktrace, FILE_APPEND);
+            } else {
+                Utils::logError('[failed login] ' . $stacktrace);
+            }
             if ($user) {
                 $user->failed_logins = $user->failed_logins + 1;
                 $user->save();
