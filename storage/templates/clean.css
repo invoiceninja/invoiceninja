@@ -11,6 +11,7 @@ body {
 }
 
 .blue-upper {
+	padding-bottom: 8px;
 	font-size: 11px;
 	letter-spacing: 3px;
 	text-transform: uppercase;
@@ -94,7 +95,7 @@ a.button:hover {
 }
 
 table td {
-	padding: 20px 30px;
+	padding: 20px;
 }
 
 tr.top-header {
@@ -120,10 +121,6 @@ tr.top-header p {
 
 .proposal-info td {
 	padding: 0 0 120px 0;
-}
-
-.card-content {
-	padding: 80px 30px;
 }
 
 tr.block-quote {

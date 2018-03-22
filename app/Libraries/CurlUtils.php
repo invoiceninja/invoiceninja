@@ -66,4 +66,32 @@ class CurlUtils
             return false;
         }
     }
+
+    public static function renderPDF($url, $filename)
+    {
+        if (! $path = env('PHANTOMJS_BIN_PATH')) {
+            return false;
+        }
+
+        $client = Client::getInstance();
+        $client->isLazy();
+        $client->getEngine()->addOption("--load-images=true");
+        $client->getEngine()->setPath($path);
+
+        $request = $client->getMessageFactory()->createPdfRequest($url, 'GET');
+        $request->setOutputFile($filename);
+        //$request->setOrientation('landscape');
+        $request->setMargin('0');
+
+        $response = $client->getMessageFactory()->createResponse();
+        $client->send($request, $response);
+
+        if ($response->getStatus() === 200) {
+            $pdf = file_get_contents($filename);
+            unlink($filename);
+            return $pdf;
+        } else {
+            return false;
+        }
+    }
 }

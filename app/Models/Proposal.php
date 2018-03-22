@@ -96,6 +96,25 @@ class Proposal extends EntityModel
     {
         return $this->invoice->invoice_number;
     }
+
+    public function getLink($forceOnsite = false, $forcePlain = false)
+    {
+        $invitation = $this->invitations->first();
+
+        return $invitation->getLink('proposal', $forceOnsite, $forcePlain);
+    }
+
+    public function getHeadlessLink()
+    {
+        return sprintf('%s?phantomjs=true&phantomjs_secret=%s', $this->getLink(true, true), env('PHANTOMJS_SECRET'));
+    }
+
+    public function getFilename($extension = 'pdf')
+    {
+        $entityType = $this->getEntityType();
+
+        return trans('texts.proposal') . '_' . $this->invoice->invoice_number . '.' . $extension;
+    }
 }
 
 Proposal::creating(function ($project) {

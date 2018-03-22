@@ -6,6 +6,7 @@ use App\Http\Requests\CreateProposalRequest;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
 use App\Jobs\SendInvoiceEmail;
+use App\Jobs\ConvertProposalToPdf;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalTemplate;
@@ -17,7 +18,6 @@ use Auth;
 use Input;
 use Session;
 use View;
-use mPDF;
 
 class ProposalController extends BaseController
 {
@@ -167,14 +167,8 @@ class ProposalController extends BaseController
     {
         $proposal = $request->entity();
 
-        $mpdf = new mPDF();
-        //$mpdf->showImageErrors = config('app.debug');
-        $mpdf->WriteHTML($proposal->present()->htmlDocument);
+        $pdf = dispatch(new ConvertProposalToPdf($proposal));
 
-        if ($request->debug) {
-            $mpdf->Output();
-        } else {
-            $mpdf->Output($proposal->present()->filename, 'D');
-        }
+        $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 }
