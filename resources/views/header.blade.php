@@ -469,7 +469,7 @@
           </div>
 
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-            {!! Form::breadcrumbs((isset($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
+            {!! Form::breadcrumbs((! empty($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
           @endif
 
           @yield('content')
