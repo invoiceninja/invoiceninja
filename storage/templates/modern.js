@@ -86,28 +86,7 @@
 		}
 		]
 	},
-	{
-		"stack": [
-		{
-			"image": "$signatureBase64",
-			"margin": [
-				200,
-			10,
-			0,
-			0
-			]
-		},
-		{
-			"text": "$signatureDate",
-			"margin": [
-				200,
-			-40,
-			0,
-			0
-			]
-		}
-		]
-	},
+	"$signature",
 	{
 		"stack": [
 			"$invoiceDocuments"

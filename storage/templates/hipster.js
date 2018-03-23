@@ -9,8 +9,8 @@
 		{
 			"width":120,
 			"stack": [
-			{"text": "$fromLabelUC", "style": "fromLabel"}, 
-			"$accountDetails" 
+			{"text": "$fromLabelUC", "style": "fromLabel"},
+			"$accountDetails"
 			]
 		},
 		{
@@ -27,7 +27,7 @@
 		},
 		{
 			"stack": [
-			{"text": "$toLabelUC", "style": "toLabel"}, 
+			{"text": "$toLabelUC", "style": "toLabel"},
 			"$clientDetails"
 			]
 		},
@@ -83,10 +83,10 @@
 		"layout": {
 			"hLineWidth": "$none",
 			"vLineWidth": "$amount:.5",
-			"paddingLeft": "$amount:8", 
-			"paddingRight": "$amount:8", 
-			"paddingTop": "$amount:8", 
-			"paddingBottom": "$amount:8"            
+			"paddingLeft": "$amount:8",
+			"paddingRight": "$amount:8",
+			"paddingTop": "$amount:8",
+			"paddingBottom": "$amount:8"
 		}
 	},
 	{
@@ -106,36 +106,15 @@
 			"layout": {
 				"hLineWidth": "$none",
 				"vLineWidth": "$notFirst:.5",
-				"paddingLeft": "$amount:8", 
-				"paddingRight": "$amount:8", 
-				"paddingTop": "$amount:12", 
-				"paddingBottom": "$amount:4"            
+				"paddingLeft": "$amount:8",
+				"paddingRight": "$amount:8",
+				"paddingTop": "$amount:12",
+				"paddingBottom": "$amount:4"
 			}
 		}
 		]
 	},
-	{
-		"stack": [
-		{
-			"image": "$signatureBase64",
-			"margin": [
-				200,
-			10,
-			0,
-			0
-			]
-		},
-		{
-			"text": "$signatureDate",
-			"margin": [
-				200,
-			-40,
-			0,
-			0
-			]
-		}
-		]
-	},
+	"$signature",
 	{
 		"stack": [
 			"$invoiceDocuments"
@@ -187,14 +166,14 @@
 		},
 		"lineTotalTableHeader": {
 			"alignment": "right"
-		},        
+		},
 		"fromLabel": {
 			"color": "$primaryColor:#bc9f2b",
-			"bold": true  
+			"bold": true
 		},
 		"toLabel": {
 			"color": "$primaryColor:#bc9f2b",
-			"bold": true  
+			"bold": true
 		},
 		"accountDetails": {
 			"margin": [0, 2, 0, 1]
@@ -219,7 +198,7 @@
 		},
 		"subtotals": {
 			"alignment": "right"
-		},            
+		},
 		"termsLabel": {
 			"bold": true,
 			"margin": [0, 16, 0, 4]

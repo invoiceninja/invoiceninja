@@ -403,16 +403,16 @@ NINJA.signature = function(invoice) {
                     "canvas": [{
                         "type": "line",
                         "x1": 200,
-                        "y1": -65,
+                        "y1": -25,
                         "x2": 504,
-                        "y2": -65,
+                        "y2": -25,
                         "lineWidth": 1,
                         "lineColor": "#888888"
                     }]
                 },
                 {
                     "text": [invoiceLabels.date, ": ", "$signatureDate"],
-                    "margin": [200, -60, 0, 0]
+                    "margin": [200, -20, 0, 0]
                 }
             ]
         };

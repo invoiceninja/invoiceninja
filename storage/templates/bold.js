@@ -1,26 +1,26 @@
-{  
-	"content":[  
-	{  
-		"columns":[  
-		{  
+{
+	"content":[
+	{
+		"columns":[
+		{
 			"width":380,
-				"stack":[  
-				{  
+				"stack":[
+				{
 					"text":"$yourInvoiceLabelUC",
 					"style":"yourInvoice"
 				},
 				"$clientDetails"
 				],
-				"margin":[  
+				"margin":[
 					60,
 				100,
 				0,
 				10
 				]
 		},
-		{  
-			"canvas":[  
-			{  
+		{
+			"canvas":[
+			{
 				"type":"rect",
 				"x":0,
 				"y":0,
@@ -32,19 +32,19 @@
 			}
 			],
 			"width":10,
-			"margin":[  
+			"margin":[
 				-10,
 			100,
 			0,
 			10
 			]
 		},
-		{  
-			"table":{  
+		{
+			"table":{
 				"body":"$invoiceDetails"
 			},
 			"layout":"noBorders",
-			"margin":[  
+			"margin":[
 				0,
 			110,
 			0,
@@ -53,14 +53,14 @@
 		}
 		]
 	},
-	{  
+	{
 		"style":"invoiceLineItemsTable",
-		"table":{  
+		"table":{
 			"headerRows":1,
 			"widths":"$invoiceLineItemColumns",
 			"body":"$invoiceLineItems"
 		},
-		"layout":{  
+		"layout":{
 			"hLineWidth":"$none",
 			"vLineWidth":"$none",
 			"paddingLeft":"$amount:8",
@@ -69,22 +69,22 @@
 			"paddingBottom":"$amount:14"
 		}
 	},
-	{  
-		"columns":[  
-		{  
+	{
+		"columns":[
+		{
 			"width":46,
 			"text":" "
 		},
 		"$notesAndTerms",
-		{  
-			"table":{  
-				"widths":[  
+		{
+			"table":{
+				"widths":[
 					"*",
 				"40%"
 				],
 				"body":"$subtotals"
 			},
-			"layout":{  
+			"layout":{
 				"hLineWidth":"$none",
 				"vLineWidth":"$none",
 				"paddingLeft":"$amount:8",
@@ -95,39 +95,18 @@
 		}
 		]
 	},
+	"$signature",
 	{
-		"stack": [
-		{
-			"image": "$signatureBase64",
-			"margin": [
-				200,
-			10,
-			0,
-			0
-			]
-		},
-		{
-			"text": "$signatureDate",
-			"margin": [
-				200,
-			-40,
-			0,
-			0
-			]
-		}
-		]
-	},
-	{  
-		"stack":[  
+		"stack":[
 			"$invoiceDocuments"
 		],
 		"style":"invoiceDocuments"
 	}
 	],
-	"footer":[  
-	{  
-		"canvas":[  
-		{  
+	"footer":[
+	{
+		"canvas":[
+		{
 			"type":"line",
 			"x1":0,
 			"y1":0,
@@ -138,11 +117,11 @@
 		}
 		]
 	},
-	{  
-		"columns":[  
-		{  
+	{
+		"columns":[
+		{
 			"text":"$invoiceFooter",
-			"margin":[  
+			"margin":[
 				40,
 			-40,
 			40,
@@ -154,10 +133,10 @@
 		]
 	}
 	],
-	"header":[  
-	{  
-		"canvas":[  
-		{  
+	"header":[
+	{
+		"canvas":[
+		{
 			"type":"line",
 			"x1":0,
 			"y1":0,
@@ -169,24 +148,24 @@
 		],
 		"width":10
 	},
-	{  
-		"columns":[  
-		{  
+	{
+		"columns":[
+		{
 			"image":"$accountLogo",
-			"fit":[  
+			"fit":[
 				120,
 			60
 			],
-			"margin":[  
+			"margin":[
 				30,
 			16,
 			0,
 			0
 			]
 		},
-		{  
+		{
 			"stack":"$accountDetails",
-			"margin":[  
+			"margin":[
 				0,
 			16,
 			0,
@@ -194,9 +173,9 @@
 			],
 			"width":140
 		},
-		{  
+		{
 			"stack":"$accountAddress",
-			"margin":[  
+			"margin":[
 				20,
 			16,
 			0,
@@ -206,23 +185,23 @@
 		]
 	}
 	],
-	"defaultStyle":{  
+	"defaultStyle":{
 		"font":"$bodyFont",
 		"fontSize":"$fontSize",
-		"margin":[  
+		"margin":[
 			8,
 		4,
 		8,
 		4
 		]
 	},
-	"styles":{  
-		"primaryColor":{  
+	"styles":{
+		"primaryColor":{
 			"color":"$primaryColor:#36a498"
 		},
-		"accountName":{  
+		"accountName":{
 			"bold":true,
-			"margin":[  
+			"margin":[
 				4,
 			2,
 			4,
@@ -230,8 +209,8 @@
 			],
 			"color":"$primaryColor:#36a498"
 		},
-		"accountDetails":{  
-			"margin":[  
+		"accountDetails":{
+			"margin":[
 				4,
 			2,
 			4,
@@ -239,8 +218,8 @@
 			],
 			"color":"#FFFFFF"
 		},
-		"accountAddress":{  
-			"margin":[  
+		"accountAddress":{
+			"margin":[
 				4,
 			2,
 			4,
@@ -248,150 +227,150 @@
 			],
 			"color":"#FFFFFF"
 		},
-		"clientDetails":{  
-			"margin":[  
+		"clientDetails":{
+			"margin":[
 				0,
 			2,
 			0,
 			1
 			]
 		},
-		"odd":{  
+		"odd":{
 			"fillColor":"#ebebeb"
 		},
-		"subtotalsBalanceDueLabel":{  
+		"subtotalsBalanceDueLabel":{
 			"fontSize":"$fontSizeLargest",
 			"bold":true
 		},
-		"subtotalsBalanceDue":{  
+		"subtotalsBalanceDue":{
 			"fontSize":"$fontSizeLargest",
 			"color":"$primaryColor:#36a498",
 			"bold":true
 		},
-		"invoiceDetails":{  
+		"invoiceDetails":{
 			"color":"#ffffff"
 		},
-		"invoiceNumber":{  
+		"invoiceNumber":{
 			"bold":true
 		},
-		"tableHeader":{  
+		"tableHeader":{
 			"fontSize":12,
 			"bold":true
 		},
-		"costTableHeader":{  
+		"costTableHeader":{
 			"alignment":"right"
 		},
-		"qtyTableHeader":{  
+		"qtyTableHeader":{
 			"alignment":"right"
 		},
-		"taxTableHeader":{  
+		"taxTableHeader":{
 			"alignment":"right"
 		},
-		"lineTotalTableHeader":{  
+		"lineTotalTableHeader":{
 			"alignment":"right",
-			"margin":[  
+			"margin":[
 				0,
 			0,
 			40,
 			0
 			]
 		},
-		"firstColumn":{  
-			"margin":[  
+		"firstColumn":{
+			"margin":[
 				40,
 			0,
 			0,
 			0
 			]
 		},
-		"lastColumn":{  
-			"margin":[  
+		"lastColumn":{
+			"margin":[
 				0,
 			0,
 			40,
 			0
 			]
 		},
-		"productKey":{  
+		"productKey":{
 			"color":"$primaryColor:#36a498",
 			"bold":true
 		},
-		"yourInvoice":{  
+		"yourInvoice":{
 			"font":"$headerFont",
 			"bold":true,
 			"fontSize":14,
 			"color":"$primaryColor:#36a498",
-			"margin":[  
+			"margin":[
 				0,
 			0,
 			0,
 			8
 			]
 		},
-		"invoiceLineItemsTable":{  
-			"margin":[  
+		"invoiceLineItemsTable":{
+			"margin":[
 				0,
 			26,
 			0,
 			16
 			]
 		},
-		"clientName":{  
+		"clientName":{
 			"bold":true
 		},
-		"cost":{  
+		"cost":{
 			"alignment":"right"
 		},
-		"quantity":{  
+		"quantity":{
 			"alignment":"right"
 		},
-		"tax":{  
+		"tax":{
 			"alignment":"right"
 		},
-		"lineTotal":{  
+		"lineTotal":{
 			"alignment":"right"
 		},
-		"subtotals":{  
+		"subtotals":{
 			"alignment":"right",
-			"margin":[  
+			"margin":[
 				0,
 			0,
 			40,
 			0
 			]
 		},
-		"termsLabel":{  
+		"termsLabel":{
 			"bold":true,
-			"margin":[  
+			"margin":[
 				0,
 			0,
 			0,
 			4
 			]
 		},
-		"fullheader":{  
+		"fullheader":{
 			"font":"$headerFont",
 			"fontSize":"$fontSizeLargest",
 			"bold":true
 		},
-		"subheader":{  
+		"subheader":{
 			"font":"$headerFont",
 			"fontSize":"$fontSizeLarger"
 		},
-		"help":{  
+		"help":{
 			"fontSize":"$fontSizeSmaller",
 			"color":"#737373"
 		},
-		"invoiceDocuments":{  
-			"margin":[  
+		"invoiceDocuments":{
+			"margin":[
 				47,
 			0,
 			47,
 			0
 			]
 		},
-		"invoiceDocument":{  
-			"margin":[  
+		"invoiceDocument":{
+			"margin":[
 				0,
 			10,
 			0,
@@ -399,7 +378,7 @@
 			]
 		}
 	},
-	"pageMargins":[  
+	"pageMargins":[
 		0,
 	80,
 	0,
