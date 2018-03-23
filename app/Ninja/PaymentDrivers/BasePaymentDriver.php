@@ -861,6 +861,7 @@ class BasePaymentDriver
         return [
             'amount' => $amount,
             'transactionReference' => $payment->transaction_reference,
+            'currency' => $payment->client->getCurrencyCode(),
         ];
     }
 
