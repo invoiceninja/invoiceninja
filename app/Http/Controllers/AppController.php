@@ -448,10 +448,10 @@ class AppController extends BaseController
 
         $command = request()->command;
         $options = request()->options ?: [];
-        $secret = env('CRON_SECRET');
+        $secret = env('COMMAND_SECRET');
 
         if (! $secret) {
-            exit('Set a value for CRON_SECRET in the .env file');
+            exit('Set a value for COMMAND_SECRET in the .env file');
         } elseif (! hash_equals($secret, request()->secret ?: '')) {
             exit('Invalid secret');
         }
