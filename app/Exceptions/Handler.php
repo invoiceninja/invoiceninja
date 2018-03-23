@@ -84,7 +84,7 @@ class Handler extends ExceptionHandler
             if (config('app.log') == 'single') {
                 @file_put_contents(storage_path('logs/stacktrace.log'), $stacktrace, FILE_APPEND);
             } else {
-                Utils::logError('[stacktrace] ' . $errorStr);
+                Utils::logError('[stacktrace] ' . $stacktrace);
             }
             return false;
         } else {
