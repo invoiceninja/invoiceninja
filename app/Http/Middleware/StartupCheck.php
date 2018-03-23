@@ -55,6 +55,12 @@ class StartupCheck
             return $next($request);
         }
 
+        // Check to prevent headless browsers from triggering activity
+        if (Utils::isNinja() && ! $request->phantomjs && strpos($request->header('User-Agent'), 'Headless') !== false) {
+            Utils::logError('[Headless Browser] ' . json_encode($request->headers->all()), 'PHP', true);
+            exit('Headless browsers are not supported');
+        }
+
         // Check if a new version was installed
         if (! Utils::isNinja()) {
             $file = storage_path() . '/version.txt';
