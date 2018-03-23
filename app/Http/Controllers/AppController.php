@@ -439,4 +439,29 @@ class AppController extends BaseController
         echo $invoice->getPDFString();
         exit;
     }
+
+    public function runCommand()
+    {
+        if (Utils::isNinjaProd()) {
+            abort(400, 'Not allowed');
+        }
+
+        $command = request()->command;
+        $options = request()->options ?: [];
+        $secret = env('CRON_SECRET');
+
+        if (! $secret) {
+            exit('Set a value for CRON_SECRET in the .env file');
+        } elseif (! hash_equals($secret, request()->secret ?: '')) {
+            exit('Invalid secret');
+        }
+
+        if (! $command || ! in_array($command, ['send-invoices', 'send-reminders', 'update-key'])) {
+            exit('Invalid command: Valid options are send-invoices, send-reminders or update-key');
+        }
+
+        Artisan::call('ninja:' . $command, $options);
+
+        return response(nl2br(Artisan::output()));
+    }
 }

@@ -109,6 +109,10 @@ Route::group(['middleware' => ['lookup:contact']], function () {
     Route::get('/proposal/image/{account_key}/{document_key}/{filename?}', 'ClientPortalProposalController@getProposalImage');
 });
 
+if (Utils::isSelfHost()) {
+    Route::get('/run_command', 'AppController@runCommand');
+}
+
 if (Utils::isReseller()) {
     Route::post('/reseller_stats', 'AppController@stats');
 }
