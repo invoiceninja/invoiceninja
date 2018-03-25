@@ -27,6 +27,10 @@ class ExpenseReport extends AbstractReport
             $columns['tax'] = ['columnSelector-false'];
         }
 
+        if ($this->isExport) {
+            $columns['currency'] = ['columnSelector-false'];
+        }
+
         return $columns;
     }
 
@@ -83,6 +87,10 @@ class ExpenseReport extends AbstractReport
 
             if ($hasTaxRates) {
                 $row[] = $expense->present()->taxAmount;
+            }
+
+            if ($this->isExport) {
+                $row[] = $expense->present()->currencyCode;
             }
 
             $this->data[] = $row;
