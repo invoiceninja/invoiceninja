@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "93215ce9d9ac2c8e7c17b6dbcba0bb7e",
-    "content-hash": "86384f0cd8e6d0d2d2f929beb00c9126",
+    "hash": "7090bedcce23dd1dcc592a0d3e544763",
+    "content-hash": "4ce866c804fd7e1b830c8ae1afa28846",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -793,16 +793,16 @@
         },
         {
             "name": "braintree/braintree_php",
-            "version": "3.29.0",
+            "version": "3.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/braintree/braintree_php.git",
-                "reference": "0cf12317ff49d5b60667d0009df96a54f7e99b8d"
+                "reference": "7053be17ec7cd3040d019779bdb5cd89a3b95a94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/0cf12317ff49d5b60667d0009df96a54f7e99b8d",
-                "reference": "0cf12317ff49d5b60667d0009df96a54f7e99b8d",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/7053be17ec7cd3040d019779bdb5cd89a3b95a94",
+                "reference": "7053be17ec7cd3040d019779bdb5cd89a3b95a94",
                 "shasum": ""
             },
             "require": {
@@ -836,7 +836,7 @@
                 }
             ],
             "description": "Braintree PHP Client Library",
-            "time": "2018-02-27 22:51:38"
+            "time": "2018-03-20 20:14:04"
         },
         {
             "name": "bramdevries/omnipay-paymill",
@@ -3538,16 +3538,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.8",
+            "version": "v0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "774660bd13d08bffd8877c24075dcbba829cf62f"
+                "reference": "97ad152922664ff2ca8b5fcb6171ed053f865808"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/774660bd13d08bffd8877c24075dcbba829cf62f",
-                "reference": "774660bd13d08bffd8877c24075dcbba829cf62f",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/97ad152922664ff2ca8b5fcb6171ed053f865808",
+                "reference": "97ad152922664ff2ca8b5fcb6171ed053f865808",
                 "shasum": ""
             },
             "require": {
@@ -3595,7 +3595,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2018-03-15 18:33:17"
+            "time": "2018-03-25 11:44:45"
         },
         {
             "name": "jakoch/phantomjs-installer",
