@@ -22,6 +22,7 @@ class AddSlackNotifications extends Migration
 
         Schema::table('activities', function ($table) {
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->index('payment_id');
         });
 
         Schema::table('users', function ($table) {
@@ -104,6 +105,6 @@ class AddSlackNotifications extends Migration
 
         Schema::table('failed_jobs', function (Blueprint $table) {
             $table->dropColumn('exception');
-        });        
+        });
     }
 }
