@@ -13,6 +13,8 @@ Create a cron to call the ``ninja:send-invoices`` and ``ninja:send-reminders`` c
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-reminders
 
+If you server doesn't support crons commands can be run by setting a value for COMMAND_SECRET in the .env file and then loading ``/run_command?command=<command>&secret=<secret>``. The following commands are supported: send-invoices, send-reminders and update-key.
+
 Email Queues
 """"""""""""
 
