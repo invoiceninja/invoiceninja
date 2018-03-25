@@ -19,6 +19,8 @@ Detailed Guides
 Automated Installers
 ^^^^^^^^^^^^^^^^^^^^
 
+- Ansible: `github.com <https://github.com/invoiceninja/ansible-installer>`_
+
 - Dockerfile: `github.com <https://github.com/invoiceninja/dockerfiles>`_
 
 - Cloudron: `cloudron.io <https://cloudron.io/store/com.invoiceninja.cloudronapp.html>`_
