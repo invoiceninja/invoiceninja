@@ -30,6 +30,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 	* Self-Hosted: Contact us for volume license pricing
 
 ### Installation Options
+* [Ansible](https://github.com/invoiceninja/ansible-installer)
 * [Self-Host Zip](http://docs.invoiceninja.com/en/latest/install.html)
 * [Docker File](https://github.com/invoiceninja/dockerfiles)
 * [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
