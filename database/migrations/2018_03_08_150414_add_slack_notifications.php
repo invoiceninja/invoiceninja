@@ -36,6 +36,7 @@ class AddSlackNotifications extends Migration
             $table->boolean('auto_archive_invoice')->default(false)->nullable();
             $table->boolean('auto_archive_quote')->default(false)->nullable();
             $table->boolean('auto_email_invoice')->default(true)->nullable();
+            $table->boolean('send_item_details')->default(false)->nullable();
         });
 
         Schema::table('expenses', function ($table) {
@@ -95,6 +96,7 @@ class AddSlackNotifications extends Migration
             $table->dropColumn('auto_archive_invoice');
             $table->dropColumn('auto_archive_quote');
             $table->dropColumn('auto_email_invoice');
+            $table->dropColumn('send_item_details');
         });
 
         Schema::table('jobs', function (Blueprint $table) {

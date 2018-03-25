@@ -1272,6 +1272,7 @@ class AccountController extends BaseController
         $account->token_billing_type_id = Input::get('token_billing_type_id');
         $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
         $account->gateway_fee_enabled = boolval(Input::get('gateway_fee_enabled'));
+        $account->send_item_details = boolval(Input::get('send_item_details'));
 
         $account->save();
 

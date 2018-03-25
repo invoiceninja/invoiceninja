@@ -2792,6 +2792,8 @@ $LANG = array(
     'purged_client' => 'Successfully purged client',
     'purge_client_warning' => 'All related records (invoices, tasks, expenses, documents, etc) will also be deleted.',
     'clone_product' => 'Clone Product',
+    'item_details' => 'Item Details',
+    'send_item_details_help' => 'Send the line item details to the payment gateway.'
 
 );
 

@@ -312,11 +312,13 @@ class BasePaymentDriver
 
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
+
         // TODO move to payment driver class
         if ($this->isGateway(GATEWAY_SAGE_PAY_DIRECT) || $this->isGateway(GATEWAY_SAGE_PAY_SERVER)) {
             $items = null;
+        } elseif ($this->account()->send_item_details) {
+            $items = $this->paymentItems();
         } else {
-            //$items = $this->paymentItems();
             $items = null;
         }
         $response = $gateway->purchase($data)

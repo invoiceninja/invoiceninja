@@ -9,6 +9,7 @@
     {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
     {!! Former::populateField('auto_bill_on_due_date', $account->auto_bill_on_due_date) !!}
 	{!! Former::populateField('gateway_fee_enabled', $account->gateway_fee_enabled) !!}
+	{!! Former::populateField('send_item_details', $account->send_item_details) !!}
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -31,6 +32,13 @@
 						->label('gateway_fees')
 						->text('enable')
 			 			->value(1) !!}
+
+			{!! Former::checkbox('send_item_details')
+						->help('send_item_details_help')
+						->label('item_details')
+						->text('enable')
+			 			->value(1) !!}
+
 			<br/>
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>

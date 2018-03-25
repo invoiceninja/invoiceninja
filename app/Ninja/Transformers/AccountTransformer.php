@@ -275,6 +275,7 @@ class AccountTransformer extends EntityTransformer
             'reset_counter_frequency_id' => (int) $account->reset_counter_frequency_id,
             'payment_type_id' => (int) $account->payment_type_id,
             'gateway_fee_enabled' => (bool) $account->gateway_fee_enabled,
+            'send_item_details' => (bool) $account->send_item_details,
             'reset_counter_date' => $account->reset_counter_date,
             'custom_contact_label1' => $account->custom_contact_label1,
             'custom_contact_label2' => $account->custom_contact_label2,
