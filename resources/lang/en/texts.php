@@ -2795,6 +2795,7 @@ $LANG = array(
     'item_details' => 'Item Details',
     'send_item_details_help' => 'Send the line item details to the payment gateway.',
     'view_proposal' => 'View Proposal',
+    'view_in_portal' => 'View in Portal',
 
 );
 
