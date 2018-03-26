@@ -165,8 +165,7 @@
                     var idName = '#email_' + stringType + '_' + entityType;
                     var value = $(idName).val();
                     var previewName = '#' + entityType + '_' + stringType + '_preview';
-                    var isQuote = entityType == "{{ ENTITY_QUOTE }}";
-                    $(previewName).html(renderEmailTemplate(value, false, isQuote));
+                    $(previewName).html(renderEmailTemplate(value, false, entityType));
                 }
             }
         }

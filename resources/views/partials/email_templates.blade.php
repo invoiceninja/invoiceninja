@@ -1,8 +1,16 @@
 <script type="text/javascript">
 
-    function renderEmailTemplate(str, invoice, isQuote) {
+    function renderEmailTemplate(str, invoice, entityType) {
         if (!str) {
             return '';
+        }
+
+        if (invoice && invoice.invoice_type_id == {{ INVOICE_TYPE_QUOTE }} || entityType == '{{ ENTITY_QUOTE }}') {
+            var viewButton = '{!! Form::flatButton('view_quote', '#0b4d78') !!}$password';
+        } else if (entityType == '{{ ENTITY_PROPOSAL }}') {
+            var viewButton = '{!! Form::flatButton('view_proposal', '#0b4d78') !!}$password';
+        } else {
+            var viewButton = '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password';
         }
 
         var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<br/>'.trans('texts.password').': XXXXXXXXX<br/>':'' !!}";
@@ -34,9 +42,7 @@
             'password': passwordHtml,
             'documents': documentsHtml,
             'viewLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
-            'viewButton': isQuote || (invoice && invoice.invoice_type_id == {{ INVOICE_TYPE_QUOTE }}) ?
-                '{!! Form::flatButton('view_quote', '#0b4d78') !!}$password' :
-                '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
+            'viewButton': viewButton,
             'paymentLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
             'paymentButton': '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
             'autoBill': '{{ trans('texts.auto_bill_notification_placeholder') }}',

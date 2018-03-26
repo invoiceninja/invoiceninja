@@ -30,8 +30,10 @@ class TemplateService
         // check if it's a proposal
         if ($invitation->proposal) {
             $invoice = $invitation->proposal->invoice;
+            $entityType = ENTITY_PROPOSAL;
         } else {
             $invoice = $invitation->invoice;
+            $entityType = $invoice->getEntityType();
         }
 
         $contact = $invitation->contact;
@@ -67,7 +69,7 @@ class TemplateService
             '$link' => $invitation->getLink(),
             '$password' => $passwordHTML,
             '$viewLink' => $invitation->getLink().'$password',
-            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
+            '$viewButton' => Form::emailViewButton($invitation->getLink(), $entityType).'$password',
             '$paymentLink' => $invitation->getLink('payment').'$password',
             '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
             '$customClient1' => $client->custom_value1,
