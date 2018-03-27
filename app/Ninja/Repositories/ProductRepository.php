@@ -35,7 +35,9 @@ class ProductRepository extends BaseRepository
                     'products.deleted_at',
                     'products.is_deleted',
                     'products.custom_value1',
-                    'products.custom_value2'
+                    'products.custom_value2',
+                    'products.manufacturer_part_number',
+                    'products.barcode'
                 );
 
         if ($filter) {
@@ -43,7 +45,10 @@ class ProductRepository extends BaseRepository
                 $query->where('products.product_key', 'like', '%'.$filter.'%')
                       ->orWhere('products.notes', 'like', '%'.$filter.'%')
                       ->orWhere('products.custom_value1', 'like', '%'.$filter.'%')
-                      ->orWhere('products.custom_value2', 'like', '%'.$filter.'%');
+                      ->orWhere('products.custom_value2', 'like', '%'.$filter.'%')
+                      ->orWhere('products.manufacturer_part_number', 'like', '%'.$filter.'%')
+                      ->orWhere('products.barcode', 'like', '%'.$filter.'%')
+                      ;
             });
         }
 

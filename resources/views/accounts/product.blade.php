@@ -28,6 +28,9 @@
                     {!! Former::text('product_key')->label('texts.product') !!}
                     {!! Former::textarea('notes')->rows(6) !!}
 
+                    {!! Former::text('manufacturer_part_number') !!}
+                    {!! Former::text('barcode') !!}
+
                     @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
                         @if ($account->custom_invoice_item_label1)
                             @include('partials.custom_field', [
