@@ -36,6 +36,8 @@ class Product extends EntityModel
         'tax_rate2',
         'custom_value1',
         'custom_value2',
+        'barcode',
+        'manufacturer_part_number',
     ];
 
     /**
@@ -49,6 +51,8 @@ class Product extends EntityModel
             'cost',
             'custom_value1',
             'custom_value2',
+            'barcode',
+            'manufacturer_part_number',
         ];
     }
 
@@ -63,6 +67,8 @@ class Product extends EntityModel
             'cost|amount|price' => 'cost',
             'custom_value1' => 'custom_value1',
             'custom_value2' => 'custom_value2',
+            'upc|barcode|ean' => 'barcode',
+            'manufacturer_part_number|mfg_num' => 'manufacturer_part_number',
         ];
     }
 
