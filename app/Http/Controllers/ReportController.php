@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ExportReportResults;
+use App\Jobs\LoadPostmarkStats;
 use App\Jobs\RunReport;
 use App\Models\Account;
 use App\Models\ScheduledReport;
@@ -12,6 +13,7 @@ use Utils;
 use View;
 use Carbon;
 use Validator;
+
 
 /**
  * Class ReportController.
@@ -101,7 +103,8 @@ class ReportController extends BaseController
             $config = [
                 'date_field' => $dateField,
                 'status_ids' => request()->status_ids,
-                'group_dates_by' => request()->group_dates_by,
+                'group' => request()->group,
+                'subgroup' => request()->subgroup,
                 'document_filter' => request()->document_filter,
                 'currency_type' => request()->currency_type,
                 'export_format' => $format,
@@ -152,7 +155,8 @@ class ReportController extends BaseController
 
             unset($options['start_date']);
             unset($options['end_date']);
-            unset($options['group_dates_by']);
+            unset($options['group']);
+            unset($options['subgroup']);
 
             $schedule = ScheduledReport::createNew();
             $schedule->config = json_encode($options);
@@ -172,5 +176,21 @@ class ReportController extends BaseController
             ->delete();
 
         session()->flash('message', trans('texts.deleted_scheduled_report'));
+    }
+
+    public function showEmailReport()
+    {
+        $data = [
+            'account' => auth()->user()->account,
+        ];
+
+        return view('reports.emails', $data);
+    }
+
+    public function loadEmailReport($startDate, $endDate)
+    {
+        $data = dispatch(new LoadPostmarkStats($startDate, $endDate));
+
+        return response()->json($data);
     }
 }

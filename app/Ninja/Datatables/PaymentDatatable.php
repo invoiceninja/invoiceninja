@@ -143,7 +143,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 trans('texts.refund_payment'),
                 function ($model) {
-                    $max_refund = number_format($model->amount - $model->refunded, 2);
+                    $max_refund = $model->amount - $model->refunded;
                     $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
                     $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol;
                     $local = in_array($model->gateway_id, [GATEWAY_BRAINTREE, GATEWAY_STRIPE, GATEWAY_WEPAY]) || ! $model->gateway_id ? 0 : 1;

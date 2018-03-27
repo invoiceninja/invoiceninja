@@ -369,7 +369,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function quote()
     {
-        return $this->belongsTo('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     /**
@@ -1094,67 +1094,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @throws \Recurr\Exception\MissingData
-     *
-     * @return bool|\Recurr\RecurrenceCollection
-     */
-    public function getSchedule()
-    {
-        if (! $this->start_date || ! $this->is_recurring || ! $this->frequency_id) {
-            return false;
-        }
-
-        $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
-        $startDate .= ' ' . $this->account->recurring_hour . ':00:00';
-        $startDate = $this->account->getDateTime($startDate);
-        $endDate = $this->end_date ? $this->account->getDateTime($this->getOriginal('end_date')) : null;
-        $timezone = $this->account->getTimezone();
-
-        $rule = $this->getRecurrenceRule();
-        $rule = new \Recurr\Rule("{$rule}", $startDate, $endDate, $timezone);
-
-        // Fix for months with less than 31 days
-        $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
-        $transformerConfig->enableLastDayOfMonthFix();
-
-        $transformer = new \Recurr\Transformer\ArrayTransformer();
-        $transformer->setConfig($transformerConfig);
-        $dates = $transformer->transform($rule);
-
-        if (count($dates) < 2) {
-            return false;
-        }
-
-        return $dates;
-    }
-
-    /**
-     * @return null
-     */
-    public function getNextSendDate()
-    {
-        if (! $this->is_public) {
-            return null;
-        }
-
-        if ($this->start_date && ! $this->last_sent_date) {
-            $startDate = $this->getOriginal('start_date') . ' ' . $this->account->recurring_hour . ':00:00';
-
-            return $this->account->getDateTime($startDate);
-        }
-
-        if (! $schedule = $this->getSchedule()) {
-            return null;
-        }
-
-        if (count($schedule) < 2) {
-            return null;
-        }
-
-        return $schedule[1]->getStart();
-    }
-
-    /**
      * @param null $invoice_date
      *
      * @return mixed|null
@@ -1258,7 +1197,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      *
      * @return null
      */
-    public function getPrettySchedule($min = 1, $max = 10)
+    public function getPrettySchedule($min = 0, $max = 10)
     {
         if (! $schedule = $this->getSchedule($max)) {
             return null;
@@ -1310,6 +1249,9 @@ class Invoice extends EntityModel implements BalanceAffecting
                     if (strpos($pdfString, 'data') === 0) {
                         break;
                     } else {
+                        if (Utils::isNinjaDev() || Utils::isTravis()) {
+                            Utils::logError('Failed to generate: ' . $i);
+                        }
                         $pdfString = false;
                         sleep(2);
                     }

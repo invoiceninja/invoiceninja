@@ -4,7 +4,7 @@
   @parent
 
   @include('money_script')
-  <script src="{!! asset('js/d3.min.js') !!}" type="text/javascript"></script>
+  <script src="{{ asset('js/d3.min.js') }}" type="text/javascript"></script>
 
   <style type="text/css">
 

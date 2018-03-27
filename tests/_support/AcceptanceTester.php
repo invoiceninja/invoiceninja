@@ -26,15 +26,11 @@ class AcceptanceTester extends \Codeception\Actor
     */
     function checkIfLogin(\AcceptanceTester $I)
     {
-        //if ($I->loadSessionSnapshot('login')) return;
-
         $I->amOnPage('/login?lang=en');
         $I->see('Login');
         $I->fillField(['name' => 'email'], Fixtures::get('username'));
         $I->fillField(['name' => 'password'], Fixtures::get('password'));
         $I->click('Login');
-
-        //$I->saveSessionSnapshot('login');
     }
 
     function selectDataPicker(\AcceptanceTester $I, $element, $date = 'now')

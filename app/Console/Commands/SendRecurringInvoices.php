@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\RecurringExpense;
-use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\RecurringExpenseRepository;
 use App\Services\PaymentService;
+use App\Jobs\SendInvoiceEmail;
 use DateTime;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -32,11 +32,6 @@ class SendRecurringInvoices extends Command
     protected $description = 'Send recurring invoices';
 
     /**
-     * @var Mailer
-     */
-    protected $mailer;
-
-    /**
      * @var InvoiceRepository
      */
     protected $invoiceRepo;
@@ -49,15 +44,13 @@ class SendRecurringInvoices extends Command
     /**
      * SendRecurringInvoices constructor.
      *
-     * @param Mailer            $mailer
      * @param InvoiceRepository $invoiceRepo
      * @param PaymentService    $paymentService
      */
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, PaymentService $paymentService, RecurringExpenseRepository $recurringExpenseRepo)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentService $paymentService, RecurringExpenseRepository $recurringExpenseRepo)
     {
         parent::__construct();
 
-        $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentService = $paymentService;
         $this->recurringExpenseRepo = $recurringExpenseRepo;
@@ -115,9 +108,9 @@ class SendRecurringInvoices extends Command
 
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
-                if ($invoice && ! $invoice->isPaid()) {
+                if ($invoice && ! $invoice->isPaid() && $account->auto_email_invoice) {
                     $this->info('Not billed - Sending Invoice');
-                    $this->mailer->sendInvoice($invoice);
+                    dispatch(new SendInvoiceEmail($invoice, $invoice->user_id));
                 } elseif ($invoice) {
                     $this->info('Successfully billed invoice');
                 }

@@ -95,7 +95,16 @@ class AccountGateway extends EntityModel
      */
     public function isGateway($gatewayId)
     {
-        return $this->gateway_id == $gatewayId;
+        if (is_array($gatewayId)) {
+            foreach ($gatewayId as $id) {
+                if ($this->gateway_id == $id) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return $this->gateway_id == $gatewayId;
+        }
     }
 
     /**
@@ -127,9 +136,9 @@ class AccountGateway extends EntityModel
     /**
      * @return bool|mixed
      */
-    public function getPublishableStripeKey()
+    public function getPublishableKey()
     {
-        if (! $this->isGateway(GATEWAY_STRIPE)) {
+        if (! $this->isGateway([GATEWAY_STRIPE, GATEWAY_PAYMILL])) {
             return false;
         }
 
@@ -254,7 +263,7 @@ class AccountGateway extends EntityModel
             return null;
         }
 
-        $stripe_key = $this->getPublishableStripeKey();
+        $stripe_key = $this->getPublishableKey();
 
         return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
     }
@@ -272,7 +281,7 @@ class AccountGateway extends EntityModel
     public function isTestMode()
     {
         if ($this->isGateway(GATEWAY_STRIPE)) {
-            return strpos($this->getPublishableStripeKey(), 'test') !== false;
+            return strpos($this->getPublishableKey(), 'test') !== false;
         } else {
             return $this->getConfigField('testMode');
         }

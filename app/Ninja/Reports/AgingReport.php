@@ -24,6 +24,7 @@ class AgingReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
+        $subgroup = $this->options['subgroup'];
 
         $clients = Client::scope()
                         ->orderBy('name')
@@ -56,6 +57,13 @@ class AgingReport extends AbstractReport
                 //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
                 //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
+
+                if ($subgroup == 'age') {
+                    $dimension = trans('texts.' .$invoice->present()->ageGroup);
+                } else {
+                    $dimension = $this->getDimension($client);
+                }
+                $this->addChartData($dimension, $invoice->invoice_date, $invoice->balance);
             }
         }
     }

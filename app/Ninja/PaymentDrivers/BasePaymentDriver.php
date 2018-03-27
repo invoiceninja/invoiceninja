@@ -164,8 +164,8 @@ class BasePaymentDriver
         }
 
         $url = 'payment/' . $this->invitation->invitation_key;
-        if (request()->update) {
-            $url .= '?update=true';
+        if (request()->capture) {
+            $url .= '?capture=true';
         }
 
         $data = [
@@ -242,10 +242,13 @@ class BasePaymentDriver
                 $rules = array_merge($rules, [
                     'address1' => 'required',
                     'city' => 'required',
-                    'state' => 'required',
                     'postal_code' => 'required',
                     'country_id' => 'required',
                 ]);
+
+                if ($this->account()->requiresAddressState()) {
+                    $rules['state'] = 'required';
+                }
             }
         }
 
@@ -266,7 +269,7 @@ class BasePaymentDriver
 
     public function completeOnsitePurchase($input = false, $paymentMethod = false)
     {
-        $this->input = count($input) ? $input : false;
+        $this->input = $input && count($input) ? $input : false;
         $gateway = $this->gateway();
 
         if ($input) {
@@ -303,17 +306,19 @@ class BasePaymentDriver
             }
         }
 
-        if ($this->isTwoStep() || request()->update) {
+        if ($this->isTwoStep() || request()->capture) {
             return;
         }
 
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
+
         // TODO move to payment driver class
         if ($this->isGateway(GATEWAY_SAGE_PAY_DIRECT) || $this->isGateway(GATEWAY_SAGE_PAY_SERVER)) {
             $items = null;
+        } elseif ($this->account()->send_item_details) {
+            $items = $this->paymentItems();
         } else {
-            //$items = $this->paymentItems();
             $items = null;
         }
         $response = $gateway->purchase($data)
@@ -369,7 +374,7 @@ class BasePaymentDriver
 
             $item = new Item([
                 'name' => $invoiceItem->product_key,
-                'description' => $invoiceItem->notes,
+                'description' => substr($invoiceItem->notes, 0, 100),
                 'price' => $invoiceItem->cost,
                 'quantity' => $invoiceItem->qty,
             ]);
@@ -867,6 +872,7 @@ class BasePaymentDriver
         return [
             'amount' => $amount,
             'transactionReference' => $payment->transaction_reference,
+            'currency' => $payment->client->getCurrencyCode(),
         ];
     }
 

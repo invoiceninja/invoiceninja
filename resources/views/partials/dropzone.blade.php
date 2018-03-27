@@ -4,14 +4,14 @@ window.countUploadingDocuments = 0;
 window.dropzone = new Dropzone('#document-upload .dropzone', {
     url: {!! json_encode(url('documents')) !!},
     params: {
-        '_token': '{{ Session::getToken() }}',
+        '_token': '{{ Session::token() }}',
         'is_default': {{ isset($isDefault) && $isDefault ? '1' : '0' }},
     },
     acceptedFiles: {!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
     addRemoveLinks: true,
     dictRemoveFileConfirmation: "{{trans('texts.are_you_sure')}}",
     @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-        "dict{{ Utils::toClassCase($key) }}" : "{!! strip_tags(addslashes(trans('texts.dropzone_'.$key))) !!}",
+        "dict{{ Utils::toClassCase($key) }}" : {!! json_encode(trans('texts.dropzone_'.$key)) !!},
     @endforeach
     maxFilesize: {{ floatval(MAX_DOCUMENT_SIZE/1000) }},
     parallelUploads: 1,
@@ -99,5 +99,5 @@ function handleDocumentCanceled() {
 function handleDocumentError(file) {
     dropzone.removeFile(file);
     window.countUploadingDocuments--;
-    swal("{!! trans('texts.error_refresh_page') !!}");
+    swal({!! json_encode(trans('texts.error_refresh_page')) !!});
 }

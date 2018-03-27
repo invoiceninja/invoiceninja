@@ -20,6 +20,7 @@
                 ->autofocus()
                 ->style('text-indent:4px')
                 ->forceValue('')
+                ->data_lpignore('true')
                 ->raw() !!}
 
         {!! Former::select('trust')

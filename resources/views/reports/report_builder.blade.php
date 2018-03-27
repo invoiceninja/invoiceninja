@@ -5,6 +5,8 @@
 
 	@include('money_script')
 
+	<script src="{{ asset('js/Chart.min.js') }}" type="text/javascript"></script>
+
     <script src="{{ asset('js/daterangepicker.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/daterangepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
@@ -31,14 +33,18 @@
 		.tablesorter-column-selector input {
 			margin-right: 8px;
 		}
-
 	</style>
 
 @stop
 
 @section('top-right')
+	@if (config('services.postmark') && auth()->user()->hasPermission('view_all') && auth()->user()->hasPermission('view_all'))
+		{!! Button::normal(trans('texts.emails'))
+				->asLinkTo(url('/reports/emails'))
+				->appendIcon(Icon::create('envelope')) !!}
+	@endif
 	{!! Button::normal(trans('texts.calendar'))
-			->asLinkTo(url('/calendar'))
+			->asLinkTo(url('/reports/calendar'))
 			->appendIcon(Icon::create('calendar')) !!}
 @stop
 
@@ -141,7 +147,9 @@
                 <div class="row">
                     <div class="col-md-6">
 
-						{!! Former::select('report_type')->options($reportTypes, $reportType)->label(trans('texts.type')) !!}
+						{!! Former::select('report_type')
+								->data_bind("options: report_types, optionsText: 'transType', optionsValue: 'type', value: report_type")
+								->label(trans('texts.type')) !!}
 
 						<div class="form-group">
                             <label for="reportrange" class="control-label col-lg-4 col-sm-4">
@@ -163,15 +171,15 @@
                     </div>
                     <div class="col-md-6">
 
-						{!! Former::select('group_dates_by')
-									->label('group_when_sorted')
-									->addOption(trans('texts.disabled'), '')
-									->addOption(trans('texts.day'), 'day')
-									->addOption(trans('texts.month'), 'monthyear')
-									->addOption(trans('texts.year'), 'year') !!}
+						{!! Former::select('group')
+									->data_bind("options: groups, optionsText: 'transPeriod', optionsValue: 'period', value: group") !!}
 
-						<div id="statusField" style="display:none">
+						<span data-bind="visible: showSubgroup">
+							{!! Former::select('subgroup')
+										->data_bind("options: subgroups, optionsText: 'transField', optionsValue: 'field', value: subgroup") !!}
+						</span>
 
+						<div id="statusField" style="display:none" data-bind="visible: showStatus">
 							<div class="form-group">
 								<label for="status_ids" class="control-label col-lg-4 col-sm-4">{{ trans('texts.status') }}</label>
 								<div class="col-lg-8 col-sm-8">
@@ -184,19 +192,19 @@
 							</div>
 						</div>
 
-						<div id="dateField" style="display:none">
+						<div id="dateField" style="display:none" data-bind="visible: showInvoiceOrPaymentDate">
                             {!! Former::select('date_field')->label(trans('texts.filter'))
                                     ->addOption(trans('texts.invoice_date'), FILTER_INVOICE_DATE)
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
                         </div>
 
-						<div id="currencyType" style="display:none">
+						<div id="currencyType" style="display:none" data-bind="visible: showCurrencyType">
                             {!! Former::select('currency_type')->label(trans('texts.currency'))
                                     ->addOption(trans('texts.default'), 'default')
                                     ->addOption(trans('texts.converted'), 'converted') !!}
                         </div>
 
-						<div id="invoiceOrExpenseField" style="display:none">
+						<div id="invoiceOrExpenseField" style="display:none" data-bind="visible: showInvoiceOrExpense">
 							{!! Former::select('document_filter')->label('filter')
 								->addOption(trans('texts.all'), '')
 									->addOption(trans('texts.invoice'), 'invoice')
@@ -220,9 +228,7 @@
 	<center class="buttons form-inline">
 		<span class="well" style="padding-right:8px; padding-left:14px;">
 		{!! Former::select('format')
-					->addOption('CSV', 'csv')
-					->addOption('XLSX', 'xlsx')
-					->addOption('PDF', 'pdf')
+					->data_bind("options: export_formats, optionsText: 'transFormat', optionsValue: 'format', value: export_format")
 					->raw() !!} &nbsp;
 
 		{!! Button::normal(trans('texts.export'))
@@ -230,11 +236,11 @@
 				->appendIcon(Icon::create('download-alt')) !!}
 
 		{!! Button::normal(trans('texts.cancel_schedule'))
-				->withAttributes(['id' => 'cancelSchduleButton', 'onclick' => 'onCancelScheduleClick()', 'style' => 'display:none'])
+				->withAttributes(['id' => 'cancelSchduleButton', 'onclick' => 'onCancelScheduleClick()', 'style' => 'display:none', 'data-bind' => 'visible: showCancelScheduleButton'])
 				->appendIcon(Icon::create('remove')) !!}
 
 		{!! Button::primary(trans('texts.schedule'))
-				->withAttributes(['id'=>'scheduleButton', 'onclick' => 'showScheduleModal()', 'style' => 'display:none'])
+				->withAttributes(['id'=>'scheduleButton', 'onclick' => 'showScheduleModal()', 'style' => 'display:none', 'data-bind' => 'visible: showScheduleButton, css: enableScheduleButton'])
 				->appendIcon(Icon::create('time')) !!}
 
 	 	</span> &nbsp;&nbsp;
@@ -259,6 +265,9 @@
 	</center>
 
 	@if (request()->report_type)
+
+		@include('reports.chart_builder')
+
         <div class="panel panel-default">
         <div class="panel-body">
 
@@ -421,31 +430,6 @@
 		});
 	}
 
-	function setFiltersShown() {
-		var val = $('#report_type').val();
-		$('#dateField').toggle(val == '{{ ENTITY_TAX_RATE }}');
-		$('#statusField').toggle(['invoice', 'quote', 'product'].indexOf(val) >= 0);
-		$('#invoiceOrExpenseField').toggle(val == '{{ ENTITY_DOCUMENT }}');
-		$('#currencyType').toggle(val == '{{ ENTITY_PAYMENT }}');
-	}
-
-	function setDocumentZipShown() {
-		var val = $('#report_type').val();
-		var showOption = ['invoice', 'quote', 'expense', 'document'].indexOf(val) >= 0;
-		var numOptions = $('#format option').size();
-		if (showOption && numOptions == 3) {
-			$("#format").append(new Option("ZIP - {{ trans('texts.documents') }}", 'zip'));
-		} else if (! showOption && numOptions == 4) {
-			$("#format option:last").remove();
-		}
-	}
-
-	function setScheduleButton() {
-		var reportType = $('#report_type').val();
-		$('#scheduleButton').toggle(! scheduledReportMap[reportType]);
-		$('#cancelSchduleButton').toggle(!! scheduledReportMap[reportType]);
-	}
-
 	var sumColumns = [];
 	@foreach ($columns as $column => $class)
 		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration', 'tax', 'qty']) ? trans("texts.{$column}") : false }}");
@@ -467,34 +451,39 @@
         });
 
 		$('#format').change(function() {
-			@if (! auth()->user()->hasFeature(FEATURE_REPORTS))
+			if (! isStorageSupported()) {
 				return;
-			@endif
-			var val = $('#format').val();
-			$('#scheduleButton').prop('disabled', val == 'zip');
-            if (isStorageSupported() && val != 'zip') {
-                localStorage.setItem('last:report_format', val);
-            }
+			}
+			setTimeout(function() {
+				localStorage.setItem('last:report_format', model.export_format());
+			}, 1);
         });
 
         $('#report_type').change(function() {
-			@if (! auth()->user()->hasFeature(FEATURE_REPORTS))
+            if (! isStorageSupported()) {
 				return;
-			@endif
-			var val = $('#report_type').val();
-			setFiltersShown();
-			setDocumentZipShown();
-			setScheduleButton();
-			$('#scheduleButton').prop('disabled', $('#format').val() == 'zip');
-            if (isStorageSupported()) {
-                localStorage.setItem('last:report_type', val);
-            }
+			}
+			setTimeout(function() {
+				localStorage.setItem('last:report_type', model.report_type());
+			}, 1);
         });
 
-		$('#group_dates_by').change(function() {
-            if (isStorageSupported()) {
-                localStorage.setItem('last:report_group', $('#group_dates_by').val());
-            }
+		$('#group').change(function() {
+			if (! isStorageSupported()) {
+				return;
+			}
+			setTimeout(function() {
+				localStorage.setItem('last:report_group', model.group());
+			}, 1);
+        });
+
+		$('#subgroup').change(function() {
+			if (! isStorageSupported()) {
+				return;
+			}
+			setTimeout(function() {
+				localStorage.setItem('last:report_subgroup', model.subgroup());
+			}, 1);
         });
 
 		// parse 1,000.00 or 1.000,00
@@ -509,7 +498,158 @@
 			}
 		}
 
+		function ReportTypeModel(type, transType) {
+			var self = this;
+			self.type = type;
+			self.transType = transType;
+		}
+
+		function ExportFormatModel(format, transFormat) {
+			var self = this;
+			self.format = format;
+			self.transFormat = transFormat;
+		}
+
+		function GroupModel(period, transPeriod) {
+			var self = this;
+			self.period = period;
+			self.transPeriod = transPeriod;
+		}
+
+		function SubgroupModel(field, transField) {
+			var self = this;
+			self.field = field;
+			self.transField = transField;
+		}
+
+		function ViewModel() {
+			var self = this;
+			self.report_types = ko.observableArray();
+			self.report_type = ko.observable();
+			self.export_format = ko.observable();
+			self.start_date = ko.observable();
+			self.end_date = ko.observable();
+			self.group = ko.observable();
+			self.subgroup = ko.observable();
+
+			@foreach ($reportTypes as $key => $val)
+				self.report_types.push(new ReportTypeModel("{{ $key }}", "{{ $val}}"));
+			@endforeach
+
+			self.groups = ko.observableArray([
+				new GroupModel('', ''),
+				new GroupModel('day', '{{ trans('texts.day') }}'),
+				new GroupModel('monthyear', '{{ trans('texts.month') }}'),
+				new GroupModel('year', '{{ trans('texts.year') }}'),
+			]);
+
+			self.subgroups = ko.computed(function() {
+				var reportType = self.report_type();
+
+				var options = [
+					new SubgroupModel('', '')
+				];
+
+				if (['client'].indexOf(reportType) == -1) {
+					options.push(new SubgroupModel('client', "{{ trans('texts.client') }}"));
+				}
+
+				options.push(new SubgroupModel('user', "{{ trans('texts.user') }}"));
+
+				if (reportType == 'activity') {
+					options.push(new SubgroupModel('category', "{{ trans('texts.category') }}"));
+				} else if (reportType == 'aging') {
+					options.push(new SubgroupModel('age', "{{ trans('texts.age') }}"));
+				} else if (reportType == 'expense') {
+					options.push(new SubgroupModel('vendor', "{{ trans('texts.vendor') }}"));
+					options.push(new SubgroupModel('category', "{{ trans('texts.category') }}"));
+				} else if (reportType == 'payment') {
+					options.push(new SubgroupModel('method', "{{ trans('texts.method') }}"));
+				} else if (reportType == 'profit_and_loss') {
+					options.push(new SubgroupModel('type', "{{ trans('texts.type') }}"));
+				} else if (reportType == 'task') {
+					options.push(new SubgroupModel('project', "{{ trans('texts.project') }}"));
+				} else if (reportType == 'client') {
+					options.push(new SubgroupModel('country', "{{ trans('texts.country') }}"));
+				} else if (reportType == 'invoice' || reportType == 'quote') {
+					options.push(new SubgroupModel('status', "{{ trans('texts.status') }}"));
+				} else if (reportType == 'product') {
+					options.push(new SubgroupModel('product', "{{ trans('texts.product') }}"));
+				}
+
+				return options;
+			});
+
+			self.export_formats = ko.computed(function() {
+				var options = [
+					new ExportFormatModel('csv', 'CSV'),
+					new ExportFormatModel('xlsx', 'XLSX'),
+					new ExportFormatModel('pdf', 'PDF'),
+				]
+
+				if (['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_EXPENSE }}', '{{ ENTITY_DOCUMENT }}'].indexOf(self.report_type()) >= 0) {
+					options.push(new ExportFormatModel('zip', 'ZIP - {{ trans('texts.documents') }}'));
+				}
+
+				return options;
+			});
+
+			if (isStorageSupported()) {
+				var lastReportType = localStorage.getItem('last:report_type');
+				if (lastReportType) {
+					self.report_type(lastReportType);
+				}
+				var lastGroup = localStorage.getItem('last:report_group');
+				if (lastGroup) {
+					self.group(lastGroup);
+				}
+				var lastSubgroup = localStorage.getItem('last:report_subgroup');
+				if (lastSubgroup) {
+					self.subgroup(lastSubgroup);
+				}
+				var lastFormat = localStorage.getItem('last:report_format');
+				if (lastFormat) {
+					self.export_format(lastFormat);
+				}
+			}
+
+			self.showSubgroup = ko.computed(function() {
+				return self.group();
+			})
+
+			self.showInvoiceOrPaymentDate = ko.computed(function() {
+				return self.report_type() == '{{ ENTITY_TAX_RATE }}';
+			});
+
+			self.showStatus = ko.computed(function() {
+				return ['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_PRODUCT }}'].indexOf(self.report_type()) >= 0;
+			});
+
+			self.showInvoiceOrExpense = ko.computed(function() {
+				return self.report_type() == '{{ ENTITY_DOCUMENT }}';
+			});
+
+			self.showCurrencyType = ko.computed(function() {
+				return self.report_type() == '{{ ENTITY_PAYMENT }}';
+			});
+
+			self.enableScheduleButton = ko.computed(function() {
+				return self.export_format() == 'zip' ? 'disabled' : 'enabled';
+			});
+
+			self.showScheduleButton = ko.computed(function() {
+				return ! scheduledReportMap[self.report_type()];
+			});
+
+			self.showCancelScheduleButton = ko.computed(function() {
+				return !! scheduledReportMap[self.report_type()];
+			});
+		}
+
 		$(function(){
+			window.model = new ViewModel();
+			ko.applyBindings(model);
+
 			var statusIds = isStorageSupported() ? (localStorage.getItem('last:report_status_ids') || '') : '';
 			$('#statuses_{{ ENTITY_INVOICE }}').select2({
 				//allowClear: true,
@@ -527,11 +667,11 @@
 				}).maximizeSelect2Height();
 
   			$(".tablesorter-data").tablesorter({
-				@if (! request()->group_dates_by)
+				@if (! request()->group)
 					sortList: [[0,0]],
 				@endif
 				theme: 'bootstrap',
-				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_dates_by ? ", 'group'" : "" !!}, 'columnSelector'],
+				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
 				@if ($report)
 					dateFormat: '{{ $report->convertDateFormat() }}',
@@ -582,30 +722,10 @@
 				widgets: ['zebra', 'uitheme'],
 			}).show();
 
-			setTimeout(function() {
-				setFiltersShown();
-				setDocumentZipShown();
-				setScheduleButton();
-			}, 1);
-
 			if (isStorageSupported()) {
-				var lastReportType = localStorage.getItem('last:report_type');
-				if (lastReportType) {
-					$('#report_type').val(lastReportType);
-				}
-				var lastGroup = localStorage.getItem('last:report_group');
-				if (group_dates_by) {
-					$('#group_dates_by').val(lastGroup);
-				}
 				var lastDocumentFilter = localStorage.getItem('last:document_filter');
 				if (lastDocumentFilter) {
 					$('#document_filter').val(lastDocumentFilter);
-				}
-				var lastFormat = localStorage.getItem('last:report_format');
-				if (lastFormat) {
-					setTimeout(function() {
-						$('#format').val(lastFormat);
-					}, 1);
 				}
 			}
 		});

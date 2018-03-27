@@ -92,19 +92,19 @@ class NinjaController extends BaseController
     public function show_license_payment()
     {
         if (Input::has('return_url')) {
-            Session::set('return_url', Input::get('return_url'));
+            session(['return_url' => Input::get('return_url')]);
         }
 
         if (Input::has('affiliate_key')) {
             if ($affiliate = Affiliate::where('affiliate_key', '=', Input::get('affiliate_key'))->first()) {
-                Session::set('affiliate_id', $affiliate->id);
+                session(['affiliate_id' => $affiliate->id]);
             }
         }
 
         if (Input::has('product_id')) {
-            Session::set('product_id', Input::get('product_id'));
+            session(['product_id' => Input::get('product_id')]);
         } elseif (! Session::has('product_id')) {
-            Session::set('product_id', PRODUCT_ONE_CLICK_INSTALL);
+            session(['product_id' => PRODUCT_ONE_CLICK_INSTALL]);
         }
 
         if (! Session::get('affiliate_id')) {
@@ -112,7 +112,7 @@ class NinjaController extends BaseController
         }
 
         if (Utils::isNinjaDev() && Input::has('test_mode')) {
-            Session::set('test_mode', Input::get('test_mode'));
+            session(['test_mode' => Input::get('test_mode')]);
         }
 
         $account = $this->accountRepo->getNinjaAccount();

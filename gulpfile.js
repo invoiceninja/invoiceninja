@@ -111,8 +111,6 @@ elixir(function(mix) {
 
     mix.scripts([
         bowerDir + '/grapesjs/dist/grapes.js',
-        'grapesjs-blocks-basic.min.js',
-        'grapesjs-preset-newsletter.min.js',
     ], 'public/js/grapesjs.min.js');
 
     mix.scripts([

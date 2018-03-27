@@ -41,9 +41,8 @@ class TaskCest
         $I->fillField('#description', $description);
 
         $I->click('Start');
-        $I->wait(rand(2, 5));
+        $I->wait(rand(3, 6));
         $I->click('Stop');
-        $I->click('Save');
 
         $I->seeInDatabase('tasks', [
             'description' => $description,
@@ -52,10 +51,12 @@ class TaskCest
         $I->seeInDatabase('projects', ['name' => $project]);
 
         $I->click('More Actions');
+        $I->wait(2);
         $I->click('Invoice Task');
+        $I->wait(2);
         $I->click('Mark Sent');
         $I->see('Sent');
-        $I->wait(1);
+        $I->wait(2);
         $I->see('Successfully created invoice');
     }
 

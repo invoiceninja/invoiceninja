@@ -6,6 +6,7 @@ use App\Http\Requests\CreateProposalRequest;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Requests\UpdateProposalRequest;
 use App\Jobs\SendInvoiceEmail;
+use App\Jobs\ConvertProposalToPdf;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\ProposalTemplate;
@@ -17,7 +18,6 @@ use Auth;
 use Input;
 use Session;
 use View;
-use mPDF;
 
 class ProposalController extends BaseController
 {
@@ -82,13 +82,13 @@ class ProposalController extends BaseController
     {
         $proposal = $request->entity();
 
-        $data = array_merge($this->getViewmodel(), [
+        $data = array_merge($this->getViewmodel($proposal), [
             'proposal' => $proposal,
             'entity' => $proposal,
             'method' => 'PUT',
             'url' => 'proposals/' . $proposal->public_id,
             'title' => trans('texts.edit_proposal'),
-            'invoices' => Invoice::scope()->with('client.contacts', 'client.country')->unapprovedQuotes($proposal->invoice_id)->orderBy('id')->get(),
+            'invoices' => Invoice::scope()->with('client.contacts', 'client.country')->withActiveOrSelected($proposal->invoice_id)->unapprovedQuotes($proposal->invoice_id)->orderBy('id')->get(),
             'invoicePublicId' => $proposal->invoice ? $proposal->invoice->public_id : null,
             'templatePublicId' => $proposal->proposal_template ? $proposal->proposal_template->public_id : null,
         ]);
@@ -96,10 +96,10 @@ class ProposalController extends BaseController
         return View::make('proposals.edit', $data);
     }
 
-    private function getViewmodel()
+    private function getViewmodel($proposal = false)
     {
         $account = auth()->user()->account;
-        $templates = ProposalTemplate::whereAccountId($account->id)->orderBy('name')->get();
+        $templates = ProposalTemplate::whereAccountId($account->id)->withActiveOrSelected($proposal ? $proposal->proposal_template_id : false)->orderBy('name')->get();
 
         if (! $templates->count()) {
             $templates = ProposalTemplate::whereNull('account_id')->orderBy('name')->get();
@@ -167,12 +167,8 @@ class ProposalController extends BaseController
     {
         $proposal = $request->entity();
 
-        $mpdf = new mPDF();
-        $mpdf->showImageErrors = true;
-        $mpdf->WriteHTML($proposal->present()->htmlDocument);
+        $pdf = dispatch(new ConvertProposalToPdf($proposal));
 
-        //$mpdf->Output();
-
-        $mpdf->Output($proposal->present()->filename, 'D');
+        $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 }

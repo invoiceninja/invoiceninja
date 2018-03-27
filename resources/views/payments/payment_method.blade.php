@@ -15,7 +15,7 @@
                         <header>
                             @if ($client && isset($invoiceNumber))
                                 <h2>{{ $client->getDisplayName() }}</h2>
-                                @if (request()->update)
+                                @if (request()->capture)
                                     <h3>{{ trans('texts.update_payment_details') }}</h3>
                                 @else
                                     <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE) }}</em></span></h3>

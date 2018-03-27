@@ -7,7 +7,7 @@
         </a>
     @elseif ($option == 'reports')
         <a type="button" class="btn btn-default btn-sm pull-right" title="{{ trans('texts.calendar') }}"
-            href="{{ url('/calendar') }}">
+            href="{{ url('/reports/calendar') }}">
             <i class="fa fa-calendar" style="width:20px"></i>
         </a>
     @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))

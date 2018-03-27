@@ -51,14 +51,14 @@ h3 .help {
 }
 
 header h3 {
-    text-transform: uppercase;    
+    text-transform: uppercase;
 }
-    
+
 header h3 span {
     display: inline-block;
     margin-left: 8px;
 }
-    
+
 header h3 em {
     font-style: normal;
     color: #eb8039;
@@ -79,9 +79,9 @@ header h3 em {
             <header>
                 @if (isset($redirectTo))
                     <h2>Payment Complete</h2>
-                @else 
-                    <h2>License Key<br/><small>{{ $message }}</small></h2>                
-                @endif                    
+                @else
+                    <h2>License Key<br/><small>{{ $message }}</small></h2>
+                @endif
             </header>
         </div>
     </div>
@@ -97,9 +97,9 @@ header h3 em {
             @else
                 {{ $license }}
             @endif
-        </h2>      
-      </div>      
-    </div>  
+        </h2>
+      </div>
+    </div>
 
 </div>
 </div>
@@ -117,7 +117,7 @@ $(function() {
 
     @if (isset($redirectTo))
         setTimeout(function() {
-            location.href = "{!! $redirectTo !!}";
+            location.href = {!! json_encode($redirectTo) !!};
         }, 3000);
     @endif
 

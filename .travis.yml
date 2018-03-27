@@ -6,13 +6,9 @@ sudo: true
 group: deprecated-2017Q4
 
 php:
-#  - 5.5.9
-#  - 5.6
-#  - 5.6
 #  - 7.0
   - 7.1
-#  - 7.2
-#  - hhvm
+  - 7.2
 
 addons:
   hosts:
@@ -114,15 +110,17 @@ after_script:
   - mysql -u root -e 'select * from account_gateways;' ninja
   - mysql -u root -e 'select * from clients;' ninja
   - mysql -u root -e 'select * from contacts;' ninja
-  - mysql -u root -e 'select * from invoices;' ninja
+  - mysql -u root -e 'select id, account_id, invoice_number, amount, balance from invoices;' ninja
   - mysql -u root -e 'select * from invoice_items;' ninja
   - mysql -u root -e 'select * from invitations;' ninja
-  - mysql -u root -e 'select * from payments;' ninja
+  - mysql -u root -e 'select id, account_id, invoice_id, amount, transaction_reference from payments;' ninja
   - mysql -u root -e 'select * from credits;' ninja
   - mysql -u root -e 'select * from expenses;' ninja
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from fonts;' ninja
   - mysql -u root -e 'select * from banks;' ninja
+  - mysql -u root -e 'select * from account_gateway_tokens;' ninja
+  - mysql -u root -e 'select * from payment_methods;' ninja
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)
   - for i in $FILES; do echo $i; base64 "$i"; break; done
 
@@ -131,3 +129,5 @@ notifications:
   email:
     on_success: never
     on_failure: change
+  slack: 
+    invoiceninja: SLraaKBDvjeRuRtY9o3Yvp1b

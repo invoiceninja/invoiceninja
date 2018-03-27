@@ -5,7 +5,7 @@
 
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript">
-        Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
+        Stripe.setPublishableKey('{{ $accountGateway->getPublishableKey() }}');
         $(function() {
             var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
             $('.payment-form').unbind('submit').submit(function(event) {
@@ -247,7 +247,7 @@
                         ->large() !!}
 
         @if ($accountGateway->getPlaidEnabled() && !empty($amount))
-            {!! Button::success(request()->update ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
+            {!! Button::success(request()->capture ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                         ->submit()
                         ->withAttributes(['style'=>'display:none', 'id'=>'pay_now_button'])
                         ->large() !!}

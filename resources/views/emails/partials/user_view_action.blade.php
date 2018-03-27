@@ -5,8 +5,8 @@
   "@type": "EmailMessage",
   "action": {
     "@type": "ViewAction",
-    "url": "{!! $invoiceLink !!}",
-    "name": "{{ trans("texts.view_{$entityType}") }}"
+    "url": "{{ $invoiceLink }}",
+    "name": {!! json_encode(trans("texts.view_{$entityType}")) !!}
   }
 }
 ]

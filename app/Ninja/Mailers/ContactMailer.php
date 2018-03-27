@@ -191,7 +191,7 @@ class ContactMailer extends Mailer
         $data = [
             'body' => $this->templateService->processVariables($body, $variables),
             'link' => $invitation->getLink(),
-            'entityType' => $invoice->getEntityType(),
+            'entityType' => $proposal ? ENTITY_PROPOSAL : $invoice->getEntityType(),
             'invoiceId' => $invoice->id,
             'invitation' => $invitation,
             'account' => $account,

@@ -25,7 +25,7 @@
       @endif
 
       // Ensure terms is checked for sign up form
-      @if (Auth::check() && ! Auth::user()->registered)
+      @if (Auth::check())
           setSignupEnabled(false);
           $("#terms_checkbox").change(function() {
               setSignupEnabled(this.checked);
@@ -78,11 +78,9 @@
       }
     });
 
-    @if (! Auth::user()->registered)
-        if (!$('#terms_checkbox').is(':checked')) {
-          isFormValid = false;
-        }
-    @endif
+    if (!$('#terms_checkbox').is(':checked')) {
+      isFormValid = false;
+    }
 
     $('#saveSignUpButton').prop('disabled', !isFormValid);
 
@@ -182,17 +180,18 @@
         </div>
 
         <div class="row signup-form">
-            @if (! Auth::user()->registered)
-                <div class="col-md-12">
-                    {!! Former::checkbox('terms_checkbox')
-                        ->label(' ')
-                        ->value(1)
-                        ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.Utils::getTermsLink().'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
-                        ->raw() !!}
-                    <br/>
-                </div>
-                <br/>&nbsp;<br/>
-            @endif
+            <div class="col-md-12">
+                {!! Former::checkbox('terms_checkbox')
+                    ->label(' ')
+                    ->value(1)
+                    ->text(trans('texts.agree_to_terms', [
+                        'terms' => link_to(Utils::getTermsLink(), trans('texts.terms_of_service'), ['target' => '_blank']),
+                        'privacy' => link_to(Utils::getTermsLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
+                    ]))
+                    ->raw() !!}
+                <br/>
+            </div>
+            <br/>&nbsp;<br/>
             @if (Utils::isOAuthEnabled() && ! Auth::user()->registered)
                 <div class="col-md-5">
                     @foreach (App\Services\AuthService::$providers as $provider)
@@ -247,7 +246,7 @@
                 <div style="padding-top:20px;padding-bottom:10px;">
                     @if (Auth::user()->registered)
                         {!! trans('texts.email_alias_message') !!}
-                    @elseif (Utils::isNinja())
+                    @elseif (Utils::isNinjaProd())
                         @if (Utils::isPro())
                             {{ trans('texts.free_year_message') }}
                         @else
@@ -294,7 +293,7 @@
     </div>
   </div>
 </div>
-
+@endif
 
 <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -320,4 +319,3 @@
     </div>
   </div>
 </div>
-@endif

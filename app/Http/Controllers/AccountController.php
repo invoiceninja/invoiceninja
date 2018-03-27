@@ -46,6 +46,7 @@ use Utils;
 
 use Validator;
 use View;
+use App\Jobs\PurgeClientData;
 
 /**
  * Class AccountController.
@@ -139,7 +140,12 @@ class AccountController extends BaseController
             Session::flash('warning', $message);
         }
 
-        $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'dashboard';
+        if ($redirectTo = Input::get('redirect_to')) {
+            $redirectTo = SITE_URL . '/' . ltrim($redirectTo, '/');
+        } else {
+            $redirectTo = Input::get('sign_up') ? 'dashboard' : 'invoices/create';
+        }
+
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
     }
 
@@ -389,7 +395,9 @@ class AccountController extends BaseController
         $planDetails = $account->getPlanDetails(true, false);
         $portalLink = false;
 
-        if (Utils::isNinja() && $planDetails && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
+        if (Utils::isNinja() && $planDetails
+            && $account->getPrimaryAccount()->id == auth()->user()->account_id
+            && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
             $contact = $ninjaClient->getPrimaryContact();
             $portalLink = $contact->link;
         }
@@ -473,7 +481,7 @@ class AccountController extends BaseController
         $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
-            if (! $accountGateway->getPublishableStripeKey()) {
+            if (! $accountGateway->getPublishableKey()) {
                 Session::now('warning', trans('texts.missing_publishable_key'));
             }
         }
@@ -976,6 +984,9 @@ class AccountController extends BaseController
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
+                $account->auto_archive_quote = Input::get('auto_archive_quote');
+                $account->auto_archive_invoice = Input::get('auto_archive_invoice');
+                $account->auto_email_invoice = Input::get('auto_email_invoice');
                 $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
                 $account->client_number_prefix = trim(Input::get('client_number_prefix'));
@@ -1067,6 +1078,7 @@ class AccountController extends BaseController
         $user->notify_viewed = Input::get('notify_viewed');
         $user->notify_paid = Input::get('notify_paid');
         $user->notify_approved = Input::get('notify_approved');
+        $user->slack_webhook_url = Input::get('slack_webhook_url');
         $user->save();
 
         $account = $user->account;
@@ -1265,6 +1277,7 @@ class AccountController extends BaseController
         $account->token_billing_type_id = Input::get('token_billing_type_id');
         $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
         $account->gateway_fee_enabled = boolval(Input::get('gateway_fee_enabled'));
+        $account->send_item_details = boolval(Input::get('send_item_details'));
 
         $account->save();
 
@@ -1326,6 +1339,7 @@ class AccountController extends BaseController
     public function submitSignup()
     {
         $user = Auth::user();
+        $ip = Request::getClientIp();
         $account = $user->account;
 
         $rules = [
@@ -1357,6 +1371,7 @@ class AccountController extends BaseController
         if ($user->registered) {
             $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
             $newUser = $newAccount->users()->first();
+            $newUser->acceptLatestTerms($ip)->save();
             $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
 
             Session::flash('message', trans('texts.created_new_company'));
@@ -1371,12 +1386,13 @@ class AccountController extends BaseController
             $user->username = $user->email;
             $user->password = bcrypt($password);
             $user->registered = true;
+            $user->acceptLatestTerms($ip);
             $user->save();
 
             $user->account->startTrial(PLAN_PRO);
 
             if (Input::get('go_pro') == 'true') {
-                Session::set(REQUESTED_PRO_PLAN, true);
+                session([REQUESTED_PRO_PLAN => true]);
             }
 
             return "{$user->first_name} {$user->last_name}";
@@ -1452,7 +1468,7 @@ class AccountController extends BaseController
             $refunded = $company->processRefund(Auth::user());
 
             $ninjaClient = $this->accountRepo->getNinjaClient($account);
-            $ninjaClient->delete();
+            dispatch(new \App\Jobs\PurgeClientData($ninjaClient));
         }
 
         Document::scope()->each(function ($item, $key) {

@@ -63,7 +63,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function tokenize()
     {
-        return $this->accountGateway->getPublishableStripeKey();
+        return $this->accountGateway->getPublishableKey();
     }
 
     public function rules()

@@ -23,6 +23,9 @@
     {!! Former::open()->rules(['iframe_url' => 'url'])->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('auto_convert_quote', intval($account->auto_convert_quote)) }}
+    {{ Former::populateField('auto_archive_quote', intval($account->auto_archive_quote)) }}
+    {{ Former::populateField('auto_email_invoice', intval($account->auto_email_invoice)) }}
+    {{ Former::populateField('auto_archive_invoice', intval($account->auto_archive_invoice)) }}
     {{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
     {{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
@@ -316,13 +319,49 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.quote_settings') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.workflow_settings') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
-            {!! Former::checkbox('auto_convert_quote')
-                    ->text(trans('texts.enable'))
-                    ->blockHelp(trans('texts.auto_convert_quote_help'))
-                    ->value(1) !!}
+
+            <div role="tabpanel">
+                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                    <li role="presentation" class="active">
+                        <a href="#invoice_workflow" aria-controls="invoice_workflow" role="tab" data-toggle="tab">{{ trans('texts.invoice_workflow') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#quote_workflow" aria-controls="quote_workflow" role="tab" data-toggle="tab">{{ trans('texts.quote_workflow') }}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="invoice_workflow">
+                    <div class="panel-body">
+                        {!! Former::checkbox('auto_email_invoice')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.auto_email_invoice_help'))
+                                ->value(1) !!}
+
+                        {!! Former::checkbox('auto_archive_invoice')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.auto_archive_invoice_help'))
+                                ->value(1) !!}
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="quote_workflow">
+                    <div class="panel-body">
+                        {!! Former::checkbox('auto_convert_quote')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.auto_convert_quote_help'))
+                                ->value(1) !!}
+
+                        {!! Former::checkbox('auto_archive_quote')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.auto_archive_quote_help'))
+                                ->value(1) !!}
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -459,7 +498,7 @@
   	function setQuoteNumberEnabled() {
 			var disabled = $('#share_counter').prop('checked');
 			$('#quote_number_counter').prop('disabled', disabled);
-			$('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');
+			$('#quote_number_counter').val(disabled ? '' : {!! json_encode($account->quote_number_counter) !!});
 		}
 
     function onNumberTypeChange(entityType) {

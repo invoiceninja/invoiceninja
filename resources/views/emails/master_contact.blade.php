@@ -10,7 +10,7 @@
                 <tr>
                     <td class="logo" style="border-collapse: collapse; vertical-align: middle; padding-left:34px; padding-top:20px; padding-bottom:12px" valign="middle">
                         @if (Utils::isNinja() || ! Utils::isWhiteLabel())
-                            <img src="{{ $message->embed(public_path('images/invoiceninja-logo.png')) }}" alt="Invoice Ninja" />
+                            <img src="{{ isset($message) ? $message->embed(public_path('images/invoiceninja-logo.png')) : 'cid:invoiceninja-logo.png'  }}" alt="Invoice Ninja" />
                         @endif
                     </td>
                 </tr>

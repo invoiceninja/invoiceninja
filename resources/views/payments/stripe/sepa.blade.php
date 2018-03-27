@@ -8,7 +8,7 @@
         $(function() {
             $('.payment-form').submit(function(event) {
                 // https://stripe.com/docs/sources/sepa-debit
-                var stripe = Stripe('{{ $accountGateway->getPublishableStripeKey() }}');
+                var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
                 stripe.createSource({
                     type: 'sepa_debit',
                     sepa_debit: {

@@ -33,7 +33,7 @@
         </div>
         <div class="col-md-5">
             <div class="pull-right">
-                {!! Former::open('clients/bulk')->addClass('mainForm') !!}
+                {!! Former::open('clients/bulk')->autocomplete('off')->addClass('mainForm') !!}
                 <div style="display:none">
                     {!! Former::text('action') !!}
                     {!! Former::text('public_id')->value($client->public_id) !!}
@@ -52,6 +52,8 @@
                             ->withContents([
                               ($client->trashed() ? false : ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"]),
                               ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
+                              auth()->user()->is_admin ? \DropdownButton::DIVIDER : false,
+                              auth()->user()->is_admin ? ['label' => trans('texts.purge_client'), 'url' => "javascript:onPurgeClick()"] : false,
                             ]
                           )->split() !!}
                     @endcan
@@ -174,7 +176,13 @@
                     <b>{{ $contact->first_name.' '.$contact->last_name }}</b><br/>
                 @endif
                 @if ($contact->email)
-                    <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}<br/>
+                    <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}
+                    @if (config('services.postmark'))
+                        | <a href="#" onclick="showEmailHistory('{{ $contact->email }}')">
+                            {{ trans('texts.history') }}
+                        </a>
+                    @endif
+                    <br/>
                 @endif
                 @if ($contact->phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
@@ -189,7 +197,7 @@
 
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
                     <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}"
-                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_client_portal') }}
+                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_in_portal') }}
                     </a><br/>
                 @endif
                 <br/>
@@ -227,10 +235,13 @@
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! Form::tab_link('#activity', trans('texts.activity'), true) !!}
-        @if ($hasTasks && Utils::isPro())
+        @if ($hasTasks)
             {!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
         @endif
-		@if ($hasQuotes && Utils::isPro())
+        @if ($hasExpenses)
+            {!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
+        @endif
+		@if ($hasQuotes)
 			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
         @if ($hasRecurringInvoices)
@@ -238,7 +249,9 @@
         @endif
 		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
 		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
-		{!! Form::tab_link('#credits', trans('texts.credits')) !!}
+        @if ($account->isModuleEnabled(ENTITY_CREDIT))
+            {!! Form::tab_link('#credits', trans('texts.credits')) !!}
+        @endif
 	</ul><br/>
 
 	<div class="tab-content">
@@ -270,6 +283,15 @@
         </div>
     @endif
 
+    @if ($hasExpenses)
+        <div class="tab-pane" id="expenses">
+            @include('list', [
+                'entityType' => ENTITY_EXPENSE,
+                'datatable' => new \App\Ninja\Datatables\ExpenseDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
+        </div>
+    @endif
 
     @if (Utils::hasFeature(FEATURE_QUOTES) && $hasQuotes)
         <div class="tab-pane" id="quotes">
@@ -307,6 +329,7 @@
             ])
         </div>
 
+    @if ($account->isModuleEnabled(ENTITY_CREDIT))
         <div class="tab-pane" id="credits">
             @include('list', [
                 'entityType' => ENTITY_CREDIT,
@@ -314,8 +337,34 @@
                 'clientId' => $client->public_id,
             ])
         </div>
+    @endif
 
     </div>
+
+    <div class="modal fade" id="emailHistoryModal" tabindex="-1" role="dialog" aria-labelledby="emailHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">{{ trans('texts.email_history') }}</h4>
+                </div>
+
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default">
+                <div class="panel-body">
+
+                </div>
+                </div>
+                </div>
+
+                <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
+                    <button type="button" class="btn btn-danger" onclick="onReactivateClick()" id="reactivateButton" style="display:none;">{{ trans('texts.reactivate') }} </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 	<script type="text/javascript">
 
@@ -363,12 +412,38 @@
 		$('.mainForm').submit();
 	}
 
-	function onDeleteClick() {
+    function onDeleteClick() {
 		sweetConfirm(function() {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		});
 	}
+
+    function onPurgeClick() {
+		sweetConfirm(function() {
+			$('#action').val('purge');
+			$('.mainForm').submit();
+		}, "{{ trans('texts.purge_client_warning') . "\\n\\n" . trans('texts.no_undo') }}");
+	}
+
+    function showEmailHistory(email) {
+        window.emailBounceId = false;
+        $('#emailHistoryModal .panel-body').html("{{ trans('texts.loading') }}...");
+        $('#reactivateButton').hide();
+        $('#emailHistoryModal').modal('show');
+        $.post('{{ url('/email_history') }}', {email: email}, function(data) {
+            $('#emailHistoryModal .panel-body').html(data.str);
+            window.emailBounceId = data.bounce_id;
+            $('#reactivateButton').toggle(!! window.emailBounceId);
+        })
+    }
+
+    function onReactivateClick() {
+        $.post('{{ url('/reactivate_email') }}/' + window.emailBounceId, function(data) {
+            $('#emailHistoryModal').modal('hide');
+            swal("{{ trans('texts.reactivated_email') }}")
+        })
+    }
 
     @if ($client->showMap())
         function initialize() {

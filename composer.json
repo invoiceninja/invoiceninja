@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0 <7.2",
+        "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*",
         "anahkiasen/former": "4.*",
@@ -24,7 +24,7 @@
         "barryvdh/laravel-debugbar": "~2.2",
         "barryvdh/laravel-ide-helper": "~2.2",
         "cerdic/css-tidy": "~v1.5",
-        "chumper/datatable": "dev-develop#04ef2bf",
+        "chumper/datatable": "dev-add-back-options",
         "cleverit/ubl_invoice": "1.*",
         "codedge/laravel-selfupdater": "5.x-dev",
         "collizo4sky/omnipay-wepay": "dev-address-fix",
@@ -34,24 +34,24 @@
         "fzaninotto/faker": "^1.5",
         "gatepay/FedACHdir": "dev-master@dev",
         "google/apiclient": "^2.0",
-        "guzzlehttp/guzzle": "~6.0",
+        "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "dev-master",
-        "invoiceninja/omnipay-collection": "0.6@dev",
+        "invoiceninja/omnipay-collection": "^0.9.0",
         "jaybizzle/laravel-crawler-detect": "1.*",
         "jlapp/swaggervel": "master-dev",
-        "jonnyw/php-phantomjs": "4.*",
+        "jonnyw/php-phantomjs": "dev-fixes",
         "laracasts/presenter": "dev-master",
-        "laravel/framework": "5.3.*",
+        "laravel/framework": "5.4.*",
         "laravel/legacy-encrypter": "^1.0",
-        "laravel/socialite": "~2.0",
-        "laravelcollective/bus": "5.3.*",
-        "laravelcollective/html": "5.3.*",
+        "laravel/socialite": "~3.0",
+        "laravel/tinker": "^1.0",
+        "laravelcollective/html": "5.4.*",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-rackspace": "~1.0",
         "league/fractal": "0.13.*",
         "maatwebsite/excel": "~2.0",
         "mpdf/mpdf": "6.1.3",
-        "nwidart/laravel-modules": "^1.14",
+        "nwidart/laravel-modules": "1.*",
         "omnipay/authorizenet": "dev-solution-id as 2.5.0",
         "patricktalmadge/bootstrapper": "5.5.x",
         "pragmarx/google2fa-laravel": "^0.1.2",
@@ -60,17 +60,17 @@
         "simshaun/recurr": "dev-master",
         "symfony/css-selector": "~3.1",
         "turbo124/laravel-push-notification": "2.*",
-        "webpatser/laravel-countries": "dev-master",
+        "webpatser/laravel-countries": "dev-master#75992ad",
         "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
-        "wildbit/laravel-postmark-provider": "dev-master#134f359"
+        "wildbit/postmark-php": "^2.5"
     },
     "require-dev": {
         "symfony/dom-crawler": "~3.1",
-        "codeception/c3": "~2.0",
-        "codeception/codeception": "2.3.3",
+        "codeception/c3": "2.*",
+        "codeception/codeception": "2.*",
         "phpspec/phpspec": "~2.1",
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~5.7"
     },
     "autoload": {
         "classmap": [
@@ -98,10 +98,14 @@
     },
     "scripts": {
         "post-install-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
+            "php artisan view:clear",
             "php artisan clear-compiled",
             "php artisan optimize"
         ],
         "post-update-cmd": [
+            "rm bootstrap/cache/compiled.php || true",
+            "php artisan view:clear",
             "php artisan clear-compiled",
             "php artisan optimize"
         ],
@@ -148,7 +152,11 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/hillelcoren/omnipay-authorizenet"
+            "url": "https://github.com/hillelcoren/datatable"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/php-phantomjs"
         }
     ]
 }

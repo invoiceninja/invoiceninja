@@ -18,6 +18,7 @@ use Auth;
 use Cache;
 use Input;
 use Redirect;
+use Request;
 use Session;
 use URL;
 use Utils;
@@ -82,9 +83,7 @@ class ExpenseController extends BaseController
             'method' => 'POST',
             'url' => 'expenses',
             'title' => trans('texts.new_expense'),
-            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
             'vendor' => $vendor,
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
             'categoryPublicId' => $request->category_id,
         ];
@@ -160,14 +159,12 @@ class ExpenseController extends BaseController
             'url' => $url,
             'title' => 'Edit Expense',
             'actions' => $actions,
-            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
             'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($expense));
 
         return View::make('expenses.edit', $data);
     }
@@ -227,6 +224,7 @@ class ExpenseController extends BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $referer = Request::server('HTTP_REFERER');
 
         switch ($action) {
             case 'invoice':
@@ -238,27 +236,25 @@ class ExpenseController extends BaseController
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense) {
                     if ($expense->client) {
+                        if ($expense->client->trashed()) {
+                            return redirect($referer)->withError(trans('texts.client_must_be_active'));
+                        }
+
                         if (! $clientPublicId) {
                             $clientPublicId = $expense->client->public_id;
                         } elseif ($clientPublicId != $expense->client->public_id) {
-                            Session::flash('error', trans('texts.expense_error_multiple_clients'));
-
-                            return Redirect::to('expenses');
+                            return redirect($referer)->withError(trans('texts.expense_error_multiple_clients'));
                         }
                     }
 
                     if (! $currencyId) {
                         $currencyId = $expense->invoice_currency_id;
                     } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
-                        Session::flash('error', trans('texts.expense_error_multiple_currencies'));
-
-                        return Redirect::to('expenses');
+                        return redirect($referer)->withError(trans('texts.expense_error_multiple_currencies'));
                     }
 
                     if ($expense->invoice_id) {
-                        Session::flash('error', trans('texts.expense_error_invoiced'));
-
-                        return Redirect::to('expenses');
+                        return redirect($referer)->withError(trans('texts.expense_error_invoiced'));
                     }
                 }
 
@@ -287,12 +283,14 @@ class ExpenseController extends BaseController
         return $this->returnBulk($this->entityType, $action, $ids);
     }
 
-    private static function getViewModel()
+    private static function getViewModel($expense = false)
     {
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
-            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
+            'vendors' => Vendor::scope()->withActiveOrSelected($expense ? $expense->vendor_id : false)->with('vendor_contacts')->orderBy('name')->get(),
+            'clients' => Client::scope()->withActiveOrSelected($expense ? $expense->client_id : false)->with('contacts')->orderBy('name')->get(),
+            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withActiveOrSelected($expense ? $expense->expense_category_id : false)->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
             'isRecurring' => false,
         ];

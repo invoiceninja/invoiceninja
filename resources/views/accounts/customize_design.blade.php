@@ -52,8 +52,8 @@
             invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
         };
       invoice.account.hide_paid_to_date = {!! Auth::user()->account->hide_paid_to_date ? 'true' : 'false' !!};
-      NINJA.primaryColor = '{!! Auth::user()->account->primary_color !!}';
-      NINJA.secondaryColor = '{!! Auth::user()->account->secondary_color !!}';
+      NINJA.primaryColor = {!! json_encode(Auth::user()->account->primary_color) !!};
+      NINJA.secondaryColor = {!! json_encode(Auth::user()->account->secondary_color) !!};
       NINJA.fontSize = {!! Auth::user()->account->font_size !!};
       NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
       NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};
@@ -235,25 +235,6 @@
 					]) !!}<br/>
 
 				@include('partials/variables_help', ['entityType' => ENTITY_INVOICE, 'account' => $account])
-
-				@if ($account->require_invoice_signature || $account->require_invoice_signature)
-					<p>&nbsp;</p>
-					{{ trans('texts.signature_on_invoice_help') }}
-					<pre style="padding-top:16px;">
-{
-	"stack": [
-	{
-		"image": "$signatureBase64",
-		"margin": [200, 10, 0, 0]
-	},
-	{
-		"text": ["{{ trans('texts.signed') }}: ", "$signatureDate"],
-		"margin": [200, -40, 0, 0]
-	}
-	]
-},
-					</pre>
-				@endif
           </div>
 	  	  </div>
   		  </div>

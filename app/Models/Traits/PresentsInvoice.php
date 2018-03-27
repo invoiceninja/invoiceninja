@@ -336,6 +336,7 @@ trait PresentsInvoice
             'custom_value1',
             'custom_value2',
             'delivery_note',
+            'date',
         ];
 
         foreach ($fields as $field) {

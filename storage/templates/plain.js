@@ -13,7 +13,7 @@
 			"image": "$accountLogo",
 			"fit": [120, 80]
 		}
-		]        
+		]
 		]},
 	{
 		"columns": [
@@ -24,19 +24,19 @@
 		},
 		{
 			"width":200,
-			"table": { 
+			"table": {
 				"body": "$invoiceDetails"
 			},
 			"layout": {
 				"hLineWidth": "$none",
 				"vLineWidth": "$none",
 				"hLineColor": "#E6E6E6",
-				"paddingLeft": "$amount:10", 
+				"paddingLeft": "$amount:10",
 				"paddingRight": "$amount:10"
 			}
 		}
 		]
-	},	
+	},
 	{
 		"canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 515, "h": 25,"r":0, "lineWidth": 1,"color":"#e6e6e6"}],"width":10,"margin":[0,30,0,-43]
 	},
@@ -51,10 +51,10 @@
 			"hLineWidth": "$notFirst:1",
 			"vLineWidth": "$none",
 			"hLineColor": "#e6e6e6",
-			"paddingLeft": "$amount:8", 
-			"paddingRight": "$amount:8", 
-			"paddingTop": "$amount:8", 
-			"paddingBottom": "$amount:8"            
+			"paddingLeft": "$amount:8",
+			"paddingRight": "$amount:8",
+			"paddingTop": "$amount:8",
+			"paddingBottom": "$amount:8"
 		}
 	},
 	{
@@ -70,36 +70,15 @@
 			"layout": {
 				"hLineWidth": "$none",
 				"vLineWidth": "$none",
-				"paddingLeft": "$amount:10", 
-				"paddingRight": "$amount:10", 
-				"paddingTop": "$amount:4", 
-				"paddingBottom": "$amount:4" 
+				"paddingLeft": "$amount:10",
+				"paddingRight": "$amount:10",
+				"paddingTop": "$amount:4",
+				"paddingBottom": "$amount:4"
 			}
 		}
 		]
-	},    
-	{
-		"stack": [
-		{
-			"image": "$signatureBase64",
-			"margin": [
-				200,
-			10,
-			0,
-			0
-			]
-		},
-		{
-			"text": "$signatureDate",
-			"margin": [
-				200,
-			-40,
-			0,
-			0
-			]
-		}
-		]
 	},
+	"$signature",
 	{
 		"stack": [
 			"$invoiceDocuments"
@@ -147,7 +126,7 @@
 		},
 		"lineTotalTableHeader": {
 			"alignment": "right"
-		},        
+		},
 		"invoiceLineItemsTable": {
 			"margin": [0, 16, 0, 16]
 		},
@@ -165,7 +144,7 @@
 		},
 		"subtotals": {
 			"alignment": "right"
-		},            
+		},
 		"termsLabel": {
 			"bold": true,
 			"margin": [0, 0, 0, 4]

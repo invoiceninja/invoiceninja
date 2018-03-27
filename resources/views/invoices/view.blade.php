@@ -118,7 +118,7 @@
 		<script type="text/javascript" src="https://js.stripe.com/v3/"></script>
 	    <script type="text/javascript">
 	        // https://stripe.com/docs/stripe-js/elements/payment-request-button
-	        var stripe = Stripe('{{ $accountGateway->getPublishableStripeKey() }}');
+	        var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
 	        var paymentRequest = stripe.paymentRequest({
 	            country: '{{ $invoice->client->getCountryCode() }}',
 	            currency: '{{ strtolower($invoice->client->getCurrencyCode()) }}',
@@ -157,21 +157,21 @@
         @else
             <div id="paymentButtons" class="pull-right" style="text-align:right">
             @if ($invoice->isQuote())
-                {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
+                {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()'])->large() !!}
                 @endif
 			@elseif ( ! $invoice->canBePaid())
-				{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@elseif ($invoice->client->account->isGatewayConfigured() && floatval($invoice->balance) && !$invoice->is_recurring)
-                {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
+                {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if (count($paymentTypes) > 1)
                     {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
                 @elseif (count($paymentTypes) == 1)
-                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {!! $invoice->present()->gatewayFee($gatewayTypeId) !!}</a>
+                    <a href='{{ $paymentURL }}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {!! $invoice->present()->gatewayFee($gatewayTypeId) !!}</a>
                 @endif
     		@else
-    			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+    			{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@endif
 
 			@if ($account->isNinjaAccount())

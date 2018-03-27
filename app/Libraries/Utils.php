@@ -435,6 +435,7 @@ class Utils
             'url' => Input::get('url', Request::url()),
             'previous' => url()->previous(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+            'locale' => App::getLocale(),
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
             'is_console' => App::runningInConsole() ? 'yes' : 'no',
@@ -498,6 +499,21 @@ class Utils
         });
 
         return $data->first();
+    }
+
+    public static function formatNumber($value, $currencyId = false, $precision = 0)
+    {
+        $value = floatval($value);
+
+        if (! $currencyId) {
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
+        }
+
+        $currency = self::getFromCache($currencyId, 'currencies');
+        $thousand = $currency->thousand_separator;
+        $decimal = $currency->decimal_separator;
+
+        return number_format($value, $precision, $decimal, $thousand);
     }
 
     public static function formatMoney($value, $currencyId = false, $countryId = false, $decorator = false)
@@ -1328,6 +1344,28 @@ class Utils
 
     public static function brewerColor($number) {
         $colors = [
+            '#337AB7',
+            '#3cb44b',
+            '#e6194b',
+            '#f58231',
+            '#911eb4',
+            '#46f0f0',
+            '#f032e6',
+            '#d2f53c',
+            '#fabebe',
+            '#008080',
+            '#e6beff',
+            '#aa6e28',
+            '#fffac8',
+            '#800000',
+            '#aaffc3',
+            '#808000',
+            '#000080',
+            '#808080',
+        ];
+
+        /*
+        $colors = [
             '#1c9f77',
             '#d95d02',
             '#716cb1',
@@ -1337,9 +1375,16 @@ class Utils
             '#a87821',
             '#676767',
         ];
+        */
         $number = ($number-1) % count($colors);
 
         return $colors[$number];
+    }
+
+    public static function brewerColorRGB($number) {
+        $color = static::brewerColor($number);
+        list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
+        return "{$r},{$g},{$b}";
     }
 
     /**

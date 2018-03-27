@@ -34,7 +34,7 @@
     <div class="col-md-5">
         <div class="pull-right">
 
-          {!! Former::open('vendors/bulk')->addClass('mainForm') !!}
+          {!! Former::open('vendors/bulk')->autocomplete('off')->addClass('mainForm') !!}
       		<div style="display:none">
       			{!! Former::text('action') !!}
       			{!! Former::text('public_id')->value($vendor->public_id) !!}
@@ -212,7 +212,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
+		if (confirm({!! json_encode(trans('texts.are_you_sure')) !!})) {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		}

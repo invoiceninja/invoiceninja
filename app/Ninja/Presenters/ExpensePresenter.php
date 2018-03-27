@@ -44,6 +44,11 @@ class ExpensePresenter extends EntityPresenter
         return Utils::formatMoney($this->entity->amountWithTax(), $this->entity->expense_currency_id);
     }
 
+    public function currencyCode()
+    {
+        return Utils::getFromCache($this->entity->expense_currency_id, 'currencies')->code;
+    }
+
     public function taxAmount()
     {
         return Utils::formatMoney($this->entity->taxAmount(), $this->entity->expense_currency_id);

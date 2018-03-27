@@ -3,10 +3,10 @@
 @section('head')
     @parent
 
-    @if ($accountGateway->getPublishableStripeKey())
+    @if ($accountGateway->getPublishableKey())
         <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
         <script type="text/javascript">
-            Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
+            Stripe.setPublishableKey('{{ $accountGateway->getPublishableKey() }}');
             $(function() {
                 $('.payment-form').unbind('submit').submit(function(event) {
                     event.preventDefault();

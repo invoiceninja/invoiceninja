@@ -95,28 +95,7 @@
 	{
 		"canvas": [{ "type": "line", "x1": 270, "y1": 20, "x2": 515, "y2": 20, "lineWidth": 1,"dash": { "length": 2 }}]
 	},
-	{
-		"stack": [
-		{
-			"image": "$signatureBase64",
-			"margin": [
-				200,
-			10,
-			0,
-			0
-			]
-		},
-		{
-			"text": "$signatureDate",
-			"margin": [
-				200,
-			-40,
-			0,
-			0
-			]
-		}
-		]
-	},
+	"$signature",
 	{
 		"stack": [
 			"$invoiceDocuments"

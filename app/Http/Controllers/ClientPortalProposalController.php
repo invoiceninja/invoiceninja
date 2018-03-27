@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use mPDF;
 use App\Models\Account;
 use App\Models\Document;
 use App\Models\Invitation;
 use App\Ninja\Repositories\ProposalRepository;
+use App\Jobs\ConvertProposalToPdf;
 
 class ClientPortalProposalController extends BaseController
 {
@@ -39,7 +39,11 @@ class ClientPortalProposalController extends BaseController
             'proposalInvitation' => $invitation,
         ];
 
-        return view('invited.proposal', $data);
+        if (request()->phantomjs) {
+            return $proposal->present()->htmlDocument;
+        } else {
+            return view('invited.proposal', $data);
+        }
     }
 
     public function downloadProposal($invitationKey)
@@ -50,9 +54,9 @@ class ClientPortalProposalController extends BaseController
 
         $proposal = $invitation->proposal;
 
-        $mpdf = new mPDF();
-        $mpdf->WriteHTML($proposal->present()->htmlDocument);
-        $mpdf->Output($proposal->present()->filename, 'D');
+        $pdf = dispatch(new ConvertProposalToPdf($proposal));
+
+        $this->downloadResponse($proposal->getFilename(), $pdf);
     }
 
     public function getProposalImage($accountKey, $documentKey)

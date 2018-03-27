@@ -327,7 +327,7 @@ class InvoiceController extends BaseController
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? Session::get('tasks') : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
-            'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
+            'expenses' => Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get(),
         ];
     }
 

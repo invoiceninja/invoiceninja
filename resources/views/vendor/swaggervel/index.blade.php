@@ -48,7 +48,7 @@ header("Access-Control-Allow-Headers: X-Requested-With");
                         if (url && url.length > 1) {
                     url = decodeURIComponent(url[1]);
                 } else {
-                    url = "{!! $urlToDocs !!}";
+                    url = '{{ $urlToDocs }}';
                 }
 
                 // Pre load translate...
@@ -64,7 +64,7 @@ header("Access-Control-Allow-Headers: X-Requested-With");
                         log("Loaded SwaggerUI");
                         @if (isset($requestHeaders))
                         @foreach($requestHeaders as $requestKey => $requestValue)
-                        window.authorizations.add("{!!$requestKey!!}", new ApiKeyAuthorization("{!!$requestKey!!}", "{!!$requestValue!!}", "header"));
+                        window.authorizations.add({!! json_encode($requestKey) !!}, new ApiKeyAuthorization({!! json_encode($requestKey) !!}, {!! json_encode($requestValue) !!}, "header"));
                         @endforeach
                         @endif
 

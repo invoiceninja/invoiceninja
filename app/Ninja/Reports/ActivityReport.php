@@ -23,6 +23,7 @@ class ActivityReport extends AbstractReport
 
         $startDate = $this->startDate;;
         $endDate = $this->endDate;
+        $subgroup = $this->options['subgroup'];
 
         $activities = Activity::scope()
             ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'task', 'expense', 'account')
@@ -37,8 +38,16 @@ class ActivityReport extends AbstractReport
                 $activity->present()->user,
                 $this->isExport ? strip_tags($activity->getMessage()) : $activity->getMessage(),
             ];
+
+            if ($subgroup == 'category') {
+                $dimension = trans('texts.' . $activity->relatedEntityType());
+            } else {
+                $dimension = $this->getDimension($activity);
+            }
+
+            $this->addChartData($dimension, $activity->created_at, 1);
         }
 
-
+        //dd($this->getChartData());
     }
 }

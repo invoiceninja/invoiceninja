@@ -41,6 +41,7 @@
         ->value(1) !!}
 
     @if (! $hasInclusiveTaxRates && $countInvoices == 0)
+        <br/>
         {!! Former::checkbox('inclusive_taxes')
             ->text(trans('texts.inclusive_taxes_help'))
             ->label('&nbsp;')

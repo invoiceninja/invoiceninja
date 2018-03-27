@@ -27,10 +27,16 @@ class ProductPresenter extends EntityPresenter
     public function moreActions()
     {
         $product = $this->entity;
+        $actions = [];
 
         if (! $product->trashed()) {
+            if (auth()->user()->can('create', ENTITY_PRODUCT)) {
+                $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans('texts.clone_product')];
+            }
             if (auth()->user()->can('create', ENTITY_INVOICE)) {
                 $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_product')];
+            }
+            if (count($actions)) {
                 $actions[] = DropdownButton::DIVIDER;
             }
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans("texts.archive_product")];

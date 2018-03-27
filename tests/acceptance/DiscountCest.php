@@ -18,6 +18,11 @@ class DiscountCest
     {
         $I->wantTo('test line item discounts');
 
+        // enable line item taxes
+        $I->amOnPage('/settings/tax_rates');
+        $I->checkOption('#invoice_item_taxes');
+        $I->click('Save');
+
         $clientEmail = $this->faker->safeEmail;
         $itemTaxName = $this->faker->word;
         $productKey = $this->faker->word;

@@ -6,9 +6,10 @@ use App\Libraries\CurlUtils;
 use Carbon;
 use Str;
 use Cache;
+use Exception;
+use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\Currency;
-use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
@@ -34,11 +35,6 @@ class SendReminders extends Command
     protected $description = 'Send reminder emails';
 
     /**
-     * @var Mailer
-     */
-    protected $mailer;
-
-    /**
      * @var InvoiceRepository
      */
     protected $invoiceRepo;
@@ -55,11 +51,10 @@ class SendReminders extends Command
      * @param InvoiceRepository $invoiceRepo
      * @param accountRepository $accountRepo
      */
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, UserMailer $userMailer)
+    public function __construct(InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, UserMailer $userMailer)
     {
         parent::__construct();
 
-        $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
@@ -136,7 +131,7 @@ class SendReminders extends Command
                         continue;
                     }
                     $this->info('Send email: ' . $invoice->id);
-                    $this->mailer->sendInvoice($invoice, $reminder);
+                    dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, $reminder));
                 }
             }
 
@@ -149,7 +144,7 @@ class SendReminders extends Command
                     continue;
                 }
                 $this->info('Send email: ' . $invoice->id);
-                $this->mailer->sendInvoice($invoice, 'reminder4');
+                dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
             }
         }
     }
@@ -162,6 +157,8 @@ class SendReminders extends Command
         $this->info($scheduledReports->count() . ' scheduled reports');
 
         foreach ($scheduledReports as $scheduledReport) {
+            $this->info('Processing report: ' . $scheduledReport->id);
+
             $user = $scheduledReport->user;
             $account = $scheduledReport->account;
 
@@ -179,7 +176,14 @@ class SendReminders extends Command
             $file = dispatch(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
-                $this->userMailer->sendScheduledReport($scheduledReport, $file);
+                try {
+                    $this->userMailer->sendScheduledReport($scheduledReport, $file);
+                    $this->info('Sent report');
+                } catch (Exception $exception) {
+                    $this->info('ERROR: ' . $exception->getMessage());
+                }
+            } else {
+                $this->info('ERROR: Failed to run report');
             }
 
             $scheduledReport->updateSendDate();

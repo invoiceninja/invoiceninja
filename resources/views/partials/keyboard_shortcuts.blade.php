@@ -234,7 +234,7 @@
             'g u m' => 'user_management',
         ] as $key => $val)
             Mousetrap.bind('{{ $key }}', function(e) {
-                location.href = "{!! url('/settings/' . $val) !!}";
+                location.href = "{{ url('/settings/' . $val) }}";
             });
         @endforeach
 

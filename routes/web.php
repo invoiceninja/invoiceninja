@@ -109,6 +109,10 @@ Route::group(['middleware' => ['lookup:contact']], function () {
     Route::get('/proposal/image/{account_key}/{document_key}/{filename?}', 'ClientPortalProposalController@getProposalImage');
 });
 
+if (Utils::isSelfHost()) {
+    Route::get('/run_command', 'AppController@runCommand');
+}
+
 if (Utils::isReseller()) {
     Route::post('/reseller_stats', 'AppController@stats');
 }
@@ -129,6 +133,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
     Route::post('handle_command', 'BotController@handleCommand');
+    Route::post('accept_terms', 'UserController@acceptTerms');
 
     Route::post('signup/validate', 'AccountController@checkEmail');
     Route::post('signup/submit', 'AccountController@submitSignup');
@@ -146,6 +151,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
     Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
+    Route::post('email_history', 'ClientController@getEmailHistory');
+    Route::post('reactivate_email/{bounce_id}', 'ClientController@reactivateEmail');
 
     Route::get('time_tracker', 'TimeTrackerController@index');
     Route::get('tasks/kanban/{client_id?}/{project_id?}', 'TaskKanbanController@index');
@@ -244,6 +251,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/credits/{client_id?}', 'CreditController@getDatatable');
     Route::post('credits/bulk', 'CreditController@bulk');
 
+    Route::get('products/{products}/clone', 'ProductController@cloneProduct');
     Route::get('api/products', 'ProductController@getDatatable');
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
@@ -281,8 +289,10 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('reports', 'ReportController@showReports');
     Route::post('reports', 'ReportController@showReports');
-    Route::get('calendar', 'CalendarController@showCalendar');
-    Route::get('calendar_events', 'CalendarController@loadEvents');
+    Route::get('reports/calendar', 'CalendarController@showCalendar');
+    Route::get('reports/calendar_events', 'CalendarController@loadEvents');
+    Route::get('reports/emails', 'ReportController@showEmailReport');
+    Route::get('reports/emails_report/{start_date}/{end_date}', 'ReportController@loadEmailReport');
 });
 
 Route::group([
@@ -298,6 +308,7 @@ Route::group([
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
     Route::get('/errors', 'AppController@errors');
+    Route::get('/test_headless', 'AppController@testHeadless');
 
     Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');
@@ -321,8 +332,6 @@ Route::group([
     Route::post('settings/purge_data', 'AccountController@purgeData');
     Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::post('settings/{section?}', 'AccountController@doSection');
-
-    Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
 
     Route::post('/export', 'ExportController@doExport');
@@ -351,9 +360,10 @@ Route::group([
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
     Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
     Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
-    Route::get('self-update', 'SelfUpdateController@index');
-    Route::post('self-update', 'SelfUpdateController@update');
-    Route::get('self-update/download', 'SelfUpdateController@download');
+
+    //Route::get('self-update', 'SelfUpdateController@index');
+    //Route::post('self-update', 'SelfUpdateController@update');
+    //Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
 Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {

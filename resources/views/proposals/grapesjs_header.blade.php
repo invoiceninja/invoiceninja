@@ -1,4 +1,6 @@
 <script src="{{ asset('js/grapesjs.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+<script src="{{ asset('js/grapesjs-blocks-basic.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+<script src="{{ asset('js/grapesjs-preset-newsletter.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 <link href="{{ asset('css/grapesjs.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
 <style>

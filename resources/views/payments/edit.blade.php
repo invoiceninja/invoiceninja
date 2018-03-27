@@ -18,6 +18,7 @@
         ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
         ->onsubmit('return onFormSubmit(event)')
         ->method($method)
+        ->autocomplete('off')
         ->rules(array(
     		'client' => 'required',
     		'invoice' => 'required',
@@ -218,7 +219,12 @@
 	});
 
     function onFormSubmit(event) {
+        if ($('#saveButton').is(':disabled')) {
+            return false;
+        }
+
         @if ($payment)
+            $('#saveButton').attr('disabled', true);
             return true;
         @else
             // warn if amount is more than balance/credit will be created
@@ -227,10 +233,6 @@
             var amount = $('#amount').val();
 
             if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
-                if (NINJA.formIsSubmitted) {
-        			return false;
-        		}
-        		NINJA.formIsSubmitted = true;
                 $('#saveButton').attr('disabled', true);
                 return true;
             } else {

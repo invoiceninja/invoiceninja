@@ -69,6 +69,15 @@ class ProductDatatable extends EntityDatatable
                 },
             ],
             [
+                trans('texts.clone_product'),
+                function ($model) {
+                    return URL::to("products/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_PRODUCT);
+                },
+            ],
+            [
                 trans('texts.invoice_product'),
                 function ($model) {
                     return "javascript:submitForm_product('invoice', {$model->public_id})";

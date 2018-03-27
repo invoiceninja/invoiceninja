@@ -90,6 +90,11 @@ class InvoiceListener
                         ->first();
         $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
         $activity->save();
+
+        if ($invoice->balance == 0 && $payment->account->auto_archive_invoice) {
+            $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoiceRepo->archive($invoice);
+        }
     }
 
     /**

@@ -257,6 +257,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSizeSmaller': NINJA.fontSize - 1,
         'bodyFont': NINJA.bodyFont,
         'headerFont': NINJA.headerFont,
+        'signature': NINJA.signature(invoice),
         'signatureBase64': NINJA.signatureImage(invoice),
         'signatureDate': NINJA.signatureDate(invoice),
     }
@@ -302,6 +303,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
                     } else if (field == 'invoice_to') {
                         field = 'statement_to';
                     }
+                } else if (invoice.is_delivery_note) {
+                    field = 'delivery_note';
                 } else if (invoice.balance_amount < 0) {
                     if (field == 'your_invoice') {
                         field = 'your_credit';
@@ -327,7 +330,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values
-    var regExp = new RegExp('"\\$[a-z][\\\w\\\.]*?[Value]?"', 'g');
+    var regExp = new RegExp('\\$[a-zA-Z\\.]*[Value]?', 'g');
     var matches = javascript.match(regExp);
 
     if (matches) {
@@ -336,13 +339,13 @@ NINJA.decodeJavascript = function(invoice, javascript)
 
             // reserved words
             if ([
-                '"$none"',
-                '"$firstAndLast"',
-                '"$notFirstAndLastColumn"',
-                '"$notFirst"',
-                '"$amount"',
-                '"$primaryColor"',
-                '"$secondaryColor"',
+                '$none',
+                '$firstAndLast',
+                '$notFirstAndLastColumn',
+                '$notFirst',
+                '$amount',
+                '$primaryColor',
+                '$secondaryColor',
             ].indexOf(match) >= 0) {
                 continue;
             }
@@ -350,11 +353,16 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = match.replace('$invoice.', '$');
 
             // legacy style had 'Value' at the end
-            if (endsWith(field, 'Value"')) {
-                field = field.substring(2, field.indexOf('Value'));
+            if (endsWith(field, 'Value')) {
+                field = field.substring(1, field.indexOf('Value'));
             } else {
-                field = field.substring(2, field.length - 1);
+                field = field.substring(1, field.length);
             }
+
+            if (! field) {
+                continue;
+            }
+
             field = toSnakeCase(field);
 
             if (field == 'footer') {
@@ -373,60 +381,74 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 value = formatMoneyInvoice(value, invoice);
             }
 
-            javascript = javascript.replace(match, '"'+value+'"');
+            if ($.trim(value)) {
+                javascript = javascript.replace(match, value);
+            }
         }
     }
 
     return javascript;
 }
 
+NINJA.signature = function(invoice) {
+    var invitation = NINJA.getSignatureInvitation(invoice);
+    if (invitation) {
+        return {
+            "stack": [
+                {
+                    "image": "$signatureBase64",
+                    "margin": [200, 10, 0, 0]
+                },
+                {
+                    "canvas": [{
+                        "type": "line",
+                        "x1": 200,
+                        "y1": -25,
+                        "x2": 504,
+                        "y2": -25,
+                        "lineWidth": 1,
+                        "lineColor": "#888888"
+                    }]
+                },
+                {
+                    "text": [invoiceLabels.date, ": ", "$signatureDate"],
+                    "margin": [200, -20, 0, 0]
+                }
+            ]
+        };
+    } else {
+        return '';
+    }
+}
+
 NINJA.signatureImage = function(invoice) {
     var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
-
-    if (! invoice.invitations || ! invoice.invitations.length) {
-        return blankImage;
-    }
-
-    if (! parseInt(invoice.account.signature_on_pdf)) {
-        return blankImage;
-    }
-
-    for (var i=0; i<invoice.invitations.length; i++) {
-        var invitation = invoice.invitations[i];
-        if (invitation.signature_base64) {
-            break;
-        }
-    }
-
-    if (! invitation.signature_base64) {
-        return blankImage;
-    }
-
-    return invitation.signature_base64 || blankImage;
+    var invitation = NINJA.getSignatureInvitation(invoice);
+    return invitation ? invitation.signature_base64 : blankImage;
 }
 
 NINJA.signatureDate = function(invoice) {
+    var invitation = NINJA.getSignatureInvitation(invoice);
+    return invitation ? NINJA.formatDateTime(invitation.signature_date, invoice.account) : '';
+}
+
+NINJA.getSignatureInvitation = function(invoice) {
     if (! invoice.invitations || ! invoice.invitations.length) {
-        return '';
+        return false;
     }
 
     if (! parseInt(invoice.account.signature_on_pdf)) {
-        return '';
+        return false;
     }
 
     for (var i=0; i<invoice.invitations.length; i++) {
         var invitation = invoice.invitations[i];
         if (invitation.signature_base64) {
-            break;
+            return invitation;
         }
     }
 
-    if (! invitation.signature_base64) {
-        return '';
-    }
-
-    var date = invitation.signature_date;
-    return NINJA.formatDateTime(date, invoice.account);
+    return false;
 }
 
 NINJA.formatDateTime = function(date, account) {
@@ -804,12 +826,16 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             } else if (field == 'custom_value2') {
                 value = customValue2;
             } else if (field == 'discount') {
-                if (parseInt(invoice.is_amount_discount)) {
-                    value = formatMoneyInvoice(discount, invoice);
-                } else {
-                    if (discount) {
-                        value = discount + '%';
+                if (NINJA.parseFloat(discount)) {
+                    if (parseInt(invoice.is_amount_discount)) {
+                        value = formatMoneyInvoice(discount, invoice);
+                    } else {
+                        if (discount) {
+                            value = discount + '%';
+                        }
                     }
+                } else {
+                    value = '';
                 }
             } else if (field == 'tax') {
                 value = ' ';
@@ -1151,6 +1177,8 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         } else {
             value = client.country ? client.country.name : '';
         }
+    } else if (field == 'client.website') {
+        value = client.website;
     } else if (field == 'client.email') {
         value = contact.email == clientName ? '' : contact.email;
     } else if (field == 'client.phone') {
@@ -1234,9 +1262,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = invoice.invoice_date;
     } else if (field == 'invoice.due_date') {
         label = invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date;
-        if (invoice.is_recurring) {
-            value = false;
-        } else if (invoice.partial_due_date) {
+        if (invoice.partial_due_date) {
             value = invoice.partial_due_date;
         } else {
             value = invoice.due_date;

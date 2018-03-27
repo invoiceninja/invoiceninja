@@ -16,6 +16,7 @@ use Auth;
 use DropdownButton;
 use Input;
 use Redirect;
+use Request;
 use Session;
 use URL;
 use Utils;
@@ -189,7 +190,7 @@ class TaskController extends BaseController
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($task));
 
         return View::make('tasks.edit', $data);
     }
@@ -211,12 +212,12 @@ class TaskController extends BaseController
     /**
      * @return array
      */
-    private static function getViewModel()
+    private static function getViewModel($task = false)
     {
         return [
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clients' => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
-            'projects' => Project::scope()->with('client.contacts')->orderBy('name')->get(),
+            'projects' => Project::scope()->withActiveOrSelected($task ? $task->project_id : false)->with('client.contacts')->orderBy('name')->get(),
         ];
     }
 
@@ -260,6 +261,7 @@ class TaskController extends BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('public_id') ?: (Input::get('id') ?: Input::get('ids'));
+        $referer = Request::server('HTTP_REFERER');
 
         if (in_array($action, ['resume', 'stop'])) {
             $this->taskRepo->save($ids, ['action' => $action]);
@@ -273,23 +275,21 @@ class TaskController extends BaseController
             $lastProjectId = false;
             foreach ($tasks as $task) {
                 if ($task->client) {
+                    if ($task->client->trashed()) {
+                        return redirect($referer)->withError(trans('texts.client_must_be_active'));
+                    }
+
                     if (! $clientPublicId) {
                         $clientPublicId = $task->client->public_id;
                     } elseif ($clientPublicId != $task->client->public_id) {
-                        Session::flash('error', trans('texts.task_error_multiple_clients'));
-
-                        return Redirect::to('tasks');
+                        return redirect($referer)->withError(trans('texts.task_error_multiple_clients'));
                     }
                 }
 
                 if ($task->is_running) {
-                    Session::flash('error', trans('texts.task_error_running'));
-
-                    return Redirect::to('tasks');
+                    return redirect($referer)->withError(trans('texts.task_error_running'));
                 } elseif ($task->invoice_id) {
-                    Session::flash('error', trans('texts.task_error_invoiced'));
-
-                    return Redirect::to('tasks');
+                    return redirect($referer)->withError(trans('texts.task_error_invoiced'));
                 }
 
                 $account = Auth::user()->account;

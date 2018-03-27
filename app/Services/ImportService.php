@@ -393,12 +393,14 @@ class ImportService
             }
         }
 
+        /*
         // if the invoice number is blank we'll assign it
         if ($entityType == ENTITY_INVOICE && ! $data['invoice_number']) {
             $account = Auth::user()->account;
             $invoice = Invoice::createNew();
             $data['invoice_number'] = $account->getNextNumber($invoice);
         }
+        */
 
         if (EntityModel::validate($data, $entityType) !== true) {
             return false;

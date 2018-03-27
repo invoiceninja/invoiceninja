@@ -2,7 +2,7 @@
 
 @section('head')
     @if (!empty($clientFontUrl))
-        <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
+        <link href="{{ $clientFontUrl }}" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <style type="text/css">{!! !empty($account)?$account->clientViewCSS():'' !!}</style>
@@ -79,8 +79,8 @@
                 @endif
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                @if (!empty($account) && $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
+                @if (! empty($account) && $account->enable_client_portal)
                     @if (isset($account) && $account->enable_client_portal_dashboard)
                         <li {!! Request::is('*client/dashboard*') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
@@ -124,8 +124,14 @@
                             {!! link_to('/client/logout', trans('texts.logout')) !!}
                         </li>
                     @endif
-                </ul>
+                @elseif (! empty($account))
+                    @if (isset($hasPaymentMethods) && $hasPaymentMethods)
+                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
+                        </li>
+                    @endif
                 @endif
+                </ul>
             </div><!--/.nav-collapse -->
         </div>
     </nav>

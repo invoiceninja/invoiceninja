@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Jobs\LoadPostmarkHistory;
+use App\Jobs\ReactivatePostmarkEmail;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Expense;
 use App\Models\Task;
 use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
@@ -84,6 +87,7 @@ class ClientController extends BaseController
     {
         $client = $request->entity();
         $user = Auth::user();
+        $account = $user->account;
 
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
@@ -118,14 +122,16 @@ class ClientController extends BaseController
         $token = $client->getGatewayToken();
 
         $data = [
+            'account' => $account,
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,
             'client' => $client,
             'credit' => $client->getTotalCredit(),
             'title' => trans('texts.view_client'),
-            'hasRecurringInvoices' => Invoice::scope()->recurring()->withArchived()->whereClientId($client->id)->count() > 0,
-            'hasQuotes' => Invoice::scope()->quotes()->withArchived()->whereClientId($client->id)->count() > 0,
-            'hasTasks' => Task::scope()->withArchived()->whereClientId($client->id)->count() > 0,
+            'hasRecurringInvoices' => $account->isModuleEnabled(ENTITY_RECURRING_INVOICE) && Invoice::scope()->recurring()->withArchived()->whereClientId($client->id)->count() > 0,
+            'hasQuotes' => $account->isModuleEnabled(ENTITY_QUOTE) && Invoice::scope()->quotes()->withArchived()->whereClientId($client->id)->count() > 0,
+            'hasTasks' => $account->isModuleEnabled(ENTITY_TASK) && Task::scope()->withArchived()->whereClientId($client->id)->count() > 0,
+            'hasExpenses' => $account->isModuleEnabled(ENTITY_EXPENSE) && Expense::scope()->withArchived()->whereClientId($client->id)->count() > 0,
             'gatewayLink' => $token ? $token->gatewayLink() : false,
             'gatewayName' => $token ? $token->gatewayName() : false,
         ];
@@ -216,12 +222,21 @@ class ClientController extends BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+
+        if ($action == 'purge' && ! auth()->user()->is_admin) {
+            return redirect('dashboard')->withError(trans('texts.not_authorized'));
+        }
+
         $count = $this->clientService->bulk($ids, $action);
 
         $message = Utils::pluralize($action.'d_client', $count);
         Session::flash('message', $message);
 
-        return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
+        if ($action == 'purge') {
+            return redirect('dashboard')->withMessage($message);
+        } else {
+            return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
+        }
     }
 
     public function statement($clientPublicId, $statusId = false, $startDate = false, $endDate = false)
@@ -272,5 +287,19 @@ class ClientController extends BaseController
         ];
 
         return view('clients.statement', $data);
+    }
+
+    public function getEmailHistory()
+    {
+        $history = dispatch(new LoadPostmarkHistory(request()->email));
+
+        return response()->json($history);
+    }
+
+    public function reactivateEmail()
+    {
+        $result = dispatch(new ReactivatePostmarkEmail(request()->bounce_id));
+
+        return response()->json($result);
     }
 }
