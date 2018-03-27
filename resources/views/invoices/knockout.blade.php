@@ -374,8 +374,15 @@ function InvoiceModel(data) {
     }
 
     self.formatMoney = function(amount) {
+        /*
         var client = $.parseJSON(ko.toJSON(self.client()));
         return formatMoneyAccount(amount, self.account, client);
+        */
+
+        var currencyId = (self.client().currency_id() || account.currency_id) || {{ DEFAULT_CURRENCY }};
+        var countryId = (self.client().country_id() || account.country_id) || {{ DEFAULT_COUNTRY }};
+        var decorator = parseInt(account.show_currency_code) ? 'code' : 'symbol';
+        return formatMoney(amount, currencyId, countryId, decorator);
     }
 
     self.totals = ko.observable();
