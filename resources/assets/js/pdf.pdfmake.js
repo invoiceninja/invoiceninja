@@ -826,12 +826,16 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             } else if (field == 'custom_value2') {
                 value = customValue2;
             } else if (field == 'discount') {
-                if (parseInt(invoice.is_amount_discount)) {
-                    value = formatMoneyInvoice(discount, invoice);
-                } else {
-                    if (discount) {
-                        value = discount + '%';
+                if (NINJA.parseFloat(discount)) {
+                    if (parseInt(invoice.is_amount_discount)) {
+                        value = formatMoneyInvoice(discount, invoice);
+                    } else {
+                        if (discount) {
+                            value = discount + '%';
+                        }
                     }
+                } else {
+                    value = '';
                 }
             } else if (field == 'tax') {
                 value = ' ';
