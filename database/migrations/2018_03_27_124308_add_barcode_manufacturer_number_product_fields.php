@@ -17,6 +17,11 @@ class AddBarcodeManufacturerNumberProductFields extends Migration
             $table->string('barcode')->nullable();
             $table->string('manufacturer_part_number')->nullable();
         });
+
+        Schema::table('accounts', function ($table) {
+            $table->boolean('products_barcode')->default(false);
+            $table->boolean('products_manufacturer_part_number')->default(false);
+        });
     }
 
     /**
@@ -29,6 +34,11 @@ class AddBarcodeManufacturerNumberProductFields extends Migration
         Schema::table('products', function ($table) {
             $table->dropColumn('barcode');
             $table->dropColumn('manufacturer_part_number');
+        });
+
+        Schema::table('accounts', function ($table) {
+            $table->dropColumn('products_barcode');
+            $table->dropColumn('products_manufacturer_part_number');
         });
     }
 }

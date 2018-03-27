@@ -2796,8 +2796,12 @@ $LANG = array(
     'send_item_details_help' => 'Send the line item details to the payment gateway.',
     'view_proposal' => 'View Proposal',
     'view_in_portal' => 'View in Portal',
-    'manufacturer_part_number' => 'Mfg Part',
     'barcode' => 'Barcode',
+    'products_barcode' => 'Barcode',
+    'products_barcode_help' =>  'Enable the barcode field',
+    'manufacturer_part_number' => 'Mfg Part',
+    'products_manufacturer_part_number' => 'Manufacturer part number',
+    'products_manufacturer_part_number_help' => 'Enable the manufacturer part number field',
 );
 
 return $LANG;

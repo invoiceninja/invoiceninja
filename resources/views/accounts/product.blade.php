@@ -28,8 +28,12 @@
                     {!! Former::text('product_key')->label('texts.product') !!}
                     {!! Former::textarea('notes')->rows(6) !!}
 
-                    {!! Former::text('manufacturer_part_number') !!}
-                    {!! Former::text('barcode') !!}
+                    @if ($account->products_barcode)
+                        {!! Former::text('barcode') !!}
+                    @endif
+                    @if ($account->products_manufacturer_part_number)
+                        {!! Former::text('manufacturer_part_number') !!}
+                    @endif
 
                     @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
                         @if ($account->custom_invoice_item_label1)

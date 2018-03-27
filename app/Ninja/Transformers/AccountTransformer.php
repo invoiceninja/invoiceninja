@@ -283,6 +283,8 @@ class AccountTransformer extends EntityTransformer
             'inclusive_taxes' => (bool) $account->inclusive_taxes,
             'convert_products' => (bool) $account->convert_products,
             'signature_on_pdf' => (bool) $account->signature_on_pdf,
+            'products_barcode' => (bool) $account->products_barcode,
+            'products_manufacturer_part_number' => (bool) $account->products_manufacturer_part_number,
         ];
     }
 }
