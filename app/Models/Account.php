@@ -186,6 +186,8 @@ class Account extends Eloquent
         'inclusive_taxes',
         'convert_products',
         'signature_on_pdf',
+        'products_barcode',
+        'products_manufacturer_part_number',
     ];
 
     /**
