@@ -272,7 +272,7 @@
 
         function onFormSubmit(event) {
             if (window.countUploadingDocuments > 0) {
-                swal("{!! trans('texts.wait_for_upload') !!}");
+                swal({!! json_encode(trans('texts.wait_for_upload')) !!});
                 return false;
             }
 

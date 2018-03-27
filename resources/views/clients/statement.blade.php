@@ -98,7 +98,7 @@
                 $('#reportrange').css('color', '#000');
                 $('#reportrange').css('pointer-events', 'auto');
             }
-            var url = "{!! url('/clients/statement/' . $client->public_id) !!}/" + statusId + '/' +
+            var url = '{{ url('/clients/statement/' . $client->public_id) }}' + '/' + statusId + '/' +
                 statementStartDate.format('YYYY-MM-DD') + '/' + statementEndDate.format('YYYY-MM-DD') + '?json=true';
             $.get(url, function(response) {
                 invoice = currentInvoice = JSON.parse(response);

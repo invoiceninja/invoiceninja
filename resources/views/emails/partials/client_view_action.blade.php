@@ -15,7 +15,7 @@
   "broker": {
     "@type": "Organization",
     "name": "Invoice Ninja",
-    "url": "{!! NINJA_WEB_URL !!}"
+    "url": "{{ NINJA_WEB_URL }}"
   },
   "totalPaymentDue": {
     "@type": "PriceSpecification",
@@ -23,7 +23,7 @@
   },
   "action": {
     "@type": "ViewAction",
-    "url": "{!! $link !!}"
+    "url": "{{ $link }}"
   }
 },
 @endif
@@ -32,8 +32,8 @@
   "@type": "EmailMessage",
   "action": {
     "@type": "ViewAction",
-    "url": "{!! $link !!}",
-    "name": "{{ trans("texts.view_{$entityType}") }}"
+    "url": "{{ $link }}",
+    "name": {!! json_encode(trans("texts.view_{$entityType}")) !!}
   }
 }
 ]

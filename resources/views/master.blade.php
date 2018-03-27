@@ -111,14 +111,14 @@
 
         // http://t4t5.github.io/sweetalert/
         function sweetConfirm(successCallback, text, title, cancelCallback) {
-            title = title || "{!! trans("texts.are_you_sure") !!}";
+            title = title || {!! json_encode(trans("texts.are_you_sure")) !!};
             swal({
                 //type: "warning",
                 //confirmButtonColor: "#DD6B55",
                 title: title,
                 text: text,
-                cancelButtonText: "{!! trans("texts.no") !!}",
-                confirmButtonText: "{!! trans("texts.yes") !!}",
+                cancelButtonText: {!! json_encode(trans("texts.no")) !!},
+                confirmButtonText: {!! json_encode(trans("texts.yes")) !!},
                 showCancelButton: true,
                 closeOnConfirm: false,
                 allowOutsideClick: true,

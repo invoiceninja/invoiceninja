@@ -498,7 +498,7 @@
   	function setQuoteNumberEnabled() {
 			var disabled = $('#share_counter').prop('checked');
 			$('#quote_number_counter').prop('disabled', disabled);
-			$('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');
+			$('#quote_number_counter').val(disabled ? '' : {!! json_encode($account->quote_number_counter) !!});
 		}
 
     function onNumberTypeChange(entityType) {

@@ -5,7 +5,7 @@
 
     <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
-    <script src="{!! asset('js/Chart.min.js') !!}" type="text/javascript"></script>
+    <script src="{{ asset('js/Chart.min.js') }}" type="text/javascript"></script>
 @stop
 
 
@@ -151,7 +151,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
+		if (confirm({!! json_encode(trans('texts.are_you_sure')) !!})) {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		}

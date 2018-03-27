@@ -52,8 +52,8 @@
             invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
         };
       invoice.account.hide_paid_to_date = {!! Auth::user()->account->hide_paid_to_date ? 'true' : 'false' !!};
-      NINJA.primaryColor = '{!! Auth::user()->account->primary_color !!}';
-      NINJA.secondaryColor = '{!! Auth::user()->account->secondary_color !!}';
+      NINJA.primaryColor = {!! json_encode(Auth::user()->account->primary_color) !!};
+      NINJA.secondaryColor = {!! json_encode(Auth::user()->account->secondary_color) !!};
       NINJA.fontSize = {!! Auth::user()->account->font_size !!};
       NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
       NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};

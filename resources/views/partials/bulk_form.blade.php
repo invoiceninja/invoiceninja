@@ -8,14 +8,14 @@
 <script type="text/javascript">
     function submitForm_{{ $entityType }}(action, id) {
         if (action == 'delete') {
-            if (!confirm('{!! trans("texts.are_you_sure") !!}')) {
+            if (!confirm({!! json_encode(trans("texts.are_you_sure")) !!})) {
                 return;
             }
         }
 
         @if (in_array($entityType, [ENTITY_ACCOUNT_GATEWAY]))
             if (action == 'archive') {
-                if (!confirm('{!! trans("texts.are_you_sure") !!}')) {
+                if (!confirm({!! json_encode(trans("texts.are_you_sure")) !!})) {
                     return;
                 }
             }

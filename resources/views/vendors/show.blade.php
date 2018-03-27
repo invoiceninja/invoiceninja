@@ -212,7 +212,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
+		if (confirm({!! json_encode(trans('texts.are_you_sure')) !!})) {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		}

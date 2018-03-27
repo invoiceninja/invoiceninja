@@ -2,7 +2,7 @@
 
 @section('head')
     @if (!empty($clientFontUrl))
-        <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
+        <link href="{{ $clientFontUrl }}" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <style type="text/css">{!! !empty($account)?$account->clientViewCSS():'' !!}</style>

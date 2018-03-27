@@ -3,7 +3,7 @@
 @section('head')
 	@parent
 
-	<script src="{!! asset('js/Chart.min.js') !!}" type="text/javascript"></script>
+	<script src="{{ asset('js/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ asset('js/daterangepicker.min.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 	<link href="{{ asset('css/daterangepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 @stop
@@ -157,7 +157,7 @@
 		});
 
 		function loadData() {
-			var url = "{!! url('/reports/emails_report') !!}/" + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD');
+			var url = '{{ url('/reports/emails_report') }}/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD');
 			$.get(url, function(response) {
 				loadChart(response.data);
 				$('#totalSentDiv').html(response.totals['sent']);

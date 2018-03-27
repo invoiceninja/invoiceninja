@@ -39,7 +39,7 @@ class PaymentTermApiController extends BaseAPIController
      *   @SWG\Response(
      *     response=200,
      *     description="A list of payment terms",
-     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/PaymentTerms"))
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/PaymentTerm"))
      *   ),
      *   @SWG\Response(
      *     response="default",
@@ -73,7 +73,7 @@ class PaymentTermApiController extends BaseAPIController
          *   @SWG\Response(
          *     response=200,
          *     description="A single payment term",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/PaymentTerms"))
+         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/PaymentTerm"))
          *   ),
          *   @SWG\Response(
          *     response="default",

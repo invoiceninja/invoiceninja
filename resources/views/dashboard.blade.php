@@ -5,7 +5,7 @@
 
     @include('money_script')
 
-	<script src="{!! asset('js/Chart.min.js') !!}" type="text/javascript"></script>
+	<script src="{{ asset('js/Chart.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('js/daterangepicker.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
 
@@ -171,7 +171,7 @@
 
             function loadData() {
                 var includeExpenses = "{{ $showExpenses ? 'true' : 'false' }}";
-                var url = "{!! url('/dashboard_chart_data') !!}/" + chartGroupBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
+                var url = '{{ url('/dashboard_chart_data') }}/' + chartGroupBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
                 $.get(url, function(response) {
                     response = JSON.parse(response);
                     loadChart(response.data);
