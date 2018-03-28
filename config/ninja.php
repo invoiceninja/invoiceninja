@@ -23,4 +23,7 @@ return [
     'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'https://api.fixer.io/latest'),
     'exchange_rates_base' => env('EXCHANGE_RATES_BASE', 'EUR'),
 
+    // privacy policy
+    'privacy_policy_url' => env('PRIVACY_POLICY_URL', ''),
+
 ];

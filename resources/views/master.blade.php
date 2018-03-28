@@ -198,6 +198,31 @@
 
     </script>
 
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
+    <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
+    <script>
+    window.addEventListener("load", function(){
+        window.cookieconsent.initialise({
+            "palette": {
+                "popup": {
+                    "background": "#000"
+                },
+                "button": {
+                    "background": "#f1d600"
+                },
+            },
+            "cookie": {
+                "domain": "{{ config('session.domain') }}"
+            },
+            "content": {
+                "href": "{{ Utils::isNinja() ? Utils::getPrivacyLink() : (config('ninja.privacy_policy_url') ?: 'https://cookiesandyou.com/' ) }}",
+                "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                "link": {!! json_encode(trans('texts.learn_more')) !!},
+            }
+        })}
+    );
+    </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -231,6 +256,8 @@
         })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
         ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');
+        ga('set', 'anonymizeIp', true);
+
         @if (request()->invitation_key || request()->proposal_invitation_key || request()->contact_key)
             ga('send', 'pageview', { 'page': '/client/portal' });
         @else
