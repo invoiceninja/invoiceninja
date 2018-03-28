@@ -2796,6 +2796,8 @@ $LANG = array(
     'send_item_details_help' => 'Send the line item details to the payment gateway.',
     'view_proposal' => 'View Proposal',
     'view_in_portal' => 'View in Portal',
+    'cookie_message' => 'This website uses cookies to ensure you get the best experience on our website.',
+    'got_it' => 'Got it!',
 
 );
 

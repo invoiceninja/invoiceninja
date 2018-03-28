@@ -67,6 +67,8 @@ class AccountRepository
         $account->currency_id = DEFAULT_CURRENCY;
 
         // Set default language/currency based on IP
+        // TODO Disabled until GDPR implications are understood
+        /*
         if (\Cache::get('currencies')) {
             if ($data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $account->ip))) {
                 $currencyCode = strtolower($data['geoplugin_currencyCode']);
@@ -94,6 +96,7 @@ class AccountRepository
                 }
             }
         }
+        */
 
         $account->save();
 
