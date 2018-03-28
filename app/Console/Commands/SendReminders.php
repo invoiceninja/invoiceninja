@@ -161,6 +161,7 @@ class SendReminders extends Command
 
             $user = $scheduledReport->user;
             $account = $scheduledReport->account;
+            $account->loadLocalizationSettings();
 
             if (! $account->hasFeature(FEATURE_REPORTS)) {
                 continue;
