@@ -30,6 +30,7 @@ use App\Ninja\Repositories\ReferralRepository;
 use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Services\TemplateService;
+use Nwidart\Modules\Facades\Module;
 use Auth;
 use Cache;
 use File;
@@ -757,6 +758,20 @@ class AccountController extends BaseController
         $user = Auth::user();
         $account = $user->account;
         $modules = Input::get('modules');
+
+        // get all custom modules, including disabled
+        $custom_modules = collect(Input::get('custom_modules'))->each(function ($item, $key) {
+            $module = Module::find($item);
+            if ($module && $module->disabled()) {
+                $module->enable();
+            }
+        });
+
+        (Module::toCollection()->diff($custom_modules))->each(function ($item, $key) {
+            if ($item->enabled()) {
+                $item->disable();
+            }
+        });
 
         $user->force_pdfjs = Input::get('force_pdfjs') ? true : false;
         $user->save();
