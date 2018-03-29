@@ -202,6 +202,7 @@ class ContactMailer extends Mailer
             'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
             'proposal' => $proposal,
+            'tag' => $account->account_key,
         ];
 
         if (! $proposal) {
@@ -306,6 +307,7 @@ class ContactMailer extends Mailer
             'bccEmail' => $account->getBccEmail(),
             'fromEmail' => $account->getFromEmail(),
             'isRefund' => $refunded > 0,
+            'tag' => $account->account_key,
         ];
 
         if (! $refunded && $account->attachPDF()) {
