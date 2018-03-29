@@ -2,6 +2,8 @@
 
 namespace App\Constants;
 
+use App\Libraries\Utils;
+
 class Domain
 {
     const INVOICENINJA_COM = 1;
@@ -27,5 +29,18 @@ class Domain
     public static function getEmailFromId($id)
     {
         return 'maildelivery@' . static::getDomainFromId($id);
+    }
+
+    public static function getCookieDomain($url)
+    {
+        if  (! Utils::isNinjaProd() || Utils::isReseller()) {
+            return '';
+        }
+
+        if (strpos($url, '.services') !== false) {
+            return '.invoice.services';
+        } else {
+            return '.invoiceninja.com';
+        }
     }
 }
