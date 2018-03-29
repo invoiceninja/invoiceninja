@@ -1113,7 +1113,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         return false;
     }
     var account = invoice.account;
-    var contact = client.contacts[0];
+    var contact = invoice.contact || client.contacts[0];
     var clientName = client.name || (contact.first_name || contact.last_name ? ((contact.first_name || '') + ' ' + (contact.last_name || '')) : contact.email);
 
     var label = false;
