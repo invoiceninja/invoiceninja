@@ -84,5 +84,7 @@ class LoadPostmarkHistory extends Job
 
             $str .= '<p/>';
         }
+
+        return $str;
     }
 }
