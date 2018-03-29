@@ -392,7 +392,7 @@
                 @endif
             @endforeach
             @if ( ! Utils::isNinjaProd())
-                @foreach (Module::collections() as $module)
+                @foreach (Module::all() as $module)
                     @include('partials.navigation_option', [
                         'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
