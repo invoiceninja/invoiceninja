@@ -32,7 +32,7 @@
 		    }
 		</style>
 
-    @if (!empty($transactionToken) && $accountGateway->gateway_id == GATEWAY_BRAINTREE)
+    @if (!empty($transactionToken) && $accountGateway->gateway_id == GATEWAY_BRAINTREE && $accountGateway->getPayPalEnabled())
         <div id="paypal-container"></div>
         <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
         <script type="text/javascript" >
