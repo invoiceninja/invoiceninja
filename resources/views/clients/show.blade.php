@@ -171,18 +171,12 @@
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
-		  	@foreach ($client->contacts as $contact)
+            @foreach ($client->contacts as $contact)
                 @if ($contact->first_name || $contact->last_name)
                     <b>{{ $contact->first_name.' '.$contact->last_name }}</b><br/>
                 @endif
                 @if ($contact->email)
-                    <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}
-                    @if (config('services.postmark'))
-                        | <a href="#" onclick="showEmailHistory('{{ $contact->email }}')">
-                            {{ trans('texts.history') }}
-                        </a>
-                    @endif
-                    <br/>
+                    <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}<br/>
                 @endif
                 @if ($contact->phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
@@ -197,11 +191,16 @@
 
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
                     <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}"
-                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_in_portal') }}
-                    </a><br/>
+                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_in_portal') }}</a>
+                    @if (config('services.postmark'))
+                        | <a href="#" onclick="showEmailHistory('{{ $contact->email }}')">
+                            {{ trans('texts.email_history') }}
+                        </a>
+                    @endif
+                    <br/>
                 @endif
                 <br/>
-		  	@endforeach
+            @endforeach
 		</div>
 
 		<div class="col-md-3">
