@@ -1217,7 +1217,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return bool|string
      */
-    public function getPDFString($decode = true)
+    public function getPDFString($invitation = false, $decode = true)
     {
         if (! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
@@ -1227,7 +1227,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        $invitation = $this->invitations[0];
+        $invitation = $invitation ?: $this->invitations[0];
         $link = $invitation->getLink('view', true, true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');

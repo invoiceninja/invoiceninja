@@ -215,7 +215,7 @@ class ClientPortalController extends BaseController
 
         $invoice = $invitation->invoice;
         $decode = ! request()->base64;
-        $pdfString = $invoice->getPDFString($decode);
+        $pdfString = $invoice->getPDFString($invitation, $decode);
 
         header('Content-Type: application/pdf');
         header('Content-Length: ' . strlen($pdfString));

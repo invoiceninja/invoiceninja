@@ -70,9 +70,6 @@ class ContactMailer extends Mailer
         $pdfString = false;
         $ublString = false;
 
-        if ($account->attachPDF() && ! $proposal) {
-            $pdfString = $invoice->getPDFString();
-        }
         if ($account->attachUBL() && ! $proposal) {
             $ublString = dispatch(new ConvertInvoiceToUbl($invoice));
         }
@@ -100,6 +97,9 @@ class ContactMailer extends Mailer
         $isFirst = true;
         $invitations = $proposal ? $proposal->invitations : $invoice->invitations;
         foreach ($invitations as $invitation) {
+            if ($account->attachPDF() && ! $proposal) {
+                $pdfString = $invoice->getPDFString($invitation);
+            }
             $data = [
                 'pdfString' => $pdfString,
                 'documentStrings' => $documentStrings,
@@ -266,6 +266,7 @@ class ContactMailer extends Mailer
 
         $account->loadLocalizationSettings($client);
         $invoice = $payment->invoice;
+        $invitation = $payment->invitation ?: $payment->invoice->invitations[0];
         $accountName = $account->getDisplayName();
 
         if ($refunded > 0) {
@@ -282,11 +283,9 @@ class ContactMailer extends Mailer
         if ($payment->invitation) {
             $user = $payment->invitation->user;
             $contact = $payment->contact;
-            $invitation = $payment->invitation;
         } else {
             $user = $payment->user;
             $contact = $client->contacts->count() ? $client->contacts[0] : '';
-            $invitation = $payment->invoice->invitations[0];
         }
 
         $variables = [
