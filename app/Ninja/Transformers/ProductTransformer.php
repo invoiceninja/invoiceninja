@@ -34,6 +34,8 @@ class ProductTransformer extends EntityTransformer
             'archived_at' => $this->getTimestamp($product->deleted_at),
             'custom_value1' => $product->custom_value1,
             'custom_value2' => $product->custom_value2,
+            'barcode' => $product->barcode,
+            'manufacturer_part_number' => $product->manufacturer_part_number,
         ]);
     }
 }

@@ -10,7 +10,9 @@
   {{ Former::populateField('fill_products', intval($account->fill_products)) }}
   {{ Former::populateField('update_products', intval($account->update_products)) }}
   {{ Former::populateField('convert_products', intval($account->convert_products)) }}
-
+  {{ Former::populateField('products_barcode', intval($account->products_barcode)) }}
+  {{ Former::populateField('products_manufacturer_part_number', intval($account->products_manufacturer_part_number)) }}
+  
 
   <div class="panel panel-default">
   <div class="panel-heading">
@@ -23,6 +25,10 @@
       &nbsp;
       {!! Former::checkbox('convert_products')->text(trans('texts.convert_products_help'))
             ->help(trans('texts.convert_products_tip', ['name' => trans('texts.exchange_rate')]))->value(1) !!}
+      &nbsp;
+      {!! Former::checkbox('products_barcode')->text(trans('texts.products_barcode_help'))->value(1) !!}
+      &nbsp;
+      {!! Former::checkbox('products_manufacturer_part_number')->text(trans('texts.products_manufacturer_part_number_help'))->value(1) !!}
       &nbsp;
       {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
       {!! Former::close() !!}

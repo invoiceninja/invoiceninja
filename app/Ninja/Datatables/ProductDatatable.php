@@ -43,6 +43,20 @@ class ProductDatatable extends EntityDatatable
                 $account->invoice_item_taxes,
             ],
             [
+                'manufacturer_part_number',
+                function ($model) {
+                    return $model->manufacturer_part_number;
+                },
+                $account->products_manufacturer_part_number,
+            ],
+            [
+                'barcode',
+                function ($model) {
+                    return $model->barcode;
+                },
+                $account->products_barcode,
+            ],
+            [
                 'custom_value1',
                 function ($model) {
                     return $model->custom_value1;

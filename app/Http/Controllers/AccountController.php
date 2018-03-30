@@ -941,10 +941,12 @@ class AccountController extends BaseController
     private function saveProducts()
     {
         $account = Auth::user()->account;
-
+        
         $account->fill_products = Input::get('fill_products') ? true : false;
         $account->update_products = Input::get('update_products') ? true : false;
         $account->convert_products = Input::get('convert_products') ? true : false;
+        $account->products_barcode = Input::get('products_barcode') ? true : false;
+        $account->products_manufacturer_part_number = Input::get('products_manufacturer_part_number') ? true : false;
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
