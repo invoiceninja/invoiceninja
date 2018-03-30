@@ -97,6 +97,7 @@ class ImportService
         ENTITY_PAYMENT,
         ENTITY_TASK,
         ENTITY_PRODUCT,
+        ENTITY_VENDOR,
         ENTITY_EXPENSE,
         ENTITY_CUSTOMER,
     ];

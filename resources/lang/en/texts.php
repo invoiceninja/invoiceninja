@@ -2799,6 +2799,10 @@ $LANG = array(
     'view_in_portal' => 'View in Portal',
     'cookie_message' => 'This website uses cookies to ensure you get the best experience on our website.',
     'got_it' => 'Got it!',
+    'vendor_will_create' => 'vendor will be created',
+    'vendors_will_create' => 'vendors will be created',
+    'created_vendors' => 'Successfully created :count vendor(s)',
+    'import_vendors' => 'Import Vendors',
 
 );
 
