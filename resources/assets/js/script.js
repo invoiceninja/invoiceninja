@@ -652,17 +652,17 @@ function calculateAmounts(invoice) {
         if (parseInt(invoice.is_amount_discount)) {
             lineTotal -= discount;
         } else {
-            lineTotal -= roundToTwo(lineTotal * discount / 100);
+            lineTotal -= roundSignificant(lineTotal * discount / 100);
         }
     }
-    lineTotal = roundToTwo(lineTotal);
+    lineTotal = roundSignificant(lineTotal);
 
     if (invoice.discount != 0) {
         var discount = roundToTwo(NINJA.parseFloat(invoice.discount));
         if (parseInt(invoice.is_amount_discount)) {
-            lineTotal -= roundToTwo((lineTotal/total) * discount);
+            lineTotal -= roundSignificant((lineTotal/total) * discount);
         } else {
-            lineTotal -= roundToTwo(lineTotal * discount / 100);
+            lineTotal -= roundSignificant(lineTotal * discount / 100);
         }
     }
 

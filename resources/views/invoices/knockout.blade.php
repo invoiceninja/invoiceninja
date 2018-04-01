@@ -914,7 +914,7 @@ function ItemModel(data) {
                 value -= roundToTwo(value * discount / 100);
             }
         }
-        return value ? roundToTwo(value) : 0;
+        return value ? roundSignificant(value) : 0;
     });
 
     this.totals.total = ko.computed(function() {

@@ -549,7 +549,7 @@ class InvoiceRepository extends BaseRepository
                 if ($invoice->is_amount_discount) {
                     $lineTotal -= $discount;
                 } else {
-                    $lineTotal -= round($lineTotal * $discount / 100, 2);
+                    $lineTotal -= round($lineTotal * $discount / 100, 4);
                 }
             }
 
@@ -567,17 +567,17 @@ class InvoiceRepository extends BaseRepository
                 if ($invoice->is_amount_discount) {
                     $lineTotal -= $discount;
                 } else {
-                    $lineTotal -= round($lineTotal * $discount / 100, 2);
+                    $lineTotal -= round($lineTotal * $discount / 100, 4);
                 }
             }
 
             if ($invoice->discount > 0) {
                 if ($invoice->is_amount_discount) {
                     if ($total != 0) {
-                        $lineTotal -= round(($lineTotal / $total) * $invoice->discount, 2);
+                        $lineTotal -= round(($lineTotal / $total) * $invoice->discount, 4);
                     }
                 } else {
-                    $lineTotal -= round($lineTotal * ($invoice->discount / 100), 2);
+                    $lineTotal -= round($lineTotal * ($invoice->discount / 100), 4);
                 }
             }
 
