@@ -1349,38 +1349,19 @@ class Utils
 
     public static function brewerColor($number) {
         $colors = [
-            '#337AB7',
-            '#3cb44b',
-            '#e6194b',
-            '#f58231',
-            '#911eb4',
-            '#46f0f0',
-            '#f032e6',
-            '#d2f53c',
-            '#fabebe',
-            '#008080',
-            '#e6beff',
-            '#aa6e28',
-            '#fffac8',
-            '#800000',
-            '#aaffc3',
-            '#808000',
-            '#000080',
-            '#808080',
+            '#0B629E',
+            '#43365B',
+            '#63A188',
+            '#F7BF6C',
+            '#D35746',
+            '#6CB4DD',
+            '#034C78',
+            '#30253E',
+            '#394648',
+            '#F89941',
+            '#F48568',
+            '#3495C6',
         ];
-
-        /*
-        $colors = [
-            '#1c9f77',
-            '#d95d02',
-            '#716cb1',
-            '#e62a8b',
-            '#5fa213',
-            '#e6aa04',
-            '#a87821',
-            '#676767',
-        ];
-        */
         $number = ($number-1) % count($colors);
 
         return $colors[$number];
