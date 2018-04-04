@@ -4,12 +4,13 @@ namespace App\Ninja\Reports;
 
 use App\Models\Task;
 use Utils;
+use Auth;
 
 class TaskReport extends AbstractReport
 {
     public function getColumns()
     {
-        return [
+        $columns = [
             'client' => [],
             'start_date' => [],
             'project' => [],
@@ -18,10 +19,23 @@ class TaskReport extends AbstractReport
             'amount' => [],
             'user' => ['columnSelector-false'],
         ];
+
+        $user = auth()->user();
+        $account = $user->account;
+
+        if ($account->customLabel('task1')) {
+            $columns[$account->present()->customLabel('task1')] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->customLabel('task2')) {
+            $columns[$account->present()->customLabel('task2')] = ['columnSelector-false', 'custom'];
+        }
+
+        return $columns;
     }
 
     public function run()
     {
+        $account = Auth::user()->account;
         $startDate = date_create($this->startDate);
         $endDate = date_create($this->endDate);
         $subgroup = $this->options['subgroup'];
@@ -41,7 +55,7 @@ class TaskReport extends AbstractReport
                 $currencyId = auth()->user()->account->getCurrencyId();
             }
 
-            $this->data[] = [
+            $row = [
                 $task->client ? ($this->isExport ? $task->client->getDisplayName() : $task->client->present()->link) : trans('texts.unassigned'),
                 $this->isExport ? $task->getStartTime() : link_to($task->present()->url, $task->getStartTime()),
                 $task->present()->project,
@@ -50,6 +64,15 @@ class TaskReport extends AbstractReport
                 Utils::formatMoney($amount, $currencyId),
                 $task->user->getDisplayName(),
             ];
+
+            if ($account->customLabel('task1')) {
+                $row[] = $task->custom_value1;
+            }
+            if ($account->customLabel('task2')) {
+                $row[] = $task->custom_value2;
+            }
+
+            $this->data[] = $row;
 
             $this->addToTotals($currencyId, 'duration', $duration);
             $this->addToTotals($currencyId, 'amount', $amount);

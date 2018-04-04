@@ -23,6 +23,16 @@ class ExpenseReport extends AbstractReport
             'user' => ['columnSelector-false'],
         ];
 
+        $user = auth()->user();
+        $account = $user->account;
+
+        if ($account->customLabel('expense1')) {
+            $columns[$account->present()->customLabel('expense1')] = ['columnSelector-false', 'custom'];
+        }
+        if ($account->customLabel('expense2')) {
+            $columns[$account->present()->customLabel('expense2')] = ['columnSelector-false', 'custom'];
+        }
+
         if (TaxRate::scope()->count()) {
             $columns['tax'] = ['columnSelector-false'];
         }
@@ -84,6 +94,13 @@ class ExpenseReport extends AbstractReport
                 $expense->private_notes,
                 $expense->user->getDisplayName(),
             ];
+
+            if ($account->customLabel('expense1')) {
+                $row[] = $expense->custom_value1;
+            }
+            if ($account->customLabel('expense2')) {
+                $row[] = $expense->custom_value2;
+            }
 
             if ($hasTaxRates) {
                 $row[] = $expense->present()->taxAmount;
