@@ -24,6 +24,8 @@ class Task extends EntityModel
         'description',
         'time_log',
         'is_running',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**

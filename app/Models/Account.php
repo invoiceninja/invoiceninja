@@ -231,6 +231,14 @@ class Account extends Eloquent
         'invoice2',
         'invoice_surcharge1',
         'invoice_surcharge2',
+        'task1',
+        'task2',
+        'project1',
+        'project2',
+        'expense1',
+        'expense2',
+        'vendor1',
+        'vendor2',
     ];
 
     public static $customLabels = [

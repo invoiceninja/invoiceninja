@@ -28,6 +28,8 @@ class Project extends EntityModel
         'private_notes',
         'due_date',
         'budgeted_hours',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**

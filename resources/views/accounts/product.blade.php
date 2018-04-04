@@ -28,20 +28,7 @@
                     {!! Former::text('product_key')->label('texts.product') !!}
                     {!! Former::textarea('notes')->rows(6) !!}
 
-                    @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
-                        @if ($account->customLabel('product1'))
-                            @include('partials.custom_field', [
-        						'field' => 'custom_value1',
-        						'label' => $account->customLabel('product1')
-        					])
-                        @endif
-                        @if ($account->customLabel('product2'))
-                            @include('partials.custom_field', [
-        						'field' => 'custom_value2',
-        						'label' => $account->customLabel('product2')
-        					])
-                        @endif
-                    @endif
+                    @include('partials/custom_fields', ['entityType' => ENTITY_PRODUCT])
 
                     {!! Former::text('cost') !!}
 

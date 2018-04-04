@@ -71,6 +71,26 @@ class AddMoreCustomFields extends Migration
             $table->dropColumn('custom_invoice_item_label1');
             $table->dropColumn('custom_invoice_item_label2');
         });
+
+        Schema::table('tasks', function ($table) {
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+        });
+
+        Schema::table('projects', function ($table) {
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+        });
+
+        Schema::table('expenses', function ($table) {
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+        });
+
+        Schema::table('vendors', function ($table) {
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+        });
     }
 
     /**

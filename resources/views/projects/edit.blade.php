@@ -51,6 +51,8 @@
 						->placeholder($project && $project->client->task_rate ? $project->client->present()->taskRate : $account->present()->taskRate)
 				 		->help('task_rate_help') !!}
 
+				@include('partials/custom_fields', ['entityType' => ENTITY_PROJECT])
+
 				{!! Former::textarea('private_notes')->rows(4) !!}
 
             </div>

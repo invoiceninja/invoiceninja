@@ -79,6 +79,8 @@
                                 ->addGroupClass('client-select') !!}
                     @endif
 
+                    @include('partials/custom_fields', ['entityType' => ENTITY_EXPENSE])
+
                     @if (count($taxRates))
                         @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
                             {!! Former::checkbox('apply_taxes')

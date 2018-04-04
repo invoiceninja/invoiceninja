@@ -699,7 +699,7 @@
 						  var subtotal = 0;
 				          $rows.each(function() {
 				            var txt = $(this).find("td").eq(i).text();
-				            subtotal += convertStringToNumber(txt);
+				            subtotal += convertStringToNumber(txt) || 0;
 				          });
 				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal, true));
 					  }

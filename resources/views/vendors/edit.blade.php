@@ -44,6 +44,7 @@
                         {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
 
+			@include('partials/custom_fields', ['entityType' => ENTITY_VENDOR])
             </div>
             </div>
 

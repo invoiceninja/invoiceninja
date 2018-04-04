@@ -44,6 +44,8 @@ class Vendor extends EntityModel
         'currency_id',
         'website',
         'transaction_name',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**

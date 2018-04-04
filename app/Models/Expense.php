@@ -52,6 +52,8 @@ class Expense extends EntityModel
         'transaction_reference',
         'invoice_documents',
         'should_be_invoiced',
+        'custom_value1',
+        'custom_value2',
     ];
 
     public static function getImportColumns()

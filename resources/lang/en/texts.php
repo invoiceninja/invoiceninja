@@ -2803,7 +2803,21 @@ $LANG = array(
     'vendors_will_create' => 'vendors will be created',
     'created_vendors' => 'Successfully created :count vendor(s)',
     'import_vendors' => 'Import Vendors',
-
+    'company' => 'Company',
+    'client_field' => 'Client Field',
+    'contact_field' => 'Contact Field',
+    'product_field' => 'Product Field',
+    'task_field' => 'Task Field',
+    'project_field' => 'Project Field',
+    'expense_field' => 'Expense Field',
+    'vendor_field' => 'Vendor Field',
+    'company_field' => 'Company Field',
+    'invoice_field' => 'Invoice Field',
+    'invoice_surcharge' => 'Invoice Surcharge',
+    'custom_task_fields_help' => 'Add a field when creating a task.',
+    'custom_project_fields_help' => 'Add a field when creating a project.',
+    'custom_expense_fields_help' => 'Add a field when creating an expense.',
+    'custom_vendor_fields_help' => 'Add a field when creating a vendor.',
 );
 
 return $LANG;

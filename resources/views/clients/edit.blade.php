@@ -52,20 +52,8 @@
             {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
 
-			@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
-				@if ($customLabel1)
-					@include('partials.custom_field', [
-						'field' => 'custom_value1',
-						'label' => $customLabel1
-					])
-				@endif
-				@if ($customLabel2)
-					@include('partials.custom_field', [
-						'field' => 'custom_value2',
-						'label' => $customLabel2
-					])
-				@endif
-			@endif
+
+			@include('partials/custom_fields', ['entityType' => ENTITY_CLIENT])
 
 			@if ($account->usesClientInvoiceCounter())
 				{!! Former::text('invoice_number_counter')->label('invoice_counter') !!}
