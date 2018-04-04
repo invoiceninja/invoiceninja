@@ -161,8 +161,6 @@ class Account extends Eloquent
         'gateway_fee_enabled',
         'send_item_details',
         'reset_counter_date',
-        'custom_contact_label1',
-        'custom_contact_label2',
         'domain_id',
         'analytics_key',
         'credit_number_counter',
@@ -172,6 +170,9 @@ class Account extends Eloquent
         'inclusive_taxes',
         'convert_products',
         'signature_on_pdf',
+        'custom_fields',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**
@@ -502,6 +503,10 @@ class Account extends Eloquent
     public function setCustomFieldsAttribute($data)
     {
         $fields = [];
+
+        if (! is_array($data)) {
+            $data = json_decode($data);
+        }
 
         foreach ($data as $key => $value) {
             if ($value) {

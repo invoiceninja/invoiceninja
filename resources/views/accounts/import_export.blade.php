@@ -42,8 +42,8 @@
             {!! Former::checkboxes('json_include_radio')
                     ->label(trans('texts.include'))
                     ->checkboxes([
-                        trans('texts.data') => 'data',
                         trans('texts.settings') => 'settings',
+                        trans('texts.data') => 'data',
                     ]) !!}
         </div>
 
