@@ -224,10 +224,10 @@
 			</div>
             @endif
 
-            @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
+            @if ($account->customLabel('invoice_text1'))
 				@include('partials.custom_field', [
 					'field' => 'custom_text_value1',
-					'label' => $account->custom_invoice_text_label1,
+					'label' => $account->customLabel('invoice_text1'),
 					'databind' => "value: custom_text_value1, valueUpdate: 'afterkeydown'",
 				])
             @endif
@@ -276,10 +276,10 @@
 							->raw()
 			) !!}
 
-            @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
+            @if ($account->customLabel('invoice_text2'))
 				@include('partials.custom_field', [
 					'field' => 'custom_text_value2',
-					'label' => $account->custom_invoice_text_label2,
+					'label' => $account->customLabel('invoice_text2'),
 					'databind' => "value: custom_text_value2, valueUpdate: 'afterkeydown'",
 				])
             @endif
@@ -329,15 +329,15 @@
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 			</tr>
 
-            @if ($account->showCustomField('custom_invoice_label1', $invoice) && $invoice->custom_taxes1)
+			@if ($account->customLabel('invoice1') && $invoice->custom_taxes1)
 				<tr>
-					<td colspan="2">{{ $account->custom_invoice_label1 ?: trans('texts.surcharge') }}</td>
+					<td colspan="2">{{ $account->customLabel('invoice1') ?: trans('texts.surcharge') }}</td>
 					<td><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
-            @if ($account->showCustomField('custom_invoice_label2', $invoice) && $invoice->custom_taxes2)
+            @if ($account->customLabel('invoice2') && $invoice->custom_taxes2)
 				<tr>
-					<td colspan="2">{{ $account->custom_invoice_label2 ?: trans('texts.surcharge') }}</td>
+					<td colspan="2">{{ $account->customLabel('invoice2') ?: trans('texts.surcharge') }}</td>
 					<td><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
@@ -374,16 +374,16 @@
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
 
-            @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$invoice->custom_taxes1)
+            @if ($account->customLabel('invoice1') && !$invoice->custom_taxes1)
 				<tr>
-					<td colspan="2">{{ $account->custom_invoice_label1 ?: trans('texts.surcharge') }}</td>
+					<td colspan="2">{{ $account->customLabel('invoice1') ?: trans('texts.surcharge') }}</td>
 					<td><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
 
-            @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$invoice->custom_taxes2)
+            @if ($account->customLabel('invoice2') && !$invoice->custom_taxes2)
 				<tr>
-					<td colspan="2">{{ $account->custom_invoice_label2 ?: trans('texts.surcharge') }}</td>
+					<td colspan="2">{{ $account->customLabel('invoice2') ?: trans('texts.surcharge') }}</td>
 					<td><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
@@ -626,17 +626,17 @@
                 </span>
 
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
-                    @if ($account->custom_client_label1)
+                    @if ($account->customLabel('client1'))
 						@include('partials.custom_field', [
 							'field' => 'client[custom_value1]',
-							'label' => $account->custom_client_label1,
+							'label' => $account->customLabel('client1'),
 							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown'",
 						])
                     @endif
-                    @if ($account->custom_client_label2)
+                    @if ($account->customLabel('client2'))
 						@include('partials.custom_field', [
 							'field' => 'client[custom_value2]',
-							'label' => $account->custom_client_label2,
+							'label' => $account->customLabel('client2'),
 							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown'",
 						])
                     @endif
@@ -690,18 +690,18 @@
                             attr: {name: 'client[contacts][' + \$index() + '][password]'}")->autocomplete('new-password')->data_lpignore('true') !!}
                     @endif
 					@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
-	                    @if ($account->custom_contact_label1)
+	                    @if ($account->customLabel('contact1'))
 							@include('partials.custom_field', [
 								'field' => 'custom_contact1',
-								'label' => $account->custom_contact_label1,
+								'label' => $account->customLabel('contact1'),
 								'databind' => "value: custom_value1, valueUpdate: 'afterkeydown',
 			                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}",
 							])
 	                    @endif
-	                    @if ($account->custom_contact_label2)
+	                    @if ($account->customLabel('contact2'))
 							@include('partials.custom_field', [
 								'field' => 'custom_contact2',
-								'label' => $account->custom_contact_label2,
+								'label' => $account->customLabel('contact2'),
 								'databind' => "value: custom_value2, valueUpdate: 'afterkeydown',
 			                            attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}",
 							])

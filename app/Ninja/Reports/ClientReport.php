@@ -22,11 +22,11 @@ class ClientReport extends AbstractReport
         $user = auth()->user();
         $account = $user->account;
 
-        if ($account->custom_client_label1) {
-            $columns[$account->present()->customClientLabel1] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('client1')) {
+            $columns[$account->present()->customLabel('client1')] = ['columnSelector-false', 'custom'];
         }
-        if ($account->custom_client_label2) {
-            $columns[$account->present()->customClientLabel2] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('client2')) {
+            $columns[$account->present()->customLabel('client2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -75,10 +75,10 @@ class ClientReport extends AbstractReport
                 $client->user->getDisplayName(),
             ];
 
-            if ($account->custom_client_label1) {
+            if ($account->customLabel('client1')) {
                 $row[] = $client->custom_value1;
             }
-            if ($account->custom_client_label2) {
+            if ($account->customLabel('client2')) {
                 $row[] = $client->custom_value2;
             }
 

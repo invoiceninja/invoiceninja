@@ -31,12 +31,12 @@ class ProductReport extends AbstractReport
             }
         }
 
-        if ($account->custom_invoice_item_label1) {
-            $columns[$account->present()->customProductLabel1] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('product1')) {
+            $columns[$account->present()->customLabel('product1')] = ['columnSelector-false', 'custom'];
         }
 
-        if ($account->custom_invoice_item_label2) {
-            $columns[$account->present()->customProductLabel2] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('product2')) {
+            $columns[$account->present()->customLabel('product2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -81,11 +81,11 @@ class ProductReport extends AbstractReport
                         }
                     }
 
-                    if ($account->custom_invoice_item_label1) {
+                    if ($account->customLabel('product1')) {
                         $row[] = $item->custom_value1;
                     }
 
-                    if ($account->custom_invoice_item_label2) {
+                    if ($account->customLabel('product2')) {
                         $row[] = $item->custom_value2;
                     }
 

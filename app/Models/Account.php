@@ -219,6 +219,19 @@ class Account extends Eloquent
         'outstanding' => 4,
     ];
 
+    public static $customFields = [
+        'client1',
+        'client2',
+        'contact1',
+        'contact2',
+        'product1',
+        'product2',
+        'invoice1',
+        'invoice2',
+        'invoice_surcharge1',
+        'invoice_surcharge2',
+    ];
+
     public static $customLabels = [
         'balance_due',
         'credit_card',
@@ -481,6 +494,34 @@ class Account extends Eloquent
     public function setSizeIdAttribute($value)
     {
         $this->attributes['size_id'] = $value ?: null;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setCustomFieldsAttribute($data)
+    {
+        $fields = [];
+
+        foreach ($data as $key => $value) {
+            if ($value) {
+                $fields[$key] = $value;
+            }
+        }
+
+        $this->attributes['custom_fields'] = count($fields) ? json_encode($fields) : null;
+    }
+
+    public function getCustomFieldsAttribute($value)
+    {
+        return json_decode($value ?: '{}');
+    }
+
+    public function customLabel($field)
+    {
+        $labels = $this->custom_fields;
+
+        return ! empty($labels->$field) ? $labels->$field : '';
     }
 
     /**
@@ -1460,28 +1501,6 @@ class Account extends Eloquent
         }
 
         return true;
-    }
-
-    /**
-     * @param $field
-     * @param bool $entity
-     *
-     * @return bool
-     */
-    public function showCustomField($field, $entity = false)
-    {
-        if ($this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->$field) {
-            return true;
-        }
-
-        if (! $entity) {
-            return false;
-        }
-
-        // convert (for example) 'custom_invoice_label1' to 'invoice.custom_value1'
-        $field = str_replace(['invoice_', 'label'], ['', 'value'], $field);
-
-        return Utils::isEmpty($entity->$field) ? false : true;
     }
 
     /**

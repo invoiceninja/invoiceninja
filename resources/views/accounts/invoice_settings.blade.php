@@ -29,6 +29,9 @@
     {{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
     {{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
+    @foreach (App\Models\Account::$customFields as $field)
+        {{ Former::populateField("custom_fields[$field]", $account->customLabel($field)) }}
+    @endforeach
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -241,9 +244,9 @@
                 <div role="tabpanel" class="tab-pane active" id="client_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_client_label1')
+                        {!! Former::text('custom_fields[client1]')
                                 ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_client_label2')
+                        {!! Former::text('custom_fields[client2]')
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_client_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
@@ -252,9 +255,9 @@
                 <div role="tabpanel" class="tab-pane" id="contact_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_contact_label1')
+                        {!! Former::text('custom_fields[contact1]')
                                 ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_contact_label2')
+                        {!! Former::text('custom_fields[contact2]')
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_contact_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
 
@@ -263,12 +266,12 @@
                 <div role="tabpanel" class="tab-pane" id="company_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_label1')
+                        {!! Former::text('custom_fields[account1]')
                                 ->label(trans('texts.field_label')) !!}
                         {!! Former::text('custom_value1')
                                 ->label(trans('texts.field_value')) !!}
                         <p>&nbsp;</p>
-                        {!! Former::text('custom_label2')
+                        {!! Former::text('custom_fields[account2]')
                                 ->label(trans('texts.field_label')) !!}
                         {!! Former::text('custom_value2')
                                 ->label(trans('texts.field_value'))
@@ -279,9 +282,9 @@
                 <div role="tabpanel" class="tab-pane" id="product_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_invoice_item_label1')
+                        {!! Former::text('custom_fields[product1]')
                                 ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_invoice_item_label2')
+                        {!! Former::text('custom_fields[product2]')
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_product_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
 
@@ -290,20 +293,20 @@
                 <div role="tabpanel" class="tab-pane" id="invoice_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_invoice_text_label1')
+                        {!! Former::text('custom_fields[invoice_text1]')
                                 ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_invoice_text_label2')
+                        {!! Former::text('custom_fields[invoice_text2]')
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_invoice_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
-                        {!! Former::text('custom_invoice_label1')
+                        {!! Former::text('custom_fields[invoice1]')
                                 ->label(trans('texts.surcharge_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
                                             ->value(1)
                                             ->raw() . trans('texts.charge_taxes')) !!}
 
-                        {!! Former::text('custom_invoice_label2')
+                        {!! Former::text('custom_fields[invoice2]')
                                 ->label(trans('texts.surcharge_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')

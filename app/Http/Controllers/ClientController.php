@@ -197,8 +197,8 @@ class ClientController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
-            'customLabel1' => Auth::user()->account->custom_client_label1,
-            'customLabel2' => Auth::user()->account->custom_client_label2,
+            'customLabel1' => Auth::user()->account->customLabel('client1'),
+            'customLabel2' => Auth::user()->account->customLabel('client2'),
         ];
     }
 

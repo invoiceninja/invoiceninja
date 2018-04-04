@@ -155,25 +155,25 @@
                                 @endif
                             @endforeach
                         </ul>
-                        @if ($account->custom_client_label1 || $account->custom_contact_label1 || $account->custom_invoice_text_label1)
+                        @if ($account->customLabel('client1') || $account->customLabel('contact1') || $account->customLabel('invoice_text1'))
                             <p>{{ trans('texts.custom_variables') }}</p>
                             <ul>
-                                @if ($account->custom_client_label1)
+                                @if ($account->customLabel('client1'))
                                     <li>$customClient1</li>
                                 @endif
-                                @if ($account->custom_client_label2)
+                                @if ($account->customLabel('client2'))
                                     <li>$customClient2</li>
                                 @endif
-                                @if ($account->custom_contact_label1)
+                                @if ($account->customLabel('contact1'))
                                     <li>$customContact1</li>
                                 @endif
-                                @if ($account->custom_contact_label2)
+                                @if ($account->customLabel('contact2'))
                                     <li>$customContact2</li>
                                 @endif
-                                @if ($account->custom_invoice_text_label1)
+                                @if ($account->customLabel('invoice_text1'))
                                     <li>$customInvoice1</li>
                                 @endif
-                                @if ($account->custom_invoice_text_label2)
+                                @if ($account->customLabel('invoice_text2'))
                                     <li>$customInvoice2</li>
                                 @endif
                             </ul>

@@ -100,11 +100,11 @@
 		  	   <p><i class="fa fa-vat-number" style="width: 20px"></i>{{ trans('texts.vat_number').': '.$client->vat_number }}</p>
             @endif
 
-            @if ($client->account->custom_client_label1 && $client->custom_value1)
-                {{ $client->account->present()->customClientLabel1 . ': ' . $client->custom_value1 }}<br/>
+            @if ($client->account->customLabel('client1') && $client->custom_value1)
+                {{ $client->account->present()->customLabel('client1') . ': ' . $client->custom_value1 }}<br/>
             @endif
-            @if ($client->account->custom_client_label2 && $client->custom_value2)
-                {{ $client->account->present()->customClientLabel2 . ': ' . $client->custom_value2 }}<br/>
+            @if ($client->account->customLabel('client2') && $client->custom_value2)
+                {{ $client->account->present()->customLabel('client2') . ': ' . $client->custom_value2 }}<br/>
             @endif
 
             @if ($client->work_phone)
@@ -182,11 +182,11 @@
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
                 @endif
 
-                @if ($client->account->custom_contact_label1 && $contact->custom_value1)
-                    {{ $client->account->present()->customContactLabel1() . ': ' . $contact->custom_value1 }}<br/>
+                @if ($client->account->customLabel('contact1') && $contact->custom_value1)
+                    {{ $client->account->present()->customLabel('contact1') . ': ' . $contact->custom_value1 }}<br/>
                 @endif
-                @if ($client->account->custom_contact_label2 && $contact->custom_value2)
-                    {{ $client->account->present()->customContactLabel2() . ': ' . $contact->custom_value2 }}<br/>
+                @if ($client->account->customLabel('contact2') && $contact->custom_value2)
+                    {{ $client->account->present()->customLabel('contact2') . ': ' . $contact->custom_value2 }}<br/>
                 @endif
 
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)

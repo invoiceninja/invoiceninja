@@ -1072,9 +1072,9 @@ ko.bindingHandlers.productTypeahead = {
                                         from: currencyMap[accountCurrencyId].code,
                                         to: currencyMap[clientCurrencyId].code,
                                     });
-                                    if ((account.custom_invoice_text_label1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                    if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                         window.model.invoice().custom_text_value1(roundToFour(rate, true));
-                                    } else if ((account.custom_invoice_text_label2 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                    } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                         window.model.invoice().custom_text_value2(roundToFour(rate, true));
                                     }
                                 }
@@ -1097,12 +1097,12 @@ ko.bindingHandlers.productTypeahead = {
                         $select.val('0 ' + datum.tax_rate2 + ' ' + datum.tax_name2).trigger('change');
                     }
                 @endif
-                @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)
+                @if (Auth::user()->isPro() && $account->customLabel('product1'))
                     if (datum.custom_value1) {
                         model.custom_value1(datum.custom_value1);
                     }
                 @endif
-                @if (Auth::user()->isPro() && $account->custom_invoice_item_label2)
+                @if (Auth::user()->isPro() && $account->customLabel('product2'))
                     if (datum.custom_value2) {
                         model.custom_value2(datum.custom_value2);
                     }

@@ -169,11 +169,11 @@ class AccountRepository
         ];
 
         // include custom client fields in search
-        if ($account->custom_client_label1) {
-            $data[$account->present()->customClientLabel1] = [];
+        if ($account->customLabel('client1')) {
+            $data[$account->present()->customLabel('client1')] = [];
         }
-        if ($account->custom_client_label2) {
-            $data[$account->present()->customClientLabel2] = [];
+        if ($account->customLabel('client2')) {
+            $data[$account->present()->customLabel('client2')] = [];
         }
 
         if ($user->hasPermission('view_all')) {
@@ -203,14 +203,14 @@ class AccountRepository
             }
 
             if ($client->custom_value1) {
-                $data[$account->present()->customClientLabel1][] = [
+                $data[$account->present()->customLabel('client1')][] = [
                     'value' => "{$client->custom_value1}: " . $client->getDisplayName(),
                     'tokens' => $client->custom_value1,
                     'url' => $client->present()->url,
                 ];
             }
             if ($client->custom_value2) {
-                $data[$account->present()->customClientLabel2][] = [
+                $data[$account->present()->customLabel('client2')][] = [
                     'value' => "{$client->custom_value2}: " . $client->getDisplayName(),
                     'tokens' => $client->custom_value2,
                     'url' => $client->present()->url,

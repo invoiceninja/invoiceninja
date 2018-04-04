@@ -160,18 +160,18 @@
 			    @endif
 
 				@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
-					@if ($account->custom_contact_label1)
+					@if ($account->customLabel('contact1'))
 						@include('partials.custom_field', [
 							'field' => 'custom_contact1',
-							'label' => $account->custom_contact_label1,
+							'label' => $account->customLabel('contact1'),
 							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown',
 									attr: {name: 'contacts[' + \$index() + '][custom_value1]'}",
 						])
 					@endif
-					@if ($account->custom_contact_label2)
+					@if ($account->customLabel('contact2'))
 						@include('partials.custom_field', [
 							'field' => 'custom_contact2',
-							'label' => $account->custom_contact_label2,
+							'label' => $account->customLabel('contact2'),
 							'databind' => "value: custom_value2, valueUpdate: 'afterkeydown',
 									attr: {name: 'contacts[' + \$index() + '][custom_value2]'}",
 						])

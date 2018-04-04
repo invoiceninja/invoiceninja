@@ -61,25 +61,25 @@
             hint: true,
             highlight: true,
           }
-          @if (Auth::check() && Auth::user()->account->custom_client_label1)
+          @if (Auth::check() && Auth::user()->account->customLabel('client1'))
           ,{
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->account->present()->customClientLabel1 }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('client1') }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customClientLabel1 }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('client1') }}</span>'
             }
           }
           @endif
-          @if (Auth::check() && Auth::user()->account->custom_client_label2)
+          @if (Auth::check() && Auth::user()->account->customLabel('client2'))
           ,{
             name: 'data',
             limit: 3,
             display: 'value',
-            source: searchData(data['{{ Auth::user()->account->present()->customClientLabel2 }}'], 'tokens'),
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('client2') }}'], 'tokens'),
             templates: {
-              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customClientLabel2 }}</span>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('client2') }}</span>'
             }
           }
           @endif

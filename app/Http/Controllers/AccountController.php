@@ -569,10 +569,10 @@ class AccountController extends BaseController
         $client->vat_number = $account->vat_number ? '1234567890' : '';
         $client->id_number = $account->id_number ? '1234567890' : '';
 
-        if ($account->custom_client_label1) {
+        if ($account->customLabel('client1')) {
             $client->custom_value1 = '0000';
         }
-        if ($account->custom_client_label2) {
+        if ($account->customLabel('client2')) {
             $client->custom_value2 = '0000';
         }
 
@@ -581,10 +581,10 @@ class AccountController extends BaseController
         $invoice->account = json_decode($account->toJson());
         $invoice->amount = $invoice->balance = 100;
 
-        if ($account->custom_invoice_text_label1) {
+        if ($account->customLabel('invoice_text1')) {
             $invoice->custom_text_value1 = '0000';
         }
-        if ($account->custom_invoice_text_label2) {
+        if ($account->customLabel('invoice_text2')) {
             $invoice->custom_text_value2 = '0000';
         }
 
@@ -604,10 +604,10 @@ class AccountController extends BaseController
         $invoiceItem->tax_name1 = 'Tax';
         $invoiceItem->tax_rate1 = 10;
 
-        if ($account->custom_invoice_item_label1) {
+        if ($account->customLabel('product1')) {
             $invoiceItem->custom_value1 = '0000';
         }
-        if ($account->custom_invoice_item_label2) {
+        if ($account->customLabel('product2')) {
             $invoiceItem->custom_value2 = '0000';
         }
 
@@ -976,23 +976,11 @@ class AccountController extends BaseController
                     ->withInput();
             } else {
                 $account = Auth::user()->account;
-                $account->custom_label1 = trim(Input::get('custom_label1'));
-                $account->custom_value1 = trim(Input::get('custom_value1'));
-                $account->custom_label2 = trim(Input::get('custom_label2'));
-                $account->custom_value2 = trim(Input::get('custom_value2'));
-                $account->custom_client_label1 = trim(Input::get('custom_client_label1'));
-                $account->custom_client_label2 = trim(Input::get('custom_client_label2'));
-                $account->custom_contact_label1 = trim(Input::get('custom_contact_label1'));
-                $account->custom_contact_label2 = trim(Input::get('custom_contact_label2'));
-                $account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
-                $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
+                $account->custom_value1 = Input::get('custom_value1');
+                $account->custom_value2 = Input::get('custom_value2');
                 $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
                 $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
-                $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
-                $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
-                $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
-                $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
-
+                $account->custom_fields = request()->custom_fields;
                 $account->invoice_number_padding = Input::get('invoice_number_padding');
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
