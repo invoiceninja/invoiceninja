@@ -290,6 +290,7 @@
             var client = clientMap[clientId];
             if (client) {
                 model.invoice_currency_id(client.currency_id);
+                model.updateExchangeRate();
             }
         }
 
