@@ -6,7 +6,8 @@
                 ->options(Utils::getCustomValues($label))
                 ->data_bind(empty($databind) ? '' : $databind) !!}
     @else
-        {!! Former::text($field)
+        {!! Former::textarea($field)
+                ->rows(1)
                 ->label(e($label))
                 ->data_bind(empty($databind) ? '' : $databind) !!}
     @endif
@@ -20,7 +21,8 @@
                 ->addClass('form-control invoice-item')
                 ->raw() !!}
     @else
-        {!! Former::text($field)
+        {!! Former::textarea($field)
+                ->rows(1)
                 ->label(e($label))
                 ->data_bind(empty($databind) ? '' : $databind)
                 ->addClass('form-control invoice-item')

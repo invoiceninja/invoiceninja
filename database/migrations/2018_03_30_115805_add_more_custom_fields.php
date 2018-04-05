@@ -73,24 +73,50 @@ class AddMoreCustomFields extends Migration
         });
 
         Schema::table('tasks', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
         });
 
         Schema::table('projects', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
         });
 
         Schema::table('expenses', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
         });
 
         Schema::table('vendors', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
+            $table->text('custom_value1')->nullable();
+            $table->text('custom_value2')->nullable();
         });
+
+        Schema::table('products', function ($table) {
+            $table->text('custom_value1')->nullable()->change();
+            $table->text('custom_value2')->nullable()->change();
+        });
+
+        Schema::table('clients', function ($table) {
+            $table->text('custom_value1')->nullable()->change();
+            $table->text('custom_value2')->nullable()->change();
+        });
+
+        Schema::table('contacts', function ($table) {
+            $table->text('custom_value1')->nullable()->change();
+            $table->text('custom_value2')->nullable()->change();
+        });
+
+        Schema::table('invoices', function ($table) {
+            $table->text('custom_text_value1')->nullable()->change();
+            $table->text('custom_text_value2')->nullable()->change();
+        });
+
+        Schema::table('invoice_items', function ($table) {
+            $table->text('custom_value1')->nullable()->change();
+            $table->text('custom_value2')->nullable()->change();
+        });
+
     }
 
     /**

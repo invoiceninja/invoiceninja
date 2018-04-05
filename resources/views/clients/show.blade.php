@@ -101,10 +101,10 @@
             @endif
 
             @if ($client->account->customLabel('client1') && $client->custom_value1)
-                {{ $client->account->present()->customLabel('client1') . ': ' . $client->custom_value1 }}<br/>
+                {{ $client->account->present()->customLabel('client1') . ': ' }} {!! nl2br(e($client->custom_value1)) !!}<br/>
             @endif
             @if ($client->account->customLabel('client2') && $client->custom_value2)
-                {{ $client->account->present()->customLabel('client2') . ': ' . $client->custom_value2 }}<br/>
+                {{ $client->account->present()->customLabel('client2') . ': ' }} {!! nl2br(e($client->custom_value2)) !!}<br/>
             @endif
 
             @if ($client->work_phone)

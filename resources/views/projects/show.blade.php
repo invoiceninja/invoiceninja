@@ -73,10 +73,10 @@
             @endif
 
             @if ($account->customLabel('project1') && $project->custom_value1)
-                {{ $account->present()->customLabel('project1') . ': ' . $project->custom_value1 }}<br/>
+                {{ $account->present()->customLabel('project1') . ': ' }} {!! nl2br(e($project->custom_value1)) !!}<br/>
             @endif
             @if ($account->customLabel('project2') && $project->custom_value2)
-                {{ $account->present()->customLabel('project2') . ': ' . $project->custom_value2 }}<br/>
+                {{ $account->present()->customLabel('project2') . ': ' }} {!! nl2br(e($project->custom_value2)) !!}<br/>
             @endif
 
         </div>

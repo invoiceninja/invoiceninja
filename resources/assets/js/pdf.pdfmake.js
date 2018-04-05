@@ -670,7 +670,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         'product.discount',
     ];
 
-    if (isSecondTable) {
+    if (isSecondTable && invoice.hasStandard) {
         styles.push('secondTableHeader');
     }
 
