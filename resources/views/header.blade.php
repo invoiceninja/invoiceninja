@@ -2,6 +2,14 @@
 
 @section('head_css')
     <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+
+    @if (Utils::isNinjaDev())
+        <style type="text/css">
+            .nav-footer {
+                background-color: #00FF00 !important;
+            }
+        </style>
+    @endif
 @stop
 
 @section('head')
