@@ -352,7 +352,7 @@
                                 ->label(trans('texts.company_field')) !!}
                         {!! Former::text('custom_value2')
                                 ->label(trans('texts.field_value'))
-                                ->help(trans('texts.custom_account_fields_help')) !!}
+                                ->help(trans('texts.custom_account_fields_helps')) !!}
 
                     </div>
                 </div>
