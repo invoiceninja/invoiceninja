@@ -22,6 +22,8 @@ class AddMoreCustomFields extends Migration
             ->orWhere('custom_label2', '!=', '')
             ->orWhere('custom_client_label1', '!=', '')
             ->orWhere('custom_client_label2', '!=', '')
+            ->orWhere('custom_contact_label1', '!=', '')
+            ->orWhere('custom_contact_label2', '!=', '')
             ->orWhere('custom_invoice_label1', '!=', '')
             ->orWhere('custom_invoice_label2', '!=', '')
             ->orWhere('custom_invoice_text_label1', '!=', '')
@@ -36,6 +38,8 @@ class AddMoreCustomFields extends Migration
             'account2' => 'custom_label2',
             'client1' => 'custom_client_label1',
             'client2' => 'custom_client_label2',
+            'contact1' => 'custom_contact_label1',
+            'contact2' => 'custom_contact_label2',
             'invoice1' => 'custom_invoice_label1',
             'invoice2' => 'custom_invoice_label2',
             'invoice_text1' => 'custom_invoice_text_label1',
@@ -64,6 +68,8 @@ class AddMoreCustomFields extends Migration
             $table->dropColumn('custom_label2');
             $table->dropColumn('custom_client_label1');
             $table->dropColumn('custom_client_label2');
+            $table->dropColumn('custom_contact_label1');
+            $table->dropColumn('custom_contact_label2');
             $table->dropColumn('custom_invoice_label1');
             $table->dropColumn('custom_invoice_label2');
             $table->dropColumn('custom_invoice_text_label1');
