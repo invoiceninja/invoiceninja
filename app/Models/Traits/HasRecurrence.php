@@ -14,7 +14,6 @@ trait HasRecurrence
     /**
      * @return bool
      */
-     /*
     public function shouldSendToday()
     {
         if (! $this->user->confirmed) {
@@ -79,8 +78,8 @@ trait HasRecurrence
 
         return false;
     }
-    */
 
+    /*
     public function shouldSendToday()
     {
         if (! $this->user->confirmed) {
@@ -115,6 +114,7 @@ trait HasRecurrence
             return $this->account->getDateTime() >= $nextSendDate;
         }
     }
+    */
 
     /**
      * @throws \Recurr\Exception\MissingData
@@ -154,7 +154,8 @@ trait HasRecurrence
      */
     public function getNextSendDate()
     {
-        if (! $this->is_public) {
+        // expenses don't have an is_public flag
+        if ($this->is_recurring && ! $this->is_public) {
             return null;
         }
 
