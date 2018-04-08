@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7090bedcce23dd1dcc592a0d3e544763",
-    "content-hash": "4ce866c804fd7e1b830c8ae1afa28846",
+    "hash": "81ec40f578917feb6070a8c9911bf69c",
+    "content-hash": "ad55e995b8e9255f3319e3b3ae1200e5",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -5438,16 +5438,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.24.1",
+            "version": "1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "ef12cbd8ba5ce624f0a6a95e0850c4cc13e71e41"
+                "reference": "cbcf13da0b531767e39eb86e9687f5deba9857b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/ef12cbd8ba5ce624f0a6a95e0850c4cc13e71e41",
-                "reference": "ef12cbd8ba5ce624f0a6a95e0850c4cc13e71e41",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/cbcf13da0b531767e39eb86e9687f5deba9857b4",
+                "reference": "cbcf13da0b531767e39eb86e9687f5deba9857b4",
                 "shasum": ""
             },
             "require": {
@@ -5487,7 +5487,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-03-09 15:49:34"
+            "time": "2018-03-19 15:50:49"
         },
         {
             "name": "nikic/php-parser",
