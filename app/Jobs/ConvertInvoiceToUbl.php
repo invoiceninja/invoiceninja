@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use Utils;
+use Exception;
 use App\Jobs\Job;
 use CleverIt\UBL\Invoice\Generator;
 use CleverIt\UBL\Invoice\Invoice;
@@ -73,7 +75,13 @@ class ConvertInvoiceToUbl extends Job
             ->setTaxExclusiveAmount($taxable)
             ->setPayableAmount($invoice->balance));
 
-        return Generator::invoice($ublInvoice, $invoice->client->getCurrencyCode());
+        try {
+            return Generator::invoice($ublInvoice, $invoice->client->getCurrencyCode());
+        } catch (Exception $exception) {
+            Utils::logError($exception);
+
+            return false;
+        }
     }
 
     private function createParty($company, $user)
