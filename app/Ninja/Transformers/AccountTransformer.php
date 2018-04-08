@@ -272,6 +272,7 @@ class AccountTransformer extends EntityTransformer
             'custom_invoice_taxes1' => $account->custom_invoice_taxes1,
             'custom_invoice_taxes2' => $account->custom_invoice_taxes1,
             'custom_fields' => json_encode($account->custom_fields),
+            'custom_messages' => json_encode($account->custom_messages),
             'custom_invoice_label1' => $account->customLabel('invoice1'),
             'custom_invoice_label2' => $account->customLabel('invoice2'),
             'custom_client_label1' => $account->customLabel('client1'),

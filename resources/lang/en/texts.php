@@ -2818,6 +2818,12 @@ $LANG = array(
     'custom_project_fields_help' => 'Add a field when creating a project.',
     'custom_expense_fields_help' => 'Add a field when creating an expense.',
     'custom_vendor_fields_help' => 'Add a field when creating a vendor.',
+    'messages' => 'Messages',
+    'unpaid_invoice' => 'Unpaid Invoice',
+    'paid_invoice' => 'Paid Invoice',
+    'unapproved_quote' => 'Unapproved Quote',
+    'unapproved_proposal' => 'Unapproved Proposal',
+
 );
 
 return $LANG;

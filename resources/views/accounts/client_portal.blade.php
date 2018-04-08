@@ -59,6 +59,9 @@
                             <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
                         </li>
                         <li role="presentation">
+                            <a href="#messages" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
+                        </li>
+                        <li role="presentation">
                             <a href="#custom_css" aria-controls="custom_css" role="tab" data-toggle="tab">{{ trans('texts.custom_css') }}</a>
                         </li>
                     </ul>
@@ -121,6 +124,16 @@
                                 ->text(trans('texts.enable'))
                                 ->help(trans('texts.enable_client_portal_dashboard_help'))
                                 ->value(1) !!}
+
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="messages">
+                        <div class="panel-body">
+
+                            @foreach (App\Models\Account::$customMessageTypes as $type)
+                                {!! Former::textarea('custom_messages[' . $type . ']')
+                                        ->label($type) !!}
+                            @endforeach
 
                         </div>
                     </div>

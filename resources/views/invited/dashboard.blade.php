@@ -276,6 +276,9 @@
 
     <div class="container main-container">
 
+        @if ($message = $account->customMessage(CUSTOM_MESSAGE_DASHBOARD))
+            <div class="alert alert-warning custom-message">{!! Utils::isNinja() ? HTMLUtils::sanitizeHTML($message) : $message !!}</div>
+        @endif
 
         <div class="row" id="main-row">
             <div class="col-md-3" id="contact-details">

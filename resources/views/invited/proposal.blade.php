@@ -24,6 +24,10 @@
 	</script>
 
 	<div class="container" style="padding: 20px;">
+		@if ($message = $account->customMessage($proposal->getCustomMessageType()))
+            <div class="alert alert-warning custom-message">{!! Utils::isNinja() ? HTMLUtils::sanitizeHTML($message) : $message !!}</div>
+        @endif
+
 		<div class="pull-right">
 			{!! Button::normal(trans('texts.download'))->asLinkTo(url("/proposal/{$proposalInvitation->invitation_key}/download"))->large() !!}
 			@if (! $proposal->invoice->isApproved())

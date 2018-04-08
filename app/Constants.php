@@ -469,6 +469,14 @@ if (! defined('APP_NAME')) {
     define('TEMPLATE_REMINDER3', 'reminder3');
     define('TEMPLATE_REMINDER4', 'reminder4');
 
+    define('CUSTOM_MESSAGE_DASHBOARD', 'dashboard');
+    define('CUSTOM_MESSAGE_UNPAID_INVOICE', 'unpaid_invoice');
+    define('CUSTOM_MESSAGE_PAID_INVOICE', 'paid_invoice');
+    define('CUSTOM_MESSAGE_UNAPPROVED_QUOTE', 'unapproved_quote');
+    define('CUSTOM_MESSAGE_APPROVED_QUOTE', 'approved_quote');
+    define('CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL', 'unapproved_proposal');
+    define('CUSTOM_MESSAGE_APPROVED_PROPOSAL', 'approved_proposal');
+
     define('RESET_FREQUENCY_DAILY', 1);
     define('RESET_FREQUENCY_WEEKLY', 2);
     define('RESET_FREQUENCY_MONTHLY', 3);

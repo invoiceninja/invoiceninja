@@ -115,6 +115,19 @@ class Proposal extends EntityModel
 
         return trans('texts.proposal') . '_' . $this->invoice->invoice_number . '.' . $extension;
     }
+
+    /**
+     * @return string
+     */
+    public function getCustomMessageType()
+    {
+        if ($this->invoice->quote_invoice_id) {
+            return CUSTOM_MESSAGE_APPROVED_PROPOSAL;
+        } else {
+            return CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL;
+        }
+    }
+
 }
 
 Proposal::creating(function ($project) {

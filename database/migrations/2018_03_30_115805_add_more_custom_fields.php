@@ -78,6 +78,10 @@ class AddMoreCustomFields extends Migration
             $table->dropColumn('custom_invoice_item_label2');
         });
 
+        Schema::table('accounts', function ($table) {
+            $table->mediumText('custom_messages')->nullable();
+        });
+
         Schema::table('tasks', function ($table) {
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();

@@ -152,6 +152,10 @@
 
 	<div class="container">
 
+		@if ($message = $account->customMessage($invoice->getCustomMessageType()))
+            <div class="alert alert-warning custom-message">{!! Utils::isNinja() ? HTMLUtils::sanitizeHTML($message) : $message !!}</div>
+        @endif
+
         @if (!empty($partialView))
             @include($partialView)
         @else

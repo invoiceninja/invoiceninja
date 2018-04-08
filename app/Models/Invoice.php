@@ -530,6 +530,18 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return string
+     */
+    public function getCustomMessageType()
+    {
+        if ($this->isQuote()) {
+            return $this->quote_invoice_id ? CUSTOM_MESSAGE_APPROVED_QUOTE : CUSTOM_MESSAGE_UNAPPROVED_QUOTE;
+        } else {
+            return $this->balance > 0 ? CUSTOM_MESSAGE_UNPAID_INVOICE : CUSTOM_MESSAGE_PAID_INVOICE;
+        }
+    }
+
+    /**
      * @return bool
      */
     public function isStandard()

@@ -173,6 +173,7 @@ class Account extends Eloquent
         'custom_fields',
         'custom_value1',
         'custom_value2',
+        'custom_messages',
     ];
 
     /**
@@ -271,6 +272,16 @@ class Account extends Eloquent
         'unit_cost',
         'valid_until',
         'vat_number',
+    ];
+
+    public static $customMessageTypes = [
+        CUSTOM_MESSAGE_DASHBOARD,
+        CUSTOM_MESSAGE_UNPAID_INVOICE,
+        CUSTOM_MESSAGE_PAID_INVOICE,
+        CUSTOM_MESSAGE_UNAPPROVED_QUOTE,
+        //CUSTOM_MESSAGE_APPROVED_QUOTE,
+        CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL,
+        //CUSTOM_MESSAGE_APPROVED_PROPOSAL,
     ];
 
     /**
@@ -535,6 +546,38 @@ class Account extends Eloquent
         $labels = $this->custom_fields;
 
         return ! empty($labels->$field) ? $labels->$field : '';
+    }
+
+    /**
+     * @param $value
+     */
+    public function setCustomMessagesAttribute($data)
+    {
+        $fields = [];
+
+        if (! is_array($data)) {
+            $data = json_decode($data);
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value) {
+                $fields[$key] = $value;
+            }
+        }
+
+        $this->attributes['custom_messages'] = count($fields) ? json_encode($fields) : null;
+    }
+
+    public function getCustomMessagesAttribute($value)
+    {
+        return json_decode($value ?: '{}');
+    }
+
+    public function customMessage($type)
+    {
+        $messages = $this->custom_messages;
+
+        return ! empty($messages->$type) ? $messages->$type : '';
     }
 
     /**
