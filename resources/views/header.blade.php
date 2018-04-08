@@ -6,7 +6,11 @@
     @if (Utils::isNinjaDev())
         <style type="text/css">
             .nav-footer {
-                background-color: #00FF00 !important;
+                @if (config('mail.driver') == 'log')
+                    background-color: #50C878 !important;
+                @else
+                    background-color: #FD6A02 !important;
+                @endif
             }
         </style>
     @endif
