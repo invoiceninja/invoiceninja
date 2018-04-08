@@ -198,7 +198,7 @@ class InvoiceApiController extends BaseAPIController
                 $payment = $this->paymentRepo->save([
                     'invoice_id' => $invoice->id,
                     'client_id' => $client->id,
-                    'amount' => $data['paid'],
+                    'amount' => round($data['paid'], 2),
                 ]);
             }
         }
