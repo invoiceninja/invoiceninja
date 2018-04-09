@@ -82,6 +82,10 @@ class AddMoreCustomFields extends Migration
             $table->mediumText('custom_messages')->nullable();
         });
 
+        Schema::table('clients', function ($table) {
+            $table->mediumText('custom_messages')->nullable();
+        });
+
         Schema::table('tasks', function ($table) {
             $table->text('custom_value1')->nullable();
             $table->text('custom_value2')->nullable();

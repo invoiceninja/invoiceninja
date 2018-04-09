@@ -276,7 +276,7 @@
 
     <div class="container main-container">
 
-        @if ($message = $account->customMessage(CUSTOM_MESSAGE_DASHBOARD))
+        @if ($message = $client->customMessage(CUSTOM_MESSAGE_DASHBOARD))
             <div class="alert alert-warning custom-message">{!! Utils::isNinja() ? HTMLUtils::sanitizeHTML($message) : $message !!}</div>
         @endif
 

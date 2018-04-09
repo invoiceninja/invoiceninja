@@ -59,7 +59,7 @@
                             <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
                         </li>
                         <li role="presentation">
-                            <a href="#messages" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
+                            <a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
                         </li>
                         <li role="presentation">
                             <a href="#custom_css" aria-controls="custom_css" role="tab" data-toggle="tab">{{ trans('texts.custom_css') }}</a>

@@ -196,6 +196,9 @@
 							<a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.notes') }}</a>
 						</li>
 						<li role="presentation">
+                            <a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
+                        </li>
+						<li role="presentation">
 							<a href="#classify" aria-controls="classify" role="tab" data-toggle="tab">{{ trans('texts.classify') }}</a>
 						</li>
 					</ul>
@@ -231,6 +234,12 @@
 					<div role="tabpanel" class="tab-pane" id="notes">
 						{!! Former::textarea('public_notes')->rows(6) !!}
 						{!! Former::textarea('private_notes')->rows(6) !!}
+					</div>
+					<div role="tabpanel" class="tab-pane" id="messages">
+						@foreach (App\Models\Account::$customMessageTypes as $type)
+							{!! Former::textarea('custom_messages[' . $type . ']')
+									->label($type) !!}
+						@endforeach						
 					</div>
 					<div role="tabpanel" class="tab-pane" id="classify">
 						{!! Former::select('size_id')->addOption('','')
