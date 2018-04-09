@@ -40,7 +40,10 @@ class Mailer
         $toEmail = strtolower($toEmail);
         $replyEmail = $fromEmail;
         $fromEmail = CONTACT_EMAIL;
-        //\Log::info("{$toEmail} | {$replyEmail} | $fromEmail");
+
+        if (Utils::isSelfHost() && config('app.debug')) {
+            \Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: $fromEmail");
+        }
 
         // Optionally send for alternate domain
         if (! empty($data['fromEmail'])) {
