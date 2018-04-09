@@ -1,8 +1,13 @@
 @extends('header')
 
-
 @section('onReady')
 	$('input#name').focus();
+@stop
+
+@section('head')
+	@if (config('ninja.google_maps_enabled'))
+		@include('partials.google_geocode')
+	@endif
 @stop
 
 @section('content')
@@ -52,13 +57,15 @@
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
-            <div class="panel-body">
+            <div class="panel-body" id="billing_address">
 
 			{!! Former::text('address1') !!}
 			{!! Former::text('address2') !!}
 			{!! Former::text('city') !!}
 			{!! Former::text('state') !!}
-			{!! Former::text('postal_code') !!}
+
+			{!! Former::text('postal_code')
+					->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode()' : '') !!}
 			{!! Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') !!}
 

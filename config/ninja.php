@@ -26,4 +26,8 @@ return [
     // privacy policy
     'privacy_policy_url' => env('PRIVACY_POLICY_URL', ''),
 
+    // Google maps
+    'google_maps_enabled' => env('GOOGLE_MAPS_ENABLED', true),
+    'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+
 ];

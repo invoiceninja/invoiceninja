@@ -4,6 +4,12 @@
 	$('input#name').focus();
 @stop
 
+@section('head')
+	@if (config('ninja.google_maps_enabled'))
+		@include('partials.google_geocode')
+	@endif
+@stop
+
 @section('content')
 
 @if ($errors->first('contacts'))
@@ -87,7 +93,8 @@
 						{!! Former::text('address2') !!}
 						{!! Former::text('city') !!}
 						{!! Former::text('state') !!}
-						{!! Former::text('postal_code') !!}
+						{!! Former::text('postal_code')
+								->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode()' : '') !!}
 						{!! Former::select('country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id') !!}
 
@@ -104,7 +111,9 @@
 						{!! Former::text('shipping_address2')->label('address2') !!}
 						{!! Former::text('shipping_city')->label('city') !!}
 						{!! Former::text('shipping_state')->label('state') !!}
-						{!! Former::text('shipping_postal_code')->label('postal_code') !!}
+						{!! Former::text('shipping_postal_code')
+								->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode(true)' : '')
+								->label('postal_code') !!}
 						{!! Former::select('shipping_country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id')->label('country_id') !!}
 
@@ -239,7 +248,7 @@
 						@foreach (App\Models\Account::$customMessageTypes as $type)
 							{!! Former::textarea('custom_messages[' . $type . ']')
 									->label($type) !!}
-						@endforeach						
+						@endforeach
 					</div>
 					<div role="tabpanel" class="tab-pane" id="classify">
 						{!! Former::select('size_id')->addOption('','')
@@ -327,9 +336,11 @@
 		// button handles to copy the address
 		$('#copyBillingDiv button').click(function() {
 			copyAddress();
+			$('#copyBillingDiv').hide();
 		});
 		$('#copyShippingDiv button').click(function() {
 			copyAddress(true);
+			$('#copyShippingDiv').hide();
 		});
 
 		// show/hide buttons based on loaded values

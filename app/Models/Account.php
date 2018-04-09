@@ -761,6 +761,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return mixed
+     */
+    public function getCountryId()
+    {
+        return $this->country_id ?: DEFAULT_COUNTRY;
+    }
+
+    /**
      * @param $date
      *
      * @return null|string

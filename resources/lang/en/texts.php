@@ -2823,6 +2823,8 @@ $LANG = array(
     'paid_invoice' => 'Paid Invoice',
     'unapproved_quote' => 'Unapproved Quote',
     'unapproved_proposal' => 'Unapproved Proposal',
+    'autofills_city_state' => 'Auto-fills city/state',
+    'no_match_found' => 'No match found',
 
 );
 
