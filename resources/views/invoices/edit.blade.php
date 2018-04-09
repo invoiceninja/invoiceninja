@@ -637,7 +637,7 @@
 						@include('partials.custom_field', [
 							'field' => 'client[custom_value2]',
 							'label' => $account->customLabel('client2'),
-							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown'",
+							'databind' => "value: custom_value2, valueUpdate: 'afterkeydown'",
 						])
                     @endif
                 @endif
