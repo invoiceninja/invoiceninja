@@ -122,11 +122,12 @@
         console.log('paid: %s, balance: %s', client.paid_to_date, client.balance);
         var currencyId = client.currency_id || {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         var total = +client.paid_to_date + +client.balance;
+        client.displayTotal = total;
         if (currencyId != accountCurrencyId) {
             total = convertCurrency(total, currencyId, accountCurrencyId);
         }
+        client.convertedTotal = total;
         client.displayName = getClientDisplayName(client);
-        client.displayTotal = total;
         client.displayBalance = +client.balance;
         client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
         var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });
@@ -137,11 +138,12 @@
     _.each(invoices, function(invoice) {
         var currencyId = invoice.client.currency_id || {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         var total = +invoice.amount;
+        invoice.displayTotal = total;
         if (currencyId != accountCurrencyId) {
             total = convertCurrency(total, currencyId, accountCurrencyId);
         }
+        invoice.convertedTotal = total;
         invoice.displayName = invoice.invoice_number;
-        invoice.displayTotal = total;
         invoice.displayBalance = +invoice.balance;
         invoice.displayPercent = (+invoice.amount - +invoice.balance) / +invoice.amount;
         invoice.displayAge = calculateInvoiceAge(invoice);
@@ -151,11 +153,12 @@
     _.each(products, function(product) {
         var currencyId = product.values.currency_id;
         var total = product.values.amount;
+        product.displayTotal = total;
         if (currencyId != accountCurrencyId) {
             total = convertCurrency(total, currencyId, accountCurrencyId);
         }
+        product.convertedTotal = total;
         product.displayName = product.key;
-        product.displayTotal = total;
         product.displayBalance = product.values.amount - product.values.paid;
         product.displayPercent = (product.values.paid / product.values.amount).toFixed(2);
         product.displayAge = product.values.age;
@@ -188,7 +191,7 @@
     var bubble = d3.layout.pack()
     .sort(null)
     .size([diameter, diameter])
-    .value(function(d) { return d.displayTotal })
+    .value(function(d) { return d.convertedTotal })
     .padding(12);
 
     var svg = d3.select(".svg-div").append("svg")
