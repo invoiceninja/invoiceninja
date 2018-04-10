@@ -2825,6 +2825,10 @@ $LANG = array(
     'unapproved_proposal' => 'Unapproved Proposal',
     'autofills_city_state' => 'Auto-fills city/state',
     'no_match_found' => 'No match found',
+    'password_strength' => 'Password Strength',
+    'strength_weak' => 'Weak',
+    'strength_good' => 'Good',
+    'strength_strong' => 'Strong',
 
 );
 

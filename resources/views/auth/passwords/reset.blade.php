@@ -3,10 +3,11 @@
 @section('form')
 <div class="container">
 
-  {!! Former::open('/password/reset')
+  {!! Former::open($url)
         ->addClass('form-signin')
         ->autocomplete('off')
         ->rules(array(
+        'email' => 'required|email',
         'password' => 'required',
         'password_confirmation' => 'required',
   )) !!}
@@ -39,13 +40,17 @@
 
     <input type="hidden" name="token" value="{{{ $token }}}">
 
-    <div>
+    <div onkeyup="validateForm()" onclick="validateForm()" onkeydown="validateForm(event)">
         {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}
         {!! Former::password('password')->placeholder(trans('texts.password'))->autocomplete('new-password')->raw() !!}
         {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->autocomplete('new-password')->raw() !!}
     </div>
 
-    <p>{!! Button::success(trans('texts.save'))->large()->submit()->withAttributes(['class' => 'green'])->block() !!}</p>
+    <div id="passwordStrength" style="font-weight:normal;padding:16px">
+        &nbsp;
+    </div>
+
+    <p>{!! Button::success(trans('texts.save'))->large()->submit()->withAttributes(['class' => 'green', 'id' => 'saveButton', 'disabled' => true])->block() !!}</p>
 
 
     {!! Former::close() !!}
@@ -53,7 +58,32 @@
 <script type="text/javascript">
     $(function() {
         $('#password').focus();
+        validateForm();
     })
+
+    function validateForm() {
+        var isValid = true;
+
+        if (! $('#email').val()) {
+            isValid = false;
+        }
+
+        var password = $('#password').val();
+        var confirm = $('#password_confirmation').val();
+
+        if (! password || password != confirm || password.length < 8) {
+            isValid = false;
+        }
+
+        var score = scorePassword(password);
+        if (score < 50) {
+            isValid = false;
+        }
+
+        showPasswordStrength(password, score);
+
+        $('#saveButton').prop('disabled', ! isValid);
+    }
 </script>
 
 @endsection

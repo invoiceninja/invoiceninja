@@ -103,7 +103,7 @@ class Authenticate
             } else {
                 if ($guard == 'client') {
                     $url = '/client/login';
-                    if (Utils::isNinja()) {
+                    if (Utils::isNinjaProd()) {
                         if ($account && Utils::getSubdomain() == 'app') {
                             $url .= '?account_key=' . $account->account_key;
                         }
