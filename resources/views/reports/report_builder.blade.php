@@ -370,7 +370,8 @@
 						->label('start_date')
 						->appendIcon('calendar')
 						->placeholder('')
-						->addGroupClass('send-date') !!}
+						->addGroupClass('send-date')
+						->data_date_start_date($account->formatDate($account->getDateTime())) !!}
 
             </div>
             </div>

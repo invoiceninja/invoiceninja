@@ -205,7 +205,8 @@
                                     ->label('next_reset')
                                     ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                                     ->addGroupClass('reset_counter_date_group')
-                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>')
+                                    ->data_date_start_date($account->formatDate($account->getDateTime())) !!}
 
                     </div>
                 </div>
