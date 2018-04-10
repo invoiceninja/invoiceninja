@@ -48,7 +48,7 @@ class AddMoreCustomFields extends Migration
             'product2' => 'custom_invoice_item_label2',
         ];
 
-        foreach ($accounts as $accounts) {
+        foreach ($accounts as $account) {
             $config = [];
 
             foreach ($fields as $key => $field) {
