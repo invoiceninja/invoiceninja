@@ -119,7 +119,6 @@
 
     // create standardized display properties
     _.each(clients, function(client) {
-        console.log('paid: %s, balance: %s', client.paid_to_date, client.balance);
         var currencyId = client.currency_id || {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         var total = +client.paid_to_date + +client.balance;
         client.displayTotal = total;
