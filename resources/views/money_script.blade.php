@@ -161,4 +161,11 @@
         }
     }
 
+    function convertCurrency(amount, fromCurrencyId, toCurrencyId) {
+        return fx.convert(amount, {
+            from: currencyMap[fromCurrencyId].code,
+            to: currencyMap[toCurrencyId].code,
+        });
+    }
+
 </script>
