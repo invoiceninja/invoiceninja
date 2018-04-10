@@ -393,15 +393,21 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         }
         $productSelect.combobox({highlighter: comboboxHighlighter});
 
-        fixCheckboxes();
+        updateCheckboxes();
         updateBuyNowButtons();
     })
 
-	$('#enable_portal_password').change(fixCheckboxes);
+	$('#enable_portal_password, #enable_client_portal, #require_invoice_signature, #require_quote_signature').change(updateCheckboxes);
 
-	function fixCheckboxes() {
+	function updateCheckboxes() {
 		var checked = $('#enable_portal_password').is(':checked');
-		$('#send_portal_password').prop('disabled', !checked);
+		$('#send_portal_password').prop('disabled', ! checked);
+
+        var checked = $('#enable_client_portal').is(':checked');
+		$('#enable_client_portal_dashboard').prop('disabled', ! checked);
+
+        var checked = $('#require_invoice_signature').is(':checked') || $('#require_quote_signature').is(':checked');
+		$('#signature_on_pdf').prop('disabled', ! checked);
 	}
 
     function showPaymentTypes() {
