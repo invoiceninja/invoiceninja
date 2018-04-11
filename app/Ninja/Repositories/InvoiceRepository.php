@@ -240,7 +240,9 @@ class InvoiceRepository extends BaseRepository
 
         $table = \Datatable::query($query)
             ->addColumn('frequency', function ($model) {
-                return trans('texts.freq_' . \Str::snake($model->frequency));
+                $frequency = strtolower($model->frequency);
+                $frequency = preg_replace('/\s/', '_', $frequency);
+                return trans('texts.freq_' . $frequency);
             })
             ->addColumn('start_date', function ($model) {
                 return Utils::fromSqlDate($model->start_date);
