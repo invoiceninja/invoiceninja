@@ -63,7 +63,7 @@ class GatewayFeesCest
         $I->wait(3);
         $I->click('Save Invoice');
         $I->wait(3);
-        $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
+        $this->createPayment($I, $invitationKey, $total, 0, $partialFeeWithTax);
     }
 
     private function configureGatewayFeeTax($I, $taxName = '', $taxRate = '')
@@ -170,7 +170,7 @@ class GatewayFeesCest
             'id' => $invoiceId,
             'amount' => ($amount + $fee * 2),
         ]);
-        /*
+
         $I->createOnlinePayment($I, $invitationKey);
         $I->wait(3);
         $I->seeInDatabase('invoices', [
@@ -178,6 +178,5 @@ class GatewayFeesCest
             'amount' => ($amount + $fee),
             'balance' => $balance
         ]);
-        */
     }
 }
