@@ -63,7 +63,7 @@ class GatewayFeesCest
         $I->wait(3);
         $I->click('Save Invoice');
         $I->wait(3);
-        $this->createPayment($I, $invitationKey, $total, 0, $partialFeeWithTax);
+        $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
     private function configureGatewayFeeTax($I, $taxName = '', $taxRate = '')
