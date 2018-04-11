@@ -356,6 +356,11 @@ class Document extends EntityModel
 
         return $document;
     }
+
+    public function scopeProposalImages($query)
+    {
+        return $query->whereIsProposal(1);
+    }
 }
 
 Document::deleted(function ($document) {

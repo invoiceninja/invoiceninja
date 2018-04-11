@@ -79,6 +79,7 @@ class AddMoreCustomFields extends Migration
         });
 
         Schema::table('accounts', function ($table) {
+            $table->unsignedInteger('background_image_id')->nullable();
             $table->mediumText('custom_messages')->nullable();
         });
 

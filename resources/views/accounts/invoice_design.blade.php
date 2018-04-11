@@ -154,6 +154,7 @@
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
       {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
       {!! Former::populateField('all_pages_footer', intval($account->all_pages_footer)) !!}
+	  {!! Former::populateField('background_image_id', $account->background_image ? $account->background_image->public_id : null) !!}
 
           @foreach ($invoiceLabels as $field => $value)
           {!! Former::populateField("labels_{$field}", $value) !!}
@@ -292,24 +293,32 @@
                 <div role="tabpanel" class="tab-pane" id="invoice_options">
                     <div class="panel-body">
 
-                      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help'))->value(1) !!}
-                      {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help'))->value(1) !!}
+						@if (auth()->user()->isEnterprise())
+							{!! Former::select('background_image_id')
+									->label('background_image')
+									->addOption('', '')
+									->fromQuery(\App\Models\Document::scope()->proposalImages()->get(), 'name', 'public_id')
+									->help(trans('texts.background_image_help', ['link' => link_to('/proposals/create?show_assets=true', trans('texts.proposal_editor'), ['target' => '_blank'])])) !!}
+						@endif
 
-					  <br/>
+						{!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help'))->value(1) !!}
+						{!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help'))->value(1) !!}
 
-					  {!! Former::inline_radios('all_pages_header')
-                              ->label(trans('texts.all_pages_header'))
-                              ->radios([
-                                  trans('texts.first_page') => ['value' => 0, 'name' => 'all_pages_header'],
-                                  trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_header'],
-                              ])->check($account->all_pages_header) !!}
+						<br/>
 
-                      {!! Former::inline_radios('all_pages_footer')
-                              ->label(trans('texts.all_pages_footer'))
-                              ->radios([
-                                  trans('texts.last_page') => ['value' => 0, 'name' => 'all_pages_footer'],
-                                  trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_footer'],
-                              ])->check($account->all_pages_footer) !!}
+						{!! Former::inline_radios('all_pages_header')
+							->label(trans('texts.all_pages_header'))
+							->radios([
+								trans('texts.first_page') => ['value' => 0, 'name' => 'all_pages_header'],
+								trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_header'],
+								])->check($account->all_pages_header) !!}
+
+						{!! Former::inline_radios('all_pages_footer')
+							->label(trans('texts.all_pages_footer'))
+							->radios([
+								trans('texts.last_page') => ['value' => 0, 'name' => 'all_pages_footer'],
+								trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_footer'],
+								])->check($account->all_pages_footer) !!}
 
                     </div>
                 </div>

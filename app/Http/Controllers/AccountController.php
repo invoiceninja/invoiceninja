@@ -1057,6 +1057,7 @@ class AccountController extends BaseController
             $account->quote_design_id = Input::get('quote_design_id');
             $account->font_size = intval(Input::get('font_size'));
             $account->page_size = Input::get('page_size');
+            $account->background_image_id = Document::getPrivateId(request()->background_image_id);
 
             $labels = [];
             foreach (Account::$customLabels as $field) {

@@ -139,6 +139,14 @@ class User extends Authenticatable
     /**
      * @return mixed
      */
+    public function isEnterprise()
+    {
+        return $this->account->isEnterprise();
+    }
+
+    /**
+     * @return mixed
+     */
     public function isTrusted()
     {
         if (Utils::isSelfHost()) {

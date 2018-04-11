@@ -259,6 +259,12 @@
         @if (! $proposal && $templatePublicId)
             loadTemplate();
         @endif
+
+        @if (request()->show_assets)
+            setTimeout(function() {
+                grapesjsEditor.runCommand('open-assets');
+            }, 500);
+        @endif
     });
 
     </script>

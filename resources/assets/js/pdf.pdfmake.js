@@ -189,6 +189,17 @@ function GetPdfMake(invoice, javascript, callback) {
     if(!dd.defaultStyle)dd.defaultStyle = {font:NINJA.bodyFont};
     else if(!dd.defaultStyle.font)dd.defaultStyle.font = NINJA.bodyFont;
 
+    if (window.accountBackground) {
+        var origBackground = dd.background;
+        dd.background = function(currentPage) {
+            var allPages = origBackground.length && origBackground[0].pages == 'all';
+            return currentPage == 1 || allPages ? origBackground : false;
+        }
+    } else {
+        // prevent unnecessarily showing blank image
+        dd.background = false;
+    }
+
     doc = pdfMake.createPdf(dd);
     doc.save = function(fileName) {
         this.download(fileName);
@@ -228,6 +239,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     var json = {
         'accountName': account.name || ' ',
         'accountLogo': window.accountLogo ? window.accountLogo : blankImage,
+        'accountBackground': window.accountBackground ? window.accountBackground : blankImage,
         'accountDetails': NINJA.accountDetails(invoice),
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),

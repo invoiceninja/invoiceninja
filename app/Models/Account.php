@@ -382,6 +382,11 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\Document')->whereIsDefault(true);
     }
 
+    public function background_image()
+    {
+        return $this->hasOne('App\Models\Document', 'id', 'background_image_id');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

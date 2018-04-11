@@ -2831,6 +2831,10 @@ $LANG = array(
     'strength_strong' => 'Strong',
     'mark' => 'Mark',
     'updated_task_status' => 'Successfully update task status',
+    'background_image' => 'Background Image',
+    'background_image_help' => 'Use the :link to manage your images.',
+    'proposal_editor' => 'proposal editor',
+    'background' => 'Background',
 
 );
 
