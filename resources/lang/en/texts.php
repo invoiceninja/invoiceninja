@@ -2829,6 +2829,8 @@ $LANG = array(
     'strength_weak' => 'Weak',
     'strength_good' => 'Good',
     'strength_strong' => 'Strong',
+    'mark' => 'Mark',
+    'updated_task_status' => 'Successfully update task status',
 
 );
 

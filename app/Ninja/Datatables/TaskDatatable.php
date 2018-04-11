@@ -3,6 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use App\Models\Task;
+use App\Models\TaskStatus;
 use Auth;
 use URL;
 use Utils;
@@ -128,5 +129,27 @@ class TaskDatatable extends EntityDatatable
         $class = Task::calcStatusClass($model->is_running, $model->balance, $model->invoice_number);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+    }
+
+    public function bulkActions()
+    {
+        $actions = [];
+
+        $statuses = TaskStatus::scope()->orderBy('sort_order')->get();
+
+        foreach ($statuses as $status) {
+            $actions[] = [
+                'label' => sprintf('%s %s', trans('texts.mark'), $status->name),
+                'url' => 'javascript:submitForm_' . $this->entityType . '("update_status:' . $status->public_id . '")',
+            ];
+        }
+
+        if (count($actions)) {
+            $actions[] = \DropdownButton::DIVIDER;
+        }
+
+        $actions = array_merge($actions, parent::bulkActions());
+
+        return $actions;
     }
 }
