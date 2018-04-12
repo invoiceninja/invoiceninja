@@ -2835,6 +2835,7 @@ $LANG = array(
     'background_image_help' => 'Use the :link to manage your images.',
     'proposal_editor' => 'proposal editor',
     'background' => 'Background',
+    'guide' => 'Guide',
 
 );
 
