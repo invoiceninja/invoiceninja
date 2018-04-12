@@ -8,6 +8,8 @@ use App\Models\TaxRate;
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
+use App\Events\ProductWasCreated;
+use App\Events\ProductWasUpdated;
 use Auth;
 use Input;
 use Redirect;
@@ -162,6 +164,8 @@ class ProductController extends BaseController
         }
 
         $this->productRepo->save(Input::all(), $product);
+
+        event($productPublicId ? new ProductWasUpdated($product, Input::all()) : new ProductWasCreated($product, Input::all()));
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
