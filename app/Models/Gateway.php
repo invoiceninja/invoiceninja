@@ -141,6 +141,10 @@ class Gateway extends Eloquent
         $query->where('payment_library_id', '=', 1)
             ->whereIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
+
+        if (! Utils::isNinja()) {
+            $query->where('id', '!=', GATEWAY_WEPAY);
+        }
     }
 
     /**
