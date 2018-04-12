@@ -62,6 +62,8 @@ class TaskTransformer extends EntityTransformer
             'is_deleted' => (bool) $task->is_deleted,
             'time_log' => $task->time_log,
             'is_running' => (bool) $task->is_running,
+            'custom_value1' => $task->custom_value1,
+            'custom_value2' => $task->custom_value2,
         ]);
     }
 }
