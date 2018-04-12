@@ -86,6 +86,8 @@ class VendorTransformer extends EntityTransformer
             'vat_number' => $vendor->vat_number,
             'id_number' => $vendor->id_number,
             'currency_id' => (int) $vendor->currency_id,
+            'custom_value1' => $vendor->custom_value1,
+            'custom_value2' => $vendor->custom_value2,
         ]);
     }
 }
