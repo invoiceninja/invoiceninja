@@ -132,6 +132,10 @@ class AddMoreCustomFields extends Migration
             $table->text('custom_value2')->nullable()->change();
         });
 
+        Schema::table('scheduled_reports', function ($table) {
+            $table->string('ip')->nullable();
+        });
+
     }
 
     /**

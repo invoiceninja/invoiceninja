@@ -162,6 +162,7 @@ class ReportController extends BaseController
             $schedule->config = json_encode($options);
             $schedule->frequency = request('frequency');
             $schedule->send_date = Utils::toSqlDate(request('send_date'));
+            $schedule->ip = request()->getClientIp();
             $schedule->save();
 
             session()->flash('message', trans('texts.created_scheduled_report'));
