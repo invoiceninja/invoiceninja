@@ -298,11 +298,13 @@
             $('.secondary-gateway').show();
         }
 
-		if (primaryId == {{ GATEWAY_WEPAY }}) {
-			$('.save-button').prop('disabled', true);
-		} else {
-			$('.save-button').prop('disabled', false);
-		}
+		@if (! $accountGateway)
+			if (primaryId == {{ GATEWAY_WEPAY }}) {
+				$('.save-button').prop('disabled', true);
+			} else {
+				$('.save-button').prop('disabled', false);
+			}
+		@endif
 
         var val = primaryId || secondaryId;
         $('.gateway-fields').hide();
