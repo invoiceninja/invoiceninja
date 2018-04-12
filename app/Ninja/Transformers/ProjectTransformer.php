@@ -34,6 +34,8 @@ class ProjectTransformer extends EntityTransformer
             'due_date' => $project->due_date,
             'private_notes' => $project->private_notes,
             'budgeted_hours' => (float) $project->budgeted_hours,
+            'custom_value1' => $project->custom_value1,
+            'custom_value2' => $project->custom_value2,
         ]);
     }
 }
