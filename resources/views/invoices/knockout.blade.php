@@ -1059,23 +1059,33 @@ ko.bindingHandlers.productTypeahead = {
 
                         // optionally handle curency conversion
                         @if ($account->convert_products)
-                            var client = window.model.invoice().client();
-                            if (client) {
-                                var clientCurrencyId = client.currency_id();
-                                var accountCurrencyId = {{ $account->getCurrencyId() }};
-                                if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
-                                    cost = fx.convert(cost, {
-                                        from: currencyMap[accountCurrencyId].code,
-                                        to: currencyMap[clientCurrencyId].code,
-                                    });
-                                    var rate = fx.convert(1, {
-                                        from: currencyMap[accountCurrencyId].code,
-                                        to: currencyMap[clientCurrencyId].code,
-                                    });
-                                    if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
-                                        window.model.invoice().custom_text_value1(roundToFour(rate, true));
-                                    } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
-                                        window.model.invoice().custom_text_value2(roundToFour(rate, true));
+                            var rate = false;
+                            if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                rate = window.model.invoice().custom_text_value1();
+                            } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                rate = window.model.invoice().custom_text_value1();
+                            }
+                            if (rate) {
+                                cost = cost * rate;
+                            } else {
+                                var client = window.model.invoice().client();
+                                if (client) {
+                                    var clientCurrencyId = client.currency_id();
+                                    var accountCurrencyId = {{ $account->getCurrencyId() }};
+                                    if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
+                                        cost = fx.convert(cost, {
+                                            from: currencyMap[accountCurrencyId].code,
+                                            to: currencyMap[clientCurrencyId].code,
+                                        });
+                                        var rate = fx.convert(1, {
+                                            from: currencyMap[accountCurrencyId].code,
+                                            to: currencyMap[clientCurrencyId].code,
+                                        });
+                                        if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                            window.model.invoice().custom_text_value1(roundToFour(rate, true));
+                                        } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                            window.model.invoice().custom_text_value2(roundToFour(rate, true));
+                                        }
                                     }
                                 }
                             }
