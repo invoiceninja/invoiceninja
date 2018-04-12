@@ -194,35 +194,37 @@ class AccountRepository
         }
 
         foreach ($clients as $client) {
-            if ($client->name) {
-                $data['clients'][] = [
-                    'value' => ($client->id_number ? $client->id_number . ': ' : '') . $client->name,
-                    'tokens' => implode(',', [$client->name, $client->id_number, $client->vat_number, $client->work_phone]),
-                    'url' => $client->present()->url,
-                ];
-            }
+            if (! $client->is_deleted) {
+                if ($client->name) {
+                    $data['clients'][] = [
+                        'value' => ($client->id_number ? $client->id_number . ': ' : '') . $client->name,
+                        'tokens' => implode(',', [$client->name, $client->id_number, $client->vat_number, $client->work_phone]),
+                        'url' => $client->present()->url,
+                    ];
+                }
 
-            if ($client->custom_value1) {
-                $data[$account->present()->customLabel('client1')][] = [
-                    'value' => "{$client->custom_value1}: " . $client->getDisplayName(),
-                    'tokens' => $client->custom_value1,
-                    'url' => $client->present()->url,
-                ];
-            }
-            if ($client->custom_value2) {
-                $data[$account->present()->customLabel('client2')][] = [
-                    'value' => "{$client->custom_value2}: " . $client->getDisplayName(),
-                    'tokens' => $client->custom_value2,
-                    'url' => $client->present()->url,
-                ];
-            }
+                if ($client->custom_value1) {
+                    $data[$account->present()->customLabel('client1')][] = [
+                        'value' => "{$client->custom_value1}: " . $client->getDisplayName(),
+                        'tokens' => $client->custom_value1,
+                        'url' => $client->present()->url,
+                    ];
+                }
+                if ($client->custom_value2) {
+                    $data[$account->present()->customLabel('client2')][] = [
+                        'value' => "{$client->custom_value2}: " . $client->getDisplayName(),
+                        'tokens' => $client->custom_value2,
+                        'url' => $client->present()->url,
+                    ];
+                }
 
-            foreach ($client->contacts as $contact) {
-                $data['contacts'][] = [
-                    'value' => $contact->getSearchName(),
-                    'tokens' => implode(',', [$contact->first_name, $contact->last_name, $contact->email, $contact->phone]),
-                    'url' => $client->present()->url,
-                ];
+                foreach ($client->contacts as $contact) {
+                    $data['contacts'][] = [
+                        'value' => $contact->getSearchName(),
+                        'tokens' => implode(',', [$contact->first_name, $contact->last_name, $contact->email, $contact->phone]),
+                        'url' => $client->present()->url,
+                    ];
+                }
             }
 
             foreach ($client->invoices as $invoice) {
