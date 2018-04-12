@@ -13,4 +13,31 @@ class UserPresenter extends EntityPresenter
     {
         return $this->entity->first_name . ' ' . $this->entity->last_name;
     }
+
+    public function statusCode()
+    {
+        $status = '';
+        $user = $this->entity;
+        $account = $user->account;
+
+        if ($user->confirmed) {
+            $status .= 'C';
+        } elseif ($user->registered) {
+            $status .= 'R';
+        } else {
+            $status .= 'N';
+        }
+
+        if ($account->isTrial()) {
+            $status .= 'T';
+        } elseif ($account->isEnterprise()) {
+            $status .= 'E';
+        } elseif ($account->isPro()) {
+            $status .= 'P';
+        } else {
+            $status .= 'H';
+        }
+
+        return $status;
+    }
 }
