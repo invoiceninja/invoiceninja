@@ -381,7 +381,7 @@ class ContactMailer extends Mailer
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $day = 60 * 60 * 24;
-        $day_limit = MAX_EMAILS_SENT_PER_DAY;
+        $day_limit = $account->getDailyEmailLimit();
         $day_throttle = Cache::get("email_day_throttle:{$key}", null);
         $last_api_request = Cache::get("last_email_request:{$key}", 0);
         $last_api_diff = time() - $last_api_request;
