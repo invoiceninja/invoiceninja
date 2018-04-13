@@ -24,7 +24,7 @@ class ProductWasCreated extends Event
      *
      * @return void
      */
-    public function __construct(Product $product, $input)
+    public function __construct(Product $product, $input = null)
     {
         $this->product = $product;
         $this->input = $input;
