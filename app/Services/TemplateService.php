@@ -18,14 +18,16 @@ class TemplateService
      */
     public function processVariables($template, array $data)
     {
-        /** @var \App\Models\Account $account */
-        $account = $data['account'];
-
-        /** @var \App\Models\Client $client */
-        $client = $data['client'];
-
         /** @var \App\Models\Invitation $invitation */
         $invitation = $data['invitation'];
+
+        /** @var \App\Models\Account $account */
+        $account = ! empty($data['account']) ? $data['account'] : $invitation->account;
+
+        /** @var \App\Models\Client $client */
+        $client = ! empty($data['client']) ? $data['client'] : $invitation->invoice->client;
+
+        $amount = ! empty($data['amount']) ? $data['amount'] : $invitation->invoice->getRequestedAmount();
 
         // check if it's a proposal
         if ($invitation->proposal) {
@@ -59,7 +61,7 @@ class TemplateService
             '$invoiceDate' => $account->formatDate($invoice->invoice_date),
             '$contact' => $contact->getDisplayName(),
             '$firstName' => $contact->first_name,
-            '$amount' => $account->formatMoney($data['amount'], $client),
+            '$amount' => $account->formatMoney($amount, $client),
             '$total' => $invoice->present()->amount,
             '$balance' => $invoice->present()->balance,
             '$invoice' => $invoice->invoice_number,
