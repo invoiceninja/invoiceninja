@@ -128,7 +128,7 @@ class ClientPortalController extends BaseController
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
-            if ($paymentTypes[0]['gatewayTypeId'] == GATEWAY_TYPE_CUSTOM) {
+            if (in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
                 // do nothing
             } elseif (! $account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
@@ -168,13 +168,6 @@ class ClientPortalController extends BaseController
                     'transactionToken' => $paymentDriver->createTransactionToken(),
                     'partialView' => $paymentDriver->partialView(),
                     'accountGateway' => $paymentDriver->accountGateway,
-                ];
-            }
-
-            if ($accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CUSTOM)) {
-                $data += [
-                    'customGatewayName' => $accountGateway->getConfigField('name'),
-                    'customGatewayText' => $accountGateway->getConfigField('text'),
                 ];
             }
         }

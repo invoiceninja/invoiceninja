@@ -14,12 +14,14 @@ class GatewayTypesSeeder extends Seeder
             ['alias' => 'paypal', 'name' => 'PayPal'],
             ['alias' => 'bitcoin', 'name' => 'Bitcoin'],
             ['alias' => 'dwolla', 'name' => 'Dwolla'],
-            ['alias' => 'custom', 'name' => 'Custom'],
+            ['alias' => 'custom1', 'name' => 'Custom 1'],
             ['alias' => 'alipay', 'name' => 'Alipay'],
             ['alias' => 'sofort', 'name' => 'Sofort'],
             ['alias' => 'sepa', 'name' => 'SEPA'],
             ['alias' => 'gocardless', 'name' => 'GoCardless'],
             ['alias' => 'apple_pay', 'name' => 'Apple Pay'],
+            ['alias' => 'custom2', 'name' => 'Custom 2'],
+            ['alias' => 'custom3', 'name' => 'Custom 3'],
         ];
 
         foreach ($gateway_types as $gateway_type) {

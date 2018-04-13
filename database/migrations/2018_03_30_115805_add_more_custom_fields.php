@@ -136,6 +136,8 @@ class AddMoreCustomFields extends Migration
             $table->string('ip')->nullable();
         });
 
+        DB::statement('UPDATE gateways SET provider = "Custom1" WHERE id = 62');
+        DB::statement('UPDATE gateway_types SET alias = "custom1", name = "Custom 1" WHERE id = 6');
     }
 
     /**

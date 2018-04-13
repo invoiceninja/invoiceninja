@@ -107,6 +107,11 @@ class AccountGateway extends EntityModel
         }
     }
 
+    public function isCustom()
+    {
+        return in_array($this->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
+    }
+
     /**
      * @param $config
      */

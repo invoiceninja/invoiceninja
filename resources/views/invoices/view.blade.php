@@ -332,8 +332,16 @@
 				}
 			}
 
-            function showCustomModal() {
-                $('#customGatewayModal').modal('show');
+			function showCustom1Modal() {
+                $('#custom1GatewayModal').modal('show');
+            }
+
+			function showCustom2Modal() {
+                $('#custom2GatewayModal').modal('show');
+            }
+
+			function showCustom3Modal() {
+                $('#custom3GatewayModal').modal('show');
             }
 
 			function onModalPayNowClick() {
@@ -394,30 +402,18 @@
 	</div>
 
 
-    @if (isset($customGatewayName))
-        <div class="modal fade" id="customGatewayModal" tabindex="-1" role="dialog" aria-labelledby="customGatewayModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">{{ $customGatewayName }}</h4>
-              </div>
+	@if ($customGateway = $account->getGatewayByType(GATEWAY_TYPE_CUSTOM1))
+		@include('invited.custom_gateway', ['customGateway' => $customGateway, 'number' => 1])
+	@endif
 
-             <div class="panel-body">
-				  @if (Utils::isNinjaProd())
-				    {!! nl2br(e($customGatewayText)) !!}
-				  @else
-				    {!! $customGatewayText !!}
-				  @endif
-              </div>
+	@if ($customGateway = $account->getGatewayByType(GATEWAY_TYPE_CUSTOM2))
+		@include('invited.custom_gateway', ['customGateway' => $customGateway, 'number' => 2])
+	@endif
 
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-    @endif
+	@if ($customGateway = $account->getGatewayByType(GATEWAY_TYPE_CUSTOM3))
+		@include('invited.custom_gateway', ['customGateway' => $customGateway, 'number' => 3])
+	@endif
+
 
 	@if ($account->requiresAuthorization($invoice))
 		<div class="modal fade" id="authorizationModal" tabindex="-1" role="dialog" aria-labelledby="authorizationModalLabel" aria-hidden="true">

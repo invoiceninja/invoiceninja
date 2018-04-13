@@ -52,7 +52,7 @@ class AccountGatewayController extends BaseController
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
         $config = $accountGateway->getConfig();
 
-        if ($accountGateway->gateway_id != GATEWAY_CUSTOM) {
+        if (! $accountGateway->isCustom()) {
             foreach ($config as $field => $value) {
                 $config->$field = str_repeat('*', strlen($value));
             }
@@ -257,8 +257,6 @@ class AccountGatewayController extends BaseController
                     }
                     if (! $value && in_array($field, ['testMode', 'developerMode', 'sandbox'])) {
                         // do nothing
-                    } elseif ($gatewayId == GATEWAY_CUSTOM) {
-                        $config->$field = Utils::isNinjaProd() ? strip_tags($value) : $value;
                     } else {
                         $config->$field = $value;
                     }

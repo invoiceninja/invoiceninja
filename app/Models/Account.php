@@ -891,8 +891,10 @@ class Account extends Eloquent
 
         $gatewayTypes = [];
         $gatewayIds = [];
+        $usedGatewayIds = [];
 
         foreach ($this->account_gateways as $accountGateway) {
+            $usedGatewayIds[] = $accountGateway->gateway_id;
             $paymentDriver = $accountGateway->paymentDriver();
             $gatewayTypes = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
         }

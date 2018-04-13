@@ -263,7 +263,10 @@
 
 		updateFeeSample();
 
-		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM }} || {{ $account->gateway_fee_enabled ? '0' : '1' }}) {
+		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM1 }} ||
+				gateway_type_id == {{ GATEWAY_TYPE_CUSTOM2 }} ||
+				gateway_type_id == {{ GATEWAY_TYPE_CUSTOM3 }} || 
+				{{ $account->gateway_fee_enabled ? '0' : '1' }}) {
 			$('#feesEnabled').hide();
 			$('#feesDisabled').show();
 		} else {

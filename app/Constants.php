@@ -299,9 +299,11 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_PAYTRACE', 56);
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
-    define('GATEWAY_CUSTOM', 62);
+    define('GATEWAY_CUSTOM1', 62);
     define('GATEWAY_GOCARDLESS', 64);
     define('GATEWAY_PAYMILL', 66);
+    define('GATEWAY_CUSTOM2', 67);
+    define('GATEWAY_CUSTOM3', 68);
 
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers
@@ -451,12 +453,14 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_PAYPAL', 3);
     define('GATEWAY_TYPE_BITCOIN', 4);
     define('GATEWAY_TYPE_DWOLLA', 5);
-    define('GATEWAY_TYPE_CUSTOM', 6);
+    define('GATEWAY_TYPE_CUSTOM1', 6);
     define('GATEWAY_TYPE_ALIPAY', 7);
     define('GATEWAY_TYPE_SOFORT', 8);
     define('GATEWAY_TYPE_SEPA', 9);
     define('GATEWAY_TYPE_GOCARDLESS', 10);
     define('GATEWAY_TYPE_APPLE_PAY', 11);
+    define('GATEWAY_TYPE_CUSTOM2', 12);
+    define('GATEWAY_TYPE_CUSTOM3', 13);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');

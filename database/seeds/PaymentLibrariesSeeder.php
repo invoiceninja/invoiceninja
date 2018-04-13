@@ -70,11 +70,13 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'WeChat Express', 'provider' => 'WeChat_Express', 'payment_library_id' => 2],
             ['name' => 'WePay', 'provider' => 'WePay', 'is_offsite' => false, 'sort_order' => 3],
             ['name' => 'Braintree', 'provider' => 'Braintree', 'sort_order' => 3],
-            ['name' => 'Custom', 'provider' => 'Custom', 'is_offsite' => true, 'sort_order' => 20],
+            ['name' => 'Custom', 'provider' => 'Custom1', 'is_offsite' => true, 'sort_order' => 20],
             ['name' => 'FirstData Payeezy', 'provider' => 'FirstData_Payeezy'],
             ['name' => 'GoCardless', 'provider' => 'GoCardlessV2\Redirect', 'sort_order' => 9, 'is_offsite' => true],
             ['name' => 'PagSeguro', 'provider' => 'PagSeguro'],
             ['name' => 'PAYMILL', 'provider' => 'Paymill'],
+            ['name' => 'Custom', 'provider' => 'Custom2', 'is_offsite' => true, 'sort_order' => 21],
+            ['name' => 'Custom', 'provider' => 'Custom3', 'is_offsite' => true, 'sort_order' => 22],
         ];
 
         foreach ($gateways as $gateway) {
