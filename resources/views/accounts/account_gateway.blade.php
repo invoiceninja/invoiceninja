@@ -18,6 +18,7 @@
     @parent
 
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
+	@include('partials.email_templates')
 
     <div class="panel panel-default">
     <div class="panel-heading">
@@ -105,9 +106,13 @@
                     {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('enable')->value(1) !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
-                @elseif ($gateway->isCustom() && $field == 'text')
-                    {!! Former::textarea($gateway->id.'_'.$field)->label(trans('texts.text'))->rows(6) !!}
-                @else
+                @elseif ($gateway->isCustom())
+					@if ($field == 'text')
+                    	{!! Former::textarea($gateway->id.'_'.$field)->label(trans('texts.text'))->rows(6) !!}
+					@else
+						{!! Former::text($gateway->id.'_'.$field)->label('name')->appendIcon('question-sign')->addGroupClass('custom-text') !!}
+					@endif
+				@else
                     {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : ucwords(Utils::toSpaceCase($field))) !!}
                 @endif
 
@@ -350,6 +355,10 @@
         $('.stripe-ach-options').toggle(enableAch && {{ $accountGateway && $accountGateway->getPlaidClientId() ? 'true' : 'false' }});
 		$('.verification-file').toggle(enableApplePay);
     }
+
+	$('.custom-text .input-group-addon').click(function() {
+		$('#templateHelpModal').modal('show');
+	});
 
     var gateways = {!! Cache::get('gateways') !!};
 
