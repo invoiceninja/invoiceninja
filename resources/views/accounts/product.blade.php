@@ -51,7 +51,7 @@
                     </h3>
                 </div>
                 <div class="panel-body form-padding-right">
-                    @includeIf("{?$module->alias}::accounts.product")
+                    @includeIf($module->alias . '::accounts.product')
                 </div>
             </div>
         </div>
