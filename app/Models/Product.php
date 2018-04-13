@@ -98,15 +98,16 @@ class Product extends EntityModel
       */
     public function __call($method, $parameters)
     {
-        #i: Convert array to dot notation
+        // Original from https://coderwall.com/wajatimur
+        // Convert array to dot notation
         $config = implode('.', ['modules.relations.product', $method]);
 
-        #i: Relation method resolver
+        // Relation method resolver
         if (config()->has($config)) {
             $function = config()->get($config);
             return $function($this);
         }
-        #i: No relation found, return the call to parent (Eloquent) to handle it.
+        // No relation found, return the call to parent (Eloquent) to handle it.
         return parent::__call($method, $parameters);
     }
 }
