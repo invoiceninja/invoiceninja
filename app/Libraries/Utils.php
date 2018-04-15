@@ -489,6 +489,21 @@ class Utils
         return intval($value);
     }
 
+    public static function lookupIdInCache($name, $type)
+    {
+        $cache = Cache::get($type);
+
+        $data = $cache->filter(function ($item) use ($name) {
+            return strtolower($item->name) == trim(strtolower($name));
+        });
+
+        if ($record = $data->first()) {
+            return $record->id;
+        } else {
+            return null;
+        }
+    }
+
     public static function getFromCache($id, $type)
     {
         $cache = Cache::get($type);

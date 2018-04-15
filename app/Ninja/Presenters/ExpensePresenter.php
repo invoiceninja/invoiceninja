@@ -59,6 +59,15 @@ class ExpensePresenter extends EntityPresenter
         return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
 
+    public function payment_type()
+    {
+        if (! $this->payment_type_id) {
+            return '';
+        }
+
+        return Utils::getFromCache($this->payment_type_id, 'paymentTypes')->name;
+    }
+
     public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
