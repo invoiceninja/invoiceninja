@@ -271,6 +271,7 @@ return [
         'Utils' => App\Libraries\Utils::class,
         'DateUtils' => App\Libraries\DateUtils::class,
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
+        'CurlUtils' => App\Libraries\CurlUtils::class,
         'Domain' => App\Constants\Domain::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
 

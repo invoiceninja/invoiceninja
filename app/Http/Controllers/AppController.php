@@ -328,7 +328,7 @@ class AppController extends BaseController
             }
         }
 
-        return Redirect::to('/');
+        return Redirect::to('/?clear_cache=true');
     }
 
     // MySQL changed the default table type from MyISAM to InnoDB
