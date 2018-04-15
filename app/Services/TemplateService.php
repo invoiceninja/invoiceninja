@@ -74,6 +74,8 @@ class TemplateService
             '$viewButton' => Form::emailViewButton($invitation->getLink(), $entityType).'$password',
             '$paymentLink' => $invitation->getLink('payment').'$password',
             '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
+            '$approveLink' => $invitation->getLink('approve').'$password',
+            '$approveButton' => Form::emailPaymentButton($invitation->getLink('approve'), 'approve').'$password',
             '$customClient1' => $client->custom_value1,
             '$customClient2' => $client->custom_value2,
             '$customContact1' => $contact->custom_value1,

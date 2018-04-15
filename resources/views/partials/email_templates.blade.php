@@ -45,6 +45,8 @@
             'viewButton': viewButton,
             'paymentLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
             'paymentButton': {!! json_encode(Form::flatButton('pay_now', '#36c157')) !!} + '$password',
+            'approveLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
+            'approveButton': {!! json_encode(Form::flatButton('approve', '#36c157')) !!} + '$password',
             'autoBill': '{{ trans('texts.auto_bill_notification_placeholder') }}',
             'portalLink': "{{ auth()->user()->account->getBaseUrl() . '/...' }}",
             'portalButton': {!! json_encode(Form::flatButton('view_portal', '#36c157')) !!},
@@ -96,11 +98,14 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <p>{{ trans('texts.company_variables') }}</p>
+                        <p>{{ trans('texts.client_variables') }}</p>
                         <ul>
                             @foreach([
-                                'account',
-                                'emailSignature',
+                                'client',
+                                'contact',
+                                'firstName',
+                                'password',
+                                'autoBill',
                             ] as $field)
                                 <li>${{ $field }}</li>
                             @endforeach
@@ -122,14 +127,11 @@
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <p>{{ trans('texts.client_variables') }}</p>
+                        <p>{{ trans('texts.company_variables') }}</p>
                         <ul>
                             @foreach([
-                                'client',
-                                'contact',
-                                'firstName',
-                                'password',
-                                'autoBill',
+                                'account',
+                                'emailSignature',
                             ] as $field)
                                 <li>${{ $field }}</li>
                             @endforeach
@@ -141,6 +143,8 @@
                                 'viewButton',
                                 'paymentLink',
                                 'paymentButton',
+                                'approveLink',
+                                'approveButton',
                                 'portalLink',
                                 'portalButton',
                             ] as $field)
