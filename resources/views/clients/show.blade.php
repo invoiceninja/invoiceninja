@@ -68,6 +68,9 @@
 
                 @if ($client->trashed())
                     @can('edit', $client)
+                        {!! Button::danger(trans('texts.purge_client'))
+                                ->appendIcon(Icon::create('warning-sign'))
+                                ->withAttributes(['onclick' => 'onPurgeClick()']) !!}
                         {!! Button::primary(trans('texts.restore_client'))
                                 ->appendIcon(Icon::create('cloud-download'))
                                 ->withAttributes(['onclick' => 'onRestoreClick()']) !!}
