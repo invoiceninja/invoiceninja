@@ -188,7 +188,7 @@
                         <div class="col-md-6">
 
 						  {!! Former::select('invoice_design_id')
-						  		  ->label('default_design')
+						  		  ->label('invoice_design')
                                   ->fromQuery($invoiceDesigns, 'name', 'id') !!}
 						  {!! Former::select('quote_design_id')
 						  		  ->label('quote_design')
