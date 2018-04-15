@@ -6,8 +6,6 @@ sudo: true
 group: deprecated-2017Q4
 
 php:
-#  - 7.0
-  - 7.1
   - 7.2
 
 addons:
