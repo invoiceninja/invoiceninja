@@ -251,6 +251,8 @@ class Account extends Eloquent
         'description',
         'discount',
         'due_date',
+        'gateway_fee_item',
+        'gateway_fee_description',
         'hours',
         'id_number',
         'invoice',

@@ -2836,6 +2836,8 @@ $LANG = array(
     'proposal_editor' => 'proposal editor',
     'background' => 'Background',
     'guide' => 'Guide',
+    'gateway_fee_item' => 'Gateway Fee Item',
+    'gateway_fee_description' => 'Gateway Fee Surcharge',
 
 );
 

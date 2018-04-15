@@ -1310,10 +1310,23 @@ class InvoiceRepository extends BaseRepository
 
         $data = $invoice->toArray();
         $fee = $invoice->calcGatewayFee($gatewayTypeId);
+        $date = $account->getDateTime()->format($account->getCustomDateFormat());
+        $feeItemLabel = $account->getLabel('gateway_fee_item') ?: ($fee >= 0 ? trans('texts.surcharge') : trans('texts.discount'));
+
+        if ($feeDescriptionLabel = $account->getLabel('gateway_fee_description')) {
+            if (strpos($feeDescriptionLabel, '$date') !== false) {
+                $feeDescriptionLabel = str_replace('$date', $date, $feeDescriptionLabel);
+            } else {
+                $feeDescriptionLabel .= ' • ' . $date;
+            }
+        } else {
+            $feeDescriptionLabel = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
+            $feeDescriptionLabel .= ' • ' . $date;
+        }
 
         $item = [];
-        $item['product_key'] = $fee >= 0 ? trans('texts.surcharge') : trans('texts.discount');
-        $item['notes'] = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
+        $item['product_key'] = $feeItemLabel;
+        $item['notes'] = $feeDescriptionLabel;
         $item['qty'] = 1;
         $item['cost'] = $fee;
         $item['tax_rate1'] = $settings->fee_tax_rate1;
