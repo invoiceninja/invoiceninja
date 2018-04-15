@@ -345,11 +345,13 @@
                 <p>{{ trans('texts.iframe_url_help1') }}</p>
                 <pre>&lt;center&gt;
 &lt;iframe id="invoiceIFrame" width="100%" height="1200" style="max-width:1000px"&gt;&lt;/iframe&gt;
-&lt;center&gt;
+&lt;/center&gt;
 &lt;script language="javascript"&gt;
 var iframe = document.getElementById('invoiceIFrame');
-iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
-             + window.location.search.substring(1, 33);
+var search = window.location.search + '//';
+var silent = search.indexOf('silent') > 0;
+var parts = search.replace('?silent=true', '').split('/');
+iframe.src = '{{ rtrim(SITE_URL ,'/') }}/' + parts[1] + '/' + parts[0].substring(1, 33) + '/' + parts[2] + (silent ? '?silent=true' : '');
 &lt;/script&gt;</pre>
                 <p>{{ trans('texts.iframe_url_help2') }}</p>
                 <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
