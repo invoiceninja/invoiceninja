@@ -84,7 +84,7 @@
 
                                 {!! Former::inline_radios('custom_invoice_link')
                                         ->onchange('onCustomLinkChange()')
-                                        ->label(trans('texts.customize'))
+                                        ->label(trans('texts.custom'))
                                         ->radios([
                                             trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
                                             'iFrame' => ['value' => 'iframe', 'name' => 'custom_link'],
