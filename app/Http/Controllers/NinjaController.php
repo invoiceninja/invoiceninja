@@ -244,6 +244,16 @@ class NinjaController extends BaseController
         $licenseKey = Input::get('license_key');
         $productId = Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
+        // add in dashes
+        if (strlen($licenseKey) == 20) {
+            $licenseKey = sprintf('%s-%s-%s-%s-%s',
+                substr($licenseKey, 0, 4),
+                substr($licenseKey, 4, 4),
+                substr($licenseKey, 8, 4),
+                substr($licenseKey, 12, 4),
+                substr($licenseKey, 16, 4));
+        }
+
         $license = License::where('license_key', '=', $licenseKey)
                     ->where('is_claimed', '<', 10)
                     ->where('product_id', '=', $productId)
