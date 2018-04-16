@@ -42,7 +42,11 @@ trait Inviteable
             }
 
             if ($iframe_url && ! $forceOnsite) {
-                return "{$iframe_url}?{$this->invitation_key}/{$type}";
+                if ($account->is_custom_domain) {
+                    $url = $iframe_url;
+                } else {
+                    return "{$iframe_url}?{$this->invitation_key}/{$type}";
+                }
             } elseif ($this->account->subdomain && ! $forcePlain) {
                 $url = Utils::replaceSubdomain($url, $account->subdomain);
             }

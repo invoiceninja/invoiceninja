@@ -834,6 +834,7 @@ class AccountController extends BaseController
         $account->client_view_css = $request->client_view_css;
         $account->subdomain = $request->subdomain;
         $account->iframe_url = $request->iframe_url;
+        $account->is_custom_domain = $request->is_custom_domain;
         $account->save();
 
         if ($fireUpdateSubdomainEvent) {

@@ -84,8 +84,9 @@
                                         ->label(trans('texts.customize'))
                                         ->radios([
                                             trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
-                                            trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
-                                        ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+                                            'iFrame' => ['value' => 'iframe', 'name' => 'custom_link'],
+                                            trans('texts.domain') => ['value' => 'domain', 'name' => 'custom_link'],
+                                        ])->check($account->iframe_url ? ($account->is_custom_domain ? 'domain' : 'iframe') : 'subdomain') !!}
                                 {{ Former::setOption('capitalize_translations', false) }}
 
                                 {!! Former::text('subdomain')
@@ -97,11 +98,22 @@
                             @endif
 
                             {!! Former::text('iframe_url')
-                                        ->placeholder('https://www.example.com/invoice')
+                                        ->placeholder('https://www.example.com')
                                         ->appendIcon('question-sign')
                                         ->addGroupClass('iframe_url')
                                         ->label(Utils::isNinja() ? ' ' : trans('texts.website'))
                                         ->help(trans(Utils::isNinja() ? 'texts.subdomain_help' : 'texts.website_help')) !!}
+
+                            @if (Utils::isNinja())
+                                <div style="display:none">
+                                    {!! Former::text('is_custom_domain') !!}
+                                </div>
+                            @endif
+
+                            <div id="domainHelp" style="display:none">
+                                {!! Former::plaintext(' ')
+                                            ->value('Using a custom domain requires an <a href="' . url('/settings/account_management?upgrade=true') . '" target="_blank">enterprise plan</a>') !!}
+                            </div>
 
                             {!! Former::plaintext('preview')
                                         ->value($account->getSampleLink()) !!}
@@ -341,7 +353,7 @@
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
             <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body" id="iframeModalHelp">
                 <p>{{ trans('texts.iframe_url_help1') }}</p>
                 <pre>&lt;center&gt;
 &lt;iframe id="invoiceIFrame" width="100%" height="1200" style="max-width:1000px"&gt;&lt;/iframe&gt;
@@ -355,7 +367,13 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/' + parts[1] + '/' + parts[0].substring
 &lt;/script&gt;</pre>
                 <p>{{ trans('texts.iframe_url_help2') }}</p>
                 <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
-                </div>
+            </div>
+
+            <div class="panel-body" id="domainModalHelp" style="display:none">
+                <p>Create a DNS A Record entry for your custom domain and point to the following IP address <code>96.126.107.105</code>.</p>
+                <p>Once this is setup please send an email to {{ env('CONTACT_EMAIL') }} and we'll complete the process.</p>
+            </div>
+
             </div>
             </div>
 
@@ -471,13 +489,23 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/' + parts[1] + '/' + parts[0].substring
     }
 
     function onCustomLinkChange() {
+        $('.iframe_url, .subdomain').hide();
+        $('.subdomain').hide();
+        $('#domainHelp, #iframeModalHelp, #domainModalHelp').hide();
+        $('#is_custom_domain').val(0);
+
         var val = $('input[name=custom_link]:checked').val()
         if (val == 'subdomain') {
             $('.subdomain').show();
-            $('.iframe_url').hide();
+        } else if (val == 'iframe') {
+            $('.iframe_url, #iframeModalHelp').show();
         } else {
-            $('.subdomain').hide();
-            $('.iframe_url').show();
+            @if (auth()->user()->isEnterprise())
+                $('.iframe_url, #domainModalHelp').show();
+                $('#is_custom_domain').val(1);
+            @else
+                $('#domainHelp').show();
+            @endif
         }
     }
 
