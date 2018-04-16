@@ -113,6 +113,7 @@ class ImportService
         IMPORT_INVOICEABLE,
         IMPORT_INVOICEPLANE,
         IMPORT_NUTCACHE,
+        IMPORT_PANCAKE,
         IMPORT_RONIN,
         IMPORT_STRIPE,
         IMPORT_WAVE,

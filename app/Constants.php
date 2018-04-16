@@ -180,6 +180,7 @@ if (! defined('APP_NAME')) {
     define('IMPORT_INVOICEPLANE', 'InvoicePlane');
     define('IMPORT_HARVEST', 'Harvest');
     define('IMPORT_STRIPE', 'Stripe');
+    define('IMPORT_PANCAKE', 'Pancake');
 
     define('MAX_NUM_CLIENTS', 100);
     define('MAX_NUM_CLIENTS_PRO', 20000);
