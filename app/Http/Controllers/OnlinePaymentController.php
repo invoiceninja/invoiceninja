@@ -102,6 +102,16 @@ class OnlinePaymentController extends BaseController
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
+        // add a delay check for token links
+        if ($gatewayTypeId == GATEWAY_TYPE_TOKEN) {
+            $key = 'payment_token:' . $invitation->invitation_key;
+            if (cache($key)) {
+                return redirect()->to('view/' . $invitation->invitation_key);
+            } else {
+                cache([$key => true], \Carbon::now()->addSeconds(10));
+            }
+        }
+
         try {
             return $paymentDriver->startPurchase(Input::all(), $sourceId);
         } catch (Exception $exception) {
