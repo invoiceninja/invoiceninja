@@ -25,7 +25,7 @@
 
 	<div class="container" style="padding: 20px;">
 		@if ($message = $proposal->invoice->client->customMessage($proposal->getCustomMessageType()))
-            <div class="alert alert-warning custom-message">{!! Utils::isNinja() ? HTMLUtils::sanitizeHTML($message) : $message !!}</div>
+			@include('invited.custom_message', ['message' => $message])
         @endif
 
 		<div class="pull-right">
