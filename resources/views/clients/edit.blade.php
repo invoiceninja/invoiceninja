@@ -247,6 +247,7 @@
 					<div role="tabpanel" class="tab-pane" id="messages">
 						@foreach (App\Models\Account::$customMessageTypes as $type)
 							{!! Former::textarea('custom_messages[' . $type . ']')
+									->placeholder($account->customMessage($type))
 									->label($type) !!}
 						@endforeach
 					</div>
