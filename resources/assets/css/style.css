@@ -1417,3 +1417,7 @@ div.panel-body div.panel-body {
     padding-right:0;
     padding-left:0;
 }
+
+.input-group-addon .glyphicon-question-sign {
+    color: #117cc1;
+}
