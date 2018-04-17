@@ -6,6 +6,7 @@ use App\Libraries\CurlUtils;
 use Carbon;
 use Str;
 use Cache;
+use Utils;
 use Exception;
 use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
@@ -195,6 +196,10 @@ class SendReminders extends Command
 
     private function loadExchangeRates()
     {
+        if (Utils::isNinjaDev()) {
+            return;
+        }
+
         $this->info('Loading latest exchange rates...');
 
         $data = CurlUtils::get(config('ninja.exchange_rates_url'));
