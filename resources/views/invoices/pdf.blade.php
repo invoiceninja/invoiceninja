@@ -89,7 +89,7 @@
   @endif
 
   @if ($account->isEnterprise() && $account->background_image_id && $account->background_image)
-    window.accountBackground = "{{ Form::image_data($account->background_image->getRaw(), true) }}";
+    window.accountBackground = "{{ Form::image_data($account->background_image->getRawCached(), true) }}";
   @endif
 
   var NINJA = NINJA || {};

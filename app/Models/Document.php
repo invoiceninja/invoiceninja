@@ -237,6 +237,23 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
+    public function getRawCached()
+    {
+        $key = 'image:' . $this->path;
+
+        if ($image = cache($key)) {
+            // do nothing
+        } else {
+            $image = $this->getRaw();
+            cache([$key => $image], 120);
+        }
+
+        return $image;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getStream()
     {
         $disk = $this->getDisk();
