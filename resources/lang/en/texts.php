@@ -2408,6 +2408,7 @@ $LANG = array(
     'currency_brunei_dollar' => 'Brunei Dollar',
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
+    'currency_honduran_lempira' => 'Honduran Lempira',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
