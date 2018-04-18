@@ -91,7 +91,7 @@ class SendRecurringInvoices extends Command
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->get();
-        $this->info($invoices->count() . ' recurring invoice(s) found');
+        $this->info(date('r ') . $invoices->count() . ' recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
@@ -100,7 +100,7 @@ class SendRecurringInvoices extends Command
                 continue;
             }
 
-            $this->info('Processing Invoice: '. $recurInvoice->id);
+            $this->info(date('r') . ' Processing Invoice: '. $recurInvoice->id);
 
             $account = $recurInvoice->account;
             $account->loadLocalizationSettings($recurInvoice->client);
@@ -109,13 +109,13 @@ class SendRecurringInvoices extends Command
             try {
                 $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
                 if ($invoice && ! $invoice->isPaid() && $account->auto_email_invoice) {
-                    $this->info('Not billed - Sending Invoice');
+                    $this->info(date('r') . ' Not billed - Sending Invoice');
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id));
                 } elseif ($invoice) {
-                    $this->info('Successfully billed invoice');
+                    $this->info(date('r') . ' Successfully billed invoice');
                 }
             } catch (Exception $exception) {
-                $this->info('Error: ' . $exception->getMessage());
+                $this->info(date('r') . ' Error: ' . $exception->getMessage());
                 Utils::logError($exception);
             }
 
@@ -133,7 +133,7 @@ class SendRecurringInvoices extends Command
                 [$today->format('Y-m-d')])
             ->orderBy('invoices.id', 'asc')
             ->get();
-        $this->info($delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
+        $this->info(date('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
@@ -142,7 +142,7 @@ class SendRecurringInvoices extends Command
             }
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
-                $this->info('Processing Autobill-delayed Invoice: ' . $invoice->id);
+                $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
                 Auth::loginUsingId($invoice->activeUser()->id);
                 $this->paymentService->autoBillInvoice($invoice);
                 Auth::logout();
@@ -158,7 +158,7 @@ class SendRecurringInvoices extends Command
                         ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
                         ->orderBy('id', 'asc')
                         ->get();
-        $this->info($expenses->count() . ' recurring expenses(s) found');
+        $this->info(date('r ') . $expenses->count() . ' recurring expenses(s) found');
 
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
@@ -167,7 +167,7 @@ class SendRecurringInvoices extends Command
                 continue;
             }
 
-            $this->info('Processing Expense: '. $expense->id);
+            $this->info(date('r') . ' Processing Expense: '. $expense->id);
             $this->recurringExpenseRepo->createRecurringExpense($expense);
         }
     }
