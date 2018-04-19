@@ -47,6 +47,12 @@ To run the database migration use:
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in modules.json.
 
+There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app.
+
+If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
+
+.. NOTE:: Our module implemention is currenty being actively worked on, you can join the discussion on our Slack group: http://slack.invoiceninja.com/
+
 Share Module
 """"""""""""
 
@@ -64,12 +70,3 @@ To share your module create a new project on GitHub and then run the following c
 .. Tip:: Add ``"type": "invoiceninja-module"`` to the composer.json file to help people find your module.
 
 Finally, submit the project to https://packagist.org.
-
-Developer Notes
-"""""""""""""""
-
-There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app.
-
-If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
-
-.. NOTE:: Our module implemention is currenty being actively worked on, you can join the discussion on our Slack group: http://slack.invoiceninja.com/
