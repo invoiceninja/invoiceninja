@@ -21,6 +21,7 @@ class DashboardApiController extends BaseAPIController
         $viewAll = $user->hasPermission('view_all');
         $userId = $user->id;
         $accountId = $user->account->id;
+        $defaultCurrency = $user->account->currency_id;
 
         $dashboardRepo = $this->dashboardRepo;
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
@@ -44,11 +45,11 @@ class DashboardApiController extends BaseAPIController
         $data = [
             'id' => 1,
             'paidToDate' => $paidToDate->count() && $paidToDate[0]->value ? $paidToDate[0]->value : 0,
-            'paidToDateCurrency' => $paidToDate->count() && $paidToDate[0]->currency_id ? $paidToDate[0]->currency_id : 0,
+            'paidToDateCurrency' => $paidToDate->count() && $paidToDate[0]->currency_id ? $paidToDate[0]->currency_id : $defaultCurrency,
             'balances' => $balances->count() && $balances[0]->value ? $balances[0]->value : 0,
-            'balancesCurrency' => $balances->count() && $balances[0]->currency_id ? $balances[0]->currency_id : 0,
+            'balancesCurrency' => $balances->count() && $balances[0]->currency_id ? $balances[0]->currency_id : $defaultCurrency,
             'averageInvoice' => $averageInvoice->count() && $averageInvoice[0]->invoice_avg ? $averageInvoice[0]->invoice_avg : 0,
-            'averageInvoiceCurrency' => $averageInvoice->count() && $averageInvoice[0]->currency_id ? $averageInvoice[0]->currency_id : 0,
+            'averageInvoiceCurrency' => $averageInvoice->count() && $averageInvoice[0]->currency_id ? $averageInvoice[0]->currency_id : $defaultCurrency,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
             'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
