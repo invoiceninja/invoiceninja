@@ -54,6 +54,6 @@ class DashboardApiController extends BaseAPIController
             'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
         ];
 
-        return $this->response($data);
+        return $this->response($balances);
     }
 }
