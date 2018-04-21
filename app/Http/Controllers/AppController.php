@@ -282,7 +282,8 @@ class AppController extends BaseController
         if (! Utils::isNinjaProd()) {
             if ($password = env('UPDATE_SECRET')) {
                 if (! hash_equals($password, request('secret') ?: '')) {
-                    abort(400, 'Invalid secret: /update?secret=<value>');
+                    echo 'Invalid secret: /update?secret=<value>';
+                    exit;
                 }
             }
 
