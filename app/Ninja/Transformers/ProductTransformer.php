@@ -34,6 +34,7 @@ class ProductTransformer extends EntityTransformer
             'archived_at' => $this->getTimestamp($product->deleted_at),
             'custom_value1' => $product->custom_value1,
             'custom_value2' => $product->custom_value2,
+            'is_deleted' => (bool) $product->is_deleted,
         ]);
     }
 }
