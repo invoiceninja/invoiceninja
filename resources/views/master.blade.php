@@ -223,6 +223,9 @@
     <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
     <script>
     window.addEventListener("load", function(){
+        if (! window.cookieconsent) {
+            return;
+        }
         window.cookieconsent.initialise({
             "palette": {
                 "popup": {
