@@ -42,7 +42,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'moolah', 'provider' => 'AuthorizeNet_AIM'],
             ['name' => 'Alipay', 'provider' => 'Alipay_Express'],
             ['name' => 'Buckaroo', 'provider' => 'Buckaroo_CreditCard'],
-            ['name' => 'Coinbase', 'provider' => 'Coinbase'],
+            ['name' => 'Coinbase', 'provider' => 'Coinbase', 'is_offsite' => true],
             ['name' => 'DataCash', 'provider' => 'DataCash'],
             ['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 2],
             ['name' => 'Pacnet', 'provider' => 'Pacnet'],
