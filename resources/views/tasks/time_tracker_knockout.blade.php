@@ -606,8 +606,8 @@
         self.isHovered = ko.observable(false);
         self.created_at = ko.observable(moment.utc().format('YYYY-MM-DD HH:mm:ss'));
         self.task_status_id = ko.observable();
-        self.custom_value1 = ko.observable();
-        self.custom_value2 = ko.observable();
+        self.custom_value1 = ko.observable('');
+        self.custom_value2 = ko.observable('');
 
         self.mapping = {
             'client': {
