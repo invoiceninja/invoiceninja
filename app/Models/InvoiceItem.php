@@ -75,7 +75,7 @@ class InvoiceItem extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    public function amount()
+    public function getPreTaxAmount()
     {
         $amount = $this->cost * $this->qty;
 
@@ -83,21 +83,32 @@ class InvoiceItem extends EntityModel
             if ($this->invoice->is_amount_discount) {
                 $amount -= $this->discount;
             } else {
-                $amount -= $amount * $this->discount / 100;
+                $amount -= round($amount * $this->discount / 100, 4);
             }
         }
 
-        $preTaxAmount = $amount;
+        return $amount;
+    }
+
+    public function getTaxAmount()
+    {
+        $tax = 0;
+        $preTaxAmount = $this->getPreTaxAmount();
 
         if ($this->tax_rate1) {
-            $amount += $preTaxAmount * $this->tax_rate1 / 100;
+            $tax += round($preTaxAmount * $this->tax_rate1 / 100, 2);
         }
 
         if ($this->tax_rate2) {
-            $amount += $preTaxAmount * $this->tax_rate2 / 100;
+            $tax += round($preTaxAmount * $this->tax_rate2 / 100, 2);
         }
 
-        return $amount;
+        return $tax;
+    }
+
+    public function amount()
+    {
+        return $this->getPreTaxAmount() + $this->getTaxAmount();
     }
 
     public function markFeePaid()

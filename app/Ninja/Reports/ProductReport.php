@@ -75,10 +75,7 @@ class ProductReport extends AbstractReport
                     ];
 
                     if ($account->invoice_item_taxes) {
-                        $row[] = $item->present()->tax1;
-                        if ($account->enable_second_tax_rate) {
-                            $row[] = $item->present()->tax2;
-                        }
+                        $row[] = Utils::roundSignificant($item->getTaxAmount(), 2);
                     }
 
                     if ($account->customLabel('product1')) {
