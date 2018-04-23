@@ -261,10 +261,7 @@ class Task extends EntityModel
             $statuses[$status->public_id] = $status->name;
         }
 
-        if (! $taskStatues->count()) {
-            $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
-        }
-
+        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
         $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
         $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
         $statuses[TASK_STATUS_PAID] = trans('texts.paid');
