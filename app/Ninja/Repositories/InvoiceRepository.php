@@ -374,6 +374,13 @@ class InvoiceRepository extends BaseRepository
         $account = $invoice ? $invoice->account : \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
+        if (Utils::isNinjaProd() && ! Utils::isReseller()) {
+            $copy = json_decode( json_encode($data), true);
+            $copy['data'] = false;
+            $logMessage = date('r') . ' account_id: ' . $account->id . ' ' . json_encode($copy);
+            @file_put_contents(storage_path('logs/invoice-repo.log'), $logMessage, FILE_APPEND);
+        }
+
         $isNew = ! $publicId || $publicId == '-1';
 
         if ($invoice) {
