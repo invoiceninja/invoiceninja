@@ -139,7 +139,3 @@
 	</script>
 
 @stop
-
-@section('onReady')
-    $('#name').focus();
-@stop

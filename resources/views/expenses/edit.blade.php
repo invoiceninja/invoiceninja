@@ -79,6 +79,8 @@
                                 ->addGroupClass('client-select') !!}
                     @endif
 
+                    @include('partials/custom_fields', ['entityType' => ENTITY_EXPENSE])
+
                     @if (count($taxRates))
                         @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
                             {!! Former::checkbox('apply_taxes')
@@ -112,12 +114,14 @@
                                 ->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
     							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                                 ->appendIcon('calendar')
-                                ->addGroupClass('start_date') !!}
+                                ->addGroupClass('start_date')
+                                ->data_date_start_date($account->formatDate($account->getDateTime())) !!}
                         {!! Former::text('end_date')
                                 ->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
     							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                                 ->appendIcon('calendar')
-                                ->addGroupClass('end_date') !!}
+                                ->addGroupClass('end_date')
+                                ->data_date_start_date($account->formatDate($account->getDateTime())) !!}
 
                     @else
                         @if ((! $expense || ! $expense->transaction_id))

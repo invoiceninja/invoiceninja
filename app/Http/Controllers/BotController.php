@@ -158,8 +158,8 @@ class BotController extends Controller
 
     private function parseMessage($message)
     {
-        $appId = env('MSBOT_LUIS_APP_ID');
-        $subKey = env('MSBOT_LUIS_SUBSCRIPTION_KEY');
+        $appId = config('ninja.voice_commands.app_id');
+        $subKey = config('ninja.voice_commands.subscription_key');
         $message = rawurlencode($message);
 
         $url = sprintf('%s/%s?subscription-key=%s&verbose=true&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);

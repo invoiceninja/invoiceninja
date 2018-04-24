@@ -44,6 +44,8 @@ class Vendor extends EntityModel
         'currency_id',
         'website',
         'transaction_name',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**
@@ -98,10 +100,10 @@ class Vendor extends EntityModel
             self::$fieldPostalCode,
             self::$fieldCountry,
             self::$fieldNotes,
-            VendorContact::$fieldFirstName,
-            VendorContact::$fieldLastName,
-            VendorContact::$fieldPhone,
-            VendorContact::$fieldEmail,
+            'contact_first_name',
+            'contact_last_name',
+            'contact_email',
+            'contact_phone',
         ];
     }
 
@@ -111,11 +113,12 @@ class Vendor extends EntityModel
     public static function getImportMap()
     {
         return [
-            'first' => 'first_name',
-            'last' => 'last_name',
-            'email' => 'email',
-            'mobile|phone' => 'phone',
-            'name|organization' => 'name',
+            'first' => 'contact_first_name',
+            'last' => 'contact_last_name',
+            'email' => 'contact_email',
+            'mobile|phone' => 'contact_phone',
+            'work|office' => 'work_phone',
+            'name|organization|vendor' => 'name',
             'street2|address2' => 'address2',
             'street|address|address1' => 'address1',
             'city' => 'city',

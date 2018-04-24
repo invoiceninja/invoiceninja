@@ -85,11 +85,11 @@ class AppServiceProvider extends ServiceProvider
                         ->render();
         });
 
-        Form::macro('emailPaymentButton', function ($link = '#') {
+        Form::macro('emailPaymentButton', function ($link = '#', $label = 'pay_now') {
             return view('partials.email_button')
                         ->with([
                             'link' => $link,
-                            'field' => 'pay_now',
+                            'field' => $label,
                             'color' => '#36c157',
                         ])
                         ->render();

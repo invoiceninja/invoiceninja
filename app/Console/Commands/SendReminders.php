@@ -6,6 +6,7 @@ use App\Libraries\CurlUtils;
 use Carbon;
 use Str;
 use Cache;
+use Utils;
 use Exception;
 use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
@@ -73,7 +74,7 @@ class SendReminders extends Command
         $this->sendScheduledReports();
         $this->loadExchangeRates();
 
-        $this->info('Done');
+        $this->info(date('r') . ' Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
             \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
@@ -87,7 +88,7 @@ class SendReminders extends Command
     private function chargeLateFees()
     {
         $accounts = $this->accountRepo->findWithFees();
-        $this->info($accounts->count() . ' accounts found with fees');
+        $this->info(date('r ') . $accounts->count() . ' accounts found with fees');
 
         foreach ($accounts as $account) {
             if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -95,11 +96,11 @@ class SendReminders extends Command
             }
 
             $invoices = $this->invoiceRepo->findNeedingReminding($account, false);
-            $this->info($account->name . ': ' . $invoices->count() . ' invoices found');
+            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice, false)) {
-                    $this->info('Charge fee: ' . $invoice->id);
+                    $this->info(date('r') . ' Charge fee: ' . $invoice->id);
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
@@ -114,7 +115,7 @@ class SendReminders extends Command
     private function sendReminderEmails()
     {
         $accounts = $this->accountRepo->findWithReminders();
-        $this->info(count($accounts) . ' accounts found with reminders');
+        $this->info(date('r ') . count($accounts) . ' accounts found with reminders');
 
         foreach ($accounts as $account) {
             if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -123,27 +124,27 @@ class SendReminders extends Command
 
             // standard reminders
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
-            $this->info($account->name . ': ' . $invoices->count() . ' invoices found');
+            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
                     if ($invoice->last_sent_date == date('Y-m-d')) {
                         continue;
                     }
-                    $this->info('Send email: ' . $invoice->id);
+                    $this->info(date('r') . ' Send email: ' . $invoice->id);
                     dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, $reminder));
                 }
             }
 
             // endless reminders
             $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account);
-            $this->info($account->name . ': ' . $invoices->count() . ' endless invoices found');
+            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' endless invoices found');
 
             foreach ($invoices as $invoice) {
                 if ($invoice->last_sent_date == date('Y-m-d')) {
                     continue;
                 }
-                $this->info('Send email: ' . $invoice->id);
+                $this->info(date('r') . ' Send email: ' . $invoice->id);
                 dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
             }
         }
@@ -154,10 +155,10 @@ class SendReminders extends Command
         $scheduledReports = ScheduledReport::where('send_date', '<=', date('Y-m-d'))
             ->with('user', 'account.company')
             ->get();
-        $this->info($scheduledReports->count() . ' scheduled reports');
+        $this->info(date('r ') . $scheduledReports->count() . ' scheduled reports');
 
         foreach ($scheduledReports as $scheduledReport) {
-            $this->info('Processing report: ' . $scheduledReport->id);
+            $this->info(date('r') . ' Processing report: ' . $scheduledReport->id);
 
             $user = $scheduledReport->user;
             $account = $scheduledReport->account;
@@ -179,12 +180,12 @@ class SendReminders extends Command
             if ($file) {
                 try {
                     $this->userMailer->sendScheduledReport($scheduledReport, $file);
-                    $this->info('Sent report');
+                    $this->info(date('r') . ' Sent report');
                 } catch (Exception $exception) {
-                    $this->info('ERROR: ' . $exception->getMessage());
+                    $this->info(date('r') . ' ERROR: ' . $exception->getMessage());
                 }
             } else {
-                $this->info('ERROR: Failed to run report');
+                $this->info(date('r') . ' ERROR: Failed to run report');
             }
 
             $scheduledReport->updateSendDate();
@@ -195,7 +196,11 @@ class SendReminders extends Command
 
     private function loadExchangeRates()
     {
-        $this->info('Loading latest exchange rates...');
+        if (Utils::isNinjaDev()) {
+            return;
+        }
+
+        $this->info(date('r') . ' Loading latest exchange rates...');
 
         $data = CurlUtils::get(config('ninja.exchange_rates_url'));
         $data = json_decode($data);

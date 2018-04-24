@@ -14,16 +14,18 @@ class GatewayTypesSeeder extends Seeder
             ['alias' => 'paypal', 'name' => 'PayPal'],
             ['alias' => 'bitcoin', 'name' => 'Bitcoin'],
             ['alias' => 'dwolla', 'name' => 'Dwolla'],
-            ['alias' => 'custom', 'name' => 'Custom'],
+            ['alias' => 'custom1', 'name' => 'Custom'],
             ['alias' => 'alipay', 'name' => 'Alipay'],
             ['alias' => 'sofort', 'name' => 'Sofort'],
             ['alias' => 'sepa', 'name' => 'SEPA'],
             ['alias' => 'gocardless', 'name' => 'GoCardless'],
             ['alias' => 'apple_pay', 'name' => 'Apple Pay'],
+            ['alias' => 'custom2', 'name' => 'Custom'],
+            ['alias' => 'custom3', 'name' => 'Custom'],
         ];
 
         foreach ($gateway_types as $gateway_type) {
-            $record = GatewayType::where('name', '=', $gateway_type['name'])->first();
+            $record = GatewayType::where('alias', '=', $gateway_type['alias'])->first();
             if (! $record) {
                 GatewayType::create($gateway_type);
             }

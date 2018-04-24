@@ -73,7 +73,7 @@ $I->amOnPage('/settings/import_export');
 $I->see('Import');
 
 $I->amOnPage('/settings/invoice_settings');
-$I->see('Invoice Fields');
+$I->see('Custom Fields');
 
 $I->amOnPage('/settings/invoice_design');
 $I->see('Invoice Design');

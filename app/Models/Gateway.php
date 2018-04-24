@@ -48,7 +48,9 @@ class Gateway extends Eloquent
         GATEWAY_AUTHORIZE_NET,
         GATEWAY_MOLLIE,
         GATEWAY_GOCARDLESS,
-        GATEWAY_CUSTOM,
+        GATEWAY_CUSTOM1,
+        GATEWAY_CUSTOM2,
+        GATEWAY_CUSTOM3,
     ];
 
     // allow adding these gateway if another gateway
@@ -61,7 +63,9 @@ class Gateway extends Eloquent
         GATEWAY_GOCARDLESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
-        GATEWAY_CUSTOM,
+        GATEWAY_CUSTOM1,
+        GATEWAY_CUSTOM2,
+        GATEWAY_CUSTOM3,
     ];
 
     /**
@@ -141,6 +145,10 @@ class Gateway extends Eloquent
         $query->where('payment_library_id', '=', 1)
             ->whereIn('id', static::$preferred)
             ->whereIn('id', $accountGatewaysIds);
+
+        if (! Utils::isNinja()) {
+            $query->where('id', '!=', GATEWAY_WEPAY);
+        }
     }
 
     /**
@@ -205,6 +213,6 @@ class Gateway extends Eloquent
 
     public function isCustom()
     {
-        return $this->id === GATEWAY_CUSTOM;
+        return in_array($this->id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }
 }

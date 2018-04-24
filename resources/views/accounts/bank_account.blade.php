@@ -69,7 +69,8 @@
                         ->addOption('102', 102)
                         ->addOption('103', 103)
                         ->help(trans('texts.ofx_help', [
-                            'link' => link_to('http://www.ofxhome.com/index.php/home/directory', trans('texts.adjust_the_settings'), ['target' => '_blank', 'id' => 'ofxLink'])
+                            'ofxhome_link' => link_to('http://www.ofxhome.com/index.php/home/directory', 'OFX Home', ['target' => '_blank', 'id' => 'ofxLink']),
+                            'ofxget_link' => link_to('http://www.ofxhome.com/index.php/home/ofxget', 'Ofxget', ['target' => '_blank']),
                         ])) !!}
 
             </div>

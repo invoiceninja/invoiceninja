@@ -25,16 +25,18 @@ function ViewModel(data) {
     }
 
     self.setDueDate = function() {
-        var paymentTerms = parseInt(self.invoice().client().payment_terms());
-        if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date()) {
-            if (paymentTerms == -1) paymentTerms = 0;
-            var dueDate = $('#invoice_date').datepicker('getDate');
-            dueDate.setDate(dueDate.getDate() + paymentTerms);
-            dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
-            $('#due_date').attr('placeholder', dueDate);
-        } else {
-            $('#due_date').attr('placeholder', "{{ $invoice->id ? ' ' : $account->present()->dueDatePlaceholder() }}");
-        }
+        @if ($entityType == ENTITY_INVOICE)
+            var paymentTerms = parseInt(self.invoice().client().payment_terms());
+            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date()) {
+                if (paymentTerms == -1) paymentTerms = 0;
+                var dueDate = $('#invoice_date').datepicker('getDate');
+                dueDate.setDate(dueDate.getDate() + paymentTerms);
+                dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
+                $('#due_date').attr('placeholder', dueDate);
+            } else {
+                $('#due_date').attr('placeholder', "{{ $invoice->id ? ' ' : $account->present()->dueDatePlaceholder() }}");
+            }
+        @endif
     }
 
     self.clearBlankContacts = function() {
@@ -1059,23 +1061,33 @@ ko.bindingHandlers.productTypeahead = {
 
                         // optionally handle curency conversion
                         @if ($account->convert_products)
-                            var client = window.model.invoice().client();
-                            if (client) {
-                                var clientCurrencyId = client.currency_id();
-                                var accountCurrencyId = {{ $account->getCurrencyId() }};
-                                if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
-                                    cost = fx.convert(cost, {
-                                        from: currencyMap[accountCurrencyId].code,
-                                        to: currencyMap[clientCurrencyId].code,
-                                    });
-                                    var rate = fx.convert(1, {
-                                        from: currencyMap[accountCurrencyId].code,
-                                        to: currencyMap[clientCurrencyId].code,
-                                    });
-                                    if ((account.custom_invoice_text_label1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
-                                        window.model.invoice().custom_text_value1(roundToFour(rate, true));
-                                    } else if ((account.custom_invoice_text_label2 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
-                                        window.model.invoice().custom_text_value2(roundToFour(rate, true));
+                            var rate = false;
+                            if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                rate = window.model.invoice().custom_text_value1();
+                            } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                rate = window.model.invoice().custom_text_value1();
+                            }
+                            if (rate) {
+                                cost = cost * rate;
+                            } else {
+                                var client = window.model.invoice().client();
+                                if (client) {
+                                    var clientCurrencyId = client.currency_id();
+                                    var accountCurrencyId = {{ $account->getCurrencyId() }};
+                                    if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
+                                        cost = fx.convert(cost, {
+                                            from: currencyMap[accountCurrencyId].code,
+                                            to: currencyMap[clientCurrencyId].code,
+                                        });
+                                        var rate = fx.convert(1, {
+                                            from: currencyMap[accountCurrencyId].code,
+                                            to: currencyMap[clientCurrencyId].code,
+                                        });
+                                        if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                            window.model.invoice().custom_text_value1(roundToFour(rate, true));
+                                        } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                            window.model.invoice().custom_text_value2(roundToFour(rate, true));
+                                        }
                                     }
                                 }
                             }
@@ -1097,12 +1109,12 @@ ko.bindingHandlers.productTypeahead = {
                         $select.val('0 ' + datum.tax_rate2 + ' ' + datum.tax_name2).trigger('change');
                     }
                 @endif
-                @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)
+                @if (Auth::user()->isPro() && $account->customLabel('product1'))
                     if (datum.custom_value1) {
                         model.custom_value1(datum.custom_value1);
                     }
                 @endif
-                @if (Auth::user()->isPro() && $account->custom_invoice_item_label2)
+                @if (Auth::user()->isPro() && $account->customLabel('product2'))
                     if (datum.custom_value2) {
                         model.custom_value2(datum.custom_value2);
                     }

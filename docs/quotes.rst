@@ -127,9 +127,3 @@ Click on More Actions to open the following action list:
 - **Delete Quote**: Want to delete the quote? Click here. The quote will be deleted and removed from the Quotes list page.
 
 .. TIP:: At the left of these colorful buttons, you'll see a field with an arrow that opens a drop-down menu. This field provides you with template options for the quote design. Click on the arrow to select the desired template. When selected, the quote preview will change to reflect the new template.
-
-Quote Preview
-^^^^^^^^^^^^^
-
-Did you know that all this time you've been creating the new quote, a preview of the quote appears below, and it changes in real time according to the data you've entered? The PDF is created in real time; all you have to do is click Save.
-To check out the quote preview, scroll down below the invoice data fields.

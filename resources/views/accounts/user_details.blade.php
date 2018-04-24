@@ -129,7 +129,7 @@
 
                         {!! Former::password('current_password')->style('width:300px') !!}
                         {!! Former::password('newer_password')->style('width:300px')->label(trans('texts.new_password')) !!}
-                        {!! Former::password('confirm_password')->style('width:300px') !!}
+                        {!! Former::password('confirm_password')->style('width:300px')->help('<span id="passwordStrength">&nbsp;</span>') !!}
 
                         &nbsp;
                         <br/>
@@ -205,7 +205,7 @@
                 var isValid = val;
 
                 if (field != 'current_password') {
-                    isValid = val.length >= 6;
+                    isValid = val.length >= 8;
                 }
 
                 if (isValid && field == 'confirm_password') {
@@ -220,6 +220,15 @@
                     if (showError) {
                         $input.closest('div.form-group').addClass('has-error');
                     }
+                }
+
+                if (field == 'newer_password') {
+                    var score = scorePassword(val);
+                    if (isValid) {
+                        isValid = score > 50;
+                    }
+
+                    showPasswordStrength(val, score);
                 }
             });
 

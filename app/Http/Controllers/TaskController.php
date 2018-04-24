@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Ninja\Datatables\TaskDatatable;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\TaskRepository;
@@ -266,6 +267,14 @@ class TaskController extends BaseController
         if (in_array($action, ['resume', 'stop'])) {
             $this->taskRepo->save($ids, ['action' => $action]);
             Session::flash('message', trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
+            return $this->returnBulk($this->entityType, $action, $ids);
+        } elseif (strpos($action, 'update_status') === 0) {
+            list($action, $statusPublicId) = explode(':', $action);
+            Task::scope($ids)->update([
+                'task_status_id' => TaskStatus::getPrivateId($statusPublicId),
+                'task_status_sort_order' => 9999,
+            ]);
+            Session::flash('message', trans('texts.updated_task_status'));
             return $this->returnBulk($this->entityType, $action, $ids);
         } elseif ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id', 'id')->get();

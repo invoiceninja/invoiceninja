@@ -6,8 +6,6 @@ sudo: true
 group: deprecated-2017Q4
 
 php:
-#  - 7.0
-  - 7.1
   - 7.2
 
 addons:
@@ -110,10 +108,10 @@ after_script:
   - mysql -u root -e 'select * from account_gateways;' ninja
   - mysql -u root -e 'select * from clients;' ninja
   - mysql -u root -e 'select * from contacts;' ninja
-  - mysql -u root -e 'select id, account_id, invoice_number, amount, balance from invoices;' ninja
+  - mysql -u root -e 'select id, public_id, account_id, invoice_number, amount, balance from invoices;' ninja
   - mysql -u root -e 'select * from invoice_items;' ninja
   - mysql -u root -e 'select * from invitations;' ninja
-  - mysql -u root -e 'select id, account_id, invoice_id, amount, transaction_reference from payments;' ninja
+  - mysql -u root -e 'select id, public_id, account_id, invoice_id, amount, transaction_reference from payments;' ninja
   - mysql -u root -e 'select * from credits;' ninja
   - mysql -u root -e 'select * from expenses;' ninja
   - mysql -u root -e 'select * from accounts;' ninja
@@ -129,5 +127,5 @@ notifications:
   email:
     on_success: never
     on_failure: change
-  slack: 
+  slack:
     invoiceninja: SLraaKBDvjeRuRtY9o3Yvp1b

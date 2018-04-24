@@ -47,14 +47,14 @@ class ProductDatatable extends EntityDatatable
                 function ($model) {
                     return $model->custom_value1;
                 },
-                $account->custom_invoice_item_label1
+                $account->customLabel('product1')
             ],
             [
                 'custom_value2',
                 function ($model) {
                     return $model->custom_value2;
                 },
-                $account->custom_invoice_item_label2
+                $account->customLabel('product2')
             ]
         ];
     }

@@ -70,9 +70,6 @@ class ContactMailer extends Mailer
         $pdfString = false;
         $ublString = false;
 
-        if ($account->attachPDF() && ! $proposal) {
-            $pdfString = $invoice->getPDFString();
-        }
         if ($account->attachUBL() && ! $proposal) {
             $ublString = dispatch(new ConvertInvoiceToUbl($invoice));
         }
@@ -100,6 +97,9 @@ class ContactMailer extends Mailer
         $isFirst = true;
         $invitations = $proposal ? $proposal->invitations : $invoice->invitations;
         foreach ($invitations as $invitation) {
+            if ($account->attachPDF() && ! $proposal) {
+                $pdfString = $invoice->getPDFString($invitation);
+            }
             $data = [
                 'pdfString' => $pdfString,
                 'documentStrings' => $documentStrings,
@@ -266,6 +266,7 @@ class ContactMailer extends Mailer
 
         $account->loadLocalizationSettings($client);
         $invoice = $payment->invoice;
+        $invitation = $payment->invitation ?: $payment->invoice->invitations[0];
         $accountName = $account->getDisplayName();
 
         if ($refunded > 0) {
@@ -282,11 +283,9 @@ class ContactMailer extends Mailer
         if ($payment->invitation) {
             $user = $payment->invitation->user;
             $contact = $payment->contact;
-            $invitation = $payment->invitation;
         } else {
             $user = $payment->user;
             $contact = $client->contacts->count() ? $client->contacts[0] : '';
-            $invitation = $payment->invoice->invitations[0];
         }
 
         $variables = [
@@ -382,7 +381,7 @@ class ContactMailer extends Mailer
 
         // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
         $day = 60 * 60 * 24;
-        $day_limit = MAX_EMAILS_SENT_PER_DAY;
+        $day_limit = $account->getDailyEmailLimit();
         $day_throttle = Cache::get("email_day_throttle:{$key}", null);
         $last_api_request = Cache::get("last_email_request:{$key}", 0);
         $last_api_diff = time() - $last_api_request;

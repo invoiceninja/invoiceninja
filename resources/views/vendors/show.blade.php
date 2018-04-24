@@ -88,6 +88,14 @@
 		  	   <p><i class="fa fa-vat-number" style="width: 20px"></i>{{ trans('texts.vat_number').': '.$vendor->vat_number }}</p>
             @endif
 
+            @if ($vendor->account->customLabel('vendor1') && $vendor->custom_value1)
+                {{ $vendor->account->present()->customLabel('vendor1') . ': ' }} {!! nl2br(e($vendor->custom_value1)) !!}<br/>
+            @endif
+            @if ($vendor->account->customLabel('vendor2') && $vendor->custom_value2)
+                {{ $vendor->account->present()->customLabel('vendor2') . ': ' }} {!! nl2br(e($vendor->custom_value2)) !!}<br/>
+            @endif
+
+
             @if ($vendor->address1)
                 {{ $vendor->address1 }}<br/>
             @endif

@@ -35,6 +35,9 @@ use Session;
 use stdClass;
 use Utils;
 use Carbon;
+use League\Csv\Reader;
+use League\Csv\Statement;
+
 
 /**
  * Class ImportService.
@@ -97,6 +100,7 @@ class ImportService
         ENTITY_PAYMENT,
         ENTITY_TASK,
         ENTITY_PRODUCT,
+        ENTITY_VENDOR,
         ENTITY_EXPENSE,
         ENTITY_CUSTOMER,
     ];
@@ -112,6 +116,7 @@ class ImportService
         IMPORT_INVOICEABLE,
         IMPORT_INVOICEPLANE,
         IMPORT_NUTCACHE,
+        IMPORT_PANCAKE,
         IMPORT_RONIN,
         IMPORT_STRIPE,
         IMPORT_WAVE,
@@ -651,8 +656,11 @@ class ImportService
     private function getCsvData($fileName)
     {
         $this->checkForFile($fileName);
-        $file = file_get_contents($fileName);
-        $data = array_map("str_getcsv", preg_split('/\r*\n+|\r+/', $file));
+
+        $csv = Reader::createFromPath($fileName, 'r');
+        //$csv->setHeaderOffset(0); //set the CSV header offset
+        $stmt = new Statement();
+        $data = iterator_to_array($stmt->process($csv));
 
         if (count($data) > 0) {
             $headers = $data[0];

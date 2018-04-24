@@ -88,6 +88,10 @@
   }
   @endif
 
+  @if ($account->isEnterprise() && $account->background_image_id && $account->background_image)
+    window.accountBackground = "{{ Form::image_data($account->background_image->getRawCached(), true) }}";
+  @endif
+
   var NINJA = NINJA || {};
   @if ($account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
       NINJA.primaryColor = "{{ $account->primary_color }}";

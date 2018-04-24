@@ -383,5 +383,11 @@
 	80,
 	0,
 	40
+	],
+	"background": [
+		{
+			"image": "$accountBackground",
+			"alignment": "center"
+		}
 	]
 }

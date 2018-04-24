@@ -189,6 +189,17 @@ function GetPdfMake(invoice, javascript, callback) {
     if(!dd.defaultStyle)dd.defaultStyle = {font:NINJA.bodyFont};
     else if(!dd.defaultStyle.font)dd.defaultStyle.font = NINJA.bodyFont;
 
+    if (window.accountBackground) {
+        var origBackground = dd.background;
+        dd.background = function(currentPage) {
+            var allPages = origBackground.length && origBackground[0].pages == 'all';
+            return currentPage == 1 || allPages ? origBackground : false;
+        }
+    } else {
+        // prevent unnecessarily showing blank image
+        dd.background = false;
+    }
+
     doc = pdfMake.createPdf(dd);
     doc.save = function(fileName) {
         this.download(fileName);
@@ -228,6 +239,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     var json = {
         'accountName': account.name || ' ',
         'accountLogo': window.accountLogo ? window.accountLogo : blankImage,
+        'accountBackground': window.accountBackground ? window.accountBackground : blankImage,
         'accountDetails': NINJA.accountDetails(invoice),
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
@@ -670,7 +682,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         'product.discount',
     ];
 
-    if (isSecondTable) {
+    if (isSecondTable && invoice.hasStandard) {
         styles.push('secondTableHeader');
     }
 
@@ -689,13 +701,13 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
         if (field == 'custom_value1') {
             if (invoice.has_custom_item_value1) {
-                value = NINJA.getCustomLabel(account.custom_invoice_item_label1);
+                value = NINJA.getCustomLabel(account.custom_fields.product1);
             } else {
                 continue;
             }
         } else if (field == 'custom_value2') {
             if (invoice.has_custom_item_value2) {
-                value = NINJA.getCustomLabel(account.custom_invoice_item_label2);
+                value = NINJA.getCustomLabel(account.custom_fields.product2);
             } else {
                 continue;
             }
@@ -935,10 +947,10 @@ NINJA.subtotals = function(invoice, hideBalance)
     }
 
     var customValue1 = NINJA.parseFloat(invoice.custom_value1);
-    var customValue1Label = account.custom_invoice_label1 || invoiceLabels.surcharge;
+    var customValue1Label = account.custom_fields.invoice1 || invoiceLabels.surcharge;
 
     var customValue2 = NINJA.parseFloat(invoice.custom_value2);
-    var customValue2Label = account.custom_invoice_label2 || invoiceLabels.surcharge;
+    var customValue2Label = account.custom_fields.invoice2 || invoiceLabels.surcharge;
 
     if (customValue1 && invoice.custom_taxes1 == '1') {
         data.push([{text: customValue1Label, style: ['subtotalsLabel', 'customTax1Label']}, {text: formatMoneyInvoice(invoice.custom_value1, invoice), style: ['subtotals', 'customTax1']}]);
@@ -1113,7 +1125,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         return false;
     }
     var account = invoice.account;
-    var contact = client.contacts[0];
+    var contact = invoice.contact || client.contacts[0];
     var clientName = client.name || (contact.first_name || contact.last_name ? ((contact.first_name || '') + ' ' + (contact.last_name || '')) : contact.email);
 
     var label = false;
@@ -1184,23 +1196,23 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     } else if (field == 'client.phone') {
         value = contact.phone;
     } else if (field == 'client.custom_value1') {
-        if (account.custom_client_label1 && client.custom_value1) {
-            label = NINJA.getCustomLabel(account.custom_client_label1);
+        if (account.custom_fields.client1 && client.custom_value1) {
+            label = NINJA.getCustomLabel(account.custom_fields.client1);
             value = client.custom_value1;
         }
     } else if (field == 'client.custom_value2') {
-        if (account.custom_client_label2 && client.custom_value2) {
-            label = NINJA.getCustomLabel(account.custom_client_label2);
+        if (account.custom_fields.client2 && client.custom_value2) {
+            label = NINJA.getCustomLabel(account.custom_fields.client2);
             value = client.custom_value2;
         }
     } else if (field == 'contact.custom_value1') {
-        if (account.custom_contact_label1 && contact.custom_value1) {
-            label = NINJA.getCustomLabel(account.custom_contact_label1);
+        if (account.custom_fields.contact1 && contact.custom_value1) {
+            label = NINJA.getCustomLabel(account.custom_fields.contact1);
             value = contact.custom_value1;
         }
     } else if (field == 'contact.custom_value2') {
-        if (account.custom_contact_label2 && contact.custom_value2) {
-            label = NINJA.getCustomLabel(account.custom_contact_label2);
+        if (account.custom_fields.contact2 && contact.custom_value2) {
+            label = NINJA.getCustomLabel(account.custom_fields.contact2);
             value = contact.custom_value2;
         }
     } else if (field == 'account.company_name') {
@@ -1241,13 +1253,13 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     } else if (field == 'account.country') {
         value = account.country ? account.country.name : false;
     } else if (field == 'account.custom_value1') {
-        if (invoice.account.custom_label1 && invoice.account.custom_value1) {
-            label = invoice.account.custom_label1;
+        if (invoice.account.custom_fields.account1 && invoice.account.custom_value1) {
+            label = invoice.account.custom_fields.account1;
             value = invoice.account.custom_value1;
         }
     } else if (field == 'account.custom_value2') {
-        if (invoice.account.custom_label2 && invoice.account.custom_value2) {
-            label = invoice.account.custom_label2;
+        if (invoice.account.custom_fields.account2 && invoice.account.custom_value2) {
+            label = invoice.account.custom_fields.account2;
             value = invoice.account.custom_value2;
         }
     } else if (field == 'invoice.invoice_number') {
@@ -1268,13 +1280,13 @@ NINJA.renderField = function(invoice, field, twoColumn) {
             value = invoice.due_date;
         }
     } else if (field == 'invoice.custom_text_value1') {
-        if (invoice.custom_text_value1 && account.custom_invoice_text_label1) {
-            label = NINJA.getCustomLabel(invoice.account.custom_invoice_text_label1);
+        if (invoice.custom_text_value1 && account.custom_fields.invoice_text1) {
+            label = NINJA.getCustomLabel(invoice.account.custom_fields.invoice_text1);
             value = invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1;
         }
     } else if (field == 'invoice.custom_text_value2') {
-        if (invoice.custom_text_value2 && account.custom_invoice_text_label2) {
-            label = NINJA.getCustomLabel(invoice.account.custom_invoice_text_label2);
+        if (invoice.custom_text_value2 && account.custom_fields.invoice_text2) {
+            label = NINJA.getCustomLabel(invoice.account.custom_fields.invoice_text2);
             value = invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2;
         }
     } else if (field == 'invoice.balance_due') {

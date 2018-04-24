@@ -606,6 +606,8 @@
         self.isHovered = ko.observable(false);
         self.created_at = ko.observable(moment.utc().format('YYYY-MM-DD HH:mm:ss'));
         self.task_status_id = ko.observable();
+        self.custom_value1 = ko.observable('');
+        self.custom_value2 = ko.observable('');
 
         self.mapping = {
             'client': {
@@ -688,6 +690,8 @@
                             + '&project_id=' + self.project_id()
                             + '&project_name=' + encodeURIComponent(self.project() ? self.project().name() : '')
                             + '&description=' + encodeURIComponent(self.description())
+                            + '&custom_value1=' + encodeURIComponent(self.custom_value1())
+                            + '&custom_value2=' + encodeURIComponent(self.custom_value2())
                             + '&time_log=' + JSON.stringify(self.times());
 
             var url = '{{ url('/tasks') }}';
@@ -869,6 +873,12 @@
                 return true;
             }
             if (data.description != self.description()) {
+                return true;
+            }
+            if (data.custom_value1 != self.custom_value1()) {
+                return true;
+            }
+            if (data.custom_value2 != self.custom_value2()) {
                 return true;
             }
             var times = data.time_log instanceof Array ? JSON.stringify(data.time_log) : data.time_log;

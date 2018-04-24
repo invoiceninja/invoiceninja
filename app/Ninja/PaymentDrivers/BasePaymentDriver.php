@@ -986,8 +986,14 @@ class BasePaymentDriver
 
             $gatewayTypeAlias = GatewayType::getAliasFromId($gatewayTypeId);
 
-            if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM) {
-                $url = 'javascript:showCustomModal();';
+            if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM1) {
+                $url = 'javascript:showCustom1Modal();';
+                $label = e($this->accountGateway->getConfigField('name'));
+            } elseif ($gatewayTypeId == GATEWAY_TYPE_CUSTOM2) {
+                $url = 'javascript:showCustom2Modal();';
+                $label = e($this->accountGateway->getConfigField('name'));
+            } elseif ($gatewayTypeId == GATEWAY_TYPE_CUSTOM3) {
+                $url = 'javascript:showCustom3Modal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);

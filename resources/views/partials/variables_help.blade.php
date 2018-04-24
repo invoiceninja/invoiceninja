@@ -17,16 +17,16 @@
         <li>${{ $entityType }}.footer</li>
         <li>${{ $entityType }}.partial</li>
         <li>${{ $entityType }}.partialDueDate</li>
-        @if ($account->custom_invoice_label1)
+        @if ($account->customLabel('invoice1'))
             <li>${{ $entityType }}.customValue1</li>
         @endif
-        @if ($account->custom_invoice_label2)
+        @if ($account->customLabel('invoice2'))
             <li>${{ $entityType }}.customValue2</li>
         @endif
-        @if ($account->custom_invoice_text_label1)
+        @if ($account->customLabel('invoice_text1'))
             <li>${{ $entityType }}.customTextValue1</li>
         @endif
-        @if ($account->custom_invoice_text_label2)
+        @if ($account->customLabel('invoice_text2'))
             <li>${{ $entityType }}.customTextValue2</li>
         @endif
     </ul>
@@ -63,10 +63,10 @@
         <li>$client.country.name</li>
         <li>$client.phone</li>
         <li>$client.balance</li>
-        @if ($account->custom_client_label1)
+        @if ($account->customLabel('client1'))
             <li>$client.customValue1</li>
         @endif
-        @if ($account->custom_client_label2)
+        @if ($account->customLabel('client2'))
             <li>$client.customValue2</li>
         @endif
     </ul>
@@ -75,10 +75,10 @@
         <li>$contact.lastName</li>
         <li>$contact.email</li>
         <li>$contact.phone</li>
-        @if ($account->custom_contact_label1)
+        @if ($account->customLabel('contact1'))
             <li>$contact.customValue1</li>
         @endif
-        @if ($account->custom_contact_label2)
+        @if ($account->customLabel('contact2'))
             <li>$contact.customValue2</li>
         @endif
     </ul>

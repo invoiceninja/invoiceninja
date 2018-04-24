@@ -65,6 +65,8 @@
                         ->label(trans('texts.project')) !!}
             @endif
 
+            @include('partials/custom_fields', ['entityType' => ENTITY_TASK])
+
             {!! Former::textarea('description')->rows(4) !!}
 
             @if ($task)

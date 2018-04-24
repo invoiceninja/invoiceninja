@@ -9,6 +9,7 @@ use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
 use App\Models\Traits\HasLogo;
+use App\Models\Traits\HasCustomMessages;
 use Cache;
 use Carbon;
 use DateTime;
@@ -30,6 +31,7 @@ class Account extends Eloquent
     use GeneratesNumbers;
     use SendsEmails;
     use HasLogo;
+    use HasCustomMessages;
 
     /**
      * @var string
@@ -72,22 +74,12 @@ class Account extends Eloquent
         'work_phone',
         'work_email',
         'language_id',
-        'custom_label1',
-        'custom_value1',
-        'custom_label2',
-        'custom_value2',
-        'custom_client_label1',
-        'custom_client_label2',
         'fill_products',
         'update_products',
         'primary_color',
         'secondary_color',
         'hide_quantity',
         'hide_paid_to_date',
-        'custom_invoice_label1',
-        'custom_invoice_label2',
-        'custom_invoice_taxes1',
-        'custom_invoice_taxes2',
         'vat_number',
         'invoice_number_prefix',
         'invoice_number_counter',
@@ -112,8 +104,6 @@ class Account extends Eloquent
         'num_days_reminder1',
         'num_days_reminder2',
         'num_days_reminder3',
-        'custom_invoice_text_label1',
-        'custom_invoice_text_label2',
         'tax_name1',
         'tax_rate1',
         'tax_name2',
@@ -142,8 +132,6 @@ class Account extends Eloquent
         'show_currency_code',
         'enable_portal_password',
         'send_portal_password',
-        'custom_invoice_item_label1',
-        'custom_invoice_item_label2',
         'recurring_invoice_number_prefix',
         'enable_client_portal',
         'invoice_fields',
@@ -175,8 +163,6 @@ class Account extends Eloquent
         'gateway_fee_enabled',
         'send_item_details',
         'reset_counter_date',
-        'custom_contact_label1',
-        'custom_contact_label2',
         'domain_id',
         'analytics_key',
         'credit_number_counter',
@@ -186,6 +172,10 @@ class Account extends Eloquent
         'inclusive_taxes',
         'convert_products',
         'signature_on_pdf',
+        'custom_fields',
+        'custom_value1',
+        'custom_value2',
+        'custom_messages',
     ];
 
     /**
@@ -233,6 +223,27 @@ class Account extends Eloquent
         'outstanding' => 4,
     ];
 
+    public static $customFields = [
+        'client1',
+        'client2',
+        'contact1',
+        'contact2',
+        'product1',
+        'product2',
+        'invoice1',
+        'invoice2',
+        'invoice_surcharge1',
+        'invoice_surcharge2',
+        'task1',
+        'task2',
+        'project1',
+        'project2',
+        'expense1',
+        'expense2',
+        'vendor1',
+        'vendor2',
+    ];
+
     public static $customLabels = [
         'balance_due',
         'credit_card',
@@ -240,6 +251,8 @@ class Account extends Eloquent
         'description',
         'discount',
         'due_date',
+        'gateway_fee_item',
+        'gateway_fee_description',
         'hours',
         'id_number',
         'invoice',
@@ -263,6 +276,16 @@ class Account extends Eloquent
         'unit_cost',
         'valid_until',
         'vat_number',
+    ];
+
+    public static $customMessageTypes = [
+        CUSTOM_MESSAGE_DASHBOARD,
+        CUSTOM_MESSAGE_UNPAID_INVOICE,
+        CUSTOM_MESSAGE_PAID_INVOICE,
+        CUSTOM_MESSAGE_UNAPPROVED_QUOTE,
+        //CUSTOM_MESSAGE_APPROVED_QUOTE,
+        //CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL,
+        //CUSTOM_MESSAGE_APPROVED_PROPOSAL,
     ];
 
     /**
@@ -359,6 +382,11 @@ class Account extends Eloquent
     public function defaultDocuments()
     {
         return $this->hasMany('App\Models\Document')->whereIsDefault(true);
+    }
+
+    public function background_image()
+    {
+        return $this->hasOne('App\Models\Document', 'id', 'background_image_id');
     }
 
     /**
@@ -495,6 +523,38 @@ class Account extends Eloquent
     public function setSizeIdAttribute($value)
     {
         $this->attributes['size_id'] = $value ?: null;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setCustomFieldsAttribute($data)
+    {
+        $fields = [];
+
+        if (! is_array($data)) {
+            $data = json_decode($data);
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value) {
+                $fields[$key] = $value;
+            }
+        }
+
+        $this->attributes['custom_fields'] = count($fields) ? json_encode($fields) : null;
+    }
+
+    public function getCustomFieldsAttribute($value)
+    {
+        return json_decode($value ?: '{}');
+    }
+
+    public function customLabel($field)
+    {
+        $labels = $this->custom_fields;
+
+        return ! empty($labels->$field) ? $labels->$field : '';
     }
 
     /**
@@ -708,6 +768,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return mixed
+     */
+    public function getCountryId()
+    {
+        return $this->country_id ?: DEFAULT_COUNTRY;
+    }
+
+    /**
      * @param $date
      *
      * @return null|string
@@ -825,8 +893,10 @@ class Account extends Eloquent
 
         $gatewayTypes = [];
         $gatewayIds = [];
+        $usedGatewayIds = [];
 
         foreach ($this->account_gateways as $accountGateway) {
+            $usedGatewayIds[] = $accountGateway->gateway_id;
             $paymentDriver = $accountGateway->paymentDriver();
             $gatewayTypes = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
         }
@@ -1474,28 +1544,6 @@ class Account extends Eloquent
         }
 
         return true;
-    }
-
-    /**
-     * @param $field
-     * @param bool $entity
-     *
-     * @return bool
-     */
-    public function showCustomField($field, $entity = false)
-    {
-        if ($this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->$field) {
-            return true;
-        }
-
-        if (! $entity) {
-            return false;
-        }
-
-        // convert (for example) 'custom_invoice_label1' to 'invoice.custom_value1'
-        $field = str_replace(['invoice_', 'label'], ['', 'value'], $field);
-
-        return Utils::isEmpty($entity->$field) ? false : true;
     }
 
     /**

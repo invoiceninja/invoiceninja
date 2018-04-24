@@ -159,6 +159,8 @@ class TaskRepository extends BaseRepository
             return $task;
         }
 
+        $task->fill($data);
+
         if (isset($data['client'])) {
             $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
         } elseif (isset($data['client_id'])) {

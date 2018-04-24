@@ -124,6 +124,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
+        <a class="btn btn-primary" href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">{{ trans('texts.guide') }}</a>
         <a class="btn btn-primary" href="{{ config('ninja.video_urls.all') }}" target="_blank">{{ trans('texts.videos') }}</a>
       </div>
     </div>
@@ -160,9 +161,11 @@
             location.href = "{{ url('/dashboard') }}";
         });
 
-        Mousetrap.bind('g c', function(e) {
-            location.href = "{{ url('/calendar') }}";
+        /*
+        Mousetrap.bind('g r c', function(e) {
+            location.href = "{{ url('/reports/calendar') }}";
         });
+        */
 
         Mousetrap.bind('g r', function(e) {
             location.href = "{{ url('/reports') }}";

@@ -128,7 +128,7 @@ class ClientPortalController extends BaseController
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
-            if ($paymentTypes[0]['gatewayTypeId'] == GATEWAY_TYPE_CUSTOM) {
+            if (in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
                 // do nothing
             } elseif (! $account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
@@ -170,13 +170,6 @@ class ClientPortalController extends BaseController
                     'accountGateway' => $paymentDriver->accountGateway,
                 ];
             }
-
-            if ($accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CUSTOM)) {
-                $data += [
-                    'customGatewayName' => $accountGateway->getConfigField('name'),
-                    'customGatewayText' => $accountGateway->getConfigField('text'),
-                ];
-            }
         }
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()) {
@@ -215,7 +208,7 @@ class ClientPortalController extends BaseController
 
         $invoice = $invitation->invoice;
         $decode = ! request()->base64;
-        $pdfString = $invoice->getPDFString($decode);
+        $pdfString = $invoice->getPDFString($invitation, $decode);
 
         header('Content-Type: application/pdf');
         header('Content-Length: ' . strlen($pdfString));

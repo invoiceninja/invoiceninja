@@ -9,25 +9,25 @@
     <td>{{ trans('texts.amount') }}</td>
     <td>{{ trans('texts.po_number') }}</td>
     <td>{{ trans('texts.status') }}</td>
-    @if ($account->custom_invoice_label1)
-        <td>{{ $account->present()->customInvoiceLabel1 }}</td>
+    @if ($account->customLabel('invoice1'))
+        <td>{{ $account->present()->customLabel('invoice1') }}</td>
     @endif
-    @if ($account->custom_invoice_label2)
-        <td>{{ $account->present()->customInvoiceLabel2 }}</td>
+    @if ($account->customLabel('invoice2'))
+        <td>{{ $account->present()->customLabel('invoice2') }}</td>
     @endif
-    @if ($account->custom_invoice_text_label1)
-        <td>{{ $account->present()->customInvoiceTextLabel1 }}</td>
+    @if ($account->customLabel('invoice_text1'))
+        <td>{{ $account->present()->customLabel('invoice_text1') }}</td>
     @endif
-    @if ($account->custom_invoice_text_label2)
-        <td>{{ $account->present()->customInvoiceTextLabel2 }}</td>
+    @if ($account->customLabel('invoice_text2'))
+        <td>{{ $account->present()->customLabel('invoice_text2') }}</td>
     @endif
     <td>{{ trans('texts.item_product') }}</td>
     <td>{{ trans('texts.item_notes') }}</td>
-    @if ($account->custom_invoice_item_label1)
-        <td>{{ $account->present()->customProductLabel1 }}</td>
+    @if ($account->customLabel('product1'))
+        <td>{{ $account->present()->customLabel('product1') }}</td>
     @endif
-    @if ($account->custom_invoice_item_label2)
-        <td>{{ $account->present()->customProductLabel2 }}</td>
+    @if ($account->customLabel('product2'))
+        <td>{{ $account->present()->customLabel('product2') }}</td>
     @endif
     <td>{{ trans('texts.item_cost') }}</td>
     <td>{{ trans('texts.item_quantity') }}</td>
@@ -55,24 +55,24 @@
                 <td>{{ $account->formatMoney($invoice->amount, $invoice->client) }}</td>
                 <td>{{ $invoice->po_number }}</td>
                 <td>{{ $invoice->present()->status }}</td>
-                @if ($account->custom_invoice_label1)
+                @if ($account->customLabel('invoice1'))
                     <td>{{ $invoice->custom_value1 }}</td>
                 @endif
-                @if ($account->custom_invoice_label2)
+                @if ($account->customLabel('invoice2'))
                     <td>{{ $invoice->custom_value2 }}</td>
                 @endif
-                @if ($account->custom_invoice_text_label1)
+                @if ($account->customLabel('invoice_text1'))
                     <td>{{ $invoice->custom_text_value1 }}</td>
                 @endif
-                @if ($account->custom_invoice_text_label2)
+                @if ($account->customLabel('invoice_text2'))
                     <td>{{ $invoice->custom_text_value2 }}</td>
                 @endif
                 <td>{{ $item->product_key }}</td>
                 <td>{{ $item->notes }}</td>
-                @if ($account->custom_invoice_item_label1)
+                @if ($account->customLabel('product1'))
                     <td>{{ $item->custom_value1 }}</td>
                 @endif
-                @if ($account->custom_invoice_item_label2)
+                @if ($account->customLabel('product2'))
                     <td>{{ $item->custom_value2 }}</td>
                 @endif
                 <td>{{ $item->cost }}</td>

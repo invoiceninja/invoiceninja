@@ -108,7 +108,11 @@ class EntityModel extends Eloquent
 
         $className = get_called_class();
 
-        return $className::scope($publicId)->withTrashed()->value('id');
+        if (method_exists($className, 'trashed')) {
+            return $className::scope($publicId)->withTrashed()->value('id');
+        } else {
+            return $className::scope($publicId)->value('id');
+        }        
     }
 
     /**

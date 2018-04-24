@@ -189,6 +189,16 @@
 							</label>
 						</div>
 						@endforeach
+						@if (Utils::isSelfHost())
+							@foreach (Module::all() as $value)
+							{{ ($value->boot()) }}
+							<div class="checkbox">
+								<label for="custom_modules_{{ $value }}">
+									<input name="custom_modules[]" id="custom_modules_{{ $value }}" type="checkbox" {{ $value->enabled() ? 'checked="checked"' : '' }} value="{{ $value }}">{{ mtrans($value, $value->getLowerName()) }}
+								</label>
+							</div>
+							@endforeach
+						@endif
 					</div>
 				</div>
 				<div class="form-group">

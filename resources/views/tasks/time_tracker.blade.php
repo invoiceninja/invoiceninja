@@ -214,6 +214,30 @@
 			                                    ->label(trans('texts.project')) !!}
 									</div>
 								</div>
+
+								@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
+									<div class="row">
+										@if ($customLabel = $account->customLabel('task1'))
+											<div style="padding-bottom: 20px; padding-right:6px;" class="col-md-6 no-padding-mobile">
+												@include('partials.custom_field', [
+													'field' => 'custom_value1',
+													'label' => $customLabel,
+													'databind' => "value: selectedTask().custom_value1, valueUpdate: 'afterkeydown'",
+												])
+											</div>
+										@endif
+										@if ($customLabel = $account->customLabel('task2'))
+											<div style="padding-bottom: 20px; padding-left:6px;" class="col-md-6 no-padding-mobile">
+												@include('partials.custom_field', [
+													'field' => 'custom_value2',
+													'label' => $customLabel,
+													'databind' => "value: selectedTask().custom_value2, valueUpdate: 'afterkeydown'",
+												])
+											</div>
+										@endif
+									</div>
+								@endif
+
 								<div style="padding-bottom: 20px">
 	                            {!! Former::textarea('description')
 	                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")

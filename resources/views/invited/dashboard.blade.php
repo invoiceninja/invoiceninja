@@ -276,6 +276,9 @@
 
     <div class="container main-container">
 
+        @if ($message = $client->customMessage(CUSTOM_MESSAGE_DASHBOARD))
+            @include('invited.custom_message', ['message' => $message])
+        @endif
 
         <div class="row" id="main-row">
             <div class="col-md-3" id="contact-details">

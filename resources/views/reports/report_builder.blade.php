@@ -370,7 +370,8 @@
 						->label('start_date')
 						->appendIcon('calendar')
 						->placeholder('')
-						->addGroupClass('send-date') !!}
+						->addGroupClass('send-date')
+						->data_date_start_date($account->formatDate($account->getDateTime())) !!}
 
             </div>
             </div>
@@ -701,7 +702,7 @@
 				            var txt = $(this).find("td").eq(i).text();
 				            subtotal += convertStringToNumber(txt) || 0;
 				          });
-				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal, true));
+				          $cell.find(".group-count").append(' | ' + label + ': ' + roundToTwo(subtotal, true));
 					  }
 			        },
 			    }

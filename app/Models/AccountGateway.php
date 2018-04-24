@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Utils;
+use HTMLUtils;
 use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -112,6 +114,11 @@ class AccountGateway extends EntityModel
         } else {
             return $this->gateway_id == $gatewayId;
         }
+    }
+
+    public function isCustom()
+    {
+        return in_array($this->gateway_id, [GATEWAY_CUSTOM1, GATEWAY_CUSTOM2, GATEWAY_CUSTOM3]);
     }
 
     /**
@@ -292,5 +299,23 @@ class AccountGateway extends EntityModel
         } else {
             return $this->getConfigField('testMode');
         }
+    }
+
+    public function getCustomHtml($invitation)
+    {
+        $text = $this->getConfigField('text');
+
+        if ($text == strip_tags($text)) {
+            $text = nl2br($text);
+        }
+
+        if (Utils::isNinja()) {
+            $text = HTMLUtils::sanitizeHTML($text);
+        }
+
+        $templateService = app('App\Services\TemplateService');
+        $text = $templateService->processVariables($text, ['invitation' => $invitation]);
+
+        return $text;
     }
 }

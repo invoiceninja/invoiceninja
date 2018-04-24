@@ -45,6 +45,8 @@
             'viewButton': viewButton,
             'paymentLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
             'paymentButton': {!! json_encode(Form::flatButton('pay_now', '#36c157')) !!} + '$password',
+            'approveLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
+            'approveButton': {!! json_encode(Form::flatButton('approve', '#36c157')) !!} + '$password',
             'autoBill': '{{ trans('texts.auto_bill_notification_placeholder') }}',
             'portalLink': "{{ auth()->user()->account->getBaseUrl() . '/...' }}",
             'portalButton': {!! json_encode(Form::flatButton('view_portal', '#36c157')) !!},
@@ -96,11 +98,14 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <p>{{ trans('texts.company_variables') }}</p>
+                        <p>{{ trans('texts.client_variables') }}</p>
                         <ul>
                             @foreach([
-                                'account',
-                                'emailSignature',
+                                'client',
+                                'contact',
+                                'firstName',
+                                'password',
+                                'autoBill',
                             ] as $field)
                                 <li>${{ $field }}</li>
                             @endforeach
@@ -122,14 +127,11 @@
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <p>{{ trans('texts.client_variables') }}</p>
+                        <p>{{ trans('texts.company_variables') }}</p>
                         <ul>
                             @foreach([
-                                'client',
-                                'contact',
-                                'firstName',
-                                'password',
-                                'autoBill',
+                                'account',
+                                'emailSignature',
                             ] as $field)
                                 <li>${{ $field }}</li>
                             @endforeach
@@ -141,6 +143,8 @@
                                 'viewButton',
                                 'paymentLink',
                                 'paymentButton',
+                                'approveLink',
+                                'approveButton',
                                 'portalLink',
                                 'portalButton',
                             ] as $field)
@@ -155,25 +159,25 @@
                                 @endif
                             @endforeach
                         </ul>
-                        @if ($account->custom_client_label1 || $account->custom_contact_label1 || $account->custom_invoice_text_label1)
+                        @if ($account->customLabel('client1') || $account->customLabel('contact1') || $account->customLabel('invoice_text1'))
                             <p>{{ trans('texts.custom_variables') }}</p>
                             <ul>
-                                @if ($account->custom_client_label1)
+                                @if ($account->customLabel('client1'))
                                     <li>$customClient1</li>
                                 @endif
-                                @if ($account->custom_client_label2)
+                                @if ($account->customLabel('client2'))
                                     <li>$customClient2</li>
                                 @endif
-                                @if ($account->custom_contact_label1)
+                                @if ($account->customLabel('contact1'))
                                     <li>$customContact1</li>
                                 @endif
-                                @if ($account->custom_contact_label2)
+                                @if ($account->customLabel('contact2'))
                                     <li>$customContact2</li>
                                 @endif
-                                @if ($account->custom_invoice_text_label1)
+                                @if ($account->customLabel('invoice_text1'))
                                     <li>$customInvoice1</li>
                                 @endif
-                                @if ($account->custom_invoice_text_label2)
+                                @if ($account->customLabel('invoice_text2'))
                                     <li>$customInvoice2</li>
                                 @endif
                             </ul>

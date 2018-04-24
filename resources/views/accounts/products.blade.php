@@ -22,7 +22,10 @@
       {!! Former::checkbox('update_products')->text(trans('texts.update_products_help'))->value(1) !!}
       &nbsp;
       {!! Former::checkbox('convert_products')->text(trans('texts.convert_products_help'))
-            ->help(trans('texts.convert_products_tip', ['name' => trans('texts.exchange_rate')]))->value(1) !!}
+            ->help(trans('texts.convert_products_tip', [
+                'link' => link_to('/settings/invoice_settings#invoice_fields', trans('texts.custom_field'), ['target' => '_blank']),
+                'name' => trans('texts.exchange_rate')
+            ]))->value(1) !!}
       &nbsp;
       {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
       {!! Former::close() !!}

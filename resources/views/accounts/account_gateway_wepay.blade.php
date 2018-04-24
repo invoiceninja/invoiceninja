@@ -85,10 +85,13 @@
                     ->text(trans('texts.enable_ach'))
                     ->value(1) !!}
 
-            {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
-                    ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']
-                ))->value('true')
-                  ->inlineHelp('standard_fees_apply') !!}
+			{!! Former::checkbox('tos_agree')->label(' ')
+				->text(trans('texts.wepay_payment_tos_agree', [
+					'terms' => '<a href="https://go.wepay.com/terms-of-service" target="_blank">'.trans('texts.terms_of_service').'</a>',
+					'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy" target="_blank">'.trans('texts.privacy_policy').'</a>',
+				]))
+				->value('true')
+				->inlineHelp('standard_fees_apply') !!}
 
           </div>
 
@@ -178,7 +181,6 @@
                 var country = $('#wepay-country input:checked').val();
                 if (country) {
                     $('#wepay-accept-debit').toggle(country == 'CA');
-                    $('#wepay-tos-link').attr('href', 'https://go.wepay.com/terms-of-service-' + country.toLowerCase());
                     $('#canadaFees').toggle(country == 'CA');
                 }
             }

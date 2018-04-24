@@ -84,6 +84,8 @@ class ExpenseTransformer extends EntityTransformer
             'client_id' => $this->client ? $this->client->public_id : (isset($expense->client->public_id) ? (int) $expense->client->public_id : null),
             'invoice_id' => isset($expense->invoice->public_id) ? (int) $expense->invoice->public_id : null,
             'vendor_id' => isset($expense->vendor->public_id) ? (int) $expense->vendor->public_id : null,
+            'custom_value1' => $expense->custom_value1,
+            'custom_value2' => $expense->custom_value2,
         ]);
     }
 }

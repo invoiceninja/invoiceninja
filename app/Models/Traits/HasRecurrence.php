@@ -16,6 +16,18 @@ trait HasRecurrence
      */
     public function shouldSendToday()
     {
+        if (Utils::isSelfHost()) {
+            return $this->shouldSendTodayNew();
+        } else {
+            return $this->shouldSendTodayOld();
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldSendTodayOld()
+    {
         if (! $this->user->confirmed) {
             return false;
         }
@@ -79,8 +91,7 @@ trait HasRecurrence
         return false;
     }
 
-    /*
-    public function shouldSendToday()
+    public function shouldSendTodayNew()
     {
         if (! $this->user->confirmed) {
             return false;
@@ -114,7 +125,6 @@ trait HasRecurrence
             return $this->account->getDateTime() >= $nextSendDate;
         }
     }
-    */
 
     /**
      * @throws \Recurr\Exception\MissingData

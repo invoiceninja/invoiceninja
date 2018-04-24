@@ -6,6 +6,7 @@ use Carbon;
 use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Traits\HasCustomMessages;
 use Utils;
 
 /**
@@ -15,6 +16,7 @@ class Client extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
+    use HasCustomMessages;
 
     /**
      * @var string
@@ -61,6 +63,7 @@ class Client extends EntityModel
         'shipping_country_id',
         'show_tasks_in_portal',
         'send_reminders',
+        'custom_messages',
     ];
 
     /**

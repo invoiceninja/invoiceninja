@@ -155,6 +155,7 @@ class ClientTransformer extends EntityTransformer
             'show_tasks_in_portal' => (bool) $client->show_tasks_in_portal,
             'send_reminders' => (bool) $client->send_reminders,
             'credit_number_counter' => (int) $client->credit_number_counter,
+            'custom_messages' => json_encode($client->custom_messages),
         ]);
     }
 }

@@ -137,6 +137,22 @@
             });
         }
 
+        function showPasswordStrength(password, score) {
+            if (password) {
+                var str = {!! json_encode(trans('texts.password_strength')) !!} + ': ';
+                if (password.length < 8 || score < 50) {
+                    str += {!! json_encode(trans('texts.strength_weak')) !!};
+                } else if (score < 75) {
+                    str += {!! json_encode(trans('texts.strength_good')) !!};
+                } else {
+                    str += {!! json_encode(trans('texts.strength_strong')) !!};
+                }
+                $('#passwordStrength').html(str);
+            } else {
+                $('#passwordStrength').html('&nbsp;');
+            }
+        }
+
         /* Set the defaults for DataTables initialisation */
         $.extend(true, $.fn.dataTable.defaults, {
             "bSortClasses": false,
@@ -203,6 +219,34 @@
 
     </script>
 
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
+    <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
+    <script>
+    window.addEventListener("load", function(){
+        if (! window.cookieconsent) {
+            return;
+        }
+        window.cookieconsent.initialise({
+            "palette": {
+                "popup": {
+                    "background": "#000"
+                },
+                "button": {
+                    "background": "#f1d600"
+                },
+            },
+            "cookie": {
+                "domain": "{{ App\Constants\Domain::getCookieDomain(request()->url) }}"
+            },
+            "content": {
+                "href": "{{ Utils::isNinja() ? Utils::getPrivacyLink() : (config('ninja.privacy_policy_url') ?: 'https://cookiesandyou.com/' ) }}",
+                "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                "link": {!! json_encode(trans('texts.learn_more')) !!},
+            }
+        })}
+    );
+    </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>

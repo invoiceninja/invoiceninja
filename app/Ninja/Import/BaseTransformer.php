@@ -40,6 +40,19 @@ class BaseTransformer extends TransformerAbstract
     }
 
     /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasVendor($name)
+    {
+        $name = trim(strtolower($name));
+
+        return isset($this->maps[ENTITY_VENDOR][$name]);
+    }
+
+
+    /**
      * @param $key
      *
      * @return bool

@@ -195,20 +195,20 @@ class AccountPresenter extends Presenter
     public function customTextFields()
     {
         $fields = [
-            'custom_client_label1' => 'custom_client1',
-            'custom_client_label2' => 'custom_client2',
-            'custom_contact_label1' => 'custom_contact1',
-            'custom_contact_label2' => 'custom_contact2',
-            'custom_invoice_text_label1' => 'custom_invoice1',
-            'custom_invoice_text_label2' => 'custom_invoice2',
-            'custom_invoice_item_label1' => 'custom_product1',
-            'custom_invoice_item_label2' => 'custom_product2',
+            'client1' => 'custom_client1',
+            'client1' => 'custom_client2',
+            'contact1' => 'custom_contact1',
+            'contact2' => 'custom_contact2',
+            'invoice_text1' => 'custom_invoice1',
+            'invoice_text2' => 'custom_invoice2',
+            'product1' => 'custom_product1',
+            'product2' => 'custom_product2',
         ];
         $data = [];
 
         foreach ($fields as $key => $val) {
-            if ($this->$key) {
-                $data[Utils::getCustomLabel($this->$key)] = [
+            if ($label = $this->customLabel($key)) {
+                $data[Utils::getCustomLabel($label)] = [
                     'value' => $val,
                     'name' => $val,
                 ];
@@ -265,55 +265,8 @@ class AccountPresenter extends Presenter
         return $url;
     }
 
-
-    public function customClientLabel1()
+    public function customLabel($field)
     {
-        return Utils::getCustomLabel($this->entity->custom_client_label1);
+        return Utils::getCustomLabel($this->entity->customLabel($field));
     }
-
-    public function customClientLabel2()
-    {
-        return Utils::getCustomLabel($this->entity->custom_client_label2);
-    }
-
-    public function customContactLabel1()
-    {
-        return Utils::getCustomLabel($this->entity->custom_contact_label1);
-    }
-
-    public function customContactLabel2()
-    {
-        return Utils::getCustomLabel($this->entity->custom_contact_label2);
-    }
-
-    public function customInvoiceLabel1()
-    {
-        return Utils::getCustomLabel($this->entity->custom_invoice_label1);
-    }
-
-    public function customInvoiceLabel2()
-    {
-        return Utils::getCustomLabel($this->entity->custom_invoice_label2);
-    }
-
-    public function customInvoiceTextLabel1()
-    {
-        return Utils::getCustomLabel($this->entity->custom_invoice_text_label1);
-    }
-
-    public function customInvoiceTextLabel2()
-    {
-        return Utils::getCustomLabel($this->entity->custom_invoice_text_label1);
-    }
-
-    public function customProductLabel1()
-    {
-        return Utils::getCustomLabel($this->entity->custom_invoice_item_label1);
-    }
-
-    public function customProductLabel2()
-    {
-        return Utils::getCustomLabel($this->entity->custom_invoice_item_label2);
-    }
-
 }

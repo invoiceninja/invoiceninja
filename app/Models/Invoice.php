@@ -530,6 +530,18 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return string
+     */
+    public function getCustomMessageType()
+    {
+        if ($this->isQuote()) {
+            return $this->quote_invoice_id ? CUSTOM_MESSAGE_APPROVED_QUOTE : CUSTOM_MESSAGE_UNAPPROVED_QUOTE;
+        } else {
+            return $this->balance > 0 ? CUSTOM_MESSAGE_UNPAID_INVOICE : CUSTOM_MESSAGE_PAID_INVOICE;
+        }
+    }
+
+    /**
      * @return bool
      */
     public function isStandard()
@@ -1001,28 +1013,17 @@ class Invoice extends EntityModel implements BalanceAffecting
             'country',
             'country_id',
             'currency_id',
-            'custom_label1',
+            'custom_fields',
             'custom_value1',
-            'custom_label2',
             'custom_value2',
-            'custom_client_label1',
-            'custom_client_label2',
-            'custom_contact_label1',
-            'custom_contact_label2',
             'primary_color',
             'secondary_color',
             'hide_quantity',
             'hide_paid_to_date',
             'all_pages_header',
             'all_pages_footer',
-            'custom_invoice_label1',
-            'custom_invoice_label2',
             'pdf_email_attachment',
             'show_item_taxes',
-            'custom_invoice_text_label1',
-            'custom_invoice_text_label2',
-            'custom_invoice_item_label1',
-            'custom_invoice_item_label2',
             'invoice_embed_documents',
             'page_size',
             'include_item_taxes_inline',
@@ -1224,7 +1225,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return bool|string
      */
-    public function getPDFString($decode = true)
+    public function getPDFString($invitation = false, $decode = true)
     {
         if (! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
@@ -1234,7 +1235,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        $invitation = $this->invitations[0];
+        $invitation = $invitation ?: $this->invitations[0];
         $link = $invitation->getLink('view', true, true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');

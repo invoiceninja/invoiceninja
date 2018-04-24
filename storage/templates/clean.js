@@ -114,7 +114,7 @@
 		]
 	},
 	"$signature",
-	{  
+	{
 		"stack":[
 			"$invoiceDocuments"
 		],
@@ -295,5 +295,11 @@
 	40,
 	40,
 	60
+	],
+	"background": [
+		{
+			"image": "$accountBackground",
+			"alignment": "center"
+		}
 	]
 }

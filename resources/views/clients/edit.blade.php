@@ -4,6 +4,12 @@
 	$('input#name').focus();
 @stop
 
+@section('head')
+	@if (config('ninja.google_maps_enabled'))
+		@include('partials.google_geocode')
+	@endif
+@stop
+
 @section('content')
 
 @if ($errors->first('contacts'))
@@ -52,20 +58,8 @@
             {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
 
-			@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
-				@if ($customLabel1)
-					@include('partials.custom_field', [
-						'field' => 'custom_value1',
-						'label' => $customLabel1
-					])
-				@endif
-				@if ($customLabel2)
-					@include('partials.custom_field', [
-						'field' => 'custom_value2',
-						'label' => $customLabel2
-					])
-				@endif
-			@endif
+
+			@include('partials/custom_fields', ['entityType' => ENTITY_CLIENT])
 
 			@if ($account->usesClientInvoiceCounter())
 				{!! Former::text('invoice_number_counter')->label('invoice_counter') !!}
@@ -99,7 +93,8 @@
 						{!! Former::text('address2') !!}
 						{!! Former::text('city') !!}
 						{!! Former::text('state') !!}
-						{!! Former::text('postal_code') !!}
+						{!! Former::text('postal_code')
+								->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode()' : '') !!}
 						{!! Former::select('country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id') !!}
 
@@ -116,7 +111,9 @@
 						{!! Former::text('shipping_address2')->label('address2') !!}
 						{!! Former::text('shipping_city')->label('city') !!}
 						{!! Former::text('shipping_state')->label('state') !!}
-						{!! Former::text('shipping_postal_code')->label('postal_code') !!}
+						{!! Former::text('shipping_postal_code')
+								->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode(true)' : '')
+								->label('postal_code') !!}
 						{!! Former::select('shipping_country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id')->label('country_id') !!}
 
@@ -160,18 +157,18 @@
 			    @endif
 
 				@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
-					@if ($account->custom_contact_label1)
+					@if ($account->customLabel('contact1'))
 						@include('partials.custom_field', [
 							'field' => 'custom_contact1',
-							'label' => $account->custom_contact_label1,
+							'label' => $account->customLabel('contact1'),
 							'databind' => "value: custom_value1, valueUpdate: 'afterkeydown',
 									attr: {name: 'contacts[' + \$index() + '][custom_value1]'}",
 						])
 					@endif
-					@if ($account->custom_contact_label2)
+					@if ($account->customLabel('contact2'))
 						@include('partials.custom_field', [
 							'field' => 'custom_contact2',
-							'label' => $account->custom_contact_label2,
+							'label' => $account->customLabel('contact2'),
 							'databind' => "value: custom_value2, valueUpdate: 'afterkeydown',
 									attr: {name: 'contacts[' + \$index() + '][custom_value2]'}",
 						])
@@ -208,6 +205,9 @@
 							<a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.notes') }}</a>
 						</li>
 						<li role="presentation">
+                            <a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
+                        </li>
+						<li role="presentation">
 							<a href="#classify" aria-controls="classify" role="tab" data-toggle="tab">{{ trans('texts.classify') }}</a>
 						</li>
 					</ul>
@@ -243,6 +243,13 @@
 					<div role="tabpanel" class="tab-pane" id="notes">
 						{!! Former::textarea('public_notes')->rows(6) !!}
 						{!! Former::textarea('private_notes')->rows(6) !!}
+					</div>
+					<div role="tabpanel" class="tab-pane" id="messages">
+						@foreach (App\Models\Account::$customMessageTypes as $type)
+							{!! Former::textarea('custom_messages[' . $type . ']')
+									->placeholder($account->customMessage($type))
+									->label($type) !!}
+						@endforeach
 					</div>
 					<div role="tabpanel" class="tab-pane" id="classify">
 						{!! Former::select('size_id')->addOption('','')
@@ -330,9 +337,11 @@
 		// button handles to copy the address
 		$('#copyBillingDiv button').click(function() {
 			copyAddress();
+			$('#copyBillingDiv').hide();
 		});
 		$('#copyShippingDiv button').click(function() {
 			copyAddress(true);
+			$('#copyShippingDiv').hide();
 		});
 
 		// show/hide buttons based on loaded values

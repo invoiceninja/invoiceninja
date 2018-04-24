@@ -117,14 +117,11 @@ You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env 
 Voice Commands
 """"""""""""""
 
-Supporting voice commands requires creating a `LUIS.ai <https://www.luis.ai/home/index>`_ app, once the app is created you can import this `model file <https://download.invoiceninja.com/luis.json>`_.
-
-You'll also need to set the following values in the .env file.
+Supporting voice commands requires creating a `LUIS.ai subscription key <https://docs.microsoft.com/en-us/azure/cognitive-services/luis/azureibizasubscription>`_, then set the following values in the .env file.
 
 .. code-block:: shell
 
    SPEECH_ENABLED=true
-   MSBOT_LUIS_APP_ID=...
    MSBOT_LUIS_SUBSCRIPTION_KEY=...
 
 Lock Invoices

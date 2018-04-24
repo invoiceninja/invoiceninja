@@ -41,7 +41,7 @@
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
     var invoice = {!! json_encode($invoice) !!};
-    var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer'];
+    var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer', 'background'];
     var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
 
     function getPDFString(cb, force) {
@@ -185,6 +185,9 @@
             <li role="presentation"><a href="#margins" aria-controls="margins" role="tab" data-toggle="tab">{{ trans('texts.margins') }}</a></li>
             <li role="presentation"><a href="#header" aria-controls="header" role="tab" data-toggle="tab">{{ trans('texts.header') }}</a></li>
             <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.footer') }}</a></li>
+			@if ($account->isEnterprise() && $account->background_image_id)
+				<li role="presentation"><a href="#background" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.background') }}</a></li>
+			@endif
         </ul>
     </div>
     <div id="jsoneditor" style="width: 100%; height: 814px;"></div>

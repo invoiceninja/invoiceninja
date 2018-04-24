@@ -18,8 +18,8 @@
 
     {!! Former::checkbox('tos_agree')
             ->text(trans('texts.wepay_payment_tos_agree', [
-            'terms' => '<a href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.terms_of_service').'</a>',
-            'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy-us" target="_blank">'.trans('texts.privacy_policy').'</a>',
+                'terms' => '<a href="https://go.wepay.com/terms-of-service" target="_blank">'.trans('texts.terms_of_service').'</a>',
+                'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy" target="_blank">'.trans('texts.privacy_policy').'</a>',
             ]))
             ->help(trans('texts.payment_processed_through_wepay'))
             ->label(' ')

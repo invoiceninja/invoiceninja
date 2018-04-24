@@ -178,5 +178,11 @@
 			"color": "#737373"
 		}
 	},
-	"pageMargins": [40, 30, 40, 30]
+	"pageMargins": [40, 30, 40, 30],
+	"background": [
+		{
+			"image": "$accountBackground",
+			"alignment": "center"
+		}
+	]
 }

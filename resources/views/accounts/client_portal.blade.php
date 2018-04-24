@@ -59,6 +59,9 @@
                             <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
                         </li>
                         <li role="presentation">
+                            <a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
+                        </li>
+                        <li role="presentation">
                             <a href="#custom_css" aria-controls="custom_css" role="tab" data-toggle="tab">{{ trans('texts.custom_css') }}</a>
                         </li>
                     </ul>
@@ -133,6 +136,16 @@
                                 ->text(trans('texts.enable'))
                                 ->help(trans('texts.enable_client_portal_dashboard_help'))
                                 ->value(1) !!}
+
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="messages">
+                        <div class="panel-body">
+
+                            @foreach (App\Models\Account::$customMessageTypes as $type)
+                                {!! Former::textarea('custom_messages[' . $type . ']')
+                                        ->label($type) !!}
+                            @endforeach
 
                         </div>
                     </div>
@@ -400,15 +413,21 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/' + parts[1] + '/' + parts[0].substring
         }
         $productSelect.combobox({highlighter: comboboxHighlighter});
 
-        fixCheckboxes();
+        updateCheckboxes();
         updateBuyNowButtons();
     })
 
-	$('#enable_portal_password').change(fixCheckboxes);
+	$('#enable_portal_password, #enable_client_portal, #require_invoice_signature, #require_quote_signature').change(updateCheckboxes);
 
-	function fixCheckboxes() {
+	function updateCheckboxes() {
 		var checked = $('#enable_portal_password').is(':checked');
-		$('#send_portal_password').prop('disabled', !checked);
+		$('#send_portal_password').prop('disabled', ! checked);
+
+        var checked = $('#enable_client_portal').is(':checked');
+		$('#enable_client_portal_dashboard').prop('disabled', ! checked);
+
+        var checked = $('#require_invoice_signature').is(':checked') || $('#require_quote_signature').is(':checked');
+		$('#signature_on_pdf').prop('disabled', ! checked);
 	}
 
     function showPaymentTypes() {

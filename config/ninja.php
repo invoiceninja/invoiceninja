@@ -26,4 +26,14 @@ return [
     // privacy policy
     'privacy_policy_url' => env('PRIVACY_POLICY_URL', ''),
 
+    // Google maps
+    'google_maps_enabled' => env('GOOGLE_MAPS_ENABLED', true),
+    'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+
+    // Voice commands
+    'voice_commands' => [
+        'app_id' => env('MSBOT_LUIS_APP_ID', 'ea1cda29-5994-47c4-8c25-2b58ae7ae7a8'),
+        'subscription_key' => env('MSBOT_LUIS_SUBSCRIPTION_KEY'),
+    ],
+
 ];

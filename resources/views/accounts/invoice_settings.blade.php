@@ -29,6 +29,9 @@
     {{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
     {{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
+    @foreach (App\Models\Account::$customFields as $field)
+        {{ Former::populateField("custom_fields[$field]", $account->customLabel($field)) }}
+    @endforeach
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -202,7 +205,8 @@
                                     ->label('next_reset')
                                     ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                                     ->addGroupClass('reset_counter_date_group')
-                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>')
+                                    ->data_date_start_date($account->formatDate($account->getDateTime())) !!}
 
                     </div>
                 </div>
@@ -221,95 +225,135 @@
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active">
-                        <a href="#client_fields" aria-controls="client_fields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a>
+                        <a href="#product_fields" aria-controls="product_fields" role="tab" data-toggle="tab">{{ trans('texts.products') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#contact_fields" aria-controls="contact_fields" role="tab" data-toggle="tab">{{ trans('texts.contact_fields') }}</a>
+                        <a href="#client_fields" aria-controls="client_fields" role="tab" data-toggle="tab">{{ trans('texts.clients') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#company_fields" aria-controls="company_fields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a>
+                        <a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoices') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#product_fields" aria-controls="product_fields" role="tab" data-toggle="tab">{{ trans('texts.product_fields') }}</a>
+                        <a href="#task_fields" aria-controls="expense_fields" role="tab" data-toggle="tab">{{ trans('texts.tasks') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
+                        <a href="#expense_fields" aria-controls="task_fields" role="tab" data-toggle="tab">{{ trans('texts.expenses') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#company_fields" aria-controls="company_fields" role="tab" data-toggle="tab">{{ trans('texts.company') }}</a>
                     </li>
                 </ul>
             </div>
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="client_fields">
+                <div role="tabpanel" class="tab-pane active" id="product_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_client_label1')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_client_label2')
-                                ->label(trans('texts.field_label'))
+                        {!! Former::text('custom_fields[product1]')
+                                ->label('product_field')
+                                ->data_lpignore('true') !!}
+                        {!! Former::text('custom_fields[product2]')
+                                ->label('product_field')
+                                ->data_lpignore('true')
+                                ->help(trans('texts.custom_product_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="client_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_fields[client1]')
+                                ->label('client_field') !!}
+                        {!! Former::text('custom_fields[client2]')
+                                ->label('client_field')
                                 ->help(trans('texts.custom_client_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="contact_fields">
-                    <div class="panel-body">
+                        <br/>
 
-                        {!! Former::text('custom_contact_label1')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_contact_label2')
-                                ->label(trans('texts.field_label'))
+                        {!! Former::text('custom_fields[contact1]')
+                                ->label('contact_field') !!}
+                        {!! Former::text('custom_fields[contact2]')
+                                ->label('contact_field')
                                 ->help(trans('texts.custom_contact_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
-
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="company_fields">
-                    <div class="panel-body">
-
-                        {!! Former::text('custom_label1')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_value1')
-                                ->label(trans('texts.field_value')) !!}
-                        <p>&nbsp;</p>
-                        {!! Former::text('custom_label2')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_value2')
-                                ->label(trans('texts.field_value'))
-                                ->help(trans('texts.custom_account_fields_helps')) !!}
-
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="product_fields">
-                    <div class="panel-body">
-
-                        {!! Former::text('custom_invoice_item_label1')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_invoice_item_label2')
-                                ->label(trans('texts.field_label'))
-                                ->help(trans('texts.custom_product_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="invoice_fields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_invoice_text_label1')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_invoice_text_label2')
-                                ->label(trans('texts.field_label'))
+                        {!! Former::text('custom_fields[invoice_text1]')
+                                ->label('invoice_field') !!}
+                        {!! Former::text('custom_fields[invoice_text2]')
+                                ->label('invoice_field')
                                 ->help(trans('texts.custom_invoice_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
-                        {!! Former::text('custom_invoice_label1')
-                                ->label(trans('texts.surcharge_label'))
+                        {!! Former::text('custom_fields[invoice1]')
+                                ->label('invoice_surcharge')
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
                                             ->value(1)
                                             ->raw() . trans('texts.charge_taxes')) !!}
 
-                        {!! Former::text('custom_invoice_label2')
-                                ->label(trans('texts.surcharge_label'))
+                        {!! Former::text('custom_fields[invoice2]')
+                                ->label('invoice_surcharge')
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
                                             ->value(1)
                                             ->raw() . trans('texts.charge_taxes'))
                                             ->help(trans('texts.custom_invoice_charges_helps')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="task_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_fields[task1]')
+                                ->label('task_field') !!}
+                        {!! Former::text('custom_fields[task2]')
+                                ->label('task_field')
+                                ->help(trans('texts.custom_task_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
+
+                        <br/>
+
+                        {!! Former::text('custom_fields[project1]')
+                                ->label('project_field') !!}
+                        {!! Former::text('custom_fields[project2]')
+                                ->label('project_field')
+                                ->help(trans('texts.custom_project_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="expense_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_fields[expense1]')
+                                ->label(trans('texts.expense_field')) !!}
+                        {!! Former::text('custom_fields[expense2]')
+                                ->label(trans('texts.expense_field'))
+                                ->help(trans('texts.custom_expense_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
+
+                        <br/>
+
+                        {!! Former::text('custom_fields[vendor1]')
+                                ->label(trans('texts.vendor_field')) !!}
+                        {!! Former::text('custom_fields[vendor2]')
+                                ->label(trans('texts.vendor_field'))
+                                ->help(trans('texts.custom_vendor_fields_help') . ' ' . trans('texts.custom_fields_tip')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="company_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_fields[account1]')
+                                ->label(trans('texts.company_field')) !!}
+                        {!! Former::text('custom_value1')
+                                ->label(trans('texts.field_value')) !!}
+                        <p>&nbsp;</p>
+                        {!! Former::text('custom_fields[account2]')
+                                ->label(trans('texts.company_field')) !!}
+                        {!! Former::text('custom_value2')
+                                ->label(trans('texts.field_value'))
+                                ->help(trans('texts.custom_account_fields_helps')) !!}
 
                     </div>
                 </div>

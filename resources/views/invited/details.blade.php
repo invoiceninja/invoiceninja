@@ -131,7 +131,7 @@
                 <p>&nbsp;</p>
 
                 <center>
-                    {!! Button::normal(strtoupper(trans('texts.cancel') ))->asLinkTo($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods')->large() !!} &nbsp;
+                    {!! Button::normal(strtoupper(trans('texts.cancel') ))->asLinkTo(url($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods'))->large() !!} &nbsp;
                     {!! Button::success(strtoupper(trans('texts.save') ))->submit()->large() !!}
                 </center>
 

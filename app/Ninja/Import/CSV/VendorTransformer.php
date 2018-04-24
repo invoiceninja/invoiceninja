@@ -31,12 +31,12 @@ class VendorTransformer extends BaseTransformer
                 'state' => $this->getString($data, 'state'),
                 'postal_code' => $this->getString($data, 'postal_code'),
                 'private_notes' => $this->getString($data, 'notes'),
-                'contacts' => [
+                'vendor_contacts' => [
                     [
-                        'first_name' => $this->getString($data, 'first_name'),
-                        'last_name' => $this->getString($data, 'last_name'),
-                        'email' => $this->getString($data, 'email'),
-                        'phone' => $this->getString($data, 'phone'),
+                        'first_name' => $this->getString($data, 'contact_first_name'),
+                        'last_name' => $this->getString($data, 'contact_last_name'),
+                        'email' => $this->getString($data, 'contact_email'),
+                        'phone' => $this->getString($data, 'contact_phone'),
                     ],
                 ],
                 'country_id' => isset($data->country) ? $this->getCountryId($data->country) : null,

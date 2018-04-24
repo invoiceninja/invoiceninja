@@ -2,12 +2,12 @@
 
 namespace App\Ninja\PaymentDrivers;
 
-class CustomPaymentDriver extends BasePaymentDriver
+class Custom1PaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes()
     {
         return [
-            GATEWAY_TYPE_CUSTOM,
+            GATEWAY_TYPE_CUSTOM1,
         ];
     }
 }

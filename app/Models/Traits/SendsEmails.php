@@ -204,4 +204,13 @@ trait SendsEmails
 
         return Domain::getEmailFromId($this->domain_id);
     }
+
+    public function getDailyEmailLimit()
+    {
+        $limit = MAX_EMAILS_SENT_PER_DAY;
+
+        $limit += $this->created_at->diffInMonths() * 100;
+
+        return min($limit, 1000);
+    }
 }

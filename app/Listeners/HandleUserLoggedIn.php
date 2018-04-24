@@ -79,7 +79,7 @@ class HandleUserLoggedIn
 
         if (! Utils::isNinja()) {
             // check custom gateway id is correct
-            $gateway = Gateway::find(GATEWAY_CUSTOM);
+            $gateway = Gateway::find(GATEWAY_CUSTOM1);
             if (! $gateway || $gateway->name !== 'Custom') {
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }

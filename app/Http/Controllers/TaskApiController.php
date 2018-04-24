@@ -149,6 +149,9 @@ class TaskApiController extends BaseAPIController
      */
     public function update(UpdateTaskRequest $request)
     {
+        if ($request->action) {
+            return $this->handleAction($request);
+        }
         
         $task = $request->entity();
         

@@ -31,11 +31,11 @@ class InvoiceReport extends AbstractReport
 
         $account = auth()->user()->account;
 
-        if ($account->custom_invoice_text_label1) {
-            $columns[$account->present()->customInvoiceTextLabel1] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('invoice_text1')) {
+            $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-        if ($account->custom_invoice_text_label1) {
-            $columns[$account->present()->customInvoiceTextLabel2] = ['columnSelector-false', 'custom'];
+        if ($account->customLabel('invoice_text1')) {
+            $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
 
         return $columns;
@@ -108,10 +108,10 @@ class InvoiceReport extends AbstractReport
                         $row[] = $isFirst ? $account->formatMoney($invoice->getTaxTotal(), $client) : '';
                     }
 
-                    if ($account->custom_invoice_text_label1) {
+                    if ($account->customLabel('invoice_text1')) {
                         $row[] = $invoice->custom_text_value1;
                     }
-                    if ($account->custom_invoice_text_label2) {
+                    if ($account->customLabel('invoice_text2')) {
                         $row[] = $invoice->custom_text_value2;
                     }
 

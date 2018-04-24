@@ -133,15 +133,6 @@ Directly to the left of the Balance Due section, you'll see a text box with a nu
 
 .. TIP:: The Invoices page is rich in clickable links, providing you with a shortcut to relevant pages you may wish to view. For example, all invoice numbers are clickable, taking you directly to the specific invoice page, and all client names are clickable, taking you directly to the specific client summary page.
 
-Invoice Preview
-^^^^^^^^^^^^^^^
-
-Did you know that all this time you've been creating the new invoice, a live PDF preview of the invoice appears below, and it changes in real time according to the data you've entered?
-
-Scroll down below the invoice data fields to check out the invoice preview.
-
-But before we get there you'll see a row of colorful buttons, giving you a range of options:
-
 - **Blue button – Download PDF**: Download the invoice as a PDF file. You can then print or save to your PC or mobile device.
 - **Gray button – Save Draft**: Save the latest version of the invoice. The data is saved in your Invoice Ninja account. You can return to the invoice at any time to continue working on it. Note: An invoice in the Draft stage is not viewable to the client in the client portal, and the amount on the invoice is not reflected in the client's invoicing balance.
 - **Green button – Mark Sent**: If you mark the invoice as sent, then the invoice will be viewable to your client in the client portal. The amount on the invoice will also be calculated in the client's balance data.

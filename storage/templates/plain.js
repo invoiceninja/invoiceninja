@@ -184,5 +184,11 @@
 			"margin": [0, 10, 0, 10]
 		}
 	},
-	"pageMargins": [40, 40, 40, 60]
+	"pageMargins": [40, 40, 40, 60],
+	"background": [
+		{
+			"image": "$accountBackground",
+			"alignment": "center"
+		}
+	]
 }
