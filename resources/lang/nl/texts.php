@@ -99,9 +99,9 @@ $LANG = array(
         <p>Gebruik :MONTH, :QUARTER of :YEAR voor dynamische datums. Eenvoudige wiskunde werkt ook, bijvoorbeeld :MONTH-1.</p>
         <p>Voorbeelden van dynamische factuur variabelen:</p>
         <ul>
-          <li>"Fitnesslidmaatschap voor de maand :MONTH" => "Fitnesslidmaatschap voor de maand juli"</li>
-          <li>"Jaarlijks abonnement :YEAR+1" => "Jaarlijks abonnement 2015"</li>
-          <li>"Betaling voor :QUARTER+1" => "Betaling voor Q2"</li>
+          <li>"Fitnesslidmaatschap voor de maand :MONTH" >> "Fitnesslidmaatschap voor de maand juli"</li>
+          <li>"Jaarlijks abonnement :YEAR+1" >> "Jaarlijks abonnement 2015"</li>
+          <li>"Betaling voor :QUARTER+1" >> "Betaling voor Q2"</li>
         </ul>',
     'in_total_revenue' => 'In totale inkomsten',
     'billed_client' => 'Gefactureerde klant',
