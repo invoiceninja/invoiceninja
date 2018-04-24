@@ -100,7 +100,7 @@ $LANG = array(
     <p>Ejemplos de Variables Dinámicas de Factura:</p>
     <ul>
     <li>"Mensualidad del gimnasio para el mes de :MONTH" >> Mensualidad del gimnasio para el mes de Julio"</li>
-    <li>":YEAR+1 suscripción anual" => "2015 suscripción anual"</li>
+    <li>":YEAR+1 suscripción anual" >> "2015 suscripción anual"</li>
     <li>"Pago retenido para :QUARTER+1" >> "Pago retenido para T2"</li>
     </ul>',
     'in_total_revenue' => 'Ingreso Total',
