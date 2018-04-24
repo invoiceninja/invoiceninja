@@ -24,6 +24,13 @@ class AccountGateway extends EntityModel
     protected $dates = ['deleted_at'];
 
     /**
+     * @var array
+     */
+    protected $hidden = [
+        'config'
+    ];
+
+    /**
      * @return mixed
      */
     public function getEntityType()
