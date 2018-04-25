@@ -64,9 +64,11 @@ function lookupPostalCode(isShipping) {
     var countryId = $('#' + countryField).val() || {{ $account->getCountryId() }};
     var countryCode = countryMap[countryId].iso_3166_2;
 
-    if (! postalCode) {
+    if (! postalCode || postalCode.length < 5) {
         return;
     }
+
+    $('#' + cityField).attr('placeholder', {!! json_encode(trans('texts.loading') . '...') !!});
 
     var geocoder = new google.maps.Geocoder;
     geocoder.geocode({
@@ -97,8 +99,9 @@ function lookupPostalCode(isShipping) {
                     }
                 }
             }
+            $('#' + cityField).attr('placeholder', '');
         } else {
-            $('#' + cityField).attr("placeholder", {!! json_encode(trans('texts.no_match_found')) !!});
+            $('#' + cityField).attr('placeholder', {!! json_encode(trans('texts.no_match_found')) !!});
         }
         showGeocodePlaceholder(isShipping);
     });

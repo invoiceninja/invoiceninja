@@ -65,7 +65,7 @@
 			{!! Former::text('state') !!}
 
 			{!! Former::text('postal_code')
-					->onchange(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
+					->oninput(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
 			{!! Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') !!}
 
