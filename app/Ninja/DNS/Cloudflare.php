@@ -48,6 +48,10 @@ class Cloudflare
 
                 $dnsRecordId = self::getDNSRecord($zone, $account->subdomain);
 
+                //test record exists
+                if($dnsRecordId == 0)
+                    return;
+
                 $jsonEncodedData = json_encode([]);
 
                 $requestType = 'DELETE';
@@ -89,7 +93,10 @@ class Cloudflare
         if ($response['status'] != 200)
             Utils::logError('Unable to get the record ID for ' . $aRecord . ' @ Cloudflare - ' . $response['result']['result']);
 
-        return $response['result']['result'][0]['id'];
+        if(isset($response['result']['result'][0]))
+            return $response['result']['result'][0]['id'];
+        else
+            return 0;
 
     }
 
