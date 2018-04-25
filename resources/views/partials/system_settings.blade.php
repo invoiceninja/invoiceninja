@@ -89,7 +89,7 @@
     }
 
     function mailDriverChange() {
-      if ($("select[name='mail[driver]'").val() == 'mailgun') {
+      if ($("select[name='mail[driver]']").val() == 'mailgun') {
         $("#standardMailSetup").hide();
         $("#standardMailSetup").children('select,input').prop('disabled',true);
         $("#mailgunMailSetup").show();
