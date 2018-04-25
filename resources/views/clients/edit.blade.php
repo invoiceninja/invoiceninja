@@ -5,7 +5,7 @@
 @stop
 
 @section('head')
-	@if (config('ninja.google_maps_enabled'))
+	@if (config('ninja.google_maps_api_key'))
 		@include('partials.google_geocode')
 	@endif
 @stop
@@ -94,7 +94,7 @@
 						{!! Former::text('city') !!}
 						{!! Former::text('state') !!}
 						{!! Former::text('postal_code')
-								->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode()' : '') !!}
+								->onchange(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
 						{!! Former::select('country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id') !!}
 
@@ -112,7 +112,7 @@
 						{!! Former::text('shipping_city')->label('city') !!}
 						{!! Former::text('shipping_state')->label('state') !!}
 						{!! Former::text('shipping_postal_code')
-								->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode(true)' : '')
+								->onchange(config('ninja.google_maps_api_key') ? 'lookupPostalCode(true)' : '')
 								->label('postal_code') !!}
 						{!! Former::select('shipping_country_id')->addOption('','')
 							->fromQuery($countries, 'name', 'id')->label('country_id') !!}

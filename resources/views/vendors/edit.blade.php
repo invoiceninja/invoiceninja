@@ -5,7 +5,7 @@
 @stop
 
 @section('head')
-	@if (config('ninja.google_maps_enabled'))
+	@if (config('ninja.google_maps_api_key'))
 		@include('partials.google_geocode')
 	@endif
 @stop
@@ -65,7 +65,7 @@
 			{!! Former::text('state') !!}
 
 			{!! Former::text('postal_code')
-					->onchange(config('ninja.google_maps_enabled') ? 'lookupPostalCode()' : '') !!}
+					->onchange(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
 			{!! Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') !!}
 
