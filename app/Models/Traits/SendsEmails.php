@@ -66,7 +66,7 @@ trait SendsEmails
 
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS) && $this->email_design_id != EMAIL_DESIGN_PLAIN) {
             $template .= '<div>' . trans("texts.{$entityType}_message_button", ['amount' => '$amount']) . '</div><br />' .
-                         '<div style="text-align: center;">$viewButton</div><br />';
+                         '<div style="text-align:center;">$viewButton</div><br />';
         } else {
             $template .= '<div>' . trans("texts.{$entityType}_message", ['amount' => '$amount']) . '</div><br />' .
                          '<div>$viewLink</div><br />';
