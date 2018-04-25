@@ -26,7 +26,10 @@ class GatewayTypesSeeder extends Seeder
 
         foreach ($gateway_types as $gateway_type) {
             $record = GatewayType::where('alias', '=', $gateway_type['alias'])->first();
-            if (! $record) {
+            if ($record) {
+                $record->fill($gateway_type);
+                $record->save();
+            } else {
                 GatewayType::create($gateway_type);
             }
         }
