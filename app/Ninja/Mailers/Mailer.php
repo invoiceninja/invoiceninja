@@ -154,7 +154,7 @@ class Mailer
             $client = new PostmarkClient(config('services.postmark'));
             $message = [
                 'To' => $toEmail,
-                'From' => "{$fromName} <{$fromEmail}>",
+                'From' => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
                 'ReplyTo' => $replyEmail,
                 'Subject' => $subject,
                 'TextBody' => $textBody,
