@@ -8,6 +8,7 @@ use App\Models\LookupAccount;
 use DB;
 use Exception;
 use App\Libraries\HistoryUtils;
+use Utils;
 
 class PurgeClientData extends Job
 {
@@ -23,8 +24,24 @@ class PurgeClientData extends Job
      */
     public function handle()
     {
-        $invoices = $this->client->invoices()->withTrashed()->get();
-        $expenses = $this->client->expenses()->withTrashed()->get();
+        $user = auth()->user();
+        $client = $this->client;
+        $contact = $client->getPrimaryContact();
+
+        if (! $user->is_admin) {
+            return;
+        }
+
+        $message = sprintf('%s %s (%s) purged client: %s %s', date('Y-m-d h:i:s'), $user->email, request()->getClientIp(), $client->name, $contact->email);
+
+        if (config('app.log') == 'single') {
+            @file_put_contents(storage_path('logs/purged-clients.log'), $message, FILE_APPEND);
+        } else {
+            Utils::logError('[purged client] ' . $message);
+        }
+
+        $invoices = $client->invoices()->withTrashed()->get();
+        $expenses = $client->expenses()->withTrashed()->get();
 
         foreach ($invoices as $invoice) {
             foreach ($invoice->documents as $document) {
