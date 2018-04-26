@@ -43,29 +43,33 @@ class AddSlackNotifications extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
         });
 
-        Schema::table('companies', function ($table) {
-            $table->dropForeign('companies_payment_id_foreign');
-        });
+        try {
+            Schema::table('companies', function ($table) {
+                $table->dropForeign('companies_payment_id_foreign');
+            });
 
-        Schema::table('companies', function ($table) {
-            $table->index('payment_id');
-        });
+            Schema::table('companies', function ($table) {
+                $table->index('payment_id');
+            });
 
-        Schema::table('user_accounts', function ($table) {
-            $table->dropForeign('user_accounts_user_id1_foreign');
-            $table->dropForeign('user_accounts_user_id2_foreign');
-            $table->dropForeign('user_accounts_user_id3_foreign');
-            $table->dropForeign('user_accounts_user_id4_foreign');
-            $table->dropForeign('user_accounts_user_id5_foreign');
-        });
+            Schema::table('user_accounts', function ($table) {
+                $table->dropForeign('user_accounts_user_id1_foreign');
+                $table->dropForeign('user_accounts_user_id2_foreign');
+                $table->dropForeign('user_accounts_user_id3_foreign');
+                $table->dropForeign('user_accounts_user_id4_foreign');
+                $table->dropForeign('user_accounts_user_id5_foreign');
+            });
 
-        Schema::table('user_accounts', function ($table) {
-            $table->index('user_id1');
-            $table->index('user_id2');
-            $table->index('user_id3');
-            $table->index('user_id4');
-            $table->index('user_id5');
-        });
+            Schema::table('user_accounts', function ($table) {
+                $table->index('user_id1');
+                $table->index('user_id2');
+                $table->index('user_id3');
+                $table->index('user_id4');
+                $table->index('user_id5');
+            });
+        } catch (Exception $exception) {
+            // do nothing, change only needed for invoiceninja servers
+        }
 
         Schema::table('jobs', function (Blueprint $table) {
             $table->dropIndex('jobs_queue_reserved_reserved_at_index');
