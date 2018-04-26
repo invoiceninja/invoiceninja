@@ -62,6 +62,7 @@ trait GeneratesNumbers
 
         // update the counter to be caught up
         if ($counterOffset > 1) {
+            $this->syncOriginal();
             if ($entity->isEntityType(ENTITY_CLIENT)) {
                 if ($this->clientNumbersEnabled()) {
                     $this->client_number_counter += $counterOffset - 1;
