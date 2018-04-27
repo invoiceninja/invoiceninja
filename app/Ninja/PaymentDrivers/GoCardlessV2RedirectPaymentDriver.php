@@ -34,6 +34,10 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         $config['secret'] = $config['webhookSecret'];
         $this->gateway->initialize($config);
 
+        if (isset($config['testMode']) && $config['testMode']) {
+            $this->gateway->setTestMode(true);
+        }
+
         return $this->gateway;
     }
 
