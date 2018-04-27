@@ -236,7 +236,7 @@
             }
 
 			function waitForSignature() {
-				if (window.signatureAsPNG) {
+				if (window.signatureAsPNG || ! invoice.invitations[0].signature_base64) {
 					writePdfAsString();
 				} else {
 					window.setTimeout(waitForSignature, 100);
