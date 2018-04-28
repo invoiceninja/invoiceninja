@@ -371,42 +371,18 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 });
 
 // Redirects for legacy links
-Route::get('/rocksteady', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/about', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/contact', function () {
-    return Redirect::to(NINJA_WEB_URL.'/contact', 301);
-});
-Route::get('/plans', function () {
-    return Redirect::to(NINJA_WEB_URL.'/pricing', 301);
-});
-Route::get('/faq', function () {
-    return Redirect::to(NINJA_WEB_URL.'/how-it-works', 301);
-});
-Route::get('/features', function () {
-    return Redirect::to(NINJA_WEB_URL.'/features', 301);
-});
-Route::get('/testimonials', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/compare-online-invoicing{sites?}', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/forgot', function () {
-    return Redirect::to(NINJA_APP_URL.'/recover_password', 301);
-});
-Route::get('/feed', function () {
-    return Redirect::to(NINJA_WEB_URL.'/feed', 301);
-});
-Route::get('/comments/feed', function () {
-    return Redirect::to(NINJA_WEB_URL.'/comments/feed', 301);
-});
-Route::get('/terms', function () {
-    return Redirect::to(NINJA_WEB_URL.'/terms', 301);
-});
+Route::redirect('rocksteady', NINJA_WEB_URL, 301);
+Route::redirect('about', NINJA_WEB_URL, 301);
+Route::redirect('contact', NINJA_WEB_URL . '/contact', 301);
+Route::redirect('plans', NINJA_WEB_URL . '/pricing', 301);
+Route::redirect('faq', NINJA_WEB_URL . '/how-it-works', 301);
+Route::redirect('features', NINJA_WEB_URL . '/features', 301);
+Route::redirect('testimonials', NINJA_WEB_URL, 301);
+Route::redirect('compare-online-invoicing{sites?}', NINJA_WEB_URL, 301);
+Route::redirect('feed', NINJA_WEB_URL . '/feed', 301);
+Route::redirect('comments/feed', NINJA_WEB_URL . '/comments/feed', 301);
+Route::redirect('terms', NINJA_WEB_URL . '/terms', 301);
+Route::redirect('forgot', NINJA_APP_URL . '/recover_password', 301);
 
 /*
 if (Utils::isNinjaDev())
