@@ -371,18 +371,17 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 });
 
 // Redirects for legacy links
-Route::redirect('rocksteady', NINJA_WEB_URL, 301);
-Route::redirect('about', NINJA_WEB_URL, 301);
-Route::redirect('contact', NINJA_WEB_URL . '/contact', 301);
-Route::redirect('plans', NINJA_WEB_URL . '/pricing', 301);
-Route::redirect('faq', NINJA_WEB_URL . '/how-it-works', 301);
-Route::redirect('features', NINJA_WEB_URL . '/features', 301);
-Route::redirect('testimonials', NINJA_WEB_URL, 301);
-Route::redirect('compare-online-invoicing{sites?}', NINJA_WEB_URL, 301);
-Route::redirect('feed', NINJA_WEB_URL . '/feed', 301);
-Route::redirect('comments/feed', NINJA_WEB_URL . '/comments/feed', 301);
-Route::redirect('terms', NINJA_WEB_URL . '/terms', 301);
-Route::redirect('forgot', NINJA_APP_URL . '/recover_password', 301);
+Route::get('rocksteady', 'AppController@redirect');
+Route::get('about', 'AppController@redirect');
+Route::get('contact', 'AppController@redirect');
+Route::get('plans', 'AppController@redirect');
+Route::get('faq', 'AppController@redirect');
+Route::get('features', 'AppController@redirect');
+Route::get('testimonials', 'AppController@redirect');
+Route::get('compare-online-invoicing{sites?}', 'AppController@redirect');
+Route::get('feed', 'AppController@redirect');
+Route::get('comments/feed', 'AppController@redirect');
+Route::get('terms', 'AppController@redirect');
 
 /*
 if (Utils::isNinjaDev())

@@ -467,4 +467,9 @@ class AppController extends BaseController
 
         return response(nl2br(Artisan::output()));
     }
+
+    public function redirect()
+    {
+        return redirect((Utils::isNinja() ? NINJA_WEB_URL : ''), 301);
+    }
 }
