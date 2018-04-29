@@ -204,7 +204,7 @@
 						<li role="presentation">
 							<a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.notes') }}</a>
 						</li>
-						@if (Utils::isPro())
+						@if (Utils::isPaidPro())
 							<li role="presentation">
 	                            <a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">{{ trans('texts.messages') }}</a>
 	                        </li>
@@ -246,7 +246,7 @@
 						{!! Former::textarea('public_notes')->rows(6) !!}
 						{!! Former::textarea('private_notes')->rows(6) !!}
 					</div>
-					@if (Utils::isPro())
+					@if (Utils::isPaidPro())
 						<div role="tabpanel" class="tab-pane" id="messages">
 							@foreach (App\Models\Account::$customMessageTypes as $type)
 								{!! Former::textarea('custom_messages[' . $type . ']')
