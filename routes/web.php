@@ -150,7 +150,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
-    Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
+    Route::get('clients/statement/{client_id}', 'ClientController@statement');
     Route::post('email_history', 'ClientController@getEmailHistory');
     Route::post('reactivate_email/{bounce_id}', 'ClientController@reactivateEmail');
 

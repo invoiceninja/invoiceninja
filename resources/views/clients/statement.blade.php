@@ -98,8 +98,15 @@
                 $('#reportrange').css('color', '#000');
                 $('#reportrange').css('pointer-events', 'auto');
             }
-            var url = '{{ url('/clients/statement/' . $client->public_id) }}' + '/' + statusId + '/' +
-                statementStartDate.format('YYYY-MM-DD') + '/' + statementEndDate.format('YYYY-MM-DD') + '?json=true';
+            var url = '{{ url('/clients/statement/' . $client->public_id) }}' +
+                '?status_id=' + statusId +
+                '&start_date=' + statementStartDate.format('YYYY-MM-DD') +
+                '&end_date=' + statementEndDate.format('YYYY-MM-DD') +
+                '&show_payments=' + $('#show_payments').is(':checked') +
+                '&show_aging=' + $('#show_aging').is(':checked') +
+                '&json=true';
+            console.log(url);
+
             $.get(url, function(response) {
                 invoice = currentInvoice = JSON.parse(response);
                 refreshPDF();
@@ -110,8 +117,6 @@
             if (isStorageSupported()) {
                 localStorage.setItem('last:statement_status_id', $('#status_id').val());
             }
-
-            refreshData();
         }
 
         function onDownloadClick() {
@@ -142,7 +147,7 @@
     <p>&nbsp;</p>
 
     <div class="well" style="background: #eeeeee">
-        {!! Former::inline_open() !!}
+        {!! Former::inline_open()->onchange('refreshData()') !!}
 
         {{ trans('texts.status') }}
 
@@ -170,6 +175,16 @@
             {!! Former::text('start_date') !!}
             {!! Former::text('end_date') !!}
         </div>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+
+        {!! Former::checkbox('show_payments')
+                ->text('show_payments') !!}
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+
+        {!! Former::checkbox('show_aging')
+                ->text('show_aging')!!}
 
         {!! Former::close() !!}
     </div>

@@ -7,6 +7,7 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Jobs\LoadPostmarkHistory;
 use App\Jobs\ReactivatePostmarkEmail;
+use App\Jobs\Client\GenerateStatementData;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
@@ -239,10 +240,12 @@ class ClientController extends BaseController
         }
     }
 
-    public function statement($clientPublicId, $statusId = false, $startDate = false, $endDate = false)
+    public function statement($clientPublicId)
     {
+        $statusId = request()->status_id;
+        $startDate = request()->start_date;
+        $endDate = request()->end_date;
         $account = Auth::user()->account;
-        $statusId = intval($statusId);
         $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
 
         if (! $startDate) {
@@ -250,32 +253,8 @@ class ClientController extends BaseController
             $endDate = Utils::today(false)->format('Y-m-d');
         }
 
-        $invoice = $account->createInvoice(ENTITY_INVOICE);
-        $invoice->client = $client;
-        $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
-
-        $invoices = Invoice::scope()
-            ->with(['client'])
-            ->invoices()
-            ->whereClientId($client->id)
-            ->whereIsPublic(true)
-            ->orderBy('invoice_date', 'asc');
-
-        if ($statusId == INVOICE_STATUS_PAID) {
-            $invoices->where('invoice_status_id', '=', INVOICE_STATUS_PAID);
-        } elseif ($statusId == INVOICE_STATUS_UNPAID) {
-            $invoices->where('invoice_status_id', '!=', INVOICE_STATUS_PAID);
-        }
-
-        if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
-            $invoices->where('invoice_date', '>=', $startDate)
-                    ->where('invoice_date', '<=', $endDate);
-        }
-
-        $invoice->invoice_items = $invoices->get();
-
         if (request()->json) {
-            return json_encode($invoice);
+            return dispatch(new \App\Jobs\Client\GenerateStatementData($client, request()->all()));
         }
 
         $data = [
