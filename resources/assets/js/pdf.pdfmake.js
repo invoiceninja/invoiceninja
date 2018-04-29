@@ -15,8 +15,9 @@ NINJA.TEMPLATES = {
 
 function GetPdfMake(invoice, javascript, callback) {
     var itemsTable = false;
+
+    // check if we need to add a second table for tasks
     if (invoice.hasTasks) {
-        // check if we need to add a second table for tasks
         if (invoice.hasSecondTable) {
             var json = JSON.parse(javascript);
             for (var i=0; i<json.content.length; i++) {
@@ -36,6 +37,16 @@ function GetPdfMake(invoice, javascript, callback) {
             javascript = javascript.replace('$invoiceLineItems', '$taskLineItems');
             javascript = javascript.replace('$invoiceLineItemColumns', '$taskLineItemColumns');
         }
+    } else if (invoice.is_statement) {
+        var json = JSON.parse(javascript);
+        for (var i=0; i<json.content.length; i++) {
+            var item = json.content[i];
+            if (item.table && item.table.body == '$invoiceLineItems') {
+                json.content.splice(i, 2);
+                json.content.splice(i, 0, "$statementDetails");
+            }
+        }
+        javascript = JSON.stringify(json);
     }
 
     javascript = NINJA.decodeJavascript(invoice, javascript);
@@ -244,18 +255,19 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
-        'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice),
-        'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice, javascript),
+        'invoiceLineItems': NINJA.invoiceLines(invoice),
+        'invoiceLineItemColumns': NINJA.invoiceColumns(invoice, javascript),
         'taskLineItems': NINJA.invoiceLines(invoice, true),
         'taskLineItemColumns': NINJA.invoiceColumns(invoice, javascript, true),
         'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
+        'statementDetails': NINJA.statementDetails(invoice),
         'notesAndTerms': NINJA.notesAndTerms(invoice),
-        'subtotals': invoice.is_statement ? NINJA.statementSubtotals(invoice) : NINJA.subtotals(invoice),
+        'subtotals': NINJA.subtotals(invoice),
         'subtotalsHeight': (NINJA.subtotals(invoice).length * 16) + 16,
-        'subtotalsWithoutBalance': invoice.is_statement ? [[]] : NINJA.subtotals(invoice, true),
+        'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),
         'subtotalsBalance': NINJA.subtotalsBalance(invoice),
         'balanceDue': formatMoneyInvoice(invoice.balance_amount, invoice),
         'invoiceFooter': NINJA.invoiceFooter(invoice),
@@ -402,6 +414,123 @@ NINJA.decodeJavascript = function(invoice, javascript)
     return javascript;
 }
 
+NINJA.statementDetails = function(invoice) {
+    if (! invoice.is_statement) {
+        return false;
+    }
+
+    var data = {
+        "stack": []
+    };
+
+    var table = {
+        "style": "invoiceLineItemsTable",
+        "table": {
+            "headerRows": 1,
+            "widths": false,
+            "body": false,
+        },
+        "layout": {
+            "hLineWidth": "$notFirst:.5",
+            "vLineWidth": "$none",
+            "hLineColor": "#D8D8D8",
+            "paddingLeft": "$amount:8",
+            "paddingRight": "$amount:8",
+            "paddingTop": "$amount:14",
+            "paddingBottom": "$amount:14"
+        }
+    };
+
+    var hasPayments = false;
+    var hasAging = false;
+    for (var i = 0; i < invoice.invoice_items.length; i++) {
+        var item = invoice.invoice_items[i];
+        if (! item.invoice_number) {
+            if (item.invoice_id) {
+                hasPayments = true;
+            } else {
+                hasAging = true;
+            }
+        }
+    }
+
+    var clone = JSON.parse(JSON.stringify(table));
+    clone.table.body = NINJA.prepareDataTable(NINJA.statementInvoices(invoice), 'invoiceItems');
+    clone.table.widths = ["22%", "22%", "22%", "17%", "17%"];
+    data.stack.push(clone);
+
+    if (hasPayments) {
+        var clone = JSON.parse(JSON.stringify(table));
+        clone.table.body = NINJA.prepareDataTable(NINJA.statementPayments(invoice), 'invoiceItems');
+        clone.table.widths = ["22%", "22%", "39%", "17%"];
+        data.stack.push(clone);
+    }
+
+    if (hasAging) {
+        var clone = JSON.parse(JSON.stringify(table));
+        clone.table.body = NINJA.prepareDataTable(NINJA.statementAging(invoice), 'invoiceItems');
+        data.stack.push(clone);
+    }
+
+    return data;
+}
+
+NINJA.statementInvoices = function(invoice) {
+    var grid = [[]];
+    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader']});
+    grid[0].push({text: invoiceLabels.invoice_date, style: ['tableHeader', 'invoiceDateTableHeader']});
+    grid[0].push({text: invoiceLabels.due_date, style: ['tableHeader', 'dueDateTableHeader']});
+    grid[0].push({text: invoiceLabels.total, style: ['tableHeader', 'totalTableHeader']});
+    grid[0].push({text: invoiceLabels.balance, style: ['tableHeader', 'balanceTableHeader']});
+
+    for (var i = 0; i < invoice.invoice_items.length; i++) {
+        var item = invoice.invoice_items[i];
+        if (! item.invoice_number) {
+            continue;
+        }
+        var rowStyle = (i % 2 == 0) ? 'odd' : 'even';
+        grid.push([
+            {text: item.invoice_number, style:['invoiceNumber', 'productKey', rowStyle]},
+            {text: item.invoice_date && item.invoice_date != '0000-00-00' ? moment(item.invoice_date).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
+            {text: item.due_date && item.due_date != '0000-00-00' ? moment(item.due_date).format(invoice.date_format) : ' ', style:['dueDate', rowStyle]},
+            {text: formatMoneyInvoice(item.amount, invoice), style:['subtotals', rowStyle]},
+            {text: formatMoneyInvoice(item.balance, invoice), style:['lineTotal', rowStyle]},
+        ]);
+    }
+
+    return grid;
+}
+
+NINJA.statementPayments = function(invoice) {
+    var grid = [[]];
+    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader']});
+    grid[0].push({text: invoiceLabels.payment_date, style: ['tableHeader', 'invoiceDateTableHeader']});
+    grid[0].push({text: invoiceLabels.method, style: ['tableHeader', 'dueDateTableHeader']});
+    //grid[0].push({text: invoiceLabels.reference, style: ['tableHeader', 'totalTableHeader']});
+    grid[0].push({text: invoiceLabels.amount, style: ['tableHeader', 'balanceTableHeader']});
+
+    for (var i = 0; i < invoice.invoice_items.length; i++) {
+        var item = invoice.invoice_items[i];
+        if (! item.invoice_id) {
+            continue;
+        }
+        var rowStyle = (i % 2 == 0) ? 'odd' : 'even';
+        grid.push([
+            {text: item.invoice.invoice_number, style:['invoiceNumber', 'productKey', rowStyle]},
+            {text: item.payment_date && item.payment_date != '0000-00-00' ? moment(item.payment_date).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
+            {text: item.payment_type ? item.payment_type.name : ' ', style:['dueDate', rowStyle]},
+            //{text: item.transaction_reference, style:['subtotals', rowStyle]},
+            {text: formatMoneyInvoice(item.amount - item.refunded, invoice), style:['lineTotal', rowStyle]},
+        ]);
+    }
+
+    return grid;
+}
+
+NINJA.statementAging = function(invoice) {
+
+}
+
 NINJA.signature = function(invoice) {
     var invitation = NINJA.getSignatureInvitation(invoice);
     if (invitation) {
@@ -500,36 +629,6 @@ NINJA.notesAndTerms = function(invoice)
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
-}
-
-NINJA.statementColumns = function(invoice)
-{
-    return ["22%", "22%", "22%", "17%", "17%"];
-}
-
-NINJA.statementLines = function(invoice)
-{
-    var grid = [[]];
-    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader']});
-    grid[0].push({text: invoiceLabels.invoice_date, style: ['tableHeader', 'invoiceDateTableHeader']});
-    grid[0].push({text: invoiceLabels.due_date, style: ['tableHeader', 'dueDateTableHeader']});
-    grid[0].push({text: invoiceLabels.total, style: ['tableHeader', 'totalTableHeader']});
-    grid[0].push({text: invoiceLabels.balance, style: ['tableHeader', 'balanceTableHeader']});
-
-    for (var i = 0; i < invoice.invoice_items.length; i++) {
-        var item = invoice.invoice_items[i];
-        var row = [];
-        var rowStyle = (i % 2 == 0) ? 'odd' : 'even';
-        grid.push([
-            {text: item.invoice_number, style:['invoiceNumber', 'productKey', rowStyle]},
-            {text: item.invoice_date && item.invoice_date != '0000-00-00' ? moment(item.invoice_date).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
-            {text: item.due_date && item.due_date != '0000-00-00' ? moment(item.due_date).format(invoice.date_format) : ' ', style:['dueDate', rowStyle]},
-            {text: formatMoneyInvoice(item.amount, invoice), style:['subtotals', rowStyle]},
-            {text: formatMoneyInvoice(item.balance, invoice), style:['lineTotal', rowStyle]},
-        ]);
-    }
-
-    return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
 NINJA.invoiceColumns = function(invoice, design, isTasks)
@@ -920,16 +1019,6 @@ NINJA.invoiceDocuments = function(invoice) {
     }
 
     return stack.length?{stack:stack}:[];
-}
-
-NINJA.statementSubtotals = function(invoice)
-{
-    var data = [[
-        { text: invoiceLabels.balance_due, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
-        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
-    ]];
-
-    return NINJA.prepareDataPairs(data, 'subtotals');
 }
 
 NINJA.subtotals = function(invoice, hideBalance)

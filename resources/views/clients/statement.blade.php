@@ -102,8 +102,8 @@
                 '?status_id=' + statusId +
                 '&start_date=' + statementStartDate.format('YYYY-MM-DD') +
                 '&end_date=' + statementEndDate.format('YYYY-MM-DD') +
-                '&show_payments=' + $('#show_payments').is(':checked') +
-                '&show_aging=' + $('#show_aging').is(':checked') +
+                '&show_payments=' + ($('#show_payments').is(':checked') ? '1' : '') +
+                '&show_aging=' + ($('#show_aging').is(':checked') ? '1' : '') +
                 '&json=true';
             console.log(url);
 

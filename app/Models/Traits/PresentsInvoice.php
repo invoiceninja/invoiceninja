@@ -337,6 +337,10 @@ trait PresentsInvoice
             'custom_value2',
             'delivery_note',
             'date',
+            'method',
+            'payment_date',
+            'reference',
+            'amount',
         ];
 
         foreach ($fields as $field) {

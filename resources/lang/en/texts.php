@@ -2841,6 +2841,7 @@ $LANG = array(
     'gateway_fee_description' => 'Gateway Fee Surcharge',
     'show_payments' => 'Show Payments',
     'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
 
 );
 
