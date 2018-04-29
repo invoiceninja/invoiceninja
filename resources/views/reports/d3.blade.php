@@ -150,7 +150,7 @@
     });
 
     _.each(products, function(product) {
-        var currencyId = product.values.currency_id;
+        var currencyId = product.values.currency_id || {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         var total = product.values.amount;
         product.displayTotal = total;
         if (currencyId != accountCurrencyId) {
