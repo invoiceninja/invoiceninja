@@ -254,7 +254,7 @@ class ClientController extends BaseController
         }
 
         if (request()->json) {
-            return dispatch(new \App\Jobs\Client\GenerateStatementData($client, request()->all()));
+            return dispatch(new GenerateStatementData($client, request()->all()));
         }
 
         $data = [
