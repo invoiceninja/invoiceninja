@@ -1290,8 +1290,8 @@ class InvoiceRepository extends BaseRepository
         $data = $invoice->toArray();
         $fee = $amount;
 
-        if ($invoice->balance > 0) {
-            $fee += round($invoice->balance * $percent / 100, 2);
+        if ($invoice->getRequestedAmount() > 0) {
+            $fee += round($invoice->getRequestedAmount() * $percent / 100, 2);
         }
 
         $item = [];
