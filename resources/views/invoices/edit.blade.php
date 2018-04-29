@@ -1483,7 +1483,7 @@
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
-				if (data && data.indexOf('http') === 0) {
+				if (data && data.toLowerCase().indexOf('http') === 0) {
 					NINJA.formIsChanged = false;
 					location.href = data;
 				} else {
