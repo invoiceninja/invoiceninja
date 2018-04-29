@@ -86,6 +86,7 @@ class CalculatePayouts extends Command
                 $client = $payment->client;
 
                 $this->info("User: $user");
+                $this->info("Client: " . $client->getDisplayName());
 
                 foreach ($client->payments as $payment) {
                     $amount = $payment->getCompletedAmount();
