@@ -377,7 +377,7 @@ class InvoiceRepository extends BaseRepository
         if (Utils::isNinjaProd() && ! Utils::isReseller()) {
             $copy = json_decode( json_encode($data), true);
             $copy['data'] = false;
-            $logMessage = date('r') . ' account_id: ' . $account->id . ' ' . json_encode($copy);
+            $logMessage = date('r') . ' account_id: ' . $account->id . ' ' . json_encode($copy) . "\n\n";
             @file_put_contents(storage_path('logs/invoice-repo.log'), $logMessage, FILE_APPEND);
         }
 
