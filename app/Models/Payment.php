@@ -92,7 +92,7 @@ class Payment extends EntityModel
      */
     public function contact()
     {
-        return $this->belongsTo('App\Models\Contact');
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
     /**
