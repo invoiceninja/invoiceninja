@@ -148,47 +148,61 @@
         <p>&nbsp;</p>
     @endif
 
-    <div class="well" style="background: #eeeeee">
-        {!! Former::inline_open()->onchange('refreshData()') !!}
+    <div class="well" style="background: #eeeeee; padding-bottom:30px;">
+        <div class="pull-left">
+            {!! Former::inline_open()->onchange('refreshData()') !!}
 
-        {{ trans('texts.status') }}
+            {{ trans('texts.status') }}
 
-        &nbsp;&nbsp;
+            &nbsp;&nbsp;
 
-        {!! Former::select('status_id')
-                ->onchange('onStatusChange()')
-                ->label('status')
-                ->addOption(trans('texts.unpaid'), INVOICE_STATUS_UNPAID)
-                ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID)
-                ->addOption(trans('texts.all'), 'false') !!}
+            {!! Former::select('status_id')
+                    ->onchange('onStatusChange()')
+                    ->label('status')
+                    ->addOption(trans('texts.unpaid'), INVOICE_STATUS_UNPAID)
+                    ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID)
+                    ->addOption(trans('texts.all'), 'false') !!}
 
-        &nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
 
-        {{ trans('texts.date_range') }}
+            {{ trans('texts.date_range') }}
 
-        &nbsp;&nbsp;
+            &nbsp;&nbsp;
 
-        <span id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
-            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-            <span></span> <b class="caret"></b>
-        </span>
+            <span id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
+                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                <span></span> <b class="caret"></b>
+            </span>
 
-        <div style="display:none">
-            {!! Former::text('start_date') !!}
-            {!! Former::text('end_date') !!}
+            <div style="display:none">
+                {!! Former::text('start_date') !!}
+                {!! Former::text('end_date') !!}
+            </div>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            @if (empty($extends))
+                {!! Former::checkbox('show_payments')->text('show_payments') !!}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {!! Former::checkbox('show_aging')->text('show_aging') !!}
+            @else
+                {!! Former::checkbox('show_payments')->text('show_payments')->inline() !!}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {!! Former::checkbox('show_aging')->text('show_aging')->inline() !!}
+            @endif
+
+            {!! Former::close() !!}
+
         </div>
 
-        &nbsp;&nbsp;&nbsp;&nbsp;
-
-        {!! Former::checkbox('show_payments')
-                ->text('show_payments') !!}
-
-        &nbsp;&nbsp;&nbsp;&nbsp;
-
-        {!! Former::checkbox('show_aging')
-                ->text('show_aging')!!}
-
-        {!! Former::close() !!}
+        @if (! empty($extends))
+            <div class="pull-right">
+                {!! Button::normal(trans('texts.download') . ' &nbsp; ')
+                        ->withAttributes(['onclick' => 'onDownloadClick()'])
+                        ->appendIcon(Icon::create('download-alt')) !!}
+            </div>
+        @endif
+        &nbsp;
     </div>
 
     @include('invoices.pdf', ['account' => Auth::user()->account])
