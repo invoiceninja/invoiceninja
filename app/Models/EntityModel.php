@@ -190,9 +190,9 @@ class EntityModel extends Eloquent
     {
         return $query->withTrashed()
                       ->where(function ($query) use ($id) {
-                            $query->whereNull('deleted_at')
+                          $query->whereNull('deleted_at')
                                   ->orWhere('id', '=', $id);
-                });
+                      });
     }
 
     /**
@@ -448,5 +448,25 @@ class EntityModel extends Eloquent
         }
 
         return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
+    }
+
+    /**
+      * @param $method
+      * @param $params
+      */
+    public function __call($method, $params)
+    {
+        $entityType = $this->getEntityType();
+        
+        if ($entityType) {
+            $config = implode('.', ['modules.relations.' . $entityType, $method]);
+        
+            if (config()->has($config)) {
+                $function = config()->get($config);
+                return $function($this);
+            }
+        }
+
+        return parent::__call($method, $params);
     }
 }
