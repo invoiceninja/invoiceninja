@@ -28,6 +28,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
     Route::get('client/payment_methods', 'ClientPortalController@paymentMethods');
+    Route::get('client/statement', 'ClientPortalController@statement');
     Route::post('client/payment_methods/verify', 'ClientPortalController@verifyPaymentMethod');
     Route::post('client/payment_methods/default', 'ClientPortalController@setDefaultPaymentMethod');
     Route::post('client/payment_methods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');

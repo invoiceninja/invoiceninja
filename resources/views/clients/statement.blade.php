@@ -1,4 +1,4 @@
-@extends('header')
+@extends(! empty($extends) ? $extends : 'header')
 
 @section('head')
     @parent
@@ -130,21 +130,23 @@
 
 @section('content')
 
-    <div class="pull-right">
-        {!! Button::normal(trans('texts.download'))
-                ->withAttributes(['onclick' => 'onDownloadClick()'])
-                ->appendIcon(Icon::create('download-alt')) !!}
-        {!! Button::primary(trans('texts.view_client'))
-                ->asLinkTo($client->present()->url) !!}
-    </div>
+    @if (empty($extends))
+        <div class="pull-right">
+            {!! Button::normal(trans('texts.download'))
+                    ->withAttributes(['onclick' => 'onDownloadClick()'])
+                    ->appendIcon(Icon::create('download-alt')) !!}
+            {!! Button::primary(trans('texts.view_client'))
+                    ->asLinkTo($client->present()->url) !!}
+        </div>
 
-    <ol class="breadcrumb pull-left">
-      <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
-      <li class='active'>{{ $client->getDisplayName() }}</li>
-    </ol>
+        <ol class="breadcrumb pull-left">
+          <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
+          <li class='active'>{{ $client->getDisplayName() }}</li>
+        </ol>
 
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    @endif
 
     <div class="well" style="background: #eeeeee">
         {!! Former::inline_open()->onchange('refreshData()') !!}
@@ -189,6 +191,6 @@
         {!! Former::close() !!}
     </div>
 
-    @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
+    @include('invoices.pdf', ['account' => Auth::user()->account])
 
 @stop
