@@ -2842,7 +2842,8 @@ $LANG = array(
     'show_payments' => 'Show Payments',
     'show_aging' => 'Show Aging',
     'reference' => 'Reference',
-
+    'amount_paid' => 'Amount Paid',
+    
 );
 
 return $LANG;

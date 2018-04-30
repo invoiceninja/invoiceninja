@@ -164,6 +164,7 @@ function GetPdfMake(invoice, javascript, callback) {
     // support setting noWrap as a style
     dd.styles.noWrap = {'noWrap': true};
     dd.styles.discount = {'alignment': 'right'};
+    dd.styles.alignRight = {'alignment': 'right'};
 
     // set page size
     dd.pageSize = invoice.account.page_size;
@@ -425,6 +426,7 @@ NINJA.statementDetails = function(invoice) {
 
     var table = {
         "style": "invoiceLineItemsTable",
+        "margin": [0, 20, 0, 16],
         "table": {
             "headerRows": 1,
             "widths": false,
@@ -441,11 +443,41 @@ NINJA.statementDetails = function(invoice) {
         }
     };
 
+    var subtotals =   {
+        "columns": [
+            {
+                "text": " ",
+                "width": "60%",
+            },
+            {
+                "table": {
+                    "widths": [
+                        "*",
+                        "40%"
+                    ],
+                    "body": false,
+                },
+                "margin": [0, 0, 0, 16],
+                "layout": {
+                    "hLineWidth": "$none",
+                    "vLineWidth": "$none",
+                    "paddingLeft": "$amount:34",
+                    "paddingRight": "$amount:8",
+                    "paddingTop": "$amount:4",
+                    "paddingBottom": "$amount:4"
+                }
+            }
+        ]
+    };
+
+
     var hasPayments = false;
     var hasAging = false;
+    var paymentTotal = 0;
     for (var i = 0; i < invoice.invoice_items.length; i++) {
         var item = invoice.invoice_items[i];
         if (item.invoice_item_type_id == 3) {
+            paymentTotal += item.cost;
             hasPayments = true;
         } else if (item.invoice_item_type_id == 4) {
             hasAging = true;
@@ -457,11 +489,25 @@ NINJA.statementDetails = function(invoice) {
     clone.table.widths = ["22%", "22%", "22%", "17%", "17%"];
     data.stack.push(clone);
 
+    var clone = JSON.parse(JSON.stringify(subtotals));
+    clone.columns[1].table.body = [[
+        { text: invoiceLabels.balance_due, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
+        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
+    ]];
+    data.stack.push(clone);
+
     if (hasPayments) {
         console.log('hasPayments...');
         var clone = JSON.parse(JSON.stringify(table));
         clone.table.body = NINJA.prepareDataTable(NINJA.statementPayments(invoice), 'invoiceItems');
         clone.table.widths = ["22%", "22%", "39%", "17%"];
+        data.stack.push(clone);
+
+        var clone = JSON.parse(JSON.stringify(subtotals));
+        clone.columns[1].table.body = [[
+            { text: invoiceLabels.amount_paid, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
+            { text: formatMoneyInvoice(paymentTotal, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
+        ]];
         data.stack.push(clone);
     }
 
@@ -483,18 +529,19 @@ NINJA.statementInvoices = function(invoice) {
     grid[0].push({text: invoiceLabels.total, style: ['tableHeader', 'totalTableHeader']});
     grid[0].push({text: invoiceLabels.balance, style: ['tableHeader', 'balanceTableHeader']});
 
+    var counter = 0;
     for (var i = 0; i < invoice.invoice_items.length; i++) {
         var item = invoice.invoice_items[i];
         if (item.invoice_item_type_id != 1) {
             continue;
         }
-        var rowStyle = (i % 2 == 0) ? 'odd' : 'even';
+        var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
         grid.push([
             {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle]},
             {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
             {text: item.custom_value2 && item.custom_value2 != '0000-00-00' ? moment(item.custom_value2).format(invoice.date_format) : ' ', style:['dueDate', rowStyle]},
-            {text: formatMoneyInvoice(item.cost, invoice), style:['subtotals', rowStyle]},
-            {text: formatMoneyInvoice(item.qty, invoice), style:['lineTotal', rowStyle]},
+            {text: formatMoneyInvoice(item.notes, invoice), style:['subtotals', rowStyle]},
+            {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle]},
         ]);
     }
 
@@ -510,12 +557,13 @@ NINJA.statementPayments = function(invoice) {
     //grid[0].push({text: invoiceLabels.reference, style: ['tableHeader', 'totalTableHeader']});
     grid[0].push({text: invoiceLabels.amount, style: ['tableHeader', 'balanceTableHeader']});
 
+    var counter = 0;
     for (var i = 0; i < invoice.invoice_items.length; i++) {
         var item = invoice.invoice_items[i];
         if (item.invoice_item_type_id != 3) {
             continue;
         }
-        var rowStyle = (i % 2 == 0) ? 'odd' : 'even';
+        var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
         grid.push([
             {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle]},
             {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
@@ -528,31 +576,30 @@ NINJA.statementPayments = function(invoice) {
     console.log(grid);
     return grid;
 }
-
 NINJA.statementAging = function(invoice) {
-    var grid = [[],[]];
+    var grid = [[]];
 
-    grid[0].push({text: '0 - 30', style: ['tableHeader', 'itemTableHeader']});
-    grid[0].push({text: '30 - 60', style: ['tableHeader', 'invoiceDateTableHeader']});
-    grid[0].push({text: '60 - 90', style: ['tableHeader', 'dueDateTableHeader']});
-    grid[0].push({text: '90 - 120', style: ['tableHeader', 'totalTableHeader']});
-    grid[0].push({text: '120+', style: ['tableHeader', 'balanceTableHeader']});
-    /*
+    grid[0].push({text: '0 - 30', style: ['tableHeader', 'alignRight']});
+    grid[0].push({text: '30 - 60', style: ['tableHeader', 'alignRight']});
+    grid[0].push({text: '60 - 90', style: ['tableHeader', 'alignRight']});
+    grid[0].push({text: '90 - 120', style: ['tableHeader', 'alignRight']});
+    grid[0].push({text: '120+', style: ['tableHeader', 'alignRight']});
+
     for (var i = 0; i < invoice.invoice_items.length; i++) {
         var item = invoice.invoice_items[i];
         if (item.invoice_item_type_id != 4) {
             continue;
         }
-        console.log(item);
-        var rowStyle = (i % 2 == 0) ? 'odd' : 'even';
-        grid[1].push(
-            {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle]},
-        );
+        grid.push([
+            {text: formatMoneyInvoice(item.product_key, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.notes, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.custom_value1, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.custom_value1, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.cost, invoice), style:['subtotals', 'odd']},
+        ]);
     }
-    console.log(grid);
-    */
-    return grid;
 
+    return grid;
 }
 
 NINJA.signature = function(invoice) {

@@ -70,8 +70,9 @@ class GenerateStatementData
             $item->product_key = $invoice->invoice_number;
             $item->custom_value1 = $invoice->invoice_date;
             $item->custom_value2 = $invoice->due_date;
-            $item->cost = $invoice->amount;
-            $item->qty = $invoice->balance;
+            $item->notes = $invoice->amount;
+            $item->cost = $invoice->balance;
+            $item->qty = 1;
             $item->invoice_item_type_id = 1;
             $data->push($item);
         }

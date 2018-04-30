@@ -341,6 +341,7 @@ trait PresentsInvoice
             'payment_date',
             'reference',
             'amount',
+            'amount_paid',
         ];
 
         foreach ($fields as $field) {
