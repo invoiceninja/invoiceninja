@@ -9,10 +9,11 @@ use App\Models\Eloquent;
 
 class GenerateStatementData
 {
-    public function __construct($client, $options)
+    public function __construct($client, $options, $contact = false)
     {
         $this->client = $client;
         $this->options = $options;
+        $this->contact = $contact;
     }
 
     /**
@@ -23,9 +24,11 @@ class GenerateStatementData
     public function handle()
     {
         $client = $this->client;
+        $client->load('contacts');
         $account = $client->account;
-
-        $invoice = $account->createInvoice(ENTITY_INVOICE);
+        
+        $invoice = new Invoice();
+        $invoice->account = $account;
         $invoice->client = $client;
         $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
 
@@ -42,8 +45,7 @@ class GenerateStatementData
     {
         $statusId = intval($this->options['status_id']);
 
-        $invoices = Invoice::scope()
-            ->with(['client'])
+        $invoices = Invoice::with(['client'])
             ->invoices()
             ->whereClientId($this->client->id)
             ->whereIsPublic(true)
@@ -59,6 +61,12 @@ class GenerateStatementData
         if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
             $invoices->where('invoice_date', '>=', $this->options['start_date'])
                     ->where('invoice_date', '<=', $this->options['end_date']);
+        }
+
+        if ($this->contact) {
+            $invoices->whereHas('invitations', function ($query) {
+                $query->where('contact_id', $this->contact->id);
+            });
         }
 
         $invoices = $invoices->get();
@@ -87,8 +95,7 @@ class GenerateStatementData
 
     private function getPayments()
     {
-        $payments = Payment::scope()
-            ->with('invoice', 'payment_type')
+        $payments = Payment::with('invoice', 'payment_type')
             ->withArchived()
             ->whereClientId($this->client->id)
             ->where('payment_date', '>=', $this->options['start_date'])

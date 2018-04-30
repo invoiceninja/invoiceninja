@@ -112,7 +112,7 @@ class EntityModel extends Eloquent
             return $className::scope($publicId)->withTrashed()->value('id');
         } else {
             return $className::scope($publicId)->value('id');
-        }        
+        }
     }
 
     /**

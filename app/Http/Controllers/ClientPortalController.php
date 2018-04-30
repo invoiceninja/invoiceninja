@@ -17,6 +17,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\PaymentService;
+use App\Jobs\Client\GenerateStatementData;
 use Auth;
 use Barracuda\ArchiveStream\ZipArchive;
 use Cache;
@@ -1025,7 +1026,6 @@ class ClientPortalController extends BaseController
         $statusId = request()->status_id;
         $startDate = request()->start_date;
         $endDate = request()->end_date;
-        $account = auth()->user()->account;
 
         if (! $startDate) {
             $startDate = Utils::today(false)->modify('-6 month')->format('Y-m-d');
@@ -1033,7 +1033,7 @@ class ClientPortalController extends BaseController
         }
 
         if (request()->json) {
-            return dispatch(new GenerateStatementData($client, request()->all()));
+            return dispatch(new GenerateStatementData($client, request()->all(), $contact));
         }
 
         $data = [
