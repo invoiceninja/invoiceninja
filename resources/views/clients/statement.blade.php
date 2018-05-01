@@ -37,6 +37,8 @@
             if (isStorageSupported()) {
 				var lastRange = localStorage.getItem('last:statement_range');
                 var lastStatusId = localStorage.getItem('last:statement_status_id');
+                var lastShowPayments = localStorage.getItem('last:statement_show_payments');
+                var lastShowAging = localStorage.getItem('last:statement_show_aging');
 				lastRange = dateRanges[lastRange];
 				if (lastRange) {
 					statementStartDate = lastRange[0];
@@ -44,6 +46,12 @@
 				}
                 if (lastStatusId) {
                     $('#status_id').val(lastStatusId);
+                }
+                if (lastShowPayments) {
+                    $('#show_payments').prop('checked', true);
+                }
+                if (lastShowAging) {
+                    $('#show_aging').prop('checked', true);
                 }
 			}
 
@@ -100,11 +108,11 @@
                 invoice = currentInvoice = JSON.parse(response);
                 refreshPDF();
             });
-        }
 
-        function onStatusChange() {
             if (isStorageSupported()) {
                 localStorage.setItem('last:statement_status_id', $('#status_id').val());
+                localStorage.setItem('last:statement_show_payments', $('#show_payments').is(':checked') ? '1' : '');
+                localStorage.setItem('last:statement_show_aging', $('#show_aging').is(':checked') ? '1' : '');
             }
         }
 
@@ -146,11 +154,10 @@
             &nbsp;&nbsp;
 
             {!! Former::select('status_id')
-                    ->onchange('onStatusChange()')
                     ->label('status')
+                    ->addOption(trans('texts.all'), 'false')
                     ->addOption(trans('texts.unpaid'), INVOICE_STATUS_UNPAID)
-                    ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID)
-                    ->addOption(trans('texts.all'), 'false') !!}
+                    ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID) !!}
 
             &nbsp;&nbsp;&nbsp;&nbsp;
 
