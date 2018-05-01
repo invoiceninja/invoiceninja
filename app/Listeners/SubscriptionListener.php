@@ -267,8 +267,6 @@ class SubscriptionListener
             $jsonData['client_name'] = $entity->client->getDisplayName();
         }
 
-        
-
         foreach ($subscriptions as $subscription) {
             switch ($subscription->format) {
                 case SUBSCRIPTION_FORMAT_JSON:
