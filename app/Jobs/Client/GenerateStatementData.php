@@ -26,7 +26,7 @@ class GenerateStatementData
         $client = $this->client;
         $client->load('contacts');
         $account = $client->account;
-        
+
         $invoice = new Invoice();
         $invoice->account = $account;
         $invoice->client = $client;
@@ -35,7 +35,8 @@ class GenerateStatementData
         $invoice->invoice_items = $this->getInvoices();
 
         if ($this->options['show_payments']) {
-            $invoice->invoice_items = $invoice->invoice_items->merge($this->getPayments());
+            $payments = $this->getPayments($invoice->invoice_items);
+            $invoice->invoice_items = $invoice->invoice_items->merge($payments);
         }
 
         return json_encode($invoice);
@@ -75,6 +76,7 @@ class GenerateStatementData
         for ($i=0; $i<$invoices->count(); $i++) {
             $invoice = $invoices[$i];
             $item = new InvoiceItem();
+            $item->id = $invoice->id;
             $item->product_key = $invoice->invoice_number;
             $item->custom_value1 = $invoice->invoice_date;
             $item->custom_value2 = $invoice->due_date;
@@ -93,13 +95,17 @@ class GenerateStatementData
         return $data;
     }
 
-    private function getPayments()
+    private function getPayments($invoices)
     {
         $payments = Payment::with('invoice', 'payment_type')
             ->withArchived()
             ->whereClientId($this->client->id)
             ->where('payment_date', '>=', $this->options['start_date'])
             ->where('payment_date', '<=', $this->options['end_date']);
+
+        if ($this->contact) {
+            $payments->whereIn('invoice_id', $invoices->pluck('id'));
+        }
 
         $payments = $payments->get();
         $data = collect();
@@ -109,7 +115,7 @@ class GenerateStatementData
             $item = new InvoiceItem();
             $item->product_key = $payment->invoice->invoice_number;
             $item->custom_value1 = $payment->payment_date;
-            $item->custom_value2 = $payment->payment_type->name;
+            $item->custom_value2 = $payment->present()->payment_type;
             $item->cost = $payment->getCompletedAmount();
             $item->invoice_item_type_id = 3;
             $data->push($item);
