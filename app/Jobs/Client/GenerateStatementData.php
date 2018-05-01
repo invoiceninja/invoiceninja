@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Client;
 
+use Utils;
 use App\Models\InvoiceItem;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -25,12 +26,14 @@ class GenerateStatementData
     {
         $client = $this->client;
         $client->load('contacts');
+
         $account = $client->account;
+        $account->load(['date_format', 'datetime_format']);
 
         $invoice = new Invoice();
+        $invoice->invoice_date = Utils::today();
         $invoice->account = $account;
         $invoice->client = $client;
-        $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
 
         $invoice->invoice_items = $this->getInvoices();
 
@@ -38,6 +41,8 @@ class GenerateStatementData
             $payments = $this->getPayments($invoice->invoice_items);
             $invoice->invoice_items = $invoice->invoice_items->merge($payments);
         }
+
+        $invoice->hidePrivateFields();
 
         return json_encode($invoice);
     }
@@ -100,6 +105,7 @@ class GenerateStatementData
         $payments = Payment::with('invoice', 'payment_type')
             ->withArchived()
             ->whereClientId($this->client->id)
+            //->excludeFailed()
             ->where('payment_date', '>=', $this->options['start_date'])
             ->where('payment_date', '<=', $this->options['end_date']);
 
