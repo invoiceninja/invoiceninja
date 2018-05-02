@@ -14,7 +14,10 @@
 
     <script>
 
-        var invoiceDesign = JSON.stringify({!! Utils::getFromCache($account->invoice_design_id ?: 1, 'invoiceDesigns')->pdfmake  !!});
+        var invoiceDesign = JSON.stringify({!!
+            //Utils::getFromCache($account->invoice_design_id ?: 1, 'invoiceDesigns')->pdfmake
+            Utils::getFromCache(1, 'invoiceDesigns')->pdfmake
+        !!});
         var invoiceFonts = {!! Cache::get('fonts') !!};
 
         var statementStartDate = moment("{{ $startDate }}");

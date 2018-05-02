@@ -492,12 +492,11 @@ NINJA.statementDetails = function(invoice) {
     var clone = JSON.parse(JSON.stringify(subtotals));
     clone.columns[1].table.body = [[
         { text: invoiceLabels.balance_due, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
-        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
+        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'subtotalsBalanceDue', 'noWrap'] }
     ]];
     data.stack.push(clone);
 
     if (hasPayments) {
-        console.log('hasPayments...');
         var clone = JSON.parse(JSON.stringify(table));
         clone.table.body = NINJA.prepareDataTable(NINJA.statementPayments(invoice), 'invoiceItems');
         clone.table.widths = ["22%", "22%", "39%", "17%"];
@@ -506,7 +505,7 @@ NINJA.statementDetails = function(invoice) {
         var clone = JSON.parse(JSON.stringify(subtotals));
         clone.columns[1].table.body = [[
             { text: invoiceLabels.amount_paid, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
-            { text: formatMoneyInvoice(paymentTotal, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
+            { text: formatMoneyInvoice(paymentTotal, invoice), style: ['subtotals', 'subtotalsBalanceDue', 'noWrap'] }
         ]];
         data.stack.push(clone);
     }
@@ -523,11 +522,11 @@ NINJA.statementDetails = function(invoice) {
 
 NINJA.statementInvoices = function(invoice) {
     var grid = [[]];
-    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader']});
+    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader', 'firstColumn']});
     grid[0].push({text: invoiceLabels.invoice_date, style: ['tableHeader', 'invoiceDateTableHeader']});
     grid[0].push({text: invoiceLabels.due_date, style: ['tableHeader', 'dueDateTableHeader']});
     grid[0].push({text: invoiceLabels.total, style: ['tableHeader', 'totalTableHeader']});
-    grid[0].push({text: invoiceLabels.balance, style: ['tableHeader', 'balanceTableHeader']});
+    grid[0].push({text: invoiceLabels.balance, style: ['tableHeader', 'balanceTableHeader', 'lastColumn']});
 
     var counter = 0;
     for (var i = 0; i < invoice.invoice_items.length; i++) {
@@ -537,11 +536,11 @@ NINJA.statementInvoices = function(invoice) {
         }
         var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
         grid.push([
-            {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle]},
+            {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle, 'firstColumn']},
             {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['invoiceDate', rowStyle]},
             {text: item.custom_value2 && item.custom_value2 != '0000-00-00' ? moment(item.custom_value2).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['dueDate', rowStyle]},
             {text: formatMoneyInvoice(item.notes, invoice), style:['subtotals', rowStyle]},
-            {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle]},
+            {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle, 'lastColumn']},
         ]);
     }
 
@@ -551,11 +550,11 @@ NINJA.statementInvoices = function(invoice) {
 NINJA.statementPayments = function(invoice) {
     var grid = [[]];
 
-    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader']});
+    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader', 'firstColumn']});
     grid[0].push({text: invoiceLabels.payment_date, style: ['tableHeader', 'invoiceDateTableHeader']});
     grid[0].push({text: invoiceLabels.method, style: ['tableHeader', 'dueDateTableHeader']});
     //grid[0].push({text: invoiceLabels.reference, style: ['tableHeader', 'totalTableHeader']});
-    grid[0].push({text: invoiceLabels.amount, style: ['tableHeader', 'balanceTableHeader']});
+    grid[0].push({text: invoiceLabels.amount, style: ['tableHeader', 'balanceTableHeader', 'lastColumn']});
 
     var counter = 0;
     for (var i = 0; i < invoice.invoice_items.length; i++) {
@@ -565,25 +564,24 @@ NINJA.statementPayments = function(invoice) {
         }
         var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
         grid.push([
-            {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle]},
+            {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle, 'firstColumn']},
             {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['invoiceDate', rowStyle]},
             {text: item.custom_value2 ? item.custom_value2 : ' ', style:['dueDate', rowStyle]},
             //{text: item.transaction_reference, style:['subtotals', rowStyle]},
-            {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle]},
+            {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle, 'lastColumn']},
         ]);
     }
 
-    console.log(grid);
     return grid;
 }
 NINJA.statementAging = function(invoice) {
     var grid = [[]];
 
-    grid[0].push({text: '0 - 30', style: ['tableHeader', 'alignRight']});
+    grid[0].push({text: '0 - 30', style: ['tableHeader', 'alignRight', 'firstColumn']});
     grid[0].push({text: '30 - 60', style: ['tableHeader', 'alignRight']});
     grid[0].push({text: '60 - 90', style: ['tableHeader', 'alignRight']});
     grid[0].push({text: '90 - 120', style: ['tableHeader', 'alignRight']});
-    grid[0].push({text: '120+', style: ['tableHeader', 'alignRight']});
+    grid[0].push({text: '120+', style: ['tableHeader', 'alignRight', 'lastColumn']});
 
     for (var i = 0; i < invoice.invoice_items.length; i++) {
         var item = invoice.invoice_items[i];
@@ -591,11 +589,11 @@ NINJA.statementAging = function(invoice) {
             continue;
         }
         grid.push([
-            {text: formatMoneyInvoice(item.product_key, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.product_key, invoice), style:['subtotals', 'odd', 'firstColumn']},
             {text: formatMoneyInvoice(item.notes, invoice), style:['subtotals', 'odd']},
             {text: formatMoneyInvoice(item.custom_value1, invoice), style:['subtotals', 'odd']},
             {text: formatMoneyInvoice(item.custom_value1, invoice), style:['subtotals', 'odd']},
-            {text: formatMoneyInvoice(item.cost, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.cost, invoice), style:['subtotals', 'odd', 'lastColumn']},
         ]);
     }
 
