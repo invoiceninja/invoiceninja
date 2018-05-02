@@ -57,7 +57,6 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 ## Third Party Developers
 * [Some Techie](https://www.sometechie.com/customize-invoice-ninja/)
-* [theDevelopers](https://www.thedevelopers.ro/customisation-request-invoiceninja)
 
 ## Contributing
 All contributors are welcome!  
