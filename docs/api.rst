@@ -19,39 +19,39 @@ Here’s an example of reading the list of clients using cURL from the command l
 
 .. code-block:: shell
 
-  curl -X GET ninja.test/api/v1/clients -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients" -H "X-Ninja-Token: TOKEN"
 
 For invoices, quotes, tasks and payments simply change the object type.
 
 .. code-block:: shell
 
-  curl -X GET ninja.test/api/v1/invoices -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/invoices" -H "X-Ninja-Token: TOKEN"
 
 You can search clients by their email address or id number and invoices by their invoice number.
 
 .. code-block:: shell
 
-  curl -X GET ninja.test/api/v1/clients?email=<value> -H "X-Ninja-Token: TOKEN"
-  curl -X GET ninja.test/api/v1/clients?id_number=<value> -H "X-Ninja-Token: TOKEN"
-  curl -X GET ninja.test/api/v1/invoices?invoice_number=<value> -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients?email=<value>" -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients?id_number=<value>" -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/invoices?invoice_number=<value>" -H "X-Ninja-Token: TOKEN"
 
 To load a single record specify the Id in the URL.
 
 .. code-block:: shell
 
-  curl -X GET ninja.test/api/v1/invoices/1 -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/invoices/1" -H "X-Ninja-Token: TOKEN"
 
 You can specify additional relationships to load using the ``include`` parameter.
 
 .. code-block:: shell
 
-  curl -X GET ninja.test/api/v1/clients/1?include=invoices.invitations -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/clients/1?include=invoices.invitations" -H "X-Ninja-Token: TOKEN"
 
 You can download a PDF using the following URL
 
 .. code-block:: shell
 
-  curl -X GET ninja.test/api/v1/download/1 -H "X-Ninja-Token: TOKEN"
+  curl -X GET "ninja.test/api/v1/download/1" -H "X-Ninja-Token: TOKEN"
 
 Optional Settings
 """""""""""""""""
@@ -74,14 +74,14 @@ Here’s an example of creating a client. Note that email address is a property 
 
 .. code-block:: shell
 
-  curl -X POST ninja.test/api/v1/clients -H "Content-Type:application/json" \
+  curl -X POST "ninja.test/api/v1/clients" -H "Content-Type:application/json" \
     -d '{"name":"Client","contact":{"email":"test@example.com"}}' -H "X-Ninja-Token: TOKEN"
 
 You can also update a client by specifying a value for ‘id’. Next, here’s an example of creating an invoice.
 
 .. code-block:: shell
 
-  curl -X POST ninja.test/api/v1/invoices -H "Content-Type:application/json" \
+  curl -X POST "ninja.test/api/v1/invoices" -H "Content-Type:application/json" \
     -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}' \
     -H "X-Ninja-Token: TOKEN"
 
@@ -106,7 +106,7 @@ Updating Data
 
 .. code-block:: shell
 
-  curl -X PUT ninja.test/api/v1/clients/1 -H "Content-Type:application/json" \
+  curl -X PUT 'ninja.test/api/v1/clients/1" -H "Content-Type:application/json" \
     -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}' \
     -H "X-Ninja-Token: TOKEN"
 
@@ -114,7 +114,7 @@ You can archive, delete or restore an entity by setting ``action`` in the reques
 
 .. code-block:: shell
 
-  curl -X PUT ninja.test/api/v1/invoices/1?action=archive \
+  curl -X PUT "ninja.test/api/v1/invoices/1?action=archive" \
     -H "X-Ninja-Token: TOKEN"
 
 .. TIP:: For invoices use `mark_sent` to manually mark the invoice as sent
@@ -126,5 +126,5 @@ To email an invoice use the email_invoice command passing the id of the invoice.
 
 .. code-block:: shell
 
-  curl -X POST ninja.test/api/v1/email_invoice -d '{"id":1}' \
+  curl -X POST "ninja.test/api/v1/email_invoice" -d '{"id":1}' \
     -H "Content-Type:application/json" -H "X-Ninja-Token: TOKEN"
