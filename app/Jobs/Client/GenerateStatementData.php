@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Client;
 
+use Utils;
 use App\Models\InvoiceItem;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -9,10 +10,11 @@ use App\Models\Eloquent;
 
 class GenerateStatementData
 {
-    public function __construct($client, $options)
+    public function __construct($client, $options, $contact = false)
     {
         $this->client = $client;
         $this->options = $options;
+        $this->contact = $contact;
     }
 
     /**
@@ -23,17 +25,24 @@ class GenerateStatementData
     public function handle()
     {
         $client = $this->client;
-        $account = $client->account;
+        $client->load('contacts');
 
-        $invoice = $account->createInvoice(ENTITY_INVOICE);
+        $account = $client->account;
+        $account->load(['date_format', 'datetime_format']);
+
+        $invoice = new Invoice();
+        $invoice->invoice_date = Utils::today();
+        $invoice->account = $account;
         $invoice->client = $client;
-        $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
 
         $invoice->invoice_items = $this->getInvoices();
 
         if ($this->options['show_payments']) {
-            $invoice->invoice_items = $invoice->invoice_items->merge($this->getPayments());
+            $payments = $this->getPayments($invoice->invoice_items);
+            $invoice->invoice_items = $invoice->invoice_items->merge($payments);
         }
+
+        $invoice->hidePrivateFields();
 
         return json_encode($invoice);
     }
@@ -42,8 +51,7 @@ class GenerateStatementData
     {
         $statusId = intval($this->options['status_id']);
 
-        $invoices = Invoice::scope()
-            ->with(['client'])
+        $invoices = Invoice::with(['client'])
             ->invoices()
             ->whereClientId($this->client->id)
             ->whereIsPublic(true)
@@ -61,12 +69,19 @@ class GenerateStatementData
                     ->where('invoice_date', '<=', $this->options['end_date']);
         }
 
+        if ($this->contact) {
+            $invoices->whereHas('invitations', function ($query) {
+                $query->where('contact_id', $this->contact->id);
+            });
+        }
+
         $invoices = $invoices->get();
         $data = collect();
 
         for ($i=0; $i<$invoices->count(); $i++) {
             $invoice = $invoices[$i];
             $item = new InvoiceItem();
+            $item->id = $invoice->id;
             $item->product_key = $invoice->invoice_number;
             $item->custom_value1 = $invoice->invoice_date;
             $item->custom_value2 = $invoice->due_date;
@@ -85,14 +100,18 @@ class GenerateStatementData
         return $data;
     }
 
-    private function getPayments()
+    private function getPayments($invoices)
     {
-        $payments = Payment::scope()
-            ->with('invoice', 'payment_type')
+        $payments = Payment::with('invoice', 'payment_type')
             ->withArchived()
             ->whereClientId($this->client->id)
+            //->excludeFailed()
             ->where('payment_date', '>=', $this->options['start_date'])
             ->where('payment_date', '<=', $this->options['end_date']);
+
+        if ($this->contact) {
+            $payments->whereIn('invoice_id', $invoices->pluck('id'));
+        }
 
         $payments = $payments->get();
         $data = collect();
@@ -102,7 +121,7 @@ class GenerateStatementData
             $item = new InvoiceItem();
             $item->product_key = $payment->invoice->invoice_number;
             $item->custom_value1 = $payment->payment_date;
-            $item->custom_value2 = $payment->payment_type->name;
+            $item->custom_value2 = $payment->present()->payment_type;
             $item->cost = $payment->getCompletedAmount();
             $item->invoice_item_type_id = 3;
             $data->push($item);

@@ -15,18 +15,12 @@ class ProductWasDeleted extends Event
     public $product;
 
     /**
-      * @var Product
-      */
-    public $input;
-
-    /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product, $input = null)
+    public function __construct(Product $product)
     {
         $this->product = $product;
-        $this->input = $input;
     }
 }

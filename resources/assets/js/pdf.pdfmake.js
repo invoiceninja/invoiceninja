@@ -538,8 +538,8 @@ NINJA.statementInvoices = function(invoice) {
         var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
         grid.push([
             {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle]},
-            {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
-            {text: item.custom_value2 && item.custom_value2 != '0000-00-00' ? moment(item.custom_value2).format(invoice.date_format) : ' ', style:['dueDate', rowStyle]},
+            {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['invoiceDate', rowStyle]},
+            {text: item.custom_value2 && item.custom_value2 != '0000-00-00' ? moment(item.custom_value2).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['dueDate', rowStyle]},
             {text: formatMoneyInvoice(item.notes, invoice), style:['subtotals', rowStyle]},
             {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle]},
         ]);
@@ -566,7 +566,7 @@ NINJA.statementPayments = function(invoice) {
         var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
         grid.push([
             {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle]},
-            {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.date_format) : ' ', style:['invoiceDate', rowStyle]},
+            {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['invoiceDate', rowStyle]},
             {text: item.custom_value2 ? item.custom_value2 : ' ', style:['dueDate', rowStyle]},
             //{text: item.transaction_reference, style:['subtotals', rowStyle]},
             {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle]},
