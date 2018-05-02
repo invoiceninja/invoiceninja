@@ -91,17 +91,4 @@ class Product extends EntityModel
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
-
-    public function __call($method, $parameters)
-    {
-        #i: Convert array to dot notation
-        $config = implode('.', ['modules.relations.product', $method]);
-        #i: Relation method resolver
-        if (config()->has($config)) {
-            $function = config()->get($config);
-            return $function($this);
-        }
-        #i: No relation found, return the call to parent (Eloquent) to handle it.
-        return parent::__call($method, $parameters);
-    }
 }
