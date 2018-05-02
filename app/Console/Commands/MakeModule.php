@@ -13,7 +13,7 @@ class MakeModule extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:make-module {name : Module name} {fields? : Model fields} {--migrate= : Run module migrations; default is FALSE} {--p|--plain : Generate only base module scaffold}';
+    protected $signature = 'ninja:make-module {name : Module name} {fields? : Model fields} {--migrate : Run module migrations} {--p|--plain : Generate only base module scaffold}';
 
     /**
      * The console command description.
@@ -41,7 +41,7 @@ class MakeModule extends Command
     {
         $name = $this->argument('name');
         $fields = $this->argument('fields');
-        $migrate = strtolower($this->option('migrate'));
+        $migrate = $this->option('migrate');
         $plain = $this->option('plain');
         $lower = strtolower($name);
 
@@ -53,7 +53,7 @@ class MakeModule extends Command
         $fillable = implode(',', $fillable);
 
         ProgressBar::setFormatDefinition('custom', '%current%/%max% %elapsed:6s% [%bar%] %percent:3s%% %message%');
-        $progressBar = $this->output->createProgressBar($plain ? 2 : ($migrate === 'true' ? 15 : 14));
+        $progressBar = $this->output->createProgressBar($plain ? 2 : ($migrate ? 15 : 14));
         $progressBar->setFormat('custom');
 
         $this->info("Creating module: {$name}...");
@@ -100,7 +100,8 @@ class MakeModule extends Command
             Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
             $progressBar->advance();
 
-            if ($migrate === 'true') {
+            // if the migrate flag was specified, run the migrations
+            if ($migrate) {
                 $progressBar->setMessage("Running migrations...");
                 Artisan::call('module:migrate', ['module' => $name]);
                 $progressBar->advance();
@@ -126,8 +127,8 @@ class MakeModule extends Command
 
         $this->info('Done');
 
-        if ($migrate === 'false' && (! $plain)) {
-            $this->info("==> Migrations were not run because --migrate=false was specified.");
+        if (!$migrate && !$plain) {
+            $this->info("==> Migrations were not run because the --migrate flag was not specified.");
             $this->info("==> Use the following command to run the migrations:\nphp artisan module:migrate $name");
         }
     }
@@ -143,7 +144,7 @@ class MakeModule extends Command
     protected function getOptions()
     {
         return [
-            ['migrate', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+            ['migrate', null, InputOption::VALUE_NONE, 'Run module migrations.', null],
             ['plain', 'p', InputOption::VALUE_NONE, 'Generate only base module scaffold.', null],
         ];
     }
