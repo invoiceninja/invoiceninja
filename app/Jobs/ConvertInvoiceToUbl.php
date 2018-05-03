@@ -48,7 +48,7 @@ class ConvertInvoiceToUbl extends Job
         $ublInvoice->setAccountingCustomerParty($customerParty);
 
         // line items
-        $invoiceLine = [];
+        $invoiceLines = [];
         $taxable = $invoice->getTaxable();
 
         foreach ($invoice->invoice_items as $index => $item) {
