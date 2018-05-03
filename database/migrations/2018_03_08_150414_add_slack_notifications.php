@@ -20,30 +20,34 @@ class AddSlackNotifications extends Migration
 
         DB::statement('UPDATE activities SET client_id = NULL WHERE client_id = 0');
 
-        Schema::table('activities', function ($table) {
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $table->index('payment_id');
-        });
+        if (! Schema::hasColumn('users', 'slack_webhook_url')) {
+            Schema::table('users', function ($table) {
+                $table->string('slack_webhook_url')->nullable();
+                $table->string('accepted_terms_version')->nullable();
+                $table->timestamp('accepted_terms_timestamp')->nullable();
+                $table->string('accepted_terms_ip')->nullable();
+            });
+        }
 
-        Schema::table('users', function ($table) {
-            $table->string('slack_webhook_url')->nullable();
-            $table->string('accepted_terms_version')->nullable();
-            $table->timestamp('accepted_terms_timestamp')->nullable();
-            $table->string('accepted_terms_ip')->nullable();
-        });
-
-        Schema::table('accounts', function ($table) {
-            $table->boolean('auto_archive_invoice')->default(false)->nullable();
-            $table->boolean('auto_archive_quote')->default(false)->nullable();
-            $table->boolean('auto_email_invoice')->default(true)->nullable();
-            $table->boolean('send_item_details')->default(false)->nullable();
-        });
-
-        Schema::table('expenses', function ($table) {
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-        });
+        if (! Schema::hasColumn('accounts', 'auto_archive_invoice')) {
+            Schema::table('accounts', function ($table) {
+                $table->boolean('auto_archive_invoice')->default(false)->nullable();
+                $table->boolean('auto_archive_quote')->default(false)->nullable();
+                $table->boolean('auto_email_invoice')->default(true)->nullable();
+                $table->boolean('send_item_details')->default(false)->nullable();
+            });
+        }
 
         try {
+            Schema::table('expenses', function ($table) {
+                $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            });
+
+            Schema::table('activities', function ($table) {
+                $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+                $table->index('payment_id');
+            });
+
             Schema::table('companies', function ($table) {
                 $table->dropForeign('companies_payment_id_foreign');
             });
