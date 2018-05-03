@@ -41,6 +41,7 @@
     </div>
 
     @foreach(Module::getOrdered() as $module)
+    @if(View::exists($module->alias . '::accounts.product'))
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
             <div class="panel panel-default">
@@ -56,6 +57,7 @@
             </div>
         </div>
     </div>
+    @endif
     @endforeach
     <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')) !!}
