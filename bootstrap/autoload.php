@@ -1,7 +1,7 @@
 <?php
 
 // https://laracasts.com/discuss/channels/general-discussion/l5-maximum-function-nesting-level-of-100-reached-aborting/
-ini_set('xdebug.max_nesting_level', 512);
+ini_set('xdebug.max_nesting_level', 256);
 
 define('LARAVEL_START', microtime(true));
 
