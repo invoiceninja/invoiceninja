@@ -3,6 +3,8 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Product;
+use App\Events\ProductWasCreated;
+use App\Events\ProductWasUpdated;
 use Utils;
 use DB;
 
@@ -72,6 +74,11 @@ class ProductRepository extends BaseRepository
         $product->qty = isset($data['qty']) ? Utils::parseFloat($data['qty']) : 1;
         $product->save();
 
+        if ($publicId) {
+            event(new ProductWasUpdated($product, $data));
+        } else {
+            event(new ProductWasCreated($product, $data));
+        }
         return $product;
     }
 
