@@ -8,6 +8,8 @@ use App\Models\TaxRate;
 use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
+use App\Events\ProductWasCreated;
+use App\Events\ProductWasUpdated;
 use Auth;
 use Input;
 use Redirect;
