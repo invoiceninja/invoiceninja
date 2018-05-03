@@ -165,8 +165,6 @@ class ProductController extends BaseController
 
         $this->productRepo->save(Input::all(), $product);
 
-        event($productPublicId ? new ProductWasUpdated($product, Input::all()) : new ProductWasCreated($product, Input::all()));
-
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
