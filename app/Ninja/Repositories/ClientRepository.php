@@ -124,6 +124,17 @@ class ClientRepository extends BaseRepository
             }
         }
 
+        // convert shipping country code to id
+        if (isset($data['shipping_country_code'])) {
+            $countryCode = strtolower($data['shipping_country_code']);
+            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
+                return strtolower($item->iso_3166_2) == $countryCode || strtolower($item->iso_3166_3) == $countryCode;
+            })->first();
+            if ($country) {
+                $data['shipping_country_id'] = $country->id;
+            }
+        }
+
         // set default payment terms
         if (auth()->check() && ! isset($data['payment_terms'])) {
             $data['payment_terms'] = auth()->user()->account->payment_terms;

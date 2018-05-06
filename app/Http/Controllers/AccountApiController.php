@@ -36,7 +36,12 @@ class AccountApiController extends BaseAPIController
     {
         $headers = Utils::getApiHeaders();
 
-        return Response::make(RESULT_SUCCESS, 200, $headers);
+        // Legacy support for Zapier 
+        if (request()->v2) {
+            return $this->response(RESULT_SUCCESS);
+        } else {
+            return Response::make(RESULT_SUCCESS, 200, $headers);
+        }
     }
 
     public function register(RegisterRequest $request)
@@ -92,7 +97,7 @@ class AccountApiController extends BaseAPIController
 
         return $this->response($data);
     }
-    
+
     public function show(Request $request)
     {
         $account = Auth::user()->account;
@@ -249,7 +254,7 @@ class AccountApiController extends BaseAPIController
     public function iosSubscriptionStatus() {
 
         //stubbed for iOS callbacks
-        
+
     }
 
 }

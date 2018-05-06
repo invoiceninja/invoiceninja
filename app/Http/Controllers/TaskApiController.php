@@ -110,6 +110,24 @@ class TaskApiController extends BaseAPIController
             $data['client'] = $data['client_id'];
         }
 
+        if (! empty($data['time_details'])) {
+            $timeLog = [];
+            foreach ($data['time_details'] as $detail) {
+                $startTime = strtotime($detail['start_datetime']);
+                $endTime = false;
+                if (! empty($detail['end_datetime'])) {
+                    $endTime = strtotime($detail['end_datetime']);
+                } elseif (! empty($detail['duration_minutes'])) {
+                    $endTime = $startTime + ($detail['duration_minutes'] * 60);
+                }
+                $timeLog[] = [$startTime, $endTime];
+                if (! $endTime) {
+                    $data['is_running'] = true;
+                }
+            }
+            $data['time_log'] = json_encode($timeLog);
+        }
+
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 
@@ -152,9 +170,9 @@ class TaskApiController extends BaseAPIController
         if ($request->action) {
             return $this->handleAction($request);
         }
-        
+
         $task = $request->entity();
-        
+
         $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Input::all());
 
         return $this->itemResponse($task);

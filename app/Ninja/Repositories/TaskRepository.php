@@ -161,14 +161,16 @@ class TaskRepository extends BaseRepository
 
         $task->fill($data);
 
-        if (isset($data['client'])) {
-            $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
-        } elseif (isset($data['client_id'])) {
-            $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
-        }
-
-        if (isset($data['project_id'])) {
-            $task->project_id = $data['project_id'] ? Project::getPrivateId($data['project_id']) : null;
+        if (! empty($data['project_id'])) {
+            $project = Project::scope($data['project_id'])->firstOrFail();
+            $task->project_id = $project->id;
+            $task->client_id = $project->client_id;
+        } else {
+            if (isset($data['client'])) {
+                $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+            } elseif (isset($data['client_id'])) {
+                $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
+            }
         }
 
         if (isset($data['description'])) {

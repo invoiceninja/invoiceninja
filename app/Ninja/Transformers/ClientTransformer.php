@@ -118,6 +118,7 @@ class ClientTransformer extends EntityTransformer
         return array_merge($this->getDefaults($client), [
             'id' => (int) $client->public_id,
             'name' => $client->name,
+            'display_name' => $client->getDisplayName(),
             'balance' => (float) $client->balance,
             'paid_to_date' => (float) $client->paid_to_date,
             'updated_at' => $this->getTimestamp($client->updated_at),
