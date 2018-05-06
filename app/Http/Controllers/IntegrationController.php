@@ -11,7 +11,7 @@ use Utils;
 /**
  * Class IntegrationController.
  */
-class IntegrationController extends Controller
+class IntegrationController extends BaseAPIController
 {
     /**
      * @return \Illuminate\Http\JsonResponse
@@ -33,6 +33,14 @@ class IntegrationController extends Controller
             return Response::json('Failed to create subscription', 500);
         }
 
-        return Response::json(['id' => $subscription->id], 201);
+        return Response::json(['id' => $subscription->public_id], 201);
+    }
+
+    public function unsubscribe($publicId)
+    {
+        $subscription = Subscription::scope($publicId)->firstOrFail();
+        $subscription->delete();
+
+        return $this->response(RESULT_SUCCESS);
     }
 }

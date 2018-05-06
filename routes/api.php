@@ -17,6 +17,7 @@ Route::resource('payments', 'PaymentApiController');
 Route::resource('tasks', 'TaskApiController');
 Route::resource('credits', 'CreditApiController');
 Route::post('hooks', 'IntegrationController@subscribe');
+Route::delete('hooks/{subscription_id}', 'IntegrationController@unsubscribe');
 Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 Route::get('user_accounts', 'AccountApiController@getUserAccounts');
 Route::resource('products', 'ProductApiController');

@@ -340,9 +340,17 @@ class Client extends EntityModel
      */
     public function getPrimaryContact()
     {
-        return $this->contacts()
-                    ->whereIsPrimary(true)
-                    ->first();
+        if (! $this->relationLoaded('contacts')) {
+            $this->load('contacts');
+        }
+
+        foreach ($this->contacts as $contact) {
+            if ($contact->is_primary) {
+                return $contact;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -352,15 +360,9 @@ class Client extends EntityModel
     {
         if ($this->name) {
             return $this->name;
+        } else if ($contact = $this->getPrimaryContact()) {
+            return $contact->getDisplayName();
         }
-
-        if (! $this->contacts->count()) {
-            return '';
-        }
-
-        $contact = $this->contacts[0];
-
-        return $contact->getDisplayName();
     }
 
     /**
