@@ -132,6 +132,7 @@ class InvoiceTransformer extends EntityTransformer
             'custom_text_value2' => $invoice->custom_text_value2,
             'is_quote' => (bool) $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
             'is_public' => (bool) $invoice->is_public,
+            'filename' => $invoice->getFileName(),
         ]);
     }
 }
