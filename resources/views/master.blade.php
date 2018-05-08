@@ -267,9 +267,6 @@
                     "background": "#f1d600"
                 },
             },
-            "cookie": {
-                "domain": "{{ App\Constants\Domain::getCookieDomain(request()->url) }}"
-            },
             "content": {
                 "href": "{{ Utils::isNinja() ? Utils::getPrivacyLink() : (config('ninja.privacy_policy_url') ?: 'https://cookiesandyou.com/' ) }}",
                 "message": {!! json_encode(trans('texts.cookie_message')) !!},
