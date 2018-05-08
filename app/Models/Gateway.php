@@ -48,6 +48,8 @@ class Gateway extends Eloquent
         GATEWAY_AUTHORIZE_NET,
         GATEWAY_MOLLIE,
         GATEWAY_GOCARDLESS,
+        GATEWAY_BITPAY,
+        GATEWAY_DWOLLA,
         GATEWAY_CUSTOM1,
         GATEWAY_CUSTOM2,
         GATEWAY_CUSTOM3,
@@ -60,7 +62,6 @@ class Gateway extends Eloquent
      */
     public static $alternate = [
         GATEWAY_PAYPAL_EXPRESS,
-        GATEWAY_GOCARDLESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
         GATEWAY_CUSTOM1,
