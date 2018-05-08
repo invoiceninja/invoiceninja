@@ -30,17 +30,4 @@ class Domain
     {
         return 'maildelivery@' . static::getDomainFromId($id);
     }
-
-    public static function getCookieDomain($url)
-    {
-        if  (! Utils::isNinjaProd() || Utils::isReseller()) {
-            return '';
-        }
-
-        if (strpos($url, '.services') !== false) {
-            return '.invoice.services';
-        } else {
-            return '.invoiceninja.com';
-        }
-    }
 }
