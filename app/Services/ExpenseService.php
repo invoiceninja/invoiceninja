@@ -96,4 +96,22 @@ class ExpenseService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
+
+    /**
+     * @param $clientPublicId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getDatatableClient($clientPublicId)
+    {
+        $datatable = new ExpenseDatatable(true, true);
+
+        $query = $this->expenseRepo->findClient($clientPublicId);
+
+        if (! Utils::hasPermission('view_all')) {
+            $query->where('expenses.user_id', '=', Auth::user()->id);
+        }
+
+        return $this->datatableService->createDatatable($datatable, $query);
+    }
 }

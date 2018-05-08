@@ -190,6 +190,7 @@
                 'entityType' => ENTITY_EXPENSE,
                 'datatable' => new \App\Ninja\Datatables\ExpenseDatatable(true, true),
                 'vendorId' => $vendor->public_id,
+                'url' => url('api/vendor_expenses/' . $vendor->public_id),
             ])
         </div>
     </div>

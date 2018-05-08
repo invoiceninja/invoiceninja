@@ -283,6 +283,7 @@
                 'entityType' => ENTITY_TASK,
                 'datatable' => new \App\Ninja\Datatables\TaskDatatable(true, true),
                 'clientId' => $client->public_id,
+                'url' => url('api/tasks/' . $client->public_id),
             ])
         </div>
     @endif
@@ -293,6 +294,7 @@
                 'entityType' => ENTITY_EXPENSE,
                 'datatable' => new \App\Ninja\Datatables\ExpenseDatatable(true, true),
                 'clientId' => $client->public_id,
+                'url' => url('api/client_expenses/' . $client->public_id),
             ])
         </div>
     @endif
@@ -303,6 +305,7 @@
                 'entityType' => ENTITY_QUOTE,
                 'datatable' => new \App\Ninja\Datatables\InvoiceDatatable(true, true, ENTITY_QUOTE),
                 'clientId' => $client->public_id,
+                'url' => url('api/quotes/' . $client->public_id),
             ])
         </div>
     @endif
@@ -313,6 +316,7 @@
                 'entityType' => ENTITY_RECURRING_INVOICE,
                 'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
                 'clientId' => $client->public_id,
+                'url' => url('api/recurring_invoices/' . $client->public_id),
             ])
         </div>
     @endif
@@ -322,6 +326,7 @@
                 'entityType' => ENTITY_INVOICE,
                 'datatable' => new \App\Ninja\Datatables\InvoiceDatatable(true, true),
                 'clientId' => $client->public_id,
+                'url' => url('api/invoices/' . $client->public_id),
             ])
         </div>
 
@@ -330,6 +335,7 @@
                 'entityType' => ENTITY_PAYMENT,
                 'datatable' => new \App\Ninja\Datatables\PaymentDatatable(true, true),
                 'clientId' => $client->public_id,
+                'url' => url('api/payments/' . $client->public_id),
             ])
         </div>
 
@@ -339,6 +345,7 @@
                 'entityType' => ENTITY_CREDIT,
                 'datatable' => new \App\Ninja\Datatables\CreditDatatable(true, true),
                 'clientId' => $client->public_id,
+                'url' => url('api/credits/' . $client->public_id),
             ])
         </div>
     @endif

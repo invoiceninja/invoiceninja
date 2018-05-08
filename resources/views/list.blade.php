@@ -131,7 +131,7 @@
 
 {!! Datatable::table()
 	->addColumn(Utils::trans($datatable->columnFields(), $datatable->entityType))
-	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? (isset($projectId) ? ($clientId . '/' . $projectId) : $clientId) : (isset($vendorId) ? $vendorId : ''))))
+	->setUrl(empty($url) ? url('api/' . Utils::pluralizeEntityType($entityType)) : $url)
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
 	->setCustomValues('clientId', isset($clientId) && $clientId && empty($projectId))
 	->setOptions('sPaginationType', 'bootstrap')
