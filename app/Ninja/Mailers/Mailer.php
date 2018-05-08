@@ -80,6 +80,7 @@ class Mailer
                         }
                     }
 
+                    $fromEmail = config('mail.from.address');
                     $app = \App::getInstance();
                     $app->singleton('swift.transport', function ($app) {
                         return new \Illuminate\Mail\TransportManager($app);
