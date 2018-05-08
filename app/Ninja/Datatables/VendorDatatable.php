@@ -72,7 +72,7 @@ class VendorDatatable extends EntityDatatable
             [
                 trans('texts.enter_expense'),
                 function ($model) {
-                    return URL::to("expenses/create/{$model->public_id}");
+                    return URL::to("expenses/create/0/{$model->public_id}");
                 },
                 function ($model) {
                     return Auth::user()->can('create', ENTITY_EXPENSE);

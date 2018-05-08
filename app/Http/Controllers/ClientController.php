@@ -116,7 +116,7 @@ class ClientController extends BaseController
         }
 
         if ($user->can('create', ENTITY_EXPENSE)) {
-            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/'.$client->public_id)];
         }
 
         $token = $client->getGatewayToken();
