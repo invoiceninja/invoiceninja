@@ -27,8 +27,8 @@ $(function() {
     // Ensure terms is checked for sign up form
     @if (Auth::check())
     setSignupEnabled(false);
-    $("#terms_checkbox").change(function() {
-        setSignupEnabled(this.checked);
+    $("#terms_checkbox, #privacy_checkbox").change(function() {
+        setSignupEnabled($('#terms_checkbox').is(':checked') && $('#privacy_checkbox').is(':checked'));
     });
     @endif
 
@@ -87,7 +87,7 @@ function validateSignUp(showError) {
         }
     });
 
-    if (!$('#terms_checkbox').is(':checked')) {
+    if (! $('#terms_checkbox').is(':checked') || ! $('#privacy_checkbox').is(':checked')) {
         isFormValid = false;
     }
 
@@ -194,9 +194,15 @@ function handleSignedUp() {
                     ->value(1)
                     ->text(trans('texts.agree_to_terms', [
                         'terms' => link_to(Utils::getTermsLink(), trans('texts.terms_of_service'), ['target' => '_blank']),
-                        'privacy' => link_to(Utils::getTermsLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
                     ]))
                     ->raw() !!}
+                    {!! Former::checkbox('privacy_checkbox')
+                        ->label(' ')
+                        ->value(1)
+                        ->text(trans('texts.agree_to_terms', [
+                            'terms' => link_to(Utils::getTermsLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
+                        ]))
+                        ->raw() !!}
                 <br/>
             </div>
             <br/>&nbsp;<br/>

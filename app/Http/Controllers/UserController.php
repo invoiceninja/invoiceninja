@@ -399,7 +399,7 @@ class UserController extends BaseController
         $referer = Request::server('HTTP_REFERER');
         $message = '';
 
-        if (request()->accepted_terms) {
+        if (request()->accepted_terms && request()->accepted_privacy) {
             auth()->user()->acceptLatestTerms($ip)->save();
             $message = trans('texts.accepted_terms');
         }
