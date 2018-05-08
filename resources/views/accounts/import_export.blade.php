@@ -75,7 +75,7 @@
                 ->addOption('XLS', 'XLS')
                 ->addOption('JSON', 'JSON')
                 ->style('max-width: 200px')
-                ->help('<br/>' . trans('texts.export_help')) !!}
+                ->help('<br/>' . trans('texts.export_help') . (Utils::isSelfHost() ? '<b>' . trans('texts.selfhost_export_help') . '</b>' : '')) !!}
 
 
         <div id="csvIncludes">

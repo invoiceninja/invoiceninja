@@ -1345,6 +1345,7 @@ $LANG = array(
     'product_key' => 'Product',
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'JSON File',
 
     'view_dashboard' => 'View Dashboard',
