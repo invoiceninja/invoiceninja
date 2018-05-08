@@ -1,5 +1,6 @@
 {!! Former::open('/accept_terms')->id('acceptTermsForm')->rules([
         'accepted_terms' => 'required',
+        'accepted_privacy' => 'required',
     ]) !!}
 
 <div class="modal fade" id="acceptTermsModal" tabindex="-1" role="dialog"
@@ -15,7 +16,9 @@
                 <div class="panel-body">
                     {!! Former::checkbox('accepted_terms')->text(trans('texts.agree_to_terms', [
                         'terms' => link_to(Utils::getTermsLink(), trans('texts.terms_of_service'), ['target' => '_blank']),
-                        'privacy' => link_to(Utils::getPrivacyLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
+                    ]))->raw()->value(1) !!}
+                    {!! Former::checkbox('accepted_privacy')->text(trans('texts.agree_to_terms', [
+                        'terms' => link_to(Utils::getPrivacyLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
                     ]))->raw()->value(1) !!}
                 </div>
             </div>
