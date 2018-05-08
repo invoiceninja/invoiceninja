@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
+use App\Models\Client;
 use Auth;
 use DB;
 use Utils;
@@ -38,6 +39,15 @@ class ExpenseRepository extends BaseRepository
         $vendorId = Vendor::getPrivateId($vendorPublicId);
 
         $query = $this->find()->where('expenses.vendor_id', '=', $vendorId);
+
+        return $query;
+    }
+
+    public function findClient($clientPublicId)
+    {
+        $clientId = Client::getPrivateId($clientPublicId);
+
+        $query = $this->find()->where('expenses.client_id', '=', $clientId);
 
         return $query;
     }

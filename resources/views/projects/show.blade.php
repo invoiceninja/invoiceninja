@@ -126,6 +126,7 @@
                 'datatable' => new \App\Ninja\Datatables\ProjectTaskDatatable(true, true),
                 'projectId' => $project->public_id,
                 'clientId' => $project->client->public_id,
+                'url' => url('api/tasks/' . $project->client->public_id . '/' . $project->public_id),
             ])
         </div>
     </div>

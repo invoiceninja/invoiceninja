@@ -69,6 +69,11 @@ class ExpenseController extends BaseController
         return $this->expenseService->getDatatableVendor($vendorPublicId);
     }
 
+    public function getDatatableClient($clientPublicId = null)
+    {
+        return $this->expenseService->getDatatableClient($clientPublicId);
+    }
+
     public function create(ExpenseRequest $request)
     {
         if ($request->vendor_id != 0) {

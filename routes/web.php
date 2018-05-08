@@ -270,7 +270,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('expenses/create/{vendor_id?}/{client_id?}/{category_id?}', 'ExpenseController@create');
     Route::get('expenses/{expenses}/clone', 'ExpenseController@cloneExpense');
     Route::get('api/expenses', 'ExpenseController@getDatatable');
-    Route::get('api/expenses/{id}', 'ExpenseController@getDatatableVendor');
+    Route::get('api/vendor_expenses/{id}', 'ExpenseController@getDatatableVendor');
+    Route::get('api/client_expenses/{id}', 'ExpenseController@getDatatableClient');
     Route::post('expenses/bulk', 'ExpenseController@bulk');
     Route::get('expense_categories', 'ExpenseCategoryController@index');
     Route::get('api/expense_categories', 'ExpenseCategoryController@getDatatable');
