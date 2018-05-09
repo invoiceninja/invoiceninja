@@ -251,32 +251,6 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
 
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
-    <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
-    <script>
-    window.addEventListener("load", function(){
-        if (! window.cookieconsent) {
-            return;
-        }
-        window.cookieconsent.initialise({
-            "palette": {
-                "popup": {
-                    "background": "#000"
-                },
-                "button": {
-                    "background": "#f1d600"
-                },
-            },
-            "content": {
-                "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url') : 'https://cookiesandyou.com/' }}",
-                "message": {!! json_encode(trans('texts.cookie_message')) !!},
-                "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                "link": {!! json_encode(trans('texts.learn_more')) !!},
-            }
-        })}
-    );
-    </script>
-
     @yield('head')
 
 </head>
