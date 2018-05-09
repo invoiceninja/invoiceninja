@@ -23,8 +23,9 @@ return [
     'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'https://api.fixer.io/latest'),
     'exchange_rates_base' => env('EXCHANGE_RATES_BASE', 'EUR'),
 
-    // privacy policy
-    'privacy_policy_url' => env('PRIVACY_POLICY_URL', ''),
+    // terms and privacy policy
+    'privacy_policy_url' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
+    'terms_of_service_url' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
 
     // Google maps
     'google_maps_enabled' => env('GOOGLE_MAPS_ENABLED', true),

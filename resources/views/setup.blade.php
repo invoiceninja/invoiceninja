@@ -80,7 +80,7 @@ FLUSH PRIVILEGES;</pre>
     </div>
 
 
-    {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>']))->value(1) !!}
+    {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.config('ninja.terms_of_service_url').'" target="_blank">'.trans('texts.terms_of_service').'</a>']))->value(1) !!}
     {!! Former::actions( Button::primary('Submit')->large()->submit() ) !!}
     {!! Former::close() !!}
 
