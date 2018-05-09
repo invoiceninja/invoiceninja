@@ -117,8 +117,20 @@ class TaskApiController extends BaseAPIController
                 $endTime = false;
                 if (! empty($detail['end_datetime'])) {
                     $endTime = strtotime($detail['end_datetime']);
-                } elseif (! empty($detail['duration_seconds'])) {
-                    $endTime = $startTime + $detail['duration_seconds'];
+                } else {
+                    $duration = 0;
+                    if (! empty($detail['duration_seconds'])) {
+                        $duration += $detail['duration_seconds'];
+                    }
+                    if (! empty($detail['duration_minutes'])) {
+                        $duration += $detail['duration_minutes'] * 60;
+                    }
+                    if (! empty($detail['duration_hours'])) {
+                        $duration += $detail['duration_hours'] * 60 * 60;
+                    }
+                    if ($duration) {
+                        $endTime = $startTime + $duration;
+                    }
                 }
                 $timeLog[] = [$startTime, $endTime];
                 if (! $endTime) {
