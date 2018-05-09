@@ -193,14 +193,14 @@ function handleSignedUp() {
                     ->label(' ')
                     ->value(1)
                     ->text(trans('texts.agree_to_terms', [
-                        'terms' => link_to(Utils::getTermsLink(), trans('texts.terms_of_service'), ['target' => '_blank']),
+                        'terms' => link_to(config('ninja.terms_of_service_url'), trans('texts.terms_of_service'), ['target' => '_blank']),
                     ]))
                     ->raw() !!}
                     {!! Former::checkbox('privacy_checkbox')
                         ->label(' ')
                         ->value(1)
                         ->text(trans('texts.agree_to_terms', [
-                            'terms' => link_to(Utils::getTermsLink(), trans('texts.privacy_policy'), ['target' => '_blank']),
+                            'terms' => link_to(config('ninja.privacy_policy_url'), trans('texts.privacy_policy'), ['target' => '_blank']),
                         ]))
                         ->raw() !!}
                 <br/>
