@@ -24,8 +24,15 @@ return [
     'exchange_rates_base' => env('EXCHANGE_RATES_BASE', 'EUR'),
 
     // terms and privacy policy
-    'privacy_policy_url' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
-    'terms_of_service_url' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
+    'terms_of_service_url' => [
+        'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
+        'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
+    ],
+    'privacy_policy_url' => [
+        'hosted' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
+        'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),
+    ],
+
 
     // Google maps
     'google_maps_enabled' => env('GOOGLE_MAPS_ENABLED', true),
