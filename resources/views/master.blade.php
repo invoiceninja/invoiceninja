@@ -268,7 +268,7 @@
                 },
             },
             "content": {
-                "href": "{{ Utils::isNinja() ? Utils::getPrivacyLink() : (config('ninja.privacy_policy_url') ?: 'https://cookiesandyou.com/' ) }}",
+                "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url') : 'https://cookiesandyou.com/' }}",
                 "message": {!! json_encode(trans('texts.cookie_message')) !!},
                 "dismiss": {!! json_encode(trans('texts.got_it')) !!},
                 "link": {!! json_encode(trans('texts.learn_more')) !!},
