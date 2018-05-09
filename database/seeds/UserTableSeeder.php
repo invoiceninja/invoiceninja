@@ -62,6 +62,7 @@ class UserTableSeeder extends Seeder
             'notify_sent' => false,
             'notify_paid' => false,
             'is_admin' => 1,
+            'accepted_terms_version' => NINJA_TERMS_VERSION,
         ]);
 
         $client = Client::create([
