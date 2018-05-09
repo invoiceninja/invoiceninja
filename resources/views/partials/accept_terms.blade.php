@@ -15,10 +15,10 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     {!! Former::checkbox('accepted_terms')->text(trans('texts.agree_to_terms', [
-                        'terms' => link_to(config('ninja.terms_of_service_url'), trans('texts.terms_of_service'), ['target' => '_blank']),
+                        'terms' => link_to(config('ninja.terms_of_service_url.' . (Utils::isSelfHost() ? 'selfhost' : 'hosted')), trans('texts.terms_of_service'), ['target' => '_blank']),
                     ]))->raw()->value(1) !!}
                     {!! Former::checkbox('accepted_privacy')->text(trans('texts.agree_to_terms', [
-                        'terms' => link_to(config('ninja.privacy_policy_url'), trans('texts.privacy_policy'), ['target' => '_blank']),
+                        'terms' => link_to(config('ninja.privacy_policy_url.' . (Utils::isSelfHost() ? 'selfhost' : 'hosted')), trans('texts.privacy_policy'), ['target' => '_blank']),
                     ]))->raw()->value(1) !!}
                 </div>
             </div>
