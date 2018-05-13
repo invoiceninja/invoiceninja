@@ -58,16 +58,14 @@ $(function() {
     }]);
 
     var blockManager = grapesjsEditor.BlockManager;
-
-    var textBlock = blockManager.get('text');
-    textBlock.set('content', {
+    
+    blockManager.get('text').set('content', {
         type: 'text',
         content: 'Insert your text here',
         activeOnRender: 1
     });
 
-    var gridItemsBlock = blockManager.get('grid-items');
-    gridItemsBlock.set('content', '\
+    blockManager.get('grid-items').set('content', '\
     <table>\
         <tr>\
             <td class="card-content">\
@@ -83,8 +81,7 @@ $(function() {
         </tr>\
     </table>');
 
-    var listItemsBlock = blockManager.get('list-items');
-    listItemsBlock.set('content', '\
+    blockManager.get('list-items').set('content', '\
   <table>\
     <tr>\
       <td class="card-content">\
