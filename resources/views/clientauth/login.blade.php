@@ -1,4 +1,4 @@
-@extends('login')
+@extends('client_login')
 
 @section('form')
 
