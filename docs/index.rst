@@ -16,6 +16,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    recurring_invoices
    credits
    quotes
+   proposals
    tasks
    expenses
    vendors

@@ -1280,6 +1280,7 @@ class Utils
             'tasks',
             'expenses',
             'vendors',
+            'proposals',
         ];
 
         if ($path == 'dashboard') {
