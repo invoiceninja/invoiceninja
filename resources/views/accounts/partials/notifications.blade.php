@@ -14,7 +14,7 @@
         {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid'))->value(1) !!}
         {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved'))->value(1) !!}
 
-        @if (true || Auth()->user()->account->users->count() > 1)
+        @if (Auth()->user()->account->hasMultipleUsers())
             <br/>
             {!! Former::radios('only_notify_owned')->radios([
                     trans('texts.all_invoices') => array('name' => 'only_notify_owned', 'value' => 0),
