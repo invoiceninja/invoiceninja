@@ -1092,6 +1092,7 @@ class AccountController extends BaseController
         $user->notify_viewed = Input::get('notify_viewed');
         $user->notify_paid = Input::get('notify_paid');
         $user->notify_approved = Input::get('notify_approved');
+        $user->only_notify_owned = Input::get('only_notify_owned');
         $user->slack_webhook_url = Input::get('slack_webhook_url');
         $user->save();
 
@@ -1235,6 +1236,7 @@ class AccountController extends BaseController
                 $user->notify_viewed = Input::get('notify_viewed');
                 $user->notify_paid = Input::get('notify_paid');
                 $user->notify_approved = Input::get('notify_approved');
+                $user->only_notify_owned = Input::get('only_notify_owned');
             }
 
             if ($user->google_2fa_secret && ! Input::get('enable_two_factor')) {

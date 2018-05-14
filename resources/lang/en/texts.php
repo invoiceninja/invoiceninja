@@ -2844,6 +2844,9 @@ $LANG = array(
     'show_aging' => 'Show Aging',
     'reference' => 'Reference',
     'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
 
 );
 

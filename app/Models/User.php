@@ -478,6 +478,28 @@ class User extends Authenticatable
 
         return $this;
     }
+
+    public function ownsEntity($entity)
+    {
+        return $entity->user_id == $this->id;
+    }
+
+    public function shouldNotify($invoice)
+    {
+        if (! $this->email || ! $this->confirmed) {
+            return false;
+        }
+
+        if ($this->cannot('view', $invoice)) {
+            return false;
+        }
+
+        if ($this->only_notify_owned && ! $this->ownsEntity($invoice)) {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 User::created(function ($user)
