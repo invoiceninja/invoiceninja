@@ -1039,13 +1039,12 @@ ko.bindingHandlers.productTypeahead = {
             display: allBindings.key,
             limit: 50,
             templates: {
-                suggestion: function(item) { return '<div title="'
+                suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
                     + _.escape(item.product_key) + ': '
-                    + item.cost + "\n"
-                    + item.notes.substring(0, 60) + '">'
-                    + _.escape(item.product_key) + '</div>' }
+                    + roundToTwo(item.cost, true) + "<br/>"
+                    + _.escape(item.notes.substring(0, 100)) + '</div>' }
             },
-            source: searchData(allBindings.items, allBindings.key)
+            source: searchData(allBindings.items, allBindings.key, false, 'notes')
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
                 var model = ko.dataFor(this);

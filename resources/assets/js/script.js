@@ -1158,7 +1158,7 @@ function prettyJson(json) {
     });
 }
 
-function searchData(data, key, fuzzy) {
+function searchData(data, key, fuzzy, secondKey) {
     return function findMatches(q, cb) {
     var matches, substringRegex;
     if (fuzzy) {
@@ -1173,8 +1173,9 @@ function searchData(data, key, fuzzy) {
         $.each(data, function(i, obj) {
           if (substrRegex.test(obj[key])) {
             matches.push(obj);
-          }
-        });
+          } else if (secondKey && substrRegex.test(obj[secondKey]))
+            matches.push(obj);
+          });
     }
     cb(matches);
     }
