@@ -46,6 +46,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
+    Route::get('client/{contact_key?}', 'ClientPortalController@dashboard');
 
     Route::get('api/client.quotes', ['as' => 'api.client.quotes', 'uses' => 'ClientPortalController@quoteDatatable']);
     Route::get('api/client.credits', ['as' => 'api.client.credits', 'uses' => 'ClientPortalController@creditDatatable']);
