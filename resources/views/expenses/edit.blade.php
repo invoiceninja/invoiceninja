@@ -115,13 +115,13 @@
     							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                                 ->appendIcon('calendar')
                                 ->addGroupClass('start_date')
-                                ->data_date_start_date($account->formatDate($account->getDateTime())) !!}
+                                ->data_date_start_date($expense ? false : $account->formatDate($account->getDateTime())) !!}
                         {!! Former::text('end_date')
                                 ->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
     							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                                 ->appendIcon('calendar')
                                 ->addGroupClass('end_date')
-                                ->data_date_start_date($account->formatDate($account->getDateTime())) !!}
+                                ->data_date_start_date($expense ? false : $account->formatDate($account->getDateTime())) !!}
 
                     @else
                         @if ((! $expense || ! $expense->transaction_id))
