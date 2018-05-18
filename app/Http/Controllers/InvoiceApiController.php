@@ -77,6 +77,10 @@ class InvoiceApiController extends BaseAPIController
             $invoices->where('is_recurring', '=', request()->is_recurring);
         }
 
+        if (request()->has('invoice_type_id')) {
+            $invoices->where('invoice_type_id', '=', request()->invoice_type_id);
+        }
+
         return $this->listResponse($invoices);
     }
 
