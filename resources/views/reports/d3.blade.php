@@ -125,13 +125,15 @@
         if (currencyId != accountCurrencyId) {
             total = convertCurrency(total, currencyId, accountCurrencyId);
         }
-        client.convertedTotal = total;
-        client.displayName = getClientDisplayName(client);
-        client.displayBalance = +client.balance;
-        client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
-        var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });
-        client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : -1;
-        client.currencyId = currencyId;
+        if (total > 0) {
+            client.convertedTotal = total;
+            client.displayName = getClientDisplayName(client);
+            client.displayBalance = +client.balance;
+            client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
+            var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });
+            client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : -1;
+            client.currencyId = currencyId;
+        }
     });
 
     _.each(invoices, function(invoice) {
@@ -141,12 +143,14 @@
         if (currencyId != accountCurrencyId) {
             total = convertCurrency(total, currencyId, accountCurrencyId);
         }
-        invoice.convertedTotal = total;
-        invoice.displayName = invoice.invoice_number;
-        invoice.displayBalance = +invoice.balance;
-        invoice.displayPercent = (+invoice.amount - +invoice.balance) / +invoice.amount;
-        invoice.displayAge = calculateInvoiceAge(invoice);
-        invoice.currencyId = currencyId;
+        if (total > 0) {
+            invoice.convertedTotal = total;
+            invoice.displayName = invoice.invoice_number;
+            invoice.displayBalance = +invoice.balance;
+            invoice.displayPercent = (+invoice.amount - +invoice.balance) / +invoice.amount;
+            invoice.displayAge = calculateInvoiceAge(invoice);
+            invoice.currencyId = currencyId;
+        }
     });
 
     _.each(products, function(product) {
@@ -156,12 +160,14 @@
         if (currencyId != accountCurrencyId) {
             total = convertCurrency(total, currencyId, accountCurrencyId);
         }
-        product.convertedTotal = total;
-        product.displayName = product.key;
-        product.displayBalance = product.values.amount - product.values.paid;
-        product.displayPercent = (product.values.paid / product.values.amount).toFixed(2);
-        product.displayAge = product.values.age;
-        product.currencyId = currencyId;
+        if (total > 0) {
+            product.convertedTotal = total;
+            product.displayName = product.key;
+            product.displayBalance = product.values.amount - product.values.paid;
+            product.displayPercent = (product.values.paid / product.values.amount).toFixed(2);
+            product.displayAge = product.values.age;
+            product.currencyId = currencyId;
+        }
     });
 
     //console.log(JSON.stringify(clients));
