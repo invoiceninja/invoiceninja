@@ -48,6 +48,25 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
     define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
 
+    $permissionEntities = [
+        ENTITY_PROPOSAL,
+        ENTITY_EXPENSE,
+        ENTITY_PROJECT,
+        ENTITY_VENDOR,
+        ENTITY_PRODUCT,
+        ENTITY_TASK,
+        ENTITY_QUOTE,
+        ENTITY_CREDIT,
+        ENTITY_PAYMENT,
+        ENTITY_CONTACT,
+        ENTITY_INVOICE,
+        ENTITY_CLIENT,
+        ENTITY_RECURRING_INVOICE,
+        'reports',
+    ];
+
+    define('PERMISSION_ENTITIES', json_encode($permissionEntities));
+
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
 
