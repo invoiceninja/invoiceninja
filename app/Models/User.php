@@ -395,7 +395,7 @@ class User extends Authenticatable
      * @return bool|mixed
      */
     public function filterId()
-    {
+    {   //todo permissions
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 

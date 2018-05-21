@@ -24,7 +24,7 @@ class EntityPolicy
             return false;
         }
 
-        return $user->hasPermission('create'.ucfirst($item));
+        return $user->hasPermission('create_' . $item);
     }
 
     /**
@@ -39,7 +39,7 @@ class EntityPolicy
             return false;
         }
 
-        return $user->hasPermission('edit'.ucfirst($item)) || $user->owns($item);
+        return $user->hasPermission('edit_' . $item) || $user->owns($item);
     }
 
     /**
@@ -54,7 +54,7 @@ class EntityPolicy
             return false;
         }
 
-        return $user->hasPermission('view'.ucfirst($item)) || $user->owns($item);
+        return $user->hasPermission('view_' . $item) || $user->owns($item);
     }
 
     /**
@@ -65,7 +65,9 @@ class EntityPolicy
      */
     public static function viewByOwner(User $user, $ownerUserId)
     {
-        return $user->hasPermission('view') || $user->id == $ownerUserId;
+        //todo permissions
+        //return $user->hasPermission('view') || $user->id == $ownerUserId;
+        return $user->id == $ownerUserId;
     }
 
     /**
@@ -76,7 +78,9 @@ class EntityPolicy
      */
     public static function editByOwner(User $user, $ownerUserId)
     {
-        return $user->hasPermission('edit') || $user->id == $ownerUserId;
+        //todo permissions
+        //return $user->hasPermission('edit') || $user->id == $ownerUserId;
+        return $user->id == $ownerUserId;
     }
 
     private static function checkModuleEnabled(User $user, $item)

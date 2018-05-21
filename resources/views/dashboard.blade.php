@@ -370,7 +370,7 @@
     </div>
 </div>
 
-@if (Auth::user()->hasPermission('view_all'))
+@if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-12">
         <div id="progress-div" class="progress">
