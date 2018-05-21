@@ -14,8 +14,6 @@
     {!! Former::populate($user) !!}
     {{ Former::populateField('is_admin', intval($user->is_admin)) }}
     {{ Former::populateField('permissions[create_all]', intval($user->hasPermission('create'))) }}
-    {{ Former::populateField('permissions[view_all]', intval($user->hasPermission('view_all'))) }}
-    {{ Former::populateField('permissions[edit_all]', intval($user->hasPermission('edit_all'))) }}
   @endif
 
   <div style="display:none">
@@ -55,24 +53,16 @@
       ->value(1)
       ->text(trans('texts.administrator'))
       ->help(trans('texts.administrator_help')) !!}
-  {!! Former::checkbox('permissions[create_all]')
-      ->value('create_all')
-      ->label('&nbsp;')
-      ->id('permissions_create_all')
-      ->text(trans('texts.user_create_all'))
-      ->help(trans('texts.create_all_help')) !!}
-  {!! Former::checkbox('permissions[view_all]')
-      ->value('view_all')
-      ->label('&nbsp;')
-      ->id('permissions_view_all')
-      ->text(trans('texts.user_view_all'))
-      ->help(trans('texts.view_all_help')) !!}
-  {!! Former::checkbox('permissions[edit_all]')
-      ->value('edit_all')
-      ->label('&nbsp;')
-      ->id('permissions_edit_all')
-      ->text(trans('texts.user_edit_all'))
-      ->help(trans('texts.edit_all_help')) !!}
+
+  @foreach (json_decode(PERMISSION_ENTITIES,1) as $permissionEntity)
+  {!! Former::checkboxes('permissions[]')
+      ->label(ucfirst($permissionEntity))
+      ->checkboxes([
+      trans('texts.create') => ['id'=> 'permissions[create' . ucfirst($permissionEntity) . ']', 'name' => 'permissions[create' . ucfirst($permissionEntity) . ']', 'value' => 'create' . ucfirst($permissionEntity) . '', in_array('create' . ucfirst($permissionEntity), json_decode($user->permissionsV2,1)) ? 'checked' : '' ],
+      trans('texts.view') => ['id'=> 'permissions[view' . ucfirst($permissionEntity) . ']', 'name' => 'permissions[view' . ucfirst($permissionEntity) . ']', 'value' => 'view' . ucfirst($permissionEntity) . '', ''],
+      trans('texts.edit') => ['id'=> 'permissions[edit' . ucfirst($permissionEntity) . ']', 'name' => 'permissions[edit' . ucfirst($permissionEntity) . ']', 'value' => 'edit' . ucfirst($permissionEntity) . '', ''],
+      ]) !!}
+  @endforeach
 
 </div>
 </div>

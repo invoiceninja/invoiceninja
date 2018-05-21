@@ -162,6 +162,7 @@ class UserController extends BaseController
      */
     public function save($userPublicId = false)
     {
+        dd(Input::all());
         if (! Auth::user()->hasFeature(FEATURE_USERS)) {
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
