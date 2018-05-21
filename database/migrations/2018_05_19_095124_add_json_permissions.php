@@ -19,6 +19,16 @@ class AddJsonPermissions extends Migration
             $user->permissionsV2 = self::returnFormattedPermissions($user->permissions);
             $user->save();
         }
+
+
+        Schema::table('users', function ($table) {
+            $table->dropColumn('permissions');
+        });
+
+        Schema::table('users', function($table)
+        {
+            $table->renameColumn('permissionsV2', 'permissions');
+        });
     }
     /**
      * Reverse the migrations.
@@ -32,7 +42,7 @@ class AddJsonPermissions extends Migration
         });
     }
     /**
-     * Transform permissions to V2
+     * Transform permissions
      *
      * @return json_array
      */
@@ -63,12 +73,42 @@ class AddJsonPermissions extends Migration
             array_push($createPermissionEntities, 'create_'.$entity);
         }
         $returnPermissions = [];
-        if(array_key_exists('create_all', $userPermission))
+        if(array_key_exists('create_all', self::getPermissions($userPermission)))
             $returnPermissions = array_merge($returnPermissions, $createPermissionEntities);
-        if(array_key_exists('edit_all', $userPermission))
+        if(array_key_exists('edit_all',  self::getPermissions($userPermission)))
             $returnPermissions = array_merge($returnPermissions, $editPermissionEntities);
-        if(array_key_exists('view_all', $userPermission))
+        if(array_key_exists('view_all',  self::getPermissions($userPermission)))
             $returnPermissions = array_merge($returnPermissions, $viewPermissionEntities);
         return json_encode($returnPermissions);
     }
+
+
+    /**
+     * Expands the value of the permissions attribute.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    protected function getPermissions($value)
+    {
+        $permissions = [];
+        foreach (static::$all_permissions as $permission => $bitmask) {
+            if (($value & $bitmask) == $bitmask) {
+                $permissions[$permission] = $permission;
+            }
+        }
+
+        return $permissions;
+    }
+
+    /**
+     * @var array
+     */
+    public static $all_permissions = [
+        'create_all' => 0b0001,
+        'view_all' => 0b0010,
+        'edit_all' => 0b0100,
+    ];
+
 }

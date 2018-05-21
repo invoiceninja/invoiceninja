@@ -331,50 +331,7 @@ class User extends Authenticatable
         return Utils::isNinjaProd() && $this->email != $this->getOriginal('email');
     }
 
-     /**
-      * Set the permissions attribute on the model.
-      *
-      * @param  mixed  $value
-      *
-      * @return $this
-      */
-     protected function setPermissionsAttribute($value)
-     {
-         if (empty($value)) {
-             $this->attributes['permissions'] = 0;
-         } else {
-             $bitmask = 0;
-             foreach ($value as $permission) {
-                 if (! $permission) {
-                     continue;
-                 }
-                 $bitmask = $bitmask | static::$all_permissions[$permission];
-             }
 
-             $this->attributes['permissions'] = $bitmask;
-         }
-
-         return $this;
-     }
-
-    /**
-     * Expands the value of the permissions attribute.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    protected function getPermissionsAttribute($value)
-    {
-        $permissions = [];
-        foreach (static::$all_permissions as $permission => $bitmask) {
-            if (($value & $bitmask) == $bitmask) {
-                $permissions[$permission] = $permission;
-            }
-        }
-
-        return $permissions;
-    }
 
     /**
      * Checks to see if the user has the required permission.
