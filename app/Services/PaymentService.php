@@ -174,7 +174,7 @@ class PaymentService extends BaseService
         $datatable = new PaymentDatatable(true, $clientPublicId);
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('viewPayment')) {
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 

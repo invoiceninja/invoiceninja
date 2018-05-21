@@ -176,7 +176,7 @@ class AccountRepository
             $data[$account->present()->customLabel('client2')] = [];
         }
 
-        if ($user->hasPermission('view_all')) {
+        if ($user->hasPermission(['viewClient', 'viewInvoice'], true)) {
             $clients = Client::scope()
                         ->with('contacts', 'invoices')
                         ->withTrashed()

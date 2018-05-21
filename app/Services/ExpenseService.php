@@ -72,7 +72,7 @@ class ExpenseService extends BaseService
     {
         $query = $this->expenseRepo->find($search);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('viewExpense')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -90,7 +90,7 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findVendor($vendorPublicId);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('viewVendor')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -108,7 +108,7 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findClient($clientPublicId);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('viewClient')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 

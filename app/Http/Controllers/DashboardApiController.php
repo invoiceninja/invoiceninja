@@ -18,7 +18,7 @@ class DashboardApiController extends BaseAPIController
     public function index()
     {
         $user = Auth::user();
-        $viewAll = $user->hasPermission('view_all');
+        $viewAll = $user->hasPermission('viewReports');
         $userId = $user->id;
         $accountId = $user->account->id;
         $defaultCurrency = $user->account->currency_id;
