@@ -1,9 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use App\Models\User;
-use \Illuminate\Support\Facades\Log;
 class AddJsonPermissions extends Migration
 {
     /**
