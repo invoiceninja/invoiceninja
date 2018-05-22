@@ -24,7 +24,9 @@ class EntityPolicy
             return false;
         }
 
-        return $user->hasPermission('create_' . $item);
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+
+            return $user->hasPermission('create_' . $entityType);
     }
 
     /**
@@ -39,7 +41,9 @@ class EntityPolicy
             return false;
         }
 
-        return $user->hasPermission('edit_' . $item) || $user->owns($item);
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+
+            return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
     }
 
     /**
@@ -54,7 +58,9 @@ class EntityPolicy
             return false;
         }
 
-        return $user->hasPermission('view_' . $item) || $user->owns($item);
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+
+            return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
     /**
@@ -65,8 +71,6 @@ class EntityPolicy
      */
     public static function viewByOwner(User $user, $ownerUserId)
     {
-        //todo permissions
-        //return $user->hasPermission('view') || $user->id == $ownerUserId;
         return $user->id == $ownerUserId;
     }
 
@@ -78,8 +82,6 @@ class EntityPolicy
      */
     public static function editByOwner(User $user, $ownerUserId)
     {
-        //todo permissions
-        //return $user->hasPermission('edit') || $user->id == $ownerUserId;
         return $user->id == $ownerUserId;
     }
 

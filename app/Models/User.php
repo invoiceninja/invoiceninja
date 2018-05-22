@@ -342,22 +342,6 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function hasPermissionV1($permission, $requireAll = false)
-    {
-        if ($this->is_admin) {
-            return true;
-        } elseif (is_string($permission)) {
-            return ! empty($this->permissions[$permission]);
-        } elseif (is_array($permission)) {
-            if ($requireAll) {
-                return count(array_diff($permission, $this->permissions)) == 0;
-            } else {
-                return count(array_intersect($permission, $this->permissions)) > 0;
-            }
-        }
-
-        return false;
-    }
 
     public function hasPermission($permission, $requireAll = false)
     {
@@ -374,7 +358,7 @@ class User extends Authenticatable
             if ($requireAll)
                 return count(array_intersect($permission, json_decode($this->permissions,1))) == count( $permission );
             else
-                return count(array_intersect($permission, $this->permissions)) > 0;
+                return count(array_intersect($permission, json_decode($this->permissions,1))) > 0;
 
         }
 
