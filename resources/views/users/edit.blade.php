@@ -57,9 +57,9 @@
   {!! Former::checkboxes('permissions[]')
       ->label(ucfirst($permissionEntity))
       ->checkboxes([
-      trans('texts.create') => ['id'=> 'permissions[create_' . $permissionEntity . ']', 'name' => 'permissions[create_' . $permissionEntity . ']', 'value' => 'create_' . $permissionEntity . '', is_array(json_decode($user->permissionsV2,1)) && in_array('create_' . $permissionEntity, json_decode($user->permissionsV2,1), FALSE) ? 'checked' : '' ],
-      trans('texts.view') => ['id'=> 'permissions[view_' . $permissionEntity . ']', 'name' => 'permissions[view_' . $permissionEntity . ']', 'value' => 'view_' . $permissionEntity . '', is_array(json_decode($user->permissionsV2,1)) && in_array('view_' . $permissionEntity, json_decode($user->permissionsV2,1), FALSE) ? 'checked' : ''],
-      trans('texts.edit') => ['id'=> 'permissions[edit_' . $permissionEntity . ']', 'name' => 'permissions[edit_' . $permissionEntity . ']', 'value' => 'edit_' . $permissionEntity . '', is_array(json_decode($user->permissionsV2,1)) && in_array('edit_' . $permissionEntity, json_decode($user->permissionsV2,1), FALSE) ? 'checked' : ''],
+      trans('texts.create') => ['id'=> 'permissions[create_' . $permissionEntity . ']', 'name' => 'permissions[create_' . $permissionEntity . ']', 'value' => 'create_' . $permissionEntity . '', is_array(json_decode($user->permissions,1)) && in_array('create_' . $permissionEntity, json_decode($user->permissions,1), FALSE) ? 'checked' : '' ],
+      trans('texts.view') => ['id'=> 'permissions[view_' . $permissionEntity . ']', 'name' => 'permissions[view_' . $permissionEntity . ']', 'value' => 'view_' . $permissionEntity . '', is_array(json_decode($user->permissions,1)) && in_array('view_' . $permissionEntity, json_decode($user->permissions,1), FALSE) ? 'checked' : ''],
+      trans('texts.edit') => ['id'=> 'permissions[edit_' . $permissionEntity . ']', 'name' => 'permissions[edit_' . $permissionEntity . ']', 'value' => 'edit_' . $permissionEntity . '', is_array(json_decode($user->permissions,1)) && in_array('edit_' . $permissionEntity, json_decode($user->permissions,1), FALSE) ? 'checked' : ''],
       ]) !!}
   @endforeach
 

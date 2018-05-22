@@ -58,7 +58,11 @@ class ClientController extends BaseController
     public function getDatatable()
     {
         $search = Input::get('sSearch');
-        $userId = Auth::user()->filterId();
+
+        if(Auth::user()->hasPermission('view_client'))
+            $userId = false;
+        else
+            $userId = Auth::user()->filterId();
 
         return $this->clientService->getDatatable($search, $userId);
     }

@@ -365,14 +365,14 @@ class User extends Authenticatable
             return true;
         } elseif (is_string($permission)) {
 
-            if( is_array(json_decode($this->permissionsV2,1)) && in_array($permission, json_decode($this->permissionsV2,1)) ) {
+            if( is_array(json_decode($this->permissions,1)) && in_array($permission, json_decode($this->permissions,1)) ) {
                 return true;
             }
 
         } elseif (is_array($permission)) {
 
             if ($requireAll)
-                return count(array_intersect($permission, json_decode($this->permissionsV2,1))) == count( $permission );
+                return count(array_intersect($permission, json_decode($this->permissions,1))) == count( $permission );
             else
                 return count(array_intersect($permission, $this->permissions)) > 0;
 

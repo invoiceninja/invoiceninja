@@ -205,8 +205,7 @@ class UserController extends BaseController
             $user->email = trim(Input::get('email'));
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
                 $user->is_admin = boolval(Input::get('is_admin'));
-                //$user->permissions = Input::get('permissions');
-                $user->permissionsV2 = self::formatUserPermissions(Input::get('permissions'));
+                $user->permissions = self::formatUserPermissions(Input::get('permissions'));
             }
         } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
@@ -224,8 +223,7 @@ class UserController extends BaseController
             $user->public_id = $lastUser->public_id + 1;
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
                 $user->is_admin = boolval(Input::get('is_admin'));
-                //$user->permissions = Input::get('permissions');
-                $user->permissionsV2 = self::formatUserPermissions(Input::get('permissions'));
+                $user->permissions = self::formatUserPermissions(Input::get('permissions'));
             }
         }
 
