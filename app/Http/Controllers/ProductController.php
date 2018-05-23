@@ -49,6 +49,8 @@ class ProductController extends BaseController
      */
     public function index()
     {
+        //parent::checkPermission('view_'.ENTITY_PRODUCT);
+
         return View::make('list_wrapper', [
             'entityType' => ENTITY_PRODUCT,
             'datatable' => new ProductDatatable(),
@@ -84,6 +86,8 @@ class ProductController extends BaseController
      */
     public function edit(ProductRequest $request, $publicId, $clone = false)
     {
+        parent::checkPermission(['view_'.ENTITY_PRODUCT, 'edit_'.ENTITY_PRODUCT]);
+
         $account = Auth::user()->account;
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
@@ -116,6 +120,8 @@ class ProductController extends BaseController
      */
     public function create()
     {
+        parent::checkPermission('create_'.ENTITY_PRODUCT);
+
         $account = Auth::user()->account;
 
         $data = [

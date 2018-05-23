@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Request;
 use Utils;
+use Auth;
 
 class BaseController extends Controller
 {
@@ -66,5 +67,13 @@ class BaseController extends Controller
         echo $contents;
 
         exit;
+    }
+
+    protected function checkPermission($permission, $entity = false)
+    {
+        if(($entity && Auth::user()->owns($entity)) || (Auth::user()->hasPermission($permission)))
+            return true;
+        else
+            return abort(400);
     }
 }

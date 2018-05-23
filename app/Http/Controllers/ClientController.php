@@ -47,6 +47,9 @@ class ClientController extends BaseController
      */
     public function index()
     {
+       // parent::checkPermission('view_'.ENTITY_CLIENT);
+
+
         return View::make('list_wrapper', [
             'entityType' => ENTITY_CLIENT,
             'datatable' => new ClientDatatable(),
@@ -90,6 +93,8 @@ class ClientController extends BaseController
      */
     public function show(ClientRequest $request)
     {
+        parent::checkPermission('view_'.ENTITY_CLIENT, $request->entity());
+
         $client = $request->entity();
         $user = Auth::user();
         $account = $user->account;
@@ -151,6 +156,10 @@ class ClientController extends BaseController
      */
     public function create(ClientRequest $request)
     {
+
+        parent::checkPermission('create_'.ENTITY_CLIENT, $request->entity());
+
+
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients().' clients']);
         }
@@ -176,6 +185,10 @@ class ClientController extends BaseController
      */
     public function edit(ClientRequest $request)
     {
+
+        parent::checkPermission('edit_'.ENTITY_CLIENT, $request->entity());
+
+
         $client = $request->entity();
 
         $data = [

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class EntityPolicy.
@@ -42,7 +43,6 @@ class EntityPolicy
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
-
             return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
     }
 
