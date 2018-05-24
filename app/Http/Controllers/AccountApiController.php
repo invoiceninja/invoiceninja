@@ -36,9 +36,9 @@ class AccountApiController extends BaseAPIController
     {
         $headers = Utils::getApiHeaders();
 
-        // Legacy support for Zapier 
+        // Legacy support for Zapier
         if (request()->v2) {
-            return $this->response(RESULT_SUCCESS);
+            return $this->response(auth()->user()->email);
         } else {
             return Response::make(RESULT_SUCCESS, 200, $headers);
         }
