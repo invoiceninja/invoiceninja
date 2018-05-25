@@ -59,7 +59,6 @@ class EntityPolicy
         }
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
-
             return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
