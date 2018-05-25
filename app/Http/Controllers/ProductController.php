@@ -85,7 +85,8 @@ class ProductController extends BaseController
     public function edit(ProductRequest $request, $publicId, $clone = false)
     {
         Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
-        Auth::user()->can('viewByOwner', [ENTITY_PRODUCT, $request->entity()]);
+        Auth::user()->can('viewByOwner', [ENTITY_PRODUCT, $request->entity()->user_id]);
+        Auth::user()->can('edit', [ENTITY_PRODUCT, $request->entity()->user_id]);
 
         $account = Auth::user()->account;
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
