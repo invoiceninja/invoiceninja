@@ -337,8 +337,7 @@ class User extends Authenticatable
      * Checks to see if the user has the required permission.
      *
      * @param mixed $permission Either a single permission or an array of possible permissions
-     * @param bool True to require all permissions, false to require only one
-     * @param mixed $requireAll
+     * @param mixed $requireAll - True to require all permissions, false to require only one
      *
      * @return bool
      */
