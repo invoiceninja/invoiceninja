@@ -1729,6 +1729,14 @@
 		refreshPDF(true);
 	}
 
+    function showPermissionErrorModal() {
+        swal({!! json_encode(trans('texts.please_register')) !!});
+        swal({!! json_encode(trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))])) !!});
+
+        $(window).scrollTop(0);
+        $('#upgrade-modal').fadeIn();
+    }
+
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)

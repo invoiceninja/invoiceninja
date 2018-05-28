@@ -54,12 +54,31 @@
       ->help(trans('texts.administrator_help')) !!}
 
   @foreach (json_decode(PERMISSION_ENTITIES,1) as $permissionEntity)
+
+        <?php
+            if($user)
+                $permissions = json_decode($user->permissions,1);
+            else
+                $permissions = [];
+        ?>
+
   {!! Former::checkboxes('permissions[]')
       ->label(ucfirst($permissionEntity))
       ->checkboxes([
-      trans('texts.create') => ['id'=> 'permissions[create_' . $permissionEntity . ']', 'name' => 'permissions[create_' . $permissionEntity . ']', 'value' => 'create_' . $permissionEntity . '', is_array(json_decode($user->permissions,1)) && in_array('create_' . $permissionEntity, json_decode($user->permissions,1), FALSE) ? 'checked' : '' ],
-      trans('texts.view') => ['id'=> 'permissions[view_' . $permissionEntity . ']', 'name' => 'permissions[view_' . $permissionEntity . ']', 'value' => 'view_' . $permissionEntity . '', is_array(json_decode($user->permissions,1)) && in_array('view_' . $permissionEntity, json_decode($user->permissions,1), FALSE) ? 'checked' : ''],
-      trans('texts.edit') => ['id'=> 'permissions[edit_' . $permissionEntity . ']', 'name' => 'permissions[edit_' . $permissionEntity . ']', 'value' => 'edit_' . $permissionEntity . '', is_array(json_decode($user->permissions,1)) && in_array('edit_' . $permissionEntity, json_decode($user->permissions,1), FALSE) ? 'checked' : ''],
+      trans('texts.create') => ['id'=> 'permissions[create_' . $permissionEntity . ']',
+                                'name' => 'permissions[create_' . $permissionEntity . ']',
+                                'value' => 'create_' . $permissionEntity . '',
+                                is_array($permissions) && in_array('create_' . $permissionEntity, $permissions, FALSE) ? 'checked' : '' ],
+
+      trans('texts.view') => ['id'=> 'permissions[view_' . $permissionEntity . ']',
+                              'name' => 'permissions[view_' . $permissionEntity . ']',
+                              'value' => 'view_' . $permissionEntity . '',
+                              is_array($permissions) && in_array('view_' . $permissionEntity, $permissions, FALSE) ? 'checked' : ''],
+
+      trans('texts.edit') => ['id'=> 'permissions[edit_' . $permissionEntity . ']',
+                              'name' => 'permissions[edit_' . $permissionEntity . ']',
+                              'value' => 'edit_' . $permissionEntity . '',
+                              is_array($permissions) && in_array('edit_' . $permissionEntity, $permissions, FALSE) ? 'checked' : ''],
       ]) !!}
   @endforeach
 
