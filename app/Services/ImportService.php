@@ -657,6 +657,10 @@ class ImportService
     {
         $this->checkForFile($fileName);
 
+        if (! ini_get('auto_detect_line_endings')) {
+            ini_set('auto_detect_line_endings', '1');
+        }
+
         $csv = Reader::createFromPath($fileName, 'r');
         //$csv->setHeaderOffset(0); //set the CSV header offset
         $stmt = new Statement();
