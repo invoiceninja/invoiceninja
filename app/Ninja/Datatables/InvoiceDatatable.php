@@ -4,7 +4,6 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Invoice;
 use Auth;
-use Illuminate\Support\Facades\Log;
 use URL;
 use Utils;
 
@@ -178,7 +177,7 @@ class InvoiceDatatable extends EntityDatatable
                     return $entityType == ENTITY_QUOTE && $model->quote_invoice_id &&
                                 (   Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]) ||
                                     Auth::user()->can('edit', [ENTITY_INVOICE, $model]) ||
-                                    Auth::user()->can('view', [ENTITY_INVOICE, $model]) );
+                                    Auth::user()->can('view', [ENTITY_INVOICE, $model]));
                 },
             ],
             [
