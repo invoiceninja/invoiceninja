@@ -79,7 +79,7 @@
                               'name' => 'permissions[edit_' . $permissionEntity . ']',
                               'value' => 'edit_' . $permissionEntity . '',
                               is_array($permissions) && in_array('edit_' . $permissionEntity, $permissions, FALSE) ? 'checked' : ''],
-      ]) !!}
+      ])->addGroupClass($permissionEntity) !!}
   @endforeach
 
 </div>
@@ -117,4 +117,42 @@
         if(!viewChecked)$('#permissions_edit_all').prop('checked',false)
 	}
 	fixCheckboxes();
+
+    /* Iterate over all permission checkboxes and ensure VIEW/EDIT
+     * combinations are enabled/disabled depending on VIEW state
+     */
+
+    $('#permissions[edit_invoice]').prop("checked", true);
+
+    
+    //don't use each - use map only use each to iterate
+    $("input[type='checkbox'][id^='permissions[view_']").each(function() {
+
+            var entity = $(this).attr('id').split("_")[1].replace("]","");
+            var editPermissionVar = '#permissions[edit_' + entity + ']';
+            var viewPermissionVar = '#permissions[view_' + entity + ']';
+            var isChecked = $(this).is(':checked');
+
+
+    $(editPermissionVar).prop('enabled', isChecked);
+            console.log(editPermissionVar);
+            console.log(viewPermissionVar);
+            console.log(isChecked);
+    });
+
+
+    $(function(){
+        $("input[type='checkbox'][id^='permissions[view_']").change(function(){
+
+            var entity = $(this).attr('id').split("_")[1].replace("]","");
+            var editPermissionVar = '#permissions[edit_' + entity + ']';
+
+            $(editPermissionVar).prop('enabled', $(this).is(':checked'));
+
+        //alert(checkBoxId);
+
+        });
+    });
+
+
 @stop
