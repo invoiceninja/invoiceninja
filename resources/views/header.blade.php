@@ -405,7 +405,7 @@
             @endforeach
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
-                    @include('partials.navigation_option', [
+                    @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', [
                         'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
                     ])
