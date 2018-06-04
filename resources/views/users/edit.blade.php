@@ -124,7 +124,7 @@
 
     $('#permissions[edit_invoice]').prop("checked", true);
 
-    
+
     //don't use each - use map only use each to iterate
     $("input[type='checkbox'][id^='permissions[view_']").each(function() {
 
