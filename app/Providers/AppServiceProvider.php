@@ -125,8 +125,22 @@ class AppServiceProvider extends ServiceProvider
                     return '';
                 }
 
+
+                if(! Utils::isNinjaProd() && \App::isLocale('en') == false) {
+                    $modules = \Module::enabled();
+
+                    foreach($modules as $module) {
+                        if($crumb == $module->get('plural', '')) {
+                            $crumb = $module->getLowerName();
+                            break;
+                        }
+                    }
+                }
+
                 if (! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
                     $name = mtrans($crumb);
+                } elseif(! Utils::isNinjaProd() && \App::isLocale('en') && $module = \Module::find(str_singular($crumb))) {
+                    $name = mtrans(str_singular($crumb));
                 } else {
                     $name = trans("texts.$crumb");
                 }
