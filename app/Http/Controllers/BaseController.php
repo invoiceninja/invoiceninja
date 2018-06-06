@@ -6,7 +6,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Request;
 use Utils;
-use Auth;
 
 class BaseController extends Controller
 {

@@ -98,7 +98,7 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_INVOICE, $model]) && Auth::user()->can('create', ENTITY_INVOICE);
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
             [
@@ -107,7 +107,7 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("quotes/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('view', [ENTITY_INVOICE, $model]) && Auth::user()->can('create', ENTITY_QUOTE);
+                    return Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
             [

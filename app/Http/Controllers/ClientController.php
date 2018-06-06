@@ -58,11 +58,7 @@ class ClientController extends BaseController
     public function getDatatable()
     {
         $search = Input::get('sSearch');
-
-        if(Auth::user()->hasPermission('view_client'))
-            $userId = false;
-        else
-            $userId = Auth::user()->filterId();
+        $userId = Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
     }
@@ -95,7 +91,7 @@ class ClientController extends BaseController
         $user = Auth::user();
         $account = $user->account;
 
-        $user->can('view', [ENTITY_CLIENT, $client]);
+        //$user->can('view', [ENTITY_CLIENT, $client]);
 
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
@@ -154,7 +150,7 @@ class ClientController extends BaseController
      */
     public function create(ClientRequest $request)
     {
-        Auth::user()->can('create', ENTITY_CLIENT);
+        //Auth::user()->can('create', ENTITY_CLIENT);
 
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients().' clients']);
@@ -181,7 +177,6 @@ class ClientController extends BaseController
      */
     public function edit(ClientRequest $request)
     {
-        Auth::user()->can('edit',[ENTITY_CLIENT, $request->entity()]);
 
         $client = $request->entity();
 
