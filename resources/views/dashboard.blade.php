@@ -441,7 +441,7 @@
                         @foreach ($payments as $payment)
                         <tr>
                             <td>{!! \App\Models\Invoice::calcLink($payment) !!}</td>
-                            @can('viewByOwner', [ENTITY_CLIENT, $payment->client_user_id])
+                            @can('view', [ENTITY_CLIENT, $payment])
                                 <td>{!! link_to('/clients/'.$payment->client_public_id, trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email)) !!}</td>
                             @else
                                 <td>{{ trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email) }}</td>
@@ -478,7 +478,7 @@
                             @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
+                                    @can('view', [ENTITY_CLIENT, $invoice])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>
@@ -513,7 +513,7 @@
                             @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
+                                    @can('view', [ENTITY_CLIENT, $invoice])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>

@@ -17,9 +17,7 @@ class ProjectDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_PROJECT, $model->user_id]))
-                        return $this->addNote(link_to("projects/{$model->public_id}", $model->project)->toHtml(), $model->private_notes);
-                    else if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
                         return $this->addNote(link_to("projects/{$model->public_id}", $model->project)->toHtml(), $model->private_notes);
                     else
                         return $model->project;
@@ -31,9 +29,7 @@ class ProjectDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id]))
-                            return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
-                        else if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
                             return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
                         else
                             return Utils::getClientDisplayName($model);

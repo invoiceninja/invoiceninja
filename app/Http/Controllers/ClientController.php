@@ -96,7 +96,6 @@ class ClientController extends BaseController
         $account = $user->account;
 
         $user->can('view', [ENTITY_CLIENT, $client]);
-        $user->can('viewByOwner', [ENTITY_CLIENT, $client->user_id]);
 
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
