@@ -25,23 +25,17 @@ class PaymentDatatable extends EntityDatatable
             [
                 'invoice_name',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->invoice_user_id]))
-                        return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
-                    elseif (Auth::user()->can('view', [ENTITY_INVOICE, $model->invoice_user_id]))
+                    if (Auth::user()->can('view', [ENTITY_INVOICE, $model->invoice_user_id]))
                         return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                     else
                         return $model->invoice_number;
-
-
 
                     },
             ],
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id]))
-                        return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
-                    elseif(Auth::user()->can('view', [ENTITY_CLIENT, ENTITY_CLIENT]))
+                    if(Auth::user()->can('view', [ENTITY_CLIENT, ENTITY_CLIENT]))
                         return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                     else
                         return Utils::getClientDisplayName($model);
@@ -135,10 +129,7 @@ class PaymentDatatable extends EntityDatatable
                     return URL::to("payments/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return (Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) ||
-                        Auth::user()->can('edit', [ENTITY_PAYMENT, $model]) ||
-                        Auth::user()->can('view', [ENTITY_PAYMENT, $model])
-                    );
+                    return Auth::user()->can('view', [ENTITY_PAYMENT, $model]);
                 },
             ],
             [
@@ -147,7 +138,7 @@ class PaymentDatatable extends EntityDatatable
                     return "javascript:submitForm_payment('email', {$model->public_id})";
                 },
                 function ($model) {
-                    return (Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) || Auth::user()->can('edit', [ENTITY_PAYMENT, $model]));
+                    return Auth::user()->can('edit', [ENTITY_PAYMENT, $model]);
                 },
             ],
             [
@@ -161,7 +152,7 @@ class PaymentDatatable extends EntityDatatable
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}', {$local})";
                 },
                 function ($model) {
-                    return (Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) || Auth::user()->can('edit', [ENTITY_PAYMENT, $model]))
+                    return Auth::user()->can('edit', [ENTITY_PAYMENT, $model])
                         && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
                         && $model->refunded < $model->amount;
                 },

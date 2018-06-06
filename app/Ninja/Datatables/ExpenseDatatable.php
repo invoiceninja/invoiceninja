@@ -19,11 +19,11 @@ class ExpenseDatatable extends EntityDatatable
                 'vendor_name',
                 function ($model) {
                     if ($model->vendor_public_id) {
-                        if (! Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
+                        if (Auth::user()->can('view', [ENTITY_VENDOR, $model]))
+                            return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
+                        else
                             return $model->vendor_name;
-                        }
 
-                        return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
                     } else {
                         return '';
                     }
@@ -34,11 +34,11 @@ class ExpenseDatatable extends EntityDatatable
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                            return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                        else
                             return Utils::getClientDisplayName($model);
-                        }
 
-                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     } else {
                         return '';
                     }
@@ -48,12 +48,11 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'expense_date',
                 function ($model) {
-                    if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
+                        return $this->addNote(link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml(), $model->private_notes);
+                    else
                         return Utils::fromSqlDate($model->expense_date_sql);
-                    }
 
-                    $str = link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
-                    return $this->addNote($str, $model->private_notes);
                 },
             ],
             [
@@ -75,11 +74,11 @@ class ExpenseDatatable extends EntityDatatable
                 'category',
                 function ($model) {
                     $category = $model->category != null ? substr($model->category, 0, 100) : '';
-                    if (! Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->category_user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE_CATEGORY, $model]))
+                        return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
+                    else
                         return $category;
-                    }
 
-                    return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
                 },
             ],
             [
@@ -106,7 +105,7 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("expenses/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_EXPENSE, $model]);
                 },
             ],
             [
@@ -115,7 +114,7 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("expenses/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
             [
@@ -124,7 +123,7 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_public_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
+                    return $model->invoice_public_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]);
                 },
             ],
             [

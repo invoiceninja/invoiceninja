@@ -70,7 +70,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("clients/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_CLIENT, $model->user_id]);
+                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]);
                 },
             ],
             [
@@ -80,7 +80,7 @@ class ClientDatatable extends EntityDatatable
                 function ($model) {
                     $user = Auth::user();
 
-                    return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
+                    return $user->can('edit', [ENTITY_CLIENT, $model]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
                 },
             ],
             [

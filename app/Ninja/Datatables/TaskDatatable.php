@@ -19,9 +19,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id]))
-                        return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
-                    else if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                    if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
                         return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                     else
                         return Utils::getClientDisplayName($model);
@@ -32,9 +30,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_PROJECT, $model->project_user_id]))
-                        return $model->project_public_id ? link_to("projects/{$model->project_public_id}", $model->project)->toHtml() : '';
-                    else if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
                         return $model->project_public_id ? link_to("projects/{$model->project_public_id}", $model->project)->toHtml() : '';
                     else
                         return $model->project;
@@ -44,9 +40,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'date',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id]))
-                        return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
-                    else if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
                         return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
                     else
                         return Task::calcStartTime($model);
@@ -56,9 +50,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'duration',
                 function ($model) {
-                    if (Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id]))
-                        return link_to("tasks/{$model->public_id}/edit", Utils::formatTime(Task::calcDuration($model)))->toHtml();
-                    else if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
+                    if (Auth::user()->can('view', [ENTITY_EXPENSE, $model]))
                         return link_to("tasks/{$model->public_id}/edit", Utils::formatTime(Task::calcDuration($model)))->toHtml();
                     else
                         return Utils::formatTime(Task::calcDuration($model));
@@ -89,7 +81,7 @@ class TaskDatatable extends EntityDatatable
                     return URL::to('tasks/'.$model->public_id.'/edit');
                 },
                 function ($model) {
-                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && (Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]) || Auth::user()->can('edit', [ENTITY_TASK, $model]) );
+                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('view', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -98,7 +90,7 @@ class TaskDatatable extends EntityDatatable
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_number && (Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]) || Auth::user()->can('edit', [ENTITY_TASK, $model]));
+                    return $model->invoice_number && Auth::user()->can('view', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -107,7 +99,7 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('resume', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->is_running && (Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]) || Auth::user()->can('edit', [ENTITY_TASK, $model]));
+                    return ! $model->is_running && Auth::user()->can('edit', [ENTITY_TASK, $model]);
                 },
             ],
             [
@@ -116,7 +108,7 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('stop', {$model->public_id})";
                 },
                 function ($model) {
-                    return $model->is_running && ( Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]) || Auth::user()->can('edit', [ENTITY_TASK, $model]));
+                    return $model->is_running && Auth::user()->can('edit', [ENTITY_TASK, $model]);
                 },
             ],
             [

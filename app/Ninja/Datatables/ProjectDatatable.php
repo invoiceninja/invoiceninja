@@ -73,7 +73,7 @@ class ProjectDatatable extends EntityDatatable
                     return URL::to("projects/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('viewByOwner', [ENTITY_PROJECT, $model->user_id]) || Auth::user()->can('view', [ENTITY_PROJECT, $model]);
+                    return Auth::user()->can('view', [ENTITY_PROJECT, $model]);
                 },
             ],
             [
