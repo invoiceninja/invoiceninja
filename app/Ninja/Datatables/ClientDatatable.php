@@ -70,7 +70,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("clients/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]);
+                    return Auth::user()->can('view', [ENTITY_CLIENT, $model]);
                 },
             ],
             [
