@@ -111,7 +111,7 @@
 		</div>
 	</div>
 
-
+    @if (Auth::user()->canCreateOrEdit(ENTITY_PAYMENT, $payment))
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->appendIcon(Icon::create('remove-circle'))->asLinkTo(HTMLUtils::previousUrl('/payments'))->large() !!}
         @if (!$payment || !$payment->is_deleted)
@@ -126,6 +126,7 @@
         @endif
 
 	</center>
+    @endif
 
     @include('partials/refund_payment')
 

@@ -382,6 +382,11 @@ class User extends Authenticatable
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 
+    public function filterIdByEntity($entity)
+    {
+        return $this->hasPermission('view_' . $entity) ? false : $this->id;
+    }
+
     public function caddAddUsers()
     {
         if (! Utils::isNinjaProd()) {

@@ -137,8 +137,7 @@ class InvoiceDatatable extends EntityDatatable
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]) ||
-                    Auth::user()->can('create', ENTITY_PAYMENT) ||
-                    Auth::user()->can('edit', [ENTITY_INVOICE, $model]);
+                    Auth::user()->can('canCreateOrEdit', [ENTITY_INVOICE, $model]);
                 },
             ],
             [

@@ -61,7 +61,7 @@
         </div>
     </div>
 
-
+	@if(Auth::user()->canCreateOrEdit(ENTITY_PROJECT)))
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/projects'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
@@ -90,6 +90,7 @@
 				  ->large() !!}
 		@endif
 	</center>
+	@endif
 
 	{!! Former::close() !!}
 
