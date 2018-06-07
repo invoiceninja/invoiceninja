@@ -4,6 +4,7 @@ use Codeception\Util\Fixtures;
 
 Fixtures::add('url', 'http://www.ninja.test:8000');
 Fixtures::add('username', 'user@example.com');
+Fixtures::add('permissions_username', 'permissions@example.com');
 Fixtures::add('password', 'password');
 
 Fixtures::add('api_secret', 'password');
