@@ -19,21 +19,22 @@ class ProposalSnippetDatatable extends EntityDatatable
                 function ($model) {
                     $icon = '<i class="fa fa-' . $model->icon . '"></i>&nbsp;&nbsp;';
 
-                    if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_SNIPPET, $model->user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]))
+                        return $icon . link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
+                    else
                         return $icon . $model->name;
-                    }
 
-                    return $icon . link_to("proposals/snippets/{$model->public_id}/edit", $model->name)->toHtml();
+
                 },
             ],
             [
                 'category',
                 function ($model) {
-                    if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_CATEGORY, $model->category_user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]))
+                        return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category ?: ' ')->toHtml();
+                    else
                         return $model->category;
-                    }
 
-                    return link_to("proposals/categories/{$model->category_public_id}/edit", $model->category ?: ' ')->toHtml();
                 },
             ],
             [
@@ -60,7 +61,7 @@ class ProposalSnippetDatatable extends EntityDatatable
                     return URL::to("proposals/snippets/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_SNIPPET, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_PROPOSAL_SNIPPET, $model]);
                 },
             ],
         ];

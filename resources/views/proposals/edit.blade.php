@@ -55,6 +55,7 @@
         </div>
     </div>
 
+    @if(Auth::user()->canCreateOrEdit(ENTITY_PROPOSAL, $proposal))
     <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))
                 ->appendIcon(Icon::create('remove-circle'))
@@ -81,6 +82,7 @@
         @endif
 
     </center>
+    @endif
 
     {!! Former::close() !!}
 

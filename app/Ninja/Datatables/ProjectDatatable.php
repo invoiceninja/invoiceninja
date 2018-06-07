@@ -17,23 +17,23 @@ class ProjectDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if (! Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_PROJECT, $model]))
+                        return $this->addNote(link_to("projects/{$model->public_id}", $model->project)->toHtml(), $model->private_notes);
+                    else
                         return $model->project;
-                    }
 
-                    $str = link_to("projects/{$model->public_id}", $model->project)->toHtml();
-                    return $this->addNote($str, $model->private_notes);
+
                 },
             ],
             [
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
+                        if (Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                            return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
+                        else
                             return Utils::getClientDisplayName($model);
-                        }
 
-                        return link_to("clients/{$model->client_public_id}", $model->client_name)->toHtml();
                     } else {
                         return '';
                     }
@@ -69,7 +69,7 @@ class ProjectDatatable extends EntityDatatable
                     return URL::to("projects/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_PROJECT, $model]);
                 },
             ],
             [

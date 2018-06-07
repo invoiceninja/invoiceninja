@@ -87,6 +87,7 @@ script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
+  - php ./vendor/codeception/codeception/codecept run --debug functional PermissionsCest.php
 
   #- sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
   #- php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php

@@ -469,12 +469,12 @@
 
 
 	</script>
-
+	@if(Auth::user()->canCreateOrEdit(ENTITY_CLIENT))
 	<center class="buttons">
     	{!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/clients/' . ($client ? $client->public_id : '')))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
-
+	@endif
 	{!! Former::close() !!}
 </div>
 @stop
