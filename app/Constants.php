@@ -48,6 +48,25 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
     define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
 
+    $permissionEntities = [
+        ENTITY_PROPOSAL,
+        ENTITY_EXPENSE,
+        ENTITY_PROJECT,
+        ENTITY_VENDOR,
+        ENTITY_PRODUCT,
+        ENTITY_TASK,
+        ENTITY_QUOTE,
+        ENTITY_CREDIT,
+        ENTITY_PAYMENT,
+        ENTITY_CONTACT,
+        ENTITY_INVOICE,
+        ENTITY_CLIENT,
+        ENTITY_RECURRING_INVOICE,
+        'reports',
+    ];
+
+    define('PERMISSION_ENTITIES', json_encode($permissionEntities));
+
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
 
@@ -408,6 +427,7 @@ if (! defined('APP_NAME')) {
     define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
 
     define('TEST_USERNAME', env('TEST_USERNAME', 'user@example.com'));
+    define('TEST_PERMISSIONS_USERNAME', env('TEST_PERMISSIONS_USERNAME', 'permissions@example.com'));
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);

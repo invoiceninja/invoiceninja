@@ -411,7 +411,7 @@
                     ])
                 @endforeach
             @endif
-            @if (Auth::user()->hasPermission('view_all'))
+            @if (Auth::user()->hasPermission('view_reports'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])

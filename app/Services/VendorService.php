@@ -70,7 +70,7 @@ class VendorService extends BaseService
         $datatable = new VendorDatatable();
         $query = $this->vendorRepo->find($search);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_vendor')) {
             $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 

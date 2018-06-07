@@ -26,8 +26,8 @@ class DatatableService
         $table = Datatable::query($query);
 
         if ($datatable->isBulkEdit) {
-            $table->addColumn('checkbox', function ($model) {
-                $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
+            $table->addColumn('checkbox', function ($model) use ($datatable) {
+                $can_edit = Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
                 return ! $can_edit ? '' : '<input type="checkbox" name="ids[]" value="' . $model->public_id
                         . '" ' . Utils::getEntityRowClass($model) . '>';
@@ -65,7 +65,7 @@ class DatatableService
             $hasAction = false;
             $str = '<center style="min-width:100px">';
 
-            $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
+            $can_edit = Auth::user()->hasPermission('edit_' . $datatable->entityType) || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
                 $str .= '<button type="button" class="btn btn-sm btn-danger tr-status">'.trans('texts.deleted').'</button>';

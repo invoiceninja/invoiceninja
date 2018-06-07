@@ -68,7 +68,7 @@ class CreditController extends BaseController
     {
         $credit = Credit::withTrashed()->scope($publicId)->firstOrFail();
 
-        $this->authorize('edit', $credit);
+        $this->authorize('view', $credit);
 
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
 

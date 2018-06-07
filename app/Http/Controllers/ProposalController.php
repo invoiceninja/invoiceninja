@@ -51,7 +51,8 @@ class ProposalController extends BaseController
     public function getDatatable($expensePublicId = null)
     {
         $search = Input::get('sSearch');
-        $userId = Auth::user()->filterId();
+        //$userId = Auth::user()->filterId();
+        $userId = Auth::user()->filterIdByEntity(ENTITY_PROPOSAL);
 
         return $this->proposalService->getDatatable($search, $userId);
     }

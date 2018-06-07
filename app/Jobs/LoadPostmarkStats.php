@@ -27,7 +27,7 @@ class LoadPostmarkStats extends Job
      */
     public function handle()
     {
-        if (! auth()->user()->hasPermission('view_all')) {
+        if (! auth()->user()->hasPermission('view_reports')) {
             return $this->response;
         }
 

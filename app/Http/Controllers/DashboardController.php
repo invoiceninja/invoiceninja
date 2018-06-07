@@ -25,7 +25,7 @@ class DashboardController extends BaseController
     public function index()
     {
         $user = Auth::user();
-        $viewAll = $user->hasPermission('view_all');
+        $viewAll = $user->hasPermission('view_reports');
         $userId = $user->id;
         $account = $user->account;
         $accountId = $account->id;

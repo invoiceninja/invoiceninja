@@ -38,7 +38,7 @@
 @stop
 
 @section('top-right')
-	@if (config('services.postmark') && auth()->user()->hasPermission('view_all') && auth()->user()->hasPermission('view_all'))
+	@if (config('services.postmark') && auth()->user()->hasPermission('view_reports'))
 		{!! Button::normal(trans('texts.emails'))
 				->asLinkTo(url('/reports/emails'))
 				->appendIcon(Icon::create('envelope')) !!}
