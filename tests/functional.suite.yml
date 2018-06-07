@@ -9,7 +9,7 @@ modules:
     enabled:
         - \Helper\Functional
         - PhpBrowser:
-            url: 'http://ninja.app:8000'
+            url: 'http://www.ninja.test:8000'
             curl:
                CURLOPT_RETURNTRANSFER: true
         - Db:
