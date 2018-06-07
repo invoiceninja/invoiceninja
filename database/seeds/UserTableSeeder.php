@@ -65,6 +65,21 @@ class UserTableSeeder extends Seeder
             'accepted_terms_version' => NINJA_TERMS_VERSION,
         ]);
 
+        $permissionsUser = User::create([
+            'first_name' => $faker->firstName,
+            'last_name' => $faker->lastName,
+            'email' => TEST_PERMISSIONS_USERNAME,
+            'username' => TEST_PERMISSIONS_USERNAME,
+            'account_id' => $account->id,
+            'password' => Hash::make(TEST_PASSWORD),
+            'registered' => true,
+            'confirmed' => true,
+            'notify_sent' => false,
+            'notify_paid' => false,
+            'is_admin' => 0,
+            'accepted_terms_version' => NINJA_TERMS_VERSION,
+        ]);
+
         $client = Client::create([
             'user_id' => $user->id,
             'account_id' => $account->id,

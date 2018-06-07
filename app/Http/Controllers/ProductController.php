@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Models\TaxRate;
@@ -9,6 +10,7 @@ use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
 use Auth;
+use Illuminate\Auth\Access\AuthorizationException;
 use Input;
 use Redirect;
 use Session;
@@ -116,9 +118,8 @@ class ProductController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function create()
+    public function create(CreateProductRequest $request)
     {
-        Auth::user()->can('create', ENTITY_PRODUCT);
 
         $account = Auth::user()->account;
 

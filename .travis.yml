@@ -10,7 +10,7 @@ php:
 
 addons:
   hosts:
-    - www.ninja.test
+    - ninja.test:8080
 
 cache:
   directories:

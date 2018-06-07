@@ -28,7 +28,7 @@ class FunctionalTester extends \Codeception\Actor
     {
         //if ($I->loadSessionSnapshot('login')) return;
         $I->amOnPage('/login');
-        $I->fillField(['name' => 'email'], Fixtures::get('username'));
+        $I->fillField(['name' => 'email'], Fixtures::get('permissions_username'));
         $I->fillField(['name' => 'password'], Fixtures::get('password'));
         $I->click('#loginButton');
 
