@@ -69,6 +69,7 @@ before_script:
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
   - sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
   - sed -i 's/user@example.com/user2@example.com/g' .env
+  - sed -i 's/permissions@example.com/permissions2@example.com/g' .env
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
 
 script:
