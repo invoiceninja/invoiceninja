@@ -162,6 +162,7 @@ class UserController extends BaseController
      */
     public function save($userPublicId = false)
     {
+
         if (! Auth::user()->hasFeature(FEATURE_USERS)) {
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
@@ -204,7 +205,7 @@ class UserController extends BaseController
             $user->email = trim(Input::get('email'));
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
                 $user->is_admin = boolval(Input::get('is_admin'));
-                $user->permissions = Input::get('permissions');
+                $user->permissions = self::formatUserPermissions(Input::get('permissions'));
             }
         } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
@@ -222,7 +223,7 @@ class UserController extends BaseController
             $user->public_id = $lastUser->public_id + 1;
             if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
                 $user->is_admin = boolval(Input::get('is_admin'));
-                $user->permissions = Input::get('permissions');
+                $user->permissions = self::formatUserPermissions(Input::get('permissions'));
             }
         }
 
@@ -238,6 +239,12 @@ class UserController extends BaseController
         Session::flash('message', $message);
 
         return Redirect::to('users/' . $user->public_id . '/edit');
+    }
+
+    private function formatUserPermissions(array $permissions) {
+
+        return json_encode(array_diff(array_values($permissions),[0]));
+
     }
 
     public function sendConfirmation($userPublicId)

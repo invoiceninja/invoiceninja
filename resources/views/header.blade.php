@@ -405,13 +405,13 @@
             @endforeach
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
-                    @include('partials.navigation_option', [
+                    @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
                         'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
                     ])
                 @endforeach
             @endif
-            @if (Auth::user()->hasPermission('view_all'))
+            @if (Auth::user()->hasPermission('view_reports'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])

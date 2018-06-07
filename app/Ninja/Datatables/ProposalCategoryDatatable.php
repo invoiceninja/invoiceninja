@@ -17,11 +17,11 @@ class ProposalCategoryDatatable extends EntityDatatable
             [
                 'name',
                 function ($model) {
-                    if (! Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_CATEGORY, $model->user_id])) {
+                    if (Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]) )
+                        return link_to("proposals/categories/{$model->public_id}/edit", $model->name)->toHtml();
+                    else
                         return $model->name;
-                    }
 
-                    return link_to("proposals/categories/{$model->public_id}/edit", $model->name)->toHtml();
                 },
             ],
         ];
@@ -36,7 +36,7 @@ class ProposalCategoryDatatable extends EntityDatatable
                     return URL::to("proposals/categories/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PROPOSAL_CATEGORY, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_PROPOSAL_CATEGORY, $model]);
                 },
             ],
         ];

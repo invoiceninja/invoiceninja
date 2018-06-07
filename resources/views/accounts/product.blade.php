@@ -42,7 +42,7 @@
     </div>
 
     @foreach(Module::getOrdered() as $module)
-        @if(View::exists($module->alias . '::accounts.product'))
+        @if(View::exists($module->alias . '::products.edit'))
         <div class="row">
             <div class="col-lg-10 col-lg-offset-1">
                 <div class="panel panel-default">
@@ -53,13 +53,14 @@
                         </h3>
                     </div>
                     <div class="panel-body form-padding-right">
-                        @includeIf($module->alias . '::accounts.product')
+                        @includeIf($module->alias . '::products.edit')
                     </div>
                 </div>
             </div>
         </div>
         @endif
     @endforeach
+    @if((!$product && Auth::user()->can('create', ENTITY_PRODUCT)) || ($product && Auth::user()->can('edit',[ENTITY_PRODUCT, $product])))
     <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
@@ -70,7 +71,7 @@
                     ->dropup() !!}
         @endif
     </center>
-
+    @endif
     {!! Former::close() !!}
 
     <script type="text/javascript">

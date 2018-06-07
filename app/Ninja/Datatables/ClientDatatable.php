@@ -67,10 +67,10 @@ class ClientDatatable extends EntityDatatable
             [
                 trans('texts.edit_client'),
                 function ($model) {
-                    return URL::to("clients/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_CLIENT, $model->user_id]);
+                    if(Auth::user()->can('edit', [ENTITY_CLIENT, $model]))
+                        return URL::to("clients/{$model->public_id}/edit");
+                    elseif(Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                        return URL::to("clients/{$model->public_id}");
                 },
             ],
             [
@@ -78,9 +78,7 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    $user = Auth::user();
-
-                    return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
+                    return Auth::user()->can('edit', [ENTITY_CLIENT, $model]) && (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE));
                 },
             ],
             [
@@ -115,9 +113,7 @@ class ClientDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    $user = Auth::user();
-
-                    return ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE)) && ($user->can('create', ENTITY_PAYMENT) || $user->can('create', ENTITY_CREDIT) || $user->can('create', ENTITY_EXPENSE));
+                    return (Auth::user()->can('create', ENTITY_TASK) || Auth::user()->can('create', ENTITY_INVOICE)) && (Auth::user()->can('create', ENTITY_PAYMENT) || Auth::user()->can('create', ENTITY_CREDIT) || Auth::user()->can('create', ENTITY_EXPENSE));
                 },
             ],
             [

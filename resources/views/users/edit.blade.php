@@ -13,9 +13,6 @@
   @if ($user)
     {!! Former::populate($user) !!}
     {{ Former::populateField('is_admin', intval($user->is_admin)) }}
-    {{ Former::populateField('permissions[create_all]', intval($user->hasPermission('create'))) }}
-    {{ Former::populateField('permissions[view_all]', intval($user->hasPermission('view_all'))) }}
-    {{ Former::populateField('permissions[edit_all]', intval($user->hasPermission('edit_all'))) }}
   @endif
 
   <div style="display:none">
@@ -55,24 +52,35 @@
       ->value(1)
       ->text(trans('texts.administrator'))
       ->help(trans('texts.administrator_help')) !!}
-  {!! Former::checkbox('permissions[create_all]')
-      ->value('create_all')
-      ->label('&nbsp;')
-      ->id('permissions_create_all')
-      ->text(trans('texts.user_create_all'))
-      ->help(trans('texts.create_all_help')) !!}
-  {!! Former::checkbox('permissions[view_all]')
-      ->value('view_all')
-      ->label('&nbsp;')
-      ->id('permissions_view_all')
-      ->text(trans('texts.user_view_all'))
-      ->help(trans('texts.view_all_help')) !!}
-  {!! Former::checkbox('permissions[edit_all]')
-      ->value('edit_all')
-      ->label('&nbsp;')
-      ->id('permissions_edit_all')
-      ->text(trans('texts.user_edit_all'))
-      ->help(trans('texts.edit_all_help')) !!}
+
+  @foreach (json_decode(PERMISSION_ENTITIES,1) as $permissionEntity)
+
+        <?php
+            if($user)
+                $permissions = json_decode($user->permissions,1);
+            else
+                $permissions = [];
+        ?>
+
+  {!! Former::checkboxes('permissions[]')
+      ->label(ucfirst($permissionEntity))
+      ->checkboxes([
+      trans('texts.create') => ['id'=> 'create_' . $permissionEntity,
+                                'name' => 'permissions[create_' . $permissionEntity . ']',
+                                'value' => 'create_' . $permissionEntity . '',
+                                'checked' => is_array($permissions) && in_array('create_' . $permissionEntity, $permissions, FALSE) ? true : false],
+
+      trans('texts.view') => ['id'=> 'view_' . $permissionEntity,
+                              'name' => 'permissions[view_' . $permissionEntity . ']',
+                              'value' => 'view_' . $permissionEntity . '',
+                              'checked' => is_array($permissions) && in_array('view_' . $permissionEntity, $permissions, FALSE) ? true : false],
+
+      trans('texts.edit') => ['id'=> 'edit_' . $permissionEntity,
+                              'name' => 'permissions[edit_' . $permissionEntity . ']',
+                              'value' => 'edit_' . $permissionEntity . '',
+                              'checked' => is_array($permissions) && in_array('edit_' . $permissionEntity, $permissions, FALSE) ? true : false],
+      ]) !!}
+  @endforeach
 
 </div>
 </div>
@@ -97,6 +105,8 @@
 @stop
 
 @section('onReady')
+
+    //start legacy
     $('#first_name').focus();
 	$('#is_admin, #permissions_view_all').change(fixCheckboxes);
 	function fixCheckboxes(){
@@ -109,4 +119,41 @@
         if(!viewChecked)$('#permissions_edit_all').prop('checked',false)
 	}
 	fixCheckboxes();
+    //end legacy
+
+    /*
+     *
+     * Iterate over all permission checkboxes and ensure VIEW/EDIT
+     * combinations are enabled/disabled depending on VIEW state.
+     *
+     */
+
+    $("input[type='checkbox'][id^='view_']").each(function() {
+
+        var entity = $(this).attr('id').split("_")[1].replace("]",""); //get entity name
+        $('#edit_' + entity).prop('disabled', !$('#view_' + entity).is(':checked')); //set state of edit checkbox
+
+    });
+
+    /*
+    *
+    * Checks state of View/Edit checkbox, will enable/disable check/uncheck
+    * dependent on state of VIEW permission.
+    *
+    */
+
+    $("input[type='checkbox'][id^='view_']").change(function(){
+
+        var entity = $(this).attr('id').split("_")[1].replace("]",""); //get entity name
+
+        $('#edit_' + entity).prop('disabled', !$('#view_' + entity).is(':checked')); //set state of edit checkbox
+
+        if(!$('#view_' + entity).is(':checked')) {
+            $('#edit_' + entity).prop('checked', false); //remove checkbox value from edit dependant on View state.
+        }
+
+    });
+
+
+
 @stop

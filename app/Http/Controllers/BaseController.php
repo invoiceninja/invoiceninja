@@ -67,4 +67,5 @@ class BaseController extends Controller
 
         exit;
     }
+
 }

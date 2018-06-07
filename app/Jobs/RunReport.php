@@ -25,7 +25,7 @@ class RunReport extends Job
      */
     public function handle()
     {
-        if (! $this->user->hasPermission('view_all')) {
+        if (! $this->user->hasPermission('view_reports')) {
             return false;
         }
 
