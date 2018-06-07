@@ -106,6 +106,7 @@ after_script:
   - mysql -u root -e 'select * from lookup_invitations;' ninja0
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from users;' ninja
+  - mysql -u root -e 'select * from lookup_users;' ninja
   - mysql -u root -e 'select * from account_gateways;' ninja
   - mysql -u root -e 'select * from clients;' ninja
   - mysql -u root -e 'select * from contacts;' ninja
