@@ -53,34 +53,58 @@
       ->text(trans('texts.administrator'))
       ->help(trans('texts.administrator_help')) !!}
 
-  @foreach (json_decode(PERMISSION_ENTITIES,1) as $permissionEntity)
+        <div class="panel-body">
+            <table class="table table-striped data-table" >
+                <thead>
+                <th></th>
+                <th>{!! Former::checkbox('create')
+                                  ->text( trans('texts.create') )
+                                  ->value('create_')
+                                  ->label('&nbsp;')
+                                  ->id('create_all') !!}</th>
+                <th>{!! Former::checkbox('view')
+                                  ->text( trans('texts.view') )
+                                  ->value('view_')
+                                  ->label('&nbsp;')
+                                  ->id('view_all') !!}</th>
+                <th>{!! Former::checkbox('edit')
+                                  ->text( trans('texts.edit') )
+                                  ->value('edit_')
+                                  ->label('&nbsp;')
+                                  ->id('edit_all') !!}</th>
+                </thead>
+                <tbody>
+                @foreach (json_decode(PERMISSION_ENTITIES,1) as $permissionEntity)
 
-        <?php
-            if($user)
-                $permissions = json_decode($user->permissions,1);
-            else
-                $permissions = [];
-        ?>
+                    <?php
+                    if($user)
+                        $permissions = json_decode($user->permissions,1);
+                    else
+                        $permissions = [];
+                    ?>
 
-  {!! Former::checkboxes('permissions[]')
-      ->label(ucfirst($permissionEntity))
-      ->checkboxes([
-      trans('texts.create') => ['id'=> 'create_' . $permissionEntity,
-                                'name' => 'permissions[create_' . $permissionEntity . ']',
-                                'value' => 'create_' . $permissionEntity . '',
-                                'checked' => is_array($permissions) && in_array('create_' . $permissionEntity, $permissions, FALSE) ? true : false],
-
-      trans('texts.view') => ['id'=> 'view_' . $permissionEntity,
-                              'name' => 'permissions[view_' . $permissionEntity . ']',
-                              'value' => 'view_' . $permissionEntity . '',
-                              'checked' => is_array($permissions) && in_array('view_' . $permissionEntity, $permissions, FALSE) ? true : false],
-
-      trans('texts.edit') => ['id'=> 'edit_' . $permissionEntity,
-                              'name' => 'permissions[edit_' . $permissionEntity . ']',
-                              'value' => 'edit_' . $permissionEntity . '',
-                              'checked' => is_array($permissions) && in_array('edit_' . $permissionEntity, $permissions, FALSE) ? true : false],
-      ]) !!}
-  @endforeach
+                    <tr>
+                        <td>{{ ucfirst($permissionEntity) }}</td>
+                        <td>{!! Former::checkbox('permissions[create_' . $permissionEntity . ']')
+                                  ->label('&nbsp;')
+                                  ->value('create_' . $permissionEntity . '')
+                                  ->id('create_' . $permissionEntity . '')
+                                  ->check(is_array($permissions) && in_array('create_' . $permissionEntity, $permissions, FALSE) ? true : false) !!}</td>
+                        <td>{!! Former::checkbox('permissions[view_' . $permissionEntity . ']')
+                                  ->label('&nbsp;')
+                                  ->value('view_' . $permissionEntity . '')
+                                  ->id('view_' . $permissionEntity . '')
+                                  ->check(is_array($permissions) && in_array('view_' . $permissionEntity, $permissions, FALSE) ? true : false) !!}</td>
+                        <td>{!! Former::checkbox('permissions[edit_' . $permissionEntity . ']')
+                                  ->label('&nbsp;')
+                                  ->value('edit_' . $permissionEntity . '')
+                                  ->id('edit_' . $permissionEntity . '')
+                                  ->check(is_array($permissions) && in_array('edit_' . $permissionEntity, $permissions, FALSE) ? true : false) !!}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
 
 </div>
 </div>
@@ -154,6 +178,23 @@
 
     });
 
+    $('#create_all, #view_all, #edit_all').change(function(){
+
+        var checked = $(this).is(':checked');
+        var permission_type = $(this).val();
+
+            $("input[type='checkbox'][id^=" + permission_type + "]").each(function() {
+
+            var entity = $(this).attr('id').split("_")[1].replace("]",""); //get entity name
+            $('#' + permission_type + entity).prop('checked', checked); //set state of edit checkbox
+
+                if(!$('#view_' + entity).is(':checked')) {
+                $('#edit_' + entity).prop('checked', false); //remove checkbox value from edit dependant on View state.
+                }
+
+            });
+
+    });
 
 
 @stop
