@@ -118,7 +118,7 @@ class ProductController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function create(CreateProductRequest $request)
+    public function create(ProductRequest $request)
     {
 
         $account = Auth::user()->account;
@@ -138,7 +138,7 @@ class ProductController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store()
+    public function store(CreateProductRequest $request)
     {
         return $this->save();
     }
@@ -148,7 +148,7 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update($publicId)
+    public function update(UpdateProductRequest $request, $publicId)
     {
         return $this->save($publicId);
     }
