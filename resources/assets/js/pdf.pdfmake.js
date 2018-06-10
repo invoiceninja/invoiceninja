@@ -393,9 +393,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 value = formatMoneyInvoice(value, invoice);
             }
 
-            if ($.trim(value)) {
-                javascript = javascript.replace(match, value);
-            }
+            javascript = javascript.replace(match, value);
         }
     }
 
