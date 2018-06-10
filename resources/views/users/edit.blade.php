@@ -36,7 +36,7 @@
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.permissions') !!}</h3>
         </div>
-        <div class="panel-body form-padding-right">
+        <div class="panel-body">
 
             @if ( ! Utils::hasFeature(FEATURE_USER_PERMISSIONS))
                 <div class="alert alert-warning">{{ trans('texts.upgrade_for_permissions') }}</div>
@@ -54,20 +54,20 @@
                 ->help(trans('texts.administrator_help')) !!}
 
             <div class="panel-body">
-                <table class="table table-striped data-table" >
+                <table class="table table-striped dataTable" >
                     <thead>
                     <th></th>
-                    <th>{!! Former::checkbox('create')
+                    <th style="padding-bottom:0px">{!! Former::checkbox('create')
                                   ->text( trans('texts.create') )
                                   ->value('create_')
                                   ->label('&nbsp;')
                                   ->id('create_all') !!}</th>
-                    <th>{!! Former::checkbox('view')
+                    <th style="padding-bottom:0px">{!! Former::checkbox('view')
                                   ->text( trans('texts.view') )
                                   ->value('view_')
                                   ->label('&nbsp;')
                                   ->id('view_all') !!}</th>
-                    <th>{!! Former::checkbox('edit')
+                    <th style="padding-bottom:0px">{!! Former::checkbox('edit')
                                   ->text( trans('texts.edit') )
                                   ->value('edit_')
                                   ->label('&nbsp;')
