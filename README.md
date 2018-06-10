@@ -7,7 +7,7 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Docs](https://readthedocs.org/projects/invoice-ninja/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/?badge=latest)
 
-## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8) | [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
+## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
 ### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com)
 
@@ -28,7 +28,14 @@ The self-host zip includes all third party libraries whereas downloading the cod
 	* Hosted: $500 annually and either 10% of revenue or $1/user/month
 	* Self-Hosted: Contact us for volume license pricing
 
-### Installation Options
+## Mobile Apps
+* Current
+    * [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8)
+    * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
+* Upcoming
+    * [iPhone/Android](https://github.com/invoiceninja/flutter-mobile)
+
+## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
 * [Self-Host Zip](http://docs.invoiceninja.com/en/latest/install.html)
 * [Docker File](https://github.com/invoiceninja/dockerfiles)
