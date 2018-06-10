@@ -200,15 +200,24 @@ class SendReminders extends Command
             return;
         }
 
-        $this->info(date('r') . ' Loading latest exchange rates...');
+        if (config('ninja.exchange_rates_enabled')) {
+            $this->info(date('r') . ' Loading latest exchange rates...');
 
-        $data = CurlUtils::get(config('ninja.exchange_rates_url'));
-        $data = json_decode($data);
+            $response = CurlUtils::get(config('ninja.exchange_rates_url'));
+            $data = json_decode($response);
 
-        Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);
+            if ($data && property_exists($data, 'rates')) {
+                Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);
 
-        foreach ($data->rates as $code => $rate) {
-            Currency::whereCode($code)->update(['exchange_rate' => $rate]);
+                foreach ($data->rates as $code => $rate) {
+                    Currency::whereCode($code)->update(['exchange_rate' => $rate]);
+                }
+            } else {
+                $this->info(date('r') . ' Error: failed to load exchange rates - ' . $response);
+                \DB::table('currencies')->update(['exchange_rate' => 1]);
+            }
+        } else {
+            \DB::table('currencies')->update(['exchange_rate' => 1]);
         }
 
         CurlUtils::get(SITE_URL . '?clear_cache=true');

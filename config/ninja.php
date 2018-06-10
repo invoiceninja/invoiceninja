@@ -19,7 +19,8 @@ return [
     'coupon_75_off' => env('COUPON_75_OFF', false),
     'coupon_free_year' => env('COUPON_FREE_YEAR', false),
 
-    // data services
+    // Currency exchange rates
+    'exchange_rates_enabled' => env('EXCHANGE_RATES_ENABLED', false),
     'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'https://api.fixer.io/latest'),
     'exchange_rates_base' => env('EXCHANGE_RATES_BASE', 'EUR'),
 
