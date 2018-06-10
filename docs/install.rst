@@ -16,8 +16,8 @@ Detailed Guides
 
 - CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
-Automated Installers
-^^^^^^^^^^^^^^^^^^^^
+Automatic Install/Update
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Ansible: `github.com <https://github.com/invoiceninja/ansible-installer>`_
 
@@ -29,8 +29,8 @@ Automated Installers
 
 .. Tip:: You can use `github.com/turbo124/Plane2Ninja <https://github.com/turbo124/Plane2Ninja>`_ to migrate your data from InvoicePlane.
 
-Steps to Install
-^^^^^^^^^^^^^^^^
+Manual Install
+^^^^^^^^^^^^^^
 
 Step 1: Download the code
 """""""""""""""""""""""""
