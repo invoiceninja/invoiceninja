@@ -21,7 +21,7 @@ Automatic Install/Update
 
 - Ansible: `github.com <https://github.com/invoiceninja/ansible-installer>`_
 
-- Dockerfile: `github.com <https://github.com/invoiceninja/dockerfiles>`_
+- Dockerfile: `docker.com <https://hub.docker.com/r/invoiceninja/invoiceninja/>`_
 
 - Cloudron: `cloudron.io <https://cloudron.io/store/com.invoiceninja.cloudronapp.html>`_
 
