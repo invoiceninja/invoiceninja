@@ -74,7 +74,7 @@ See the guides listed above for detailed information on configuring Apache or Ng
 
 Once you can access the site the initial setup screen will enable you to configure the database and email settings as well as create the initial admin user.
 
-.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
+.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file. There is more info `here <https://www.invoiceninja.com/forums/topic/clean-4-4-3-self-hosted-install-url-configuration-clarification/#post-14186>`_.
 
 Step 5: Enable auto updates
 """""""""""""""""""""""""""
