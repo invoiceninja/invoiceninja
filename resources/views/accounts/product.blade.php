@@ -60,7 +60,8 @@
         </div>
         @endif
     @endforeach
-    @if((!$product && Auth::user()->can('create', ENTITY_PRODUCT)) || ($product && Auth::user()->can('edit',[ENTITY_PRODUCT, $product])))
+
+    @if (Auth::user()->canCreateOrEdit(ENTITY_PRODUCT, $product))
     <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
