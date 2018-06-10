@@ -33,9 +33,9 @@ The self-host zip includes all third party libraries whereas downloading the cod
     * [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8)
     * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
 * Upcoming
-    * [iPhone & Android](https://github.com/invoiceninja/flutter-mobile)
+    * [iPhone/Android](https://github.com/invoiceninja/flutter-mobile)
 
-### Installation Options
+## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
 * [Self-Host Zip](http://docs.invoiceninja.com/en/latest/install.html)
 * [Docker File](https://github.com/invoiceninja/dockerfiles)
