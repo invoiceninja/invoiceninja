@@ -355,7 +355,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values
-    var regExp = new RegExp('\\$[a-zA-Z0-9_\\.]*[Value]?', 'g');
+    var regExp = new RegExp('\\$[a-zA-Z][a-zA-Z0-9_\\.]*[Value]?', 'g');
     var matches = javascript.match(regExp);
 
     if (matches) {
