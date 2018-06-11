@@ -49,20 +49,20 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
 
     $permissionEntities = [
-        ENTITY_PROPOSAL,
-        ENTITY_EXPENSE,
-        ENTITY_PROJECT,
-        ENTITY_VENDOR,
-        ENTITY_PRODUCT,
-        ENTITY_TASK,
-        ENTITY_QUOTE,
-        ENTITY_CREDIT,
-        ENTITY_PAYMENT,
-        ENTITY_CONTACT,
-        ENTITY_INVOICE,
         ENTITY_CLIENT,
-        ENTITY_RECURRING_INVOICE,
+        //ENTITY_CONTACT,
+        ENTITY_CREDIT,
+        ENTITY_EXPENSE,
+        ENTITY_INVOICE,
+        ENTITY_PAYMENT,
+        ENTITY_PRODUCT,
+        ENTITY_PROJECT,
+        ENTITY_PROPOSAL,
+        ENTITY_QUOTE,
         'reports',
+        ENTITY_TASK,
+        ENTITY_VENDOR,
+        ENTITY_RECURRING_INVOICE,
     ];
 
     define('PERMISSION_ENTITIES', json_encode($permissionEntities));

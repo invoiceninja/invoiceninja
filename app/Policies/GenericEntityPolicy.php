@@ -81,6 +81,37 @@ class GenericEntityPolicy
         return false;
     }
 
+    /**
+     * @param User $user
+     * @param $item - entity name or object
+     *
+     * @return bool
+     */
+
+    public static function edit(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item))
+            return false;
+
+
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+        return $user->hasPermission('edit_' . $entityType) || $user->owns($item);
+    }
+
+    /**
+     * @param User $user
+     * @param $item - entity name or object
+     * @return bool
+     */
+
+    private static function checkModuleEnabled(User $user, $item)
+    {
+        $entityType = is_string($item) ? $item : $item->getEntityType();
+        return $user->account->isModuleEnabled($entityType);
+    }
+
+
+
     private static function className($entityType)
     {
         if (! Utils::isNinjaProd()) {
