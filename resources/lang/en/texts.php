@@ -1074,6 +1074,7 @@ $LANG = array(
     'user_create_all' => 'Create clients, invoices, etc.',
     'user_view_all' => 'View all clients, invoices, etc.',
     'user_edit_all' => 'Edit all clients, invoices, etc.',
+    'manage_own_tasks' => 'Create and edit only own tasks',
     'gateway_help_20' => ':link to sign up for Sage Pay.',
     'gateway_help_21' => ':link to sign up for Sage Pay.',
     'partial_due' => 'Partial Due',
@@ -1084,6 +1085,7 @@ $LANG = array(
     'create_all_help' => 'Allow user to create and modify records',
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
+    'manage_own_tasks_help' => 'Manage only his/hers own tasks',
     'view_payment' => 'View Payment',
 
     'january' => 'January',

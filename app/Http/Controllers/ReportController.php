@@ -54,7 +54,7 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
-        if (! Auth::user()->hasPermission('view_all')) {
+        if (! Auth::user()->hasPermission('view_all') && ! Auth::user()->hasPermission('manage_own_tasks')) {
             return redirect('/');
         }
 
@@ -88,6 +88,10 @@ class ReportController extends BaseController
             'tax_rate',
             'quote',
         ];
+
+        if (Auth::user()->hasPermission('manage_own_tasks') && ! Auth::user()->is_admin) {
+            $reportTypes = [ 'task' ];
+        }
 
         $params = [
             'startDate' => $startDate->format('Y-m-d'),

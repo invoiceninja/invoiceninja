@@ -40,11 +40,22 @@ class TaskReport extends AbstractReport
         $endDate = date_create($this->endDate);
         $subgroup = $this->options['subgroup'];
 
-        $tasks = Task::scope()
-                    ->orderBy('created_at', 'desc')
-                    ->with('client.contacts', 'project', 'account', 'user')
-                    ->withArchived()
-                    ->dateRange($startDate, $endDate);
+
+
+        if (Auth::user()->hasPermission('manage_own_tasks') && ! Auth::user()->is_admin) {
+            $tasks = Task::scope()
+                ->orderBy('created_at', 'desc')
+                ->where('user_id', '=', Auth::user()->id)
+                ->with('client.contacts', 'project', 'account', 'user')
+                ->withArchived()
+                ->dateRange($startDate, $endDate);
+        } else {
+            $tasks = Task::scope()
+                ->orderBy('created_at', 'desc')
+                ->with('client.contacts', 'project', 'account', 'user')
+                ->withArchived()
+                ->dateRange($startDate, $endDate);
+        }
 
         foreach ($tasks->get() as $task) {
             $duration = $task->getDuration($startDate->format('U'), $endDate->modify('+1 day')->format('U'));

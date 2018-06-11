@@ -14,6 +14,10 @@ class TaskPolicy extends EntityPolicy
      */
     public static function create(User $user, $item)
     {
+
+        if ( $user->hasPermission('manage_own_tasks') )
+            return true;
+
         if (! parent::create($user, $item)) {
             return false;
         }

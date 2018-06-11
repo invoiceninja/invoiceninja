@@ -399,7 +399,8 @@
             ] as $option)
             @if (in_array($option, ['dashboard', 'settings'])
                 || Auth::user()->can('view', substr($option, 0, -1))
-                || Auth::user()->can('create', substr($option, 0, -1)))
+                || Auth::user()->can('create', substr($option, 0, -1))
+                || (Auth::user()->hasPermission('manage_own_tasks') && ($option == 'tasks')) )
                 @include('partials.navigation_option')
             @endif
             @endforeach
@@ -411,7 +412,7 @@
                     ])
                 @endforeach
             @endif
-            @if (Auth::user()->hasPermission('view_all'))
+            @if (Auth::user()->hasPermission('view_all') || Auth::user()->hasPermission('manage_own_tasks'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])

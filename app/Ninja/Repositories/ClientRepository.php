@@ -32,7 +32,8 @@ class ClientRepository extends BaseRepository
         $query = DB::table('clients')
                     ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->where('clients.account_id', '=', \Auth::user()->account_id)
+                    // commented in order to show all clients in task
+                    //->where('clients.account_id', '=', \Auth::user()->account_id)
                     ->where('contacts.is_primary', '=', true)
                     ->where('contacts.deleted_at', '=', null)
                     //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
@@ -68,7 +69,7 @@ class ClientRepository extends BaseRepository
                       ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
         }
-
+/* User id belongs to the user, who created the client, we want to list all clients  */
         if ($userId) {
             $query->where('clients.user_id', '=', $userId);
         }
