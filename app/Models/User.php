@@ -34,6 +34,7 @@ class User extends Authenticatable
         'create_all' => 0b0001,
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
+        'manage_own_tasks' => 0b1000
     ];
 
     /**

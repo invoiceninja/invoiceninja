@@ -151,8 +151,8 @@
 
     <center class="buttons">
 
-    @if (Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
-        @if (Auth::user()->hasFeature(FEATURE_TASKS))
+    @if (Auth::user()->hasPermission('manage_own_tasks') || Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
+        @if (Auth::user()->hasPermission('manage_own_tasks') || Auth::user()->hasFeature(FEATURE_TASKS))
             @if ($task && $task->is_running)
                 {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                 {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}
@@ -247,7 +247,7 @@
     @endforeach
 
     function onFormSubmit(event) {
-        @if (Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
+        @if (Auth::user()->hasPermission('manage_own_tasks') || Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
             return true;
         @else
             return false
@@ -604,7 +604,7 @@
           $projectCombobox = $('select#project_id');
           $projectCombobox.find('option').remove().end().combobox('refresh');
           $projectCombobox.append(new Option('', ''));
-          @if (Auth::user()->can('create', ENTITY_PROJECT))
+          @if (Auth::user()->hasPermission('manage_own_tasks') || Auth::user()->can('create', ENTITY_PROJECT))
             if (clientId) {
                 $projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
             }

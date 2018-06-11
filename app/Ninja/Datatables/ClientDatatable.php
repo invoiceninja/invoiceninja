@@ -89,7 +89,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("tasks/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_TASK);
+                    return Auth::user()->can('create', ENTITY_TASK) || Auth::user()->hasPermission('manage_own_tasks');
                 },
             ],
             [

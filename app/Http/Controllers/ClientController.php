@@ -93,7 +93,7 @@ class ClientController extends BaseController
         if ($user->can('create', ENTITY_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/'.$client->public_id)];
         }
-        if ($user->can('create', ENTITY_TASK)) {
+        if ($user->can('create', ENTITY_TASK) || Auth::user()->hasPermission('manage_own_tasks')) {
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {

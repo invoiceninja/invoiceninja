@@ -52,7 +52,7 @@ class TaskService extends BaseService
 
         $query = $this->taskRepo->find($clientPublicId, $projectPublicId, $search);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all') || Utils::hasPermission('manage_own_tasks')) {
             $query->where('tasks.user_id', '=', Auth::user()->id);
         }
 

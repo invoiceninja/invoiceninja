@@ -18,6 +18,6 @@ class ExpensePolicy extends EntityPolicy
             return false;
         }
 
-        return $user->hasFeature(FEATURE_EXPENSES);
+        return $user->hasPermission('manage_own_tasks') || $user->hasFeature(FEATURE_EXPENSES);
     }
 }
