@@ -100,7 +100,7 @@ class AccountApiController extends BaseAPIController
                 'accounts' => $data,
                 'static' => Utils::getStaticData(),
                 'version' => NINJA_VERSION,
-            ]
+            ];
         }
 
         return $this->response($data);
