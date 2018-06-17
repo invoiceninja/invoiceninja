@@ -431,7 +431,7 @@ if (! defined('APP_NAME')) {
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);
-    define('MAX_API_PAGE_SIZE', 10000);
+    define('MAX_API_PAGE_SIZE', 5000);
 
     define('IOS_DEVICE', env('IOS_DEVICE', ''));
     define('ANDROID_DEVICE', env('ANDROID_DEVICE', ''));
