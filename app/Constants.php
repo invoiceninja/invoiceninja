@@ -48,6 +48,25 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
     define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
 
+    $permissionEntities = [
+        ENTITY_CLIENT,
+        //ENTITY_CONTACT,
+        ENTITY_CREDIT,
+        ENTITY_EXPENSE,
+        ENTITY_INVOICE,
+        ENTITY_PAYMENT,
+        ENTITY_PRODUCT,
+        ENTITY_PROJECT,
+        ENTITY_PROPOSAL,
+        ENTITY_QUOTE,
+        'reports',
+        ENTITY_TASK,
+        ENTITY_VENDOR,
+        ENTITY_RECURRING_INVOICE,
+    ];
+
+    define('PERMISSION_ENTITIES', json_encode($permissionEntities));
+
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
 
@@ -342,7 +361,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.4.4' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.5.0' . env('NINJA_VERSION_SUFFIX'));
     define('NINJA_TERMS_VERSION', '1.0.1');
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
@@ -408,10 +427,11 @@ if (! defined('APP_NAME')) {
     define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
 
     define('TEST_USERNAME', env('TEST_USERNAME', 'user@example.com'));
+    define('TEST_PERMISSIONS_USERNAME', env('TEST_PERMISSIONS_USERNAME', 'permissions@example.com'));
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);
-    define('MAX_API_PAGE_SIZE', 500);
+    define('MAX_API_PAGE_SIZE', 5000);
 
     define('IOS_DEVICE', env('IOS_DEVICE', ''));
     define('ANDROID_DEVICE', env('ANDROID_DEVICE', ''));

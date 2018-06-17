@@ -69,6 +69,7 @@ before_script:
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
   - sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
   - sed -i 's/user@example.com/user2@example.com/g' .env
+  - sed -i 's/permissions@example.com/permissions2@example.com/g' .env
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
 
 script:
@@ -84,12 +85,13 @@ script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
+  - php ./vendor/codeception/codeception/codecept run --debug functional PermissionsCest.php
 
   #- sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
-  #- php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug run acceptance GoProCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
 
 after_script:
   - php artisan ninja:check-data --no-interaction --database='db-ninja-1'
@@ -105,6 +107,7 @@ after_script:
   - mysql -u root -e 'select * from lookup_invitations;' ninja0
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from users;' ninja
+  - mysql -u root -e 'select * from lookup_users;' ninja
   - mysql -u root -e 'select * from account_gateways;' ninja
   - mysql -u root -e 'select * from clients;' ninja
   - mysql -u root -e 'select * from contacts;' ninja

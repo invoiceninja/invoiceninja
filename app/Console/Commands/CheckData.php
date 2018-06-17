@@ -87,6 +87,7 @@ class CheckData extends Command
         $this->checkClientBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
+        $this->checkLogoFiles();
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
@@ -838,6 +839,30 @@ class CheckData extends Command
                     ->update($data);
             }
         }
+    }
+
+    private function checkLogoFiles()
+    {
+        $accounts = DB::table('accounts')
+                    ->where('logo', '!=', '')
+                    ->orderBy('id')
+                    ->get(['logo']);
+
+        $countMissing = 0;
+
+        foreach ($accounts as $account) {
+            $path = public_path('logo/' . $account->logo);
+            if (! file_exists($path)) {
+                $this->logMessage('Missing file: ' . $account->logo);
+                $countMissing++;
+            }
+        }
+
+        if ($countMissing > 0) {
+            $this->isValid = false;
+        }
+
+        $this->logMessage($countMissing . ' missing logo files');
     }
 
     /**

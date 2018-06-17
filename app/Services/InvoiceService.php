@@ -163,7 +163,7 @@ class InvoiceService extends BaseService
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
                     ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_invoice')) {
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
 

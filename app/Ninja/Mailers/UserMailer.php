@@ -76,7 +76,7 @@ class UserMailer extends Mailer
         Payment $payment = null,
         $notes = false
     ) {
-        if (! $user->email || $user->cannot('view', $invoice)) {
+        if (! $user->shouldNotify($invoice)) {
             return;
         }
 

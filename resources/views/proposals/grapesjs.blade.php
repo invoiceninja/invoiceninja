@@ -58,6 +58,53 @@ $(function() {
     }]);
 
     var blockManager = grapesjsEditor.BlockManager;
+    
+    blockManager.get('text').set('content', {
+        type: 'text',
+        content: 'Insert your text here',
+        activeOnRender: 1
+    });
+
+    blockManager.get('grid-items').set('content', '\
+    <table>\
+        <tr>\
+            <td class="card-content">\
+                <img src="" alt="Image"/>\
+                <h1 class="card-title">Title here</h1>\
+                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</p>\
+            </td>\
+            <td class="card-content">\
+                <img src="" alt="Image"/>\
+                <h1 class="card-title">Title here</h1>\
+                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</p>\
+            </td>\
+        </tr>\
+    </table>');
+
+    blockManager.get('list-items').set('content', '\
+  <table>\
+    <tr>\
+      <td class="card-content">\
+        <img alt="Image"//>\
+      </td>\
+      <td class="card-content">\
+        <h1 class="card-title">Title here</h1>\
+        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</p>\
+      </td>\
+    </tr>\
+  </table>\
+  <table>\
+    <tr>\
+      <td class="card-content">\
+        <img alt="Image"/>\
+      </td>\
+      <td class="card-content">\
+        <h1 class="card-title">Title here</h1>\
+        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt</p>\
+      </td>\
+    </tr>\
+  </table>');
+
 
     @foreach ($snippets as $snippet)
         blockManager.add("h{{ ($loop->index + 1) }}-block", {

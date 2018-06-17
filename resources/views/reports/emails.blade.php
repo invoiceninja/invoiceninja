@@ -30,7 +30,7 @@
 
 	<script type="text/javascript">
 
-	@if (Auth::user()->hasPermission('view_all'))
+	@if (Auth::user()->hasPermission('view_reports'))
 	function loadChart(data) {
 		var ctx = document.getElementById('chart-canvas').getContext('2d');
 		if (window.myChart) {
@@ -239,7 +239,7 @@
 
 	<div class="row">
 	    <div class="col-md-12">
-			@if (Auth::user()->hasPermission('view_all'))
+			@if (Auth::user()->hasPermission('view_reports'))
 	        <div id="progress-div" class="progress">
 	            <div class="progress-bar progress-bar-striped active" role="progressbar"
 	                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>

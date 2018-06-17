@@ -194,6 +194,7 @@ class PaymentRepository extends BaseRepository
         if (! $publicId) {
             $clientId = $input['client_id'];
             $amount = Utils::parseFloat($input['amount']);
+            $amount = min($amount, MAX_INVOICE_AMOUNT);
 
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
                 $credits = Credit::scope()->where('client_id', '=', $clientId)

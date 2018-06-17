@@ -7,6 +7,9 @@
     <!-- Authenticated: {{ Auth::check() ? 'Yes' : 'No' }} -->
     <!-- Server: {{ session(SESSION_DB_SERVER, 'Unset') }} -->
     @endif
+    @if (Session::has('error'))
+        <!-- Error: {{ Session::get('error') }} -->
+    @endif
     <meta charset="utf-8">
 
     @if (Utils::isWhiteLabel() && ! auth()->check())

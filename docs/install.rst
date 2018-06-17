@@ -16,8 +16,8 @@ Detailed Guides
 
 - CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
-Automated Installers
-^^^^^^^^^^^^^^^^^^^^
+Automatic Install/Update
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Ansible: `github.com <https://github.com/invoiceninja/ansible-installer>`_
 
@@ -29,8 +29,8 @@ Automated Installers
 
 .. Tip:: You can use `github.com/turbo124/Plane2Ninja <https://github.com/turbo124/Plane2Ninja>`_ to migrate your data from InvoicePlane.
 
-Steps to Install
-^^^^^^^^^^^^^^^^
+Manual Install
+^^^^^^^^^^^^^^
 
 Step 1: Download the code
 """""""""""""""""""""""""
@@ -74,9 +74,14 @@ See the guides listed above for detailed information on configuring Apache or Ng
 
 Once you can access the site the initial setup screen will enable you to configure the database and email settings as well as create the initial admin user.
 
-.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
+.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file. There is more info `here <https://www.invoiceninja.com/forums/topic/clean-4-4-3-self-hosted-install-url-configuration-clarification/#post-14186>`_.
 
-Step 5: Enable auto updates
+Step 5: Configure the application
+"""""""""""""""""""""""""""""""""
+
+See the `details here <http://docs.invoiceninja.com/en/latest/configure.html>`_ for additional configuration options.
+
+Step 6: Enable auto updates
 """""""""""""""""""""""""""
 
 Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process.

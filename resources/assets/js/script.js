@@ -586,19 +586,16 @@ function calculateAmounts(invoice) {
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
-    if (invoice.is_statement) {
-        var lineTotal = roundToTwo(NINJA.parseFloat(item.balance));
-    } else {
-        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
-        var discount = roundToTwo(NINJA.parseFloat(item.discount));
-        if (discount != 0) {
-            if (parseInt(invoice.is_amount_discount)) {
-                lineTotal -= discount;
-            } else {
-                lineTotal -= roundToTwo(lineTotal * discount / 100);
-            }
+    var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
+    var discount = roundToTwo(NINJA.parseFloat(item.discount));
+    if (discount != 0) {
+        if (parseInt(invoice.is_amount_discount)) {
+            lineTotal -= discount;
+        } else {
+            lineTotal -= roundToTwo(lineTotal * discount / 100);
         }
     }
+
     lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;
@@ -1161,7 +1158,7 @@ function prettyJson(json) {
     });
 }
 
-function searchData(data, key, fuzzy) {
+function searchData(data, key, fuzzy, secondKey) {
     return function findMatches(q, cb) {
     var matches, substringRegex;
     if (fuzzy) {
@@ -1176,8 +1173,9 @@ function searchData(data, key, fuzzy) {
         $.each(data, function(i, obj) {
           if (substrRegex.test(obj[key])) {
             matches.push(obj);
-          }
-        });
+          } else if (secondKey && substrRegex.test(obj[secondKey]))
+            matches.push(obj);
+          });
     }
     cb(matches);
     }

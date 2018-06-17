@@ -37,6 +37,11 @@ class PaymentPresenter extends EntityPresenter
         return Carbon::parse($this->entity->payment_date)->format('Y m');
     }
 
+    public function payment_type()
+    {
+        return $this->entity->payment_type ? $this->entity->payment_type->name : trans('texts.manual_entry');
+    }
+
     public function method()
     {
         if ($this->entity->account_gateway) {

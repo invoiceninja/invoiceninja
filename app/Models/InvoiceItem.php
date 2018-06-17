@@ -138,9 +138,9 @@ class InvoiceItem extends EntityModel
 
         if ($this->discount != 0) {
             if ($this->invoice->is_amount_discount) {
-                $cost -= $discount / $this->qty;
+                $cost -= $this->discount / $this->qty;
             } else {
-                $cost -= $cost * $discount / 100;
+                $cost -= $cost * $this->discount / 100;
             }
         }
 

@@ -7,6 +7,7 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Jobs\LoadPostmarkHistory;
 use App\Jobs\ReactivatePostmarkEmail;
+use App\Jobs\Client\GenerateStatementData;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
@@ -57,7 +58,7 @@ class ClientController extends BaseController
     public function getDatatable()
     {
         $search = Input::get('sSearch');
-        $userId = Auth::user()->filterId();
+        $userId = Auth::user()->filterIdByEntity(ENTITY_CLIENT);
 
         return $this->clientService->getDatatable($search, $userId);
     }
@@ -85,9 +86,12 @@ class ClientController extends BaseController
      */
     public function show(ClientRequest $request)
     {
+
         $client = $request->entity();
         $user = Auth::user();
         $account = $user->account;
+
+        //$user->can('view', [ENTITY_CLIENT, $client]);
 
         $actionLinks = [];
         if ($user->can('create', ENTITY_INVOICE)) {
@@ -146,6 +150,8 @@ class ClientController extends BaseController
      */
     public function create(ClientRequest $request)
     {
+        //Auth::user()->can('create', ENTITY_CLIENT);
+
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients().' clients']);
         }
@@ -171,6 +177,7 @@ class ClientController extends BaseController
      */
     public function edit(ClientRequest $request)
     {
+
         $client = $request->entity();
 
         $data = [
@@ -239,10 +246,12 @@ class ClientController extends BaseController
         }
     }
 
-    public function statement($clientPublicId, $statusId = false, $startDate = false, $endDate = false)
+    public function statement($clientPublicId)
     {
+        $statusId = request()->status_id;
+        $startDate = request()->start_date;
+        $endDate = request()->end_date;
         $account = Auth::user()->account;
-        $statusId = intval($statusId);
         $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
 
         if (! $startDate) {
@@ -250,32 +259,8 @@ class ClientController extends BaseController
             $endDate = Utils::today(false)->format('Y-m-d');
         }
 
-        $invoice = $account->createInvoice(ENTITY_INVOICE);
-        $invoice->client = $client;
-        $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
-
-        $invoices = Invoice::scope()
-            ->with(['client'])
-            ->invoices()
-            ->whereClientId($client->id)
-            ->whereIsPublic(true)
-            ->orderBy('invoice_date', 'asc');
-
-        if ($statusId == INVOICE_STATUS_PAID) {
-            $invoices->where('invoice_status_id', '=', INVOICE_STATUS_PAID);
-        } elseif ($statusId == INVOICE_STATUS_UNPAID) {
-            $invoices->where('invoice_status_id', '!=', INVOICE_STATUS_PAID);
-        }
-
-        if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
-            $invoices->where('invoice_date', '>=', $startDate)
-                    ->where('invoice_date', '<=', $endDate);
-        }
-
-        $invoice->invoice_items = $invoices->get();
-
         if (request()->json) {
-            return json_encode($invoice);
+            return dispatch(new GenerateStatementData($client, request()->all()));
         }
 
         $data = [

@@ -596,6 +596,7 @@ class BasePaymentDriver
 
         $this->customer = AccountGatewayToken::clientAndGateway($clientId, $this->accountGateway->id)
                             ->with('payment_methods')
+                            ->orderBy('id', 'desc')
                             ->first();
 
         if ($this->customer && $this->invitation) {

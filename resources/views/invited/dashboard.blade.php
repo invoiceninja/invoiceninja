@@ -352,10 +352,11 @@
                     </div>
                 @endif
                 <div class="pull-right">
-                    @if ($client->hasRecurringInvoices())
-                        {!! Button::primary(strtoupper(trans("texts.recurring")))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
-                    @endif
                     {!! Button::success(strtoupper(trans("texts.edit_details")))->asLinkTo(URL::to('/client/details'))->withAttributes(['id' => 'editDetailsButton']) !!}
+                    @if ($client->hasRecurringInvoices())
+                         &nbsp; {!! Button::primary(strtoupper(trans("texts.recurring")))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
+                    @endif
+                    &nbsp; {!! Button::primary(strtoupper(trans("texts.view_statement")))->asLinkTo(URL::to('/client/statement')) !!}
                 </div>
             </div>
         </div>

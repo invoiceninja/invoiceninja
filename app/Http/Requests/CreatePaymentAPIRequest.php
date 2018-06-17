@@ -45,7 +45,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
         ]);
 
         $rules = [
-            'amount' => 'required|numeric|not_in:0',
+            'amount' => 'required|numeric',
         ];
 
         if ($this->payment_type_id == PAYMENT_TYPE_CREDIT) {

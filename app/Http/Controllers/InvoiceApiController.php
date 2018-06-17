@@ -181,7 +181,11 @@ class InvoiceApiController extends BaseAPIController
                 $client = $this->clientRepo->save($clientData);
             }
         } elseif (isset($data['client_id'])) {
-            $client = Client::scope($data['client_id'])->firstOrFail();
+            $client = Client::scope($data['client_id'])->first();
+
+            if (! $client) {
+                return $this->errorResponse('Client not found', 404);
+            }
         }
 
         $data = self::prepareData($data, $client);

@@ -154,7 +154,7 @@
   </div>
 </div>
 
-<div id="mainContent">
+<div id="mainContent" class="container">
     @yield('content')
 </div>
 

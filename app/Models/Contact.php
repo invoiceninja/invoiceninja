@@ -183,6 +183,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         }
 
         $account = $this->account;
+        $iframe_url = $account->iframe_url;
         $url = trim(SITE_URL, '/');
 
         if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
@@ -190,7 +191,13 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
                 $url = $account->present()->clientPortalLink();
             }
 
-            if ($this->account->subdomain) {
+            if ($iframe_url) {
+                if ($account->is_custom_domain) {
+                    $url = $iframe_url;
+                } else {
+                    return "{$iframe_url}?{$this->contact_key}/client";
+                }
+            } elseif ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }

@@ -1601,6 +1601,27 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         return $this->isSent() && ! $this->is_recurring;
     }
+
+    public function getInvoiceLinkForQuote($contactId)
+    {
+        if (! $this->quote_invoice_id) {
+            return false;
+        }
+
+        $invoice = static::scope($this->quote_invoice_id)->with('invitations')->first();
+
+        if (! $invoice) {
+            return false;
+        }
+
+        foreach ($invoice->invitations as $invitation) {
+            if ($invitation->contact_id == $contactId) {
+                return $invitation->getLink();
+            }
+        }
+
+        return false;
+    }
 }
 
 Invoice::creating(function ($invoice) {

@@ -73,6 +73,7 @@ Troubleshooting
 - If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
 - If you're using a proxy and/or self-signed certificate `this comment <https://github.com/invoiceninja/dockerfiles/issues/39#issuecomment-282489039>`_ may help.
 - If you're using a custom design try using a standard one, if the PDF is outside the printable area it can fail.
+- If you're using a non-English language try changing to English.
 
 Custom Fonts
 """"""""""""
@@ -129,10 +130,10 @@ Lock Invoices
 
 Adding ``LOCK_SENT_INVOICES=true`` to the .env file will prevent changing an invoice once it has been sent.
 
-Using a Proxy
+Using a (Reverse) Proxy
 """""""""""""
 
-If you need to set a list of trusted proxies you can add a TRUSTED_PROXIES value in the .env file. ie,
+If you need to set a list of trusted (reverse) proxies you can add a TRUSTED_PROXIES value in the .env file. ie,
 
 .. code-block:: shell
 

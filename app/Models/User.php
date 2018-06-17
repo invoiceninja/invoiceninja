@@ -331,72 +331,34 @@ class User extends Authenticatable
         return Utils::isNinjaProd() && $this->email != $this->getOriginal('email');
     }
 
-     /**
-      * Set the permissions attribute on the model.
-      *
-      * @param  mixed  $value
-      *
-      * @return $this
-      */
-     protected function setPermissionsAttribute($value)
-     {
-         if (empty($value)) {
-             $this->attributes['permissions'] = 0;
-         } else {
-             $bitmask = 0;
-             foreach ($value as $permission) {
-                 if (! $permission) {
-                     continue;
-                 }
-                 $bitmask = $bitmask | static::$all_permissions[$permission];
-             }
 
-             $this->attributes['permissions'] = $bitmask;
-         }
-
-         return $this;
-     }
-
-    /**
-     * Expands the value of the permissions attribute.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    protected function getPermissionsAttribute($value)
-    {
-        $permissions = [];
-        foreach (static::$all_permissions as $permission => $bitmask) {
-            if (($value & $bitmask) == $bitmask) {
-                $permissions[$permission] = $permission;
-            }
-        }
-
-        return $permissions;
-    }
 
     /**
      * Checks to see if the user has the required permission.
      *
      * @param mixed $permission Either a single permission or an array of possible permissions
-     * @param bool True to require all permissions, false to require only one
-     * @param mixed $requireAll
+     * @param mixed $requireAll - True to require all permissions, false to require only one
      *
      * @return bool
      */
+
     public function hasPermission($permission, $requireAll = false)
     {
         if ($this->is_admin) {
             return true;
         } elseif (is_string($permission)) {
-            return ! empty($this->permissions[$permission]);
-        } elseif (is_array($permission)) {
-            if ($requireAll) {
-                return count(array_diff($permission, $this->permissions)) == 0;
-            } else {
-                return count(array_intersect($permission, $this->permissions)) > 0;
+
+            if( is_array(json_decode($this->permissions,1)) && in_array($permission, json_decode($this->permissions,1)) ) {
+                return true;
             }
+
+        } elseif (is_array($permission)) {
+
+            if ($requireAll)
+                return count(array_intersect($permission, json_decode($this->permissions,1))) == count( $permission );
+            else
+                return count(array_intersect($permission, json_decode($this->permissions,1))) > 0;
+
         }
 
         return false;
@@ -416,8 +378,13 @@ class User extends Authenticatable
      * @return bool|mixed
      */
     public function filterId()
-    {
+    {   //todo permissions
         return $this->hasPermission('view_all') ? false : $this->id;
+    }
+
+    public function filterIdByEntity($entity)
+    {
+        return $this->hasPermission('view_' . $entity) ? false : $this->id;
     }
 
     public function caddAddUsers()
@@ -477,6 +444,28 @@ class User extends Authenticatable
         $this->accepted_terms_ip = $ip;
 
         return $this;
+    }
+
+    public function ownsEntity($entity)
+    {
+        return $entity->user_id == $this->id;
+    }
+
+    public function shouldNotify($invoice)
+    {
+        if (! $this->email || ! $this->confirmed) {
+            return false;
+        }
+
+        if ($this->cannot('view', $invoice)) {
+            return false;
+        }
+
+        if ($this->only_notify_owned && ! $this->ownsEntity($invoice)) {
+            return false;
+        }
+
+        return true;
     }
 }
 

@@ -101,7 +101,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return URL::to("invoices/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_INVOICE, $model]);
                 },
             ],
             [

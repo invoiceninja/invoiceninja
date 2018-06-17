@@ -1345,6 +1345,7 @@ $LANG = array(
     'product_key' => 'Product',
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'JSON File',
 
     'view_dashboard' => 'View Dashboard',
@@ -2111,7 +2112,7 @@ $LANG = array(
     'template' => 'Template',
     'start_of_week_help' => 'Used by <b>date</b> selectors',
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
-    'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
 
 	// Updated login screen
@@ -2409,6 +2410,7 @@ $LANG = array(
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2839,6 +2841,13 @@ $LANG = array(
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
 
 );
 

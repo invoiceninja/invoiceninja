@@ -95,6 +95,14 @@ class AccountApiController extends BaseAPIController
         $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
         $data = $this->createCollection($users, $transformer, 'user_account');
 
+        if (request()->include_static) {
+            $data = [
+                'accounts' => $data,
+                'static' => Utils::getStaticData(),
+                'version' => NINJA_VERSION,
+            ];
+        }
+
         return $this->response($data);
     }
 
@@ -112,14 +120,7 @@ class AccountApiController extends BaseAPIController
 
     public function getStaticData()
     {
-        $data = [];
-
-        $cachedTables = unserialize(CACHED_TABLES);
-        foreach ($cachedTables as $name => $class) {
-            $data[$name] = Cache::get($name);
-        }
-
-        return $this->response($data);
+        return $this->response(Utils::getStaticData());
     }
 
     public function getUserAccounts(Request $request)

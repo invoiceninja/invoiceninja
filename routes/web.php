@@ -28,6 +28,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
     Route::get('client/payment_methods', 'ClientPortalController@paymentMethods');
+    Route::get('client/statement/{client_id?}', 'ClientPortalController@statement');
     Route::post('client/payment_methods/verify', 'ClientPortalController@verifyPaymentMethod');
     Route::post('client/payment_methods/default', 'ClientPortalController@setDefaultPaymentMethod');
     Route::post('client/payment_methods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
@@ -45,6 +46,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
+    Route::get('client/{contact_key?}', 'ClientPortalController@dashboard');
 
     Route::get('api/client.quotes', ['as' => 'api.client.quotes', 'uses' => 'ClientPortalController@quoteDatatable']);
     Route::get('api/client.credits', ['as' => 'api.client.credits', 'uses' => 'ClientPortalController@creditDatatable']);
@@ -150,7 +152,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
-    Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
+    Route::get('clients/statement/{client_id}', 'ClientController@statement');
     Route::post('email_history', 'ClientController@getEmailHistory');
     Route::post('reactivate_email/{bounce_id}', 'ClientController@reactivateEmail');
 
@@ -372,42 +374,17 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 });
 
 // Redirects for legacy links
-Route::get('/rocksteady', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/about', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/contact', function () {
-    return Redirect::to(NINJA_WEB_URL.'/contact', 301);
-});
-Route::get('/plans', function () {
-    return Redirect::to(NINJA_WEB_URL.'/pricing', 301);
-});
-Route::get('/faq', function () {
-    return Redirect::to(NINJA_WEB_URL.'/how-it-works', 301);
-});
-Route::get('/features', function () {
-    return Redirect::to(NINJA_WEB_URL.'/features', 301);
-});
-Route::get('/testimonials', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/compare-online-invoicing{sites?}', function () {
-    return Redirect::to(NINJA_WEB_URL, 301);
-});
-Route::get('/forgot', function () {
-    return Redirect::to(NINJA_APP_URL.'/recover_password', 301);
-});
-Route::get('/feed', function () {
-    return Redirect::to(NINJA_WEB_URL.'/feed', 301);
-});
-Route::get('/comments/feed', function () {
-    return Redirect::to(NINJA_WEB_URL.'/comments/feed', 301);
-});
-Route::get('/terms', function () {
-    return Redirect::to(NINJA_WEB_URL.'/terms', 301);
-});
+Route::get('rocksteady', 'AppController@redirect');
+Route::get('about', 'AppController@redirect');
+Route::get('contact', 'AppController@redirect');
+Route::get('plans', 'AppController@redirect');
+Route::get('faq', 'AppController@redirect');
+Route::get('features', 'AppController@redirect');
+Route::get('testimonials', 'AppController@redirect');
+Route::get('compare-online-invoicing{sites?}', 'AppController@redirect');
+Route::get('feed', 'AppController@redirect');
+Route::get('comments/feed', 'AppController@redirect');
+Route::get('terms', 'AppController@redirect');
 
 /*
 if (Utils::isNinjaDev())

@@ -176,7 +176,7 @@ class AccountRepository
             $data[$account->present()->customLabel('client2')] = [];
         }
 
-        if ($user->hasPermission('view_all')) {
+        if ($user->hasPermission(['view_client', 'view_invoice'], true)) {
             $clients = Client::scope()
                         ->with('contacts', 'invoices')
                         ->withTrashed()
@@ -234,6 +234,21 @@ class AccountRepository
                     'tokens' => implode(',', [$invoice->invoice_number, $invoice->po_number]),
                     'url' => $invoice->present()->url,
                 ];
+
+                if ($customValue = $invoice->custom_text_value1) {
+                    $data[$account->present()->customLabel('invoice_text1')][] = [
+                        'value' => "{$customValue}: {$invoice->getDisplayName()}",
+                        'tokens' => $customValue,
+                        'url' => $invoice->present()->url,
+                    ];
+                }
+                if ($customValue = $invoice->custom_text_value2) {
+                    $data[$account->present()->customLabel('invoice_text2')][] = [
+                        'value' => "{$customValue}: {$invoice->getDisplayName()}",
+                        'tokens' => $customValue,
+                        'url' => $invoice->present()->url,
+                    ];
+                }
             }
         }
 

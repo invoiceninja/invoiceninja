@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Models\TaxRate;
@@ -9,6 +11,7 @@ use App\Ninja\Datatables\ProductDatatable;
 use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
 use Auth;
+use Illuminate\Auth\Access\AuthorizationException;
 use Input;
 use Redirect;
 use Session;
@@ -84,6 +87,8 @@ class ProductController extends BaseController
      */
     public function edit(ProductRequest $request, $publicId, $clone = false)
     {
+        Auth::user()->can('view', [ENTITY_PRODUCT, $request->entity()]);
+
         $account = Auth::user()->account;
         $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
@@ -114,8 +119,9 @@ class ProductController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function create()
+    public function create(ProductRequest $request)
     {
+
         $account = Auth::user()->account;
 
         $data = [
@@ -133,7 +139,7 @@ class ProductController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store()
+    public function store(CreateProductRequest $request)
     {
         return $this->save();
     }
@@ -143,7 +149,7 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update($publicId)
+    public function update(UpdateProductRequest $request, $publicId)
     {
         return $this->save($publicId);
     }

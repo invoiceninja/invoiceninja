@@ -123,6 +123,7 @@
                 throw exception;
             }
         @else
+            console.log(exception);
             console.warn('Failed to generate PDF: %s', exception.message);
             var href = location.href;
             if (href.indexOf('/view/') > 0 && href.indexOf('phantomjs') == -1) {

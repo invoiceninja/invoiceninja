@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
 
-    @if (Auth::user()->hasPermission('view_all'))
+    @if (Auth::user()->hasPermission('admin'))
         function loadChart(data) {
             var ctx = document.getElementById('chart-canvas').getContext('2d');
             if (window.myChart) {
@@ -219,7 +219,7 @@
     @else
         <div class="col-md-10">
     @endif
-        @if (Auth::user()->hasPermission('view_all'))
+        @if (Auth::user()->hasPermission('admin'))
         <div class="pull-right">
             @if (count($currencies) > 1)
             <div id="currency-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc;">
@@ -370,7 +370,7 @@
     </div>
 </div>
 
-@if (Auth::user()->hasPermission('view_all'))
+@if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-12">
         <div id="progress-div" class="progress">
@@ -441,7 +441,7 @@
                         @foreach ($payments as $payment)
                         <tr>
                             <td>{!! \App\Models\Invoice::calcLink($payment) !!}</td>
-                            @can('viewByOwner', [ENTITY_CLIENT, $payment->client_user_id])
+                            @can('view', [ENTITY_CLIENT, $payment])
                                 <td>{!! link_to('/clients/'.$payment->client_public_id, trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email)) !!}</td>
                             @else
                                 <td>{{ trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email) }}</td>
@@ -478,7 +478,7 @@
                             @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
+                                    @can('view', [ENTITY_CLIENT, $invoice])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>
@@ -513,7 +513,7 @@
                             @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
+                                    @can('view', [ENTITY_CLIENT, $invoice])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>

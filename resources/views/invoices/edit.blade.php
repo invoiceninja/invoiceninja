@@ -138,7 +138,9 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+					@can('create', $invoice->client)
 					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, html: $root.clientLinkText"></a>
+					@endcan
                     <span data-bind="visible: $root.invoice().client().public_id() > 0" style="display:none">|
                         <a data-bind="attr: {href: '{{ url('/clients') }}/' + $root.invoice().client().public_id()}" target="_blank">{{ trans('texts.view_client') }}</a>
                     </span>
@@ -1026,11 +1028,13 @@
 		});
 
 		// If no clients exists show the client form when clicking on the client select input
+		@can('create', $invoice->client);
 		if (clients.length === 0) {
 			$('.client_select input.form-control').on('click', function() {
 				model.showClientForm();
 			});
 		}
+		@endcan
 
 		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #partial_due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
             $('#downloadPdfButton').attr('disabled', true);
@@ -1341,8 +1345,13 @@
 				return false;
 			}
 			if (!isSaveValid()) {
-				model.showClientForm();
-				return false;
+
+				@if(Auth::user()->can('create', ENTITY_CLIENT))
+					model.showClientForm();
+					return false;
+				@else
+					showPermissionErrorModal();
+				@endif
 			}
 
 			@if ($account->auto_email_invoice)
@@ -1436,8 +1445,14 @@
 
 	function submitAction(value) {
 		if (!isSaveValid()) {
-            model.showClientForm();
-            return false;
+
+			@if(Auth::user()->can('create', ENTITY_CLIENT))
+				model.showClientForm();
+				return false;
+			@else
+                showPermissionErrorModal();
+			@endif
+
         }
 
 		$('#action').val(value);
@@ -1483,7 +1498,7 @@
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
-				if (data && data.indexOf('http') === 0) {
+				if (data && data.toLowerCase().indexOf('http') === 0) {
 					NINJA.formIsChanged = false;
 					location.href = data;
 				} else {
@@ -1724,6 +1739,10 @@
 		model.invoice().removeDocument(file.public_id);
 		refreshPDF(true);
 	}
+
+    function showPermissionErrorModal() {
+        swal({!! json_encode(trans('texts.create_client')) !!});
+    }
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)

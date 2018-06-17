@@ -72,7 +72,7 @@ class ExpenseService extends BaseService
     {
         $query = $this->expenseRepo->find($search);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_expense')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -90,7 +90,25 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findVendor($vendorPublicId);
 
-        if (! Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_vendor')) {
+            $query->where('expenses.user_id', '=', Auth::user()->id);
+        }
+
+        return $this->datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * @param $clientPublicId
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getDatatableClient($clientPublicId)
+    {
+        $datatable = new ExpenseDatatable(true, true);
+
+        $query = $this->expenseRepo->findClient($clientPublicId);
+
+        if (! Utils::hasPermission('view_client')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 

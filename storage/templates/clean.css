@@ -23,7 +23,7 @@ p span.client  {
 	margin:5px 0px 0px 0px;
 }
 
-h1.heading {
+h1.cover-heading {
 	font-size: 48px;
 	line-height: 53px;
 	text-transform: uppercase;
@@ -57,10 +57,10 @@ span.account.address1, span.account.city, span.account.state, span.account.posta
 }
 
 
+.heading,
 .card-title {
-	font-size: 13px;
+	font-size: 14px;
 	letter-spacing: 3px;
-	text-transform: uppercase;
 	color: #37a3c6;
 	font-weight: 600;
 }
@@ -69,7 +69,6 @@ span.account.address1, span.account.city, span.account.state, span.account.posta
 	font-size: 15px;
 	line-height: 21px;
 }
-
 
 a.button {
 	background: #37a3c6;
@@ -94,8 +93,12 @@ a.button:hover {
 	background: #eeefef;
 }
 
-table td {
+.card-content {
 	padding: 20px;
+}
+
+td {
+    vertical-align: top;
 }
 
 tr.top-header {

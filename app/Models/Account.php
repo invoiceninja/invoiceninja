@@ -1797,6 +1797,11 @@ class Account extends Eloquent
         return $this->company->accounts->count() > 1;
     }
 
+    public function hasMultipleUsers()
+    {
+        return $this->users->count() > 1;
+    }
+
     public function getPrimaryAccount()
     {
         return $this->company->accounts()->orderBy('id')->first();

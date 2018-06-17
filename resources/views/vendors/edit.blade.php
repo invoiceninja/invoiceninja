@@ -5,7 +5,7 @@
 @stop
 
 @section('head')
-	@if (config('ninja.google_maps_enabled'))
+	@if (config('ninja.google_maps_api_key'))
 		@include('partials.google_geocode')
 	@endif
 @stop
@@ -65,7 +65,7 @@
 			{!! Former::text('state') !!}
 
 			{!! Former::text('postal_code')
-					->oninput(config('ninja.google_maps_enabled') ? 'lookupPostalCode()' : '') !!}
+					->oninput(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
 			{!! Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') !!}
 
@@ -202,12 +202,12 @@
 
 
 	</script>
-
+	@if(Auth::user()->canCreateOrEdit(ENTITY_VENDOR))
 	<center class="buttons">
     	{!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/vendors/' . ($vendor ? $vendor->public_id : '')))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
-
+	@endif
 	{!! Former::close() !!}
 </div>
 @stop

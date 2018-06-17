@@ -95,6 +95,28 @@
             }
           }
           @endif
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text1'))
+          ,{
+            name: 'data',
+            limit: 3,
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text1') }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text1') }}</span>'
+            }
+          }
+          @endif
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text2'))
+          ,{
+            name: 'data',
+            limit: 3,
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text2') }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text2') }}</span>'
+            }
+          }
+          @endif
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
@@ -405,13 +427,13 @@
             @endforeach
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
-                    @include('partials.navigation_option', [
+                    @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
                         'option' => $module->getAlias(),
                         'icon' => $module->get('icon', 'th-large'),
                     ])
                 @endforeach
             @endif
-            @if (Auth::user()->hasPermission('view_all'))
+            @if (Auth::user()->hasPermission('view_reports'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])

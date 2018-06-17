@@ -1,4 +1,4 @@
-@extends('header')
+@extends(! empty($extends) ? $extends : 'header')
 
 @section('head')
     @parent
@@ -7,14 +7,17 @@
     <link href="{{ asset('css/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
 
     @include('money_script')
-    @foreach (Auth::user()->account->getFontFolders() as $font)
+    @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
     <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script>
 
-        var invoiceDesigns = {!! \App\Models\InvoiceDesign::getDesigns() !!};
+        var invoiceDesign = JSON.stringify({!!
+            //Utils::getFromCache($account->invoice_design_id ?: 1, 'invoiceDesigns')->pdfmake
+            Utils::getFromCache(1, 'invoiceDesigns')->pdfmake
+        !!});
         var invoiceFonts = {!! Cache::get('fonts') !!};
 
         var statementStartDate = moment("{{ $startDate }}");
@@ -22,32 +25,23 @@
         var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
         function getPDFString(cb) {
-
             invoice.is_statement = true;
             invoice.image = window.accountLogo;
             invoice.features = {
-                  customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
-                  remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
-                  invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
+                  customize_invoice_design:{{ $account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
+                  remove_created_by:{{ $account->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
+                  invoice_settings:{{ $account->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
               };
 
-            var invoiceDesignId = parseInt(invoice.invoice_design_id);
-            // We don't currently support the hipster design to be used as a statement
-            if (invoiceDesignId == 8) {
-                invoiceDesignId = 1;
-            }
-            var invoiceDesign = _.findWhere(invoiceDesigns, {id: invoiceDesignId});
-            if (!invoiceDesign) {
-                invoiceDesign = invoiceDesigns[0];
-            }
-
-            generatePDF(invoice, invoiceDesign.javascript, true, cb);
+            generatePDF(invoice, invoiceDesign, true, cb);
         }
 
         $(function() {
             if (isStorageSupported()) {
 				var lastRange = localStorage.getItem('last:statement_range');
                 var lastStatusId = localStorage.getItem('last:statement_status_id');
+                var lastShowPayments = localStorage.getItem('last:statement_show_payments');
+                var lastShowAging = localStorage.getItem('last:statement_show_aging');
 				lastRange = dateRanges[lastRange];
 				if (lastRange) {
 					statementStartDate = lastRange[0];
@@ -55,6 +49,12 @@
 				}
                 if (lastStatusId) {
                     $('#status_id').val(lastStatusId);
+                }
+                if (lastShowPayments) {
+                    $('#show_payments').prop('checked', true);
+                }
+                if (lastShowAging) {
+                    $('#show_aging').prop('checked', true);
                 }
 			}
 
@@ -98,24 +98,29 @@
                 $('#reportrange').css('color', '#000');
                 $('#reportrange').css('pointer-events', 'auto');
             }
-            var url = '{{ url('/clients/statement/' . $client->public_id) }}' + '/' + statusId + '/' +
-                statementStartDate.format('YYYY-MM-DD') + '/' + statementEndDate.format('YYYY-MM-DD') + '?json=true';
+
+            var url = '/{{ request()->path() }}' +
+                '?status_id=' + statusId +
+                '&start_date=' + statementStartDate.format('YYYY-MM-DD') +
+                '&end_date=' + statementEndDate.format('YYYY-MM-DD') +
+                '&show_payments=' + ($('#show_payments').is(':checked') ? '1' : '') +
+                '&show_aging=' + ($('#show_aging').is(':checked') ? '1' : '') +
+                '&json=true';
+
             $.get(url, function(response) {
                 invoice = currentInvoice = JSON.parse(response);
                 refreshPDF();
             });
-        }
 
-        function onStatusChange() {
             if (isStorageSupported()) {
                 localStorage.setItem('last:statement_status_id', $('#status_id').val());
+                localStorage.setItem('last:statement_show_payments', $('#show_payments').is(':checked') ? '1' : '');
+                localStorage.setItem('last:statement_show_aging', $('#show_aging').is(':checked') ? '1' : '');
             }
-
-            refreshData();
         }
 
         function onDownloadClick() {
-            var doc = generatePDF(invoice, invoiceDesigns[0].javascript, true);
+            var doc = generatePDF(invoice, invoiceDesign, true);
             doc.save("{{ str_replace(' ', '_', trim($client->getDisplayName())) . '-' . trans('texts.statement') }}" + '.pdf');
         }
 
@@ -125,55 +130,80 @@
 
 @section('content')
 
-    <div class="pull-right">
-        {!! Button::normal(trans('texts.download'))
-                ->withAttributes(['onclick' => 'onDownloadClick()'])
-                ->appendIcon(Icon::create('download-alt')) !!}
-        {!! Button::primary(trans('texts.view_client'))
-                ->asLinkTo($client->present()->url) !!}
-    </div>
-
-    <ol class="breadcrumb pull-left">
-      <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
-      <li class='active'>{{ $client->getDisplayName() }}</li>
-    </ol>
-
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
-
-    <div class="well" style="background: #eeeeee">
-        {!! Former::inline_open() !!}
-
-        {{ trans('texts.status') }}
-
-        &nbsp;&nbsp;
-
-        {!! Former::select('status_id')
-                ->onchange('onStatusChange()')
-                ->label('status')
-                ->addOption(trans('texts.unpaid'), INVOICE_STATUS_UNPAID)
-                ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID)
-                ->addOption(trans('texts.all'), 'false') !!}
-
-        &nbsp;&nbsp;&nbsp;&nbsp;
-
-        {{ trans('texts.date_range') }}
-
-        &nbsp;&nbsp;
-
-        <span id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
-            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-            <span></span> <b class="caret"></b>
-        </span>
-
-        <div style="display:none">
-            {!! Former::text('start_date') !!}
-            {!! Former::text('end_date') !!}
+    @if (empty($extends))
+        <div class="pull-right">
+            {!! Button::normal(trans('texts.download'))
+                    ->withAttributes(['onclick' => 'onDownloadClick()'])
+                    ->appendIcon(Icon::create('download-alt')) !!}
+            {!! Button::primary(trans('texts.view_client'))
+                    ->asLinkTo($client->present()->url) !!}
         </div>
 
-        {!! Former::close() !!}
+        <ol class="breadcrumb pull-left">
+          <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
+          <li class='active'>{{ $client->getDisplayName() }}</li>
+        </ol>
+
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    @endif
+
+    <div class="well" style="background: #eeeeee; padding-bottom:30px;">
+        <div class="pull-left">
+            {!! Former::inline_open()->onchange('refreshData()') !!}
+
+            {{ trans('texts.status') }}
+
+            &nbsp;&nbsp;
+
+            {!! Former::select('status_id')
+                    ->label('status')
+                    ->addOption(trans('texts.all'), 'false')
+                    ->addOption(trans('texts.unpaid'), INVOICE_STATUS_UNPAID)
+                    ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID) !!}
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            {{ trans('texts.date_range') }}
+
+            &nbsp;&nbsp;
+
+            <span id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
+                <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                <span></span> <b class="caret"></b>
+            </span>
+
+            <div style="display:none">
+                {!! Former::text('start_date') !!}
+                {!! Former::text('end_date') !!}
+            </div>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            @if (empty($extends))
+                {!! Former::checkbox('show_payments')->text('show_payments') !!}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {!! Former::checkbox('show_aging')->text('show_aging') !!}
+            @else
+                {!! Former::checkbox('show_payments')->text('show_payments')->inline() !!}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {!! Former::checkbox('show_aging')->text('show_aging')->inline() !!}
+            @endif
+
+            {!! Former::close() !!}
+
+        </div>
+
+        @if (! empty($extends))
+            <div class="pull-right">
+                {!! Button::normal(trans('texts.download') . ' &nbsp; ')
+                        ->withAttributes(['onclick' => 'onDownloadClick()'])
+                        ->appendIcon(Icon::create('download-alt')) !!}
+            </div>
+        @endif
+        &nbsp;
     </div>
 
-    @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
+    @include('invoices.pdf', ['account' => $account])
 
 @stop

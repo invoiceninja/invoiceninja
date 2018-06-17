@@ -112,7 +112,7 @@ class EntityModel extends Eloquent
             return $className::scope($publicId)->withTrashed()->value('id');
         } else {
             return $className::scope($publicId)->value('id');
-        }        
+        }
     }
 
     /**
@@ -179,7 +179,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && ! Auth::user()->hasPermission('view_all') && method_exists($this, 'getEntityType') && $this->getEntityType() != ENTITY_TAX_RATE) {
+        if (Auth::check() && method_exists($this, 'getEntityType') && ! Auth::user()->hasPermission('view_' . $this->getEntityType())  && $this->getEntityType() != ENTITY_TAX_RATE) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -448,5 +448,26 @@ class EntityModel extends Eloquent
         }
 
         return $this->id == $obj->id && $this->getEntityType() == $obj->entityType;
+    }
+
+    /**
+      * @param $method
+      * @param $params
+      */
+    public function __call($method, $params)
+    {
+        if (count(config('modules.relations'))) {
+            $entityType = $this->getEntityType();
+
+            if ($entityType) {
+                $config = implode('.', ['modules.relations.' . $entityType, $method]);
+                if (config()->has($config)) {
+                    $function = config()->get($config);
+                    return $function($this);
+                }
+            }
+        }
+
+        return parent::__call($method, $params);
     }
 }

@@ -57,7 +57,7 @@ class VendorDatatable extends EntityDatatable
                     return URL::to("vendors/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]);
+                    return Auth::user()->can('view', [ENTITY_VENDOR, $model]);
                 },
             ],
             [
@@ -65,7 +65,7 @@ class VendorDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('create', ENTITY_EXPENSE);
                 },
 
             ],
