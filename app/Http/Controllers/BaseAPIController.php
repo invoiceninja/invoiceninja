@@ -99,6 +99,10 @@ class BaseAPIController extends Controller
 
         $query->with($includes);
 
+        if (Input::get('filter_active')) {
+            $query->whereNull('deleted_at');
+        }
+
         if (Input::get('updated_at') > 0) {
                 $updatedAt = intval(Input::get('updated_at'));
                 $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
