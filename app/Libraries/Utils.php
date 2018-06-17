@@ -501,6 +501,18 @@ class Utils
         }
     }
 
+    public static function getStaticData()
+    {
+        $data = [];
+
+        $cachedTables = unserialize(CACHED_TABLES);
+        foreach ($cachedTables as $name => $class) {
+            $data[$name] = Cache::get($name);
+        }
+
+        return $data;
+    }
+
     public static function getFromCache($id, $type)
     {
         $cache = Cache::get($type);
