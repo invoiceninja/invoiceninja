@@ -1372,7 +1372,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
             value = contact.custom_value2;
         }
     } else if (field == 'account.company_name') {
-        value = account.name;
+        value = account.name + ' ';
     } else if (field == 'account.id_number') {
         value = account.id_number;
         if (invoiceLabels.id_number_orig) {
