@@ -9,6 +9,21 @@ use App\Models\Activity;
  */
 class ActivityTransformer extends EntityTransformer
 {
+	  /**
+     * @SWG\Property(property="id", type="integer", example=1)
+     * @SWG\Property(property="activity_type_id", type="integer", example=1)
+     * @SWG\Property(property="client_id", type="integer", example=1)
+     * @SWG\Property(property="user_id", type="integer", example=1)
+     * @SWG\Property(property="invoice_id", type="integer", example=1)
+     * @SWG\Property(property="payment_id", type="integer", example=1)
+     * @SWG\Property(property="credit_id", type="integer", example=1)
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="expense_id", type="integer", example=1)
+     * @SWG\Property(property="is_system", type="boolean", example=false)
+     * @SWG\Property(property="contact_id", type="integer", example=1)
+     * @SWG\Property(property="task_id", type="integer", example=1)
+     */
+
     protected $defaultIncludes = [];
 
     /**
