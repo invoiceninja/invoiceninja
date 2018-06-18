@@ -15,8 +15,17 @@ class PaymentTransformer extends EntityTransformer
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="transaction_reference", type="string", example="Transaction Reference")
+     * @SWG\Property(property="payment_date", type="string", format="date", example="2018-01-01")
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="payment_type_id", type="integer", example=1) 
      * @SWG\Property(property="invoice_id", type="integer", example=1)
-     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="invoice_number", type="string", example="Invoice Number")
+     * @SWG\Property(property="private_notes", type="string", example="Notes")
+     * @SWG\Property(property="exchange_rate", type="number", format="float", example=10)
+     * @SWG\Property(property="exchange_currency_id", type="integer", example=1)
      */
     protected $defaultIncludes = [];
 
