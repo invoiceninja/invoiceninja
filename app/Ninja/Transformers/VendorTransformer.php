@@ -27,7 +27,7 @@ class VendorTransformer extends EntityTransformer
      * @SWG\Property(property="postal_code", type="string", example=10010)
      * @SWG\Property(property="country_id", type="integer", example=840)
      * @SWG\Property(property="work_phone", type="string", example="(212) 555-1212")
-     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="private_notes", type="string", example="Notes")
      * @SWG\Property(property="last_login", type="string", format="date-time", example="2016-01-01 12:10:00")
      * @SWG\Property(property="website", type="string", example="http://www.example.com")
      * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
