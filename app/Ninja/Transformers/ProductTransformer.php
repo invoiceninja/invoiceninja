@@ -15,8 +15,15 @@ class ProductTransformer extends EntityTransformer
      * @SWG\Property(property="notes", type="string", example="Notes...")
      * @SWG\Property(property="cost", type="number", format="float", example=10.00)
      * @SWG\Property(property="qty", type="number", format="float", example=1)
+     * @SWG\Property(property="tax_name1", type="string", example="TaxName")
+     * @SWG\Property(property="tax_rate1", type="number"format="float", example=10)
+     * @SWG\Property(property="tax_name2", type="string", example="TaxName")
+     * @SWG\Property(property="tax_rate2", type="number",format="float", example=10)
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="custom_value1", type="string", example="Custom Value")
+     * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
+     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
      */
     public function transform(Product $product)
     {
