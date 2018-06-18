@@ -12,9 +12,15 @@ class CreditTransformer extends EntityTransformer
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="credit_date", type="string", format="date", example="2018-01-01")
+     * @SWG\Property(property="credit_number", type="string", example="Credit Number")
+     * @SWG\Property(property="private_notes", type="string", example="Notes")
+     * @SWG\Property(property="public_notes", type="string", example="Notes")
      * @SWG\Property(property="client_id", type="integer", example=1)
-     * @SWG\Property(property="private_notes", type="string", example="Notes...")
-     * @SWG\Property(property="public_notes", type="string", example="Notes...")
      */
 
     /**
