@@ -20,6 +20,8 @@ class ProjectTransformer extends EntityTransformer
      * @SWG\Property(property="due_date", type="string", format="date", example="2016-01-01")
      * @SWG\Property(property="private_notes", type="string", format="Sample notes", example=10)
      * @SWG\Property(property="budgeted_hours", type="number", format="float", example=10)
+     * @SWG\Property(property="custom_value1", type="string", example="Custom Value")
+     * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
      */
     public function transform(Project $project)
     {

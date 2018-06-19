@@ -13,8 +13,19 @@ class TaskTransformer extends EntityTransformer
 {
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="description", type="string", example="Description")
+     * @SWG\Property(property="duration", type="string", example="Duration")
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
+     * @SWG\Property(property="recurring_invoice_id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="client_id", type="integer", example=1) 
+     * @SWG\Property(property="project_id", type="integer", example=1) 
+     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="time_log", type="string", example="Time Log")
+     * @SWG\Property(property="is_running", type="boolean", example=false)
+     * @SWG\Property(property="custom_value1", type="string", example="Custom Value")
+     * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
      */
     protected $availableIncludes = [
         'client',
