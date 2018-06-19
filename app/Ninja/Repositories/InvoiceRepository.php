@@ -381,7 +381,7 @@ class InvoiceRepository extends BaseRepository
             @file_put_contents(storage_path('logs/invoice-repo.log'), $logMessage, FILE_APPEND);
         }
 
-        $isNew = ! $publicId || $publicId == '-1';
+        $isNew = ! $publicId || intval($publicId) < 0;
 
         if ($invoice) {
             // do nothing
