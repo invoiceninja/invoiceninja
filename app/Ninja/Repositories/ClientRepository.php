@@ -87,7 +87,7 @@ class ClientRepository extends BaseRepository
 
         if ($client) {
             // do nothing
-        } elseif (! $publicId || $publicId == '-1') {
+        } elseif (! $publicId || intval($publicId) < 0) {
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
@@ -176,7 +176,7 @@ class ClientRepository extends BaseRepository
             }
         }
 
-        if (! $publicId || $publicId == '-1') {
+        if (! $publicId || intval($publicId) < 0) {
             event(new ClientWasCreated($client));
         } else {
             event(new ClientWasUpdated($client));

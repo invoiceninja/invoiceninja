@@ -68,7 +68,7 @@ class VendorRepository extends BaseRepository
 
         if ($vendor) {
             // do nothing
-        } elseif (! $publicId || $publicId == '-1') {
+        } elseif (! $publicId || intval($publicId) < 0) {
             $vendor = Vendor::createNew();
         } else {
             $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
