@@ -58,7 +58,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
         $entity->save();
 
         /*
-        if (!$publicId || $publicId == '-1') {
+        if (!$publicId || intval($publicId) < 0) {
             event(new ClientWasCreated($client));
         } else {
             event(new ClientWasUpdated($client));

@@ -219,7 +219,7 @@ class Vendor extends EntityModel
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
-        if (! $this->wasRecentlyCreated && $publicId && $publicId != '-1') {
+        if (! $this->wasRecentlyCreated && $publicId && intval($publicId) > 0) {
             $contact = VendorContact::scope($publicId)->whereVendorId($this->id)->firstOrFail();
         } else {
             $contact = VendorContact::createNew();

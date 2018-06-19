@@ -264,7 +264,7 @@ class Client extends EntityModel
 
         // check if this client wasRecentlyCreated to ensure a new contact is
         // always created even if the request includes a contact id
-        if (! $this->wasRecentlyCreated && $publicId && $publicId != '-1') {
+        if (! $this->wasRecentlyCreated && $publicId && intval($publicId) > 0) {
             $contact = Contact::scope($publicId)->whereClientId($this->id)->firstOrFail();
         } else {
             $contact = Contact::createNew();
