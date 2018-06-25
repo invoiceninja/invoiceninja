@@ -578,6 +578,7 @@ function calculateAmounts(invoice) {
   var taxes = {};
   invoice.has_custom_item_value1 = false;
   invoice.has_custom_item_value2 = false;
+  invoice.has_product_key = false;
 
   var hasStandard = false;
   var hasTask = false;
@@ -629,6 +630,10 @@ function calculateAmounts(invoice) {
         if (item.custom_value2) {
             invoice.has_custom_item_value2 = true;
         }
+    }
+
+    if (item.product_key) {
+      invoice.has_product_key = true;
     }
 
     if (parseFloat(item.tax_rate1) != 0 || item.tax_name1) {

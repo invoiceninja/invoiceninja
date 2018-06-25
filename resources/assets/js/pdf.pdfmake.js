@@ -734,6 +734,10 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
             } else {
                 continue;
             }
+        } else if (field == 'product.item' && ! invoice.has_product_key) {
+            continue;
+        } else if (field == 'product.service' && ! invoice.has_product_key) {
+            continue;
         } else if (field == 'product.tax') {
             if (invoice.has_item_taxes) {
                 width = 15;
@@ -855,7 +859,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     var fields = NINJA.productFields(invoice, isTasks);
     var hasDescription = fields.indexOf('product.description') >= 0;
 
-    for (var i=0; i<fields.length; i++) {
+    for (var i=0,j=0; i<fields.length; i++) {
         var field = fields[i].split('.')[1]; // split to remove 'product.'
 
         if (invoice.is_delivery_note && skipFields.indexOf(fields[i]) >= 0) {
@@ -877,6 +881,11 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             } else {
                 continue;
             }
+
+        } else if (field == 'item' && ! invoice.has_product_key) {
+            continue;
+        } else if (field == 'service' && ! invoice.has_product_key) {
+            continue;
         } else if (field == 'tax' && ! invoice.has_item_taxes) {
             continue;
         } else if (field == 'discount' && ! invoice.has_item_discounts) {
@@ -885,13 +894,15 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             headerStyles.push('cost');
         }
 
-        if (i == 0) {
+        if (j == 0) {
             headerStyles.push('firstColumn');
         } else if (i == fields.length - 1) {
             headerStyles.push('lastColumn');
         }
 
         grid[0].push({text: value, style: headerStyles});
+
+        j++;
     }
 
     for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -966,7 +977,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
         rowStyle = (grid.length % 2 == 0) ? 'even' : 'odd';
 
-        for (var j=0; j<fields.length; j++) {
+        for (var j=0,k=0; j<fields.length; j++) {
             var field = fields[j].split('.')[1]; // split to remove 'product.'
 
             if (invoice.is_delivery_note && skipFields.indexOf(fields[j]) >= 0) {
@@ -979,6 +990,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             if (field == 'custom_value1' && ! invoice.has_custom_item_value1) {
                 continue;
             } else if (field == 'custom_value2' && ! invoice.has_custom_item_value2) {
+                continue;
+            } else if (field == 'item' && ! invoice.has_product_key) {
+                continue;
+            } else if (field == 'service' && ! invoice.has_product_key) {
                 continue;
             } else if (field == 'tax' && ! invoice.has_item_taxes) {
                 continue;
@@ -1030,13 +1045,15 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 value = lineTotal;
             }
 
-            if (j == 0) {
-                styles.push('firstColumn');
+            if (k == 0) {
+                styles.unshift('firstColumn');
             } else if (j == fields.length - 1) {
                 styles.push('lastColumn');
             }
 
             row.push({text:value || ' ', style:styles});
+
+            k++;
         }
 
         grid.push(row);
