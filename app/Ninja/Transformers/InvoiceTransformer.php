@@ -127,9 +127,9 @@ class InvoiceTransformer extends EntityTransformer
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
             'custom_taxes2' => (bool) $invoice->custom_taxes2,
             'has_expenses' => (bool) $invoice->has_expenses,
-            'quote_invoice_id' => (int) $invoice->quote_invoice_id,
-            'custom_text_value1' => $invoice->custom_text_value1,
-            'custom_text_value2' => $invoice->custom_text_value2,
+            'quote_invoice_id' => (int) ($invoice->quote_invoice_id ?: 0),
+            'custom_text_value1' => $invoice->custom_text_value1 ?: '',
+            'custom_text_value2' => $invoice->custom_text_value2 ?: '',
             'is_quote' => (bool) $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
             'is_public' => (bool) $invoice->is_public,
             'filename' => $invoice->getFileName(),
