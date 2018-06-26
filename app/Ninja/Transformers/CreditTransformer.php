@@ -31,10 +31,10 @@ class CreditTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($credit->updated_at),
             'archived_at' => $this->getTimestamp($credit->deleted_at),
             'is_deleted' => (bool) $credit->is_deleted,
-            'credit_date' => $credit->credit_date,
-            'credit_number' => $credit->credit_number,
-            'private_notes' => $credit->private_notes,
-            'public_notes' => $credit->public_notes,
+            'credit_date' => $credit->credit_date ?: '',
+            'credit_number' => $credit->credit_number ?: '',
+            'private_notes' => $credit->private_notes ?: '',
+            'public_notes' => $credit->public_notes ?: '',
             'client_id' => $credit->client->public_id,
         ]);
     }
