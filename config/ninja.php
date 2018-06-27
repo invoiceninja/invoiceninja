@@ -21,7 +21,8 @@ return [
 
     // Currency exchange rates
     'exchange_rates_enabled' => env('EXCHANGE_RATES_ENABLED', false),
-    'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'https://api.fixer.io/latest'),
+    'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'http://data.fixer.io/api/latest?access_key={apiKey}'),
+    'exchange_rates_api_key' => env('EXCHANGE_RATES_API_KEY', false),
     'exchange_rates_base' => env('EXCHANGE_RATES_BASE', 'EUR'),
 
     // terms and privacy policy

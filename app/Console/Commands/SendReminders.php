@@ -203,13 +203,24 @@ class SendReminders extends Command
         if (config('ninja.exchange_rates_enabled')) {
             $this->info(date('r') . ' Loading latest exchange rates...');
 
-            $response = CurlUtils::get(config('ninja.exchange_rates_url'));
+            $url = config('ninja.exchange_rates_url');
+            $apiKey = config('ninja.exchange_rates_api_key');
+            $url = str_replace('{apiKey}', $apiKey, $url);
+
+            $response = CurlUtils::get($url);
             $data = json_decode($response);
 
-            if ($data && property_exists($data, 'rates')) {
-                Currency::whereCode(config('ninja.exchange_rates_base'))->update(['exchange_rate' => 1]);
+            if ($data && property_exists($data, 'rates') && property_exists($data, 'base')) {
+                $base = config('ninja.exchange_rates_base');
+
+                // should calculate to different base
+                $recalculate = ($data->base != $base);
 
                 foreach ($data->rates as $code => $rate) {
+                    if($recalculate) {
+                        $rate = 1 / $data->rates->{$base} * $rate;
+                    }
+
                     Currency::whereCode($code)->update(['exchange_rate' => $rate]);
                 }
             } else {
