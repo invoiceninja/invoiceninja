@@ -38,7 +38,7 @@ class UserAccountTransformer extends EntityTransformer
             'default_url' => SITE_URL,
             'plan' => $account->company->plan ?: '',
             'logo' => $account->logo ?: '',
-            'logo_url' => $account->getLogoURL(),
+            'logo_url' => $account->getLogoURL() ?: '',
             'currency_id' => (int) $account->currency_id,
             'timezone_id' => (int) $account->timezone_id,
             'date_format_id' => (int) $account->date_format_id,
