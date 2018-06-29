@@ -83,14 +83,12 @@ class ConfideSetupUsersTable extends Migration
             $t->string('format');
             $t->string('picker_format');
             $t->string('label');
-            $t->string('format_dart');
         });
 
         Schema::create('datetime_formats', function ($t) {
             $t->increments('id');
             $t->string('format');
             $t->string('label');
-            $t->string('format_dart');
         });
 
         Schema::create('currencies', function ($t) {
