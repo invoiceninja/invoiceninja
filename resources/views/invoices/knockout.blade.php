@@ -1067,21 +1067,20 @@ ko.bindingHandlers.productTypeahead = {
                                 rate = window.model.invoice().custom_text_value2();
                             }
                             if (rate) {
-                                cost = cost * rate;
+                                cost = cost / rate;
                             } else {
                                 var client = window.model.invoice().client();
                                 if (client) {
                                     var clientCurrencyId = client.currency_id();
                                     var accountCurrencyId = {{ $account->getCurrencyId() }};
                                     if (clientCurrencyId && clientCurrencyId != accountCurrencyId) {
-                                        cost = fx.convert(cost, {
-                                            from: currencyMap[accountCurrencyId].code,
-                                            to: currencyMap[clientCurrencyId].code,
-                                        });
                                         var rate = fx.convert(1, {
                                             from: currencyMap[accountCurrencyId].code,
                                             to: currencyMap[clientCurrencyId].code,
                                         });
+                                        
+                                        cost = cost / rate;
+
                                         if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                             window.model.invoice().custom_text_value1(roundToFour(rate, true));
                                         } else if ((account.custom_fields.invoice_text2 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
