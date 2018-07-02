@@ -10,12 +10,13 @@
     {!! Former::populateField('auto_bill_on_due_date', $account->auto_bill_on_due_date) !!}
 	{!! Former::populateField('gateway_fee_enabled', $account->gateway_fee_enabled) !!}
 	{!! Former::populateField('send_item_details', $account->send_item_details) !!}
+	{!! Former::populateField('fee_cap', $account->fee_cap) !!}
 
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.payment_settings') !!}</h3>
         </div>
-        <div class="panel-body">
+        <div class="panel-body form-padding-right">
             {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}
@@ -38,6 +39,10 @@
 						->label('item_details')
 						->text('enable')
 			 			->value(1) !!}
+
+			{!! Former::text('fee_cap')
+						->help('fee_cap_help')
+						->label('fee_cap') !!}
 
 			<br/>
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}

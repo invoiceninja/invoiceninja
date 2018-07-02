@@ -2182,6 +2182,8 @@ $LANG = array(
     'logo_warning_too_large' => 'The image file is too large.',
     'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
+    'fee_cap_help' => 'Cap on the amount of gateway fees.',
+    'fee_cap' => 'Fee Cap',
 
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
