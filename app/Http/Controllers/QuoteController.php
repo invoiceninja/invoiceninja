@@ -156,7 +156,7 @@ class QuoteController extends BaseController
 
         if ($invoice->due_date) {
             $carbonDueDate = \Carbon::parse($invoice->due_date);
-            if (! $carbonDueDate->isToday() && ! $carbonDueDate->isFuture()) {
+            if (! $account->allow_approve_expired_quote && ! $carbonDueDate->isToday() && ! $carbonDueDate->isFuture()) {
                 return redirect("view/{$invitationKey}")->withError(trans('texts.quote_has_expired'));
             }
         }
