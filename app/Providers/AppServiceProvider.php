@@ -125,6 +125,19 @@ class AppServiceProvider extends ServiceProvider
                     return '';
                 }
 
+                if(! Utils::isNinjaProd()) {
+                    // check the crumb against  all defined base-routes in enabled modules
+                    // to get the correct module name for translation resolution
+                    $modules = \Module::enabled();
+
+                    foreach($modules as $module) {
+                        if($crumb == $module->get('base-route', '')) {
+                            $crumb = $module->getLowerName();
+                            break;
+                        }
+                    }
+                }
+
                 if (! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
                     $name = mtrans($crumb);
                 } else {

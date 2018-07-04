@@ -428,8 +428,9 @@
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
                     @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
-                        'option' => $module->getAlias(),
+                        'option' => $module->get('base-route', $module->getAlias()),
                         'icon' => $module->get('icon', 'th-large'),
+                        'moduleName' => $module->getLowerName(),
                     ])
                 @endforeach
             @endif
