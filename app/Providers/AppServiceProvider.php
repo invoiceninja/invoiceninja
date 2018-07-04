@@ -125,12 +125,13 @@ class AppServiceProvider extends ServiceProvider
                     return '';
                 }
 
-
-                if(! Utils::isNinjaProd() && \App::isLocale('en') == false) {
+                if(! Utils::isNinjaProd()) {
+                    // check the crumb against  all defined base-routes in enabled modules
+                    // to get the correct module name for translation resolution
                     $modules = \Module::enabled();
 
                     foreach($modules as $module) {
-                        if($crumb == $module->get('plural', '')) {
+                        if($crumb == $module->get('base-route', '')) {
                             $crumb = $module->getLowerName();
                             break;
                         }
@@ -139,8 +140,6 @@ class AppServiceProvider extends ServiceProvider
 
                 if (! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
                     $name = mtrans($crumb);
-                } elseif(! Utils::isNinjaProd() && \App::isLocale('en') && $module = \Module::find(str_singular($crumb))) {
-                    $name = mtrans(str_singular($crumb));
                 } else {
                     $name = trans("texts.$crumb");
                 }
