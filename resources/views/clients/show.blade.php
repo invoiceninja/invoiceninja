@@ -434,7 +434,7 @@
 		sweetConfirm(function() {
 			$('#action').val('purge');
 			$('.mainForm').submit();
-		}, "{{ trans('texts.purge_client_warning') . "\\n\\n" . trans('texts.no_undo') }}");
+		}, "{{ trans('texts.purge_client_warning') . "\\n\\n" . trans('texts.mobile_refresh_warning') . "\\n\\n" . trans('texts.no_undo') }}");
 	}
 
     function showEmailHistory(email) {

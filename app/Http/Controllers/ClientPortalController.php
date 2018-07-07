@@ -182,7 +182,7 @@ class ClientPortalController extends BaseController
             }
         }
 
-        return View::make('invoices.view', $data);
+        return View::make(request()->borderless ? 'invoices.view_borderless' : 'invoices.view', $data);
     }
 
     private function getPaymentTypes($account, $client, $invitation)

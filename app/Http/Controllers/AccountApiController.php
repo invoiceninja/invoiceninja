@@ -89,16 +89,17 @@ class AccountApiController extends BaseAPIController
     {
         // Create a new token only if one does not already exist
         $user = Auth::user();
+        $account = $user->account;
         $this->accountRepo->createTokens($user, $request->token_name);
 
         $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
-        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
+        $transformer = new UserAccountTransformer($account, $request->serializer, $request->token_name);
         $data = $this->createCollection($users, $transformer, 'user_account');
 
         if (request()->include_static) {
             $data = [
                 'accounts' => $data,
-                'static' => Utils::getStaticData(),
+                'static' => Utils::getStaticData($account->getLocale()),
                 'version' => NINJA_VERSION,
             ];
         }
