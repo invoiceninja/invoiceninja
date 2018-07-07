@@ -271,6 +271,8 @@
 				                <div class="panel-body">
 									<p><b>{{ trans('texts.purge_data_message') }}</b></p>
 									<br/>
+									<p>{{ trans('texts.mobile_refresh_warning') }}</p>
+									<br/>
 								</div>
 								</div>
 								</div>

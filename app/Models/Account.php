@@ -1500,6 +1500,11 @@ class Account extends Eloquent
         return $this->getGatewayConfig($gatewayId);
     }
 
+    public function getLocale()
+    {
+        return $this->language_id && $this->language ? $this->language->locale : DEFAULT_LOCALE;
+    }
+
     /**
      * @return bool
      */

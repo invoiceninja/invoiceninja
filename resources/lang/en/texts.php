@@ -2848,6 +2848,7 @@ $LANG = array(
     'send_notifications_for' => 'Send Notifications For',
     'all_invoices' => 'All Invoices',
     'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
 
 );
 
