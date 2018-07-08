@@ -68,7 +68,7 @@
 
                 @if ($client->trashed())
                     @can('edit', $client)
-                        @if (auth()->user()->is_admin)
+                        @if (auth()->user()->is_admin && $client->is_deleted)
                             {!! Button::danger(trans('texts.purge_client'))
                                     ->appendIcon(Icon::create('warning-sign'))
                                     ->withAttributes(['onclick' => 'onPurgeClick()']) !!}
