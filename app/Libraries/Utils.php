@@ -521,13 +521,13 @@ class Utils
                 $country->name = trans('texts.country_'.$country->name);
             })->sortBy(function ($country) {
                 return $country->name;
-            });
+            })->values();
 
             $data['paymentTypes'] = Cache::get('paymentTypes')->each(function ($pType) {
                 $pType->name = trans('texts.payment_type_'.$pType->name);
             })->sortBy(function ($pType) {
                 return $pType->name;
-            });
+            })->values();
 
             $data['languages'] = Cache::get('languages')->each(function ($lang) {
                 $lang->name = trans('texts.lang_'.$lang->name);
@@ -536,10 +536,10 @@ class Utils
             });
 
             $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
-                $currency->name = trans('texts.currency_' . Str::slug($currency->name, '_'));
+                $currency->name = trans('texts.currency_' . \Str::slug($currency->name, '_'));
             })->sortBy(function ($currency) {
                 return $currency->name;
-            });
+            })->values();
         }
 
         return $data;
