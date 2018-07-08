@@ -13,6 +13,7 @@ class ProfitAndLossReport extends AbstractReport
         return [
             'type' => [],
             'client' => [],
+            'vendor' => [],
             'amount' => [],
             'date' => [],
             'notes' => [],
@@ -41,6 +42,7 @@ class ProfitAndLossReport extends AbstractReport
             $this->data[] = [
                 trans('texts.payment'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
+                '',
                 $account->formatMoney($payment->getCompletedAmount(), $client),
                 $payment->present()->payment_date,
                 $payment->present()->method,
@@ -60,16 +62,18 @@ class ProfitAndLossReport extends AbstractReport
 
         $expenses = Expense::scope()
                         ->orderBy('expense_date', 'desc')
-                        ->with('client.contacts')
+                        ->with('client.contacts', 'vendor')
                         ->withArchived()
                         ->where('expense_date', '>=', $this->startDate)
                         ->where('expense_date', '<=', $this->endDate);
 
         foreach ($expenses->get() as $expense) {
             $client = $expense->client;
+            $vendor = $expense->vendor;
             $this->data[] = [
                 trans('texts.expense'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
+                $vendor ? ($this->isExport ? $vendor->name : $vendor->present()->link) : '',
                 '-' . $expense->present()->amount,
                 $expense->present()->expense_date,
                 $expense->present()->category,
