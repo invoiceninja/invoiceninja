@@ -23,6 +23,7 @@ class InvoiceReport extends AbstractReport
             'due_date' => ['columnSelector-false'],
             'po_number' => ['columnSelector-false'],
             'private_notes' => ['columnSelector-false'],
+            'vat_number' => ['columnSelector-false'],
             'user' => ['columnSelector-false'],
         ];
 
@@ -103,6 +104,7 @@ class InvoiceReport extends AbstractReport
                         $invoice->present()->due_date,
                         $invoice->po_number,
                         $invoice->private_notes,
+                        $client->vat_number,
                         $invoice->user->getDisplayName(),
                     ];
 
