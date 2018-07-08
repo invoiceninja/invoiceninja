@@ -159,6 +159,7 @@ class UserAccountTransformer extends EntityTransformer
             'custom_invoice_taxes1' => (bool) $account->custom_invoice_taxes1,
             'custom_invoice_taxes2' => (bool) $account->custom_invoice_taxes1,
             'custom_fields' => $account->custom_fields ?: '',
+			'invoice_fields' => $account->invoice_fields ?: '',
         ];
     }
 }
