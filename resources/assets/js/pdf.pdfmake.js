@@ -203,6 +203,9 @@ function GetPdfMake(invoice, javascript, callback) {
 
     if (window.accountBackground) {
         var origBackground = dd.background;
+        if (! origBackground) {
+            origBackground = [{"image": window.accountBackground, "alignment": "center"}];
+        }
         dd.background = function(currentPage) {
             var allPages = origBackground.length && origBackground[0].pages == 'all';
             return currentPage == 1 || allPages ? origBackground : false;
@@ -406,7 +409,9 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 value = formatMoneyInvoice(value, invoice);
             }
 
-            javascript = javascript.replace(match, value);
+            if (['$pageNumber', '$pageCount'].indexOf(match) == -1) {
+                javascript = javascript.replace(match, value);
+            }
         }
     }
 
