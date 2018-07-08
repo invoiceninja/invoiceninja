@@ -1137,7 +1137,7 @@ ko.bindingHandlers.productTypeahead = {
 };
 
 function checkInvoiceNumber() {
-    var url = '{{ url('check_invoice_number') }}/{{ $invoice->id ? $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
+    var url = '{{ url('check_invoice_number') }}{{ $invoice->id ? '/' . $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
     $.get(url, function(data) {
         var isValid = data == '{{ RESULT_SUCCESS }}' ? true : false;
         if (isValid) {
