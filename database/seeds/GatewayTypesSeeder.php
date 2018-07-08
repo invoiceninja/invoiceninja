@@ -8,6 +8,9 @@ class GatewayTypesSeeder extends Seeder
     {
         Eloquent::unguard();
 
+        // fix for legacy data
+        DB::statement('UPDATE gateway_types SET alias = "custom1" WHERE id = 6');
+
         $gateway_types = [
             ['alias' => 'credit_card', 'name' => 'Credit Card'],
             ['alias' => 'bank_transfer', 'name' => 'Bank Transfer'],
