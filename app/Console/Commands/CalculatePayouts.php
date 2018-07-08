@@ -83,14 +83,17 @@ class CalculatePayouts extends Command
             foreach ($companies as $company) {
                 $user = $userMap[$company->referral_code];
                 $payment = $company->payment;
-                $client = $payment->client;
 
-                $this->info("User: $user");
-                $this->info("Client: " . $client->getDisplayName());
+                if ($payment) {
+                    $client = $payment->client;
 
-                foreach ($client->payments as $payment) {
-                    $amount = $payment->getCompletedAmount();
-                    $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
+                    $this->info("User: $user");
+                    $this->info("Client: " . $client->getDisplayName());
+
+                    foreach ($client->payments as $payment) {
+                        $amount = $payment->getCompletedAmount();
+                        $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
+                    }
                 }
             }
         }
