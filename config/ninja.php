@@ -13,6 +13,7 @@ return [
 
     // Marketing links
     'time_tracker_web_url' => env('TIME_TRACKER_WEB_URL', 'https://www.invoiceninja.com/time-tracker'),
+    'knowledge_base_url' => env('KNOWLEDGE_BASE_URL', 'https://www.invoiceninja.com/knowledge-base/'),
 
     // Hosted plan coupons
     'coupon_50_off' => env('COUPON_50_OFF', false),
@@ -30,6 +31,7 @@ return [
         'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
         'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
     ],
+
     'privacy_policy_url' => [
         'hosted' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
         'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),
