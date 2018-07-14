@@ -99,3 +99,11 @@ Troubleshooting
 - If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to public/.htaccess otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
 - PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php. If the file doesn't exist the steps `here <https://stackoverflow.com/a/37266353/497368>`_ may help.
+- Some webservers run filtering software which can cause errors, you can test adding this code to your .htaccess file to test if it's related.
+
+.. code-block:: shell
+
+   <IfModule mod_security.c>
+     SecFilterEngine Off
+     SecFilterScanPOST Off
+   </IfModule>
