@@ -140,8 +140,10 @@ class InvoiceRepository extends BaseRepository
         return $query;
     }
 
-    public function getRecurringInvoices($accountId, $clientPublicId = false, $filter = false)
+    public function getRecurringInvoices($accountId, $clientPublicId = false, $entityType = ENTITY_RECURRING_INVOICE, $filter = false)
     {
+        $invoiceTypeId = ($entityType == ENTITY_RECURRING_INVOICE) ? INVOICE_TYPE_STANDARD : INVOICE_TYPE_QUOTE;
+
         $query = DB::table('invoices')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
@@ -149,7 +151,7 @@ class InvoiceRepository extends BaseRepository
                     ->leftJoin('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
-                    ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                    ->where('invoices.invoice_type_id', '=', $invoiceTypeId)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', true)
                     ->where('contacts.is_primary', '=', true)
@@ -190,7 +192,7 @@ class InvoiceRepository extends BaseRepository
             $query->whereNull('clients.deleted_at');
         }
 
-        $this->applyFilters($query, ENTITY_RECURRING_INVOICE, ENTITY_INVOICE);
+        $this->applyFilters($query, $entityType, ENTITY_INVOICE);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
@@ -205,8 +207,10 @@ class InvoiceRepository extends BaseRepository
         return $query;
     }
 
-    public function getClientRecurringDatatable($contactId)
+    public function getClientRecurringDatatable($contactId, $entityType = ENTITY_RECURRING_INVOICE)
     {
+        $invoiceType = ($entityType == ENTITY_RECURRING_INVOICE) ? INVOICE_TYPE_STANDARD : INVOICE_TYPE_QUOTE;
+
         $query = DB::table('invitations')
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
@@ -214,7 +218,7 @@ class InvoiceRepository extends BaseRepository
           ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
-          ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+          ->where('invoices.invoice_type_id', '=', $invoiceType)
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', true)
@@ -389,10 +393,11 @@ class InvoiceRepository extends BaseRepository
         } elseif ($isNew) {
             $entityType = ENTITY_INVOICE;
             if (isset($data['is_recurring']) && filter_var($data['is_recurring'], FILTER_VALIDATE_BOOLEAN)) {
-                $entityType = ENTITY_RECURRING_INVOICE;
+                $entityType = (isset($data['is_quote']) && filter_var($data['is_quote'], FILTER_VALIDATE_BOOLEAN)) ? ENTITY_RECURRING_QUOTE : ENTITY_RECURRING_INVOICE;
             } elseif (isset($data['is_quote']) && filter_var($data['is_quote'], FILTER_VALIDATE_BOOLEAN)) {
                 $entityType = ENTITY_QUOTE;
             }
+
             $invoice = $account->createInvoice($entityType, $data['client_id']);
             $invoice->invoice_date = date_create()->format('Y-m-d');
             $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
@@ -1103,9 +1108,11 @@ class InvoiceRepository extends BaseRepository
             return false;
         }
 
+        $default_terms = ($recurInvoice->isType(INVOICE_TYPE_STANDARD)) ? $recurInvoice->account->invoice_terms : $recurInvoice->account->quote_terms;
+
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->is_public = true;
-        $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
+        $invoice->invoice_type_id = $recurInvoice->invoice_type_id;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
         $invoice->invoice_number = $recurInvoice->account->getNextNumber($invoice);
@@ -1115,7 +1122,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
         $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes, $client);
-        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms, $client);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $default_terms, $client);
         $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer, $client);
         $invoice->tax_name1 = $recurInvoice->tax_name1;
         $invoice->tax_rate1 = $recurInvoice->tax_rate1;
@@ -1164,7 +1171,8 @@ class InvoiceRepository extends BaseRepository
         $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
 
-        if ($recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date) {
+        // autobill makes sense only if recurring invoice type is not quote
+        if (! $invoice->isQuote() && $recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date) {
             // autoBillInvoice will check for ACH, so we're not checking here
             if ($this->paymentService->autoBillInvoice($invoice)) {
                 // update the invoice reference to match its actual state

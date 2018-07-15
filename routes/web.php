@@ -38,6 +38,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('client/credits', 'ClientPortalController@creditIndex');
     Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
     Route::get('client/invoices/recurring', 'ClientPortalController@recurringInvoiceIndex');
+    Route::get('client/invoices/recurring_quotes', 'ClientPortalController@recurringQuoteIndex');
     Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
@@ -52,6 +53,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('api/client.credits', ['as' => 'api.client.credits', 'uses' => 'ClientPortalController@creditDatatable']);
     Route::get('api/client.invoices', ['as' => 'api.client.invoices', 'uses' => 'ClientPortalController@invoiceDatatable']);
     Route::get('api/client.recurring_invoices', ['as' => 'api.client.recurring_invoices', 'uses' => 'ClientPortalController@recurringInvoiceDatatable']);
+    Route::get('api/client.recurring_quotes', ['as' => 'api.client.recurring_quotes', 'uses' => 'ClientPortalController@recurringQuoteDatatable']);
     Route::get('api/client.documents', ['as' => 'api.client.documents', 'uses' => 'ClientPortalController@documentDatatable']);
     Route::get('api/client.payments', ['as' => 'api.client.payments', 'uses' => 'ClientPortalController@paymentDatatable']);
     Route::get('api/client.tasks', ['as' => 'api.client.tasks', 'uses' => 'ClientPortalController@taskDatatable']);
@@ -176,6 +178,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('projects/bulk', 'ProjectController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
+    Route::get('api/recurring_quotes/{client_id?}', 'InvoiceController@getRecurringQuotesDatatable');
 
     Route::get('invoices/delivery_note/{invoice_id}', 'InvoiceController@deliveryNote');
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
@@ -188,9 +191,14 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
     Route::get('recurring_invoices/{invoices}/edit', 'InvoiceController@edit');
     Route::get('recurring_invoices/{invoices}', 'InvoiceController@edit');
+    Route::get('recurring_quotes/create/{client_id?}', 'InvoiceController@createRecurringQuote');
+    Route::get('recurring_quotes', 'RecurringQuoteController@index');
+    Route::get('recurring_quotes/{invoices}/edit', 'InvoiceController@edit');
+    Route::get('recurring_quotes/{invoices}', 'InvoiceController@edit');
     Route::get('invoices/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
+    Route::post('recurring_quotes/bulk', 'InvoiceController@bulk');
 
     Route::get('recurring_expenses', 'RecurringExpenseController@index');
     Route::get('api/recurring_expenses', 'RecurringExpenseController@getDatatable');

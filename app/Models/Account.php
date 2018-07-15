@@ -1019,6 +1019,11 @@ class Account extends Eloquent
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
+        } else if($entityType == ENTITY_RECURRING_QUOTE) {
+            $invoice->invoice_number = microtime(true);
+            $invoice->is_recurring = true;
+            $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
+            $invoice->invoice_design_id = $this->quote_design_id;
         } else {
             if ($entityType == ENTITY_QUOTE) {
                 $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
