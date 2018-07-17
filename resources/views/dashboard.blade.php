@@ -152,8 +152,15 @@
             cb(chartStartDate, chartEndDate, lastRange);
 
             $("#currency-btn-group > .btn").click(function(){
-                $(this).addClass("active").siblings().removeClass("active");
-                chartCurrencyId = currencyMap[$(this).text()].id;
+                var t = $(this);
+
+                t.addClass("active").siblings().removeClass("active");
+
+                if(t.attr("data-button") == "totals"){
+                    chartCurrencyId = 'totals';
+                }else {
+                    chartCurrencyId = currencyMap[t.text()].id;
+                }
                 loadData();
 				if (isStorageSupported()) {
 					localStorage.setItem('last:dashboard_currency_id', $(this).attr('data-button'));
@@ -227,6 +234,8 @@
                 <button type="button" class="btn btn-normal {{ array_values($currencies)[0] == $val ? 'active' : '' }}"
                     data-button="{{ $key }}" style="font-weight:normal !important;background-color:white">{{ $val }}</button>
               @endforeach
+                <button type="button" class="btn btn-normal"
+                        data-button="totals" style="font-weight:normal !important;background-color:white">{{ trans('texts.totals') }}</button>
             </div>
             @endif
             <div id="group-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc; margin-left:18px">
@@ -270,6 +279,9 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}
                                 </div>
                             @endforeach
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($paidToDateTotal, $account->getCurrencyId()) }}
+                                </div>
                         @else
                             <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                 {{ Utils::formatMoney(0) }}
@@ -302,6 +314,9 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($expensesTotals, $account->getCurrencyId()) }}<br/>
+                                </div>
 							<div class="currency currency_blank" style="display:none">
 								&nbsp;
 							</div>
@@ -319,6 +334,9 @@
                                         {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
                                     </div>
                                 @endforeach
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney($averageInvoiceTotal, $account->getCurrencyId()) }}<br/>
+                                    </div>
                             @else
                                 <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                     {{ Utils::formatMoney(0) }}
@@ -352,6 +370,9 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($balancesTotals, $account->getCurrencyId()) }}<br/>
+                                </div>
                         @else
                             <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                 {{ Utils::formatMoney(0) }}

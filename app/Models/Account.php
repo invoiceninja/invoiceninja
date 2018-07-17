@@ -768,6 +768,32 @@ class Account extends Eloquent
     }
 
     /**
+     * @return bool|int
+     */
+    public function getInvoiceExchangeRateCustomFieldIndex()
+    {
+        $locale = App::getLocale();
+        App::setLocale($this->language->locale);
+
+        $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
+
+        // set locale back
+        App::setLocale($locale);
+
+        if($exchangeRateTranslation == strtolower($this->custom_fields->invoice_text1))
+        {
+            return 1;
+        }
+
+        if($exchangeRateTranslation == strtolower($this->custom_fields->invoice_text2))
+        {
+            return 2;
+        }
+
+        return false;
+    }
+
+    /**
      * @return mixed
      */
     public function getCountryId()

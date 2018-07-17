@@ -45,7 +45,12 @@ class DashboardRepository
             $data = [];
             $count = 0;
             $balance = 0;
-            $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
+
+            if ($currencyId == 'totals') {
+                $records = $this->rawChartDataTotals($entityType, $account, $groupBy, $startDate, $endDate, $account->currency->id);
+            } else {
+                $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
+            }
 
             array_map(function ($item) use (&$data, &$count, &$balance, $groupBy) {
                 $data[$item->$groupBy] = $item->total;
@@ -124,18 +129,7 @@ class DashboardRepository
             return [];
         }
 
-        $accountId = $account->id;
-        $currencyId = intval($currencyId);
-        $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
-
-        $records = DB::table($entityType.'s')
-            ->leftJoin('clients', 'clients.id', '=', $entityType.'s.client_id')
-            ->whereRaw('(clients.id IS NULL OR clients.is_deleted = 0)')
-            ->where($entityType.'s.account_id', '=', $accountId)
-            ->where($entityType.'s.is_deleted', '=', false)
-            ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
-            ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
-            ->groupBy($groupBy);
+        list($timeframe, $records) = $this->rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate);
 
         if ($entityType == ENTITY_EXPENSE) {
             $records->where('expenses.expense_currency_id', '=', $currencyId);
@@ -160,6 +154,60 @@ class DashboardRepository
         }
 
         return $records->get()->all();
+    }
+
+    private function rawChartDataTotals($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
+    {
+        if (! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
+            return [];
+        }
+
+        list($timeframe, $records) = $this->rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate);
+
+        if ($entityType == ENTITY_INVOICE) {
+            if (! $exchageRateCustomFieldIndex = $account->getInvoiceExchangeRateCustomFieldIndex()) {
+                return [];
+            }
+
+            $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.', invoices.amount, invoices.amount / invoices.custom_text_value'.$exchageRateCustomFieldIndex.')) as total, sum(if(clients.currency_id = '.$currencyId.', invoices.balance, invoices.balance / invoices.custom_text_value'.$exchageRateCustomFieldIndex.')) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+                ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                ->where('invoices.is_public', '=', true)
+                ->where('is_recurring', '=', false);
+        } elseif ($entityType == ENTITY_PAYMENT) {
+            $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.', payments.amount - payments.refunded, (payments.amount - payments.refunded) * payments.exchange_rate)) as total, count(payments.id) as count, '.$timeframe.' as '.$groupBy))
+                ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+                ->where('invoices.is_deleted', '=', false)
+                ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
+        } elseif ($entityType == ENTITY_EXPENSE) {
+            $records->select(DB::raw('if(expenses.expense_currency_id = '.$currencyId.', sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)), sum(expenses.amount * expenses.exchange_rate + (expenses.amount * expenses.exchange_rate * expenses.tax_rate1 / 100) + (expenses.amount * expenses.exchange_rate * expenses.tax_rate2 / 100))) as total, count(expenses.id) as count, '.$timeframe.' as '.$groupBy));
+        }
+
+        return $records->get()->all();
+    }
+
+    /**
+     * @param $entityType
+     * @param $account
+     * @param $groupBy
+     * @param $startDate
+     * @param $endDate
+     * @return array  $timeframe, $records
+     */
+    private function rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate)
+    {
+        $accountId = $account->id;
+        $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
+
+        $records = DB::table($entityType.'s')
+            ->leftJoin('clients', 'clients.id', '=', $entityType.'s.client_id')
+            ->whereRaw('(clients.id IS NULL OR clients.is_deleted = 0)')
+            ->where($entityType.'s.account_id', '=', $accountId)
+            ->where($entityType.'s.is_deleted', '=', false)
+            ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
+            ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
+            ->groupBy($groupBy);
+
+        return [$timeframe, $records];
     }
 
     public function totals($accountId, $userId, $viewAll)
@@ -200,7 +248,8 @@ class DashboardRepository
         $accountId = $account->id;
         $select = DB::raw(
             'SUM('.DB::getQueryGrammar()->wrap('payments.amount', true).' - '.DB::getQueryGrammar()->wrap('payments.refunded', true).') as value,'
-                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
+                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id,'
+                  .DB::getQueryGrammar()->wrap('payments.exchange_rate', true).' as exchange_rate'
         );
         $paidToDate = DB::table('payments')
             ->select($select)
@@ -232,7 +281,9 @@ class DashboardRepository
         $accountId = $account->id;
         $select = DB::raw(
             'AVG('.DB::getQueryGrammar()->wrap('invoices.amount', true).') as invoice_avg, '
-                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
+                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id,'
+            .DB::getQueryGrammar()->wrap('invoices.custom_text_value2', true).' as exchange_rate,'
+            .'COUNT(*)  as invoice_count'
         );
         $averageInvoice = DB::table('accounts')
             ->select($select)
@@ -383,7 +434,8 @@ class DashboardRepository
 
         $select = DB::raw(
             "SUM({$amountField} + ({$amountField} * {$taxRate1Field} / 100) + ({$amountField} * {$taxRate2Field} / 100)) as value,"
-                  .DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true).' as currency_id'
+            .DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true).' as currency_id,'
+            .DB::getQueryGrammar()->wrap('expenses.exchange_rate', true).' as exchange_rate'
         );
         $expenses = DB::table('accounts')
             ->select($select)
