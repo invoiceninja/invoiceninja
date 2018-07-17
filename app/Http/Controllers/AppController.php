@@ -139,7 +139,10 @@ class AppController extends BaseController
             $email = trim(strtolower(Input::get('email')));
             $password = trim(Input::get('password'));
             $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
+
             $user = $account->users()->first();
+            $user->acceptLatestTerms(request()->getClientIp());
+            $user->save();
         }
 
         return Redirect::to('/login');
