@@ -67,7 +67,7 @@
 	@if ($invoice->id)
 		<ol class="breadcrumb">
 		@if ($invoice->is_recurring)
-			<li>{!! link_to('recurring_invoices', trans('texts.recurring_invoices')) !!}</li>
+            <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'recurring_quotes' : 'recurring_invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'recurring_quotes' : 'recurring_invoices'))) !!}</li>
 		@else
 			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
 			<li class="active">{{ $invoice->invoice_number }}</li>
@@ -214,7 +214,7 @@
 					</div>
 				</div>
 			</div>
-            @if ($entityType == ENTITY_INVOICE)
+			@if (isset($frequencies))
 			<div data-bind="visible: is_recurring" style="display: none">
 				{!! Former::select('frequency_id')->label('frequency')->options($frequencies)->data_bind("value: frequency_id")
                         ->appendIcon('question-sign')->addGroupClass('frequency_id')->onchange('onFrequencyChange()') !!}
@@ -222,9 +222,9 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
 				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")->data_date_start_date($invoice->id ? false : $account->formatDate($account->getDateTime()))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
-                {!! Former::select('recurring_due_date')->label(trans('texts.due_date'))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
+                {!! Former::select('recurring_due_date')->label($account->getLabel($invoice->getDueDateLabel()))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
 			</div>
-            @endif
+			@endif
 
             @if ($account->customLabel('invoice_text1'))
 				@include('partials.custom_field', [
@@ -243,6 +243,7 @@
                         ->addGroupClass('invoice-number')
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
+            @if ($entityType == ENTITY_INVOICE)
             <span data-bind="visible: is_recurring()" style="display: none">
                 <div data-bind="visible: !(auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill())" style="display: none">
                 {!! Former::select('auto_bill')
@@ -268,6 +269,7 @@
                     </div>
                 </div>
             </span>
+            @endif
 			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('no-padding-or-border')->type('number')->min('0')->step('any')->append(
@@ -286,7 +288,6 @@
 				])
             @endif
 
-            @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
                 <div class="col-lg-8 col-sm-8 col-sm-offset-4 smaller" style="padding-top: 10px;">
                 	@if ($invoice->recurring_invoice_id && $invoice->recurring_invoice)
@@ -309,7 +310,6 @@
                     @endif
                 </div>
             </div>
-            @endif
 		</div>
 	</div>
 

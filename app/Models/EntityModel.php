@@ -234,7 +234,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
+        if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_RECURRING_QUOTE) {
             $entityType = ENTITY_INVOICE;
         }
 
@@ -331,6 +331,7 @@ class EntityModel extends Eloquent
             'invoices' => 'file-pdf-o',
             'payments' => 'credit-card',
             'recurring_invoices' => 'files-o',
+            'recurring_quotes' => 'files-o',
             'recurring_expenses' => 'files-o',
             'credits' => 'credit-card',
             'quotes' => 'file-text-o',

@@ -43,9 +43,15 @@
 		</div>
 		-->
 
-        @if($entityType == ENTITY_INVOICE && $client->hasRecurringInvoices())
+        @if(($entityType == ENTITY_INVOICE || $entityType == ENTITY_RECURRING_QUOTE) && $client->hasRecurringInvoices())
             <div class="pull-right" style="margin-top:5px">
                 {!! Button::primary(trans("texts.recurring_invoices"))->asLinkTo(URL::to('/client/invoices/recurring')) !!}
+            </div>
+        @endif
+
+        @if(($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) && $client->hasRecurringQuotes())
+            <div class="pull-right" style="margin-top:5px">
+                {!! Button::primary(trans("texts.recurring_quotes"))->asLinkTo(URL::to('/client/invoices/recurring_quotes')) !!}
             </div>
         @endif
 
