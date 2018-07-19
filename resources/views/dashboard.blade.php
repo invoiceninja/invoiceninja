@@ -183,11 +183,14 @@
                     response = JSON.parse(response);
                     loadChart(response.data);
 
+                    var realCurrencyId = chartCurrencyId;
+                    if(chartCurrencyId == "totals") realCurrencyId = account.currency.id;
+
                     var totals = response.totals;
-                    $('.revenue-div').text(formatMoney(totals.revenue, chartCurrencyId, account.country_id));
-                    $('.outstanding-div').text(formatMoney(totals.balance, chartCurrencyId, account.country_id));
-                    $('.expenses-div').text(formatMoney(totals.expenses, chartCurrencyId, account.country_id));
-                    $('.average-div').text(formatMoney(totals.average, chartCurrencyId, account.country_id));
+                    $('.revenue-div').text(formatMoney(totals.revenue, realCurrencyId, account.country_id));
+                    $('.outstanding-div').text(formatMoney(totals.balance, realCurrencyId, account.country_id));
+                    $('.expenses-div').text(formatMoney(totals.expenses, realCurrencyId, account.country_id));
+                    $('.average-div').text(formatMoney(totals.average, realCurrencyId, account.country_id));
 
                     $('.currency').hide();
                     $('.currency_' + chartCurrencyId).show();
@@ -197,7 +200,7 @@
 					for (var i=0; i<divs.length; i++) {
 						var type = divs[i];
 						if (!$('.' + type + '-panel .currency_' + chartCurrencyId).length) {
-							$('.' + type + '-panel .currency_blank').text(formatMoney(0, chartCurrencyId)).show();
+							$('.' + type + '-panel .currency_blank').text(formatMoney(0, realCurrencyId)).show();
 						}
 					}
                 })

@@ -780,12 +780,12 @@ class Account extends Eloquent
         // set locale back
         App::setLocale($locale);
 
-        if($exchangeRateTranslation == strtolower($this->custom_fields->invoice_text1))
+        if(isset($this->custom_fields->invoice_text1) && $exchangeRateTranslation == strtolower($this->custom_fields->invoice_text1))
         {
             return 1;
         }
 
-        if($exchangeRateTranslation == strtolower($this->custom_fields->invoice_text2))
+        if(isset($this->custom_fields->invoice_text2) && $exchangeRateTranslation == strtolower($this->custom_fields->invoice_text2))
         {
             return 2;
         }
