@@ -19,6 +19,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_INVOICE_ITEM', 'invoice_item');
     define('ENTITY_INVITATION', 'invitation');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
+    define('ENTITY_RECURRING_QUOTE', 'recurring_quote');
     define('ENTITY_PAYMENT', 'payment');
     define('ENTITY_CREDIT', 'credit');
     define('ENTITY_QUOTE', 'quote');
@@ -47,6 +48,13 @@ if (! defined('APP_NAME')) {
     define('ENTITY_PROPOSAL_SNIPPET', 'proposal_snippet');
     define('ENTITY_PROPOSAL_CATEGORY', 'proposal_category');
     define('ENTITY_PROPOSAL_INVITATION', 'proposal_invitation');
+    define('ENTITY_TICKET', 'ticket');
+    define('ENTITY_TICKET_COMMENT', 'ticket_comment');
+    define('ENTITY_TICKET_STATUS', 'ticket_status');
+    define('ENTITY_TICKET_CATEGORY', 'ticket_category');
+    define('ENTITY_TICKET_RELATION', 'ticket_relation');
+    define('ENTITY_TICKET_TEMPLATE', 'ticket_template');
+    define('ENTITY_TICKET_INVITATION', 'ticket_invitation');
 
     $permissionEntities = [
         ENTITY_CLIENT,
@@ -60,9 +68,11 @@ if (! defined('APP_NAME')) {
         ENTITY_PROPOSAL,
         ENTITY_QUOTE,
         'reports',
+        ENTITY_TICKET,
         ENTITY_TASK,
         ENTITY_VENDOR,
         ENTITY_RECURRING_INVOICE,
+        ENTITY_RECURRING_QUOTE
     ];
 
     define('PERMISSION_ENTITIES', json_encode($permissionEntities));
@@ -95,6 +105,7 @@ if (! defined('APP_NAME')) {
     define('ACCOUNT_MAP', 'import_map');
     define('ACCOUNT_EXPORT', 'export');
     define('ACCOUNT_TAX_RATES', 'tax_rates');
+    define('ACCOUNT_TICKETS', 'tickets');
     define('ACCOUNT_PRODUCTS', 'products');
     define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
     define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
@@ -162,6 +173,16 @@ if (! defined('APP_NAME')) {
     define('ACTIVITY_TYPE_DELETE_TASK', 45);
     define('ACTIVITY_TYPE_RESTORE_TASK', 46);
     define('ACTIVITY_TYPE_UPDATE_EXPENSE', 47);
+    define('ACTIVITY_TYPE_USER_UPDATE_TICKET', 48);
+    define('ACTIVITY_TYPE_USER_CLOSE_TICKET', 49);
+    define('ACTIVITY_TYPE_USER_MERGE_TICKET', 50);
+    define('ACTIVITY_TYPE_USER_SPLIT_TICKET', 51);
+    define('ACTIVITY_TYPE_CONTACT_OPEN_TICKET', 52);
+    define('ACTIVITY_TYPE_CONTACT_REOPEN_TICKET', 53);
+    define('ACTIVITY_TYPE_USER_REOPEN_TICKET', 54);
+    define('ACTIVITY_TYPE_CONTACT_REPLY_TICKET', 55);
+    define('ACTIVITY_TYPE_USER_VIEW_TICKET', 56);
+
 
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 20);
@@ -361,7 +382,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.4.4' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.5.1' . env('NINJA_VERSION_SUFFIX'));
     define('NINJA_TERMS_VERSION', '1.0.1');
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
@@ -431,7 +452,7 @@ if (! defined('APP_NAME')) {
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);
-    define('MAX_API_PAGE_SIZE', 500);
+    define('MAX_API_PAGE_SIZE', 5000);
 
     define('IOS_DEVICE', env('IOS_DEVICE', ''));
     define('ANDROID_DEVICE', env('ANDROID_DEVICE', ''));
@@ -574,6 +595,7 @@ if (! defined('APP_NAME')) {
     define('FEATURE_MORE_INVOICE_DESIGNS', 'more_invoice_designs');
     define('FEATURE_QUOTES', 'quotes');
     define('FEATURE_TASKS', 'tasks');
+    define('FEATURE_TICKETS', 'tickets');
     define('FEATURE_EXPENSES', 'expenses');
     define('FEATURE_REPORTS', 'reports');
     define('FEATURE_BUY_NOW_BUTTONS', 'buy_now_buttons');
@@ -662,6 +684,19 @@ if (! defined('APP_NAME')) {
 
     // Fix for mPDF: https://github.com/kartik-v/yii2-mpdf/issues/9
     define('_MPDF_TTFONTDATAPATH', storage_path('framework/cache/'));
+
+
+    /** Tickets constants */
+    define('TICKET_PRIORITY_LOW', 10);
+    define('TICKET_PRIORITY_MEDIUM', 20);
+    define('TICKET_PRIORITY_HIGH', 30);
+
+    /* Default ticket statuses - Category - support*/
+    $supportTicketStatuses = [
+        trans('texts.'.'new'),
+        trans('texts.'.'open'),
+        trans('texts.'.'closed'),
+    ];
 
     function uctrans($text, $data = [])
     {

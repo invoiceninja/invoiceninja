@@ -54,6 +54,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 ## Third Party Modules
 * [Event Scheduler](https://github.com/cytech/Scheduler-InvoiceNinja)
+* [Manufacturer Module](https://github.com/dicarlosystems/manufacturer-invoiceninja)
 
 > Feel free to email us for help if you're working on a module, we're happy to provide developer support.
 

@@ -95,6 +95,28 @@
             }
           }
           @endif
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text1'))
+          ,{
+            name: 'data',
+            limit: 3,
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text1') }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text1') }}</span>'
+            }
+          }
+          @endif
+          @if (Auth::check() && Auth::user()->account->customLabel('invoice_text2'))
+          ,{
+            name: 'data',
+            limit: 3,
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->present()->customLabel('invoice_text2') }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->present()->customLabel('invoice_text2') }}</span>'
+            }
+          }
+          @endif
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
@@ -396,6 +418,7 @@
                 'tasks',
                 'expenses',
                 'vendors',
+                'tickets',
             ] as $option)
                 @if (in_array($option, ['dashboard', 'settings'])
                     || Auth::user()->can('view', substr($option, 0, -1))
@@ -406,8 +429,9 @@
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
                     @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
-                        'option' => $module->getAlias(),
+                        'option' => $module->get('base-route', $module->getAlias()),
                         'icon' => $module->get('icon', 'th-large'),
+                        'moduleName' => $module->getLowerName(),
                     ])
                 @endforeach
             @endif

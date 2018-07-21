@@ -64,7 +64,7 @@ class InvoiceService extends BaseService
     public function bulk($ids, $action)
     {
         if ($action == 'download') {
-            $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
+            $invoices = $this->getRepo()->findByPublicIdsWi1thTrashed($ids);
             dispatch(new DownloadInvoices(Auth::user(), $invoices));
             return count($invoices);
         } else {
@@ -84,7 +84,7 @@ class InvoiceService extends BaseService
             $canSaveClient = false;
             $canViewClient = false;
             $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
-            if (empty($clientPublicId) || $clientPublicId == '-1') {
+            if (empty($clientPublicId) || intval($clientPublicId) < 0) {
                 $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
                 $client = Client::scope($clientPublicId)->first();

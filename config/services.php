@@ -15,6 +15,7 @@ return [
 	*/
 
     'postmark' => env('POSTMARK_API_TOKEN', ''),
+	'postmark_ticket' => env('POSTMARK_API_TICKET_TOKEN'),
 
 	'mailgun' => [
 		'domain' => env('MAILGUN_DOMAIN',''),

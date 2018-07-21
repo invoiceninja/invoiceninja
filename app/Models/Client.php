@@ -264,7 +264,7 @@ class Client extends EntityModel
 
         // check if this client wasRecentlyCreated to ensure a new contact is
         // always created even if the request includes a contact id
-        if (! $this->wasRecentlyCreated && $publicId && $publicId != '-1') {
+        if (! $this->wasRecentlyCreated && $publicId && intval($publicId) > 0) {
             $contact = Contact::scope($publicId)->whereClientId($this->id)->firstOrFail();
         } else {
             $contact = Contact::createNew();
@@ -573,11 +573,19 @@ class Client extends EntityModel
     }
 
     /**
-     * @return bool
-     */
+ * @return bool
+ */
     public function hasRecurringInvoices()
     {
-        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->where('invoice_type_id', INVOICE_TYPE_STANDARD)->count() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRecurringQuotes()
+    {
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->where('invoice_type_id', INVOICE_TYPE_QUOTE)->count() > 0;
     }
 
     public function defaultDaysDue()

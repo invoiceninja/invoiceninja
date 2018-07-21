@@ -187,6 +187,7 @@ class Account extends Eloquent
         ACCOUNT_LOCALIZATION,
         ACCOUNT_PAYMENTS,
         ACCOUNT_TAX_RATES,
+        ACCOUNT_TICKETS,
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,
         ACCOUNT_IMPORT_EXPORT,
@@ -215,6 +216,7 @@ class Account extends Eloquent
         ENTITY_QUOTE => 4,
         ENTITY_TASK => 8,
         ENTITY_EXPENSE => 16,
+        ENTITY_TICKET => 32,
     ];
 
     public static $dashboardSections = [
@@ -287,6 +289,14 @@ class Account extends Eloquent
         //CUSTOM_MESSAGE_UNAPPROVED_PROPOSAL,
         //CUSTOM_MESSAGE_APPROVED_PROPOSAL,
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function account_ticket_settings()
+    {
+        return $this->hasOne('App\Models\AccountTicketSettings');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -1019,6 +1029,11 @@ class Account extends Eloquent
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
+        } else if($entityType == ENTITY_RECURRING_QUOTE) {
+            $invoice->invoice_number = microtime(true);
+            $invoice->is_recurring = true;
+            $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
+            $invoice->invoice_design_id = $this->quote_design_id;
         } else {
             if ($entityType == ENTITY_QUOTE) {
                 $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
@@ -1141,6 +1156,8 @@ class Account extends Eloquent
             case FEATURE_TASKS:
             case FEATURE_EXPENSES:
             case FEATURE_QUOTES:
+            case FEATURE_TICKETS:
+
                 return true;
 
             case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
@@ -1500,6 +1517,11 @@ class Account extends Eloquent
         return $this->getGatewayConfig($gatewayId);
     }
 
+    public function getLocale()
+    {
+        return $this->language_id && $this->language ? $this->language->locale : DEFAULT_LOCALE;
+    }
+
     /**
      * @return bool
      */
@@ -1722,6 +1744,7 @@ class Account extends Eloquent
             ENTITY_VENDOR,
             ENTITY_PROJECT,
             ENTITY_PROPOSAL,
+            ENTITY_TICKET,
         ])) {
             return true;
         }

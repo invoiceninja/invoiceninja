@@ -112,6 +112,26 @@
 		  		});
 			});
 		</script>
+	@elseif ($entityType == ENTITY_RECURRING_INVOICE && ! isset($clientId))
+        @if (Auth::user()->can('create', ENTITY_RECURRING_QUOTE))
+            {!! DropdownButton::normal(trans('texts.recurring_quotes'))
+                ->withAttributes(['class'=>'recurringDropdown'])
+                ->withContents([
+                  ['label' => trans('texts.new_recurring_quote'), 'url' => url('/recurring_quotes/create')],
+                ]
+              )->split() !!}
+        @else
+            {!! DropdownButton::normal(trans('texts.recurring_quotes'))
+                ->withAttributes(['class'=>'recurringDropdown'])
+                ->split() !!}
+        @endif
+		<script type="text/javascript">
+            $(function() {
+                $('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+                    openUrlOnClick('{{ url('/recurring_quotes') }}', event)
+                });
+            });
+		</script>
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.kanban'))->asLinkTo(url('/tasks/kanban' . (! empty($clientId) ? ('/' . $clientId . (! empty($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('th')) !!}
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}

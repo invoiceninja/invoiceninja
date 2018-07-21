@@ -115,6 +115,19 @@ class EntityModel extends Eloquent
         }
     }
 
+    public static function getPortalPrivateId($publicId, $accountId)
+    {
+        if(! $publicId)
+            return null;
+
+        $className = get_called_class();
+
+        if(method_exists($className, 'trashed'))
+            return $className::scope($publicId, $accountId)->withTrashed()->value('id');
+        else
+            return $className::scope($publicId, $accountId)->value('id');
+    }
+
     /**
      * @return string
      */
@@ -234,7 +247,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
+        if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_RECURRING_QUOTE) {
             $entityType = ENTITY_INVOICE;
         }
 
@@ -331,6 +344,7 @@ class EntityModel extends Eloquent
             'invoices' => 'file-pdf-o',
             'payments' => 'credit-card',
             'recurring_invoices' => 'files-o',
+            'recurring_quotes' => 'files-o',
             'recurring_expenses' => 'files-o',
             'credits' => 'credit-card',
             'quotes' => 'file-text-o',
@@ -342,6 +356,7 @@ class EntityModel extends Eloquent
             'self-update' => 'download',
             'reports' => 'th-list',
             'projects' => 'briefcase',
+            'tickets' => 'life-ring',
         ];
 
         return array_get($icons, $entityType);

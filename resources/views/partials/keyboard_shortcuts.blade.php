@@ -124,8 +124,9 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
-        <a class="btn btn-primary" href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">{{ trans('texts.guide') }}</a>
-        <a class="btn btn-primary" href="{{ config('ninja.video_urls.all') }}" target="_blank">{{ trans('texts.videos') }}</a>
+        <a class="btn btn-primary" href="{{ config('ninja.knowledge_base_url') }}" target="_blank">{{ trans('texts.knowledge_base') }}</a>
+        <a class="btn btn-primary" href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">{{ trans('texts.user_guide') }}</a>
+        <a class="btn btn-primary" href="{{ config('ninja.video_urls.all') }}" target="_blank">YouTube {{ trans('texts.videos') }}</a>
       </div>
     </div>
   </div>

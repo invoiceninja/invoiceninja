@@ -15,8 +15,9 @@ class DocumentTransformer extends EntityTransformer
      * @SWG\Property(property="type", type="string", example="png")
      * @SWG\Property(property="path", type="string", example="abc/sample.png")
      * @SWG\Property(property="invoice_id", type="integer", example=1)
+     * @SWG\Property(property="expense_id", type="integer", example=1)
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
-     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="is_default", type="boolean", example=false)
      */
     public function transform(Document $document)
     {

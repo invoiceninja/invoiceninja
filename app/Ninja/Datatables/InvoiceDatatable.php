@@ -26,8 +26,6 @@ class InvoiceDatatable extends EntityDatatable
                     }
                     else
                         return $model->invoice_number;
-
-
                 },
             ],
             [

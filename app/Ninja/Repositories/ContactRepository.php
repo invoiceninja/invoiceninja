@@ -19,7 +19,7 @@ class ContactRepository extends BaseRepository
 
         if ($contact) {
             // do nothing
-        } elseif (! $publicId || $publicId == '-1') {
+        } elseif (! $publicId || intval($publicId) < 0) {
             $contact = Contact::createNew();
             $contact->send_invoice = true;
             $contact->client_id = $data['client_id'];

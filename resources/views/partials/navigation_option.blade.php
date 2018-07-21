@@ -21,7 +21,7 @@
         style="padding-top:6px; padding-bottom:6px"
         class="nav-link {{ Request::is("{$option}*") ? 'active' : '' }}">
         <i class="fa fa-{{ empty($icon) ? \App\Models\EntityModel::getIcon($option) : $icon }}" style="width:46px; padding-right:10px"></i>
-        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : mtrans($option) }}
+        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : (!empty($moduleName) ? mtrans($moduleName) : mtrans($option)) }}
         {!! Utils::isTrial() && in_array($option, ['reports']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
     </a>
 

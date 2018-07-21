@@ -99,7 +99,7 @@
                 $('#reportrange').css('pointer-events', 'auto');
             }
 
-            var url = '/{{ request()->path() }}' +
+            var url = '{{ request()->url() }}' +
                 '?status_id=' + statusId +
                 '&start_date=' + statementStartDate.format('YYYY-MM-DD') +
                 '&end_date=' + statementEndDate.format('YYYY-MM-DD') +

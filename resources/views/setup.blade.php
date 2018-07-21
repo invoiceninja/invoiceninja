@@ -55,7 +55,6 @@ FLUSH PRIVILEGES;</pre>
         'database[type][host]' => 'required',
         'database[type][database]' => 'required',
         'database[type][username]' => 'required',
-        'database[type][password]' => 'required',
         'first_name' => 'required',
         'last_name' => 'required',
         'email' => 'required|email',

@@ -13,6 +13,7 @@ class VendorTransformer extends EntityTransformer
 {
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="name", type="string", example="Name")
      * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="paid_to_date", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="user_id", type="integer", example=1)
@@ -26,12 +27,15 @@ class VendorTransformer extends EntityTransformer
      * @SWG\Property(property="postal_code", type="string", example=10010)
      * @SWG\Property(property="country_id", type="integer", example=840)
      * @SWG\Property(property="work_phone", type="string", example="(212) 555-1212")
-     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="private_notes", type="string", example="Notes")
      * @SWG\Property(property="last_login", type="string", format="date-time", example="2016-01-01 12:10:00")
      * @SWG\Property(property="website", type="string", example="http://www.example.com")
-     * @SWG\Property(property="is_deleted", type="boolean", example=false)
+     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
      * @SWG\Property(property="vat_number", type="string", example="123456")
      * @SWG\Property(property="id_number", type="string", example="123456")
+     * @SWG\Property(property="currency_id", type="integer", example=1)
+     * @SWG\Property(property="custom_value1", type="string", example="Custom Value")
+     * @SWG\Property(property="custom_value2", type="string", example="Custom Value")
      */
     protected $defaultIncludes = [
         'vendor_contacts',
@@ -67,9 +71,9 @@ class VendorTransformer extends EntityTransformer
     {
         return array_merge($this->getDefaults($vendor), [
             'id' => (int) $vendor->public_id,
-            'name' => $vendor->name,
-            'balance' => (float) $vendor->balance,
-            'paid_to_date' => (float) $vendor->paid_to_date,
+            'name' => $vendor->name ?: '',
+            'balance' => (float) ($vendor->balance ?: 0.0),
+            'paid_to_date' => (float) ($vendor->paid_to_date ?: 0.0),
             'updated_at' => $this->getTimestamp($vendor->updated_at),
             'archived_at' => $this->getTimestamp($vendor->deleted_at),
             'address1' => $vendor->address1,
@@ -77,17 +81,17 @@ class VendorTransformer extends EntityTransformer
             'city' => $vendor->city,
             'state' => $vendor->state,
             'postal_code' => $vendor->postal_code,
-            'country_id' => (int) $vendor->country_id,
+            'country_id' => (int) ($vendor->country_id ?: 0),
             'work_phone' => $vendor->work_phone,
             'private_notes' => $vendor->private_notes,
-            'last_login' => $vendor->last_login,
+            'last_login' => $vendor->last_login ?: '',
             'website' => $vendor->website,
             'is_deleted' => (bool) $vendor->is_deleted,
-            'vat_number' => $vendor->vat_number,
-            'id_number' => $vendor->id_number,
-            'currency_id' => (int) $vendor->currency_id,
-            'custom_value1' => $vendor->custom_value1,
-            'custom_value2' => $vendor->custom_value2,
+            'vat_number' => $vendor->vat_number ?: '',
+            'id_number' => $vendor->id_number ?: '',
+            'currency_id' => (int) ($vendor->currency_id ?: 0),
+            'custom_value1' => $vendor->custom_value1 ?: '',
+            'custom_value2' => $vendor->custom_value2 ?: '',
         ]);
     }
 }

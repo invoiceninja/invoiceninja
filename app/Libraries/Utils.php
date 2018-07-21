@@ -501,6 +501,50 @@ class Utils
         }
     }
 
+    public static function getStaticData($locale = false)
+    {
+        $data = [];
+
+        $cachedTables = unserialize(CACHED_TABLES);
+        foreach ($cachedTables as $name => $class) {
+            $data[$name] = Cache::get($name);
+        }
+
+        if ($locale) {
+            $data['industries'] = Cache::get('industries')->each(function ($industry) {
+                $industry->name = trans('texts.industry_'.$industry->name);
+            })->sortBy(function ($industry) {
+                return $industry->name;
+            });
+
+            $data['countries'] = Cache::get('countries')->each(function ($country) {
+                $country->name = trans('texts.country_'.$country->name);
+            })->sortBy(function ($country) {
+                return $country->name;
+            })->values();
+
+            $data['paymentTypes'] = Cache::get('paymentTypes')->each(function ($pType) {
+                $pType->name = trans('texts.payment_type_'.$pType->name);
+            })->sortBy(function ($pType) {
+                return $pType->name;
+            })->values();
+
+            $data['languages'] = Cache::get('languages')->each(function ($lang) {
+                $lang->name = trans('texts.lang_'.$lang->name);
+            })->sortBy(function ($lang) {
+                return $lang->name;
+            });
+
+            $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
+                $currency->name = trans('texts.currency_' . \Str::slug($currency->name, '_'));
+            })->sortBy(function ($currency) {
+                return $currency->name;
+            })->values();
+        }
+
+        return $data;
+    }
+
     public static function getFromCache($id, $type)
     {
         $cache = Cache::get($type);
@@ -603,6 +647,10 @@ class Utils
             return 'proposal_categories';
         } elseif ($type === ENTITY_TASK_STATUS) {
             return 'task_statuses';
+        } elseif ($type === ENTITY_TICKET_STATUS) {
+            return 'ticket_statuses';
+        } elseif ($type === ENTITY_TICKET_CATEGORY) {
+            return 'ticket_categories';
         } else {
             return $type . 's';
         }
@@ -1183,6 +1231,7 @@ class Utils
             'invoice_id',
             'credit_id',
             'invitation_id',
+            'ticket_id',
         ];
 
         $fields1 = $entity1->getAttributes();
@@ -1437,4 +1486,49 @@ class Utils
         );
         return strtr($s, $replace);
     }
+
+    /**
+     * @return array of file sizes, using a MAX of the php.ini variables upload_max_filesize and post_max_size
+     * and iterating down by / 2 until a min size of 100kB
+     */
+    public function getMaxFileUploadSizes()
+    {
+        $maxUploadSize = $this->fileUploadMaxSize();
+
+        $selectArray = [];
+
+        while($maxUploadSize > 100) {
+            array_push($selectArray, $maxUploadSize);
+            $maxUploadSize = $maxUploadSize / 2;
+        }
+
+        return array_reverse($selectArray);
+    }
+
+    /**
+     * @return  Returns a file size limit in kilobytes based on the PHP upload_max_filesize and post_max_size
+     */
+    public function fileUploadMaxSize() {
+
+       return min($this->parse_size(ini_get('post_max_size')), $this->parse_size(ini_get('upload_max_filesize')));
+
+    }
+
+    /**
+     * @param $size
+     * @return float in kilobytes to match laravel file size validator
+     */
+    private function parse_size($size) {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
+        $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
+        if ($unit) {
+            // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])))/1024;
+        }
+        else {
+            return round($size)/1024;
+        }
+    }
+
+
 }

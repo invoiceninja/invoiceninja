@@ -2,9 +2,11 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Models\Contact;
 use App\Models\Document;
 use DB;
 use Form;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Utils;
 
@@ -43,6 +45,7 @@ class DocumentRepository extends BaseRepository
                         'documents.invoice_id',
                         'documents.expense_id',
                         'documents.user_id',
+                        'documents.ticket_id',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'expenses.public_id as expense_public_id',
@@ -89,9 +92,20 @@ class DocumentRepository extends BaseRepository
         }
 
         $hash = sha1_file($filePath);
-        $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType;
 
-        $document = Document::createNew();
+        $ticketMaster = false;
+
+        if($contactKey = session('contact_key')) {
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            $account = $contact->account;
+            $ticketMaster = $account->account_ticket_settings->ticket_master;
+        }
+        else
+            $account = \Auth::user()->account;
+
+        $filename = $account->account_key.'/'.$hash.'.'.$documentType;
+
+        $document = Document::createNew($ticketMaster);
         $document->fill($data);
 
         if ($isProposal) {
@@ -136,7 +150,7 @@ class DocumentRepository extends BaseRepository
                     $previewType = 'png';
                 }
 
-                $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
+                $document->preview = $account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
                 if (! $disk->exists($document->preview)) {
                     // We haven't created a preview yet
                     $imgManager = new ImageManager($imgManagerConfig);

@@ -10,6 +10,11 @@ use League\Fractal\TransformerAbstract;
  */
 class AccountTokenTransformer extends TransformerAbstract
 {
+	  /**
+     * @SWG\Property(property="name", type="string", example="Name")
+     * @SWG\Property(property="token", type="string", example="Token")
+     */
+
     /**
      * @param AccountToken $account_token
      *

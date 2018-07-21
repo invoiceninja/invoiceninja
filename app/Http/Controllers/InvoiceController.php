@@ -81,6 +81,14 @@ class InvoiceController extends BaseController
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
     }
 
+    public function getRecurringQuotesDatatable($clientPublicId = null)
+    {
+        $accountId = Auth::user()->account_id;
+        $search = Input::get('sSearch');
+
+        return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_QUOTE, $search);
+    }
+
     public function edit(InvoiceRequest $request, $publicId, $clone = false)
     {
         $account = Auth::user()->account;
@@ -101,7 +109,6 @@ class InvoiceController extends BaseController
             $entityType = $clone == INVOICE_TYPE_STANDARD ? ENTITY_INVOICE : ENTITY_QUOTE;
             $invoice->id = $invoice->public_id = null;
             $invoice->is_public = false;
-            $invoice->is_recurring = $invoice->is_recurring && $clone == INVOICE_TYPE_STANDARD;
             $invoice->invoice_type_id = $clone;
             $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->due_date = null;
@@ -138,7 +145,11 @@ class InvoiceController extends BaseController
             'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
 
-        $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
+        $lastSent = null;
+        if($invoice->is_recurring && $invoice->last_sent_date)
+        {
+            $lastSent = ($invoice->subEntityType() == ENTITY_RECURRING_INVOICE) ? $invoice->recurring_invoices->last() : $invoice->recurring_quotes->last();
+        }
 
         if (! Auth::user()->hasPermission('view_client')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
@@ -195,11 +206,10 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function create(InvoiceRequest $request, $clientPublicId = 0, $isRecurring = false)
+    public function create(InvoiceRequest $request, $clientPublicId = 0, $entityType = ENTITY_INVOICE)
     {
         $account = Auth::user()->account;
 
-        $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
 
         if ($request->client_id) {
@@ -230,7 +240,12 @@ class InvoiceController extends BaseController
 
     public function createRecurring(InvoiceRequest $request, $clientPublicId = 0)
     {
-        return self::create($request, $clientPublicId, true);
+        return self::create($request, $clientPublicId, ENTITY_RECURRING_INVOICE);
+    }
+
+    public function createRecurringQuote(InvoiceRequest $request, $clientPublicId = 0)
+    {
+        return self::create($request, $clientPublicId, ENTITY_RECURRING_QUOTE);
     }
 
     private static function getViewModel($invoice)
@@ -508,6 +523,10 @@ class InvoiceController extends BaseController
 
         if (strpos(\Request::server('HTTP_REFERER'), 'recurring_invoices')) {
             $entityType = ENTITY_RECURRING_INVOICE;
+        }
+
+        if (strpos(\Request::server('HTTP_REFERER'), 'recurring_quotes')) {
+            $entityType = ENTITY_RECURRING_QUOTE;
         }
 
         return $this->returnBulk($entityType, $action, $ids);

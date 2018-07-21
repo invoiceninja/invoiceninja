@@ -162,6 +162,9 @@ class CountriesSeeder extends Seeder
                 'thousand_separator' => ',',
                 'decimal_separator' => '.',
             ],
+            'SR' => [ // Suriname
+                'swap_currency_symbol' => true,
+            ],
             'UY' => [
                 'swap_postal_code' => true,
             ],

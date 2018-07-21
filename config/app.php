@@ -137,11 +137,11 @@ return [
         'Illuminate\Redis\RedisServiceProvider',
         'Illuminate\Auth\Passwords\PasswordResetServiceProvider',
         'Illuminate\Session\SessionServiceProvider',
-        'Illuminate\Translation\TranslationServiceProvider',
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
+        'App\Ninja\Translation\TranslationServiceProvider',
 
         /*
          * Additional Providers
@@ -163,6 +163,7 @@ return [
         PragmaRX\Google2FALaravel\ServiceProvider::class,
         'Chumper\Datatable\DatatableServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
+
 
         /*
          * Application Service Providers...

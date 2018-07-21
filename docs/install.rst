@@ -76,7 +76,12 @@ Once you can access the site the initial setup screen will enable you to configu
 
 .. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file. There is more info `here <https://www.invoiceninja.com/forums/topic/clean-4-4-3-self-hosted-install-url-configuration-clarification/#post-14186>`_.
 
-Step 5: Enable auto updates
+Step 5: Configure the application
+"""""""""""""""""""""""""""""""""
+
+See the `details here <http://docs.invoiceninja.com/en/latest/configure.html>`_ for additional configuration options.
+
+Step 6: Enable auto updates
 """""""""""""""""""""""""""
 
 Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process.
@@ -94,3 +99,11 @@ Troubleshooting
 - If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to public/.htaccess otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
 - PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php. If the file doesn't exist the steps `here <https://stackoverflow.com/a/37266353/497368>`_ may help.
+- Some webservers run filtering software which can cause errors, you can test adding this code to your .htaccess file to test if it's related.
+
+.. code-block:: shell
+
+   <IfModule mod_security.c>
+     SecFilterEngine Off
+     SecFilterScanPOST Off
+   </IfModule>

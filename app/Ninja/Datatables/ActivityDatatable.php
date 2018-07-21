@@ -48,6 +48,7 @@ class ActivityDatatable extends EntityDatatable
                         'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
                         'task' => $model->task_public_id ? link_to('/tasks/' . $model->task_public_id, substr($model->task_description, 0, 30).'...') : null,
                         'expense' => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30).'...') : null,
+                        'ticket' => $model->ticket_public_id ? link_to('/tickets/' . $model->ticket_public_id, '') : null,
                     ];
 
                     $str = trans("texts.activity_{$model->activity_type_id}", $data);

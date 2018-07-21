@@ -513,7 +513,8 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/' + parts[1] + '/' + parts[0].substring
         $('#domainHelp, #iframeModalHelp, #domainModalHelp').hide();
         $('#is_custom_domain').val(0);
 
-        var val = $('input[name=custom_link]:checked').val()
+        var val = $('input[name=custom_link]:checked').val() || 'iframe';
+
         if (val == 'subdomain') {
             $('.subdomain').show();
         } else if (val == 'iframe') {

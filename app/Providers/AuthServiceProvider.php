@@ -38,6 +38,9 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\ProposalSnippet::class => \App\Policies\ProposalSnippetPolicy::class,
         \App\Models\ProposalTemplate::class => \App\Policies\ProposalTemplatePolicy::class,
         \App\Models\ProposalCategory::class => \App\Policies\ProposalCategoryPolicy::class,
+        \App\Models\Ticket::class => \App\Policies\TicketPolicy::class,
+        \App\Models\TicketStatus::class => \App\Policies\TicketStatusPolicy::class,
+        \App\Models\TicketCategory::class => \App\Policies\TicketCategoryPolicy::class,
     ];
 
     /**

@@ -74,7 +74,7 @@ class BaseAPIController extends Controller
         $entity = $request->entity();
         $action = $request->action;
 
-        if (! in_array($action, ['archive', 'delete', 'restore', 'mark_sent'])) {
+        if (! in_array($action, ['archive', 'delete', 'restore', 'mark_sent', 'markSent', 'emailInvoice', 'markPaid'])) {
             return $this->errorResponse("Action [$action] is not supported");
         }
 
@@ -98,6 +98,10 @@ class BaseAPIController extends Controller
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
+
+        if (Input::get('filter_active')) {
+            $query->whereNull('deleted_at');
+        }
 
         if (Input::get('updated_at') > 0) {
                 $updatedAt = intval(Input::get('updated_at'));

@@ -13,6 +13,7 @@ return [
 
     // Marketing links
     'time_tracker_web_url' => env('TIME_TRACKER_WEB_URL', 'https://www.invoiceninja.com/time-tracker'),
+    'knowledge_base_url' => env('KNOWLEDGE_BASE_URL', 'https://www.invoiceninja.com/knowledge-base/'),
 
     // Hosted plan coupons
     'coupon_50_off' => env('COUPON_50_OFF', false),
@@ -21,7 +22,8 @@ return [
 
     // Currency exchange rates
     'exchange_rates_enabled' => env('EXCHANGE_RATES_ENABLED', false),
-    'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'https://api.fixer.io/latest'),
+    'exchange_rates_url' => env('EXCHANGE_RATES_URL', 'http://data.fixer.io/api/latest?access_key={apiKey}'),
+    'exchange_rates_api_key' => env('EXCHANGE_RATES_API_KEY', false),
     'exchange_rates_base' => env('EXCHANGE_RATES_BASE', 'EUR'),
 
     // terms and privacy policy
@@ -29,6 +31,7 @@ return [
         'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
         'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
     ],
+
     'privacy_policy_url' => [
         'hosted' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
         'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),

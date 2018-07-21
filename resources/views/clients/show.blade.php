@@ -68,7 +68,7 @@
 
                 @if ($client->trashed())
                     @can('edit', $client)
-                        @if (auth()->user()->is_admin)
+                        @if (auth()->user()->is_admin && $client->is_deleted)
                             {!! Button::danger(trans('texts.purge_client'))
                                     ->appendIcon(Icon::create('warning-sign'))
                                     ->withAttributes(['onclick' => 'onPurgeClick()']) !!}
@@ -245,11 +245,14 @@
         @if ($hasExpenses)
             {!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
         @endif
+        @if ($hasRecurringQuotes)
+            {!! Form::tab_link('#recurring_quotes', trans('texts.recurring_quotes')) !!}
+        @endif
 		@if ($hasQuotes)
 			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
         @if ($hasRecurringInvoices)
-            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring')) !!}
+            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring_invoices')) !!}
         @endif
 		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
 		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
@@ -317,6 +320,16 @@
                 'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
                 'clientId' => $client->public_id,
                 'url' => url('api/recurring_invoices/' . $client->public_id),
+            ])
+        </div>
+    @endif
+    @if ($hasRecurringQuotes)
+        <div class="tab-pane" id="recurring_quotes">
+            @include('list', [
+                'entityType' => ENTITY_RECURRING_QUOTE,
+                'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
+                'clientId' => $client->public_id,
+                'url' => url('api/recurring_quotes/' . $client->public_id),
             ])
         </div>
     @endif
@@ -434,7 +447,7 @@
 		sweetConfirm(function() {
 			$('#action').val('purge');
 			$('.mainForm').submit();
-		}, "{{ trans('texts.purge_client_warning') . "\\n\\n" . trans('texts.no_undo') }}");
+		}, "{{ trans('texts.purge_client_warning') . "\\n\\n" . trans('texts.mobile_refresh_warning') . "\\n\\n" . trans('texts.no_undo') }}");
 	}
 
     function showEmailHistory(email) {
