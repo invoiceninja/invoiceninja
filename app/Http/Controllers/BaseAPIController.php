@@ -116,7 +116,7 @@ class BaseAPIController extends Controller
              $query->whereHas('client', $filter);
         }
 
-        if (! Utils::hasPermission('admin')) {
+        if (! Utils::hasPermission('view_'.$this->entityType)) {
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
             } else {
