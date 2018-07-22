@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\QuoteRequest;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Country;
@@ -74,7 +75,7 @@ class QuoteController extends BaseController
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_QUOTE, $search);
     }
 
-    public function create(InvoiceRequest $request, $clientPublicId = 0)
+    public function create(QuoteRequest $request, $clientPublicId = 0)
     {
         if (! Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
