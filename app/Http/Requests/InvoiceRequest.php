@@ -16,6 +16,16 @@ class InvoiceRequest extends EntityRequest
     public function authorize()
     {
 
+        $invoice = parent::entity();
+
+        if ($invoice && $invoice->isQuote())
+            $standardOrRecurringInvoice = ENTITY_QUOTE;
+        elseif($invoice && $invoice->is_recurring)
+            $standardOrRecurringInvoice = ENTITY_RECURRING_INVOICE;
+        else
+            $standardOrRecurringInvoice = ENTITY_INVOICE;
+
+
         if(request()->is('invoices/create') && !$this->user()->can('create', ENTITY_INVOICE))
             return false;
 
@@ -25,13 +35,13 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('quotes/create') && !$this->user()->can('create', ENTITY_QUOTE))
             return false;
 
-        if(request()->is('invoices/*/edit') && request()->isMethod('put') && !$this->user()->can('edit', ENTITY_INVOICE))
+        if(request()->is('invoices/*/edit') && request()->isMethod('put') && !$this->user()->can('edit', $standardOrRecurringInvoice))
             return false;
 
         if(request()->is('quotes/*/edit') && request()->isMethod('put') && !$this->user()->can('edit', ENTITY_QUOTE))
             return false;
 
-        if(request()->is('invoices/*') && request()->isMethod('get') && !$this->user()->can('view', ENTITY_INVOICE))
+        if(request()->is('invoices/*') && request()->isMethod('get') && !$this->user()->can('view', $standardOrRecurringInvoice))
             return false;
 
         if(request()->is('quotes/*') && request()->isMethod('get') && !$this->user()->can('view', ENTITY_QUOTE))
