@@ -317,11 +317,13 @@ class PermissionsCest
         $I->seeResponseCodeIs(403);
     }
 
+
     /*
      * 
+
     public function testViewInvoice(FunctionalTester $I)
     {
-        $I->amOnPage('/invoices/11');
+        $I->amOnPage('/invoices/1');
         $I->seeResponseCodeIs(403);
     }
 
@@ -332,6 +334,7 @@ class PermissionsCest
     }
 
     */
+
     public function testCreateQuote(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/create');
