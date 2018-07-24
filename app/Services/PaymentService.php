@@ -11,6 +11,7 @@ use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use Auth;
+use App;
 use Exception;
 use Utils;
 
@@ -141,7 +142,7 @@ class PaymentService extends BaseService
             $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $exception->getMessage());
             //$message .= $exception->getTraceAsString();
             Utils::logError($message, 'PHP', true);
-            if (! Auth::check()) {
+            if (App::runningInConsole()) {
                 $mailer = app('App\Ninja\Mailers\UserMailer');
                 $mailer->sendMessage($invoice->user, $subject, $message, [
                     'invoice' => $invoice
