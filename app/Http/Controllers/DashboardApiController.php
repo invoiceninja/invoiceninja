@@ -27,7 +27,7 @@ class DashboardApiController extends BaseAPIController
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
         $paidToDate = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($user->account, $userId, $viewAll);
-        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);
+        $balances = $dashboardRepo->balances($user->account, $userId, $viewAll);
         $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
