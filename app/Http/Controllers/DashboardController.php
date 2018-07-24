@@ -62,7 +62,7 @@ class DashboardController extends BaseController
 
             $invoiceTotal += ($item->invoice_avg * $item->invoice_count / $item->exchange_rate);
         }
-        $averageInvoiceTotal = $invoiceTotal / $invoiceTotalCount;
+        $averageInvoiceTotal = $invoiceTotalCount ? ($invoiceTotal / $invoiceTotalCount) : 0;
 
         // calculate balances totals
         $balancesTotals = 0;
