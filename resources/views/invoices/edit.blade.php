@@ -9,7 +9,7 @@
 	<style type="text/css">
 
 		.tt-menu {
-			width: 400px !important;
+			width: 350px !important;
 		}
 
         select.tax-select {
