@@ -77,7 +77,8 @@ class DashboardController extends BaseController
                 $currencies[$item->currency_id] = Currency::where('id', $item->currency_id)->firstOrFail();
             }
 
-            $balancesTotals += ($item->value / $currencies[$item->currency_id]->exchange_rate);
+            $rate = $currencies[$item->currency_id]->exchange_rate;
+            $balancesTotals += $rate ? ($item->value / $rate) : 0;
         }
 
         // calculate expenses totals
