@@ -27,7 +27,6 @@ class AccountTransformer extends EntityTransformer
      * @SWG\Property(property="postal_code", type="string", example=10010)
      * @SWG\Property(property="country_id", type="integer", example=840)
      * @SWG\Property(property="invoice_terms", type="string", example="Terms")
-     * @SWG\Property(property="email_footer", type="string", example="Footer")
      * @SWG\Property(property="industry_id", type="integer", example=1)
      * @SWG\Property(property="size_id", type="integer", example=1)
      * @SWG\Property(property="invoice_taxes", type="boolean", example=false)
@@ -62,13 +61,6 @@ class AccountTransformer extends EntityTransformer
      * @SWG\Property(property="custom_design3", type="string", example="Design")
      * @SWG\Property(property="show_item_taxes", type="boolean", example=false)
      * @SWG\Property(property="military_time", type="boolean", example=false)
-     * @SWG\Property(property="enable_reminder1", type="string", example="Enable Reminder 1")
-     * @SWG\Property(property="enable_reminder2", type="string", example="Enable Reminder 2")
-     * @SWG\Property(property="enable_reminder3", type="string", example="Enable reminder 3")
-     * @SWG\Property(property="enable_reminder4", type="string", example="Enable Reminder 4")
-     * @SWG\Property(property="num_days_reminder1", type="string", example="Num Days reminder 1")
-     * @SWG\Property(property="num_days_reminder2", type="string", example="Num Days reminder 2")
-     * @SWG\Property(property="num_days_reminder3", type="string", example="Num Days reminder 3")
      * @SWG\Property(property="tax_name1", type="string", example="VAT")
      * @SWG\Property(property="tax_name2", type="string", example="Upkeep")
      * @SWG\Property(property="tax_rate1", type="number", format="float", example="17.5")
@@ -77,15 +69,7 @@ class AccountTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_number_pattern", type="string", example="Invoice Number Pattern")
      * @SWG\Property(property="quote_number_pattern", type="string", example="Quote Number Pattern")
      * @SWG\Property(property="quote_terms", type="string", example="Labels")
-     * @SWG\Property(property="email_design_id", type="string", example="Email Design ID")
-     * @SWG\Property(property="enable_email_markup", type="boolean", example=false)
      * @SWG\Property(property="website", type="string", example="http://www.example.com")
-     * @SWG\Property(property="direction_reminder1", type="integer", example=1)
-     * @SWG\Property(property="direction_reminder2", type="integer", example=1)
-     * @SWG\Property(property="direction_reminder3", type="integer", example=1)
-     * @SWG\Property(property="field_reminder1", type="integer", example=1)
-     * @SWG\Property(property="field_reminder2", type="integer", example=1)
-     * @SWG\Property(property="field_reminder3", type="integer", example=1)
      * @SWG\Property(property="header_font_id", type="integer", example=1)
      * @SWG\Property(property="body_font_id", type="integer", example=1)
      * @SWG\Property(property="auto_convert_quote", type="boolean", example=false)
@@ -305,7 +289,6 @@ class AccountTransformer extends EntityTransformer
             'postal_code' => $account->postal_code,
             'country_id' => (int) $account->country_id,
             'invoice_terms' => $account->invoice_terms,
-            'email_footer' => $account->email_footer,
             'industry_id' => (int) $account->industry_id,
             'size_id' => (int) $account->size_id,
             'invoice_taxes' => (bool) $account->invoice_taxes,
@@ -340,13 +323,6 @@ class AccountTransformer extends EntityTransformer
             'custom_design3' => $account->custom_design3,
             'show_item_taxes' => (bool) $account->show_item_taxes,
             'military_time' => (bool) $account->military_time,
-            'enable_reminder1' => $account->enable_reminder1,
-            'enable_reminder2' => $account->enable_reminder2,
-            'enable_reminder3' => $account->enable_reminder3,
-            'enable_reminder4' => $account->enable_reminder4,
-            'num_days_reminder1' => $account->num_days_reminder1,
-            'num_days_reminder2' => $account->num_days_reminder2,
-            'num_days_reminder3' => $account->num_days_reminder3,
             'tax_name1' => $account->tax_name1 ?: '',
             'tax_rate1' => (float) $account->tax_rate1,
             'tax_name2' => $account->tax_name2 ?: '',
@@ -355,15 +331,7 @@ class AccountTransformer extends EntityTransformer
             'invoice_number_pattern' => $account->invoice_number_pattern,
             'quote_number_pattern' => $account->quote_number_pattern,
             'quote_terms' => $account->quote_terms,
-            'email_design_id' => $account->email_design_id,
-            'enable_email_markup' => (bool) $account->enable_email_markup,
             'website' => $account->website,
-            'direction_reminder1' => (int) $account->direction_reminder1,
-            'direction_reminder2' => (int) $account->direction_reminder2,
-            'direction_reminder3' => (int) $account->direction_reminder3,
-            'field_reminder1' => (int) $account->field_reminder1,
-            'field_reminder2' => (int) $account->field_reminder2,
-            'field_reminder3' => (int) $account->field_reminder3,
             'header_font_id' => (int) $account->header_font_id,
             'body_font_id' => (int) $account->body_font_id,
             'auto_convert_quote' => (bool) $account->auto_convert_quote,
