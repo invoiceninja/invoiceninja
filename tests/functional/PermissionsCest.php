@@ -288,4 +288,123 @@ class PermissionsCest
         $I->seeResponseCodeIs(403);
     }
 
+
+    /****
+     *  Test the edge case with Invoice and Quote Permissions
+     */
+
+    public function setQuoteOnlyPermissions(FunctionalTester $I)
+    {
+        $I->wantTo('create a quote view only permission user');
+
+        $permissions = [];
+
+        array_push($permissions, 'view_quote');
+        array_push($permissions, 'edit_quote');
+        array_push($permissions, 'create_quote');
+
+        $I->updateInDatabase('users',
+            ['is_admin' => 0,
+                'permissions' => json_encode(array_diff(array_values($permissions),[0]))
+            ],
+            ['email' => Fixtures::get('permissions_username')]
+        );
+    }
+
+    public function testCreateInvoice(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/create');
+        $I->seeResponseCodeIs(403);
+    }
+
+
+    /*
+     * 
+
+    public function testViewInvoice(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/1');
+        $I->seeResponseCodeIs(403);
+    }
+
+    public function testEditInvoice(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/11/edit');
+        $I->seeResponseCodeIs(403);
+    }
+
+    */
+
+    public function testCreateQuote(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testEditQuote(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/1/edit');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testViewQuote(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/1');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function setInvoiceOnlyPermissions(FunctionalTester $I)
+    {
+        $I->wantTo('create a invoice view only permission user');
+
+        $permissions = [];
+
+        array_push($permissions, 'view_invoice');
+        array_push($permissions, 'edit_invoice');
+        array_push($permissions, 'create_invoice');
+
+        $I->updateInDatabase('users',
+            ['is_admin' => 0,
+                'permissions' => json_encode(array_diff(array_values($permissions),[0]))
+            ],
+            ['email' => Fixtures::get('permissions_username')]
+        );
+    }
+
+
+    public function testCreateInvoiceOnly(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testViewInvoiceOnly(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/1');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testEditInvoiceOnly(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/1/edit');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateQuoteOnly(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/create');
+        $I->seeResponseCodeIs(403);
+    }
+
+    public function testEditQuoteOnly(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/1/edit');
+        $I->seeResponseCodeIs(403);
+    }
+
+    public function testViewQuoteOnly(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/1');
+        $I->seeResponseCodeIs(403);
+    }
 }
