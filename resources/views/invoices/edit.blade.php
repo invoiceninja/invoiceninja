@@ -7,6 +7,11 @@
 	<link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
 
 	<style type="text/css">
+
+		.tt-menu {
+			width: 400px !important;
+		}
+
         select.tax-select {
             width: 50%;
             float: left;
