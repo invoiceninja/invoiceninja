@@ -1746,6 +1746,7 @@ $LANG = array(
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
     'lang_Albanian' => 'Albanian',
+    'lang_Greek' => 'Greek',
     'lang_English - United Kingdom' => 'English - United Kingdom',
     'lang_Slovenian' => 'Slovenian',
     'lang_Finnish' => 'Finnish',
@@ -1754,6 +1755,8 @@ $LANG = array(
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -2195,7 +2198,6 @@ $LANG = array(
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
-    'lang_Greek' => 'Greek',
     'reset_counter' => 'Reset Counter',
     'next_reset' => 'Next Reset',
     'reset_counter_help' => 'Automatically reset the invoice and quote counters.',
