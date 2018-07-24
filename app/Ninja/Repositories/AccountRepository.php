@@ -132,6 +132,12 @@ class AccountRepository
     private function checkForSpammer()
     {
         $ip = Request::getClientIp();
+
+        // Apple's IP for their test accounts
+        if ($ip == '17.200.11.44') {
+            return;
+        }
+
         $count = Account::whereIp($ip)->whereHas('users', function ($query) {
             $query->whereRegistered(true);
         })->count();
