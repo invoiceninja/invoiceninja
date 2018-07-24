@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\QuoteRequest;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Country;
