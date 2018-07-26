@@ -103,6 +103,7 @@ $LANG = array(
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
           <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
         </ul>',
+    'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => 'no total de faturação',
     'billed_client' => 'Faturado ao cliente',
     'billed_clients' => 'Clientes faturados',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'CVV',
     'logout' => 'Sair',
     'sign_up_to_save' => 'Faça login para guardar o seu trabalho',
-    'agree_to_terms' => 'Eu concordo com os :terms do Invoice Ninja',
+    'agree_to_terms' => 'I agree to the :terms',
     'terms_of_service' => 'Condições do Serviço',
     'email_taken' => 'O endereço de e-mail já está registrado',
     'working' => 'Processando',
@@ -647,6 +648,8 @@ $LANG = array(
     'current_user' => 'Utilizador',
     'new_recurring_invoice' => 'Nova Nota de Pagamento Recorrente',
     'recurring_invoice' => 'Nota de Pagamento Recorrente',
+    'new_recurring_quote' => 'New recurring quote',
+    'recurring_quote' => 'Recurring Quote',
     'recurring_too_soon' => 'Demasiado cedo para criar nova nota de pagamento recorrente, agendamento para :date',
     'created_by_invoice' => 'Criada a partir da Nota de Pagamento :invoice',
     'primary_user' => 'Utilizador Principal',
@@ -806,6 +809,12 @@ $LANG = array(
     'deleted_recurring_invoice' => 'Nota de Pagamento Recorrente removida',
     'restore_recurring_invoice' => 'Restaurar Nota de Pagamento Recorrente',
     'restored_recurring_invoice' => 'Nota de Pagamento Recorrente restaurada',
+    'archive_recurring_quote' => 'Archive Recurring Quote',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Delete Recurring Quote',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Restore Recurring Quote',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'Arquivado',
     'untitled_account' => 'Empresa Sem Nome',
     'before' => 'Antes',
@@ -1260,7 +1269,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'Deverá :link.',
     'stripe_webhook_help_link_text' => 'adicionar este URL como um endpoint no Stripe',
-    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'Houve um erro ao adicionar seu método de pagamento. Tente novamente.',
     'notification_invoice_payment_failed_subject' => 'Pagamento falhou para a Nota de Pagamento :invoice',
     'notification_invoice_payment_failed' => 'O pagamento feito pelo Cliente :client para a Nota de Pagamento :invoice falhou. O pagamento foi marcado como "falhado" e foram adicionados :amount ao saldo do cliente.',
@@ -1336,6 +1345,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'product_key' => 'Produto',
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Utilize JSON se planear importar os dados para o Invoice Ninja.<br/>O ficheiro incluí clientes, produtos, notas de pagamento, orçamentos e pagamentos.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'Ficheiro JSON',
 
     'view_dashboard' => 'Ver Dashboard',
@@ -1727,6 +1737,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
     'lang_Albanian' => 'Albanian',
+    'lang_Greek' => 'Grego',
     'lang_English - United Kingdom' => 'English - United Kingdom',
     'lang_Slovenian' => 'Slovenian',
     'lang_Finnish' => 'Finnish',
@@ -1735,6 +1746,8 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Contabilidade & Legislação',
@@ -2103,7 +2116,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'template' => 'Template',
     'start_of_week_help' => 'Utilizado pelos selectores <b>date</b>',
     'financial_year_start_help' => 'Utilizado pelos selectores <b>interevalo de data>',
-    'reports_help' => 'Shift + ordenar por várias colunas, Ctrl + Click para limpar os grupos.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Este ano',
 
 	// Updated login screen
@@ -2177,7 +2190,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Definições importadas com sucesso',
-    'lang_Greek' => 'Grego',
     'reset_counter' => 'Redefinir contador',
     'next_reset' => 'Próxima redefinição',
     'reset_counter_help' => 'Redefinir automaticamente os contadores das notas de pag. e dos orçamentos.',
@@ -2401,6 +2413,8 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2779,6 +2793,8 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2831,6 +2847,15 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 

@@ -103,6 +103,7 @@ $LANG = array(
           <li>":YEAR+1 årligt abonnement" >> "2015 Årligt abonnement"</li>
           <li>"Tilbagebetaling vedrørende :QUARTER+1" >> "Tilbagebetaling vedrørende 2. kvartal"</li>
         </ul>',
+    'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => 'i samlet indtægt',
     'billed_client' => 'faktureret kunde',
     'billed_clients' => 'fakturerede kunder',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'Kontrolcifre',
     'logout' => 'Log ud',
     'sign_up_to_save' => 'Registrer dig for at gemme dit arbejde',
-    'agree_to_terms' => 'Jeg accepterer Invoice Ninja :terms',
+    'agree_to_terms' => 'I agree to the :terms',
     'terms_of_service' => 'Vilkår for brug',
     'email_taken' => 'E-mailadressen er allerede registreret',
     'working' => 'Arbejder',
@@ -653,6 +654,8 @@ $LANG = array(
     'current_user' => 'Nuværende bruger',
     'new_recurring_invoice' => 'Ny gentaget fakture',
     'recurring_invoice' => 'Gentaget faktura',
+    'new_recurring_quote' => 'New recurring quote',
+    'recurring_quote' => 'Recurring Quote',
     'recurring_too_soon' => 'Det er for tidligt at generere den næste faktura, it\'s scheduled for :date',
     'created_by_invoice' => 'Oprettet fra :invoice',
     'primary_user' => 'Primær bruger',
@@ -812,6 +815,12 @@ $LANG = array(
     'deleted_recurring_invoice' => 'Successfully deleted recurring invoice',
     'restore_recurring_invoice' => 'Restore Recurring Invoice',
     'restored_recurring_invoice' => 'Successfully restored recurring invoice',
+    'archive_recurring_quote' => 'Archive Recurring Quote',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Delete Recurring Quote',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Restore Recurring Quote',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'Archived',
     'untitled_account' => 'Untitled Company',
     'before' => 'Before',
@@ -1268,7 +1277,7 @@ $LANG = array(
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'You must :link.',
     'stripe_webhook_help_link_text' => 'add this URL as an endpoint at Stripe',
-    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'There was an error adding your payment methd. Please try again later.',
     'notification_invoice_payment_failed_subject' => 'Payment failed for Invoice :invoice',
     'notification_invoice_payment_failed' => 'A payment made by client :client towards Invoice :invoice failed. The payment has been marked as failed and :amount has been added to the client\'s balance.',
@@ -1344,6 +1353,7 @@ $LANG = array(
     'product_key' => 'Produkt',
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'JSON Fil',
 
     'view_dashboard' => 'Oversigt',
@@ -1735,6 +1745,7 @@ $LANG = array(
     'lang_Spanish - Spain' => 'Spansk - Spanien',
     'lang_Swedish' => 'Svensk',
     'lang_Albanian' => 'Albansk',
+    'lang_Greek' => 'Greek',
     'lang_English - United Kingdom' => 'Engelsk - England',
     'lang_Slovenian' => 'Slovensk',
     'lang_Finnish' => 'Finsk',
@@ -1743,6 +1754,8 @@ $LANG = array(
     'lang_Portuguese - Brazilian' => 'Portugisisk - Brazilien',
     'lang_Portuguese - Portugal' => 'Portugisisk - Portugal',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Regnskab og jura',
@@ -2110,7 +2123,7 @@ $LANG = array(
     'template' => 'Skabelon',
     'start_of_week_help' => 'Used by <b>date</b> selectors',
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
-    'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
 
 	// Updated login screen
@@ -2184,7 +2197,6 @@ $LANG = array(
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
-    'lang_Greek' => 'Greek',
     'reset_counter' => 'Reset Counter',
     'next_reset' => 'Next Reset',
     'reset_counter_help' => 'Automatically reset the invoice and quote counters.',
@@ -2408,6 +2420,8 @@ $LANG = array(
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2786,6 +2800,8 @@ $LANG = array(
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2838,6 +2854,15 @@ $LANG = array(
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 
