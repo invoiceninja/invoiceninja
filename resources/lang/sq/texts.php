@@ -103,6 +103,7 @@ $LANG = array(
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
           <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
         </ul>',
+    'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => 'në total qarkullim',
     'billed_client' => 'klienti i faturuar',
     'billed_clients' => 'klientët e faturuar',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'CVV',
     'logout' => 'Ç\'identifikohu',
     'sign_up_to_save' => 'Regjistrohuni për të ruajtuar punën tuaj',
-    'agree_to_terms' => 'Pajtohem me :terms e Faturimit',
+    'agree_to_terms' => 'I agree to the :terms',
     'terms_of_service' => 'Kushtet e shërbimit',
     'email_taken' => 'Kjo e-mail adresë tashmë është regjistruar',
     'working' => 'Duke punuar',
@@ -650,6 +651,8 @@ $LANG = array(
     'current_user' => 'Përdoruesi i tashëm',
     'new_recurring_invoice' => 'Faturë e re e përsëritshme',
     'recurring_invoice' => 'Faturë e përsëritshme',
+    'new_recurring_quote' => 'New recurring quote',
+    'recurring_quote' => 'Recurring Quote',
     'recurring_too_soon' => 'Është herët të krijoni faturën e përsëritshme, është e caktuar për :date',
     'created_by_invoice' => 'Krijuar nga :invoice',
     'primary_user' => 'Përdoruesi kryesor',
@@ -809,6 +812,12 @@ $LANG = array(
     'deleted_recurring_invoice' => 'Faturat e përsëritshme janë fshirë  me sukses',
     'restore_recurring_invoice' => 'Rikthe faturat e përsëritshme',
     'restored_recurring_invoice' => 'Faturat e përsëritshme janë rikthyer me sukses',
+    'archive_recurring_quote' => 'Archive Recurring Quote',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Delete Recurring Quote',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Restore Recurring Quote',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'Arkivuar',
     'untitled_account' => 'Kompani e paemruar',
     'before' => 'Përpara',
@@ -1267,7 +1276,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'Ju duhet :link.',
     'stripe_webhook_help_link_text' => 'vendosni këtë URL si pikë fundore e Stripe',
-    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'Ka ndodhur një gabim gjatë shtimit të metodës së pagesës. Ju lutem provoni përsëri.',
     'notification_invoice_payment_failed_subject' => 'Ka dështuar pagesa për faturën :invoice',
     'notification_invoice_payment_failed' => 'Pagesa e realizuar nga klienti :client për faturën :invoice ka dështuar. Pagesa është shënuar si e dështuar dhe :amount i është shtuar bilancit të klientit.',
@@ -1343,6 +1352,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'product_key' => 'Produkt',
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'Fajlli JSON',
 
     'view_dashboard' => 'Shiko Panelin',
@@ -1734,6 +1744,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
     'lang_Albanian' => 'Shqip',
+    'lang_Greek' => 'Greek',
     'lang_English - United Kingdom' => 'English - United Kingdom',
     'lang_Slovenian' => 'Slovenian',
     'lang_Finnish' => 'Finnish',
@@ -1742,6 +1753,8 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Kontabilitet & Ligjore',
@@ -2109,7 +2122,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'template' => 'Template',
     'start_of_week_help' => 'Used by <b>date</b> selectors',
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
-    'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
 
 	// Updated login screen
@@ -2183,7 +2196,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
-    'lang_Greek' => 'Greek',
     'reset_counter' => 'Reset Counter',
     'next_reset' => 'Next Reset',
     'reset_counter_help' => 'Automatically reset the invoice and quote counters.',
@@ -2407,6 +2419,8 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2785,6 +2799,8 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2837,6 +2853,15 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 
