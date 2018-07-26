@@ -193,7 +193,7 @@ class PaymentRepository extends BaseRepository
 
         if (! $publicId) {
             $clientId = $input['client_id'];
-            $amount = Utils::parseFloat($input['amount']);
+            $amount = round(Utils::parseFloat($input['amount']), 2);
             $amount = min($amount, MAX_INVOICE_AMOUNT);
 
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
