@@ -99,9 +99,9 @@ $LANG = array(
     <p>Använd :MONTH, :QUARTER eller :YEAR för dynamiskt datum. Enkla formler fungerar också, t.ex. :MONTH-1</p>
     <p>Exempel på dynamiska fakturavariabler::</p>
     <ul>
-    <li>"Gym medlemskap för månaden :MONTH" => "Gym medlemskap för månaden Juli"</li>
-    <li>":YEAR+1 årlig prenumeration" => "2015 årlig prenumeration"</li>
-    <li>"Underhåll för :QUARTER+1" => "Underhåll för Q2"</li>
+    <li>"Gym medlemskap för månaden :MONTH" >> "Gym medlemskap för månaden Juli"</li>
+    <li>":YEAR+1 årlig prenumeration" >> "2015 årlig prenumeration"</li>
+    <li>"Underhåll för :QUARTER+1" >> "Underhåll för Q2"</li>
     </ul>',
     'recurring_quotes' => 'Återkommande offerter',
     'in_total_revenue' => 'i totala intäkter',
@@ -933,18 +933,18 @@ $LANG = array(
     'edit_payment_term' => 'Editera betalningsvillkor',
     'archive_payment_term' => 'Arkivera betalningsvillkor',
     'recurring_due_dates' => 'Återkommande faktura förfallodatum',
-    'recurring_due_date_help' => '<P> Sätter automatiskt ett förfallodatum för fakturan. </ P> 
-<p> Fakturor på en månadsvis eller årlig cykel, på eller före den dag de skapas kommer att bero på nästa månad. Fakturor som förfaller på den 29: e eller 30: e månader som inte har den dagen kommer att betalas den sista dagen i månaden. </ P> 
- <p> fakturor på en veckocykeln beror på dagen för veckan de skapas kommer att bero på nästa vecka </ p> 
- <p> till exempel:. </ p> 
- <ul> 
- <li> Idag är den 15: e, är förfallodag första i månaden. Förfallodagen skulle sannolikt vara den första nästa månad. </ Li> 
+    'recurring_due_date_help' => '<P> Sätter automatiskt ett förfallodatum för fakturan. </ P>
+<p> Fakturor på en månadsvis eller årlig cykel, på eller före den dag de skapas kommer att bero på nästa månad. Fakturor som förfaller på den 29: e eller 30: e månader som inte har den dagen kommer att betalas den sista dagen i månaden. </ P>
+ <p> fakturor på en veckocykeln beror på dagen för veckan de skapas kommer att bero på nästa vecka </ p>
+ <p> till exempel:. </ p>
+ <ul>
+ <li> Idag är den 15: e, är förfallodag första i månaden. Förfallodagen skulle sannolikt vara den första nästa månad. </ Li>
  <li> Idag är den 15: e, då är förfallodagen den sista dagen i månaden. Förfallodagen blir den sista dagen av denna månad.
- </ li> 
+ </ li>
  <li> Idag är den 15: e, är förfallodagen den 15: e dagen i månaden. Förfallodagen är den 15: e dagen av <strong> Nästa </ strong> månad.
-</ li> 
- <li> Är idagg en fredag, är förfallodagen den 1: a fredag efter. Förfallodagen kommer att vara nästa fredag, inte idag. 
- </ li> 
+</ li>
+ <li> Är idagg en fredag, är förfallodagen den 1: a fredag efter. Förfallodagen kommer att vara nästa fredag, inte idag.
+ </ li>
  </ ul>',
     'due' => 'förfallen',
     'next_due_on' => 'Förfallen nästa :',
