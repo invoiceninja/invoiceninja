@@ -99,9 +99,9 @@ $LANG = array(
         <p>使用 :MONTH, :QUARTER or :YEAR 作為日期變數. 亦可用基本算數, 例如：MONTH-1.</p>
         <p>動態的發票變數之範例 ：</p>
         <ul>
-          <li>" :MONTH的健身俱樂部會員" => "七月的健身俱樂部會員"</li>
-          <li>":YEAR+1 年度的註冊" => "2015 年度的註冊.</li>
-          <li>" :QUARTER+1 季的分期付款" => "第二季的分期付款"</li>
+          <li>" :MONTH的健身俱樂部會員" >> "七月的健身俱樂部會員"</li>
+          <li>":YEAR+1 年度的註冊" >> "2015 年度的註冊.</li>
+          <li>" :QUARTER+1 季的分期付款" >> "第二季的分期付款"</li>
         </ul>',
     'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => '總收入',
