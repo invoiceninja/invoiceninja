@@ -120,6 +120,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'item_cost',
             'item_tax1',
             'item_tax2',
+            'payment_date',
+            'payment_reference',
         ];
     }
 
@@ -144,6 +146,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount|cost' => 'item_cost',
             'product' => 'item_product',
             'tax' => 'item_tax1',
+            'payment date' => 'payment_date',
+            'transaction' => 'payment_reference',
         ];
     }
 
