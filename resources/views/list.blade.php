@@ -112,7 +112,7 @@
 		  		});
 			});
 		</script>
-	@elseif ($entityType == ENTITY_RECURRING_INVOICE && ! isset($clientId))
+	@elseif (($entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_QUOTE) && ! isset($clientId))
         @if (Auth::user()->can('create', ENTITY_RECURRING_QUOTE))
             {!! DropdownButton::normal(trans('texts.recurring_quotes'))
                 ->withAttributes(['class'=>'recurringDropdown'])
