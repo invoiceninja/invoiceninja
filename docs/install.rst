@@ -79,7 +79,7 @@ Once you can access the site the initial setup screen will enable you to configu
 Step 5: Configure the application
 """""""""""""""""""""""""""""""""
 
-See the `details here <http://docs.invoiceninja.com/en/latest/configure.html>`_ for additional configuration options.
+See the `details here <https://invoice-ninja.readthedocs.io/en/latest/configure.html>`_ for additional configuration options.
 
 Step 6: Enable auto updates
 """""""""""""""""""""""""""
