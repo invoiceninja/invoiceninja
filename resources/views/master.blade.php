@@ -89,19 +89,12 @@
                 return;
             }
             try {
-                // Use StackTraceJS to parse the error context
-                if (error) {
-                    StackTrace.fromError(error).then(function (result) {
-                        var gps = new StackTraceGPS();
-                        gps.findFunctionName(result[0]).then(function (result) {
-                            logError(errorMsg + ': ' + JSON.stringify(result));
-                        });
-                    }).catch(function () {
-                        logError(errorMsg);
-                    });
-                } else {
-                    logError(errorMsg);
-                }
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ URL::to('log_error') }}',
+                    data: 'error=' + encodeURIComponent(errorMsg + ' | Line: ' + lineNumber + ', Column: '+ column)
+                    + '&url=' + encodeURIComponent(window.location)
+                });
 
                 trackEvent('/error', errorMsg);
             } catch (exception) {
@@ -110,14 +103,6 @@
             }
 
             return false;
-        }
-
-        function logError(message) {
-            $.ajax({
-                type: 'GET',
-                url: '{{ URL::to('log_error') }}',
-                data: 'error=' + encodeURIComponent(message) + '&url=' + encodeURIComponent(window.location)
-            });
         }
 
         // http://t4t5.github.io/sweetalert/

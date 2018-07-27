@@ -175,7 +175,6 @@ elixir(function(mix) {
         bowerDir + '/spectrum/spectrum.js',
         bowerDir + '/moment/moment.js',
         bowerDir + '/moment-timezone/builds/moment-timezone-with-data.js',
-        bowerDir + '/stacktrace-js/stacktrace.js',
         bowerDir + '/es6-promise/es6-promise.auto.js',
         bowerDir + '/sweetalert2/dist/sweetalert2.js',
         bowerDir + '/nouislider/distribute/nouislider.js',
