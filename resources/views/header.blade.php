@@ -6,7 +6,9 @@
     @if (Utils::isNinjaDev())
         <style type="text/css">
             .nav-footer {
-                @if (config('mail.driver') == 'log' && ! config('services.postmark'))
+                @if (env('TRAVIS'))
+                    background-color: #FF0000 !important;
+                @elseif (config('mail.driver') == 'log' && ! config('services.postmark'))
                     background-color: #50C878 !important;
                 @else
                     background-color: #FD6A02 !important;
