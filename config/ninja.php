@@ -37,6 +37,12 @@ return [
         'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),
     ],
 
+    // Cookie consent
+    'cookie_consent' => [
+        'enabled' => env('COOKIE_CONSENT_ENABLED', true),
+        'link' => env('COOKIE_CONSENT_LINK', 'https://cookiesandyou.com/'),
+        'message' => env('COOKIE_CONSENT_MESSAGE', ''),
+    ],
 
     // Google maps
     'google_maps_enabled' => env('GOOGLE_MAPS_ENABLED', true),

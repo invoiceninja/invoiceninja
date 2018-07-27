@@ -217,23 +217,42 @@
         if (! window.cookieconsent) {
             return;
         }
-        window.cookieconsent.initialise({
-            "palette": {
-                "popup": {
-                    "background": "#000"
+        @if (Utils::isNinja())
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#000"
+                    },
+                    "button": {
+                        "background": "#f1d600"
+                    },
                 },
-                "button": {
-                    "background": "#f1d600"
+                "content": {
+                    "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
+                    "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                    "link": {!! json_encode(trans('texts.learn_more')) !!},
+                }
+            });
+        @elseif (config('ninja.cookie_consent.enabled'))
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#000"
+                    },
+                    "button": {
+                        "background": "#f1d600"
+                    },
                 },
-            },
-            "content": {
-                "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url.hosted') : 'https://cookiesandyou.com/' }}",
-                "message": {!! json_encode(trans('texts.cookie_message')) !!},
-                "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                "link": {!! json_encode(trans('texts.learn_more')) !!},
-            }
-        })}
-    );
+                "content": {
+                    "href": "{{ config('ninja.cookie_consent.link') }}",
+                    "message": {!! json_encode(config('ninja.cookie_consent.message') ?: trans('texts.cookie_message')) !!},
+                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                    "link": {!! json_encode(trans('texts.learn_more')) !!},
+                }
+            });
+        @endif
+    });
     </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
