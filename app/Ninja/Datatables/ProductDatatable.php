@@ -38,7 +38,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'tax_rate',
                 function ($model) {
-                    return $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : '';
+                    return $model->tax_rate ? ($model->tax_name . ' ' . ($model->tax_rate + 0) . '%') : '';
                 },
                 $account->invoice_item_taxes,
             ],
