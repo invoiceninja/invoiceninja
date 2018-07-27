@@ -106,10 +106,6 @@ class HistoryUtils
 
     public static function trackViewed(EntityModel $entity)
     {
-        if (! $entity) {
-            return;
-        }
-
         $entityType = $entity->getEntityType();
         $trackedTypes = [
             ENTITY_CLIENT,

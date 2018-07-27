@@ -46,7 +46,9 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('quotes/*') && request()->isMethod('get') && !$this->user()->can('view', ENTITY_QUOTE))
             return false;
 
-        HistoryUtils::trackViewed($invoice);
+        if ($invoice) {
+            HistoryUtils::trackViewed($invoice);
+        }
 
         return true;
     }
