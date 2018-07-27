@@ -904,7 +904,7 @@ class Utils
             $month += 12;
         }
 
-        return trans('texts.' . $months[$month], [], null, $locale);
+        return trans('texts.' . $months[$month], [], $locale);
     }
 
     private static function getQuarter($offset)

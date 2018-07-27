@@ -1443,12 +1443,12 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     } else if (field == 'invoice.custom_text_value1') {
         if (invoice.custom_text_value1 && account.custom_fields.invoice_text1) {
             label = NINJA.getCustomLabel(invoice.account.custom_fields.invoice_text1);
-            value = invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1;
+            value = processVariables(invoice.custom_text_value1);
         }
     } else if (field == 'invoice.custom_text_value2') {
         if (invoice.custom_text_value2 && account.custom_fields.invoice_text2) {
             label = NINJA.getCustomLabel(invoice.account.custom_fields.invoice_text2);
-            value = invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2;
+            value = processVariables(invoice.custom_text_value2);
         }
     } else if (field == 'invoice.balance_due') {
         label = invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due;

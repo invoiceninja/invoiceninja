@@ -626,10 +626,10 @@ class InvoiceRepository extends BaseRepository
         }
 
         if (isset($data['custom_text_value1'])) {
-            $invoice->custom_text_value1 = trim($data['custom_text_value1']);
+            $invoice->custom_text_value1 = Utils::processVariables(trim($data['custom_text_value1']), $invoice->client);
         }
         if (isset($data['custom_text_value2'])) {
-            $invoice->custom_text_value2 = trim($data['custom_text_value2']);
+            $invoice->custom_text_value2 = Utils::processVariables(trim($data['custom_text_value2']), $invoice->client);
         }
 
         // custom fields charged taxes
