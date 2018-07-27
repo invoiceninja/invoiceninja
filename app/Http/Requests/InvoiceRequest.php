@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Invoice;
+use App\Libraries\HistoryUtils;
 
 class InvoiceRequest extends EntityRequest
 {
@@ -15,7 +16,6 @@ class InvoiceRequest extends EntityRequest
      */
     public function authorize()
     {
-
         $invoice = parent::entity();
 
         if ($invoice && $invoice->isQuote())
@@ -46,9 +46,11 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('quotes/*') && request()->isMethod('get') && !$this->user()->can('view', ENTITY_QUOTE))
             return false;
 
+        HistoryUtils::trackViewed($invoice);
+
         return true;
     }
-    
+
     public function entity()
     {
         $invoice = parent::entity();
