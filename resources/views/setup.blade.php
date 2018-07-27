@@ -32,6 +32,9 @@
         @if (!function_exists('proc_open'))
             <div class="alert alert-warning">Warning: <a href="http://php.net/manual/en/function.proc-open.php" target="_blank">proc_open</a> must be enabled.</div>
         @endif
+        @if (intval(ini_get('memory_limit')) < 128)
+            <div class="alert alert-warning">Warning: The application requires the PHP memory limit to be at least 128 MB.</div>
+        @endif
         @if (!@fopen(base_path()."/.env", 'a'))
             <div class="alert alert-warning">Warning: Permission denied to write .env config file
                 <pre>sudo chown www-data:www-data {{ base_path('.env') }}</pre>
