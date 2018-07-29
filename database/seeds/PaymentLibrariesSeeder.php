@@ -51,7 +51,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Sisow', 'provider' => 'Sisow'],
             ['name' => 'Skrill', 'provider' => 'Skrill', 'is_offsite' => true],
             ['name' => 'BitPay', 'provider' => 'BitPay', 'is_offsite' => true, 'sort_order' => 7],
-            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true, 'sort_order' => 6],
+            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true, 'sort_order' => 6, 'payment_library_id' => 2],
             ['name' => 'AGMS', 'provider' => 'Agms'],
             ['name' => 'Barclays', 'provider' => 'BarclaysEpdq\Essential'],
             ['name' => 'Cardgate', 'provider' => 'Cardgate'],
