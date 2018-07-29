@@ -70,7 +70,7 @@ class ProductReport extends AbstractReport
                         $invoice->present()->invoice_date,
                         $item->product_key,
                         $item->notes,
-                        Utils::roundSignificant($item->qty, 0),
+                        $item->qty + 0,
                         Utils::roundSignificant($item->cost, 2),
                     ];
 
