@@ -39,7 +39,11 @@ class PaymentPresenter extends EntityPresenter
 
     public function payment_type()
     {
-        return $this->entity->payment_type ? $this->entity->payment_type->name : trans('texts.manual_entry');
+        if ($this->payer_id) {
+            return 'PayPal';
+        } else {
+            return $this->entity->payment_type ? $this->entity->payment_type->name : trans('texts.manual_entry');
+        }
     }
 
     public function method()

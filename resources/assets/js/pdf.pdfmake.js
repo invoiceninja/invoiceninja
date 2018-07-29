@@ -489,7 +489,7 @@ NINJA.statementDetails = function(invoice) {
 
     var clone = JSON.parse(JSON.stringify(table));
     clone.table.body = NINJA.prepareDataTable(NINJA.statementInvoices(invoice), 'invoiceItems');
-    clone.table.widths = ["22%", "22%", "22%", "17%", "17%"];
+    clone.table.widths = ["20%", "20%", "20%", "20%", "20%"];
     data.stack.push(clone);
 
     var clone = JSON.parse(JSON.stringify(subtotals));
@@ -502,7 +502,7 @@ NINJA.statementDetails = function(invoice) {
     if (hasPayments) {
         var clone = JSON.parse(JSON.stringify(table));
         clone.table.body = NINJA.prepareDataTable(NINJA.statementPayments(invoice), 'invoiceItems');
-        clone.table.widths = ["22%", "22%", "39%", "17%"];
+        clone.table.widths = ["20%", "20%", "20%", "20%", "20%"];
         data.stack.push(clone);
 
         var clone = JSON.parse(JSON.stringify(subtotals));
@@ -556,7 +556,7 @@ NINJA.statementPayments = function(invoice) {
     grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'itemTableHeader', 'firstColumn']});
     grid[0].push({text: invoiceLabels.payment_date, style: ['tableHeader', 'invoiceDateTableHeader']});
     grid[0].push({text: invoiceLabels.method, style: ['tableHeader', 'dueDateTableHeader']});
-    //grid[0].push({text: invoiceLabels.reference, style: ['tableHeader', 'totalTableHeader']});
+    grid[0].push({text: invoiceLabels.reference, style: ['tableHeader', 'totalTableHeader']});
     grid[0].push({text: invoiceLabels.amount, style: ['tableHeader', 'balanceTableHeader', 'lastColumn']});
 
     var counter = 0;
@@ -566,11 +566,16 @@ NINJA.statementPayments = function(invoice) {
             continue;
         }
         var rowStyle = (counter++ % 2 == 0) ? 'odd' : 'even';
+        if (item.notes && item.notes.length > 12) {
+            var notes = item.notes.substr(0, 12) + '...';
+        } else {
+            var notes = item.notes;
+        }
         grid.push([
             {text: item.product_key, style:['invoiceNumber', 'productKey', rowStyle, 'firstColumn']},
             {text: item.custom_value1 && item.custom_value1 != '0000-00-00' ? moment(item.custom_value1).format(invoice.account.date_format ? invoice.account.date_format.format_moment : 'MMM D, YYYY') : ' ', style:['invoiceDate', rowStyle]},
             {text: item.custom_value2 ? item.custom_value2 : ' ', style:['dueDate', rowStyle]},
-            //{text: item.transaction_reference, style:['subtotals', rowStyle]},
+            {text: notes, style:['notes', rowStyle]},
             {text: formatMoneyInvoice(item.cost, invoice), style:['lineTotal', rowStyle, 'lastColumn']},
         ]);
     }
