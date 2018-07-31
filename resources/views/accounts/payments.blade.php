@@ -10,13 +10,12 @@
     {!! Former::populateField('auto_bill_on_due_date', $account->auto_bill_on_due_date) !!}
 	{!! Former::populateField('gateway_fee_enabled', $account->gateway_fee_enabled) !!}
 	{!! Former::populateField('send_item_details', $account->send_item_details) !!}
-	{!! Former::populateField('fee_cap', $account->fee_cap) !!}
 
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.payment_settings') !!}</h3>
         </div>
-        <div class="panel-body form-padding-right">
+        <div class="panel-body">
             {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}
@@ -39,10 +38,6 @@
 						->label('item_details')
 						->text('enable')
 			 			->value(1) !!}
-
-			{!! Former::text('fee_cap')
-						->help('fee_cap_help')
-						->label('fee_cap') !!}
 
 			<br/>
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
@@ -158,6 +153,12 @@
 										->step('any')
 										->append('%') !!}
 
+								{!! Former::text('fee_cap')
+ 										->help('fee_cap_help')
+ 										->label('fee_cap')
+ 										->type('number')
+ 										->step('any') !!}		
+
 								@if ($account->invoice_item_taxes)
 							        {!! Former::select('tax_rate1')
 										  ->onchange('onTaxRateChange(1)')
@@ -257,11 +258,13 @@
 		if (settings) {
 			$('#fee_amount').val(settings.fee_amount);
 			$('#fee_percent').val(settings.fee_percent);
+			$('#fee_cap').val(settings.fee_cap);
 			setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
 			setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
 		} else {
 			$('#fee_amount').val('');
 			$('#fee_percent').val('');
+			$('#fee_cap').val('');
 			setTaxRate(1, '', '');
 			setTaxRate(2, '', '');
 		}

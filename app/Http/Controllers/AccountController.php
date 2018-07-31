@@ -1294,7 +1294,6 @@ class AccountController extends BaseController
         $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
         $account->gateway_fee_enabled = boolval(Input::get('gateway_fee_enabled'));
         $account->send_item_details = boolval(Input::get('send_item_details'));
-        $account->fee_cap = Input::get('fee_cap');
 
         $account->save();
 

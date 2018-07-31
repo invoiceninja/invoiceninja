@@ -176,7 +176,6 @@ class Account extends Eloquent
         'custom_value1',
         'custom_value2',
         'custom_messages',
-        'fee_cap'
     ];
 
     /**

@@ -16,7 +16,7 @@ trait ChargesFees
         $account = $this->account;
         $settings = $account->getGatewaySettings($gatewayTypeId);
         $fee = 0;
-        $fee_cap = $account->fee_cap;
+        $fee_cap = $settings->fee_cap;
 
         if (! $account->gateway_fee_enabled) {
             return false;

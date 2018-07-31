@@ -13,7 +13,7 @@ class AddFeeCapToAccounts extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('account_gateway_settings', function (Blueprint $table) {
             $table->integer('fee_cap');
         });
     }
@@ -25,7 +25,7 @@ class AddFeeCapToAccounts extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function (Blueprint $table) {
+        Schema::table('account_gateway_settings', function (Blueprint $table) {
             $table->dropColumn('fee_cap');
         });
     }
