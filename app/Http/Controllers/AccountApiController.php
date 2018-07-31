@@ -85,12 +85,20 @@ class AccountApiController extends BaseAPIController
         }
     }
 
-    private function processLogin(Request $request)
+    public function refresh(Request $request)
+    {
+        return $this->processLogin($request, false);
+    }
+
+    private function processLogin(Request $request, $createToken = true)
     {
         // Create a new token only if one does not already exist
         $user = Auth::user();
         $account = $user->account;
-        $this->accountRepo->createTokens($user, $request->token_name);
+
+        if ($createToken) {
+            $this->accountRepo->createTokens($user, $request->token_name);
+        }
 
         $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
         $transformer = new UserAccountTransformer($account, $request->serializer, $request->token_name);

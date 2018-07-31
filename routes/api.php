@@ -7,6 +7,7 @@ Route::post('register', 'AccountApiController@register');
 Route::get('static', 'AccountApiController@getStaticData');
 Route::get('accounts', 'AccountApiController@show');
 Route::put('accounts', 'AccountApiController@update');
+Route::post('refresh', 'AccountApiController@refresh');
 
 Route::resource('clients', 'ClientApiController');
 Route::resource('contacts', 'ContactApiController');
