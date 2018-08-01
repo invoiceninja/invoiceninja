@@ -16,6 +16,7 @@ trait ChargesFees
         $account = $this->account;
         $settings = $account->getGatewaySettings($gatewayTypeId);
         $fee = 0;
+        $fee_cap = $settings->fee_cap;
 
         if (! $account->gateway_fee_enabled) {
             return false;
@@ -41,6 +42,10 @@ trait ChargesFees
             if ($settings->fee_tax_rate2) {
                 $fee += $preTaxFee * $settings->fee_tax_rate2 / 100;
             }
+        }
+
+        if($fee_cap != 0) {
+            $fee = min($fee, $fee_cap);
         }
 
         return round($fee, 2);
