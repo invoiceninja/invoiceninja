@@ -154,10 +154,10 @@
 										->append('%') !!}
 
 								{!! Former::text('fee_cap')
- 										->help('fee_cap_help')
- 										->label('fee_cap')
+ 										->label('maximum')
+										->onchange('updateFeeSample()')
  										->type('number')
- 										->step('any') !!}		
+ 										->step('any') !!}
 
 								@if ($account->invoice_item_taxes)
 							        {!! Former::select('tax_rate1')
@@ -273,7 +273,7 @@
 
 		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM1 }} ||
 				gateway_type_id == {{ GATEWAY_TYPE_CUSTOM2 }} ||
-				gateway_type_id == {{ GATEWAY_TYPE_CUSTOM3 }} || 
+				gateway_type_id == {{ GATEWAY_TYPE_CUSTOM3 }} ||
 				{{ $account->gateway_fee_enabled ? '0' : '1' }}) {
 			$('#feesEnabled').hide();
 			$('#feesDisabled').show();
@@ -341,6 +341,7 @@
 	function updateFeeSample() {
 		var feeAmount = NINJA.parseFloat($('#fee_amount').val()) || 0;
 		var feePercent = NINJA.parseFloat($('#fee_percent').val()) || 0;
+		var feeCap = NINJA.parseFloat($('#fee_cap').val()) || 0;
 		var total = feeAmount + (feePercent * 100 / 100);
 		var subtotal = total;
 
@@ -356,11 +357,16 @@
 			total += subtotal * taxRate2 / 100;
 		}
 
+		if (feeCap > 0) {
+			total = Math.min(total, feeCap);
+		}
+
 		if (total >= 0) {
 			var str = "{{ trans('texts.fees_sample') }}";
 		} else {
 			var str = "{{ trans('texts.discount_sample') }}";
 		}
+
 		str = str.replace(':amount', formatMoney(100));
 		str = str.replace(':total', formatMoney(total));
 		$('#feeSample').text(str);
