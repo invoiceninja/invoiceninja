@@ -153,6 +153,12 @@
 										->step('any')
 										->append('%') !!}
 
+								{!! Former::text('fee_cap')
+ 										->help('fee_cap_help')
+ 										->label('fee_cap')
+ 										->type('number')
+ 										->step('any') !!}		
+
 								@if ($account->invoice_item_taxes)
 							        {!! Former::select('tax_rate1')
 										  ->onchange('onTaxRateChange(1)')
@@ -252,11 +258,13 @@
 		if (settings) {
 			$('#fee_amount').val(settings.fee_amount);
 			$('#fee_percent').val(settings.fee_percent);
+			$('#fee_cap').val(settings.fee_cap);
 			setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
 			setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
 		} else {
 			$('#fee_amount').val('');
 			$('#fee_percent').val('');
+			$('#fee_cap').val('');
 			setTaxRate(1, '', '');
 			setTaxRate(2, '', '');
 		}

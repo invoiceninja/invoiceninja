@@ -24,6 +24,7 @@ class AccountGatewaySettings extends EntityModel
         'fee_tax_rate1',
         'fee_tax_name2',
         'fee_tax_rate2',
+        'fee_cap',
     ];
 
     /**
