@@ -6,6 +6,8 @@ use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
+use App\Models\Activity;
+use App\Ninja\Transformers\ActivityTransformer;
 use App\Ninja\Repositories\ClientRepository;
 use Input;
 use Response;
@@ -55,6 +57,29 @@ class ClientApiController extends BaseAPIController
         }
 
         return $this->listResponse($clients);
+    }
+
+    public function activity(ClientRequest $request)
+    {
+        $client = $request->entity();
+
+        $activities = Activity::where('activities.account_id', '=', $client->account_id)
+                ->where('activities.client_id', '=', $client->id)
+                ->where('activities.activity_type_id', '>', 0);
+
+        if (! auth()->user()->hasPermission('view_all')) {
+            $activities = $activities->where('activities.user_id', '=', auth()->user()->id);
+        }
+
+        $activities->orderBy('activities.created_at', 'desc')
+                ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account', 'task', 'expense', 'contact')
+                ->take(500)
+                ->get();
+
+        $transformer = new ActivityTransformer(auth()->user()->account, $request->serializer);
+        $data = $this->createCollection($activities, $transformer, ENTITY_ACTIVITY);
+
+        return $this->response($data);
     }
 
     /**
