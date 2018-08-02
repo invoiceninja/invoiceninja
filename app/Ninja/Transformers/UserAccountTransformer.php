@@ -57,6 +57,7 @@ class UserAccountTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
+		'users',
         'tax_rates',
         'expense_categories',
         'account_email_settings',
@@ -76,6 +77,18 @@ class UserAccountTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->account, $this->serializer);
 
         return $this->includeItem($user, $transformer, 'user');
+    }
+
+	/**
+     * @param Account $account
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeUsers(User $user)
+    {
+        $transformer = new UserTransformer($this->account, $this->serializer);
+
+        return $this->includeCollection($this->account->users, $transformer, 'users');
     }
 
     /**
