@@ -253,6 +253,14 @@ class Client extends EntityModel
     }
 
     /**
+     * @return mixed
+     */
+    public function activities()
+    {
+        return $this->hasMany('App\Models\Activity', 'client_id', 'id')->orderBy('id', 'desc');
+    }
+
+    /**
      * @param $data
      * @param bool $isPrimary
      *

@@ -3,6 +3,8 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Client;
+use App\Models\Activity;
+use App\Ninja\Transformers\ActivityTransformer;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
@@ -58,7 +60,20 @@ class ClientTransformer extends EntityTransformer
     protected $availableIncludes = [
         'invoices',
         'credits',
+        'activities',
     ];
+
+    /**
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeActivities(Client $client)
+    {
+        $transformer = new ActivityTransformer($this->account, $this->serializer);
+
+        return $this->includeCollection($client->activities, $transformer, ENTITY_ACTIVITY);
+    }
 
     /**
      * @param Client $client

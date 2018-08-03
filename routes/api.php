@@ -10,7 +10,6 @@ Route::put('accounts', 'AccountApiController@update');
 Route::post('refresh', 'AccountApiController@refresh');
 
 Route::resource('clients', 'ClientApiController');
-Route::get('client_activity/{client_id}', 'ClientApiController@activity');
 Route::resource('contacts', 'ContactApiController');
 Route::get('quotes', 'QuoteApiController@index');
 Route::get('download/{invoice_id}', 'InvoiceApiController@download');
