@@ -3,8 +3,6 @@
 namespace App\Ninja\Transformers;
 
 use App\Models\Client;
-use App\Models\Activity;
-use App\Ninja\Transformers\ActivityTransformer;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
