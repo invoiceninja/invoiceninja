@@ -394,7 +394,11 @@
             'reports' => false,
             'settings' => false,
         ] as $key => $value)
-            {!! Form::nav_link($key, $value ?: $key) !!}
+              @if (in_array($key, ['dashboard', 'settings'])
+                || Auth::user()->can('view', substr($key, 0, -1))
+                || Auth::user()->can('create', substr($key, 0, -1)))
+                  {!! Form::nav_link($key, $value ?: $key) !!}
+              @endif
         @endforeach
       </ul>
     </div><!-- /.navbar-collapse -->
