@@ -2867,6 +2867,10 @@ $LANG = array(
     'payment_reference' => 'Payment Reference',
     'maximum' => 'Maximum',
 
+    // custom fields
+    'include_in_filter' => 'Include in filter',
+    'custom_client1' => ':VALUE',
+    'custom_client2' => ':VALUE',
 );
 
 return $LANG;
