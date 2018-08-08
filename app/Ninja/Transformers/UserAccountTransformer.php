@@ -61,6 +61,7 @@ class UserAccountTransformer extends EntityTransformer
         'tax_rates',
         'expense_categories',
         'account_email_settings',
+        'custom_payment_terms',
     ];
 
     protected $tokenName;
@@ -77,6 +78,18 @@ class UserAccountTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->account, $this->serializer);
 
         return $this->includeItem($user, $transformer, 'user');
+    }
+
+	/**
+     * @param Account $account
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeCustomPaymentTerms(User $user)
+    {
+        $transformer = new PaymentTermTransformer($this->account, $this->serializer);
+
+        return $this->includeCollection($this->account->custom_payment_terms, $transformer, 'payment_terms');
     }
 
 	/**
