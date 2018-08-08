@@ -736,7 +736,7 @@
                         <div class="view" data-bind="event: { click: startEditTask }">
                             <div class="panel" data-bind="css: { running: is_running, hovered: is_panel_hovered }, event: { mouseover: onPanelMouseOver, mouseout: onPanelMouseOut }">
                                 <i class="fa fa-circle" data-bind="visible: project, css: projectColor"></i>
-                                <div data-bind="text: description().length > 100 ? description().substring(0, 100) + '...' : description()"></div>
+                                <div data-bind="text: description() &amp;&amp; description().length > 100 ? description().substring(0, 100) + '...' : description()"></div>
                             </div>
                         </div>
                         <div class="edit">
