@@ -502,6 +502,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function custom_payment_terms()
+    {
+        return $this->hasMany('App\Models\PaymentTerm', 'account_id', 'id')->withTrashed();
+    }
+
+    /**
      * @param $value
      */
     public function setIndustryIdAttribute($value)
