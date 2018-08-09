@@ -568,7 +568,7 @@
 					options.push(new SubgroupModel('method', "{{ trans('texts.method') }}"));
 				} else if (reportType == 'profit_and_loss') {
 					options.push(new SubgroupModel('type', "{{ trans('texts.type') }}"));
-				} else if (reportType == 'task') {
+				} else if (reportType == 'task' || reportType == 'task_details') {
 					options.push(new SubgroupModel('project', "{{ trans('texts.project') }}"));
 				} else if (reportType == 'client') {
 					options.push(new SubgroupModel('country', "{{ trans('texts.country') }}"));
