@@ -185,7 +185,20 @@ class UserAccountTransformer extends EntityTransformer
             'custom_invoice_taxes1' => (bool) $account->custom_invoice_taxes1,
             'custom_invoice_taxes2' => (bool) $account->custom_invoice_taxes1,
             'custom_fields' => $account->custom_fields ?: '',
-			'invoice_fields' => $account->invoice_fields ?: '',
+            'invoice_fields' => $account->invoice_fields ?: '',
+            'custom_messages' => $account->custom_messages,
+            'email_subject_invoice' => $account->account_email_settings->email_subject_invoice,
+            'email_subject_quote' => $account->account_email_settings->email_subject_quote,
+            'email_subject_payment' => $account->account_email_settings->email_subject_payment,
+            'email_template_invoice' => $account->account_email_settings->email_template_invoice,
+            'email_template_quote' => $account->account_email_settings->email_template_quote,
+            'email_template_payment' => $account->account_email_settings->email_template_payment,
+            'email_subject_reminder1' => $account->account_email_settings->email_subject_reminder1,
+            'email_subject_reminder2' => $account->account_email_settings->email_subject_reminder2,
+            'email_subject_reminder3' => $account->account_email_settings->email_subject_reminder3,
+            'email_template_reminder1' => $account->account_email_settings->email_template_reminder1,
+            'email_template_reminder2' => $account->account_email_settings->email_template_reminder2,
+            'email_template_reminder3' => $account->account_email_settings->email_template_reminder3,
         ];
     }
 }
