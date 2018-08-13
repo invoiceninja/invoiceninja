@@ -515,7 +515,7 @@ class Utils
                 $industry->name = trans('texts.industry_'.$industry->name);
             })->sortBy(function ($industry) {
                 return $industry->name;
-            });
+            })->values();
 
             $data['countries'] = Cache::get('countries')->each(function ($country) {
                 $country->name = trans('texts.country_'.$country->name);
@@ -533,7 +533,7 @@ class Utils
                 $lang->name = trans('texts.lang_'.$lang->name);
             })->sortBy(function ($lang) {
                 return $lang->name;
-            });
+            })->values();
 
             $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
                 $currency->name = trans('texts.currency_' . \Str::slug($currency->name, '_'));
@@ -781,6 +781,22 @@ class Utils
         }
     }
 
+    public static function toSqlDateTime($date, $formatResult = true)
+    {
+        if (! $date) {
+            return;
+        }
+
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $dateTime = DateTime::createFromFormat($format, $date);
+
+        if (! $dateTime) {
+            return $date;
+        } else {
+            return $formatResult ? $dateTime->format('Y-m-d H:i:s') : $dateTime;
+        }
+    }
+
     public static function fromSqlDate($date, $formatResult = true)
     {
         if (! $date || $date == '0000-00-00') {
@@ -908,7 +924,7 @@ class Utils
             $month += 12;
         }
 
-        return trans('texts.' . $months[$month], [], null, $locale);
+        return trans('texts.' . $months[$month], [], $locale);
     }
 
     private static function getQuarter($offset)
@@ -1498,7 +1514,7 @@ class Utils
         $selectArray = [];
 
         while($maxUploadSize > 100) {
-            array_push($selectArray, $maxUploadSize);
+            array_push($selectArray, [$maxUploadSize => $maxUploadSize]);
             $maxUploadSize = $maxUploadSize / 2;
         }
 

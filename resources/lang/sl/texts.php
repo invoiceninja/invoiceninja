@@ -103,6 +103,7 @@ $LANG = array(
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
           <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
         </ul>',
+    'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => 'celotni prihodki',
     'billed_client' => 'Zaračunana stranka',
     'billed_clients' => 'Zaračunane stranke',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'CVV',
     'logout' => 'Odjava',
     'sign_up_to_save' => 'Prijavite se, da shranite svoje delo',
-    'agree_to_terms' => 'Strinjam se z Invoice Ninja pogoji :terms',
+    'agree_to_terms' => 'I agree to the :terms',
     'terms_of_service' => 'Pogoji uporabe',
     'email_taken' => 'Ta e-poštni naslov je že v uporabi',
     'working' => 'V delu',
@@ -649,6 +650,8 @@ Ne morete najti računa? Potrebujete dodatno pomoč? Z veseljem bomo pomagali. P
     'current_user' => 'Trenutni uporabnik',
     'new_recurring_invoice' => 'Nov ponavljajoči račun',
     'recurring_invoice' => 'Ponavljajoči račun',
+    'new_recurring_quote' => 'New recurring quote',
+    'recurring_quote' => 'Recurring Quote',
     'recurring_too_soon' => 'Prezgodaj je, da bi ustvarili naslednji račun. Naslednjič je predviden :date',
     'created_by_invoice' => 'Naredil: :invoice',
     'primary_user' => 'Primarni uporabnik',
@@ -808,6 +811,12 @@ Ne morete najti računa? Potrebujete dodatno pomoč? Z veseljem bomo pomagali. P
     'deleted_recurring_invoice' => 'Ponavljajoči račun uspešno odstranjen',
     'restore_recurring_invoice' => 'Obnovi ponavljajoči račun',
     'restored_recurring_invoice' => 'Ponavljajoči račun uspešno obnovljen',
+    'archive_recurring_quote' => 'Archive Recurring Quote',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Delete Recurring Quote',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Restore Recurring Quote',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'Arhivirano',
     'untitled_account' => 'Neimenovano podjetje',
     'before' => 'Pred',
@@ -1266,7 +1275,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'Morate :link.',
     'stripe_webhook_help_link_text' => 'dodajte ta URL kot končno točko v Stripe',
-    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'Pri dodajanju plačilnega sredsgtva je prišlo do napake. Prosim poskusite kasneje.',
     'notification_invoice_payment_failed_subject' => 'Payment :invoice ni bilo uspešno',
     'notification_invoice_payment_failed' => 'Plačilo stranke: :client računa :invoice ni uspelo. Plačilo je bil označeno kot neuspešno in znesek je bil dodan k strankini bilanci.',
@@ -1342,6 +1351,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'product_key' => 'Produkt',
     'created_products' => 'Uspešno ustvarjenih/posodobljenih :count produktov',
     'export_help' => 'Uporabite JSON če nameravate uvoziti podatke v Invoice Ninja. <br/> Datoteka vsebuje stranke izdelke, račune, predračune in plačila.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'JSON Datoteka',
 
     'view_dashboard' => 'Prikaži/skrij',
@@ -1733,6 +1743,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'lang_Spanish - Spain' => 'Španščina - Španija',
     'lang_Swedish' => 'Švedščina',
     'lang_Albanian' => 'Albanščina',
+    'lang_Greek' => 'Grško',
     'lang_English - United Kingdom' => 'Angleščina - Združeno Kraljestvo',
     'lang_Slovenian' => 'Slovenščina',
     'lang_Finnish' => 'Finščina',
@@ -1741,6 +1752,8 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'lang_Portuguese - Brazilian' => 'Portugalščina - Brazilija',
     'lang_Portuguese - Portugal' => 'Portugalščina - Portugalska',
     'lang_Thai' => 'Tajščina',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Računovodstvo in Pravosodje',
@@ -2108,7 +2121,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'template' => 'Predloga',
     'start_of_week_help' => 'Uporaba pri izbiri datuma',
     'financial_year_start_help' => 'Uporaba pri izbiri časovnega odbodja',
-    'reports_help' => 'Shift + Klik za razvrstitev po stolpcih, Ctrl + Klik za preklic združevanja v skupino.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'To leto',
 
 	// Updated login screen
@@ -2182,7 +2195,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'error_refresh_page' => 'Prišlo je do napake, prosimo osvežite stran in poskusite znova.',
     'data' => 'Podatki',
     'imported_settings' => 'Nastavitve uspešno uvožene',
-    'lang_Greek' => 'Grško',
     'reset_counter' => 'Ponastavi števec',
     'next_reset' => 'Naslednja ponastavitev',
     'reset_counter_help' => 'Samodejno ponastavi števec predračunov in računov.',
@@ -2406,6 +2418,8 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2784,6 +2798,8 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2836,6 +2852,15 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 

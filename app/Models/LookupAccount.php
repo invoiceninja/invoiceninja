@@ -15,6 +15,7 @@ class LookupAccount extends LookupModel
     protected $fillable = [
         'lookup_company_id',
         'account_key',
+        'support_email_local_part',
     ];
 
     public function lookupCompany()
@@ -24,9 +25,9 @@ class LookupAccount extends LookupModel
 
     public static function createAccount($accountKey, $companyId)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled'))
             return;
-        }
+
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -57,9 +58,9 @@ class LookupAccount extends LookupModel
 
     public static function updateAccount($accountKey, $account)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled'))
             return;
-        }
+
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -73,11 +74,30 @@ class LookupAccount extends LookupModel
         config(['database.default' => $current]);
     }
 
+    public static function updateSupportLocalPart($accountKey, $support_email_local_part)
+    {
+        if (! config('multi_db_enabled'))
+            return;
+
+
+        $current = config('database.default');
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
+            ->firstOrFail();
+
+        $lookupAccount->support_email_local_part = $support_email_local_part ?: null;
+        $lookupAccount->save();
+
+        config(['database.default' => $current]);
+    }
+
+
     public static function validateField($field, $value, $account = false)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled'))
             return true;
-        }
+
 
         $current = config('database.default');
 
@@ -95,4 +115,5 @@ class LookupAccount extends LookupModel
 
         return $isValid;
     }
+
 }

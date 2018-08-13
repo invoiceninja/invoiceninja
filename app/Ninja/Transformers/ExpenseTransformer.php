@@ -71,7 +71,7 @@ class ExpenseTransformer extends EntityTransformer
             'archived_at' => $this->getTimestamp($expense->deleted_at),
             'transaction_id' => $expense->transaction_id ?: '',
             'transaction_reference' => $expense->transaction_reference ?: '',
-            'bank_id' => $expense->bank_id ?: '',
+            'bank_id' => (int) ($expense->bank_id ?: 0),
             'expense_currency_id' => (int) ($expense->expense_currency_id ?: 0),
             'expense_category_id' => $expense->expense_category ? (int) $expense->expense_category->public_id : 0,
             'amount' => (float) $expense->amount,

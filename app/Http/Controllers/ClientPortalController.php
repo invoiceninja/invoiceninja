@@ -69,7 +69,7 @@ class ClientPortalController extends BaseController
 
         if (request()->silent) {
             session(['silent:' . $client->id => true]);
-            return redirect(request()->url() . '?borderless=' . request()->borderless);
+            return redirect(request()->url() . (request()->borderless ? '?borderless=true' : ''));
         }
 
         if (! $account->checkSubdomain(Request::server('HTTP_HOST'))) {

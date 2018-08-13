@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Tickets\Inbound;
 
-class TicketFactory {
+class InboundTicketFactory {
 
     /**
      * @var bool

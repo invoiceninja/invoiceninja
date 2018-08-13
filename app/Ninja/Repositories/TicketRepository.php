@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Jobs\Ticket\TicketDelta;
 use App\Models\Contact;
 use App\Models\Document;
 use App\Models\Ticket;
@@ -13,9 +14,13 @@ use Auth;
 use DB;
 use Illuminate\Support\Facades\Log;
 use Utils;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class TicketRepository extends BaseRepository
 {
+
+    use DispatchesJobs;
+
     public function getClassName()
     {
         return 'App\Models\Ticket';
@@ -34,11 +39,12 @@ class TicketRepository extends BaseRepository
             ->leftjoin('clients', 'clients.id', '=', 'tickets.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('ticket_statuses', 'ticket_statuses.id', '=', 'tickets.status_id')
+            //->where('tickets.is_deleted', '=', false)
             ->where('clients.deleted_at', '=', null)
             ->where('contacts.deleted_at', '=', null)
             ->where('contacts.is_primary', '=', true)
             ->select(
-                'tickets.public_id as ticket_number',
+                'tickets.ticket_number',
                 'tickets.public_id',
                 'tickets.user_id',
                 'tickets.deleted_at',
@@ -48,6 +54,7 @@ class TicketRepository extends BaseRepository
                 'tickets.subject',
                 'ticket_statuses.name as status',
                 'tickets.contact_key',
+                'tickets.merged_parent_ticket_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.user_id as client_user_id',
                 'clients.public_id as client_public_id'
@@ -68,11 +75,17 @@ class TicketRepository extends BaseRepository
             $query->where('tickets.user_id', '=', $userId);
         }
 
+        if(!Auth::user()->can('view', ENTITY_TICKET))
+            $query->where('tickets.agent_id', '=', Auth::user()->id);
+
+
         return $query;
     }
 
     public function save($input, $ticket = false)
     {
+        $contact = false;
+        $oldTicket = $ticket;
         if(Auth::user())
             $user = Auth::user();
         elseif($contact = Contact::getContactIfLoggedIn())
@@ -93,19 +106,22 @@ class TicketRepository extends BaseRepository
         }
 
         $ticket->fill($input);
+        $changedAttributes = $ticket->getDirty();
         $ticket->save();
+
+        $this->dispatch(new TicketDelta($changedAttributes, $oldTicket, $ticket));
+
 
         /* handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1) {
             $ticketComment = TicketComment::createNew($ticket);
             $ticketComment->description = $input['description'];
 
-            if(isset($input['contact_key']))
+            if(!Auth::user())
                 $ticketComment->contact_key = $input['contact_key'];
 
             $ticket->comments()->save($ticketComment);
 
-            //todo fire notification here:
         }
 
         /* if document IDs exist update ticket_id in document table */
@@ -158,6 +174,7 @@ class TicketRepository extends BaseRepository
         $ticketInvitation->ticket_id = $ticket->id;
         $ticketInvitation->contact_id = $contactId;
         $ticketInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+        $ticketInvitation->ticket_hash = strtolower(str_random(RANDOM_KEY_LENGTH));
         $ticketInvitation->save();
 
     }

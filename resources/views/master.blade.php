@@ -77,28 +77,24 @@
                 return;
             }
             @if (Utils::isTravis())
-                if (errorMsg.indexOf('Attempting to change value of a readonly property') > -1) {
-                    return;
-                }
+            if (errorMsg.indexOf('Attempting to change value of a readonly property') > -1) {
+                return;
+            }
+            if (errorMsg.indexOf('No URL provided') > -1) {
+                return;
+            }
             @endif
             // Less than IE9 https://stackoverflow.com/a/14835682/497368
             if (! document.addEventListener) {
                 return;
             }
             try {
-                // Use StackTraceJS to parse the error context
-                if (error) {
-                    StackTrace.fromError(error).then(function (result) {
-                        var gps = new StackTraceGPS();
-                        gps.findFunctionName(result[0]).then(function (result) {
-                            logError(errorMsg + ': ' + JSON.stringify(result));
-                        });
-                    }).catch(function () {
-                        logError(errorMsg);
-                    });
-                } else {
-                    logError(errorMsg);
-                }
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ URL::to('log_error') }}',
+                    data: 'error=' + encodeURIComponent(errorMsg + ' | Line: ' + lineNumber + ', Column: '+ column)
+                    + '&url=' + encodeURIComponent(window.location)
+                });
 
                 trackEvent('/error', errorMsg);
             } catch (exception) {
@@ -107,14 +103,6 @@
             }
 
             return false;
-        }
-
-        function logError(message) {
-            $.ajax({
-                type: 'GET',
-                url: '{{ URL::to('log_error') }}',
-                data: 'error=' + encodeURIComponent(message) + '&url=' + encodeURIComponent(window.location)
-            });
         }
 
         // http://t4t5.github.io/sweetalert/
@@ -229,23 +217,42 @@
         if (! window.cookieconsent) {
             return;
         }
-        window.cookieconsent.initialise({
-            "palette": {
-                "popup": {
-                    "background": "#000"
+        @if (Utils::isNinja())
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#000"
+                    },
+                    "button": {
+                        "background": "#f1d600"
+                    },
                 },
-                "button": {
-                    "background": "#f1d600"
+                "content": {
+                    "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
+                    "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                    "link": {!! json_encode(trans('texts.learn_more')) !!},
+                }
+            });
+        @elseif (config('ninja.cookie_consent.enabled'))
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#000"
+                    },
+                    "button": {
+                        "background": "#f1d600"
+                    },
                 },
-            },
-            "content": {
-                "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url.hosted') : 'https://cookiesandyou.com/' }}",
-                "message": {!! json_encode(trans('texts.cookie_message')) !!},
-                "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                "link": {!! json_encode(trans('texts.learn_more')) !!},
-            }
-        })}
-    );
+                "content": {
+                    "href": "{{ config('ninja.cookie_consent.link') }}",
+                    "message": {!! json_encode(config('ninja.cookie_consent.message') ?: trans('texts.cookie_message')) !!},
+                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                    "link": {!! json_encode(trans('texts.learn_more')) !!},
+                }
+            });
+        @endif
+    });
     </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->

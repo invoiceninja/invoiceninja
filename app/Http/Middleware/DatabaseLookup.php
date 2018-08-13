@@ -53,6 +53,8 @@ class DatabaseLookup
                 LookupContact::setServerByField('contact_key', $key);
             } elseif ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
+            } elseif($key = request()->MailboxHash) {
+                LookupTicketInvitation::setServerByField('ticket_hash', $key);
             } else {
                 $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {

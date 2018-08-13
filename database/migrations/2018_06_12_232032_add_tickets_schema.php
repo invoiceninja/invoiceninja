@@ -13,32 +13,7 @@ class AddTicketsSchema extends Migration
      */
     public function up()
     {
-        Schema::create('tickets', function ($table) {
-            $table->increments('id');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('account_id');
-            $table->unsignedInteger('client_id');
-            $table->unsignedInteger('agent_id');
-            $table->unsignedInteger('public_id');
-            $table->unsignedInteger('priority_id')->default(1);
-            $table->boolean('is_deleted')->default(0);
-            $table->boolean('is_internal')->default(0);
-            $table->unsignedInteger('status_id');
-            $table->unsignedInteger('category_id');
-            $table->unsignedInteger('ticket_number');
-            $table->text('subject');
-            $table->text('description');
-            $table->longtext('tags');
-            $table->longtext('private_notes');
-            $table->longtext('ccs');
-            $table->string('ip_address', 255);
-            $table->string('contact_key', 255);
-            $table->dateTime('due_date');
-            $table->dateTime('closed');
-            $table->dateTime('reopened');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+
 
         Schema::create('ticket_categories', function ($table) {
             $table->increments('id');
@@ -47,6 +22,7 @@ class AddTicketsSchema extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
 
         Schema::create('ticket_statuses', function ($table) {
             $table->increments('id');
@@ -63,24 +39,73 @@ class AddTicketsSchema extends Migration
             $table->boolean('is_deleted')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('ticket_categories');
+
         });
+
+        Schema::create('tickets', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('account_id');
+            $table->unsignedInteger('client_id')->nullable();
+            $table->unsignedInteger('agent_id');
+            $table->unsignedInteger('public_id');
+            $table->unsignedInteger('priority_id')->default(1);
+            $table->boolean('is_deleted')->default(0);
+            $table->boolean('is_internal')->default(0);
+            $table->unsignedInteger('status_id');
+            $table->unsignedInteger('category_id');
+            $table->unsignedInteger('merged_parent_ticket_id')->nullable();
+            $table->unsignedInteger('parent_ticket_id')->nullable();
+            $table->unsignedInteger('ticket_number');
+            $table->text('subject');
+            $table->text('description');
+            $table->longtext('tags');
+            $table->longtext('private_notes');
+            $table->longtext('ccs');
+            $table->string('ip_address', 255);
+            $table->string('contact_key', 255);
+            $table->dateTime('due_date');
+            $table->dateTime('closed');
+            $table->dateTime('reopened');
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->foreign('status_id')->references('id')->on('ticket_statuses');
+
+
+        });
+
+
 
         Schema::create('ticket_relations', function ($table) {
             $table->increments('id');
             $table->string('entity', 255);
             $table->unsignedInteger('entity_id');
             $table->unsignedInteger('ticket_id');
+
+            $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
+
         });
 
         Schema::create('ticket_templates', function ($table) {
             $table->increments('id');
             $table->string('name', 255);
             $table->text('description');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('account_id');
+            $table->unsignedInteger('account_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->unsignedInteger('public_id');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
         Schema::create('ticket_comments', function ($table) {
@@ -94,47 +119,23 @@ class AddTicketsSchema extends Migration
             $table->boolean('is_deleted')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
         });
 
         Schema::table('documents', function ($table) {
             $table->unsignedInteger('ticket_id')->nullable();
         });
 
-        Schema::table('tickets', function ($table) {
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('ticket_categories');
-            $table->foreign('status_id')->references('id')->on('ticket_statuses');
-        });
-
-        Schema::table('ticket_statuses', function ($table) {
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('ticket_categories');
-        });
-
-        Schema::table('ticket_relations', function ($table) {
-            $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
-        });
-
-        Schema::table('ticket_templates', function ($table) {
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
-
-        Schema::table('ticket_comments', function ($table) {
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
-        });
 
         Schema::table('activities', function ($table) {
             $table->unsignedInteger('ticket_id')->nullable();
+
+            $table->index(['ticket_id', 'account_id']);
         });
 
-        Schema::table('activities', function ($table) {
-           $table->index('ticket_id');
-        });
 
         Schema::create('ticket_invitations', function ($table) {
             $table->increments('id');
@@ -143,6 +144,7 @@ class AddTicketsSchema extends Migration
             $table->unsignedInteger('contact_id');
             $table->unsignedInteger('ticket_id')->index();
             $table->string('invitation_key')->index()->unique();
+            $table->string('ticket_hash')->index()->unique();
             $table->timestamps();
             $table->softDeletes();
             $table->timestamp('sent_date')->nullable();
@@ -163,6 +165,7 @@ class AddTicketsSchema extends Migration
             $table->increments('id');
             $table->unsignedInteger('lookup_account_id')->index();
             $table->string('invitation_key')->unique();
+            $table->string('ticket_hash')->unique();
             $table->string('message_id')->nullable()->unique();
 
             $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
@@ -173,7 +176,7 @@ class AddTicketsSchema extends Migration
             $table->unsignedInteger('account_id')->index();
             $table->timestamps();
 
-            $table->string('local_part')->unique(); //allows a user to specify a custom *@support.invoiceninja.com domain
+            $table->string('support_email_local_part')->unique()->nullable(); //allows a user to specify a custom *@support.invoiceninja.com domain
             $table->string('from_name', 255); //define the from email addresses name
 
             $table->boolean('client_upload')->default(true);
@@ -190,15 +193,11 @@ class AddTicketsSchema extends Migration
             $table->string('ticket_number_prefix');
             $table->unsignedInteger('ticket_number_start');
 
-            $table->boolean('alert_new_ticket')->default(true);
-            $table->longtext('alert_new_ticket_email');
-            $table->boolean('alert_new_comment')->default(true);
+            $table->unsignedInteger('alert_new_comment')->default(0);
             $table->longtext('alert_new_comment_email');
-            $table->boolean('alert_ticket_assign_agent')->default(true);
+            $table->unsignedInteger('alert_ticket_assign_agent')->default(0);
             $table->longtext('alert_ticket_assign_email');
-            $table->boolean('alert_ticket_transfer_agent')->default(true);
-            $table->longtext('alert_ticket_transfer_email');
-            $table->boolean('alert_ticket_overdue_agent')->default(true);
+            $table->unsignedInteger('alert_ticket_overdue_agent')->default(0);
             $table->longtext('alert_ticket_overdue_email');
 
             $table->boolean('show_agent_details')->default(true);
@@ -209,6 +208,29 @@ class AddTicketsSchema extends Migration
         });
 
 
+        Schema::table('lookup_accounts', function ($table) {
+            $table->string('support_email_local_part')->unique()->nullable();
+        });
+
+
+        $accounts = \App\Models\Account::all();
+
+            foreach ($accounts as $account){
+
+                if(!$account->account_ticket_settings) {
+
+                    $user = $account->users()->whereIsAdmin(1)->first();
+                    
+                    $accountTicketSettings = new \App\Models\AccountTicketSettings();
+                    $accountTicketSettings->ticket_master_id = $user->id;
+
+                    $account->account_ticket_settings()->save($accountTicketSettings);
+                }
+
+            }
+
+
+
         Schema::table('users', function ($table) {
             $table->string('avatar', 255);
             $table->unsignedInteger('avatar_width');
@@ -216,6 +238,26 @@ class AddTicketsSchema extends Migration
             $table->unsignedInteger('avatar_size');
             $table->text('signature');
         });
+
+
+
+        if(!Utils::isNinja()) {
+
+            Schema::table('activities', function ($table) {
+                $table->index(['contact_id', 'account_id']);
+                $table->index(['payment_id', 'account_id']);
+                $table->index(['invitation_id', 'account_id']);
+                $table->index(['user_id', 'account_id']);
+                $table->index(['invoice_id', 'account_id']);
+                $table->index(['client_id', 'account_id']);
+            });
+
+
+            Schema::table('invitations', function ($table) {
+                $table->index(['deleted_at', 'invoice_id']);
+            });
+        }
+
     }
 
     /**

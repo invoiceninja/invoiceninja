@@ -26,7 +26,9 @@
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
     {{ Former::populateField('ubl_email_attachment', intval($account->ubl_email_attachment)) }}
     {{ Former::populateField('document_email_attachment', intval($account->document_email_attachment)) }}
-    {{ Former::populateField('enable_email_markup', intval($account->enable_email_markup)) }}
+    {{ Former::populateField('email_design_id', intval($account->account_email_settings->email_design_id)) }}
+    {{ Former::populateField('enable_email_markup', intval($account->account_email_settings->enable_email_markup)) }}
+    {{ Former::populateField('email_footer', $account->account_email_settings->email_footer) }}
     {{ Former::populateField('bcc_email', $account->account_email_settings->bcc_email) }}
     {{ Former::populateField('reply_to_email', $account->account_email_settings->reply_to_email) }}
 
@@ -50,7 +52,7 @@
                     ->value(1)
                     ->help(Utils::isNinjaProd() ? '' : (config('pdf.phantomjs.bin_path') ? (config('pdf.phantomjs.cloud_key') ? trans('texts.phantomjs_local_and_cloud') : trans('texts.phantomjs_local')) : trans('texts.phantomjs_help', [
                         'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
-                        'link_docs' => link_to('http://docs.invoiceninja.com/en/latest/configure.html#phantomjs', 'PhantomJS', ['target' => '_blank'])
+                        'link_docs' => link_to('https://invoice-ninja.readthedocs.io/en/latest/configure.html#phantomjs', 'PhantomJS', ['target' => '_blank'])
                     ])) . ' | ' . link_to('/test_headless', trans('texts.test'), ['target' => '_blank'])) !!}
 
             {!! Former::checkbox('document_email_attachment')

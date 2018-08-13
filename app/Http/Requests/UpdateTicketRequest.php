@@ -22,6 +22,7 @@ class UpdateTicketRequest extends TicketRequest
     public function rules()
     {
         return [
+            'client_id' => 'min:1|numeric',
         ];
     }
 }

@@ -8,7 +8,17 @@ window.dropzone = new Dropzone('#document-upload .dropzone', {
         'is_default': {{ isset($isDefault) && $isDefault ? '1' : '0' }}
     },
     acceptedFiles: {!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-    addRemoveLinks: true,
+@if(!$account_ticket_settings->client_upload)
+    addRemoveLinks: false,
+    maxFiles:0,
+    init: function() {
+        this.on("maxfilesexceeded", function(file){
+        alert("No more files please!");
+        });
+    },
+@else
+    addRemoveLinks: false,
+@endif
     dictRemoveFileConfirmation: "{{trans('texts.are_you_sure')}}",
     @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
         "dict{{ Utils::toClassCase($key) }}" : {!! json_encode(trans('texts.dropzone_'.$key)) !!},
@@ -16,6 +26,7 @@ window.dropzone = new Dropzone('#document-upload .dropzone', {
     maxFilesize: {{ floatval(MAX_DOCUMENT_SIZE/1000) }},
     parallelUploads: 1,
 });
+
 
 if (dropzone instanceof Dropzone) {
     dropzone.on('addedfile', handleDocumentAdded);
@@ -52,6 +63,7 @@ if (dropzone instanceof Dropzone) {
 
         dropzone.files.push(mockFile);
     }
+
 }
 
 function handleDocumentAdded(file){

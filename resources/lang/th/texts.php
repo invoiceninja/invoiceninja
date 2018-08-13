@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'ดาวน์โหลด PDF',
     'pay_now' => 'จ่ายเดี๋ยวนี้',
     'save_invoice' => 'บันทึกใบแจ้งหนี้',
-    'clone_invoice' => 'Clone To Invoice',
+    'clone_invoice' => 'ทำใบแจ้งหนี้ซ้ำ',
     'archive_invoice' => 'เก็บบันทึกใบแจ้งหนี้',
     'delete_invoice' => 'ลบใบแจ้งหนี้',
     'email_invoice' => 'ส่งอีเมล',
@@ -95,14 +95,15 @@ $LANG = array(
     'powered_by' => 'สนับสนุนโดย',
     'no_items' => 'ไม่มีรายการ',
     'recurring_invoices' => 'ทำใบแจ้งหนี้ซ้ำ',
-    'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-        <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-        <p>Examples of dynamic invoice variables:</p>
-        <ul>
-          <li>"Gym membership for the month of :MONTH" >> "Gym membership for the month of July"</li>
-          <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
-          <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
-        </ul>',
+    'recurring_help' => '<p>ส่งใบแจ้งหนี้ใบเดิมให้ทุกอาทิตย์,สองครั้งต่อเดือน,เดือนละครั้ง,ทุกสามเดือนหรือทุกปี</p>
+<p>ใช้ :MONTH, :QUARTER  หรือ :YEAR สำหรับวันที่เปลี่ยนไป. ตรงตามเดือนยิ่งดี, ตัวอย่าง :MONTH-1.
+<p>ตัวอย่างใบแจ้งหนี้ที่เปลี่ยนแปลงไป:</p>
+<ul>
+<li>"Gym สมาชิกสำหรับเดือน :MONTH" >> "Gym สมาชิกสำหรับเดือนกรกฎาคม"</li>
+<li>":ปี+1 สมัครสมาชิกรายปี" >> "2015 เป็นสมัครสมาชิกรายปี"</li>
+<li>"เงินประกันสำหรับ :QUARTER+1" >> " ดำเนินการชำระเงินในไตรมาศที่ 2"</li>
+</ul>',
+    'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => 'รายได้รวมทั้งหมด',
     'billed_client' => 'ลูกค้าที่เรียกเก็บเงิน',
     'billed_clients' => 'ลูกค้าที่เรียกเก็บเงิน',
@@ -186,7 +187,7 @@ $LANG = array(
     'clients_will_create' => 'ลูกค้ากำลังถูกสร้างขึ้น',
     'email_settings' => 'ตั้งค่าอีเมล์',
     'client_view_styling' => 'การจัดรูปแบบมุมมองลูกค้า',
-    'pdf_email_attachment' => 'Attach PDF',
+    'pdf_email_attachment' => 'แนบไฟล์ PDF',
     'custom_css' => 'ปรับแต่ง CSS',
     'import_clients' => 'นำเข้าข้อมูลลูกค้า',
     'csv_file' => 'ไฟล์ CSV',
@@ -200,7 +201,7 @@ $LANG = array(
     'limit_clients' => 'ขออภัย,เกินขีดจำกัดของ :count ลูกค้า',
     'payment_error' => 'มีข้อผิดพลาดในการประมวลผลการชำระเงินของคุณ กรุณาลองใหม่อีกครั้งในภายหลัง.',
     'registration_required' => 'โปรดลงทะเบียนเพื่อส่งใบแจ้งหนี้ทางอีเมล',
-    'confirmation_required' => 'Please confirm your email address, :link to resend the confirmation email.',
+    'confirmation_required' => 'โปรดยืนยันที่อยู่อีเมลของคุณ คลิกที่นี่ เพื่อส่งอีเมลยืนยันอีกครั้ง',
     'updated_client' => 'อัปเดตลูกค้าเรียบร้อยแล้ว',
     'created_client' => 'สร้างลูกค้าเรียบร้อยแล้ว',
     'archived_client' => 'เก็บข้อมูลลูกค้าเรียบร้อยแล้ว',
@@ -238,7 +239,7 @@ $LANG = array(
     'confirmation_subject' => 'การยืนยันบัญชีของ Ninja Invoice',
     'confirmation_header' => 'การยืนยันบัญชี',
     'confirmation_message' => 'โปรดเข้าถึงลิงก์ด้านล่างเพื่อยืนยันบัญชีของคุณ',
-    'invoice_subject' => 'New invoice :number from :account',
+    'invoice_subject' => 'ใบแจ้งหนี้ใหม่: ใบแจ้งหนี้จาก: บัญชี',
     'invoice_message' => 'หากต้องการดูใบแจ้งหนี้ของคุณสำหรับ :amount, คลิกที่ลิงก์ด้านล่าง',
     'payment_subject' => 'การชำระเงินที่ได้รับ',
     'payment_message' => 'ขอขอบคุณสำหรับการชำระเงิน: จำนวนเงิน',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'CVV',
     'logout' => 'ออกจากระบบ',
     'sign_up_to_save' => 'ลงชื่อสมัครใช้เพื่อบันทึกงานของคุณ',
-    'agree_to_terms' => 'ฉันยอมรับเงื่อนไข  :terms',
+    'agree_to_terms' => 'ฉันยอมรับเงื่อนไข',
     'terms_of_service' => 'เงื่อนไขการให้บริการ',
     'email_taken' => 'ที่อยู่อีเมลได้รับการลงทะเบียนแล้ว',
     'working' => 'กำลังทำงาน',
@@ -305,7 +306,7 @@ $LANG = array(
     'specify_colors' => 'ระบุสี',
     'specify_colors_label' => 'เลือกสีที่จะใช้กับใบแจ้งหนี้',
     'chart_builder' => 'เครื่องมือสร้างแผนภูมิ',
-    'ninja_email_footer' => 'Created by :site | Create. Send. Get Paid.',
+    'ninja_email_footer' => 'สร้าง. ส่ง. รับเงิน',
     'go_pro' => 'Go Pro',
     'quote' => 'ใบเสนอราคา',
     'quotes' => 'ใบเสนอราคา',
@@ -323,7 +324,7 @@ $LANG = array(
     'delete_quote' => 'ลบใบเสนอราคา',
     'save_quote' => 'บันทึกใบเสนอราคา',
     'email_quote' => 'อีเมล์ใบเสนอราคา',
-    'clone_quote' => 'Clone To Quote',
+    'clone_quote' => 'ทำซ้ำใบเสนอราคา',
     'convert_to_invoice' => 'แปลงเป็นใบแจ้งหนี้',
     'view_invoice' => 'ดูใบแจ้งหนี้',
     'view_client' => 'ดูลูกค้า',
@@ -653,6 +654,8 @@ $LANG = array(
     'current_user' => 'ผู้ใช้ปัจจุบัน',
     'new_recurring_invoice' => 'ใบแจ้งหนี้ซ้ำใหม่',
     'recurring_invoice' => 'ทำใบแจ้งหนี้ซ้ำ',
+    'new_recurring_quote' => 'New recurring quote',
+    'recurring_quote' => 'Recurring Quote',
     'recurring_too_soon' => 'เร็วเกินไปที่จะสร้างใบแจ้งหนี้ที่เกิดซ้ำครั้งต่อไปซึ่งกำหนดไว้ :date',
     'created_by_invoice' => 'สร้างโดย   :invoice',
     'primary_user' => 'ผู้ใช้หลัก',
@@ -812,6 +815,12 @@ $LANG = array(
     'deleted_recurring_invoice' => 'ลบใบแจ้งหนี้ประจำแล้ว',
     'restore_recurring_invoice' => 'กู้คืนใบแจ้งหนี้',
     'restored_recurring_invoice' => 'กู้คืนใบแจ้งหนี้แล้ว',
+    'archive_recurring_quote' => 'Archive Recurring Quote',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Delete Recurring Quote',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Restore Recurring Quote',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'เก็บถาวร',
     'untitled_account' => 'ไม่มีชื่อบริษัท',
     'before' => 'ก่อน',
@@ -1271,7 +1280,7 @@ $LANG = array(
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'คุณต้อง :link.',
     'stripe_webhook_help_link_text' => 'เพิ่ม URL นี้เป็นปลายทางที่ Stripe',
-    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'มีข้อผิดพลาดในการเพิ่มวิธีการชำระเงินของคุณ กรุณาลองใหม่อีกครั้งในภายหลัง.',
     'notification_invoice_payment_failed_subject' => 'การชำระเงินล้มเหลวสำหรับใบแจ้งหนี้',
     'notification_invoice_payment_failed' => 'การชำระเงินโดยลูกค้า:client   ต่อ Invoice :invoice ล้มเหลว การชำระเงินถูกทำเครื่องหมายว่าไม่ผ่านและ :amount ถูกเพิ่มลงในยอดเงินของลูกค้า',
@@ -1347,6 +1356,7 @@ $LANG = array(
     'product_key' => 'สินค้า',
     'created_products' => 'สร้าง / อัปเดตเรียบร้อยแล้ว :count สินค้า(s)',
     'export_help' => 'ใช้ JSON ถ้าคุณวางแผนที่จะนำเข้าข้อมูลลงใน Invoice Ninja. <br/> ไฟล์ประกอบด้วยลูกค้า, สินค้า, ใบแจ้งหนี้, ใบเสนอราคา และการชำระเงิน.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'JSON File',
 
     'view_dashboard' => 'มุมมองแดชบอร์ด',
@@ -1738,6 +1748,7 @@ $LANG = array(
     'lang_Spanish - Spain' => 'สเปน - สเปน',
     'lang_Swedish' => 'สวีเดน',
     'lang_Albanian' => 'แอลเบเนีย',
+    'lang_Greek' => 'กรีก',
     'lang_English - United Kingdom' => 'อังกฤษ - สหราชอาณาจักร',
     'lang_Slovenian' => 'สโลเวเนีย',
     'lang_Finnish' => 'ฟินแลนด์',
@@ -1746,6 +1757,8 @@ $LANG = array(
     'lang_Portuguese - Brazilian' => 'โปรตุเกส - บราซิล',
     'lang_Portuguese - Portugal' => 'โปรตุเกส - โปรตุเกส',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'การบัญชีและกฎหมาย',
@@ -2113,7 +2126,7 @@ $LANG = array(
     'template' => 'แบบ',
     'start_of_week_help' => 'ใช้โดย <b>วันที่</b>ถูกเลือก',
     'financial_year_start_help' => 'ใช้โดย <b>ช่วงวันที่</b>ถูกเลือก',
-    'reports_help' => 'Shift + Click เพื่อจัดเรียงตามคอลัมน์  Ctrl + Click  เพื่อล้างการจัดกลุ่ม',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'ปีนี้',
 
 	// Updated login screen
@@ -2187,7 +2200,6 @@ $LANG = array(
     'error_refresh_page' => 'เกิดข้อผิดพลาดขึ้นโปรดรีเฟรชหน้าเว็บและลองอีกครั้ง',
     'data' => 'ข้อมูล',
     'imported_settings' => 'การตั้งค่าการนำเข้าสำเร็จ',
-    'lang_Greek' => 'กรีก',
     'reset_counter' => 'รีเซ็ตตัวนับ',
     'next_reset' => 'รีเซ็ตครั้งต่อไป',
     'reset_counter_help' => 'รีเซ็ตเคาน์เตอร์ใบแจ้งหนี้และใบเสนอราคาโดยอัตโนมัติ',
@@ -2411,6 +2423,8 @@ $LANG = array(
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2789,6 +2803,8 @@ $LANG = array(
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2841,6 +2857,15 @@ $LANG = array(
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 

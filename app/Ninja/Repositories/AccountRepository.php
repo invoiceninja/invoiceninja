@@ -137,6 +137,12 @@ class AccountRepository
     private function checkForSpammer()
     {
         $ip = Request::getClientIp();
+
+        // Apple's IP for their test accounts
+        if ($ip == '17.200.11.44') {
+            return;
+        }
+
         $count = Account::whereIp($ip)->whereHas('users', function ($query) {
             $query->whereRegistered(true);
         })->count();
@@ -753,7 +759,9 @@ class AccountRepository
 
     public function findWithReminders()
     {
-        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1')->get();
+        return Account::whereHas('account_email_settings', function($query) {
+            $query->whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1');
+        })->get();
     }
 
     public function findWithFees()

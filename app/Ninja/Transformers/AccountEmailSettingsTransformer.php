@@ -32,6 +32,22 @@ class AccountEmailSettingsTransformer extends EntityTransformer
      * @SWG\Property(property="late_fee2_percent", type="string", example="Late Fee2 Percent")
      * @SWG\Property(property="late_fee3_amount", type="string", example="Late Fee3 Amount")
      * @SWG\Property(property="late_fee3_percent", type="string", example="Late Fee3 Percent")
+     * @SWG\Property(property="enable_reminder1", type="string", example="Enable Reminder 1")
+     * @SWG\Property(property="enable_reminder2", type="string", example="Enable Reminder 2")
+     * @SWG\Property(property="enable_reminder3", type="string", example="Enable reminder 3")
+     * @SWG\Property(property="enable_reminder4", type="string", example="Enable Reminder 4")
+     * @SWG\Property(property="num_days_reminder1", type="string", example="Num Days reminder 1")
+     * @SWG\Property(property="num_days_reminder2", type="string", example="Num Days reminder 2")
+     * @SWG\Property(property="num_days_reminder3", type="string", example="Num Days reminder 3")
+     * @SWG\Property(property="direction_reminder1", type="integer", example=1)
+     * @SWG\Property(property="direction_reminder2", type="integer", example=1)
+     * @SWG\Property(property="direction_reminder3", type="integer", example=1)
+     * @SWG\Property(property="field_reminder1", type="integer", example=1)
+     * @SWG\Property(property="field_reminder2", type="integer", example=1)
+     * @SWG\Property(property="field_reminder3", type="integer", example=1)
+     * @SWG\Property(property="email_design_id", type="string", example="Email Design ID")
+     * @SWG\Property(property="enable_email_markup", type="boolean", example=false)
+     * @SWG\Property(property="email_footer", type="string", example="Footer")
      */
 
 
@@ -77,6 +93,22 @@ class AccountEmailSettingsTransformer extends EntityTransformer
             'late_fee2_percent' => $settings->late_fee2_percent,
             'late_fee3_amount' => $settings->late_fee3_amount,
             'late_fee3_percent' => $settings->late_fee3_percent,
+            'enable_reminder1' => $settings->enable_reminder1,
+            'enable_reminder2' => $settings->enable_reminder2,
+            'enable_reminder3' => $settings->enable_reminder3,
+            'enable_reminder4' => $settings->enable_reminder4,
+            'num_days_reminder1' => $settings->num_days_reminder1,
+            'num_days_reminder2' => $settings->num_days_reminder2,
+            'num_days_reminder3' => $settings->num_days_reminder3,
+            'direction_reminder1' => (int) $settings->direction_reminder1,
+            'direction_reminder2' => (int) $settings->direction_reminder2,
+            'direction_reminder3' => (int) $settings->direction_reminder3,
+            'field_reminder1' => (int) $settings->field_reminder1,
+            'field_reminder2' => (int) $settings->field_reminder2,
+            'field_reminder3' => (int) $settings->field_reminder3,
+            'email_design_id' => $settings->email_design_id,
+            'enable_email_markup' => (bool) $settings->enable_email_markup,
+            'email_footer' => $settings->email_footer,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Mailers;
 
+use App\Constants\Domain;
 use Exception;
 use Mail;
 use Utils;
@@ -88,7 +89,13 @@ class TicketMailer
         }
 
         try {
-            $client = new PostmarkClient(config('services.postmark_ticket'));
+
+            if (Utils::isNinjaProd())
+                $postmarkToken = Domain::getPostmarkTokenFromId($account->domain_id);
+            else
+                $postmarkToken = config('services.postmark_ticket');
+
+            $client = new PostmarkClient($postmarkToken);
             $message = [
                 'To' => $toEmail,
                 'From' => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
@@ -128,7 +135,7 @@ class TicketMailer
      * @return bool
      */
     private function handleSuccess($data, $messageId = false)
-    {
+    {//todo boiler plate from invoice invites which needs to be adapted to tickets
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
             $invoice = $invitation->invoice;

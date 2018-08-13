@@ -64,6 +64,7 @@ TicketInvitation::creating(function ($invitation)
 {
     LookupTicketInvitation::createNew($invitation->account->account_key, [
         'invitation_key' => $invitation->invitation_key,
+        'ticket_hash' => $invitation->ticket_hash
     ]);
 });
 

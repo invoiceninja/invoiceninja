@@ -103,6 +103,7 @@ $LANG = array(
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
           <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
         </ul>',
+    'recurring_quotes' => 'Recurring Quotes',
     'in_total_revenue' => 'całkowity przychód',
     'billed_client' => 'obciążony klient',
     'billed_clients' => 'obciążeni klienci',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'Kod CVV',
     'logout' => 'Wyloguj się',
     'sign_up_to_save' => 'Zarejestruj się, aby zapisać swoją pracę',
-    'agree_to_terms' => 'Zgadzam sie z warunkami Invoice Ninja :terms',
+    'agree_to_terms' => 'I agree to the :terms',
     'terms_of_service' => 'Warunki korzystania z Serwisu',
     'email_taken' => 'Podany adres email już istnieje',
     'working' => 'Wykonywanie',
@@ -653,6 +654,8 @@ $LANG = array(
     'current_user' => 'Aktualny użytkownik',
     'new_recurring_invoice' => 'Nowa faktura odnawialna',
     'recurring_invoice' => 'Odnawialna faktura',
+    'new_recurring_quote' => 'New recurring quote',
+    'recurring_quote' => 'Recurring Quote',
     'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice, it\'s scheduled for :date',
     'created_by_invoice' => 'Utworzona przez :invoice',
     'primary_user' => 'Główny użytkownik',
@@ -812,6 +815,12 @@ $LANG = array(
     'deleted_recurring_invoice' => 'Odnawialna faktura została usunięta.',
     'restore_recurring_invoice' => 'Przywróć odnawialną fakturę',
     'restored_recurring_invoice' => 'Odnawialna faktura została przywrócona',
+    'archive_recurring_quote' => 'Archive Recurring Quote',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Delete Recurring Quote',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Restore Recurring Quote',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'Zarchiwizowano',
     'untitled_account' => 'Firma bez nazwy',
     'before' => 'Przed',
@@ -1269,7 +1278,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'Musisz :link.',
     'stripe_webhook_help_link_text' => 'dodaj ten URL jako endpoint w Stripe',
-    'gocardless_webhook_help_link_text' => 'You must add this URL as an endpoint in GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'Wystąpił problem w trakcie dodawania metody płatności. Spróbuj ponownie później.',
     'notification_invoice_payment_failed_subject' => 'Płatność dla faktury :invoice nie powiodła się',
     'notification_invoice_payment_failed' => 'Płatność wykonana przez klienta :client za fakturę :invoice zakończona niepowodzeniem. Płatność została oznaczona jako nieudana, a środki  :amount zostały dopisane do salda klienta.',
@@ -1345,6 +1354,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'product_key' => 'Produkt',
     'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Użyj formatu JSON, jeśli planujesz zaimportować dane do Invoice Ninja.<br/> Taki plik zawiera dane klientów, produkty, faktury, oferty i płatności.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'Plik JSON',
 
     'view_dashboard' => 'Zobacz Pulpit',
@@ -1736,6 +1746,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'lang_Spanish - Spain' => 'Hiszpański (Hiszpania)',
     'lang_Swedish' => 'Szwedzki',
     'lang_Albanian' => 'Albański',
+    'lang_Greek' => 'Grecki',
     'lang_English - United Kingdom' => 'English - United Kingdom',
     'lang_Slovenian' => 'Slovenian',
     'lang_Finnish' => 'Finnish',
@@ -1744,6 +1755,8 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Księgowość i prawo',
@@ -2111,7 +2124,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'template' => 'Szablon',
     'start_of_week_help' => 'Używany przez selektory <b>dat</b>',
     'financial_year_start_help' => 'Używany przez selektory <b>zakresów czasu</b>',
-    'reports_help' => 'Shirt + LPM aby sortować po wielu kolumnach. Ctrl + LPM aby usunąć grupowanie.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Ten rok',
 
 	// Updated login screen
@@ -2185,7 +2198,6 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'error_refresh_page' => 'Wystąpił błąd. Proszę odświeżyć stronę i spróbować ponownie.',
     'data' => 'Dane',
     'imported_settings' => 'Udało się zaimportować ustawienia',
-    'lang_Greek' => 'Grecki',
     'reset_counter' => 'Zresetuj licznik',
     'next_reset' => 'Następny reset',
     'reset_counter_help' => 'Automatycznie resetuj liczniki faktur i ofert.',
@@ -2409,6 +2421,8 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2787,6 +2801,8 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2839,6 +2855,15 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'All Invoices',
+    'my_invoices' => 'My Invoices',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 

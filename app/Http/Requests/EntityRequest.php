@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Libraries\HistoryUtils;
 use App\Models\Contact;
 use App\Models\EntityModel;
+use Illuminate\Support\Facades\Log;
 use Input;
 use Utils;
 
@@ -74,7 +75,6 @@ class EntityRequest extends Request
         if ($this->entity()) {
             if ($this->user()->can('view', $this->entity())) {
                 HistoryUtils::trackViewed($this->entity());
-
                 return true;
             }
         } else {

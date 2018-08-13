@@ -64,7 +64,6 @@ class Account extends Eloquent
         'postal_code',
         'country_id',
         'invoice_terms',
-        'email_footer',
         'industry_id',
         'size_id',
         'invoice_taxes',
@@ -97,13 +96,6 @@ class Account extends Eloquent
         'custom_design3',
         'show_item_taxes',
         'military_time',
-        'enable_reminder1',
-        'enable_reminder2',
-        'enable_reminder3',
-        'enable_reminder4',
-        'num_days_reminder1',
-        'num_days_reminder2',
-        'num_days_reminder3',
         'tax_name1',
         'tax_rate1',
         'tax_name2',
@@ -112,15 +104,7 @@ class Account extends Eloquent
         'invoice_number_pattern',
         'quote_number_pattern',
         'quote_terms',
-        'email_design_id',
-        'enable_email_markup',
         'website',
-        'direction_reminder1',
-        'direction_reminder2',
-        'direction_reminder3',
-        'field_reminder1',
-        'field_reminder2',
-        'field_reminder3',
         'header_font_id',
         'body_font_id',
         'auto_convert_quote',
@@ -778,6 +762,32 @@ class Account extends Eloquent
     }
 
     /**
+     * @return bool|int
+     */
+    public function getInvoiceExchangeRateCustomFieldIndex()
+    {
+        $locale = App::getLocale();
+        App::setLocale($this->language->locale);
+
+        $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
+
+        // set locale back
+        App::setLocale($locale);
+
+        if(isset($this->custom_fields->invoice_text1) && $exchangeRateTranslation == strtolower($this->custom_fields->invoice_text1))
+        {
+            return 1;
+        }
+
+        if(isset($this->custom_fields->invoice_text2) && $exchangeRateTranslation == strtolower($this->custom_fields->invoice_text2))
+        {
+            return 2;
+        }
+
+        return false;
+    }
+
+    /**
      * @return mixed
      */
     public function getCountryId()
@@ -1126,7 +1136,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $this->enable_reminder1 || $this->enable_reminder2 || $this->enable_reminder3 || $this->enable_reminder4;
+        return $this->account_email_settings->enable_reminder1 || $this->account_email_settings->enable_reminder2 || $this->account_email_settings->enable_reminder3 || $this->account_email_settings->enable_reminder4;
     }
 
     /**
@@ -1589,7 +1599,7 @@ class Account extends Eloquent
      */
     public function getEmailDesignId()
     {
-        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
+        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->account_email_settings->email_design_id : EMAIL_DESIGN_PLAIN;
     }
 
     /**
@@ -1790,7 +1800,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $this->enable_email_markup;
+        return $this->account_email_settings->enable_email_markup;
     }
 
     public function defaultDaysDue($client = false)

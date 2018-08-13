@@ -95,11 +95,8 @@ class ProductReport extends AbstractReport
                     }
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
+                    $this->addToTotals($client->currency_id, 'total', $item->qty * $item->cost);
                 }
-
-                //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
-                //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
-                //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
             }
         }
     }

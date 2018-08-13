@@ -930,17 +930,17 @@ class AccountController extends BaseController
 
             foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
-                $account->$enableField = Input::get($enableField) ? true : false;
-                $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
-                $account->{"field_{$type}"} = Input::get("field_{$type}");
-                $account->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
+                $account->account_email_settings->$enableField = Input::get($enableField) ? true : false;
+                $account->account_email_settings->{"num_days_{$type}"} = Input::get("num_days_{$type}");
+                $account->account_email_settings->{"field_{$type}"} = Input::get("field_{$type}");
+                $account->account_email_settings->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
 
                 $number = preg_replace('/[^0-9]/', '', $type);
                 $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
                 $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
             }
 
-            $account->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
+            $account->account_email_settings->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
             $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
 
             $account->save();
@@ -965,6 +965,14 @@ class AccountController extends BaseController
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_TICKETS);
+    }
+
+    public function checkUniqueLocalPart()
+    {
+        if(AccountTicketSettings::checkUniqueLocalPart(Input::get('support_email_local_part'), Auth::user()->account))
+            return RESULT_SUCCESS;
+        else
+            return RESULT_FAILURE;
     }
 
     /**

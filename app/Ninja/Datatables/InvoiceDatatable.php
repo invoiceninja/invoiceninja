@@ -20,7 +20,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if(Auth::user()->can('view', [ENTITY_INVOICE, $model])) {
+                    if(Auth::user()->can('view', [$this->entityType, $model])) {
                         $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                         return $this->addNote($str, $model->private_notes);
                     }

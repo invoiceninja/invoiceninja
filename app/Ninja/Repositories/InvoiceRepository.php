@@ -626,10 +626,10 @@ class InvoiceRepository extends BaseRepository
         }
 
         if (isset($data['custom_text_value1'])) {
-            $invoice->custom_text_value1 = trim($data['custom_text_value1']);
+            $invoice->custom_text_value1 = Utils::processVariables(trim($data['custom_text_value1']), $invoice->client);
         }
         if (isset($data['custom_text_value2'])) {
-            $invoice->custom_text_value2 = trim($data['custom_text_value2']);
+            $invoice->custom_text_value2 = Utils::processVariables(trim($data['custom_text_value2']), $invoice->client);
         }
 
         // custom fields charged taxes
@@ -1197,7 +1197,7 @@ class InvoiceRepository extends BaseRepository
 
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $account->getReminderDate($i, $filterEnabled)) {
-                if ($account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                if ($account->account_email_settings->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
                     $dates[] = "(due_date = '$date' OR partial_due_date = '$date')";
                 } else {
                     $dates[] = "invoice_date = '$date'";
@@ -1230,7 +1230,7 @@ class InvoiceRepository extends BaseRepository
         $settings = $account->account_email_settings;
         $frequencyId = $settings->frequency_id_reminder4;
 
-        if (! $frequencyId || ! $account->enable_reminder4) {
+        if (! $frequencyId || ! $account->account_email_settings->enable_reminder4) {
             return collect();
         }
 
@@ -1250,13 +1250,13 @@ class InvoiceRepository extends BaseRepository
                     ->where('last_sent_date', '<', $lastSentDate);
 
         for ($i=1; $i<=3; $i++) {
-            if (!$account->{"enable_reminder{$i}"}) {
+            if (!$account->account_email_settings->{"enable_reminder{$i}"}) {
                 continue;
             }
-            $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
+            $field = $account->account_email_settings->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
             $date = date_create();
-            if ($account->{"direction_reminder{$i}"} == REMINDER_DIRECTION_AFTER) {
-                $date->sub(date_interval_create_from_date_string($account->{"num_days_reminder{$i}"} . ' days'));
+            if ($account->account_email_settings->{"direction_reminder{$i}"} == REMINDER_DIRECTION_AFTER) {
+                $date->sub(date_interval_create_from_date_string($account->account_email_settings->{"num_days_reminder{$i}"} . ' days'));
             }
             $invoices->where($field, '<', $date);
         }

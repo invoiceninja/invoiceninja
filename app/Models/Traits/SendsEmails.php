@@ -64,7 +64,7 @@ trait SendsEmails
 
         $template = '<div>$client,</div><br />';
 
-        if ($this->hasFeature(FEATURE_CUSTOM_EMAILS) && $this->email_design_id != EMAIL_DESIGN_PLAIN) {
+        if ($this->hasFeature(FEATURE_CUSTOM_EMAILS) && $this->account_email_settings->email_design_id != EMAIL_DESIGN_PLAIN) {
             $template .= '<div>' . trans("texts.{$entityType}_message_button", ['amount' => '$amount']) . '</div><br />' .
                          '<div style="text-align:center;">$viewButton</div><br />';
         } else {
@@ -121,9 +121,9 @@ trait SendsEmails
      */
     public function getEmailFooter()
     {
-        if ($this->isPro() && $this->email_footer) {
+        if ($this->isPro() && $this->account_email_settings->email_footer) {
             // Add line breaks if HTML isn't already being used
-            return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
+            return strip_tags($this->account_email_settings->email_footer) == $this->account_email_settings->email_footer ? nl2br($this->account_email_settings->email_footer) : $this->account_email_settings->email_footer;
         } else {
             return '<p><div>' . trans('texts.email_signature') . "\n<br>\$account</div></p>";
         }
@@ -136,12 +136,12 @@ trait SendsEmails
      */
     public function getReminderDate($reminder, $filterEnabled = true)
     {
-        if ($filterEnabled && ! $this->{"enable_reminder{$reminder}"}) {
+        if ($filterEnabled && ! $this->account_email_settings->{"enable_reminder{$reminder}"}) {
             return false;
         }
 
-        $numDays = $this->{"num_days_reminder{$reminder}"};
-        $plusMinus = $this->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
+        $numDays = $this->account_email_settings->{"num_days_reminder{$reminder}"};
+        $plusMinus = $this->account_email_settings->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
 
         return date('Y-m-d', strtotime("$plusMinus $numDays days"));
     }
@@ -155,7 +155,7 @@ trait SendsEmails
     {
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $this->getReminderDate($i, $filterEnabled)) {
-                if ($this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                if ($this->account_email_settings->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
                     if (($invoice->partial && $invoice->partial_due_date == $date)
                         || $invoice->due_date == $date) {
                         return "reminder{$i}";

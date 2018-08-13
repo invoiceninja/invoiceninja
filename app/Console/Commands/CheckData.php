@@ -107,7 +107,7 @@ class CheckData extends Command
                         ->subject("Check-Data: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE) . " [{$database}]");
             });
         } elseif (! $this->isValid) {
-            throw new Exception('Check data failed!!');
+            throw new Exception("Check data failed!!\n" . $this->log);
         }
     }
 

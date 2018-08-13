@@ -4,7 +4,7 @@ class PostmarkInbound extends PHPUnit_Framework_TestCase{
 
     protected function setUp()
     {
-        $this->inbound = new \App\Ninja\Tickets\Inbound\TicketFactory(file_get_contents('inbound.json'));
+        $this->inbound = new \App\Ninja\Tickets\Inbound\InboundTicketFactory(file_get_contents('inbound.json'));
     }
 
     public function testTo()

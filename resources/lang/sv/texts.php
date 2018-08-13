@@ -95,14 +95,15 @@ $LANG = array(
     'powered_by' => 'Drivs av',
     'no_items' => 'Inga artiklar',
     'recurring_invoices' => 'Återkommande fakturor',
-    'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-        <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-        <p>Examples of dynamic invoice variables:</p>
-        <ul>
-          <li>"Gym membership for the month of :MONTH" >> "Gym membership for the month of July"</li>
-          <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
-          <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
-        </ul>',
+    'recurring_help' => '<p>Skicka automatiskt fakturor till kund varje vecka, månad, kvartal eller årsvis.</p>
+    <p>Använd :MONTH, :QUARTER eller :YEAR för dynamiskt datum. Enkla formler fungerar också, t.ex. :MONTH-1</p>
+    <p>Exempel på dynamiska fakturavariabler::</p>
+    <ul>
+    <li>"Gym medlemskap för månaden :MONTH" >> "Gym medlemskap för månaden Juli"</li>
+    <li>":YEAR+1 årlig prenumeration" >> "2015 årlig prenumeration"</li>
+    <li>"Underhåll för :QUARTER+1" >> "Underhåll för Q2"</li>
+    </ul>',
+    'recurring_quotes' => 'Återkommande offerter',
     'in_total_revenue' => 'i totala intäkter',
     'billed_client' => 'fakturerad kund',
     'billed_clients' => 'fakturerade kunder',
@@ -184,7 +185,7 @@ $LANG = array(
     'import_to' => 'Importera till',
     'client_will_create' => 'kund kommer skapas',
     'clients_will_create' => 'kunder kommer skapas',
-    'email_settings' => 'E-post inställningar',
+    'email_settings' => 'E-postinställningar',
     'client_view_styling' => 'Utformning av kund vy',
     'pdf_email_attachment' => 'Bifoga PDF',
     'custom_css' => 'Anpassad CSS',
@@ -260,7 +261,7 @@ $LANG = array(
     'cvv' => 'CVV',
     'logout' => 'Logga ut',
     'sign_up_to_save' => 'Registrera dig för att spara ditt arbete',
-    'agree_to_terms' => 'Jag godkänner Invoice Ninja :terms',
+    'agree_to_terms' => 'Jag accepterar :terms',
     'terms_of_service' => 'Villkor för tjänsten',
     'email_taken' => 'E-postadressen är redan registrerad',
     'working' => 'Jobbar',
@@ -613,8 +614,8 @@ $LANG = array(
     'login' => 'Logga in',
     'or' => 'eller',
     'email_error' => 'Det uppstod ett problem med att skicka e-post',
-    'confirm_recurring_timing' => 'Note: E-post skickas vid timmens början',
-    'confirm_recurring_timing_not_sent' => 'Note: invoices are created at the start of the hour.',
+    'confirm_recurring_timing' => 'Observera: E-post skickas vid timmens början',
+    'confirm_recurring_timing_not_sent' => 'Observera: Fakturor skapas vid timmens början.',
     'payment_terms_help' => 'Ställ in standard <b>faktura förfallodatum</b>',
     'unlink_account' => 'Olänka konto',
     'unlink' => 'Olänka',
@@ -652,6 +653,8 @@ $LANG = array(
     'current_user' => 'Befintlig användare',
     'new_recurring_invoice' => 'Ny återkommande faktura',
     'recurring_invoice' => 'Återkommande faktura',
+    'new_recurring_quote' => 'Ny återkommande offert',
+    'recurring_quote' => 'Återkommande offert',
     'recurring_too_soon' => 'Det är för tidigt att skapa nästa återkommande faktura, den är schemalagd för :date',
     'created_by_invoice' => 'Skapad av :invoice',
     'primary_user' => 'Primär användare',
@@ -659,7 +662,7 @@ $LANG = array(
     'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
                         <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
     'playground' => 'playground',
-    'support_forum' => 'support forum',
+    'support_forum' => 'Supportforum',
     'invoice_due_date' => 'Förfallodatum',
     'quote_due_date' => 'Giltig till',
     'valid_until' => 'Giltig till',
@@ -811,6 +814,12 @@ $LANG = array(
     'deleted_recurring_invoice' => 'Framgångsrikt tagit bort återkommande faktura',
     'restore_recurring_invoice' => 'Återställ återkommande faktura',
     'restored_recurring_invoice' => 'Framgångsrikt återställt återkommande faktura',
+    'archive_recurring_quote' => 'Arkivera återkommande offert',
+    'archived_recurring_quote' => 'Successfully archived recurring quote',
+    'delete_recurring_quote' => 'Ta bort återkommande offert',
+    'deleted_recurring_quote' => 'Successfully deleted recurring quote',
+    'restore_recurring_quote' => 'Återställ återkommande offert',
+    'restored_recurring_quote' => 'Successfully restored recurring quote',
     'archived' => 'Arkiverad',
     'untitled_account' => 'Namnlöst Företag',
     'before' => 'Före',
@@ -924,18 +933,18 @@ $LANG = array(
     'edit_payment_term' => 'Editera betalningsvillkor',
     'archive_payment_term' => 'Arkivera betalningsvillkor',
     'recurring_due_dates' => 'Återkommande faktura förfallodatum',
-    'recurring_due_date_help' => '<P> Sätter automatiskt ett förfallodatum för fakturan. </ P> 
-<p> Fakturor på en månadsvis eller årlig cykel, på eller före den dag de skapas kommer att bero på nästa månad. Fakturor som förfaller på den 29: e eller 30: e månader som inte har den dagen kommer att betalas den sista dagen i månaden. </ P> 
- <p> fakturor på en veckocykeln beror på dagen för veckan de skapas kommer att bero på nästa vecka </ p> 
- <p> till exempel:. </ p> 
- <ul> 
- <li> Idag är den 15: e, är förfallodag första i månaden. Förfallodagen skulle sannolikt vara den första nästa månad. </ Li> 
+    'recurring_due_date_help' => '<P> Sätter automatiskt ett förfallodatum för fakturan. </ P>
+<p> Fakturor på en månadsvis eller årlig cykel, på eller före den dag de skapas kommer att bero på nästa månad. Fakturor som förfaller på den 29: e eller 30: e månader som inte har den dagen kommer att betalas den sista dagen i månaden. </ P>
+ <p> fakturor på en veckocykeln beror på dagen för veckan de skapas kommer att bero på nästa vecka </ p>
+ <p> till exempel:. </ p>
+ <ul>
+ <li> Idag är den 15: e, är förfallodag första i månaden. Förfallodagen skulle sannolikt vara den första nästa månad. </ Li>
  <li> Idag är den 15: e, då är förfallodagen den sista dagen i månaden. Förfallodagen blir den sista dagen av denna månad.
- </ li> 
+ </ li>
  <li> Idag är den 15: e, är förfallodagen den 15: e dagen i månaden. Förfallodagen är den 15: e dagen av <strong> Nästa </ strong> månad.
-</ li> 
- <li> Är idagg en fredag, är förfallodagen den 1: a fredag efter. Förfallodagen kommer att vara nästa fredag, inte idag. 
- </ li> 
+</ li>
+ <li> Är idagg en fredag, är förfallodagen den 1: a fredag efter. Förfallodagen kommer att vara nästa fredag, inte idag.
+ </ li>
  </ ul>',
     'due' => 'förfallen',
     'next_due_on' => 'Förfallen nästa :',
@@ -1268,7 +1277,7 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'Du måste :link.',
     'stripe_webhook_help_link_text' => 'lägg till denna URL som en slutpunkt på Stripe',
-    'gocardless_webhook_help_link_text' => 'Du måste lägga till denna URL som slutpunkt i GoCardless',
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
     'payment_method_error' => 'Det gick inte att lägga till din betalningsmetod. Vänligen försök igen senare.',
     'notification_invoice_payment_failed_subject' => 'Betalning misslyckad för faktura :invoice',
     'notification_invoice_payment_failed' => 'En betalninggjord av klient :client motFaktura :invoice misslyckades. Betalningen har markerats som misslyckad och :amount harlagt tills till klientens balans.',
@@ -1344,6 +1353,7 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'product_key' => 'Produkt',
     'created_products' => 'Skapade/Uppdaterade :count produkt(er) utan problem',
     'export_help' => 'Använda JSON om du planerar att importera datan till Invoice Ninja.<br/>Filen innehåller kunder, produkter, fakturor, offerter och betalningar.',
+    'selfhost_export_help' => '<br/>We recommend using mysqldump to create a full backup.',
     'JSON_file' => 'JSON Fil',
 
     'view_dashboard' => 'Se översikt',
@@ -1741,6 +1751,7 @@ Nya Kaledonien',
     'lang_Spanish - Spain' => 'Spanska',
     'lang_Swedish' => 'Svenska',
     'lang_Albanian' => 'Albanska',
+    'lang_Greek' => 'Grekiska',
     'lang_English - United Kingdom' => 'Engelska - Storbritannien',
     'lang_Slovenian' => 'Slovenien',
     'lang_Finnish' => 'Finska',
@@ -1749,6 +1760,8 @@ Nya Kaledonien',
     'lang_Portuguese - Brazilian' => 'Portugisiska - Brasilianska',
     'lang_Portuguese - Portugal' => 'Portugisiska  - Portugal',
     'lang_Thai' => 'Thai',
+    'lang_Macedonian' => 'Macedonian',
+    'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
 
     // Industries
     'industry_Accounting & Legal' => 'Redovisning & Legala',
@@ -2118,7 +2131,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'template' => 'Mall',
     'start_of_week_help' => 'Använd av <b>datum</b> väljare',
     'financial_year_start_help' => 'Används av <b>datum urvals</b> valen.',
-    'reports_help' => 'Shift + Klicka för att sortera flera kolumner, Ctrl + Klicka för att ta bort grupperingen.',
+    'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Detta året',
 
 	// Updated login screen
@@ -2192,7 +2205,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'error_refresh_page' => 'Ett fel uppstod, vänligen uppdatera sidan och försök igen.',
     'data' => 'Information',
     'imported_settings' => 'Framgångsrikt importerat inställningar',
-    'lang_Greek' => 'Grekiska',
     'reset_counter' => 'Återställ räknare',
     'next_reset' => 'Nästa återställning',
     'reset_counter_help' => 'Återställ automatiskt faktura och offert räknare.',
@@ -2416,6 +2428,8 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'currency_georgian_lari' => 'Georgian Lari',
     'currency_qatari_riyal' => 'Qatari Riyal',
     'currency_honduran_lempira' => 'Honduran Lempira',
+    'currency_surinamese_dollar' => 'Surinamese Dollar',
+    'currency_bahraini_dinar' => 'Bahraini Dinar',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -2794,6 +2808,8 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'auto_archive_invoice_help' => 'Automatically archive invoices when they are paid.',
     'auto_archive_quote' => 'Auto Archive',
     'auto_archive_quote_help' => 'Automatically archive quotes when they are converted.',
+    'allow_approve_expired_quote' => 'Allow approve expired quote',
+    'allow_approve_expired_quote_help' => 'Allow clients to approve expired quotes.',
     'invoice_workflow' => 'Invoice Workflow',
     'quote_workflow' => 'Quote Workflow',
     'client_must_be_active' => 'Error: the client must be active',
@@ -2803,8 +2819,8 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'clone_product' => 'Clone Product',
     'item_details' => 'Item Details',
     'send_item_details_help' => 'Send line item details to the payment gateway.',
-    'view_proposal' => 'View Proposal',
-    'view_in_portal' => 'View in Portal',
+    'view_proposal' => 'Se offert',
+    'view_in_portal' => 'Se i portal',
     'cookie_message' => 'This website uses cookies to ensure you get the best experience on our website.',
     'got_it' => 'Got it!',
     'vendor_will_create' => 'vendor will be created',
@@ -2846,6 +2862,15 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'show_payments' => 'Show Payments',
+    'show_aging' => 'Show Aging',
+    'reference' => 'Reference',
+    'amount_paid' => 'Amount Paid',
+    'send_notifications_for' => 'Send Notifications For',
+    'all_invoices' => 'Alla fakturor',
+    'my_invoices' => 'Mina fakturor',
+    'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
+    'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
 );
 

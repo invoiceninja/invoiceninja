@@ -25,7 +25,6 @@
     "moment-timezone": "~0.4.0",
     "quill": "~0.20.0",
     "datetimepicker": "~2.4.5",
-    "stacktrace-js": "~1.0.1",
     "fuse.js": "~2.0.2",
     "dropzone": "~4.3.0",
     "nouislider": "~8.5.1",

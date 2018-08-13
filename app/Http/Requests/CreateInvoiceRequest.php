@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Client;
+use Illuminate\Support\Facades\Log;
 
 class CreateInvoiceRequest extends InvoiceRequest
 {
@@ -13,7 +14,20 @@ class CreateInvoiceRequest extends InvoiceRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_INVOICE);
+
+
+        if (request()->input('is_quote'))
+            return $this->user()->can('create', ENTITY_QUOTE);
+        else {
+
+            if(request()->input('is_recurring'))
+                $standardOrRecurringInvoice = ENTITY_RECURRING_INVOICE;
+            else
+                $standardOrRecurringInvoice = ENTITY_INVOICE;
+
+            return $this->user()->can('create', $standardOrRecurringInvoice);
+        }
+
     }
 
     /**

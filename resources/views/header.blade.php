@@ -6,7 +6,9 @@
     @if (Utils::isNinjaDev())
         <style type="text/css">
             .nav-footer {
-                @if (config('mail.driver') == 'log' && ! config('services.postmark'))
+                @if (env('TRAVIS'))
+                    background-color: #FF0000 !important;
+                @elseif (config('mail.driver') == 'log' && ! config('services.postmark'))
                     background-color: #50C878 !important;
                 @else
                     background-color: #FD6A02 !important;
@@ -486,7 +488,7 @@
           @endif
 
           @if (Session::has('message'))
-            <div class="alert alert-info alert-hide">
+            <div class="alert alert-info alert-hide" style="z-index:9999">
               {{ Session::get('message') }}
             </div>
           @elseif (Session::has('news_feed_message'))

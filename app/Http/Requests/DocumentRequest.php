@@ -15,7 +15,7 @@ class DocumentRequest extends EntityRequest
         if($contact && $contact->account->hasFeature(FEATURE_DOCUMENTS))
             return true;
         else
-            parent::authorize();
+            return $this->user()->can('view', ENTITY_DOCUMENT);
     }
 
 }

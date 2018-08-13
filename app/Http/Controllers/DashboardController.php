@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Currency;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
 use Auth;
@@ -34,13 +35,62 @@ class DashboardController extends BaseController
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
         $paidToDate = $dashboardRepo->paidToDate($account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($account, $userId, $viewAll);
-        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);
+        $balances = $dashboardRepo->balances($account, $userId, $viewAll);
         $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
         $expenses = $dashboardRepo->expenses($account, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
+
+        // calculate paid to date totals
+        $paidToDateTotal = 0;
+        foreach($paidToDate as $item) {
+            $paidToDateTotal += ($item->value * $item->exchange_rate);
+        }
+
+        // calculate average invoice totals
+        $invoiceTotal = 0;
+        $invoiceTotalCount = 0;
+        foreach ($averageInvoice as $item) {
+            $invoiceTotalCount += $item->invoice_count;
+
+            if (! $item->exchange_rate) {
+                $invoiceTotal += $item->invoice_avg * $item->invoice_count;
+                continue;
+            }
+
+            $invoiceTotal += ($item->invoice_avg * $item->invoice_count / $item->exchange_rate);
+        }
+        $averageInvoiceTotal = $invoiceTotalCount ? ($invoiceTotal / $invoiceTotalCount) : 0;
+
+        // calculate balances totals
+        $balancesTotals = 0;
+        $currencies = [];
+        foreach ($balances as $item) {
+            if ($item->currency_id == $account->getCurrencyId()) {
+                $balancesTotals += $item->value;
+                continue;
+            }
+
+            if (! isset($currencies[$item->currency_id])) {
+                $currencies[$item->currency_id] = Currency::where('id', $item->currency_id)->firstOrFail();
+            }
+
+            $rate = $currencies[$item->currency_id]->exchange_rate;
+            $balancesTotals += $rate ? ($item->value / $rate) : 0;
+        }
+
+        // calculate expenses totals
+        $expensesTotals = 0;
+        foreach ($expenses as $item) {
+            if ($item->currency_id == $account->getCurrencyId()) {
+                $expensesTotals += $item->value;
+                continue;
+            }
+
+            $expensesTotals += ($item->value * $item->exchange_rate);
+        }
 
         $showBlueVinePromo = false;
         if ($user->is_admin && env('BLUEVINE_PARTNER_UNIQUE_ID')) {
@@ -67,8 +117,11 @@ class DashboardController extends BaseController
             'account' => $user->account,
             'user' => $user,
             'paidToDate' => $paidToDate,
+            'paidToDateTotal' => $paidToDateTotal,
             'balances' => $balances,
+            'balancesTotals' => $balancesTotals,
             'averageInvoice' => $averageInvoice,
+            'averageInvoiceTotal' => $averageInvoiceTotal,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
             'activities' => $activities,
@@ -80,6 +133,7 @@ class DashboardController extends BaseController
             'showBreadcrumbs' => false,
             'currencies' => $this->getCurrencyCodes(),
             'expenses' => $expenses,
+            'expensesTotals' => $expensesTotals,
             'tasks' => $tasks,
             'showBlueVinePromo' => $showBlueVinePromo,
             'showWhiteLabelExpired' => $showWhiteLabelExpired,

@@ -12,7 +12,6 @@ Route::get('/log_error', 'HomeController@logError');
 Route::get('/invoice_now', 'HomeController@invoiceNow');
 Route::get('/keep_alive', 'HomeController@keepAlive');
 Route::post('/get_started', 'AccountController@getStarted');
-Route::post('tickets/inbound', 'TicketController@inbound');
 
 // Client auth
 Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
@@ -96,6 +95,10 @@ Route::group(['middleware' => 'lookup:license'], function () {
         Route::post('/signup/register', 'AccountController@doRegister');
         Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     }
+});
+
+Route::group(['middleware' => 'ticket'], function () {
+    Route::post('/tickets/inbound', 'TicketController@inbound');
 });
 
 Route::group(['middleware' => 'lookup:postmark'], function () {
@@ -285,6 +288,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('/update_setup', 'AppController@updateSetup');
 
     Route::resource('tickets', 'TicketController');
+    Route::get('/tickets/create/{parent_ticket_id?}', 'TicketController@create');
     Route::get('api/tickets', 'TicketController@getDatatable');
     Route::get('api/ticket_templates', 'TicketTemplateController@getDatatable');
     Route::get('ticket_template/create', 'TicketTemplateController@create');
@@ -292,7 +296,10 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::put('ticket_templates/{public_id}', 'TicketTemplateController@update');
     Route::post('ticket_template/create', 'TicketTemplateController@store');
     Route::post('ticket_templates/bulk', 'TicketTemplateController@bulk');
-
+    Route::post('tickets/bulk', 'TicketController@bulk');
+    Route::post('api/tickets/checkSupportLocalPart', 'AccountController@checkUniqueLocalPart');
+    Route::get('tickets/merge/{public_id}', 'TicketController@merge');
+    Route::post('tickets/merge/', 'TicketController@actionMerge');
 
     // vendor
     Route::resource('vendors', 'VendorController');

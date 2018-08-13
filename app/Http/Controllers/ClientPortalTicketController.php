@@ -107,9 +107,8 @@ class ClientPortalTicketController extends ClientPortalController
 
         $account = $contact->account;
 
-        $ticket = Ticket::scope(Ticket::getPortalPrivateId($ticketId, $account->id), $account->id)
-                        ->where('is_internal', '=', false)
-                        ->with('status', 'comments', 'documents', 'account')
+        $ticket = Ticket::scope($ticketId, $account->id)
+                        //->with('status', 'comments', 'documents', 'account')
                         ->first();
 
         $data['method'] = 'PUT';
@@ -194,6 +193,7 @@ class ClientPortalTicketController extends ClientPortalController
             'url' => $ticket ? 'client/tickets/' . $ticket->public_id : 'client/tickets/create',
             //'timezone' => $ticket ? $ticket->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => $contact->account->getMomentDateTimeFormat(),
+            'account_ticket_settings' => $contact->account->account_ticket_settings
         ];
     }
 

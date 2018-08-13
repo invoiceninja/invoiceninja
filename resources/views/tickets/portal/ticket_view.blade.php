@@ -52,10 +52,10 @@
                 <td width="50%">
                     <table class="table table-striped dataTable" >
                         <tbody>
-                        <tr><td class="td-left">{!! trans('texts.ticket_number')!!}</td><td>{!! $ticket->id !!}</td></tr>
+                        <tr><td class="td-left">{!! trans('texts.ticket_number')!!}</td><td>{!! $ticket->ticket_number !!}</td></tr>
                         <tr><td class="td-left">{!! trans('texts.category') !!}:</td><td>{!! $ticket->category->name !!}</td></tr>
                         <tr><td class="td-left">{!! trans('texts.subject')!!}:</td><td>{!! substr($ticket->subject, 0, 30) !!}</td></tr>
-                        <tr><td class="td-left">{!! trans('texts.assigned_to') !!}:</td><td>{!! $ticket->agent() !!}</td></tr>
+                        <tr><td class="td-left">{!! trans('texts.assigned_to') !!}:</td><td>{!! $ticket->agentName() !!}</td></tr>
                         </tbody>
                     </table>
                 </td>
@@ -223,7 +223,7 @@
 
             ko.applyBindings(model);
 
-            @include('partials.client_dropzone', ['documentSource' => 'model.documents()'])
+            @include('partials.client_dropzone', ['documentSource' => 'model.documents()', 'account_ticket_settings' => $account_ticket_settings])
 
 
             $('#description').text('');
