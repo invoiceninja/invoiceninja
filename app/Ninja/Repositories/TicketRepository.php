@@ -39,6 +39,7 @@ class TicketRepository extends BaseRepository
             ->leftjoin('clients', 'clients.id', '=', 'tickets.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('ticket_statuses', 'ticket_statuses.id', '=', 'tickets.status_id')
+            ->leftJoin('users', 'users.id', '=', 'tickets.agent_id')
             //->where('tickets.is_deleted', '=', false)
             ->where('clients.deleted_at', '=', null)
             ->where('contacts.deleted_at', '=', null)
@@ -46,10 +47,12 @@ class TicketRepository extends BaseRepository
             ->select(
                 'tickets.ticket_number',
                 'tickets.public_id',
+                'tickets.agent_id',
                 'tickets.user_id',
                 'tickets.deleted_at',
                 'tickets.created_at',
                 'tickets.is_deleted',
+                'tickets.is_internal',
                 'tickets.private_notes',
                 'tickets.subject',
                 'ticket_statuses.name as status',
@@ -57,7 +60,9 @@ class TicketRepository extends BaseRepository
                 'tickets.merged_parent_ticket_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'clients.user_id as client_user_id',
-                'clients.public_id as client_public_id'
+                'clients.public_id as client_public_id',
+                DB::raw("NULLIF(CONCAT(users.first_name, ' ', users.last_name),'') agent_name")
+
             );
 
         $this->applyFilters($query, ENTITY_TICKET);
@@ -86,6 +91,7 @@ class TicketRepository extends BaseRepository
     {
         $contact = false;
         $oldTicket = $ticket;
+
         if(Auth::user())
             $user = Auth::user();
         elseif($contact = Contact::getContactIfLoggedIn())
@@ -101,8 +107,11 @@ class TicketRepository extends BaseRepository
                 $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
                 $ticket->priority_id = TICKET_PRIORITY_LOW;
             }
-            else
+            else {
                 $ticket = Ticket::createNew();
+                $ticket->ticket_number = Ticket::getNextTicketNumber($user->account->id);
+                $ticket->client_id = $input['client_id'];
+            }
         }
 
         $ticket->fill($input);
@@ -149,7 +158,7 @@ class TicketRepository extends BaseRepository
 
         }
 
-        if (! $found)
+        if (!$found && $input['contact_key'])
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
 
 

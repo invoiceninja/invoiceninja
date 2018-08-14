@@ -221,6 +221,9 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 
     public static function getContactByContactKey($contact_key)
     {
+        if(strlen($contact_key) == 0)
+            return false;
+
         if($contact = Contact::where('contact_key', '=', $contact_key)->first())
             return $contact;
         else

@@ -167,6 +167,8 @@
         @endforeach
     </div>
 
+    @if(!$ticket->merged_parent_ticket_id)
+
     <div class="panel panel-default" style="margin-top:30px; padding-bottom: 0px !important">
         <div class="panel-heading">
             <h3 class="panel-title">
@@ -203,7 +205,7 @@
 
     <div class="row">
         <center class="buttons">
-            @if(!$ticket->merged_parent_ticket_id)
+
             {!! DropdownButton::normal(trans('texts.more_actions'))
             ->withContents([
                 ['label'=>trans('texts.ticket_merge'),'url'=>'/tickets/merge/'. $ticket->public_id ],
@@ -222,9 +224,9 @@
                     {!! Button::primary(trans('texts.ticket_update'))->large()->withAttributes(['onclick' => 'submitAction()']) !!}
                 @endif
 
-            @endif
         </center>
     </div>
+    @endif
 
     <div role="tabpanel" class="panel-default" style="margin-top:30px;">
 

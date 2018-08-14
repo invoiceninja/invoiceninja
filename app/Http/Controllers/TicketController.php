@@ -162,7 +162,7 @@ class TicketController extends BaseController
             'is_internal' => $request->parent_ticket_id ? true : false,
             'parent_ticket' => $parentTicket ?: false,
             'url' => 'tickets/',
-            'parent_tickets' => Ticket::scope()->where('status_id', '!=', 3)->whereNull('parent_ticket_id')->OrderBy('public_id', 'DESC')->get(),
+            'parent_tickets' => Ticket::scope()->where('status_id', '!=', 3)->whereNull('merged_parent_ticket_id')->OrderBy('public_id', 'DESC')->get(),
             'method' => 'POST',
             'title' => trans('texts.new_internal_ticket'),
             'account' => Auth::user()->account->load('clients.contacts', 'users'),
@@ -175,6 +175,17 @@ class TicketController extends BaseController
 
     public function store(CreateTicketRequest $request)
     {
+        $data = $request->input();
+
+        if(isset($data['client_id']))
+            $data['client_id'] = Client::getPrivateId($data['client_id']);
+
+        if(isset($data['parent_ticket_id']))
+            $data['parent_ticket_id'] = Ticket::getPrivateId($data['parent_ticket_id']);
+
+        $ticket = $this->ticketService->save($data);
+
+        return redirect("tickets/$ticket->public_id/edit");
 
     }
 

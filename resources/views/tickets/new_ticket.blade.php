@@ -218,9 +218,11 @@
     <script type="text/javascript">
 
         $( function() {
+            $("#subject").focus();
 
             window.model = new ViewModel('');
 
+            <!----- Client Selector ----->
             var clients = {!! $account->clients !!};
             var clientMap = {};
             var $clientSelect = $('select#client_id');
@@ -260,23 +262,21 @@
                     }
                 });
 
-
-
-            //create user dictionary
+            <!----- User Selector ----->
             var users = {!! $account->users !!};
             var userMap = {};
             var $userSelect = $('select#agent_id');
 
-                // create client dictionary
+                // create user dictionary
                 for (var i=0; i<users.length; i++) {
                     var user = users[i];
-                    userMap[user.public_id] = user;
+                    userMap[user.id] = user;
 
                     var userName = user.first_name + ' ' + user.last_name || '';
-                    $userSelect.append(new Option(userName, user.public_id));
+                    $userSelect.append(new Option(userName, user.id));
                 }
 
-                //harvest and set the client_id and contact_id here
+                //harvest and set the agent_id here
                 var $input = $('select#agent_id');
                 $input.combobox().on('change', function(e) {
                     var agentId = parseInt($('input[name=agent_id]').val(), 10) || 0;
@@ -288,10 +288,7 @@
                     }
                 });
 
-
-
-
-            //create user dictionary
+            <!----- Parent Ticket Selector ----->
             var parent_tickets = {!! $parent_tickets !!};
             var ticketMap = {};
             var $ticketSelect = $('select#parent_ticket_id');
@@ -305,7 +302,7 @@
                     $ticketSelect.append(new Option(ticketName, ticket.public_id));
                 }
 
-                //harvest and set the client_id and contact_id here
+                //harvest and set the parent_ticket_id here
                 var $input = $('select#parent_ticket_id');
                 $input.combobox().on('change', function(e) {
                     var parentTicketId = parseInt($('input[name=parent_ticket_id]').val(), 10) || 0;
@@ -379,8 +376,7 @@
                     return self.due_date() ? moment(self.due_date()).format(dateTimeFormat) : '';
                 },
                 write: function(data) {
-                    //self.due_date(moment($('#due_date').val(), dateTimeFormat, timezone).format("YYYY-MM-DD HH:mm:ss"));
-
+                    self.due_date(moment(data).format("YYYY-MM-DD HH:mm:ss"));
                 }
             });
 
@@ -457,6 +453,15 @@
 
         function focusEditor() {
             editor.focus();
+        }
+
+
+
+        function saveAction() {
+
+            var dateTimeFormat = '{{ $datetimeFormat }}';
+            $('#due_date').val(moment($('#due_date').val(), dateTimeFormat).format("YYYY-MM-DD HH:mm:ss"));
+            $('.main-form').submit();
         }
     </script>
 
