@@ -74,6 +74,7 @@ class CountriesSeeder extends Seeder
             ],
             'EE' => [ // Estonia
                 'swap_currency_symbol' => true,
+                'thousand_separator' => ' ',
             ],
             'ES' => [ // Spain
                 'swap_postal_code' => true,
