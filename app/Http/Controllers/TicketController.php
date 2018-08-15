@@ -156,11 +156,25 @@ class TicketController extends BaseController
     {
 
         $parentTicket = Ticket::scope($parentTicketId)->first();
+        $parentTicketClientExists = false;
 
-        if ($parentTicket && method_exists($parentTicket, 'client'))
+        if ($parentTicket && method_exists($parentTicket, 'client')) {
             $parentTicket->load('client');
+            $parentTicketClientExists = true;
+        }
 
         //need to mock a ticket object or check if $request->old() exists and pass that in its place.
+            $mockTicket = [
+                'parent_ticket_id' => $parentTicketId ? $parentTicketId : null,
+                'subject' => '',
+                'description' => '',
+                'due_date' => '',
+                'client_id' => $parentTicketClientExists ? $parentTicket->client->public_id : null,
+                'agent_id' => null,
+                'is_internal' => $parentTicketClientExists ? true : false,
+                'private_notes' => '',
+                'priority_id' =>1,
+            ];
 
         $data = [
             'users' => User::whereAccountId(Auth::user()->account_id)->get(),
@@ -173,9 +187,9 @@ class TicketController extends BaseController
             'account' => Auth::user()->account->load('clients.contacts', 'users'),
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
-            'old' => $request->old() ?: '',
+            'old' => $request->old() ? $request->old() : $mockTicket,
         ];
-//dd($request->old());
+
         return View::make('tickets.new_ticket', $data);
     }
 

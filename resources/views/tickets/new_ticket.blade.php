@@ -138,7 +138,7 @@
                 <div class="col-md-9">
                     {!! Former::checkbox('is_internal')
                                 ->label('')
-                                ->data_bind("checked: is_internal") !!}
+                                ->data_bind("checked: is_internal.pretty") !!}
                 </div>
             </div>
 
@@ -220,7 +220,7 @@
         $( function() {
             $("#subject").focus();
 
-            window.model = new ViewModel({!! $old !!});
+            window.model = new ViewModel({!! json_encode($old) !!});
 
             <!----- Client Selector ----->
             var clients = {!! $account->clients !!};
@@ -339,14 +339,10 @@
         var ViewModel = function (data) {
             var self = this;
 
+            console.log(data);
+
             var dateTimeFormat = '{{ $datetimeFormat }}';
             var timezone = '{{ $timezone }}';
-
-            @if($parent_ticket)
-                parentTicketId = {{ $parent_ticket->public_id }};
-                data.is_internal = true;
-                parentClientId = {{ $parent_ticket->client->public_id }};
-            @endif
 
             self.documents = ko.observableArray();
             self.due_date = ko.observable(data.due_date);
@@ -368,8 +364,21 @@
             }
 
             self.isParentTicketVisible = function() {
-                return model.is_internal;
+                return self.is_internal.pretty;
             }
+
+            self.is_internal.pretty = ko.computed({
+                read: function() {
+                    if(self.is_internal() == 0)
+                        return false;
+                    else
+                        return true;
+                },
+                write: function(newValue) {
+                    model.is_internal(newValue ? true : false);
+                }
+
+            });
 
             self.due_date.pretty = ko.computed({
                 read: function() {
