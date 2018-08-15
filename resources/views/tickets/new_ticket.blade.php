@@ -220,7 +220,7 @@
         $( function() {
             $("#subject").focus();
 
-            window.model = new ViewModel('');
+            window.model = new ViewModel('{{ $parent_ticket }}');
 
             <!----- Client Selector ----->
             var clients = {!! $account->clients !!};
@@ -342,10 +342,12 @@
             var isInternal = false;
             var dateTimeFormat = '{{ $datetimeFormat }}';
             var timezone = '{{ $timezone }}';
+            var parentClientId = false;
 
             @if($parent_ticket)
                 parentTicketId = {{ $parent_ticket->public_id }};
                 isInternal = true;
+                parentClientId = {{ $parent_ticket->client->public_id }};
             @endif
 
             self.documents = ko.observableArray();
@@ -355,7 +357,7 @@
             self.is_internal = ko.observable(isInternal);
             self.subject = ko.observable();
             self.description = ko.observable();
-            self.client_id = ko.observable();
+            self.client_id = ko.observable(parentClientId);
             self.parent_ticket_id = ko.observable(parentTicketId);
             self.private_notes = ko.observable();
 
@@ -460,7 +462,10 @@
         function saveAction() {
 
             var dateTimeFormat = '{{ $datetimeFormat }}';
-            $('#due_date').val(moment($('#due_date').val(), dateTimeFormat).format("YYYY-MM-DD HH:mm:ss"));
+
+            if($('#due_date').val().length > 1)
+                $('#due_date').val(moment($('#due_date').val(), dateTimeFormat).format("YYYY-MM-DD HH:mm:ss"));
+
             $('.main-form').submit();
         }
     </script>

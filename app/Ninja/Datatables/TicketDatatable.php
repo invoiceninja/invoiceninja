@@ -46,7 +46,7 @@ class TicketDatatable extends EntityDatatable
                     if($model->contact_key)
                         return link_to("clients/{$model->client_public_id}", Contact::getContactByContactKey($model->contact_key)->getName() ?: '')->toHtml();
                     elseif($model->is_internal && $model->agent_id)
-                        return $model->agent_name;
+                        return $model->agent_name. ' (' . trans('texts.internal_ticket') . ')';
                 },
             ],
             [
@@ -62,9 +62,9 @@ class TicketDatatable extends EntityDatatable
                 }
             ],
             [
-                'date_created',
+                'due_date',
                 function ($model) {
-                    return Utils::fromSqlDateTime($model->created_at);
+                    return Utils::fromSqlDateTime($model->due_date) ?: trans('texts.no_due_date');
                 }
             ],
         ];

@@ -46,6 +46,7 @@ class TicketRepository extends BaseRepository
             ->where('contacts.is_primary', '=', true)
             ->select(
                 'tickets.ticket_number',
+                'tickets.due_date',
                 'tickets.public_id',
                 'tickets.agent_id',
                 'tickets.user_id',
@@ -158,7 +159,7 @@ class TicketRepository extends BaseRepository
 
         }
 
-        if (!$found && $input['contact_key'])
+        if (!$found && !$input['is_internal'])
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
 
 

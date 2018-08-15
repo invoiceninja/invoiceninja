@@ -44,6 +44,7 @@
             {!! Former::hidden('subject')->value($ticket->subject)->id('subject') !!}
             {!! Former::hidden('contact_key')->value($ticket->contact_key)->id('contact_key') !!}
             {!! Former::hidden('client_id')->value($ticket->client_id)->id('client_id') !!}
+            {!! Former::hidden('is_internal')->value($ticket->is_internal) !!}
         @else
             {!! Former::hidden('status_id')->value(1) !!}
         @endif
@@ -76,7 +77,19 @@
                                 </td></tr>
                         @endif
 
+                        @if(count($ticket->child_tickets) > 0)
+                            <tr><td class="td-left">{!! trans('texts.linked_tickets')!!}</td><td class="td-right">
+                                    @foreach($ticket->child_tickets as $child)
+                                    {!!  link_to("tickets/{$child->public_id}", $child->public_id ?: '')->toHtml() !!}
+                                    @endforeach
+                                </td></tr>
+                        @elseif($ticket->getContactName())
                         <tr><td class="td-left" style="height:77px">{!! trans('texts.contact') !!}:</td><td class="td-right">{!! $ticket->getContactName() !!}</td></tr>
+                        @elseif($ticket->parent_ticket_id)
+                            <tr><td class="td-left">{!! trans('texts.parent_ticket')!!}</td><td class="td-right">
+                            {!!  link_to("tickets/{$ticket->parent_ticket->public_id}", $ticket->parent_ticket->public_id ?: '')->toHtml() !!}
+                            </td></tr>
+                        @endif
                         <tr><td class="td-left">{!! trans('texts.assigned_to') !!}:</td><td class="td-right">
                                 @if(Auth::user()->id == Auth::user()->account->account_ticket_settings->ticket_master->id)
                                     <div id="">
@@ -489,7 +502,10 @@
         function saveAction() {
 
             var dateTimeFormat = '{{ $datetimeFormat }}';
-            $('#due_date').val(moment($('#due_date').val(), dateTimeFormat).format("YYYY-MM-DD HH:mm:ss"));
+
+            if($('#due_date').val().length > 1)
+                $('#due_date').val(moment($('#due_date').val(), dateTimeFormat).format("YYYY-MM-DD HH:mm:ss"));
+
             $('.main-form').submit();
         }
 

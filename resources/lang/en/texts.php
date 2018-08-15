@@ -2990,6 +2990,7 @@ $LANG = array(
     'create_ticket' => 'Create ticket',
 
 
+
 );
 
 return $LANG;
