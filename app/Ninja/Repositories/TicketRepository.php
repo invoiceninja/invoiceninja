@@ -115,6 +115,9 @@ class TicketRepository extends BaseRepository
             }
         }
 
+        if($input['client_id'] < 1)
+            $input = array_except($input, array('client_id'));
+
         $ticket->fill($input);
         $changedAttributes = $ticket->getDirty();
         $ticket->save();

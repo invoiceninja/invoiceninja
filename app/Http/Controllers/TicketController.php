@@ -160,6 +160,8 @@ class TicketController extends BaseController
         if ($parentTicket && method_exists($parentTicket, 'client'))
             $parentTicket->load('client');
 
+        //need to mock a ticket object or check if $request->old() exists and pass that in its place.
+
         $data = [
             'users' => User::whereAccountId(Auth::user()->account_id)->get(),
             'is_internal' => $request->parent_ticket_id ? true : false,
@@ -167,12 +169,13 @@ class TicketController extends BaseController
             'url' => 'tickets/',
             'parent_tickets' => Ticket::scope()->where('status_id', '!=', 3)->whereNull('merged_parent_ticket_id')->OrderBy('public_id', 'DESC')->get(),
             'method' => 'POST',
-            'title' => trans('texts.new_internal_ticket'),
+            'title' => trans('texts.new_ticket'),
             'account' => Auth::user()->account->load('clients.contacts', 'users'),
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
+            'old' => $request->old() ?: '',
         ];
-
+//dd($request->old());
         return View::make('tickets.new_ticket', $data);
     }
 

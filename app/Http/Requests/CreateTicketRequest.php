@@ -30,9 +30,10 @@ class CreateTicketRequest extends Request
 
         if(request()->input('is_internal'))
             $rules['agent_id'] = 'required';
+        else
+            $rules['client_id']= 'required';
 
-        //if($this->attributes->get('is_internal') == true)
-
+        
         return $rules;
     }
 }

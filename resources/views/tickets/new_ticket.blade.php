@@ -220,7 +220,7 @@
         $( function() {
             $("#subject").focus();
 
-            window.model = new ViewModel('{{ $parent_ticket }}');
+            window.model = new ViewModel({!! $old !!});
 
             <!----- Client Selector ----->
             var clients = {!! $account->clients !!};
@@ -338,28 +338,26 @@
 
         var ViewModel = function (data) {
             var self = this;
-            var parentTicketId = false;
-            var isInternal = false;
+
             var dateTimeFormat = '{{ $datetimeFormat }}';
             var timezone = '{{ $timezone }}';
-            var parentClientId = false;
 
             @if($parent_ticket)
                 parentTicketId = {{ $parent_ticket->public_id }};
-                isInternal = true;
+                data.is_internal = true;
                 parentClientId = {{ $parent_ticket->client->public_id }};
             @endif
 
             self.documents = ko.observableArray();
-            self.due_date = ko.observable();
-            self.priority_id = ko.observable();
-            self.agent_id = ko.observable();
-            self.is_internal = ko.observable(isInternal);
-            self.subject = ko.observable();
-            self.description = ko.observable();
-            self.client_id = ko.observable(parentClientId);
-            self.parent_ticket_id = ko.observable(parentTicketId);
-            self.private_notes = ko.observable();
+            self.due_date = ko.observable(data.due_date);
+            self.priority_id = ko.observable(data.priority_id);
+            self.agent_id = ko.observable(data.agent_id);
+            self.is_internal = ko.observable(data.is_internal);
+            self.subject = ko.observable(data.subject);
+            self.description = ko.observable(data.description);
+            self.client_id = ko.observable(data.client_id);
+            self.parent_ticket_id = ko.observable(data.parent_ticket_id);
+            self.private_notes = ko.observable(data.private_notes);
 
             self.mapping = {
                 'documents': {
