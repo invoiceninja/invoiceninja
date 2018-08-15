@@ -63,7 +63,7 @@
                         <tr><td class="td-left">{!! trans('texts.ticket_number')!!}</td><td class="td-right">{!! $ticket->ticket_number !!}</td></tr>
                         <tr><td class="td-left">{!! trans('texts.category') !!}:</td><td class="td-right">{!! $ticket->category->name !!}</td></tr>
                         <tr><td class="td-left">{!! trans('texts.subject')!!}:</td><td class="td-right">{!! substr($ticket->subject, 0, 30) !!}</td></tr>
-                        @if($ticket->client_id)
+                        @if($ticket->client)
                             <tr><td class="td-left" style="height:60px">{!! trans('texts.client') !!}:</td><td class="td-right">{!! $ticket->client->name !!}</td></tr>
                         @else
                             <tr><td class="td-left" style="height:60px">{!! trans('texts.client') !!}:</td>
@@ -99,8 +99,8 @@
                                             ->fromQuery($account->users, 'displayName', 'id')
                                          !!}
                                     </div>
-                                @else
-                                    {!! $ticket->agent() !!} {!! Icon::create('random') !!}
+                                @elseif($ticket->agent)
+                                    {!! $ticket->agent->getName() !!} {!! Icon::create('random') !!}
                                 @endif
                             </td></tr>
                         </tbody>

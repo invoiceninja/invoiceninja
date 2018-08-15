@@ -24,12 +24,14 @@ class CreateTicketRequest extends Request
 
     public function rules()
     {
+        $rules = [];
+        $rules['subject'] = 'required';
+        $rules['description'] = 'required';
 
-        $rules = [
-            'subject' => 'required',
-            'description' => 'required',
-        ];
+        if(request()->input('is_internal'))
+            $rules['agent_id'] = 'required';
 
+        //if($this->attributes->get('is_internal') == true)
 
         return $rules;
     }

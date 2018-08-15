@@ -156,7 +156,9 @@ class TicketController extends BaseController
     {
 
         $parentTicket = Ticket::scope($parentTicketId)->first();
-        $parentTicket->load('client');
+
+        if ($parentTicket && method_exists($parentTicket, 'client'))
+            $parentTicket->load('client');
 
         $data = [
             'users' => User::whereAccountId(Auth::user()->account_id)->get(),
