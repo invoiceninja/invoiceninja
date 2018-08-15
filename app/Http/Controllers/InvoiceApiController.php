@@ -365,10 +365,13 @@ class InvoiceApiController extends BaseAPIController
             $invoice = $recurringInvoice;
         }
 
+        $reminder = request()->reminder;
+        $template = request()->template;
+
         if (config('queue.default') !== 'sync') {
-            $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id));
+            $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder, $template));
         } else {
-            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder, $template);
             if ($result !== true) {
                 return $this->errorResponse($result, 500);
             }
