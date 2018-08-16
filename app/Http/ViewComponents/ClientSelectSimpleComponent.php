@@ -9,12 +9,14 @@ use App\Ninja\Repositories\ClientRepository;
 class ClientSelectSimpleComponent implements Htmlable
 {
     protected $clients;
+    protected $displayContact;
     protected $label;
     protected $module;
     protected $selectId;
 
-    public function __construct($clients, $label = ENTITY_CLIENT, $module = null, $selectId = null) {
+    public function __construct($clients, $displayContact = true, $label = ENTITY_CLIENT, $module = null, $selectId = null) {
         $this->clients = $clients;
+        $this->displayContact = $displayContact;
         $this->label = $label;
         $this->module = $module;
 
@@ -27,6 +29,6 @@ class ClientSelectSimpleComponent implements Htmlable
 
     public function toHtml()
     {
-        return View::make('components.client_select_simple')->with(['clients' => $this->clients,  'label' => mtrans($this->module, $this->label), 'selectId' => $this->selectId])->render();
+        return View::make('components.client_select_simple')->with(['clients' => $this->clients, 'displayContact' => $this->displayContact, 'label' => mtrans($this->module, $this->label), 'selectId' => $this->selectId])->render();
     }
 }

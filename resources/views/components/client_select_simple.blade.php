@@ -5,26 +5,34 @@
 
 @push('component_scripts')
     <script type="text/javascript">
-        var clients = {!! $clients !!};
-        var clientMap = {};
+        $(function() {
+            var clients = {!! $clients !!};
+            var displayContact = {!! $displayContact == true ? 1 : 0 !!};
 
-         $(function() {
+            var clientMap = {};
             var $clientSelect = $('select#{!! $selectId !!}');
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
-                                clientMap[client.public_id] = client;
+
+                clientMap[client.public_id] = client;
+
                 var clientName = getClientDisplayName(client);
                 if (!clientName) {
                     continue;
                 }
-                $clientSelect.append(new Option(clientName, client.public_id));
+
+                if(displayContact) {
+                    var contactName = getContactDisplayName(client.contacts[0]);
+                }
+
+                $clientSelect.append(new Option(clientName + ((displayContact && contactName) ? ' - ' + contactName : ''), client.public_id));
             }
             @if (! empty($clientPublicId))
                 $clientSelect.val({{ $clientPublicId }});
             @endif
 
             $clientSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
-                var client = clientMap[$('#client_id').val()];
+                var client = clientMap[$('#{!! $selectId !!}').val()];
             });
 
             @if (! empty($clientPublicId) && $clientPublicId)
