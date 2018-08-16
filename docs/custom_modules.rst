@@ -47,7 +47,7 @@ To run the database migration use:
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in module.json.
 
-There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json. 
+There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json.
 
 If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
 
@@ -66,11 +66,17 @@ To use a widget, you must:
 
     @stack('component_scripts')
 
-To render the widget, use anywhere above the @stack declaration:
+To render the widget, use either the fully-qualified class name or the camel case class name anywhere above the @stack declaration:
 
 .. code-block:: php
 
     @render('App\Http\ViewComponents\ComponentName', [$variables])
+
+or
+
+.. code-block:: php
+
+    @render('componentName', [$variables])
 
 Depending on the widget, certain variables will need to be passed via the second parameter of the @render statement.
 
