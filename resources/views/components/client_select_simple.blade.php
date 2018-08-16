@@ -1,4 +1,4 @@
-{!! Former::select('client_id')
+{!! Former::select($selectId)
     ->addOption('', '')
     ->label(trans('texts.client'))
     ->addGroupClass('client-select required') !!}
@@ -9,7 +9,7 @@
         var clientMap = {};
 
          $(function() {
-            var $clientSelect = $('select#client_id');
+            var $clientSelect = $('select#{!! $selectId !!}');
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
                                 clientMap[client.public_id] = client;
