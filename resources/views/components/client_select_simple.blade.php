@@ -5,8 +5,9 @@
 
 @push('component_scripts')
     <script type="text/javascript">
+        var clients = {!! $clients !!};
+
         $(function() {
-            var clients = {!! $clients !!};
             var displayContact = {!! $displayContact == true ? 1 : 0 !!};
 
             var clientMap = {};
