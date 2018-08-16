@@ -20,7 +20,7 @@ For example:
 
     php artisan module:install invoiceninja/sprockets --type=github
 
-.. TIP:: One a module is installed it can enabled/disabled on Settings > Account Management
+.. TIP:: Once a module is installed it can enabled/disabled on Settings > Account Management
 
 
 Create Module
