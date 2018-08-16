@@ -53,6 +53,35 @@ If you're looking for a module to work on you can see suggested issues `listed h
 
 .. NOTE:: Our module implemention is currenty being actively worked on, you can join the discussion on our Slack group: http://slack.invoiceninja.com/
 
+Components
+==========
+
+There are UI widgets that can be re-used as part of a custom module implementation.
+
+To use a widget, you must:
+
+- Add to the bottom of the content section:
+
+.. code-block:: php
+
+    @stack('component_scripts')
+
+To render the widget, use anywhere above the @stack declaration:
+
+.. code-block:: php
+
+    @render('App\Http\ViewComponents\ComponentName', [$variables])
+
+Depending on the widget, certain variables will need to be passed via the second parameter of the @render statement.
+
+.. NOTE::  Any data required by the widget must be passed in @render statement.  This means the module developer must ensure to perform any data access in the controller and pass it into the enclosing view.
+
+Currently, the following widgets exist:
+
+|Name|Description|Parameters|
+|--|--|--|
+|ClientSimpleSelectComponent|Displays a Client select box|clients: list of clients<br/>selectId: ID of the input|
+
 Share Module
 """"""""""""
 
