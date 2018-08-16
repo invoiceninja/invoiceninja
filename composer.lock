@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2172e546d6290b209356879fcd4b0ecf",
+    "content-hash": "2520878f59adda084f091270506adc3e",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -2639,7 +2639,8 @@
                 "reference": "origin/master",
                 "shasum": null
             },
-            "type": "library"
+            "type": "library",
+            "time": "2017-12-08T12:01:09+00:00"
         },
         {
             "name": "gocardless/gocardless-pro",
@@ -6908,6 +6909,7 @@
                 "twocheckout",
                 "worldpay"
             ],
+            "abandoned": "league/omnipay",
             "time": "2017-03-21T09:24:49+00:00"
         },
         {
@@ -8930,6 +8932,60 @@
                 "paytrace"
             ],
             "time": "2017-08-24T17:02:28+00:00"
+        },
+        {
+            "name": "spatie/laravel-view-components",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-view-components.git",
+                "reference": "261db0075aea86fa53f1d8b8153410f909587ed4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-view-components/zipball/261db0075aea86fa53f1d8b8153410f909587ed4",
+                "reference": "261db0075aea86fa53f1d8b8153410f909587ed4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "3.6.*",
+                "phpunit/phpunit": "^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\ViewComponents\\ViewComponentsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\ViewComponents\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian De Deyne",
+                    "email": "sebastian@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A better way to connect data with view rendering in Laravel",
+            "homepage": "https://github.com/spatie/laravel-view-components",
+            "keywords": [
+                "laravel-view-components",
+                "spatie"
+            ],
+            "time": "2018-06-04T15:36:47+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
