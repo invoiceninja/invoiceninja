@@ -1,6 +1,6 @@
 {!! Former::select($selectId)
     ->addOption('', '')
-    ->label(trans('texts.client'))
+    ->label($label)
     ->addGroupClass('client-select required') !!}
 
 @push('component_scripts')
