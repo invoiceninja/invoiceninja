@@ -43,10 +43,12 @@ class TicketDatatable extends EntityDatatable
             [
                 'contact',
                 function ($model) {
-                    if($model->contact_key)
+                    if($model->is_internal === false)
                         return link_to("clients/{$model->client_public_id}", Contact::getContactByContactKey($model->contact_key)->getName() ?: '')->toHtml();
-                    elseif($model->is_internal && $model->agent_id)
+                    elseif($model->is_internal && ($model->agent_id > 0))
                         return $model->agent_name. ' (' . trans('texts.internal_ticket') . ')';
+                    else
+                        return '';
                 },
             ],
             [

@@ -111,12 +111,12 @@ class TicketRepository extends BaseRepository
             else {
                 $ticket = Ticket::createNew();
                 $ticket->ticket_number = Ticket::getNextTicketNumber($user->account->id);
-                $ticket->client_id = $input['client_id'];
             }
         }
 
         if($input['client_id'] < 1)
             $input = array_except($input, array('client_id'));
+
 
         $ticket->fill($input);
         $changedAttributes = $ticket->getDirty();

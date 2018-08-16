@@ -79,10 +79,10 @@
 
                 <div class="col-md-9">
 
-                    {!! Former::select('client_id')
+                    {!! Former::select('client_public_id')
                             ->label('')
                             ->addOption('', '')
-                            ->data_bind("dropdown: client_id, dropdownOptions: {highlighter: comboboxHighlighter}")
+                            ->data_bind("dropdown: client_public_id, dropdownOptions: {highlighter: comboboxHighlighter}")
                             ->addClass('pull-right')
                             ->addGroupClass('') !!}
 
@@ -225,7 +225,7 @@
             <!----- Client Selector ----->
             var clients = {!! $account->clients !!};
             var clientMap = {};
-            var $clientSelect = $('select#client_id');
+            var $clientSelect = $('select#client_public_id');
 
                 // create client dictionary
                 for (var i=0; i<clients.length; i++) {
@@ -251,13 +251,13 @@
                 }
 
                 //harvest and set the client_id and contact_id here
-                var $input = $('select#client_id');
+                var $input = $('select#client_public_id');
                 $input.combobox().on('change', function(e) {
-                    var clientId = parseInt($('input[name=client_id]').val(), 10) || 0;
+                    var clientId = parseInt($('input[name=client_public_id]').val(), 10) || 0;
 
                     if (clientId > 0) {
 
-                        model.client_id(clientId);
+                        model.client_public_id(clientId);
 
                     }
                 });
@@ -351,7 +351,7 @@
             self.is_internal = ko.observable(data.is_internal);
             self.subject = ko.observable(data.subject);
             self.description = ko.observable(data.description);
-            self.client_id = ko.observable(data.client_id);
+            self.client_public_id = ko.observable(data.client_public_id);
             self.parent_ticket_id = ko.observable(data.parent_ticket_id);
             self.private_notes = ko.observable(data.private_notes);
 

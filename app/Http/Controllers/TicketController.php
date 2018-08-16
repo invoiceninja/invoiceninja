@@ -169,7 +169,7 @@ class TicketController extends BaseController
                 'subject' => '',
                 'description' => '',
                 'due_date' => '',
-                'client_id' => $parentTicketClientExists ? $parentTicket->client->public_id : null,
+                'client_public_id' => $parentTicketClientExists ? $parentTicket->client->public_id : null,
                 'agent_id' => null,
                 'is_internal' => $parentTicketClientExists ? true : false,
                 'private_notes' => '',
@@ -195,15 +195,8 @@ class TicketController extends BaseController
 
     public function store(CreateTicketRequest $request)
     {
-        $data = $request->input();
 
-        if(isset($data['client_id']))
-            $data['client_id'] = Client::getPrivateId($data['client_id']);
-
-        if(isset($data['parent_ticket_id']))
-            $data['parent_ticket_id'] = Ticket::getPrivateId($data['parent_ticket_id']);
-
-        $ticket = $this->ticketService->save($data);
+        $ticket = $this->ticketService->save($request->input());
 
         return redirect("tickets/$ticket->public_id/edit");
 

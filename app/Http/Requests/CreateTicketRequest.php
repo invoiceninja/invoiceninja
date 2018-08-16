@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Client;
+use App\Models\Ticket;
 
 class CreateTicketRequest extends Request
 {
@@ -10,6 +12,9 @@ class CreateTicketRequest extends Request
      *
      * @return bool
      */
+    protected $autoload = [
+        ENTITY_CLIENT
+    ];
 
     public function authorize()
     {
@@ -31,9 +36,29 @@ class CreateTicketRequest extends Request
         if(request()->input('is_internal'))
             $rules['agent_id'] = 'required';
         else
-            $rules['client_id']= 'required';
+            $rules['client_public_id']= 'required';
 
         
         return $rules;
+    }
+
+    public function sanitize()
+    {
+
+        $data = $this->all();
+
+        if($data['client_public_id'] > 0 && !isset($data['contact_key'])){
+            $client = Client::scope($data['client_public_id'])->first();
+            $contact = $client->getPrimaryContact();
+            $data['contact_key'] = $contact->contact_key;
+        }
+
+        if($data['parent_ticket_id'] > 0)
+            $data['parent_ticket_id'] = Ticket::getPrivateId($data['parent_ticket_id']);
+
+
+        $this->replace($data);
+
+        return $this->all();
     }
 }
