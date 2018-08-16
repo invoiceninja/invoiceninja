@@ -73,25 +73,7 @@ class TicketController extends BaseController
 
     /**
      * @param TicketRequest $request
-     * @return mixed
-     */
-    public function edit(TicketRequest $request)
-    {
-        $ticket = $request->entity();
-        $clients = false;
-
-        //If we are missing a client from the ticket, load clients for assignment
-        if(!$ticket->client_id)
-            $clients = $this->ticketService->findClientsByContactEmail($ticket->contact_key);
-
-        $data = array_merge(self::getViewModel($ticket, $clients));
-
-        event(new TicketUserViewed($ticket));
-
-        return View::make('tickets.edit', $data);
-    }
-
-    /**
+     * @return mixedjbjluw5ttfghhhhnhn
      * @param UpdateTicketRequest $request
      *
      * Updating a ticket can change the following:

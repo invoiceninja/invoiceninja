@@ -25,7 +25,6 @@
             ->method($method)
             ->rules([
                 'name' => 'required',
-                'client_id' => 'required',
             ]) !!}
 
     @if ($ticket)
@@ -34,7 +33,6 @@
 
     <div style="display:none">
         {!! Former::text('data')->data_bind('value: ko.mapping.toJSON(model)') !!}
-        {!! Former::hidden('account_id')->value($account->id) !!}
         {!! Former::hidden('category_id')->value(1) !!}
         @if($ticket)
             {!! Former::hidden('public_id')->value($ticket->public_id) !!}
@@ -43,7 +41,6 @@
             {!! Former::hidden('reopened')->value($ticket->reopened)->id('reopened') !!}
             {!! Former::hidden('subject')->value($ticket->subject)->id('subject') !!}
             {!! Former::hidden('contact_key')->value($ticket->contact_key)->id('contact_key') !!}
-            {!! Former::hidden('client_id')->value($ticket->client_id)->id('client_id') !!}
             {!! Former::hidden('is_internal')->value($ticket->is_internal) !!}
         @else
             {!! Former::hidden('status_id')->value(1) !!}
@@ -68,7 +65,7 @@
                         @else
                             <tr><td class="td-left" style="height:60px">{!! trans('texts.client') !!}:</td>
                                 <td class="td-right">
-                                    {!! Former::select('client')
+                                    {!! Former::select('client_public_id')
                                     ->label('')
                                     ->addOption('', '')
                                     ->data_bind("dropdown: client, dropdownOptions: {highlighter: comboboxHighlighter}")
@@ -359,9 +356,9 @@
             }
 
             //harvest and set the client_id and contact_id here
-            var $input = $('select#client');
+            var $input = $('select#client_public_id');
             $input.combobox().on('change', function(e) {
-                var clientId = parseInt($('input[name=client]').val(), 10) || 0;
+                var clientId = parseInt($('input[name=client_public_id]').val(), 10) || 0;
 
                 if (clientId > 0) {
 
@@ -370,7 +367,7 @@
 
                         if(contact.email == $('#contact_key').val()) {
                             $('#contact_key').val(contact.contact_key);
-                            $('#client_id').val(clientId);
+                            $('#client_public_id').val(clientId);
                         }
                     }
                 }
