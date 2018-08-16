@@ -86,7 +86,7 @@ Currently, the following widgets exist:
 
 |Name|Description|Parameters|
 |--|--|--|
-|ClientSimpleSelectComponent|Displays a Client select box|clients: list of clients<br/>selectId: ID of the input|
+|ClientSimpleSelectComponent|Displays a Client select box|clients: list of clients<br/>module: name of module; defaults to null<br/>label: label for field; defaults to 'Client'<br/>selectId: ID of the input; defaults to the label appended with '_id'|
 
 Share Module
 """"""""""""

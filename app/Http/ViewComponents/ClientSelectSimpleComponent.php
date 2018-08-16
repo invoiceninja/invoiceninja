@@ -17,7 +17,12 @@ class ClientSelectSimpleComponent implements Htmlable
         $this->clients = $clients;
         $this->label = $label;
         $this->module = $module;
-        $this->selectId = $selectId;
+
+        if ($selectId) {
+            $this->selectId = $selectId;
+        } else {
+            $this->selectId = $label . '_id';
+        }
     }
 
     public function toHtml()
