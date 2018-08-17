@@ -146,6 +146,7 @@ class UserAccountTransformer extends EntityTransformer
 
         return [
             'account_key' => $account->account_key,
+            'user_id' => (int) ($user->public_id + 1),
             'name' => $account->present()->name ?: '',
             'token' => $account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
