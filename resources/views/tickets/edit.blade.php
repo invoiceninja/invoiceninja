@@ -68,9 +68,9 @@
                                     {!! Former::select('client_public_id')
                                     ->label('')
                                     ->addOption('', '')
-                                    ->data_bind("dropdown: client, dropdownOptions: {highlighter: comboboxHighlighter}")
-                                    ->addClass('client-input')
-                                    ->addGroupClass('client_select closer-row') !!}
+                                    ->data_bind("dropdown: client_public_id, dropdownOptions: {highlighter: comboboxHighlighter}")
+                                    ->addClass('')
+                                    ->addGroupClass('') !!}
                                 </td></tr>
                         @endif
 
@@ -323,60 +323,6 @@
 
     <script type="text/javascript">
 
-        <!-- Initialize client selector -->
-        @if($clients)
-
-        var clients = {!! $clients !!};
-        var clientMap = {};
-        var $clientSelect = $('select#client');
-
-        $(function() {
-            // create client dictionary
-
-            for (var i=0; i<clients.length; i++) {
-                var client = clients[i];
-                clientMap[client.public_id] = client;
-                @if (! $ticket->id)
-                if (!getClientDisplayName(client)) {
-                    continue;
-                }
-                        @endif
-                var clientName = client.name || '';
-                for (var j=0; j<client.contacts.length; j++) {
-                    var contact = client.contacts[j];
-                    var contactName = getContactDisplayNameWithEmail(contact);
-                    if (clientName && contactName) {
-                        clientName += '<br/>  • ';
-                    }
-                    if (contactName) {
-                        clientName += contactName;
-                    }
-                }
-                $clientSelect.append(new Option(clientName, client.public_id));
-            }
-
-            //harvest and set the client_id and contact_id here
-            var $input = $('select#client_public_id');
-            $input.combobox().on('change', function(e) {
-                var clientId = parseInt($('input[name=client_public_id]').val(), 10) || 0;
-
-                if (clientId > 0) {
-
-                    for (var j=0; j<client.contacts.length; j++) {
-                        var contact = client.contacts[j];
-
-                        if(contact.email == $('#contact_key').val()) {
-                            $('#contact_key').val(contact.contact_key);
-                            $('#client_public_id').val(clientId);
-                        }
-                    }
-                }
-            });
-
-        });
-        @endif
-
-
         <!-- Initialize ticket_comment accordion -->
         $( function() {
             $( "#accordion" ).accordion();
@@ -421,6 +367,7 @@
             var dateTimeFormat = '{{ $datetimeFormat }}';
             var timezone = '{{ $timezone }}';
 
+            self.client_public_id = ko.observable();
             self.documents = ko.observableArray();
             self.due_date = ko.observable(data.due_date);
             self.mapping = {
@@ -576,6 +523,59 @@
         function focusEditor() {
             editor.focus();
         }
+
+
+        <!-- Initialize client selector -->
+        @if($clients)
+
+        var clients = {!! $clients !!};
+        var clientMap = {};
+        var $clientSelect = $('select#client_public_id');
+
+        // create client dictionary
+
+        for (var i=0; i<clients.length; i++) {
+            var client = clients[i];
+            clientMap[client.public_id] = client;
+            @if (! $ticket->id)
+            if (!getClientDisplayName(client)) {
+                continue;
+            }
+                    @endif
+            var clientName = client.name || '';
+            for (var j=0; j<client.contacts.length; j++) {
+                var contact = client.contacts[j];
+                var contactName = getContactDisplayNameWithEmail(contact);
+                if (clientName && contactName) {
+                    clientName += '<br/>  • ';
+                }
+                if (contactName) {
+                    clientName += contactName;
+                }
+            }
+            $clientSelect.append(new Option(clientName, client.public_id));
+        }
+
+        //harvest and set the client_id and contact_id here
+        var $input = $('select#client_public_id');
+        $input.combobox().on('change', function(e) {
+            var clientId = parseInt($('input[name=client_public_id]').val(), 10) || 0;
+
+            if (clientId > 0) {
+
+                for (var j=0; j<client.contacts.length; j++) {
+                    var contact = client.contacts[j];
+
+                    if(contact.email == $('#contact_key').val()) {
+                        $('#contact_key').val(contact.contact_key);
+                        $('#client_public_id').val(clientId);
+                    }
+                }
+            }
+        });
+
+
+        @endif
 
     </script>
 

@@ -15,6 +15,7 @@ use App\Models\TicketComment;
 use App\Models\TicketStatus;
 use App\Models\User;
 use App\Ninja\Datatables\TicketDatatable;
+use App\Ninja\Repositories\TicketRepository;
 use App\Services\TicketService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -28,13 +29,17 @@ use Illuminate\Support\Facades\Session;
 class TicketController extends BaseController
 {
 
+    protected $ticketService;
+
+    protected $ticketRepository;
     /**
      * TicketController constructor.
      * @param TicketService $ticketService
      */
-    public function __construct(TicketService $ticketService)
+    public function __construct(TicketService $ticketService, TicketRepository $ticketRepository)
     {
         $this->ticketService = $ticketService;
+        $this->ticketRepo = $ticketRepository;
     }
 
     /**
@@ -73,7 +78,28 @@ class TicketController extends BaseController
 
     /**
      * @param TicketRequest $request
-     * @return mixedjbjluw5ttfghhhhnhn
+     * @return mixed
+     */
+    public function edit(TicketRequest $request)
+    {
+        $ticket = $request->entity();
+        $clients = false;
+
+        //If we are missing a client from the ticket, load clients for assignment
+        if($ticket->is_internal == TRUE && !$ticket->client_id) {
+            $clients = Client::scope()->with('contacts')->get();
+        }
+        else if(!$ticket->client_id)
+            $clients = $this->ticketService->findClientsByContactEmail($ticket->contact_key);
+
+        $data = array_merge(self::getViewModel($ticket, $clients));
+
+        event(new TicketUserViewed($ticket));
+
+        return View::make('tickets.edit', $data);
+    }
+
+    /**
      * @param UpdateTicketRequest $request
      *
      * Updating a ticket can change the following:
