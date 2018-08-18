@@ -111,7 +111,7 @@ class TicketService extends BaseService
                 return Utils::fromSqlDateTime($model->created_at);
             })
             ->addColumn('status', function ($model) {
-                return $model->merged_parent_ticket_id ? trans('texts.merged') : $model->ticketStatus;
+                return $model->ticketStatus;
             });
 
         return $table->make();
@@ -136,6 +136,7 @@ class TicketService extends BaseService
         //Close ticket
         $data['merged_parent_ticket_id'] = Ticket::getPrivateId($data['updated_ticket_id']);
         $data['closed'] = \Carbon::now();
+        $data['status_id'] = TICKET_STATUS_MERGED;
 
             $ticketComment = TicketComment::createNew($ticket);
             $ticketComment->description = $data['old_ticket_comment'];

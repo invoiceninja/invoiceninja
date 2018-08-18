@@ -258,6 +258,18 @@ class Ticket extends EntityModel
 
     }
 
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+
+        foreach (TicketStatus::scope()->get() as $status) {
+
+            $statuses[$status->public_id] = $status->name;
+        }
+
+        return $statuses;
+    }
+
     public function agent()
     {
         return $this->hasOne('App\Models\User', 'id', 'agent_id');

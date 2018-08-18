@@ -188,12 +188,6 @@ class CreateTestData extends Command
      */
     private function createTicketStubs()
     {
-        /* Create Ticket Category*/
-
-        $ticketCategory = new TicketCategory();
-        $ticketCategory->name = 'Support';
-        $ticketCategory->key = 'support';
-        $ticketCategory->save();
 
         /* Create Default Ticket Statuses*/
 
@@ -203,7 +197,7 @@ class CreateTestData extends Command
             'trigger_threshold' =>'',
             'color' =>'#fff',
             'description' =>'Newly created ticket.',
-            'category_id' => $ticketCategory->id,
+            'category_id' => 1,
             'sort_order' => 1,
             'is_deleted' => 0,
         ];
@@ -217,7 +211,7 @@ class CreateTestData extends Command
             'trigger_threshold' =>'',
             'color' =>'#fff',
             'description' =>'Open ticket - replied.',
-            'category_id' => $ticketCategory->id,
+            'category_id' => 1,
             'sort_order' => 2,
             'is_deleted' =>0,
         ];
@@ -231,8 +225,22 @@ class CreateTestData extends Command
             'trigger_threshold' =>'',
             'color' =>'#fff',
             'description' =>'Closed ticket - resolved.',
-            'category_id' => $ticketCategory->id,
+            'category_id' => 1,
             'sort_order' => 3,
+            'is_deleted' => 0,
+        ];
+
+        $ticketStatus = $this->ticketStatusRepo->save($ticketStatusSupport);
+        $this->info('Ticket Status: '. $ticketStatus->name);
+
+        $ticketStatusSupport = [
+            'name'=> trans('texts.merged'),
+            'trigger_column' =>'',
+            'trigger_threshold' =>'',
+            'color' =>'#fff',
+            'description' =>'Merged ticket.',
+            'category_id' => 1,
+            'sort_order' => 4,
             'is_deleted' => 0,
         ];
 

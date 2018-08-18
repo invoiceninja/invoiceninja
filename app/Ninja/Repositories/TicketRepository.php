@@ -31,7 +31,7 @@ class TicketRepository extends BaseRepository
         return Ticket::scope()->get();
     }
 
-    public function find($filter = null, $userId = false)
+    public function find($filter = null, $userId = false, $entityType = ENTITY_TICKET)
     {
 
         $query = DB::table('tickets')
@@ -54,6 +54,7 @@ class TicketRepository extends BaseRepository
                 'tickets.created_at',
                 'tickets.is_deleted',
                 'tickets.is_internal',
+                'tickets.status_id',
                 'tickets.private_notes',
                 'tickets.subject',
                 'ticket_statuses.name as status',
@@ -67,6 +68,19 @@ class TicketRepository extends BaseRepository
             );
 
         $this->applyFilters($query, ENTITY_TICKET);
+
+        if ($statuses = session('entity_status_filter:' . $entityType)) {
+            $statuses = explode(',', $statuses);
+            $query->where(function ($query) use ($statuses) {
+                foreach ($statuses as $status) {
+                    if (in_array($status, \App\Models\EntityModel::$statuses)) {
+                        continue;
+                    }
+                    $query->orWhere('status_id', '=', $status);
+                }
+            });
+        }
+
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
@@ -162,7 +176,7 @@ class TicketRepository extends BaseRepository
 
         }
 
-        if (!$found && !$input['is_internal'])
+        if (!$found && isset($input['is_internal']) && !$input['is_internal'])
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
 
 

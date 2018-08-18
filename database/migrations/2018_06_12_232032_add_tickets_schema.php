@@ -213,24 +213,6 @@ class AddTicketsSchema extends Migration
         });
 
 
-        $accounts = \App\Models\Account::all();
-
-            foreach ($accounts as $account){
-
-                if(!$account->account_ticket_settings) {
-
-                    $user = $account->users()->whereIsAdmin(1)->first();
-                    
-                    $accountTicketSettings = new \App\Models\AccountTicketSettings();
-                    $accountTicketSettings->ticket_master_id = $user->id;
-
-                    $account->account_ticket_settings()->save($accountTicketSettings);
-                }
-
-            }
-
-
-
         Schema::table('users', function ($table) {
             $table->string('avatar', 255);
             $table->unsignedInteger('avatar_width');
@@ -238,8 +220,6 @@ class AddTicketsSchema extends Migration
             $table->unsignedInteger('avatar_size');
             $table->text('signature');
         });
-
-
 
         if(!Utils::isNinja()) {
 
@@ -257,6 +237,105 @@ class AddTicketsSchema extends Migration
                 $table->index(['deleted_at', 'invoice_id']);
             });
         }
+
+
+        /*
+         *
+         * Migrate all accounts
+         *
+         *
+         * */
+
+
+
+        $ticketCategory = new \App\Models\TicketCategory();
+        $ticketCategory->name = 'Support';
+        $ticketCategory->key = 'support';
+        $ticketCategory->save();
+
+
+        $accounts = \App\Models\Account::all();
+
+        foreach ($accounts as $account){
+
+            if(!$account->account_ticket_settings) {
+
+
+                /* Create account_ticket_settings record for account */
+
+                $user = $account->users()->whereIsAdmin(1)->first();
+
+                $accountTicketSettings = new \App\Models\AccountTicketSettings();
+                $accountTicketSettings->ticket_master_id = $user->id;
+
+                $account->account_ticket_settings()->save($accountTicketSettings);
+
+
+                /* Create ticket status */
+
+                $ticketStatus = new \App\Models\TicketStatus();
+                $ticketStatus->name = trans('texts.new');
+                $ticketStatus->color = '#fff';
+                $ticketStatus->description = 'Newly created ticket.';
+                $ticketStatus->category_id = $ticketCategory->id;
+                $ticketStatus->sort_order = 1;
+                $ticketStatus->is_deleted = 0;
+                $ticketStatus->public_id = 1;
+                $ticketStatus->user_id = $account->user_id;
+                $ticketStatus->account_id = $account->id;
+
+                $ticketStatus->save();
+
+
+                $ticketStatus = new \App\Models\TicketStatus();
+                $ticketStatus->name = trans('texts.open');
+                $ticketStatus->color = '#fff';
+                $ticketStatus->description = 'Open ticket - replied.';
+                $ticketStatus->category_id = $ticketCategory->id;
+                $ticketStatus->sort_order = 2;
+                $ticketStatus->is_deleted = 0;
+                $ticketStatus->public_id = 2;
+                $ticketStatus->user_id = $account->user_id;
+                $ticketStatus->account_id = $account->id;
+
+                $ticketStatus->save();
+
+
+
+                $ticketStatus = new \App\Models\TicketStatus();
+                $ticketStatus->name = trans('texts.closed');
+                $ticketStatus->color = '#fff';
+                $ticketStatus->description = 'Closed ticket - resolved.';
+                $ticketStatus->category_id = $ticketCategory->id;
+                $ticketStatus->sort_order = 3;
+                $ticketStatus->is_deleted = 0;
+                $ticketStatus->public_id = 3;
+                $ticketStatus->user_id = $account->user_id;
+                $ticketStatus->account_id = $account->id;
+
+                $ticketStatus->save();
+
+
+
+                $ticketStatus = new \App\Models\TicketStatus();
+                $ticketStatus->name = trans('texts.merged');
+                $ticketStatus->color = '#fff';
+                $ticketStatus->description = 'Merged ticket.';
+                $ticketStatus->category_id = $ticketCategory->id;
+                $ticketStatus->sort_order = 4;
+                $ticketStatus->is_deleted = 0;
+                $ticketStatus->public_id = 4;
+                $ticketStatus->user_id = $account->user_id;
+                $ticketStatus->account_id = $account->id;
+
+                $ticketStatus->save();
+
+
+            }
+
+        }
+
+
 
     }
 

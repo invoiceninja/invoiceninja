@@ -60,7 +60,7 @@ class TicketDatatable extends EntityDatatable
             [
                 'status',
                 function ($model) {
-                    return $model->merged_parent_ticket_id ? trans('texts.merged') : $model->status;
+                    return $model->status;
                 }
             ],
             [
@@ -83,6 +83,23 @@ class TicketDatatable extends EntityDatatable
                         elseif(Auth::user()->can('view', [ENTITY_TICKET, $model]))
                             return URL::to("tickets/{$model->public_id}");
                     },
+                ],
+                [
+                    '--divider--', function () {
+                    return false;
+                },
+                    function ($model) {
+                        return Auth::user()->canCreateOrEdit(ENTITY_TICKET);
+                    },
+                ],
+                [
+                    trans('texts.ticket_merge'),
+                    function ($model) {
+                        return URL::to("tickets/merge/{$model->public_id}");
+                    },
+                     function ($model) {
+                         return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]) && $model->status_id != 4);
+                     }
                 ],
         ];
     }

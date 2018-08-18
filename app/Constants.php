@@ -691,11 +691,17 @@ if (! defined('APP_NAME')) {
     define('TICKET_PRIORITY_MEDIUM', 20);
     define('TICKET_PRIORITY_HIGH', 30);
 
+    define('TICKET_STATUS_NEW', 1);
+    define('TICKET_STATUS_OPEN',2);
+    define('TICKET_STATUS_CLOSED',3);
+    define('TICKET_STATUS_MERGED',4);
+
     /* Default ticket statuses - Category - support*/
     $supportTicketStatuses = [
-        trans('texts.'.'new'),
-        trans('texts.'.'open'),
-        trans('texts.'.'closed'),
+        trans('texts.new'),
+        trans('texts.open'),
+        trans('texts.closed'),
+        trans('texts.merged')
     ];
 
     function uctrans($text, $data = [])
