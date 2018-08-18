@@ -43,9 +43,9 @@ class TicketDatatable extends EntityDatatable
             [
                 'contact',
                 function ($model) {
-                    if($model->is_internal === false)
+                    if($model->is_internal == false)
                         return link_to("clients/{$model->client_public_id}", Contact::getContactByContactKey($model->contact_key)->getName() ?: '')->toHtml();
-                    elseif($model->is_internal && ($model->agent_id > 0))
+                    elseif($model->is_internal == true && ($model->agent_id > 0))
                         return $model->agent_name. ' (' . trans('texts.internal_ticket') . ')';
                     else
                         return '';
@@ -98,7 +98,7 @@ class TicketDatatable extends EntityDatatable
                         return URL::to("tickets/merge/{$model->public_id}");
                     },
                      function ($model) {
-                         return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]) && $model->status_id != 4);
+                         return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]) && $model->status_id != TICKET_STATUS_MERGED);
                      }
                 ],
         ];
