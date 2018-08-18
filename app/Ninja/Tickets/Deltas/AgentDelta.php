@@ -3,6 +3,7 @@
 namespace App\Ninja\Tickets\Deltas;
 use App\Libraries\Utils;
 use App\Models\AccountTicketSettings;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Ninja\Mailers\TicketMailer;
 use App\Services\TicketTemplateService;

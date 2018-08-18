@@ -43,6 +43,9 @@ class DeltaFactory
      */
     public function process()
     {
+        //Log::error($this->updatedTicket);
+        //Log::error($this->originalTicket);
+        //Log::error($this->changedAttributes);
 
         if(!$this->originalTicket) {
             $this->performDeltaAction('new_ticket');

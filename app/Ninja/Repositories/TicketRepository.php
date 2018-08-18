@@ -144,7 +144,7 @@ class TicketRepository extends BaseRepository
             $ticketComment = TicketComment::createNew($ticket);
             $ticketComment->description = $input['description'];
 
-            if(!Auth::user())
+            if(!Auth::user())//do we need to filter for is_internal here?
                 $ticketComment->contact_key = $input['contact_key'];
 
             $ticket->comments()->save($ticketComment);

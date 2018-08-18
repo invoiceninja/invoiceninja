@@ -101,6 +101,15 @@ class TicketDatatable extends EntityDatatable
                          return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]) && $model->status_id != TICKET_STATUS_MERGED);
                      }
                 ],
+                [
+                    trans('texts.new_internal_ticket'),
+                    function ($model) {
+                        return URL::to("tickets/create/{$model->public_id}");
+                    },
+                    function ($model) {
+                        return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]) && $model->status_id != TICKET_STATUS_MERGED);
+                    }
+                ],
         ];
     }
 }

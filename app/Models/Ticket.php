@@ -251,11 +251,7 @@ class Ticket extends EntityModel
 
     public function getStatusName()
     {
-        if($this->merged_parent_ticket_id)
-            return trans('texts.merged');
-        else
-            return $this->status->name;
-
+        return $this->status->name;
     }
 
     public static function getStatuses($entityType = false)

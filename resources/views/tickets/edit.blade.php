@@ -155,8 +155,21 @@
         </table>
     </div>
 
-
-
+    @if($ticket && $ticket->is_internal == true)
+    <div class="panel panel-default">
+        <center class="buttons">
+            <h3>{!! trans('texts.internal_ticket') !!}</h3>
+        </center>
+        <table width="100%">
+            <tr>
+                <td width="50%" style="vertical-align:top;">
+                    <table class="table table-striped datatable">
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    @endif
 
     @if($ticket)
         <div style="height:80px;">
