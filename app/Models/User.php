@@ -389,6 +389,11 @@ class User extends Authenticatable
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
+    public function isAgent($entity)
+    {
+        return $entity->agent_id == $this->id;
+    }
+
     /**
      * @return bool|mixed
      */

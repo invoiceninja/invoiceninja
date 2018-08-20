@@ -20,4 +20,5 @@ class TicketPolicy extends EntityPolicy
 
         return $user->hasFeature(FEATURE_TICKETS);
     }
+
 }
