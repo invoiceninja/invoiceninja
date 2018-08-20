@@ -37,7 +37,7 @@ class UpdateTicketRequest extends TicketRequest
 
         $data = $this->all();
 
-        if(isset($data['cliente_public_id']) && $data['client_public_id'] > 0 && !isset($data['contact_key'])){
+        if(isset($data['client_public_id']) && $data['client_public_id'] > 0 && !isset($data['contact_key'])){
             $client = Client::scope($data['client_public_id'])->first();
             $contact = $client->getPrimaryContact();
             $data['contact_key'] = $contact->contact_key;
@@ -46,6 +46,8 @@ class UpdateTicketRequest extends TicketRequest
         if(isset($data['parent_ticket_id']) && $data['parent_ticket_id'] > 0)
             $data['parent_ticket_id'] = Ticket::getPrivateId($data['parent_ticket_id']);
 
+        if(isset($data['agent_id']) && $data['agent_id'] > 0)
+            $data['user_id'] = $data['agent_id'];
 
         $this->replace($data);
 

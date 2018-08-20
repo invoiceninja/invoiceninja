@@ -44,6 +44,7 @@ class Ticket extends EntityModel
         'closed',
         'merged_parent_ticket_id',
         'parent_ticket_id',
+        'user_id',
     ];
 
     /**

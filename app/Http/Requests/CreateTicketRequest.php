@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Client;
 use App\Models\Ticket;
+use Illuminate\Support\Facades\Auth;
 
 class CreateTicketRequest extends Request
 {
@@ -48,7 +49,7 @@ class CreateTicketRequest extends Request
 
         $data = $this->all();
 
-        if($data['client_public_id'] > 0 && !isset($data['contact_key'])){
+        if(isset($data['client_public_id']) && $data['client_public_id'] > 0 && !isset($data['contact_key'])){
             $client = Client::scope($data['client_public_id'])->first();
             $contact = $client->getPrimaryContact();
             $data['contact_key'] = $contact->contact_key;
@@ -57,6 +58,8 @@ class CreateTicketRequest extends Request
         if($data['parent_ticket_id'] > 0)
             $data['parent_ticket_id'] = Ticket::getPrivateId($data['parent_ticket_id']);
 
+        if(isset($data['agent_id']) && $data['agent_id'] == 0)
+            $data['agent_id'] = Auth::user()->id;
 
         $this->replace($data);
 
