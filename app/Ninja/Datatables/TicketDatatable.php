@@ -85,8 +85,10 @@ class TicketDatatable extends EntityDatatable
                 [
                     trans('texts.edit_ticket'),
                     function ($model) {
-                        if(Auth::user()->can('view', [ENTITY_TICKET, $model]))
-                            return URL::to("tickets/{$model->public_id}/edit");
+                        return URL::to("tickets/{$model->public_id}/edit");
+                    },
+                    function ($model) {
+                        return Auth::user()->can('view', [ENTITY_TICKET, $model]);
                     },
                 ],
                 [
@@ -112,7 +114,9 @@ class TicketDatatable extends EntityDatatable
                         return URL::to("tickets/create/{$model->public_id}");
                     },
                     function ($model) {
-                        return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]) && $model->status_id != TICKET_STATUS_MERGED);
+                        return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model])
+                            && $model->status_id != TICKET_STATUS_MERGED
+                            && $model->is_internal == false);
                     }
                 ],
         ];
