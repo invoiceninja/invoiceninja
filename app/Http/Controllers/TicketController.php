@@ -196,6 +196,7 @@ class TicketController extends BaseController
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
             'old' => $request->old() ? $request->old() : $mockTicket,
+            'clients' => Client::scope()->with('contacts')->get(),
         ];
 
         return View::make('tickets.new_ticket', $data);

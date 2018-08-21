@@ -55,7 +55,7 @@ class EntityPolicy
      */
 
     public static function view(User $user, $item)
-    {
+    {Log::error($item. " " .$user->id. " ". $item);
         if (! static::checkModuleEnabled($user, $item))
             return false;
 

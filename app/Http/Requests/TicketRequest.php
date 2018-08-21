@@ -20,4 +20,9 @@ class TicketRequest extends EntityRequest
     }
 
 
+    public function authorize()
+    {
+        return true;
+    }
+
 }

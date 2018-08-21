@@ -223,7 +223,7 @@
             window.model = new ViewModel({!! json_encode($old) !!});
 
             <!----- Client Selector ----->
-            var clients = {!! $account->clients !!};
+            var clients = {!! $clients !!};
             var clientMap = {};
             var $clientSelect = $('select#client_public_id');
 

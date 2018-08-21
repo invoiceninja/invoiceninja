@@ -4,6 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Contact;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use URL;
 use Utils;
 
@@ -84,10 +85,8 @@ class TicketDatatable extends EntityDatatable
                 [
                     trans('texts.edit_ticket'),
                     function ($model) {
-                        if(Auth::user()->can('edit', [ENTITY_TICKET, $model]))
+                        if(Auth::user()->can('view', [ENTITY_TICKET, $model]))
                             return URL::to("tickets/{$model->public_id}/edit");
-                        elseif(Auth::user()->can('view', [ENTITY_TICKET, $model]))
-                            return URL::to("tickets/{$model->public_id}");
                     },
                 ],
                 [
