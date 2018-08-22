@@ -20,8 +20,4 @@ class TicketMergeRequest extends EntityRequest
         ];
     }
 
-    public function authorize()
-    {
-        return true;
-    }
 }

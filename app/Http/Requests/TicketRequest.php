@@ -22,7 +22,7 @@ class TicketRequest extends EntityRequest
 
     public function authorize()
     {
-        return true;
+        return $this->user()->can('view', ENTITY_TICKET);
     }
 
 }

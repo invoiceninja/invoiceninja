@@ -3,6 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use App\Models\Contact;
+use App\Models\Ticket;
 use Auth;
 use Illuminate\Support\Facades\Log;
 use URL;
@@ -21,8 +22,8 @@ class TicketDatatable extends EntityDatatable
             [
                 trans('ticket_number'),
 
-                function ($model) use ($entityType) {
-                        if(Auth::user()->can('view', [ENTITY_TICKET, $model])) {
+                function ($model) use ($entityType) {$ticket = Ticket::scope($model->public_id)->first();
+                        if(Auth::user()->can('view', $ticket)) {
                             $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->ticket_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                             return $this->addNote($str, $model->private_notes);
                         }
@@ -87,8 +88,8 @@ class TicketDatatable extends EntityDatatable
                     function ($model) {
                         return URL::to("tickets/{$model->public_id}/edit");
                     },
-                    function ($model) {
-                        return Auth::user()->can('view', [ENTITY_TICKET, $model]);
+                    function ($model) {$ticket = Ticket::scope($model->public_id)->first();
+                        return Auth::user()->can('view', $ticket);
                     },
                 ],
                 [
@@ -114,9 +115,7 @@ class TicketDatatable extends EntityDatatable
                         return URL::to("tickets/create/{$model->public_id}");
                     },
                     function ($model) {
-                        return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model])
-                            && $model->status_id != TICKET_STATUS_MERGED
-                            && $model->is_internal == false);
+                        return (Auth::user()->canCreateOrEdit('edit', [ENTITY_TICKET, $model]));
                     }
                 ],
         ];

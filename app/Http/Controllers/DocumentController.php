@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Contact;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use Illuminate\Support\Facades\Log;
 use Redirect;
 use Response;
 use View;
