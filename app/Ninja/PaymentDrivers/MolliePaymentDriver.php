@@ -9,10 +9,28 @@ use App\Models\Payment;
 class MolliePaymentDriver extends BasePaymentDriver
 {
     protected function paymentDetails($paymentMethod = false)
-    {
+    {        
         $data = parent::paymentDetails($paymentMethod);
-
+        $mollie = new \Mollie\Api\MollieApiClient();
+        $mollie->setApiKey("test_VcQJkBAVVACVdfbdkdE6zfp3mkjSPQ");
         // Enable webhooks
+        if($paymentMethod->is_recurring()==true)
+        {
+            $type = "Recurring";
+        }
+        else
+        {
+            $type = "Regular" 
+        }
+        $payment = $mollie->payments->create([
+            "amount" => [
+                "currency" => "USD",
+                "value" => $paymentMethod->$amount
+            ],
+            "description" => $tpye,
+            "redirectUrl" => url('/payment_hook/'. $this->account()->account_key . '/' . GATEWAY_MOLLIE),
+            "webhookUrl"  => url('/payment_hook/'. $this->account()->account_key . '/' . GATEWAY_MOLLIE)
+        ]);
         $data['notifyUrl'] = url('/payment_hook/'. $this->account()->account_key . '/' . GATEWAY_MOLLIE);
 
         return $data;
