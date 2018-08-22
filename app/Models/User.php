@@ -524,6 +524,10 @@ class User extends Authenticatable
         return true;
     }
 
+    public function isTicketMaster()
+    {
+        return $this->id == $this->account->account_ticket_settings->ticket_master_id;
+    }
 
 }
 
