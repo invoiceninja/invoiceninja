@@ -9,6 +9,7 @@ use App\Models\Traits\HasAvatar;
 use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
 use App\Models\LookupUser;

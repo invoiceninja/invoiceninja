@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class TicketPolicy extends EntityPolicy
 {
@@ -20,6 +21,16 @@ class TicketPolicy extends EntityPolicy
 
         return $user->hasFeature(FEATURE_TICKETS);
     }
+
+
+    public static function view(User $user, $item, $entityType = null)
+    {
+        if(!$entityType)
+            $entityType = is_string($item) ? $item : $item->getEntityType();
+
+        return $user->hasPermission('view_' . $entityType) || $user->owns($item);
+    }
+
 
     public static function isMergeable(User $user, $item)
     {
