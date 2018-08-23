@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Ticket;
 use Auth;
-use Illuminate\Support\Facades\Log;
 use URL;
 use Utils;
 
@@ -23,23 +22,19 @@ class TicketDatatable extends EntityDatatable
             [
                 trans('ticket_number'),
 
-                function ($model) use ($entityType) {$ticket = Ticket::scope($model->public_id)->first();
-                    //    if(Auth::user()->can('view', $ticket, ENTITY_TICKET)) {
+                function ($model) use ($entityType) {
+                        if(Auth::user()->can('viewModel', $model, ENTITY_TICKET)) {
                             $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->ticket_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                             return $this->addNote($str, $model->private_notes);
-                   //     }
-                   //     else
-                   //         return $model->ticket_number;
+                        }
+                        else
+                            return $model->ticket_number;
                     },
             ],
             [
                 'client_name',
-                function ($model) {$client = Client::scope($model->client_public_id)->first();
-             //       if(Auth::user()->can('view', $client, ENTITY_CLIENT))
+                function ($model) {
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
-             //       else
-              //          return Utils::getClientDisplayName($model);
-
                 },
                 ! $this->hideClient,
             ],
@@ -89,8 +84,8 @@ class TicketDatatable extends EntityDatatable
                     function ($model) {
                         return URL::to("tickets/{$model->public_id}/edit");
                     },
-                    function ($model) {$ticket = Ticket::scope($model->public_id)->first(); log::error($model->public_id); Log::error($ticket);
-                        return Auth::user()->can('view', $ticket);
+                    function ($model) {
+                        return Auth::user()->can('viewModel', $model, $this->entityType);
                     },
                 ],
                 [

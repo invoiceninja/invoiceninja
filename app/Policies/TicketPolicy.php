@@ -22,7 +22,6 @@ class TicketPolicy extends EntityPolicy
         return $user->hasFeature(FEATURE_TICKETS);
     }
 
-
     public static function view(User $user, $item, $entityType = null)
     {
         if(!$entityType)
@@ -31,6 +30,17 @@ class TicketPolicy extends EntityPolicy
         return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
+    public static function viewModel(User $user, $model, $entityType = null)
+    {
+        if($model->user_id == $user->id)
+            return true;
+        elseif($model->agent_id == $user->id)
+            return true;
+        elseif($user->hasPermission('view_'.$entityType))
+            return true;
+        else
+            return false;
+    }
 
     public static function isMergeable(User $user, $item)
     {

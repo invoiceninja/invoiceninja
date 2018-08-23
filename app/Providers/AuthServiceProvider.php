@@ -54,9 +54,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         foreach ($this->policies as $key => $policy) {
 
-            foreach (get_class_methods(new $policy) as $method) {
+            foreach (get_class_methods(new $policy) as $method)
                 Gate::define($method, "{$policy}@{$method}");
-            }
+
         }
 
         $this->registerPolicies();

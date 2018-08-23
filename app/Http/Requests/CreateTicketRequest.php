@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Client;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreateTicketRequest extends Request
 {
