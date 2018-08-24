@@ -53,13 +53,23 @@ class EntityPolicy
      * @return bool
      */
 
-    public static function view(User $user, $item)
+    public static function view(User $user, $item, $entityType = null)
     {
         if (! static::checkModuleEnabled($user, $item))
             return false;
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
             return $user->hasPermission('view_' . $entityType) || $user->owns($item);
+    }
+
+    public static function viewModel(User $user, $model, $entityType = null)
+    {
+        if($model->user_id == $user->id)
+            return true;
+        elseif($user->hasPermission('view_'.$entityType))
+            return true;
+        else
+            return false;
     }
 
     /**

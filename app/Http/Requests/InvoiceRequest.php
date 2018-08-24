@@ -42,10 +42,10 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('quotes/*/edit') && request()->isMethod('put') && $this->user()->can('edit', ENTITY_QUOTE))
             return true;
 
-        if(request()->is('invoices/*') && request()->isMethod('get') && $this->user()->can('view', $standardOrRecurringInvoice))
+        if(request()->is('invoices/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $standardOrRecurringInvoice))
             return true;
 
-        if(request()->is('quotes/*') && request()->isMethod('get') && $this->user()->can('view', ENTITY_QUOTE))
+        if(request()->is('quotes/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, ENTITY_QUOTE))
             return true;
 
         if ($invoice) {

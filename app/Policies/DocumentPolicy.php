@@ -26,7 +26,7 @@ class DocumentPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function view(User $user, $document)
+    public static function view(User $user, $document, $entityType = null)
     {
         if ($user->hasPermission(['view_expense', 'view_invoice'], true)) {
             return true;

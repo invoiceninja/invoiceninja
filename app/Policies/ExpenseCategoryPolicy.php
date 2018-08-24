@@ -34,7 +34,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function view(User $user, $item)
+    public static function view(User $user, $item, $entityType = null)
     {
         return true;
     }
