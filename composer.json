@@ -60,7 +60,6 @@
         "predis/predis": "^1.1",
         "roave/security-advisories": "dev-master",
         "simshaun/recurr": "dev-master",
-        "spatie/laravel-view-components": "^1.1",
         "symfony/css-selector": "~3.1",
         "turbo124/laravel-push-notification": "2.*",
         "webpatser/laravel-countries": "dev-master#75992ad",
