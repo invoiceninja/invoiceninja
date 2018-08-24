@@ -176,7 +176,6 @@ return [
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
-        'Spatie\ViewComponents\ViewComponentsServiceProvider',
 
     ],
 
