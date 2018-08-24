@@ -81,7 +81,7 @@ class TicketController extends BaseController
      * @return mixed
      */
     public function edit(TicketRequest $request)
-    {
+    {Log::error('ouchies');
         $ticket = $request->entity();
         $clients = false;
 

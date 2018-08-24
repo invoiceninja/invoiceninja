@@ -14,9 +14,9 @@ class TicketRequest extends EntityRequest
         $ticket = parent::entity();
 
         // eager load the documents
-        if ($ticket && method_exists($ticket, 'documents') && ! $ticket->relationLoaded('documents')) {
+        if ($ticket && method_exists($ticket, 'documents') && ! $ticket->relationLoaded('documents'))
             $ticket->load('documents');
-        }
+
 
         return $ticket;
     }

@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Ticket;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use URL;
 use Utils;
 
