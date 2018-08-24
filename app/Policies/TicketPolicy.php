@@ -27,7 +27,7 @@ class TicketPolicy extends EntityPolicy
         if(!$entityType)
             $entityType = is_string($item) ? $item : $item->getEntityType();
 
-        return $user->hasPermission('view_' . $entityType) || $user->owns($item);
+        return $user->hasPermission('view_' . $entityType) || $user->owns($item) || $user->id == $item->agent_id;
     }
 
     public static function viewModel(User $user, $model, $entityType = null)

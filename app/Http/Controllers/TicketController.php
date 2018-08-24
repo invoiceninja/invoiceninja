@@ -86,9 +86,8 @@ class TicketController extends BaseController
         $clients = false;
 
         //If we are missing a client from the ticket, load clients for assignment
-        if($ticket->is_internal == TRUE && !$ticket->client_id) {
+        if($ticket->is_internal == TRUE && !$ticket->client_id)
             $clients = Client::scope()->with('contacts')->get();
-        }
         else if(!$ticket->client_id)
             $clients = $this->ticketService->findClientsByContactEmail($ticket->contact_key);
 

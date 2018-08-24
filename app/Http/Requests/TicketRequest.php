@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Support\Facades\Log;
+
 class TicketRequest extends EntityRequest
 {
     protected $entityType = ENTITY_TICKET;
@@ -24,7 +26,7 @@ class TicketRequest extends EntityRequest
     {
         if(request()->is('tickets/create') && $this->user()->can('create', $this->entityType))
             return true;
-        elseif (request()->is('tickets/*') && $this->user()->can('view', parent::entity()))
+        elseif (request()->is('tickets/*/edit') && $this->user()->can('view', $this->entity()))
             return true;
         else
             return false;
