@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class EntityPolicy.
@@ -19,13 +20,12 @@ class EntityPolicy
      * @return bool
      */
 
-    public static function create(User $user, $item)
-    {
-        if (! static::checkModuleEnabled($user, $item))
+    public function createPermission(User $user, $entityType)
+    {Log::error('create in parent');
+
+        if (! $this->checkModuleEnabled($user, $entityType))
             return false;
 
-
-        $entityType = is_string($item) ? $item : $item->getEntityType();
             return $user->hasPermission('create_' . $entityType);
     }
 
@@ -36,9 +36,9 @@ class EntityPolicy
      * @return bool
      */
 
-    public static function edit(User $user, $item)
+    public function edit(User $user, $item)
     {
-        if (! static::checkModuleEnabled($user, $item))
+        if (! $this->checkModuleEnabled($user, $item))
             return false;
 
 
@@ -53,8 +53,8 @@ class EntityPolicy
      * @return bool
      */
 
-    public static function view(User $user, $item, $entityType = null)
-    {
+    public function view(User $user, $item, $entityType = null)
+    {Log::error('but i love hitting the view in the PARENT class');
         if (! static::checkModuleEnabled($user, $item))
             return false;
 
@@ -62,15 +62,18 @@ class EntityPolicy
             return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
-    public static function viewModel(User $user, $model, $entityType = null)
+    public function viewModel(User $user, $model, $entityType = null)
     {
         if($model->user_id == $user->id)
+            return true;
+        elseif(isset($model->agent_id) && $model->agent_id == $user->id)
             return true;
         elseif($user->hasPermission('view_'.$entityType))
             return true;
         else
             return false;
     }
+
 
     /**
      * @param User $user
@@ -84,7 +87,7 @@ class EntityPolicy
      * @return bool
      */
 
-    public static function viewByOwner(User $user, $ownerUserId)
+    public function viewByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
@@ -101,7 +104,7 @@ class EntityPolicy
      * @return bool
      */
 
-    public static function editByOwner(User $user, $ownerUserId)
+    public function editByOwner(User $user, $ownerUserId)
     {
         return $user->id == $ownerUserId;
     }
@@ -112,7 +115,7 @@ class EntityPolicy
      * @return bool
      */
 
-    private static function checkModuleEnabled(User $user, $item)
+    public function checkModuleEnabled(User $user, $item)
     {
         $entityType = is_string($item) ? $item : $item->getEntityType();
             return $user->account->isModuleEnabled($entityType);

@@ -14,9 +14,9 @@ class TicketRequest extends EntityRequest
         $ticket = parent::entity();
 
         // eager load the documents
-        if ($ticket && method_exists($ticket, 'documents') && ! $ticket->relationLoaded('documents'))
+        if ($ticket && method_exists($ticket, 'documents') && ! $ticket->relationLoaded('documents')) {
             $ticket->load('documents');
-
+        }
 
         return $ticket;
     }
@@ -24,7 +24,7 @@ class TicketRequest extends EntityRequest
 
     public function authorize()
     {
-        if(request()->is('tickets/create') && $this->user()->can('create', $this->entityType))
+        if(request()->is('tickets/create') && $this->user()->can('createEntity', ENTITY_TICKET))
             return true;
         elseif (request()->is('tickets/*/edit') && $this->user()->can('view', $this->entity()))
             return true;

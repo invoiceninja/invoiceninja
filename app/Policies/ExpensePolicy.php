@@ -12,11 +12,10 @@ class ExpensePolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public function create(User $user)
     {
-        if (! parent::create($user, $item)) {
+        if(!$this->createPermission($user, ENTITY_USER))
             return false;
-        }
 
         return $user->hasFeature(FEATURE_EXPENSES);
     }

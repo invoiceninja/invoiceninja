@@ -12,11 +12,11 @@ class TicketStatusPolicy extends EntityPolicy
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public function create(User $user)
     {
-        if (! parent::create($user, $item)) {
+        if (! $this->createPermission($user, ENTITY_TICKET_STATUS))
             return false;
-        }
+
 
         return $user->hasFeature(FEATURE_TICKETS);
     }

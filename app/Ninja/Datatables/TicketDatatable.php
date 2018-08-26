@@ -35,7 +35,10 @@ class TicketDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                        if(isset($model->client_id))
+                            return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
+                        else
+                            return '';
                 },
                 ! $this->hideClient,
             ],

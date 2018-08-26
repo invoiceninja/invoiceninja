@@ -36,19 +36,20 @@ class TicketRepository extends BaseRepository
 
         $query = DB::table('tickets')
             ->where('tickets.account_id', '=', Auth::user()->account_id)
-            ->leftjoin('clients', 'clients.id', '=', 'tickets.client_id')
+            ->leftJoin('clients', 'clients.id', '=', 'tickets.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('ticket_statuses', 'ticket_statuses.id', '=', 'tickets.status_id')
             ->leftJoin('users', 'users.id', '=', 'tickets.agent_id')
             //->where('tickets.is_deleted', '=', false)
             ->where('clients.deleted_at', '=', null)
             ->where('contacts.deleted_at', '=', null)
-            ->where('contacts.is_primary', '=', true)
+            //->where('contacts.is_primary', '=', true)
             ->select(
                 'tickets.ticket_number',
                 'tickets.due_date',
                 'tickets.public_id',
                 'tickets.agent_id',
+                'tickets.client_id',
                 'tickets.user_id',
                 'tickets.deleted_at',
                 'tickets.created_at',
@@ -61,8 +62,8 @@ class TicketRepository extends BaseRepository
                 'tickets.contact_key',
                 'tickets.merged_parent_ticket_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                'clients.user_id as client_user_id',
-                'clients.public_id as client_public_id',
+                DB::raw("COALESCE(NULLIF(clients.user_id,'')) client_user_id"),
+                DB::raw("COALESCE(NULLIF(clients.public_id,'')) client_public_id"),
                 DB::raw("NULLIF(CONCAT(users.first_name, ' ', users.last_name),'') agent_name")
 
             );
