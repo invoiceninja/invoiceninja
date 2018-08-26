@@ -4,11 +4,14 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class TicketStatusPolicy
+ * @package App\Policies
+ */
 class TicketStatusPolicy extends EntityPolicy
 {
     /**
      * @param User  $user
-     * @param mixed $item
      *
      * @return bool
      */

@@ -4,6 +4,10 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class VendorPolicy
+ * @package App\Policies
+ */
 class VendorPolicy extends EntityPolicy
 {
     /**

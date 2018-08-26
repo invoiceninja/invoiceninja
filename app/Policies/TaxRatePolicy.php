@@ -4,6 +4,10 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class TaxRatePolicy
+ * @package App\Policies
+ */
 class TaxRatePolicy extends EntityPolicy
 {
     /**

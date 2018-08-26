@@ -22,7 +22,6 @@ class PaymentTermPolicy extends EntityPolicy
 
     /**
      * @param User  $user
-     * @param mixed $item
      *
      * @return bool
      */

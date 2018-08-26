@@ -4,11 +4,14 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class RecurringExpensePolicy
+ * @package App\Policies
+ */
 class RecurringExpensePolicy extends EntityPolicy
 {
     /**
      * @param User  $user
-     * @param mixed $item
      *
      * @return bool
      */

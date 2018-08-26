@@ -6,6 +6,10 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class TicketPolicy
+ * @package App\Policies
+ */
 class TicketPolicy extends EntityPolicy
 {
     /**
@@ -22,6 +26,12 @@ class TicketPolicy extends EntityPolicy
         return $user->hasFeature(FEATURE_TICKETS);
     }
 
+    /**
+     * @param User $user
+     * @param $item
+     * @param null $entityType
+     * @return bool
+     */
     public function view(User $user, $item, $entityType = null)
     {
         if(!$entityType)
@@ -31,6 +41,11 @@ class TicketPolicy extends EntityPolicy
     }
 
 
+    /**
+     * @param User $user
+     * @param $item
+     * @return bool
+     */
     public function isMergeable(User $user, $item)
     {
         if($item->is_internal == false && $item->status_id != TICKET_STATUS_MERGED)
@@ -39,6 +54,11 @@ class TicketPolicy extends EntityPolicy
             return true;
     }
 
+    /**
+     * @param User $user
+     * @param $item
+     * @return bool
+     */
     public function isTicketMaster(User $user, $item)
     {
         return $user->isTicketMaster() || $user->is_admin;

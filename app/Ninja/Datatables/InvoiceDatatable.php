@@ -4,6 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Invoice;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use URL;
 use Utils;
 
@@ -20,7 +21,10 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if(Auth::user()->can('viewModel', $model, $this->entityType)) {
+
+                    $model->entityType = $entityType;
+
+                    if(Auth::user()->can('viewModel', $model)) {
                         $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                         return $this->addNote($str, $model->private_notes);
                     }
@@ -30,8 +34,11 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 'client_name',
-                function ($model) {
-                    if(Auth::user()->can('viewClient', $model, ENTITY_CLIENT))
+                function ($model) use ($entityType){
+
+                    $model->entityType = ENTITY_CLIENT;
+
+                    if(Auth::user()->can('viewModel', $model))
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     else
                         return Utils::getClientDisplayName($model);

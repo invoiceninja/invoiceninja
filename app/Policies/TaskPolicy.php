@@ -4,11 +4,14 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class TaskPolicy
+ * @package App\Policies
+ */
 class TaskPolicy extends EntityPolicy
 {
     /**
      * @param User  $user
-     * @param mixed $item
      *
      * @return bool
      */

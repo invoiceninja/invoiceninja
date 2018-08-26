@@ -4,11 +4,14 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class QuotePolicy
+ * @package App\Policies
+ */
 class QuotePolicy extends EntityPolicy
 {
     /**
      * @param User  $user
-     * @param mixed $item
      *
      * @return bool
      */

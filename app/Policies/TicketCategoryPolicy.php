@@ -4,6 +4,10 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class TicketCategoryPolicy
+ * @package App\Policies
+ */
 class TicketCategoryPolicy extends EntityPolicy
 {
     /**

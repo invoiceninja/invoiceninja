@@ -54,21 +54,21 @@ class EntityPolicy
      */
 
     public function view(User $user, $item, $entityType = null)
-    {Log::error('but i love hitting the view in the PARENT class');
-        if (! static::checkModuleEnabled($user, $item))
+    {
+        if (! $this->checkModuleEnabled($user, $item))
             return false;
 
         $entityType = is_string($item) ? $item : $item->getEntityType();
             return $user->hasPermission('view_' . $entityType) || $user->owns($item);
     }
 
-    public function viewModel(User $user, $model, $entityType = null)
+    public function viewModel(User $user, $model)
     {
-        if($model->user_id == $user->id)
+        if($user->hasPermission('view_'.$model->entityType))
             return true;
-        elseif(isset($model->agent_id) && $model->agent_id == $user->id)
+        elseif($model->user_id == $user->id)
             return true;
-        elseif($user->hasPermission('view_'.$entityType))
+        elseif(isset($model->agent_id) && ($model->agent_id == $user->id))
             return true;
         else
             return false;
@@ -125,4 +125,5 @@ class EntityPolicy
     {
         return $user->hasPermission('create_' . $entityType);
     }
+
 }
