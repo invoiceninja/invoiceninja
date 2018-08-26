@@ -66,17 +66,13 @@ To use a widget, you must:
 
     @stack('component_scripts')
 
-To render the widget, use either the fully-qualified class name or the camel case class name anywhere above the @stack declaration:
+To render the widget, use the fully-qualified class name anywhere above the @stack declaration:
 
 .. code-block:: php
 
     @render('App\Http\ViewComponents\ComponentName', [$variables])
 
 or
-
-.. code-block:: php
-
-    @render('componentName', [$variables])
 
 Depending on the widget, certain variables will need to be passed via the second parameter of the @render statement.
 
@@ -86,7 +82,7 @@ Currently, the following widgets exist:
 
 |Name|Description|Parameters|
 |--|--|--|
-|ClientSimpleSelectComponent|Displays a Client select box|clients: list of clients<br/>module: name of module; defaults to null<br/>displayContact: displays primary contact next to client name; defaults to true<br/>label: label for field; defaults to 'Client'<br/>selectId: ID of the input; defaults to the label appended with '_id'|
+|SimpleSelectComponent|Displays a select box|entityType: entity type<br/>items: list of entities<br/>itemLabel: attribute of item to use as primary field value<br/>fieldLabel: label for the field<br/>secondaryItemLabel: attribute of item to display in conjunction with itemLabel; defaults to null<br/>module: name of module, if applicable. Used to perform translation for localization; defaults to null<br/>selectId: ID of the input; defaults to fieldLabel appended with '_id'|
 
 Share Module
 """"""""""""
