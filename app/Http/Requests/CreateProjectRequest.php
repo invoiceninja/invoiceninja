@@ -11,7 +11,7 @@ class CreateProjectRequest extends ProjectRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PROJECT);
+        return $this->user()->can('create');
     }
 
     /**

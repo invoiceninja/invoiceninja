@@ -11,7 +11,7 @@ class CreateProposalRequest extends ProposalRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PROPOSAL);
+        return $this->user()->can('create');
     }
 
     /**

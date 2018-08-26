@@ -11,7 +11,7 @@ class CreateProductRequest extends ProductRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PRODUCT);
+        return $this->user()->can('create');
     }
 
     /**

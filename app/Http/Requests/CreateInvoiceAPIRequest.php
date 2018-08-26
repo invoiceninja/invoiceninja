@@ -13,7 +13,7 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_INVOICE);
+        return $this->user()->can('create');
     }
 
     /**

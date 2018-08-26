@@ -311,7 +311,7 @@
         $(function() {
             var vendorId = {{ $vendorPublicId ?: 0 }};
             var $vendorSelect = $('select#vendor_id');
-            @if (Auth::user()->can('create', ENTITY_VENDOR))
+            @if (Auth::user()->can('createEntity', ENTITY_VENDOR))
                 $vendorSelect.append(new Option("{{ trans('texts.create_vendor')}}: $name", '-1'));
             @endif
             for (var i = 0; i < vendors.length; i++) {
@@ -327,7 +327,7 @@
 
             var categoryId = {{ $categoryPublicId ?: 0 }};
             var $expense_categorySelect = $('select#expense_category_id');
-            @if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+            @if (Auth::user()->can('createEntity', ENTITY_EXPENSE_CATEGORY))
                 $expense_categorySelect.append(new Option("{{ trans('texts.create_expense_category')}}: $name", '-1'));
             @endif
             for (var i = 0; i < categories.length; i++) {

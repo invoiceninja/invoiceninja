@@ -21,7 +21,7 @@ class EntityPolicy
      */
 
     public function createPermission(User $user, $entityType)
-    {Log::error('create in parent');
+    {
 
         if (! $this->checkModuleEnabled($user, $entityType))
             return false;
@@ -119,5 +119,10 @@ class EntityPolicy
     {
         $entityType = is_string($item) ? $item : $item->getEntityType();
             return $user->account->isModuleEnabled($entityType);
+    }
+
+    public function createEntity(User $user, $entityType)
+    {
+        return $user->hasPermission('create_' . $entityType);
     }
 }

@@ -17,7 +17,7 @@ class CreateInvoiceRequest extends InvoiceRequest
 
 
         if (request()->input('is_quote'))
-            return $this->user()->can('create', ENTITY_QUOTE);
+            return $this->user()->can('create');
         else {
 
             if(request()->input('is_recurring'))
@@ -25,7 +25,7 @@ class CreateInvoiceRequest extends InvoiceRequest
             else
                 $standardOrRecurringInvoice = ENTITY_INVOICE;
 
-            return $this->user()->can('create', $standardOrRecurringInvoice);
+            return $this->user()->can('create');
         }
 
     }

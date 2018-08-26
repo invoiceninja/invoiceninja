@@ -442,7 +442,7 @@ class User extends Authenticatable
     public function canCreateOrEdit($entityType, $entity = false)
     {
         return ($entity && $this->can('edit', $entity))
-            || (! $entity && $this->can('create', $entityType));
+            || (! $entity && $this->can('create'));
     }
 
     /**

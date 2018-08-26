@@ -13,7 +13,7 @@ class CreatePaymentRequest extends PaymentRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PAYMENT);
+        return $this->user()->can('create');
     }
 
     /**

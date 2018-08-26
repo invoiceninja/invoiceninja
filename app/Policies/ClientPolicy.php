@@ -10,4 +10,6 @@ class ClientPolicy extends EntityPolicy
     {
         return $this->createPermission($user, ENTITY_CLIENT);
     }
+
+
 }

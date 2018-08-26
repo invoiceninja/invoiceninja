@@ -11,7 +11,7 @@ class CreateContactRequest extends ContactRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_CONTACT);
+        return $this->user()->can('create');
     }
 
     /**

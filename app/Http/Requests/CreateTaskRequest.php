@@ -11,7 +11,7 @@ class CreateTaskRequest extends TaskRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_TASK);
+        return $this->user()->can('create');
     }
 
     /**

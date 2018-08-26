@@ -13,7 +13,7 @@ class CreateExpenseRequest extends ExpenseRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_EXPENSE);
+        return $this->user()->can('create');
     }
 
     /**

@@ -431,7 +431,7 @@
 			$clientSelect.combobox({highlighter: comboboxHighlighter}).find('option').remove().end().combobox('refresh');
 			$clientSelect.append(new Option('', ''));
 
-			@if (Auth::user()->can('create', ENTITY_CLIENT))
+			@if (Auth::user()->can('createEntity', ENTITY_CLIENT))
 				//$clientSelect.append(new Option("{{ trans('texts.create_client')}}: $name", '-1'));
 			@endif
 
@@ -452,7 +452,7 @@
 			$projectCombobox.find('option').remove().end().combobox('refresh');
 			$projectCombobox.append(new Option('', ''));
 
-			@if (Auth::user()->can('create', ENTITY_PROJECT))
+			@if (Auth::user()->can('createEntity', ENTITY_PROJECT))
 				if (clientId) {
 					$projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
 				}

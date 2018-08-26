@@ -78,7 +78,7 @@ class EntityRequest extends Request
                 return true;
             }
         } else {
-            return $this->user()->can('create', $this->entityType);
+            return $this->user()->can('createEntity', $this->entityType);
         }
     }
 

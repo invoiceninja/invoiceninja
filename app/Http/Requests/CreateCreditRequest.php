@@ -11,7 +11,7 @@ class CreateCreditRequest extends CreditRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_CREDIT);
+        return $this->user()->can('create');
     }
 
     /**

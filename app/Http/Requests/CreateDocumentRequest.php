@@ -39,7 +39,7 @@ class CreateDocumentRequest extends DocumentRequest
             return false;
         }
 
-        return $this->user()->can('create', ENTITY_DOCUMENT);
+        return $this->user()->can('create');
     }
 
     /**

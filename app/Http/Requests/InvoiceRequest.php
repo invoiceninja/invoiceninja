@@ -27,13 +27,13 @@ class InvoiceRequest extends EntityRequest
             $standardOrRecurringInvoice = ENTITY_INVOICE;
 
 
-        if(request()->is('invoices/create') && $this->user()->can('create', ENTITY_INVOICE))
+        if(request()->is('invoices/create') && $this->user()->can('createEntity', ENTITY_INVOICE))
             return true;
 
-        if(request()->is('recurring_invoices/create') && $this->user()->can('create', ENTITY_RECURRING_INVOICE))
+        if(request()->is('recurring_invoices/create') && $this->user()->can('createEntity', ENTITY_RECURRING_INVOICE))
             return true;
 
-        if(request()->is('quotes/create') && $this->user()->can('create', ENTITY_QUOTE))
+        if(request()->is('quotes/create') && $this->user()->can('createEntity', ENTITY_QUOTE))
             return true;
 
         if(request()->is('invoices/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $standardOrRecurringInvoice))

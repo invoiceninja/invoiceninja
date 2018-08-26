@@ -1351,7 +1351,7 @@
 			}
 			if (!isSaveValid()) {
 
-				@if(Auth::user()->can('create', ENTITY_CLIENT))
+				@if(Auth::user()->can('createEntity', ENTITY_CLIENT))
 					model.showClientForm();
 					return false;
 				@else
@@ -1451,7 +1451,7 @@
 	function submitAction(value) {
 		if (!isSaveValid()) {
 
-			@if(Auth::user()->can('create', ENTITY_CLIENT))
+			@if(Auth::user()->can('createEntity', ENTITY_CLIENT))
 				model.showClientForm();
 				return false;
 			@else

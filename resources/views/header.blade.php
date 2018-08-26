@@ -424,7 +424,7 @@
             ] as $option)
                 @if (in_array($option, ['dashboard', 'settings'])
                     || Auth::user()->can('view', substr($option, 0, -1))
-                    || Auth::user()->can('create', substr($option, 0, -1)))
+                    || Auth::user()->can('createEntity', substr($option, 0, -1)))
                     @include('partials.navigation_option')
                 @endif
             @endforeach

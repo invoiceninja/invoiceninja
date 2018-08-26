@@ -13,7 +13,7 @@ class CreateTicketTemplateRequest extends Request
 
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_TICKET);
+        return $this->user()->can('create');
     }
 
     /**
