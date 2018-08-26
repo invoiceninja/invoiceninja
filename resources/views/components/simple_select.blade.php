@@ -1,7 +1,6 @@
 {!! Former::select($selectId)
     ->addOption('', '')
-    ->label($label)
-    ->addGroupClass('required') !!}
+    ->label($fieldLabel) !!}
 
 @push('component_scripts')
     <script type="text/javascript">

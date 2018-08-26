@@ -11,16 +11,16 @@ class SimpleSelectComponent implements Htmlable
     protected $entityType;
     protected $items;
     protected $itemLabel;
-    protected $label;
+    protected $fieldLabel;
     protected $module;
     protected $secondaryItemLabel;
     protected $selectId;
 
-    public function __construct($entityType, $items, $itemLabel, $label, $secondaryItemLabel = null, $module = null, $selectId = null) {
+    public function __construct($entityType, $items, $itemLabel, $fieldLabel, $secondaryItemLabel = null, $module = null, $selectId = null) {
         $this->entityType = $entityType;
         $this->items = $items;
         $this->itemLabel = $itemLabel;
-        $this->label = $label;
+        $this->fieldLabel = $fieldLabel;
         $this->module = $module;
         $this->secondaryItemLabel = $secondaryItemLabel;
 
@@ -33,6 +33,6 @@ class SimpleSelectComponent implements Htmlable
 
     public function toHtml()
     {
-        return View::make('components.simple_select')->with(['entityType' => $this->entityType, 'items' => $this->items, 'itemLabel' => $this->itemLabel, 'secondaryItemLabel' => $this->secondaryItemLabel, 'label' => mtrans($this->module, $this->label), 'selectId' => $this->selectId])->render();
+        return View::make('components.simple_select')->with(['entityType' => $this->entityType, 'items' => $this->items, 'itemLabel' => $this->itemLabel, 'secondaryItemLabel' => $this->secondaryItemLabel, 'label' => mtrans($this->module, $this->fieldLabel), 'selectId' => $this->selectId])->render();
     }
 }
