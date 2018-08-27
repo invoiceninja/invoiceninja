@@ -228,6 +228,7 @@ class TicketController extends BaseController
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
             'method' => 'PUT',
+            'isAdminUser' => Auth::user()->is_admin || Auth::user()->isTicketMaster() ? true : false,
         ];
     }
 

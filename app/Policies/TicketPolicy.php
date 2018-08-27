@@ -38,6 +38,19 @@ class TicketPolicy extends EntityPolicy
         return $user->hasPermission('view_' . $entityType) || $user->owns($item) || $user->id == $item->agent_id;
     }
 
+    /**
+     * @param User $user
+     * @param $item
+     * @param null $entityType
+     * @return bool
+     */
+    public function edit(User $user, $item, $entityType = null)
+    {
+        if(!$entityType)
+            $entityType = is_string($item) ? $item : $item->getEntityType();
+
+        return $user->hasPermission('edit_' . $entityType) || $user->owns($item) || $user->id == $item->agent_id;
+    }
 
     /**
      * @param User $user
