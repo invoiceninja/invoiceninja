@@ -39,7 +39,8 @@ class CreateDocumentRequest extends DocumentRequest
             return false;
         }
 
-        return $this->user()->can('create');
+        return true;
+        //return $this->user()->can('create');
     }
 
     /**

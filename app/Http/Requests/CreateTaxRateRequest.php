@@ -13,7 +13,7 @@ class CreateTaxRateRequest extends TaxRateRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create');
+        return $this->user()->hasPermission('admin');
     }
 
     /**

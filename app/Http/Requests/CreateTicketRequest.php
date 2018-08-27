@@ -21,7 +21,7 @@ class CreateTicketRequest extends Request
 
     public function authorize()
     {
-        return $this->user()->can('create');
+        return $this->user()->can('create', Ticket::class);
     }
 
     /**
