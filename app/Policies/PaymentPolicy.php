@@ -2,6 +2,9 @@
 
 namespace App\Policies;
 
+use App\Models\User;
+
+
 /**
  * Class PaymentPolicy
  * @package App\Policies

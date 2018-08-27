@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Models\User;
+
 /**
  * Class RecurringQuotePolicy
  * @package App\Policies
