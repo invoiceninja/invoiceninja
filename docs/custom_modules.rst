@@ -20,7 +20,7 @@ For example:
 
     php artisan module:install invoiceninja/sprockets --type=github
 
-.. TIP:: One a module is installed it can enabled/disabled on Settings > Account Management
+.. TIP:: Once a module is installed it can enabled/disabled on Settings > Account Management
 
 
 Create Module
@@ -47,11 +47,42 @@ To run the database migration use:
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in module.json.
 
-There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json. 
+There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json.
 
 If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
 
 .. NOTE:: Our module implemention is currenty being actively worked on, you can join the discussion on our Slack group: http://slack.invoiceninja.com/
+
+Components
+==========
+
+There are UI widgets that can be re-used as part of a custom module implementation.
+
+To use a widget, you must:
+
+- Add to the bottom of the content section:
+
+.. code-block:: php
+
+    @stack('component_scripts')
+
+To render the widget, use the fully-qualified class name anywhere above the @stack declaration:
+
+.. code-block:: php
+
+    @render('App\Http\ViewComponents\ComponentName', [$variables])
+
+or
+
+Depending on the widget, certain variables will need to be passed via the second parameter of the @render statement.
+
+.. NOTE::  Any data required by the widget must be passed in @render statement.  This means the module developer must ensure to perform any data access in the controller and pass it into the enclosing view.
+
+Currently, the following widgets exist:
+
+|Name|Description|Parameters|
+|--|--|--|
+|SimpleSelectComponent|Displays a select box|entityType: entity type<br/>items: list of entities<br/>itemLabel: attribute of item to use as primary field value<br/>fieldLabel: label for the field<br/>secondaryItemLabel: attribute of item to display in conjunction with itemLabel; defaults to null<br/>module: name of module, if applicable. Used to perform translation for localization; defaults to null<br/>selectId: ID of the input; defaults to fieldLabel appended with '_id'|
 
 Share Module
 """"""""""""
