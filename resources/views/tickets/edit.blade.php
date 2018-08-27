@@ -62,7 +62,7 @@
                         <tr><td class="td-left">{!! trans('texts.subject')!!}:</td><td class="td-right">{!! substr($ticket->subject, 0, 30) !!}</td></tr>
                         @if($ticket->client)
                             <tr><td class="td-left" style="height:60px">{!! trans('texts.client') !!}:</td><td class="td-right">{!! $ticket->client->name !!}</td></tr>
-                        @else
+                        @elseif($ticket->user_id == $ticket->agent_id)
                             <tr><td class="td-left" style="height:60px">{!! trans('texts.client') !!}:</td>
                                 <td class="td-right">
                                     {!! Former::select('client_public_id')
@@ -112,7 +112,7 @@
 
                         <tr><td class="td-left">{!! trans('texts.due_date') !!}:</td>
                             <td class="td-right">
-                                <input id="due_date" type="text" data-bind="value: due_date.pretty" name="due_date"
+                                <input id="due_date" type="text" data-bind="value: due_date.pretty, enable: " name="due_date"
                                        class="form-control time-input time-input-end" placeholder="{{ trans('texts.due_date') }}"/>
                             </td>
                         </tr>
@@ -401,6 +401,10 @@
                 }
             });
 
+
+            self.due_date.isSettable = ko.computed({
+
+            });
 
             if (data) {
                 ko.mapping.fromJS(data, self.mapping, this);
