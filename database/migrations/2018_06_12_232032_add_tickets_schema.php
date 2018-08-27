@@ -113,6 +113,7 @@ class AddTicketsSchema extends Migration
             $table->text('description');
             $table->string('contact_key', 255);
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('agent_id')->nullable();
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('ticket_id');
             $table->unsignedInteger('public_id');

@@ -30,6 +30,11 @@ class TicketComment extends EntityModel
      */
     public function agent()
     {
+        return $this->hasOne('App\Models\User', 'id', 'agent_id');
+    }
+
+    public function user()
+    {
         return $this->hasOne('App\Models\User', 'id', 'user_id');
     }
 
