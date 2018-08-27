@@ -71,8 +71,6 @@ if (! defined('APP_NAME')) {
         ENTITY_TICKET,
         ENTITY_TASK,
         ENTITY_VENDOR,
-        ENTITY_RECURRING_INVOICE,
-        ENTITY_RECURRING_QUOTE
     ];
 
     define('PERMISSION_ENTITIES', json_encode($permissionEntities));

@@ -23,8 +23,8 @@ class TicketDatatable extends EntityDatatable
             [
                 trans('ticket_number'),
 
-                function ($model) use ($entityType) {
-                        if(Auth::user()->can('viewModel', $model, ENTITY_TICKET)) {
+                function ($model) use ($entityType) { $model->entityType = ENTITY_TICKET;
+                        if(Auth::user()->can('viewModel', $model)) {
                             $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->ticket_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                             return $this->addNote($str, $model->private_notes);
                         }
@@ -88,8 +88,8 @@ class TicketDatatable extends EntityDatatable
                     function ($model) {
                         return URL::to("tickets/{$model->public_id}/edit");
                     },
-                    function ($model) {
-                        return Auth::user()->can('viewModel', $model, $this->entityType);
+                    function ($model) { $model->entityType = $this->entityType;
+                        return Auth::user()->can('viewModel', $model);
                     },
                 ],
                 [
