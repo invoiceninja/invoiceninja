@@ -45,8 +45,11 @@ class TicketComment extends EntityModel
     {
         if($this->contact_key)
             return $this->ticket->getContactName(). ' @ ' . Utils::fromSqlDateTime($this->updated_at); //client replied
-        else
+        elseif($this->agent_id)
             return $this->agent->getName(). ' @ ' . Utils::fromSqlDateTime($this->updated_at); //staff replied
+        else
+            return $this->user->getName(). ' @ ' . Utils::fromSqlDateTime($this->updated_at); //ticket master replied
+
 
     }
 }

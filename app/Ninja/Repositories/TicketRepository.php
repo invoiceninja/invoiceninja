@@ -147,6 +147,8 @@ class TicketRepository extends BaseRepository
 
             if(!Auth::user())//do we need to filter for is_internal here?
                 $ticketComment->contact_key = $input['contact_key'];
+            else
+                $ticketComment->agent_id = Auth::user()->id;
 
             $ticket->comments()->save($ticketComment);
 
