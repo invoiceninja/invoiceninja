@@ -2,11 +2,10 @@
 
 namespace App\Ninja\Datatables;
 
-use App\Models\Client;
 use App\Models\Contact;
-use App\Models\Ticket;
 use Auth;
-use Illuminate\Support\Facades\Log;
+use Bootstrapper\Facades\Button;
+use Bootstrapper\Facades\Icon;
 use URL;
 use Utils;
 
@@ -75,6 +74,17 @@ class TicketDatatable extends EntityDatatable
                 'due_date',
                 function ($model) {
                     return Utils::fromSqlDateTime($model->due_date) ?: trans('texts.no_due_date');
+                }
+            ],
+            [
+                '',
+                function ($model) {$str = 'lah';
+                    return '
+                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="1"></span>
+                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="2"></span>
+                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="3"></span>
+                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="4"></span>
+                            ';
                 }
             ],
         ];
