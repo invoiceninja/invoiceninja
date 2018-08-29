@@ -7,7 +7,7 @@ use App\Models\LookupTicketInvitation;
 use App\Ninja\Tickets\Inbound\InboundTicketFactory;
 use Closure;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 
 
 class InboundTicketCheck
@@ -22,6 +22,7 @@ class InboundTicketCheck
      */
     public function handle(Request $request, Closure $next)
     {
+    Log::error('ticket middleware hit');
 
         if (! config('multi_db_enabled'))
             return $next($request);
