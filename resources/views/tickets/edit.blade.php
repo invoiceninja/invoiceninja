@@ -134,6 +134,7 @@
     <div class="row">
         <center class="buttons">
 
+            @if(!$ticket->is_internal && $ticket->client)
             {!! DropdownButton::normal(trans('texts.more_actions'))
             ->withContents([
                 ['label'=>trans('texts.ticket_merge'),'url'=>'/tickets/merge/'. $ticket->public_id ],
@@ -141,6 +142,7 @@
             ])
             ->large()
             ->dropup() !!}
+            @endif
 
                 @if($ticket && $ticket->status->id == 3)
                     {!! Button::warning(trans('texts.ticket_reopen'))->large()->withAttributes(['onclick' => 'reopenAction()']) !!}
