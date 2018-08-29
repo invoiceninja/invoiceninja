@@ -7,9 +7,16 @@ use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
 
+/**
+ * Class InboundTicketService
+ * @package App\Ninja\Tickets\Inbound
+ */
 class InboundTicketService
 {
 
+    /**
+     * @var InboundTicketFactory
+     */
     protected $inboundTicketFactory;
 
     /**
@@ -21,21 +28,28 @@ class InboundTicketService
         $this->inboundTicketFactory = $inboundTicketFactory;
     }
 
+    /**
+     * @return mixed
+     */
     public function process()
     {
+        /* Attempt to parse the hash and harvest the $ticket */
         if($ticket_hash = $this->inboundTicketFactory->mailboxHash()) {
 
             $ticketInvitation = TicketInvitation::whereTicketHash($ticket_hash)->first();
 
             if($ticketInvitation)
                 return $ticketInvitation->ticket;
-            else
-                $this->checkSupportEmailAttempt();
 
         }
+        else
+            $this->checkSupportEmailAttempt(); //if no valid hash exists - check if we can match via the custom local part
 
     }
 
+    /**
+     * @return null
+     */
     private function checkSupportEmailAttempt()
     {
         $to = $this->inboundTicketFactory->to();
@@ -62,6 +76,11 @@ class InboundTicketService
 
     }
 
+    /**
+     * @param $user
+     * @param $contact
+     * @return mixed
+     */
     public function createTicket($user, $contact)
     {
         $ticket = Ticket::createNew($user);

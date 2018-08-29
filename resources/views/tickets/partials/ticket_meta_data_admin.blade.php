@@ -39,6 +39,7 @@
                                 {!! Former::select('agent_id')
                                     ->label('')
                                     ->text(trans('texts.ticket_master'))
+                                    ->addOption('', '')
                                     ->fromQuery($account->users, 'displayName', 'id')
                                  !!}
                             </div>
