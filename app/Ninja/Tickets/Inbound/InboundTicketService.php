@@ -64,6 +64,9 @@ class InboundTicketService
         $from = $this->inboundTicketFactory->fromEmail();
 
         Log::error($from);
+            $ticket = Ticket::find(1)->first();
+
+        Log::error(print_r($ticket,1));
         
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
 
