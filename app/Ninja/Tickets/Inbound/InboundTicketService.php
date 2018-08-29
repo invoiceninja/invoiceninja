@@ -90,6 +90,7 @@ class InboundTicketService
     {
         $ticket = Ticket::createNew($user);
         $ticket->client_id = $contact->client_id;
+        $ticket->contact_key = $contact->contact_key;
         $ticket->agent_id = $user->id;
         $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
         $ticket->priority_id = TICKET_PRIORITY_LOW;
