@@ -63,7 +63,11 @@ class InboundTicketService
         $from = $this->inboundTicketFactory->fromEmail();
 
         $accountTicketSettings = AccountTicketSettings::whereSupportEmailLocalPart($parts[0])->first();
-
+        DB::listen(function ($query) {
+             Log::error($query->sql);
+            // $query-&gt;bindings
+            // $query-&gt;time
+        });
         Log::error(print_r($accountTicketSettings,1));
 
         if($accountTicketSettings) {
