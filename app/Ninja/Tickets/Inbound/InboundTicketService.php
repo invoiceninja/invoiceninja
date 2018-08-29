@@ -77,7 +77,7 @@ class InboundTicketService
             if(count($contacts) == 1) { Log::error('found a contact - creating ticket');
                 return $this->createTicket($accountTicketSettings->ticket_master, $contacts[0]);
             }
-            elseif(count($contacts > 1)){
+            elseif(count($contacts) > 1){
                 //what happens if we have multiple identical emails assigned to the same account? breakage.
                 Log::error('multiple contacts - could not determine which account this belongs to');
             }
