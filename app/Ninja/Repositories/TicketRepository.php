@@ -69,7 +69,7 @@ class TicketRepository extends BaseRepository
                 'tickets.contact_key',
                 'tickets.merged_parent_ticket_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                DB::raw("COALESCE(NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),'')) contact_name"),
+                DB::raw("COALESCE(NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name), '')) contact_name"),
                 DB::raw("COALESCE(NULLIF(clients.user_id,'')) client_user_id"),
                 DB::raw("COALESCE(NULLIF(clients.public_id,'')) client_public_id"),
                 DB::raw("NULLIF(CONCAT(users.first_name, ' ', users.last_name),'') agent_name")

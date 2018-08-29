@@ -44,9 +44,8 @@ class TicketDatatable extends EntityDatatable
             [
                 'contact',
                 function ($model) {
-                    if($model->is_internal == false) {
+                    if($model->is_internal == false && $model->contact_name)
                         return link_to("clients/{$model->client_public_id}", $model->contact_name)->toHtml();
-                    }
                     elseif($model->is_internal == true && ($model->agent_id > 0))
                         return $model->agent_name;
                     else

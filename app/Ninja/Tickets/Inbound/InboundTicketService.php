@@ -6,7 +6,6 @@ use App\Models\AccountTicketSettings;
 use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -94,6 +93,9 @@ class InboundTicketService
         $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
         $ticket->priority_id = TICKET_PRIORITY_LOW;
         $ticket->status_id = TICKET_STATUS_NEW;
+        $ticket->subject = $this->inboundTicketFactory->subject();
+        $ticket->description = $this->inboundTicketFactory->TextBody();
+        $ticket->category_id = 1;
         $ticket->save();
 
             return $ticket;
@@ -106,6 +108,10 @@ class InboundTicketService
         $ticket->ticket_number = Ticket::getNextTicketNumber($account->id);
         $ticket->priority_id = TICKET_PRIORITY_LOW;
         $ticket->status_id = TICKET_STATUS_NEW;
+        $ticket->subject = $this->inboundTicketFactory->subject();
+        $ticket->description = $this->inboundTicketFactory->TextBody();
+        $ticket->category_id = 1;
+
 
         $ticket->save();
 

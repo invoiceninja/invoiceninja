@@ -23,11 +23,9 @@ class InboundTicketCheck
 
     public function handle(Request $request, Closure $next)
     {
-    Log::error('ticket middleware hit');
 
         if (! config('multi_db_enabled'))
             return $next($request);
-
 
         $inbound = new InboundTicketFactory($request->input());
 
@@ -36,9 +34,8 @@ class InboundTicketCheck
             LookupTicketInvitation::setServerByField('ticket_hash', $inbound->mailboxHash());
 
         }
-
-        if($inbound->to()) {
-
+        elseif($inbound->to()) {
+            //otherwise check if we can find the unique localpart.
             $parts = explode("@", $inbound->to());
 
             LookupAccount::setServerByField('support_email_local_part', $parts[0]);
