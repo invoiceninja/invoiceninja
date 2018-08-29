@@ -65,7 +65,7 @@ class InboundTicketFactory {
      */
     public function to()
     {
-        return $this->source->To;
+        return str_replace('"', "", $this->source->To);
     }
 
     public function originalRecipient()

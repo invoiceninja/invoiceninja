@@ -53,21 +53,12 @@ class InboundTicketService
      * @return null
      */
     private function checkSupportEmailAttempt()
-    { Log::error('check if we can match the email sender to a contact and create a new ticket');
-        Log::error($this->inboundTicketFactory->to());
-
+    {
         $to = $this->inboundTicketFactory->to();
         $parts = explode("@", $to);
 
-        Log::error($parts[0]);
-
         $from = $this->inboundTicketFactory->fromEmail();
 
-        Log::error($from);
-            $ticket = Ticket::find(1)->first();
-
-        Log::error(print_r($ticket,1));
-        
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
 
         DB::listen(function ($query) {
