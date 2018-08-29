@@ -93,6 +93,7 @@ class InboundTicketService
         $ticket->agent_id = $user->id;
         $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
         $ticket->priority_id = TICKET_PRIORITY_LOW;
+        $ticket->status_id = TICKET_STATUS_NEW;
         $ticket->save();
 
             return $ticket;
@@ -104,6 +105,8 @@ class InboundTicketService
         $ticket->contact_key = $contactEmail;
         $ticket->ticket_number = Ticket::getNextTicketNumber($account->id);
         $ticket->priority_id = TICKET_PRIORITY_LOW;
+        $ticket->status_id = TICKET_STATUS_NEW;
+
         $ticket->save();
 
         return $ticket;
