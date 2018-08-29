@@ -50,7 +50,7 @@ class InboundTicketService
     }
 
     /**
-     * @return null
+     * @return $ticket if
      */
     private function checkSupportEmailAttempt()
     {
@@ -66,15 +66,19 @@ class InboundTicketService
                                 ->whereEmail($from)->get();
 
 
-            if(count($contacts) == 1) { Log::error('found a contact - creating ticket');
+            if(count($contacts) == 1) {
                 return $this->createTicket($accountTicketSettings->ticket_master, $contacts[0]);
             }
             elseif(count($contacts) > 1){
-                //what happens if we have multiple identical emails assigned to the same account? breakage.
-                Log::error('multiple contacts - could not determine which account this belongs to');
+                /*
+                Handle an edge case where one email address is registered across two different accounts.
+                Need to handle this by creating a modified ticket without client/contact
+                the contact email is stored in the contact_key field and a range of clients are harvested for selection when the
+                ticket master views the ticket
+                */
                 return $this->createClientlessTicket($accountTicketSettings->ticket_master, $from, $accountTicketSettings->account);
             }
-            else { Log::error('not sure what happened');
+            else { Log::error('No contacts with this email address are registered in the system - '.$from);
                 return null;
             }
         }
@@ -84,7 +88,7 @@ class InboundTicketService
     /**
      * @param $user
      * @param $contact
-     * @return mixed
+     * @return $ticket
      */
     private function createTicket($user, $contact)
     {
@@ -107,6 +111,12 @@ class InboundTicketService
             return $ticket;
     }
 
+    /**
+     * @param $user
+     * @param $contactEmail
+     * @param $account
+     * @return $ticket
+     */
     private function createClientlessTicket($user, $contactEmail, $account)
     {
         $ticket = Ticket::createNew($user, $contactEmail);
