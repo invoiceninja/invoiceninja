@@ -94,9 +94,13 @@ class InboundTicketService
         $ticket->priority_id = TICKET_PRIORITY_LOW;
         $ticket->status_id = TICKET_STATUS_NEW;
         $ticket->subject = $this->inboundTicketFactory->subject();
-        $ticket->description = $this->inboundTicketFactory->TextBody();
         $ticket->category_id = 1;
         $ticket->save();
+
+        $ticketComment = TicketComment::createNew($ticket);
+        $ticketComment->description = $this->inboundTicketFactory->TextBody();
+        $ticketComment->contact_key = $contact->contact_key;
+        $ticket->comments()->save($ticketComment);
 
             return $ticket;
     }
@@ -111,9 +115,12 @@ class InboundTicketService
         $ticket->subject = $this->inboundTicketFactory->subject();
         $ticket->description = $this->inboundTicketFactory->TextBody();
         $ticket->category_id = 1;
-
-
         $ticket->save();
+
+        $ticketComment = TicketComment::createNew($ticket);
+        $ticketComment->description = $this->inboundTicketFactory->TextBody();
+        $ticketComment->agent_id = $user->id;
+        $ticket->comments()->save($ticketComment);
 
         return $ticket;
     }

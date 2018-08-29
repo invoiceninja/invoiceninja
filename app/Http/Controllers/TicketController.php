@@ -237,7 +237,6 @@ class TicketController extends BaseController
      */
     public function inbound(TicketInboundRequest $request)
     {
-        Log::error('in controller');
 
         $ticket = $request->entity();
 
@@ -245,7 +244,7 @@ class TicketController extends BaseController
             Log::error('no ticket found - ? spam or new request?');
         }
         else {
-            Log::error('ticket #{$ticket->ticket_number} found');
+            Log::error('ticket #'. $ticket->ticket_number .' found');
         }
 
     }
