@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class DocumentPolicy.
@@ -41,6 +42,10 @@ class DocumentPolicy extends EntityPolicy
         if ($document->invoice) {
             return $user->can('view', $document->invoice);
         }
+        if($document->ticket){
+            return $user->can('view', $document->ticket);
+        }
+
 
         return $user->owns($document);
     }

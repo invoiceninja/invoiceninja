@@ -39,12 +39,19 @@ class TicketRepository extends BaseRepository
             ->leftJoin('clients', 'clients.id', '=', 'tickets.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
             ->leftJoin('ticket_statuses', 'ticket_statuses.id', '=', 'tickets.status_id')
+            ->leftJoin('ticket_comments', function ($join) {
+                $join->on('ticket_comments.ticket_id', '=', 'tickets.id');
+                $join->where('ticket_comments.id', '=', DB::raw('(SELECT ticket_comments.id FROM ticket_comments where ticket_comments.ticket_id = tickets.id ORDER BY id DESC limit 1) '));
+            })
             ->leftJoin('users', 'users.id', '=', 'tickets.agent_id')
             //->where('tickets.is_deleted', '=', false)
             ->where('clients.deleted_at', '=', null)
             ->where('contacts.deleted_at', '=', null)
             //->where('contacts.is_primary', '=', true)
             ->select(
+                'ticket_comments.contact_key as lastContactByContactKey',
+                'ticket_comments.id as commentId',
+                'tickets.priority_id',
                 'tickets.ticket_number',
                 'tickets.due_date',
                 'tickets.public_id',
@@ -62,6 +69,7 @@ class TicketRepository extends BaseRepository
                 'tickets.contact_key',
                 'tickets.merged_parent_ticket_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),'')) contact_name"),
                 DB::raw("COALESCE(NULLIF(clients.user_id,'')) client_user_id"),
                 DB::raw("COALESCE(NULLIF(clients.public_id,'')) client_public_id"),
                 DB::raw("NULLIF(CONCAT(users.first_name, ' ', users.last_name),'') agent_name")
@@ -99,6 +107,7 @@ class TicketRepository extends BaseRepository
 
         if(!Auth::user()->can('view', ENTITY_TICKET))
             $query->where('tickets.agent_id', '=', Auth::user()->id);
+
 
         return $query;
     }

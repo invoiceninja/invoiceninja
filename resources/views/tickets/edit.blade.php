@@ -130,6 +130,7 @@
 
     </div>
 
+    @can('edit', $ticket)
     <div class="row">
         <center class="buttons">
 
@@ -152,6 +153,8 @@
 
         </center>
     </div>
+    @endcan
+
     @endif
 
     <div role="tabpanel" class="panel-default" style="margin-top:30px;">
@@ -196,7 +199,7 @@
 
 
         </div>
-        @if(!$ticket->merged_parent_ticket_id)
+        @if(!$ticket->merged_parent_ticket_id && Auth::user()->can('edit', $ticket))
         <div class="pull-right">
             {!! Button::primary(trans('texts.save'))->large()->withAttributes(['onclick' => 'saveAction()']) !!}
         </div>
@@ -296,7 +299,12 @@
 
             self.due_date.pretty = ko.computed({
                 read: function() {
-                    return self.due_date() ? moment(self.due_date()).format(dateTimeFormat) : '';
+
+                    if(self.due_date() == '0000-00-00 00:00:00')
+                        return;
+                    else
+                        return self.due_date() ? moment(self.due_date()).format(dateTimeFormat) : '';
+
                 },
                 write: function(data) {
                     self.due_date(moment($('#due_date').val(), dateTimeFormat, timezone).format("YYYY-MM-DD HH:mm:ss"));

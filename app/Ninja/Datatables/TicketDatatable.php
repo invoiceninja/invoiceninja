@@ -45,15 +45,10 @@ class TicketDatatable extends EntityDatatable
                 'contact',
                 function ($model) {
                     if($model->is_internal == false) {
-                        $contact = Contact::getContactByContactKey($model->contact_key);
-                        if($contact)
-                            $name = $contact->getName();
-                        else
-                            $name = '';
-                        return link_to("clients/{$model->client_public_id}", $name)->toHtml();
+                        return link_to("clients/{$model->client_public_id}", $model->contact_name)->toHtml();
                     }
                     elseif($model->is_internal == true && ($model->agent_id > 0))
-                        return $model->agent_name. ' (' . trans('texts.internal_ticket') . ')';
+                        return $model->agent_name;
                     else
                         return '';
                 },
@@ -78,13 +73,8 @@ class TicketDatatable extends EntityDatatable
             ],
             [
                 '',
-                function ($model) {$str = 'lah';
-                    return '
-                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="1"></span>
-                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="2"></span>
-                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="3"></span>
-                            <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="4"></span>
-                            ';
+                function ($model) {
+                    return $this->ticketIcons($model);
                 }
             ],
         ];

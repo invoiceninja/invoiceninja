@@ -2902,6 +2902,7 @@ $LANG = array(
     'no_due_date' => 'No due date set',
     'assigned_to' => 'Assigned to',
     'reply' => 'Reply',
+    'awaiting_reply' => 'Awaiting reply',
     'ticket_close' => 'Close Ticket',
     'ticket_reopen' => 'Reopen Ticket',
     'ticket_open' => 'Open Ticket',
