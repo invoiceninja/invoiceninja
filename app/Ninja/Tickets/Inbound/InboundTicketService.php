@@ -53,6 +53,9 @@ class InboundTicketService
      */
     private function checkSupportEmailAttempt()
     { Log::error('check if we can match the email sender to a contact and create a new ticket');
+        Log::error(print_r($this->inboundTicketFactory->jsonToArray(),1));
+        Log::error($this->inboundTicketFactory->to());
+        
         $to = $this->inboundTicketFactory->to();
         $parts = explode("@", $to);
 
