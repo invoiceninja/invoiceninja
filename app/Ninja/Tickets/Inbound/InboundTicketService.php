@@ -61,14 +61,6 @@ class InboundTicketService
 
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
 
-        DB::listen(function ($query) {
-             Log::error($query->sql);
-            Log::error($query->bindings);
-            Log::error($query->time);
-        });
-
-        Log::error(print_r($accountTicketSettings,1));
-
         if($accountTicketSettings) {
             $contacts = Contact::whereAccountId($accountTicketSettings->account_id)
                                 ->whereEmail($from)->get();
@@ -80,6 +72,7 @@ class InboundTicketService
             elseif(count($contacts) > 1){
                 //what happens if we have multiple identical emails assigned to the same account? breakage.
                 Log::error('multiple contacts - could not determine which account this belongs to');
+                return $this->createClientlessTicket($accountTicketSettings->ticket_master, $from, $accountTicketSettings->account);
             }
             else { Log::error('not sure what happened');
                 return null;
@@ -93,7 +86,7 @@ class InboundTicketService
      * @param $contact
      * @return mixed
      */
-    public function createTicket($user, $contact)
+    private function createTicket($user, $contact)
     {
         $ticket = Ticket::createNew($user);
         $ticket->client_id = $contact->client_id;
@@ -103,6 +96,17 @@ class InboundTicketService
         $ticket->save();
 
             return $ticket;
+    }
+
+    private function createClientlessTicket($user, $contactEmail, $account)
+    {
+        $ticket = Ticket::createNew($user, $contactEmail);
+        $ticket->contact_key = $contactEmail;
+        $ticket->ticket_number = Ticket::getNextTicketNumber($account->id);
+        $ticket->priority_id = TICKET_PRIORITY_LOW;
+        $ticket->save();
+
+        return $ticket;
     }
 
 }
