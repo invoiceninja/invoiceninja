@@ -60,9 +60,13 @@ class InboundTicketService
         $to = $this->inboundTicketFactory->to();
         $parts = explode("@", $to);
 
+        Log::error($parts[0]);
+
         $from = $this->inboundTicketFactory->fromEmail();
 
         $accountTicketSettings = AccountTicketSettings::whereSupportEmailLocalPart($parts[0])->first();
+
+        Log::error(print_r($accountTicketSettings,1));
 
         if($accountTicketSettings) {
             $contacts = Contact::whereAccountId($accountTicketSettings->account_id)

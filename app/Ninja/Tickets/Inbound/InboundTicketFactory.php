@@ -34,7 +34,7 @@ class InboundTicketFactory {
      * @return mixed
      * @throws \Exception
      */
-    public function jsonToArray()
+    private function jsonToArray()
     {
         $this->source = json_decode($this->json, FALSE);
 
