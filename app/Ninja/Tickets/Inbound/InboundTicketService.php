@@ -6,6 +6,7 @@ use App\Models\AccountTicketSettings;
 use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
