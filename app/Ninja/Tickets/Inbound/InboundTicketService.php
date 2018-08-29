@@ -6,6 +6,7 @@ use App\Models\AccountTicketSettings;
 use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class InboundTicketService
@@ -43,7 +44,7 @@ class InboundTicketService
 
         }
         else
-            $this->checkSupportEmailAttempt(); //if no valid hash exists - check if we can match via the custom local part
+            return $this->checkSupportEmailAttempt(); //if no valid hash exists - check if we can match via the custom local part
 
     }
 
@@ -51,7 +52,7 @@ class InboundTicketService
      * @return null
      */
     private function checkSupportEmailAttempt()
-    {
+    { Log::error('check if we can match the email sender to a contact and create a new ticket');
         $to = $this->inboundTicketFactory->to();
         $parts = explode("@", $to);
 
@@ -64,14 +65,16 @@ class InboundTicketService
                                 ->whereEmail($from)->get();
 
 
-            if(count($contacts) == 1) {
-                $this->createTicket($accountTicketSettings->ticket_master, $contacts[0]);
+            if(count($contacts) == 1) { Log::error('found a contact - creating ticket');
+                return $this->createTicket($accountTicketSettings->ticket_master, $contacts[0]);
             }
             elseif(count($contacts > 1)){
                 //what happens if we have multiple identical emails assigned to the same account? breakage.
+                Log::error('multiple contacts - could not determine which account this belongs to');
             }
-            else
+            else { Log::error('not sure what happened');
                 return null;
+            }
         }
 
     }
@@ -89,6 +92,7 @@ class InboundTicketService
         $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
         $ticket->priority_id = TICKET_PRIORITY_LOW;
         $ticket->save();
+
             return $ticket;
     }
 
