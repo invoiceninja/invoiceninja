@@ -20,6 +20,7 @@ class InboundTicketCheck
      *
      * @return mixed
      */
+
     public function handle(Request $request, Closure $next)
     {
     Log::error('ticket middleware hit');

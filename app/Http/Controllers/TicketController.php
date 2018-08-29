@@ -242,7 +242,7 @@ class TicketController extends BaseController
         $ticket = $request->entity();
 
         if(!$ticket) {
-            Log::error('no ticket found - ? spam or new request?')
+            Log::error('no ticket found - ? spam or new request?');
         }
         else {
             Log::error('ticket #{$ticket->ticket_number} found');
