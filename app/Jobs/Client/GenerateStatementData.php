@@ -124,7 +124,7 @@ class GenerateStatementData
             $item->custom_value2 = $payment->present()->payment_type;
             $item->cost = $payment->getCompletedAmount();
             $item->invoice_item_type_id = 3;
-            $item->notes = $payment->transaction_reference;
+            $item->notes = $payment->transaction_reference ?: ' ';
             $data->push($item);
         }
 
