@@ -697,6 +697,9 @@ if (! defined('APP_NAME')) {
     define('TICKET_CLIENT_NEW', 'ticket_client_new');
     define('TICKET_CLIENT_UPDATE', 'ticket_client_update');
     define('TICKET_INBOUND_NEW', 'ticket_inbound_new');
+    define('TICKET_AGENT_UPDATE', 'ticket_agent_update');
+    define('TICKET_AGENT_NEW', 'ticket_agent_new');
+    define('TICKET_MERGE', 'ticket_merge');
 
     /* Default ticket statuses - Category - support*/
     $supportTicketStatuses = [

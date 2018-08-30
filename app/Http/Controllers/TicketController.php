@@ -118,6 +118,7 @@ class TicketController extends BaseController
     {
         $data = $request->input();
         $data['document_ids'] = $request->document_ids;
+        $data['action'] = TICKET_AGENT_UPDATE;
         $ticket = $request->entity();
 
 
@@ -203,7 +204,7 @@ class TicketController extends BaseController
 
     public function store(CreateTicketRequest $request)
     {
-
+        $request->action = TICKET_AGENT_NEW;
         $ticket = $this->ticketService->save($request->input());
 
         return redirect("tickets/$ticket->public_id/edit");
@@ -269,6 +270,7 @@ class TicketController extends BaseController
     public function actionMerge(TicketMergeRequest $request)
     {
         $ticket = $request->entity();
+        $ticket->action = TICKET_MERGE;
 
         $this->ticketService->mergeTicket($ticket, $request->input());
 
