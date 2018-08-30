@@ -21,17 +21,17 @@ class TicketDelta extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     /**
-     * @var
+     * @var Ticket_attributes
      */
     protected $deltaAttributes;
 
     /**
-     * @var
+     * @var Ticket
      */
     protected $originalTicket;
 
     /**
-     * @var
+     * @var Ticket
      */
     protected $updatedTicket;
 
@@ -41,17 +41,29 @@ class TicketDelta extends Job implements ShouldQueue
     protected $server;
 
     /**
+     * @var mixed
+     */
+    protected $action;
+    /**
      * TicketDelta constructor.
      * @param array $deltaAttributes
      * @param array $originalTicket
      * @param  $updatedTicket
+     * @param  $action
      */
-    public function __construct($deltaAttributes, $originalTicket, $updatedTicket)
+    public function __construct($deltaAttributes, $originalTicket, $updatedTicket, $action)
     {
+
         $this->deltaAttributes = $deltaAttributes;
+
         $this->originalTicket = $originalTicket;
+
         $this->updatedTicket = $updatedTicket;
+
         $this->server = config('database.default');
+
+        $this->action = $action;
+
     }
 
     /**
@@ -60,7 +72,8 @@ class TicketDelta extends Job implements ShouldQueue
     public function handle()
     {
 
-        $deltaHandler = new App\Ninja\Tickets\Deltas\DeltaFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket);
+        $deltaHandler = new App\Ninja\Tickets\Deltas\DeltaFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket, $this->action);
+
         $deltaHandler->process();
 
     }

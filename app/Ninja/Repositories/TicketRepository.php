@@ -180,8 +180,6 @@ class TicketRepository extends BaseRepository
 
         $ticket->save();
 
-        $this->dispatch(new TicketDelta($changedAttributes, $oldTicket, $ticket));
-
         /* handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1)
         {
@@ -219,6 +217,19 @@ class TicketRepository extends BaseRepository
             }
 
         }
+
+        /*
+         * This is where the magic happens.
+         *
+         * Once we have saved the $ticket to the datastore we need to perform
+         * various tasks on the ticket. We pass the changed attributes along
+         * with the old and new ticket.
+         *
+         * Included in the payload will be an ACTION variable to provide
+         * context for the various workflows.
+         */
+
+        $this->dispatch(new TicketDelta($changedAttributes, $oldTicket, $ticket, $input['action']));
 
         //ticket invitations - create if none exists for primary contact
         $found = false;

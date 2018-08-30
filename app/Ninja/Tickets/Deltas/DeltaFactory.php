@@ -27,11 +27,14 @@ class DeltaFactory
      */
     protected $changedAttributes;
 
+    /**
+     * @var $action
+     */
 
     /**
      * DeltaFactory constructor.
      */
-    public function __construct($originalTicket, $changedAttributes, $updatedTicket)
+    public function __construct($originalTicket, $changedAttributes, $updatedTicket, $action)
     {
 
         $this->originalTicket = $originalTicket;
@@ -40,6 +43,8 @@ class DeltaFactory
 
         $this->updatedTicket = $updatedTicket;
 
+        $this->action = $action;
+
     }
 
     /**
@@ -47,7 +52,13 @@ class DeltaFactory
      */
     public function process()
     {
-
+        /**
+         * Need some thought here. the action will not necessary contain just one method to implement.
+         * It may be a range of methods - probabaly best to split each action into its own sequence.
+         */
+        $this->performSequenceFor($this->action);
+/*
+        $this->performDeltaAction($this->action);
         //Log::error($this->updatedTicket);
         //Log::error($this->originalTicket);
         //Log::error($this->changedAttributes);
@@ -65,9 +76,40 @@ class DeltaFactory
                 $this->performDeltaAction($key);
 
         }
-
+*/
     }
 
+
+    private function performSequenceFor($action)
+    {
+        switch ($action)
+        {
+
+            case TICKET_CLIENT_NEW:
+                /* Check if a default agent to assign exists */
+
+                /* Fire notification to agent / slack if configured */
+
+                /* Fire notification to client if new_ticket_template exists */
+            break;
+
+            case TICKET_CLIENT_UPDATE:
+                /* Check if new comment_template is configured and fire notification to agent*/
+            break;
+
+            case TICKET_AGENT_NEW:
+                /* Check if new_ticket_template exists*/
+            break;
+
+            case TICKET_AGENT_UPDATE:
+            break;
+
+            case TICKET_MERGE:
+            break;
+
+        }
+
+    }
 
     /**
      * @param $modelAttribute

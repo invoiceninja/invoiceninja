@@ -223,9 +223,9 @@ class TicketController extends BaseController
 
     public function store(CreateTicketRequest $request)
     {
-        $request->action = TICKET_AGENT_NEW;
+        $input['action'] = TICKET_AGENT_NEW;
 
-        $ticket = $this->ticketService->save($request->input());
+        $ticket = $this->ticketService->save($input, $request->input());
 
         return redirect("tickets/$ticket->public_id/edit");
 
