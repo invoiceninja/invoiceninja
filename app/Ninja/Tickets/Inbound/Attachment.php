@@ -16,11 +16,17 @@ Class Attachment extends TicketFactory {
      */
     public function __construct($attachment)
     {
+
         $this->attachment = $attachment;
+
         $this->name = $this->attachment->name;
+
         $this->contentType = $this->attachment->contentType;
+
         $this->contentLength = $this->attachment->contentLength;
+
         $this->content = $this->attachment->content;
+
     }
 
     /**
@@ -28,7 +34,9 @@ Class Attachment extends TicketFactory {
      */
     private function _read()
     {
+
         return base64_decode(chunk_split($this->attachment->Content));
+
     }
 
     /**
@@ -36,7 +44,9 @@ Class Attachment extends TicketFactory {
      */
     public function download($directory)
     {
+
         file_put_contents($directory . $this->name, $this->_read());
+
     }
 
 }

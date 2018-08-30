@@ -33,9 +33,13 @@ class DeltaFactory
      */
     public function __construct($originalTicket, $changedAttributes, $updatedTicket)
     {
+
         $this->originalTicket = $originalTicket;
+
         $this->changedAttributes = $changedAttributes;
+
         $this->updatedTicket = $updatedTicket;
+
     }
 
     /**
@@ -43,19 +47,25 @@ class DeltaFactory
      */
     public function process()
     {
+
         //Log::error($this->updatedTicket);
         //Log::error($this->originalTicket);
         //Log::error($this->changedAttributes);
 
-        if(!$this->originalTicket) {
+        if(!$this->originalTicket)
             $this->performDeltaAction('new_ticket');
-        }
         elseif(count($this->changedAttributes) > 0) {
+
             foreach ($this->changedAttributes as $key => $value)
+
                 Log::error($key);
+
                 Log::error($value);
+
                 $this->performDeltaAction($key);
+
         }
+
     }
 
 
@@ -73,6 +83,7 @@ class DeltaFactory
      */
     private function performDeltaAction($attribute)
     {
+
         switch($attribute)
         {
             case 'agent_id':
@@ -96,6 +107,7 @@ class DeltaFactory
             break;
 
         }
+
     }
 
 

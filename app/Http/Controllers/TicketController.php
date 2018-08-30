@@ -38,8 +38,10 @@ class TicketController extends BaseController
      */
     public function __construct(TicketService $ticketService, TicketRepository $ticketRepository)
     {
+
         $this->ticketService = $ticketService;
         $this->ticketRepo = $ticketRepository;
+
     }
 
     /**
@@ -47,11 +49,13 @@ class TicketController extends BaseController
      */
     public function index()
     {
+
         return View::make('list_wrapper', [
             'entityType' => ENTITY_TICKET,
             'datatable' => new TicketDatatable(),
             'title' => trans('texts.tickets'),
         ]);
+
     }
 
     /**
@@ -60,9 +64,11 @@ class TicketController extends BaseController
      */
     public function getDatatable($clientPublicId = null)
     {
+
         $search = Input::get('sSearch');
 
         return $this->ticketService->getDatatable($search);
+
     }
 
     /**
@@ -71,9 +77,11 @@ class TicketController extends BaseController
      */
     public function show($publicId)
     {
+
         Session::reflash();
 
         return redirect("tickets/$publicId/edit");
+
     }
 
     /**
@@ -82,7 +90,9 @@ class TicketController extends BaseController
      */
     public function edit(TicketRequest $request)
     {
+
         $ticket = $request->entity();
+
         $clients = false;
 
         //If we are missing a client from the ticket, load clients for assignment
@@ -96,6 +106,7 @@ class TicketController extends BaseController
         event(new TicketUserViewed($ticket));
 
         return View::make('tickets.edit', $data);
+
     }
 
     /**
@@ -116,18 +127,23 @@ class TicketController extends BaseController
 
     public function update(UpdateTicketRequest $request)
     {
+
         $data = $request->input();
+
         $data['document_ids'] = $request->document_ids;
+
         $data['action'] = TICKET_AGENT_UPDATE;
+
         $ticket = $request->entity();
 
-
         $ticket = $this->ticketService->save($data, $ticket);
+
         $ticket->load('documents');
 
         $entityType = $ticket->getEntityType();
 
         $message = trans("texts.updated_{$entityType}");
+
         Session::flash('message', $message);
 
         $data = array_merge($this->getViewmodel($ticket), $data);
@@ -141,29 +157,32 @@ class TicketController extends BaseController
      */
     public function bulk()
     {
+
         $action = Input::get('action');
+
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
 
-        if ($action == 'purge' && ! auth()->user()->is_admin) {
+        if ($action == 'purge' && ! auth()->user()->is_admin)
             return redirect('dashboard')->withError(trans('texts.not_authorized'));
-        }
 
         $count = $this->ticketService->bulk($ids, $action);
 
         $message = Utils::pluralize($action.'d_ticket', $count);
+
         Session::flash('message', $message);
 
-        if ($action == 'purge') {
+        if ($action == 'purge')
             return redirect('dashboard')->withMessage($message);
-        } else {
+        else
             return $this->returnBulk(ENTITY_TICKET, $action, $ids);
-        }
+
     }
 
     public function create(TicketRequest $request, $parentTicketId = 0)
     {
 
         $parentTicket = Ticket::scope($parentTicketId)->first();
+
         $parentTicketClientExists = false;
 
         if ($parentTicket && method_exists($parentTicket, 'client')) {
@@ -172,17 +191,17 @@ class TicketController extends BaseController
         }
 
         //need to mock a ticket object or check if $request->old() exists and pass that in its place.
-            $mockTicket = [
-                'parent_ticket_id' => $parentTicketId ? $parentTicketId : null,
-                'subject' => '',
-                'description' => '',
-                'due_date' => '',
-                'client_public_id' => $parentTicketClientExists ? $parentTicket->client->public_id : null,
-                'agent_id' => null,
-                'is_internal' => $parentTicketClientExists ? true : false,
-                'private_notes' => '',
-                'priority_id' =>1,
-            ];
+        $mockTicket = [
+            'parent_ticket_id' => $parentTicketId ? $parentTicketId : null,
+            'subject' => '',
+            'description' => '',
+            'due_date' => '',
+            'client_public_id' => $parentTicketClientExists ? $parentTicket->client->public_id : null,
+            'agent_id' => null,
+            'is_internal' => $parentTicketClientExists ? true : false,
+            'private_notes' => '',
+            'priority_id' =>1,
+        ];
 
         $data = [
             'users' => User::whereAccountId(Auth::user()->account_id)->get(),
@@ -205,6 +224,7 @@ class TicketController extends BaseController
     public function store(CreateTicketRequest $request)
     {
         $request->action = TICKET_AGENT_NEW;
+
         $ticket = $this->ticketService->save($request->input());
 
         return redirect("tickets/$ticket->public_id/edit");
@@ -231,6 +251,7 @@ class TicketController extends BaseController
             'method' => 'PUT',
             'isAdminUser' => Auth::user()->is_admin || Auth::user()->isTicketMaster() ? true : false,
         ];
+
     }
 
     /**
@@ -241,12 +262,11 @@ class TicketController extends BaseController
 
         $ticket = $request->entity();
 
-        if(!$ticket) {
+        if(!$ticket)
             Log::error('no ticket found - ? spam or new request?');
-        }
-        else {
+        else
             Log::error('ticket #'. $ticket->ticket_number .' found');
-        }
+
 
     }
 
@@ -269,18 +289,17 @@ class TicketController extends BaseController
 
     public function actionMerge(TicketMergeRequest $request)
     {
+
         $ticket = $request->entity();
+
         $ticket->action = TICKET_MERGE;
 
         $this->ticketService->mergeTicket($ticket, $request->input());
 
         Session::reflash();
+
         return redirect("tickets/$request->updated_ticket_id/edit");
+
     }
-
-
-
-
-
 
 }

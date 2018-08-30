@@ -22,6 +22,9 @@ class InboundTicketService
      */
     protected $inboundTicketFactory;
 
+    /**
+     * @var TicketRepository
+     */
     protected $ticketRepo;
 
     /**
@@ -30,8 +33,10 @@ class InboundTicketService
 
     public function __construct(InboundTicketFactory $inboundTicketFactory, TicketRepository $ticketRepo)
     {
+
         $this->inboundTicketFactory = $inboundTicketFactory;
         $this->ticketRepo = $ticketRepo;
+
     }
 
     /**
@@ -63,6 +68,7 @@ class InboundTicketService
         /*
          *  parts = 'local_part' @ 'domain.com'
          */
+
         $parts = explode("@", $to);
 
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
@@ -70,6 +76,7 @@ class InboundTicketService
         /*
          * harvest the contact using the account and contact email address
          */
+
         $from = $this->inboundTicketFactory->fromEmail();
 
         if($accountTicketSettings) {
@@ -77,10 +84,10 @@ class InboundTicketService
                                 ->whereEmail($from)->get();
 
 
-            if(count($contacts) == 1) {
+            if(count($contacts) == 1)
                 return $this->createTicket($accountTicketSettings->ticket_master, $contacts[0]);
-            }
-            elseif(count($contacts) > 1){
+            elseif(count($contacts) > 1)
+            {
                 /*
                 Handle an edge case where one email address is registered across two different accounts.
                 Need to handle this by creating a modified ticket without client/contact
@@ -89,8 +96,11 @@ class InboundTicketService
                 */
                 return $this->createClientlessTicket($accountTicketSettings->ticket_master, $from, $accountTicketSettings->account);
             }
-            else { Log::error('No contacts with this email address are registered in the system - '.$from);
+            else {
+
+                Log::error('No contacts with this email address are registered in the system - '.$from);
                 return null;
+
             }
         }
 
@@ -103,6 +113,7 @@ class InboundTicketService
      */
     private function createTicket($user, $contact)
     {
+
         $data = [
             'client_id' => $contact->client_id,
             'contact_key' => $contact->contact_key,
@@ -116,6 +127,7 @@ class InboundTicketService
         ];
 
             return $this->ticketRepo->save($data, null, $user);
+
     }
 
     /**

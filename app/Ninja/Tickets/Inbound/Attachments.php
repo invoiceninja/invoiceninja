@@ -16,8 +16,11 @@ Class Attachments extends TicketFactory  implements \Iterator {
      */
     public function __construct($attachments)
     {
+
         $this->attachments = $attachments;
+
         $this->position = 0;
+
     }
 
     /**
@@ -25,15 +28,14 @@ Class Attachments extends TicketFactory  implements \Iterator {
      * @return Attachment|bool
      */
     function get($key) {
+
         $this->position = $key;
+
         if( ! empty($this->attachments[$key]))
-        {
             return new Attachment($this->attachments[$key]);
-        }
         else
-        {
             return FALSE;
-        }
+
     }
 
     /**
@@ -41,7 +43,9 @@ Class Attachments extends TicketFactory  implements \Iterator {
      */
     function rewind()
     {
+
         $this->position = 0;
+
     }
 
     /**
@@ -49,7 +53,9 @@ Class Attachments extends TicketFactory  implements \Iterator {
      */
     function current()
     {
+
         return new Attachment($this->attachments[$this->position]);
+
     }
 
     /**
@@ -57,7 +63,9 @@ Class Attachments extends TicketFactory  implements \Iterator {
      */
     function key()
     {
+
         return $this->position;
+
     }
 
     /**
@@ -65,7 +73,9 @@ Class Attachments extends TicketFactory  implements \Iterator {
      */
     function next()
     {
+
         ++$this->position;
+
     }
 
     /**
@@ -73,6 +83,8 @@ Class Attachments extends TicketFactory  implements \Iterator {
      */
     function valid()
     {
+
         return isset($this->attachments[$this->position]);
+
     }
 }

@@ -23,12 +23,16 @@ class TicketRepository extends BaseRepository
 
     public function getClassName()
     {
+
         return 'App\Models\Ticket';
+
     }
 
     public function all()
     {
+
         return Ticket::scope()->get();
+
     }
 
     public function find($filter = null, $userId = false, $entityType = ENTITY_TICKET)
@@ -79,42 +83,57 @@ class TicketRepository extends BaseRepository
         $this->applyFilters($query, ENTITY_TICKET);
 
         if ($statuses = session('entity_status_filter:' . $entityType)) {
+
             $statuses = explode(',', $statuses);
+
             $query->where(function ($query) use ($statuses) {
+
                 foreach ($statuses as $status) {
-                    if (in_array($status, \App\Models\EntityModel::$statuses)) {
+
+                    if (in_array($status, \App\Models\EntityModel::$statuses))
                         continue;
-                    }
+
                     $query->orWhere('status_id', '=', $status);
+
                 }
+
             });
+
         }
 
 
         if ($filter) {
+
             $query->where(function ($query) use ($filter) {
+
                 $query->where('clients.name', 'like', '%'.$filter.'%')
                       ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
                       ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
                       ->orWhere('contacts.email', 'like', '%'.$filter.'%');
+
             });
+
         }
 
         if ($userId) {
+
             $query->where('tickets.user_id', '=', $userId)
                     ->orWhere('tickets.agent_id', '=', Auth::user()->id);
+
         }
 
         if(!Auth::user()->can('view', ENTITY_TICKET))
             $query->where('tickets.agent_id', '=', Auth::user()->id);
 
-
         return $query;
+
     }
 
     public function save($input, $ticket = false, $harvestedUser = false)
     {
+
         $contact = false;
+
         $oldTicket = $ticket;
 
         if(Auth::user())
@@ -129,33 +148,46 @@ class TicketRepository extends BaseRepository
         if (! $ticket) {
 
             if($contact) {
+
                 //if client is creating the ticket, we need to harvest the ticket_master_user
                 $ticket = Ticket::createNew($user);
+
                 $ticket->client_id = $contact->client_id;
+
                 $ticket->agent_id = $user->id;
+
                 $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
+
                 $ticket->priority_id = TICKET_PRIORITY_LOW;
+
             }
             else {
+
                 $ticket = Ticket::createNew();
+
                 $ticket->ticket_number = Ticket::getNextTicketNumber($user->account->id);
+
             }
+
         }
 
         if(isset($input['client_id']) && $input['client_id'] < 1) //handle edge case where client _can_ be nullable
             $input = array_except($input, array('client_id'));
 
-
         $ticket->fill($input);
+
         $changedAttributes = $ticket->getDirty();
+
         $ticket->save();
 
         $this->dispatch(new TicketDelta($changedAttributes, $oldTicket, $ticket));
 
-
         /* handle new comment */
-        if(isset($input['description']) && strlen($input['description']) >=1) {
+        if(isset($input['description']) && strlen($input['description']) >=1)
+        {
+
             $ticketComment = TicketComment::createNew($ticket);
+
             $ticketComment->description = $input['description'];
 
             if(!Auth::user())//do we need to filter for is_internal here?
@@ -169,17 +201,23 @@ class TicketRepository extends BaseRepository
 
         /* if document IDs exist update ticket_id in document table */
         if (! empty($input['document_ids'])) {
+
             $document_ids = array_map('intval', $input['document_ids']);
 
             foreach ($document_ids as $document_id) {
+
                 $document = Document::scope($document_id, $ticket->account_id)->first();
+
                 if ($document) {
-                //    if ($document && Auth::user()->can('edit', $document)) {
 
                     $document->ticket_id = $ticket->id;
+
                     $document->save();
+
                 }
+
             }
+
         }
 
         //ticket invitations - create if none exists for primary contact
@@ -192,7 +230,7 @@ class TicketRepository extends BaseRepository
 
         }
 
-        if (!$found && isset($input['is_internal']) && !$input['is_internal'])
+        if(!$found && isset($input['is_internal']) && !$input['is_internal'])
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
 
 
@@ -208,16 +246,22 @@ class TicketRepository extends BaseRepository
         */
 
         return $ticket;
+
     }
 
-    private function createTicketInvite($ticket, $contactId, $user) {
+    private function createTicketInvite($ticket, $contactId, $user)
+    {
 
         $ticketInvitation = TicketInvitation::createNew($user);
 
         $ticketInvitation->ticket_id = $ticket->id;
+
         $ticketInvitation->contact_id = $contactId;
+
         $ticketInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+
         $ticketInvitation->ticket_hash = strtolower(str_random(RANDOM_KEY_LENGTH));
+
         $ticketInvitation->save();
 
     }
@@ -230,9 +274,11 @@ class TicketRepository extends BaseRepository
     {
         // check for extra params at end of value (from website feature)
         list($invitationKey) = explode('&', $invitationKey);
+
         $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
         $invitation = TicketInvitation::where('invitation_key', '=', $invitationKey)->first();
+
         if (! $invitation)
             return false;
 
@@ -247,6 +293,7 @@ class TicketRepository extends BaseRepository
             return false;
 
         return $invitation;
+
     }
 
 }
