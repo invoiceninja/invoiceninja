@@ -66,9 +66,8 @@ class ClientPortalTicketController extends ClientPortalController
      */
     public function ticketDatatable()
     {
-        if (! $contact = $this->getContact()) {
+        if (! $contact = $this->getContact())
             return false;
-        }
 
         return $this->ticketService->getClientDatatable($contact->client->id);
     }
@@ -79,9 +78,8 @@ class ClientPortalTicketController extends ClientPortalController
      */
     public function viewTicket($invitationKey)
     {
-        if (! $invitation = $this->ticketRepo->findInvitationByKey($invitationKey)) {
+        if (! $invitation = $this->ticketRepo->findInvitationByKey($invitationKey))
             return $this->returnError(trans('texts.ticket_not_found'));
-        }
 
         $account = $invitation->account;
         $ticket = $invitation->ticket;
@@ -132,7 +130,7 @@ class ClientPortalTicketController extends ClientPortalController
         $data['contact_key'] = $contact->contact_key;
         $data['method'] = 'PUT';
         $data['entityType'] = ENTITY_TICKET;
-
+        $data['action'] = TICKET_CLIENT_UPDATE;
         $ticket = $this->ticketService->save($data, $request->entity());
         $ticket->load('documents');
 
@@ -171,6 +169,7 @@ class ClientPortalTicketController extends ClientPortalController
 
         $data['document_ids'] = $request->document_ids;
         $data['contact_key'] = $contact->contact_key;
+        $data['action'] = TICKET_CLIENT_NEW;
 
         $ticket = $this->ticketService->save($data, $request->entity());
 

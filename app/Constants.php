@@ -694,6 +694,10 @@ if (! defined('APP_NAME')) {
     define('TICKET_STATUS_CLOSED',3);
     define('TICKET_STATUS_MERGED',4);
 
+    define('TICKET_CLIENT_NEW', 'ticket_client_new');
+    define('TICKET_CLIENT_UPDATE', 'ticket_client_update');
+    define('TICKET_INBOUND_NEW', 'ticket_inbound_new');
+
     /* Default ticket statuses - Category - support*/
     $supportTicketStatuses = [
         trans('texts.new'),

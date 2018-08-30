@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\TicketInvitation;
+use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,13 +22,16 @@ class InboundTicketService
      */
     protected $inboundTicketFactory;
 
+    protected $ticketRepo;
+
     /**
      * InboundTicketService constructor.
      */
 
-    public function __construct(InboundTicketFactory $inboundTicketFactory)
+    public function __construct(InboundTicketFactory $inboundTicketFactory, TicketRepository $ticketRepo)
     {
         $this->inboundTicketFactory = $inboundTicketFactory;
+        $this->ticketRepo = $ticketRepo;
     }
 
     /**
@@ -55,11 +59,18 @@ class InboundTicketService
     private function checkSupportEmailAttempt()
     {
         $to = $this->inboundTicketFactory->to();
+
+        /*
+         *  parts = 'local_part' @ 'domain.com'
+         */
         $parts = explode("@", $to);
 
-        $from = $this->inboundTicketFactory->fromEmail();
-
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
+
+        /*
+         * harvest the contact using the account and contact email address
+         */
+        $from = $this->inboundTicketFactory->fromEmail();
 
         if($accountTicketSettings) {
             $contacts = Contact::whereAccountId($accountTicketSettings->account_id)
@@ -92,23 +103,19 @@ class InboundTicketService
      */
     private function createTicket($user, $contact)
     {
-        $ticket = Ticket::createNew($user);
-        $ticket->client_id = $contact->client_id;
-        $ticket->contact_key = $contact->contact_key;
-        $ticket->agent_id = $user->id;
-        $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
-        $ticket->priority_id = TICKET_PRIORITY_LOW;
-        $ticket->status_id = TICKET_STATUS_NEW;
-        $ticket->subject = $this->inboundTicketFactory->subject();
-        $ticket->category_id = 1;
-        $ticket->save();
+        $data = [
+            'client_id' => $contact->client_id,
+            'contact_key' => $contact->contact_key,
+            'agent_id' => $user->id,
+            'priority_id' => TICKET_PRIORITY_LOW,
+            'status_id' => TICKET_STATUS_NEW,
+            'category_id' => 1,
+            'subject' => $this->inboundTicketFactory->subject(),
+            'description' => $this->inboundTicketFactory->TextBody(),
+            'action' => TICKET_INBOUND_NEW,
+        ];
 
-        $ticketComment = TicketComment::createNew($ticket);
-        $ticketComment->description = $this->inboundTicketFactory->TextBody();
-        $ticketComment->contact_key = $contact->contact_key;
-        $ticket->comments()->save($ticketComment);
-
-            return $ticket;
+            return $this->ticketRepo->save($data, null, $user);
     }
 
     /**
@@ -119,22 +126,20 @@ class InboundTicketService
      */
     private function createClientlessTicket($user, $contactEmail, $account)
     {
-        $ticket = Ticket::createNew($user, $contactEmail);
-        $ticket->contact_key = $contactEmail;
-        $ticket->ticket_number = Ticket::getNextTicketNumber($account->id);
-        $ticket->priority_id = TICKET_PRIORITY_LOW;
-        $ticket->status_id = TICKET_STATUS_NEW;
-        $ticket->subject = $this->inboundTicketFactory->subject();
-        $ticket->description = $this->inboundTicketFactory->TextBody();
-        $ticket->category_id = 1;
-        $ticket->save();
 
-        $ticketComment = TicketComment::createNew($ticket);
-        $ticketComment->description = $this->inboundTicketFactory->TextBody();
-        $ticketComment->agent_id = $user->id;
-        $ticket->comments()->save($ticketComment);
+        $data = [
+            'contact_key' => $contactEmail,
+            'agent_id' => $user->id,
+            'priority_id' => TICKET_PRIORITY_LOW,
+            'status_id' => TICKET_STATUS_NEW,
+            'category_id' => 1,
+            'subject' => $this->inboundTicketFactory->subject(),
+            'description' => $this->inboundTicketFactory->TextBody(),
+            'action' => TICKET_INBOUND_NEW,
+        ];
 
-        return $ticket;
+        return $this->ticketRepo->save($data, null, $user);
+
     }
 
 }

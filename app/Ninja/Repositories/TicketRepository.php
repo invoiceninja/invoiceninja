@@ -112,7 +112,7 @@ class TicketRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input, $ticket = false)
+    public function save($input, $ticket = false, $harvestedUser = false)
     {
         $contact = false;
         $oldTicket = $ticket;
@@ -121,6 +121,10 @@ class TicketRepository extends BaseRepository
             $user = Auth::user();
         elseif($contact = Contact::getContactIfLoggedIn())
             $user = User::where('id', '=', $contact->account->account_ticket_settings->ticket_master_id)->first();
+        elseif($harvestedUser)
+            $user = $harvestedUser;
+        else
+            throw new \Exception(trans('texts.forbidden'));
 
         if (! $ticket) {
 
@@ -138,7 +142,7 @@ class TicketRepository extends BaseRepository
             }
         }
 
-        if(isset($input['client_id']) && $input['client_id'] < 1)
+        if(isset($input['client_id']) && $input['client_id'] < 1) //handle edge case where client _can_ be nullable
             $input = array_except($input, array('client_id'));
 
 
@@ -220,7 +224,6 @@ class TicketRepository extends BaseRepository
 
     /**
      * @param $invitationKey
-     *
      * @return Invitation|bool
      */
     public function findInvitationByKey($invitationKey)
@@ -229,17 +232,14 @@ class TicketRepository extends BaseRepository
         list($invitationKey) = explode('&', $invitationKey);
         $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
-        /** @var \App\Models\Invitation $invitation */
         $invitation = TicketInvitation::where('invitation_key', '=', $invitationKey)->first();
-        if (! $invitation) {
+        if (! $invitation)
             return false;
-        }
 
         $ticket = $invitation->ticket;
 
         if (! $ticket || $ticket->is_deleted)
             return false;
-
 
         $client = $ticket->client;
 
