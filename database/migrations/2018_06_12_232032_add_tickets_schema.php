@@ -185,6 +185,7 @@ class AddTicketsSchema extends Migration
             $table->string('mime_types');
 
             $table->unsignedInteger('ticket_master_id');
+            $table->unsignedInteger('default_agent_id')->nullable();
 
             $table->unsignedInteger('new_ticket_template_id');
             $table->unsignedInteger('close_ticket_template_id');

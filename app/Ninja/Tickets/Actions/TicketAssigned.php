@@ -1,23 +1,9 @@
 <?php
 
-namespace App\Ninja\Tickets\Deltas;
-use App\Libraries\Utils;
-use App\Models\AccountTicketSettings;
-use App\Models\Ticket;
-use App\Models\User;
-use App\Ninja\Mailers\TicketMailer;
-use App\Services\TicketTemplateService;
+namespace App\Ninja\Tickets\Actions;
 
-/**
- *
- * Class AgentDelta
- * @package App\Ninja\Tickets\Deltas
- *
- * Handles attribute specific events on Model change.
- *
- */
 
-class AgentDelta extends BaseDelta
+class TicketAssigned extends BaseAction
 {
 
     /**
@@ -27,11 +13,11 @@ class AgentDelta extends BaseDelta
     public static function handle(Ticket $updatedTicket, Ticket $originalTicket)
     {
 
-       $accountTicketSettings = $updatedTicket->account->account_ticket_settings;
+        $accountTicketSettings = $updatedTicket->account->account_ticket_settings;
 
-       //notify agent they have a new ticket
-       if($accountTicketSettings->alert_ticket_assign_agent)
-           sendAgentAssignmentNotificationEmail($updatedTicket, $accountTicketSettings);
+        //notify agent they have a new ticket
+        if($accountTicketSettings->alert_ticket_assign_agent)
+            sendAgentAssignmentNotificationEmail($updatedTicket, $accountTicketSettings);
 
     }
 
@@ -72,3 +58,6 @@ class AgentDelta extends BaseDelta
     }
 
 }
+
+
+

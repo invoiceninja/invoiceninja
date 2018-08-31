@@ -9,14 +9,15 @@ use Auth;
 use App;
 use App\Jobs\Job;
 use App\Models\Ticket;
+use Illuminate\Support\Facades\Log;
 
 /**
- * Class TicketDelta.
+ * Class TicketAction.
  *
- * Queues the processing of ticket delta's
+ * Queues the processing of ticket actions's
  */
 
-class TicketDelta extends Job implements ShouldQueue
+class TicketAction extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -45,7 +46,7 @@ class TicketDelta extends Job implements ShouldQueue
      */
     protected $action;
     /**
-     * TicketDelta constructor.
+     * TicketAction constructor.
      * @param array $deltaAttributes
      * @param array $originalTicket
      * @param  $updatedTicket
@@ -67,14 +68,14 @@ class TicketDelta extends Job implements ShouldQueue
     }
 
     /**
-     *
+     * handles actions
      */
     public function handle()
     {
 
-        $deltaHandler = new App\Ninja\Tickets\Deltas\DeltaFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket, $this->action);
+        $ticketHandler = new App\Ninja\Tickets\Factory\TicketFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket, $this->action);
 
-        $deltaHandler->process();
+        $ticketHandler->process();
 
     }
 }

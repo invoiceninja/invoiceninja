@@ -135,19 +135,24 @@ class TicketService extends BaseService
 
         //Close ticket
         $data['merged_parent_ticket_id'] = Ticket::getPrivateId($data['updated_ticket_id']);
+
         $data['closed'] = \Carbon::now();
+
         $data['status_id'] = TICKET_STATUS_MERGED;
 
-            $ticketComment = TicketComment::createNew($ticket);
-            $ticketComment->description = $data['old_ticket_comment'];
+        $ticketComment = TicketComment::createNew($ticket);
+
+        $ticketComment->description = $data['old_ticket_comment'];
         
         $ticket->comments()->save($ticketComment);
+
         $this->save($data, $ticket);
 
         //Update parent ticket
         $updatedTicket = Ticket::scope($data['updated_ticket_id'])->first();
 
         $updatedTicketComment = TicketComment::createNew($updatedTicket);
+
         $updatedTicketComment->description = $data['updated_ticket_comment'];
 
         $updatedTicket->comments()->save($updatedTicketComment);

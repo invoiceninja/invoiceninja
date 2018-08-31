@@ -170,6 +170,7 @@ class ClientPortalTicketController extends ClientPortalController
         $data['document_ids'] = $request->document_ids;
         $data['contact_key'] = $contact->contact_key;
         $data['action'] = TICKET_CLIENT_NEW;
+        $data['is_internal'] = 0;
 
         $ticket = $this->ticketService->save($data, $request->entity());
 

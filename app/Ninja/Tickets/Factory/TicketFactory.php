@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Ninja\Tickets\Deltas;
+namespace App\Ninja\Tickets\Factory;
 
 use App\Models\Ticket;
-use Illuminate\Support\Facades\Log;
+use App\Ninja\Tickets\Actions\TicketClientNew;
 
 /**
  * Class DeltaFactory
  * @package App\Ninja\Tickets\Deltas
  */
-class DeltaFactory
+class TicketFactory
 {
 
     /**
@@ -86,11 +86,11 @@ class DeltaFactory
         {
 
             case TICKET_CLIENT_NEW:
-                /* Check if a default agent to assign exists */
 
-                /* Fire notification to agent / slack if configured */
+                $handler = new TicketClientNew($this->updatedTicket);
 
-                /* Fire notification to client if new_ticket_template exists */
+                $handler->fire();
+
             break;
 
             case TICKET_CLIENT_UPDATE:
@@ -98,13 +98,23 @@ class DeltaFactory
             break;
 
             case TICKET_AGENT_NEW:
-                /* Check if new_ticket_template exists*/
+                /* Check if new_ticket_template exists - fire notifications that apply*/
             break;
 
             case TICKET_AGENT_UPDATE:
+                /* Check if updated_template exists - fire notifications that apply*/
             break;
 
             case TICKET_MERGE:
+                /* Check if updated_template exists - fire notification that apply*/
+            break;
+
+            case TICKET_ASSIGNED:
+                /* Check if ticket assignment template exists - fire notifications that apply */
+            break;
+
+            case TICKET_OVERDUE:
+                /* Check if overdue template exists - fire notifications that apply */
             break;
 
         }

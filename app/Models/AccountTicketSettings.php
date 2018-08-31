@@ -34,6 +34,7 @@ class AccountTicketSettings extends Eloquent
         'alert_ticket_overdue_email',
         'show_agent_details',
         'ticket_master_id',
+        'default_agent_id',
     ];
 
     public function account()

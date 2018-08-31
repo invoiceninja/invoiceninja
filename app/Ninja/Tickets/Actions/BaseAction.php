@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Ninja\Tickets\Deltas;
+namespace App\Ninja\Tickets\Actions;
 
 use App\Models\Ticket;
 use App\Services\TicketTemplateService;
-use Illuminate\Support\Facades\Log;
 
-class BaseDelta
+class BaseAction
 {
 
     /**
@@ -25,7 +24,7 @@ class BaseDelta
                 'ticket_master' => $accountTicketSettings->ticket_master->getName(),
             ]);
 
-            return str_replace(array_keys($ticketVariables), array_values($ticketVariables), $template->description);
+        return str_replace(array_keys($ticketVariables), array_values($ticketVariables), $template->description);
 
     }
 

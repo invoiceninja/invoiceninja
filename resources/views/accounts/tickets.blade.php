@@ -56,6 +56,16 @@
                                     ->fromQuery($account->users, 'displayName', 'id')
                                  !!}
                             </div>
+
+                            <div id="">
+                                {!! Former::select('default_agent_id')
+                                    ->addOption('','0')
+                                    ->label(trans('texts.default_agent'))
+                                    ->text(trans('texts.default_agent'))
+                                    ->help(trans('texts.default_agent_help'))
+                                    ->fromQuery($account->users, 'displayName', 'id')
+                                 !!}
+                            </div>
                         </div>
                     </div>
 
