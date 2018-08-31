@@ -15,6 +15,12 @@ class PaymentTransformer extends EntityTransformer
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="transaction_reference", type="string", example="Transaction Reference")
+     * @SWG\Property(property="payment_date", type="string", format="date", example="2018-01-01")
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="payment_type_id", type="integer", example=1)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
      */
@@ -62,6 +68,8 @@ class PaymentTransformer extends EntityTransformer
             'private_notes' => $payment->private_notes ?: '',
             'exchange_rate' => (float) $payment->exchange_rate,
             'exchange_currency_id' => (int) $payment->exchange_currency_id,
+            'refunded' => (float) $payment->refunded,
+            'payment_status_id' => (int) $payment->payment_status_id,
         ]);
     }
 }
