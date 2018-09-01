@@ -123,7 +123,7 @@ class InboundTicketService
             'description' => $this->inboundTicketFactory->TextBody(),
             'action' => TICKET_INBOUND_NEW,
         ];
-
+Log::error($data);
             return $this->ticketRepo->save($data, null, $user);
 
     }
@@ -147,6 +147,7 @@ class InboundTicketService
             'description' => $this->inboundTicketFactory->TextBody(),
             'action' => TICKET_INBOUND_NEW,
         ];
+        Log::error($data);
 
         return $this->ticketRepo->save($data, null, $user);
 
