@@ -45,7 +45,7 @@ class TicketClientNew extends BaseAction
 
         $this->setDefaultAgent();
 
-        if($this->alert_ticket_assign_agent())
+        if($this->accountTicketSettings->alert_ticket_assign_agent > 0)
         {
 
             $ticketMailer = new TicketMailer();
@@ -83,7 +83,7 @@ class TicketClientNew extends BaseAction
 
     public function newTicketTemplateAction()
     {
-        if($this->new_ticket_template_id())
+        if($this->accountTicketSettings->new_ticket_template_id > 0)
         {
 
             $ticketMailer = new TicketMailer();

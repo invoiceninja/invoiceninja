@@ -32,14 +32,6 @@ class BaseAction
 
     }
 
-    public function __call($template, $arguments)
-    {
-        //this is not being called, or is returning an incorrect value
-        Log::error((bool) $this->accountTicketSettings->$template);
-        return (bool) $this->accountTicketSettings->$template;
-
-    }
-
     public function buildFromAddress() : string
     {
 
