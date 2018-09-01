@@ -280,6 +280,7 @@ class TicketRepository extends BaseRepository
 
         $ticketInvitation->save();
 
+        Log::error("ticket hash = {$ticketInvitation->ticket_hash}");
     }
 
     /**
