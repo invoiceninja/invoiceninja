@@ -230,6 +230,7 @@ class TicketRepository extends BaseRepository
         }
 
         Log::error('about to insert a ticket invitation');
+        Log::error("found ? {$found} internal? {$input['is_internal']}");
         if(!$found && isset($input['is_internal']) && !$input['is_internal']) {
             Log::error('inside!!');
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
