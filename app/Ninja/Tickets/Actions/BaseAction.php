@@ -32,6 +32,14 @@ class BaseAction
 
     }
 
+    public function __call($template, $args)
+    {Log::error('boom');
+        Log::error($this->accountTicketSettings->$template);
+        Log::error($this->accountTicketSettings->$template ? TRUE : FALSE);
+        return $this->accountTicketSettings->$template ? TRUE : FALSE ;
+
+    }
+
     public function buildFromAddress() : string
     {
 
@@ -42,7 +50,6 @@ class BaseAction
         else
             $domainName = config('ninja.tickets.ticket_support_domain');
 
-        Log::error("build from address = {$fromName}@{$domainName}");
         return "{$fromName}@{$domainName}";
 
     }

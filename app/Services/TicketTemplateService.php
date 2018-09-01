@@ -67,6 +67,23 @@ class TicketTemplateService extends BaseService
 
     public static function getVariables(Ticket $ticket)
     {
+        if ($ticket->agent)
+        {
+
+            $agent = $ticket->agent->getName();
+
+            $signature = $ticket->agent->signature;
+
+        }
+        else
+        {
+
+            $agent = trans('texts.unassigned');
+
+            $signature = '';
+
+        }
+
         return [
             '$ticket_number' => $ticket->ticket_number,
             '$ticket_status' => $ticket->status->name,
@@ -74,11 +91,11 @@ class TicketTemplateService extends BaseService
             '$contact' => $ticket->getContactName(),
             '$priority' => $ticket->getPriorityName(),
             '$due_date' => $ticket->getDueDate(),
-            '$agent' => $ticket->agent->getName(),
+            '$agent' => $agent,
             '$status' => $ticket->status->name,
             '$subject' => $ticket->subject,
             '$description' => $ticket->description,
-            '$agent_signature' => $ticket->agent->signature,
+            '$agent_signature' => $signature,
         ];
     }
 }

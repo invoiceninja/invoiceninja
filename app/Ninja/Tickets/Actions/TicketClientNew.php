@@ -50,7 +50,7 @@ class TicketClientNew extends BaseAction
 
         Log::error($this->accountTicketSettings->alert_ticket_assign_agent);
 
-        if($this->accountTicketSettings->alert_ticket_assign_agent > 0)
+        if($this->alert_ticket_assign_agent() && $this->default_agent_id())
         {
         Log::error('inside alter agent code');
 
@@ -79,8 +79,8 @@ class TicketClientNew extends BaseAction
 
 Log::error('TIME TO SEND!!!');
             $ticketMailer = new TicketMailer();
-            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-
+            $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
+            Log::error($msg);
         }
 
         /* We also need to fire a new_ticket_template action in case we need to send an autoreply to the client */
@@ -94,7 +94,7 @@ Log::error('TIME TO SEND!!!');
         Log::error('outside new ticket template code');
         Log::error($this->accountTicketSettings->new_ticket_template_id);
 
-        if($this->accountTicketSettings->new_ticket_template_id > 0)
+        if($this->new_ticket_template_id())
         {
             Log::error('inside new ticket template code');
 
@@ -121,8 +121,11 @@ Log::error('TIME TO SEND!!!');
 
             Log::error('TIME TO SEND 2!!!');
 
+            Log::error("{$toEmail} {$fromEmail} {$fromName} {$subject} {$view}");
+
             $ticketMailer = new TicketMailer();
-            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
+            $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
+            Log::error($msg);
         }
 
     }
@@ -133,7 +136,7 @@ Log::error('TIME TO SEND!!!');
     private function setDefaultAgent() : void
     {
 
-        if( (bool) $this->accountTicketSettings->default_agent_id )
+        if($this->default_agent_id())
         {
 
             $this->ticket->agent_id = $this->accountTicketSettings->default_agent_id;

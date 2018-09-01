@@ -30,9 +30,9 @@ class TicketMailer
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
         // don't send emails to dummy addresses
-        if (stristr($toEmail, '@example.com')) {
+        if (stristr($toEmail, '@example.com'))
             return true;
-        }
+
 
         $views = [
             'emails.'.$view.'_html',
@@ -42,14 +42,14 @@ class TicketMailer
         $toEmail = strtolower($toEmail);
         $replyEmail = $data['replyTo'];
 
-        if (Utils::isSelfHost() && config('app.debug')) {
+        if (Utils::isSelfHost() && config('app.debug'))
             \Log::info("Sending email - To: {$toEmail} | Reply: {$replyEmail} | From: $fromEmail");
-        }
+
 
         // Optionally send for alternate domain
-        if (! empty($data['fromEmail'])) {
+        if (! empty($data['fromEmail']))
             $fromEmail = $data['fromEmail'];
-        }
+
 
         return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
 
@@ -185,7 +185,7 @@ class TicketMailer
             $invitation = $data['invitation'];
 
             $invitation->email_error = $emailError;
-            
+
             $invitation->save();
 
         } elseif (! Utils::isNinjaProd())

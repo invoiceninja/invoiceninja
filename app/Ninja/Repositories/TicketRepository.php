@@ -155,7 +155,7 @@ class TicketRepository extends BaseRepository
 
                 $ticket->contact_key = $contact->contact_key;
 
-                $ticket->agent_id = $user->id;
+                //$ticket->agent_id = $user->id;  ///whhhhhhyyy
 
                 $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
 
