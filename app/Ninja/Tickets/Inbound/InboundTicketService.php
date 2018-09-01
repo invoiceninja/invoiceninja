@@ -71,7 +71,8 @@ class InboundTicketService
             }
                 if($ticket)
                 {
-
+                    // if it is a reply, we need to work out if it is a contact reply
+                   // or an agent reply!!
                     $data['action'] = TICKET_INBOUND_REPLY;
 
                     $data['description'] = $this->inboundTicketFactory->TextBody();
