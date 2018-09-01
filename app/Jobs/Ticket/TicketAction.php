@@ -72,7 +72,7 @@ class TicketAction extends Job implements ShouldQueue
      */
     public function handle()
     {
-
+Log::error('firing ticket action');
         $ticketHandler = new App\Ninja\Tickets\Factory\TicketFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket, $this->action);
 
         $ticketHandler->process();

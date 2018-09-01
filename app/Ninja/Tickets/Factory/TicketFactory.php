@@ -4,6 +4,7 @@ namespace App\Ninja\Tickets\Factory;
 
 use App\Models\Ticket;
 use App\Ninja\Tickets\Actions\TicketClientNew;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class DeltaFactory
@@ -56,6 +57,7 @@ class TicketFactory
          * Need some thought here. the action will not necessary contain just one method to implement.
          * It may be a range of methods - probabaly best to split each action into its own sequence.
          */
+        Log::error('peformaing sequence for '. $this->action);
         $this->performSequenceFor($this->action);
 /*
         $this->performDeltaAction($this->action);
