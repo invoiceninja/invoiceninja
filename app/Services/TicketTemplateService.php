@@ -71,7 +71,6 @@ class TicketTemplateService extends BaseService
         {
 
             $agent = $ticket->agent->getName();
-
             $signature = $ticket->agent->signature;
 
         }
@@ -79,16 +78,31 @@ class TicketTemplateService extends BaseService
         {
 
             $agent = trans('texts.unassigned');
-
             $signature = '';
 
         }
 
+        if($ticket->client)
+        {
+
+            $client = $ticket->client->getDisplayName();
+            $contact = $ticket->getContactName();
+
+        }
+        else
+        {
+
+            $client = 'No client';
+            $contact = 'No Contact';
+            å
+        }
+
+
         return [
             '$ticket_number' => $ticket->ticket_number,
             '$ticket_status' => $ticket->status->name,
-            '$client' => $ticket->client->getDisplayName(),
-            '$contact' => $ticket->getContactName(),
+            '$client' => $client,
+            '$contact' => $contact,
             '$priority' => $ticket->getPriorityName(),
             '$due_date' => $ticket->getDueDate(),
             '$agent' => $agent,
