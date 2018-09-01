@@ -66,7 +66,7 @@ class InboundTicketService
                 $ticket = $ticketExists;
 
                 $data['is_internal'] = 1;
-                
+
             }
                 if($ticket)
                 {

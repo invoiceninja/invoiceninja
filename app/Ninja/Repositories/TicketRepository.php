@@ -229,8 +229,11 @@ class TicketRepository extends BaseRepository
 
         }
 
-        if(!$found && isset($input['is_internal']) && !$input['is_internal'])
+        Log::error('about to insert a ticket invitation');
+        if(!$found && isset($input['is_internal']) && !$input['is_internal']) {
+            Log::error('inside!!');
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
+        }
 
         Log::error('after ticket created');
         /**
@@ -263,7 +266,7 @@ class TicketRepository extends BaseRepository
 
     private function createTicketInvite($ticket, $contactId, $user)
     {
-
+        Log::error('inside create method');
         $ticketInvitation = TicketInvitation::createNew($user);
 
         $ticketInvitation->ticket_id = $ticket->id;
