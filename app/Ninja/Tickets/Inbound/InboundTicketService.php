@@ -6,6 +6,7 @@ use App\Models\AccountTicketSettings;
 use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
+use App\Models\User;
 use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
 
@@ -133,6 +134,15 @@ class InboundTicketService
                 */
                 return $this->createClientlessTicket($accountTicketSettings->ticket_master, $from, $accountTicketSettings->account);
             }
+            elseif(count($contacts) == 0)
+            {
+
+                /** Could be an internal user? */
+                $user = User::whereEmail($from)->first();
+
+                if($user)
+                    return $this->createInternalTicket($accountTicketSettings->ticket_master, $user, $accountTicketSettings->account);
+            }
             else {
 
                 Log::error('No contacts with this email address are registered in the system - '.$from);
@@ -161,6 +171,7 @@ class InboundTicketService
             'subject' => $this->inboundTicketFactory->subject(),
             'description' => $this->inboundTicketFactory->TextBody(),
             'action' => TICKET_INBOUND_NEW,
+            'is_internal' => 0,
         ];
 
             return $this->ticketRepo->save($data, null, $user);
@@ -179,6 +190,25 @@ class InboundTicketService
         $data = [
             'contact_key' => $contactEmail,
             //'agent_id' => $user->id,
+            'priority_id' => TICKET_PRIORITY_LOW,
+            'status_id' => TICKET_STATUS_NEW,
+            'category_id' => 1,
+            'subject' => $this->inboundTicketFactory->subject(),
+            'description' => $this->inboundTicketFactory->TextBody(),
+            'action' => TICKET_INBOUND_NEW,
+        ];
+
+        return $this->ticketRepo->save($data, null, $user);
+
+    }
+
+    private function createInternalTicket($ticketMaster, $user, $account)
+    {
+
+        $data = [
+            'user_id' => $ticketMaster->id,
+            'is_internal' => 1,
+            'agent_id' => $user->id,
             'priority_id' => TICKET_PRIORITY_LOW,
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
