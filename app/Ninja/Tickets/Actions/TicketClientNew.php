@@ -69,9 +69,10 @@ class TicketClientNew extends BaseAction
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
             $ticketMailer = new TicketMailer();
+            Log::error("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-
+            Log::error($msg);
         }
 
         $this->newTicketTemplateAction();
