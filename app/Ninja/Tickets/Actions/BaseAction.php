@@ -5,6 +5,7 @@ namespace App\Ninja\Tickets\Actions;
 use App\Constants\Domain;
 use App\Libraries\Utils;
 use App\Models\Ticket;
+use App\Ninja\Mailers\TicketMailer;
 use App\Services\TicketTemplateService;
 use Illuminate\Support\Facades\Log;
 
