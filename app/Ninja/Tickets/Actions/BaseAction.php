@@ -8,6 +8,10 @@ use App\Models\Ticket;
 use App\Services\TicketTemplateService;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class BaseAction
+ * @package App\Ninja\Tickets\Actions
+ */
 class BaseAction
 {
 
@@ -19,6 +23,7 @@ class BaseAction
      */
     public static function buildTicketBodyResponse(Ticket $ticket, $accountTicketSettings, $templateId) : string
     {
+
         $ticketVariables = TicketTemplateService::getVariables($ticket);
 
         $template = $ticket->getTicketTemplate($templateId);
@@ -32,14 +37,21 @@ class BaseAction
 
     }
 
+    /**
+     * @param $template
+     * @param $args
+     * @return bool
+     */
     public function __call($template, $args)
-    {Log::error('boom');
-        Log::error($this->accountTicketSettings->$template);
-        Log::error($this->accountTicketSettings->$template ? TRUE : FALSE);
+    {
+
         return $this->accountTicketSettings->$template ? TRUE : FALSE ;
 
     }
 
+    /**
+     * @return string
+     */
     public function buildFromAddress() : string
     {
 
@@ -51,6 +63,43 @@ class BaseAction
             $domainName = config('ninja.tickets.ticket_support_domain');
 
         return "{$fromName}@{$domainName}";
+
+    }
+
+    /**
+     * fires new_ticket_template to client
+     */
+    public function newTicketTemplateAction() : void
+    {
+
+        if($this->new_ticket_template_id())
+        {
+
+            $toEmail = $this->ticket->contact->email;
+
+            $fromEmail = $this->buildFromAddress();
+
+            $fromName = $this->accountTicketSettings->from_name;
+
+            $subject = trans('texts.ticket_new_template_subject', ['ticket_number' => $this->ticket->ticket_number]);
+
+            $view = 'ticket_template';
+
+            $data = [
+                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->new_ticket_template_id),
+                'account' => $this->account,
+                'replyTo' => $this->ticket->getTicketEmailFormat(),
+                'invitation' => $this->ticket->invitations->first()
+            ];
+
+            if (Utils::isSelfHost() && config('app.debug'))
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
+
+            $ticketMailer = new TicketMailer();
+
+            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
+
+        }
 
     }
 }

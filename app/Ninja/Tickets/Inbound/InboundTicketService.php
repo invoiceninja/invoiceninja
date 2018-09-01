@@ -4,6 +4,7 @@ namespace App\Ninja\Tickets\Inbound;
 
 use App\Models\AccountTicketSettings;
 use App\Models\Contact;
+use App\Models\Ticket;
 use App\Models\TicketInvitation;
 use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
@@ -33,6 +34,7 @@ class InboundTicketService
     {
 
         $this->inboundTicketFactory = $inboundTicketFactory;
+
         $this->ticketRepo = $ticketRepo;
 
     }
@@ -42,25 +44,45 @@ class InboundTicketService
      */
     public function process()
     {
-        /* Attempt to parse the hash and harvest the $ticket */
+        /** Attempt to parse the hash and harvest the $ticket */
         if($ticket_hash = $this->inboundTicketFactory->mailboxHash()) {
 
             $ticketInvitation = TicketInvitation::whereTicketHash($ticket_hash)->first();
 
-            if($ticketInvitation)
-                return $ticketInvitation->ticket;
+            if($ticketInvitation)  /** Contact based external ticket */
+                $ticket =  $ticketInvitation->ticket;
+            elseif ($ticketExists = Ticket::scope($ticket_hash)->first()) /** Internal Ticket*/
+                $ticket = $ticketExists;
+
+                if($ticket)
+                {
+
+                    $data['action'] = TICKET_INBOUND_REPLY;
+
+                    $data['description'] = $this->inboundTicketFactory->TextBody();
+
+                    $ticket = $this->ticketRepo->save($data, $ticket);
+
+                    return $ticket;
+
+                }
 
         }
+        /**
+         * If no valid hash exists - check if we can match via the custom local part.
+         *
+         * This could be a new support request!!
+         */
         else
-            return $this->checkSupportEmailAttempt(); //if no valid hash exists - check if we can match via the custom local part
-
+            return $this->checkSupportEmailAttempt();
     }
 
     /**
-     * @return $ticket if
+     * @return $ticket
      */
     private function checkSupportEmailAttempt()
     {
+
         $to = $this->inboundTicketFactory->to();
 
         /*
@@ -118,7 +140,7 @@ class InboundTicketService
         $data = [
             'client_id' => $contact->client_id,
             'contact_key' => $contact->contact_key,
-            'agent_id' => $user->id,
+            //'agent_id' => $user->id,
             'priority_id' => TICKET_PRIORITY_LOW,
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
@@ -142,7 +164,7 @@ class InboundTicketService
 
         $data = [
             'contact_key' => $contactEmail,
-            'agent_id' => $user->id,
+            //'agent_id' => $user->id,
             'priority_id' => TICKET_PRIORITY_LOW,
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,

@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Support\Facades\Log;
-
 class TicketRequest extends EntityRequest
 {
     protected $entityType = ENTITY_TICKET;
@@ -11,14 +9,15 @@ class TicketRequest extends EntityRequest
 
     public function entity()
     {
+
         $ticket = parent::entity();
 
         // eager load the documents
-        if ($ticket && method_exists($ticket, 'documents') && ! $ticket->relationLoaded('documents')) {
+        if ($ticket && method_exists($ticket, 'documents') && ! $ticket->relationLoaded('documents'))
             $ticket->load('documents');
-        }
 
         return $ticket;
+
     }
 
 
