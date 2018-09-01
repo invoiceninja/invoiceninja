@@ -28,65 +28,101 @@ class TicketClientNew extends BaseAction
 
     public function __construct(Ticket $ticket)
     {
+
         $this->ticket = $ticket;
+
         $this->account = $ticket->account;
+
+        $this->accountTicketSettings = $ticket->account->account_ticket_settings;
+
     }
 
     /**
-     *
+     * fires the sequence for this ticket action
      */
     public function fire() : void
     {
 
-        $accountTicketSettings = $this->ticket->account->account_ticket_settings;
+        $this->setDefaultAgent();
 
-        $this->setDefaultAgent($accountTicketSettings);
-
-        if($this->templateExists($accountTicketSettings))
+        if($this->alert_ticket_assign_agent())
         {
 
             $ticketMailer = new TicketMailer();
 
             $toEmail = $this->ticket->agent->email;
 
-            $fromEmail = 'support@support.invoiceninja.com'; //todo need to inject client specific address
+            $fromEmail = $this->buildFromAddress();
 
-            $fromName = trans('texts.ticket_master');
+            $fromName = $this->accountTicketSettings->from_name;
 
             $subject = trans('texts.ticket_assignment', ['ticket_number' => $this->ticket->ticket_number, 'agent' => $this->ticket->agent->getName()]);
 
             $view = 'ticket_template';
 
+            $data = [
+                'bccEmail' => $this->accountTicketSettings->alert_ticket_assign_email,
+                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->alert_ticket_assign_agent),
+                'account' => $this->account,
+                'replyTo' => $this->ticket->getTicketEmailFormat(),
+                'invitation' => $this->ticket->invitations->first()
+            ];
+
             if (Utils::isSelfHost() && config('app.debug'))
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
-            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $this->buildNotificationData($accountTicketSettings));
+            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
 
+        }
+
+        /* We also need to fire a new_ticket_template action in case we need to send an autoreply to the client */
+
+        $this->newTicketTemplateAction();
+
+    }
+
+    public function newTicketTemplateAction()
+    {
+        if($this->new_ticket_template_id())
+        {
+
+            $ticketMailer = new TicketMailer();
+
+            $toEmail = $this->ticket->contact->email;
+
+            $fromEmail = $this->buildFromAddress();
+
+            $fromName = $this->accountTicketSettings->from_name;
+
+            $subject = trans('texts.ticket_new_template_subject', ['ticket_number' => $this->ticket->ticket_number]);
+
+            $view = 'ticket_template';
+
+            $data = [
+                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->new_ticket_template_id),
+                'account' => $this->account,
+                'replyTo' => $this->ticket->getTicketEmailFormat(),
+                'invitation' => $this->ticket->invitations->first()
+            ];
+
+            if (Utils::isSelfHost() && config('app.debug'))
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
+
+            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
         }
 
     }
 
     /**
-     * @param AccountTicketSettings $accountTicketSettings
-     * @return bool
+     *
      */
-    private function templateExists(AccountTicketSettings $accountTicketSettings) : bool
+    private function setDefaultAgent() : void
     {
 
-        return (bool) $accountTicketSettings->alert_ticket_assign_agent;
+        if( (bool) $this->accountTicketSettings->default_agent_id )
+        {
 
-    }
-
-    /**
-     * @param AccountTicketSettings $accountTicketSettings
-     */
-    private function setDefaultAgent(AccountTicketSettings $accountTicketSettings) : void
-    {
-
-
-        if( (bool) $accountTicketSettings->default_agent_id ) {
-
-            $this->ticket->agent_id = $accountTicketSettings->default_agent_id;
+            $this->ticket->agent_id = $this->accountTicketSettings->default_agent_id;
             $this->ticket->save();
 
         }
@@ -94,19 +130,12 @@ class TicketClientNew extends BaseAction
     }
 
     /**
-     * @param AccountTicketSettings $accountTicketSettings
      * @return array
      */
-    private function buildNotificationData(AccountTicketSettings $accountTicketSettings) : array
+    private function buildNotificationData() : array
     {
 
-        $data = [
-            'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
-            'body' => parent::buildTicketBodyResponse($this->ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent),
-            'account' => $this->account,
-            'replyTo' => $this->ticket->getTicketEmailFormat(),
-            'invitation' => $this->ticket->invitations()
-        ];
+
 
         return $data;
 

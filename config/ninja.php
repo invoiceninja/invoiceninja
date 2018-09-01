@@ -67,8 +67,6 @@ return [
     'tickets' => [
         'ticket_support_domain' => env('TICKET_SUPPORT_DOMAIN'),
         'ticket_support_domain_2' => env('TICKET_SUPPORT_DOMAIN_2'),
-        'ticket_support_email' => env('TICKET_SUPPORT_EMAIL'),
-        'ticket_support_email_name' => env('TICKET_SUPPORT_EMAIL_NAME'),
     ],
 
     'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
