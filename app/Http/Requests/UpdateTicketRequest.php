@@ -33,7 +33,7 @@ class UpdateTicketRequest extends TicketRequest
 
         if($this->is_internal == false)
             $rules['client_public_id'] = 'min:1|numeric|required';
-        
+
         return $rules;
     }
 
