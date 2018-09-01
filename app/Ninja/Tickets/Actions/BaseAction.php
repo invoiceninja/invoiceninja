@@ -96,11 +96,11 @@ class BaseAction
             if (Utils::isSelfHost() && config('app.debug'))
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
-            Log::error("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
+            Log::error("Sending email - To: {$toEmail} | Reply: {$this->ticket->getTicketEmailFormat()} | From: {$fromEmail}");
             $ticketMailer = new TicketMailer();
 
-            $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-
+            $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
+            Log::error($msg);
         }
 
     }
