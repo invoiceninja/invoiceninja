@@ -174,7 +174,7 @@ class TicketRepository extends BaseRepository
         if(isset($input['client_id']) && $input['client_id'] < 1) //handle edge case where client _can_ be nullable
             $input = array_except($input, array('client_id'));
 
-        $ticket->fill(array_except($input, array('action')));
+        $ticket->fill($input);
 
         $changedAttributes = $ticket->getDirty();
 

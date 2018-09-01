@@ -7,7 +7,7 @@ use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class CreateTicketRequest extends Request
+class CreateTicketRequest extends EntityRequest
 {
 
     /**
