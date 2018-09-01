@@ -3,6 +3,7 @@
 namespace App\Ninja\Tickets\Actions;
 
 use App\Models\Ticket;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class TicketInboundNew
@@ -42,7 +43,7 @@ class TicketInboundNew extends BaseAction
      */
     public function fire()
     {
-
+        Log::error('inside ticket inbound new and just about to fire action');
         $handler = new TicketClientNew($this->ticket);
 
         $handler->fire();

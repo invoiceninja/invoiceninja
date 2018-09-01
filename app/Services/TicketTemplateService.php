@@ -94,7 +94,7 @@ class TicketTemplateService extends BaseService
 
             $client = 'No client';
             $contact = 'No Contact';
-            
+
         }
 
 
