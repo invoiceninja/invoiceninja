@@ -196,6 +196,7 @@ class InboundTicketService
             'subject' => $this->inboundTicketFactory->subject(),
             'description' => $this->inboundTicketFactory->TextBody(),
             'action' => TICKET_INBOUND_NEW,
+            'is_internal' => 0,
         ];
 
         return $this->ticketRepo->save($data, null, $user);
