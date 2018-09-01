@@ -6,6 +6,7 @@ use App\Constants\Domain;
 use App\Libraries\Utils;
 use App\Models\Ticket;
 use App\Services\TicketTemplateService;
+use Illuminate\Support\Facades\Log;
 
 class BaseAction
 {
@@ -33,7 +34,8 @@ class BaseAction
 
     public function __call($template, $arguments)
     {
-
+        //this is not being called, or is returning an incorrect value
+        Log::error((bool) $this->accountTicketSettings->$template);
         return (bool) $this->accountTicketSettings->$template;
 
     }
