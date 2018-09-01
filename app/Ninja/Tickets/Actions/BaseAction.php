@@ -40,9 +40,9 @@ class BaseAction
         if(Utils::isNinjaProd())
             $domainName = Domain::getSupportDomainFromId($this->account->domain_id);
         else
-            $domainName = config('ninja.ticket_support_domain');
+            $domainName = config('ninja.tickets.ticket_support_domain');
 
-
+        Log::error("build from address = {$fromName}@{$domainName}");
         return "{$fromName}@{$domainName}";
 
     }

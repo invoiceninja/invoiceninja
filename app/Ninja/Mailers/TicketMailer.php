@@ -3,7 +3,9 @@
 namespace App\Ninja\Mailers;
 
 use App\Constants\Domain;
+use App\Models\TicketInvitation;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Mail;
 use Utils;
 use Postmark\PostmarkClient;
@@ -56,36 +58,50 @@ class TicketMailer
 
     private function sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
     {
+
         $htmlBody = view($views[0], $data)->render();
+
         $textBody = view($views[1], $data)->render();
+
         $attachments = [];
 
-        if (isset($data['account'])) {
+        if (isset($data['account']))
+        {
+
             $account = $data['account'];
+
             $logoName = $account->getLogoName();
-            if (strpos($htmlBody, 'cid:' . $logoName) !== false && $account->hasLogo()) {
+
+            if (strpos($htmlBody, 'cid:' . $logoName) !== false && $account->hasLogo())
                 $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
-            }
+
         }
 
-        if (strpos($htmlBody, 'cid:invoiceninja-logo.png') !== false) {
+        if (strpos($htmlBody, 'cid:invoiceninja-logo.png') !== false)
+        {
+
             $attachments[] = PostmarkAttachment::fromFile(public_path('images/invoiceninja-logo.png'), 'invoiceninja-logo.png', null, 'cid:invoiceninja-logo.png');
             $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-facebook.png'), 'icon-facebook.png', null, 'cid:icon-facebook.png');
             $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-twitter.png'), 'icon-twitter.png', null, 'cid:icon-twitter.png');
             $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-github.png'), 'icon-github.png', null, 'cid:icon-github.png');
+
         }
 
         // Handle invoice attachments
-        if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
+        if (! empty($data['pdfString']) && ! empty($data['pdfFileName']))
             $attachments[] = PostmarkAttachment::fromRawData($data['pdfString'], $data['pdfFileName']);
-        }
-        if (! empty($data['ublString']) && ! empty($data['ublFileName'])) {
+
+
+        if (! empty($data['ublString']) && ! empty($data['ublFileName']))
             $attachments[] = PostmarkAttachment::fromRawData($data['ublString'], $data['ublFileName']);
-        }
-        if (! empty($data['documents'])) {
-            foreach ($data['documents'] as $document) {
+
+
+        if (! empty($data['documents']))
+        {
+
+            foreach ($data['documents'] as $document)
                 $attachments[] = PostmarkAttachment::fromRawData($document['data'], $document['name']);
-            }
+
         }
 
         try {
@@ -96,6 +112,7 @@ class TicketMailer
                 $postmarkToken = config('services.postmark_ticket');
 
             $client = new PostmarkClient($postmarkToken);
+
             $message = [
                 'To' => $toEmail,
                 'From' => sprintf('"%s" <%s>', addslashes($fromName), $fromEmail),
@@ -106,26 +123,31 @@ class TicketMailer
                 'Attachments' => $attachments,
             ];
 
-            if (! empty($data['bccEmail'])) {
+            if (! empty($data['bccEmail']))
                 $message['Bcc'] = $data['bccEmail'];
-            }
 
-            if (! empty($data['tag'])) {
+            if (! empty($data['tag']))
                 $message['Tag'] = $data['tag'];
-            }
 
             $response = $client->sendEmailBatch([$message]);
-            if ($messageId = $response[0]->messageid) {
+
+            if ($messageId = $response[0]->messageid)
                 return $this->handleSuccess($data, $messageId);
-            } else {
+             else
                 return $this->handleFailure($data, $response[0]->message);
-            }
+
         } catch (PostmarkException $exception) {
+
             return $this->handleFailure($data, $exception->getMessage());
+
         } catch (Exception $exception) {
+
             Utils::logError(Utils::getErrorString($exception));
+
             throw $exception;
+
         }
+
     }
 
     /**
@@ -135,17 +157,16 @@ class TicketMailer
      * @return bool
      */
     private function handleSuccess($data, $messageId = false)
-    {//todo boiler plate from invoice invites which needs to be adapted to tickets
-        if (isset($data['invitation'])) {
-            $invitation = $data['invitation'];
-            $invoice = $invitation->invoice;
-            $notes = isset($data['notes']) ? $data['notes'] : false;
+    {
 
-            if (! empty($data['proposal'])) {
+        if (isset($data['invitation']))
+        {
+
+            $invitation = $data['invitation'];
+
+            if ($invitation)
                 $invitation->markSent($messageId);
-            } else {
-                $invoice->markInvitationSent($invitation, $messageId, true, $notes);
-            }
+
         }
 
         return true;
@@ -158,14 +179,20 @@ class TicketMailer
      */
     private function handleFailure($data, $emailError)
     {
+
         if (isset($data['invitation'])) {
+
             $invitation = $data['invitation'];
+
             $invitation->email_error = $emailError;
+            
             $invitation->save();
-        } elseif (! Utils::isNinjaProd()) {
+
+        } elseif (! Utils::isNinjaProd())
             Utils::logError($emailError);
-        }
+
 
         return $emailError;
+
     }
 }

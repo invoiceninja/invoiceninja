@@ -11,6 +11,7 @@ use App\Models\TicketInvitation;
 use App\Models\User;
 use Auth;
 use DB;
+use Illuminate\Support\Facades\Log;
 use Utils;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
@@ -231,7 +232,7 @@ class TicketRepository extends BaseRepository
         if(!$found && isset($input['is_internal']) && !$input['is_internal'])
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
 
-
+        Log::error('after ticket created');
         /**
          * iterate through ticket ccs and ensure an invite exists for ticket CC's - todo v2.0
 
@@ -253,7 +254,7 @@ class TicketRepository extends BaseRepository
          * Included in the payload will be an ACTION variable to provide
          * context for the various workflows.
          */
-
+        Log::error('just before dispatch');
         $this->dispatch(new TicketAction($changedAttributes, $oldTicket, $ticket, $input['action']));
 
         return $ticket;

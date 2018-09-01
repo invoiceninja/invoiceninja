@@ -71,8 +71,11 @@ class InboundTicketService
 
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
 
-        /*
+        /**
          * harvest the contact using the account and contact email address
+         *
+         * what happens if it is the agent who is firing back a reply
+         * how do we process this?
          */
 
         $from = $this->inboundTicketFactory->fromEmail();

@@ -53,9 +53,9 @@ class TicketClientNew extends BaseAction
         if($this->accountTicketSettings->alert_ticket_assign_agent > 0)
         {
         Log::error('inside alter agent code');
-            $ticketMailer = new TicketMailer();
 
             $toEmail = $this->ticket->agent->email;
+            Log::error("to {$toEmail}");
 
             $fromEmail = $this->buildFromAddress();
 
@@ -64,6 +64,7 @@ class TicketClientNew extends BaseAction
             $subject = trans('texts.ticket_assignment', ['ticket_number' => $this->ticket->ticket_number, 'agent' => $this->ticket->agent->getName()]);
 
             $view = 'ticket_template';
+            Log::error("Here we are {$toEmail} {$fromEmail} {$subject} {$view}");
 
             $data = [
                 'bccEmail' => $this->accountTicketSettings->alert_ticket_assign_email,
@@ -76,6 +77,8 @@ class TicketClientNew extends BaseAction
             if (Utils::isSelfHost() && config('app.debug'))
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
+Log::error('TIME TO SEND!!!');
+            $ticketMailer = new TicketMailer();
             $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
 
         }
@@ -95,7 +98,6 @@ class TicketClientNew extends BaseAction
         {
             Log::error('inside new ticket template code');
 
-            $ticketMailer = new TicketMailer();
 
             $toEmail = $this->ticket->contact->email;
 
@@ -117,6 +119,9 @@ class TicketClientNew extends BaseAction
             if (Utils::isSelfHost() && config('app.debug'))
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
+            Log::error('TIME TO SEND 2!!!');
+
+            $ticketMailer = new TicketMailer();
             $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
         }
 
