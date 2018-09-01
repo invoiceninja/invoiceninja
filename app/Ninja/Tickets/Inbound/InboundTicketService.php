@@ -47,13 +47,27 @@ class InboundTicketService
         /** Attempt to parse the hash and harvest the $ticket */
         if($ticket_hash = $this->inboundTicketFactory->mailboxHash()) {
 
+            $data = [];
+
             $ticketInvitation = TicketInvitation::whereTicketHash($ticket_hash)->first();
 
-            if($ticketInvitation)  /** Contact based external ticket */
-                $ticket =  $ticketInvitation->ticket;
-            elseif ($ticketExists = Ticket::scope($ticket_hash)->first()) /** Internal Ticket*/
+            if($ticketInvitation)
+            {
+
+                /** Contact based external ticket */
+                $ticket = $ticketInvitation->ticket;
+
+                $data['is_internal'] = 0;
+
+            }
+            elseif ($ticketExists = Ticket::scope($ticket_hash)->first())
+            {
+                /** Internal Ticket*/
                 $ticket = $ticketExists;
 
+                $data['is_internal'] = 1;
+                
+            }
                 if($ticket)
                 {
 
