@@ -78,6 +78,7 @@ class TicketTemplateService extends BaseService
             '$status' => $ticket->status->name,
             '$subject' => $ticket->subject,
             '$description' => $ticket->description,
+            '$agent_signature' => $ticket->agent->signature,
         ];
     }
 }

@@ -195,11 +195,8 @@
                                 ->placeholder('texts.comma_separated_values')
                                 ->label(trans('texts.alert_ticket_overdue_email'))
                                 ->help('alert_ticket_overdue_email_help') !!}
+                            
 
-                            {!! Former::checkbox('show_agent_details')
-                               ->text(trans('texts.enable'))
-                               ->label(trans('texts.show_agent_details'))
-                               ->value(1) !!}
 
                         </div>
                     </div>
