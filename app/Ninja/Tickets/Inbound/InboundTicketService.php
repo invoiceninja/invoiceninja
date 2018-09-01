@@ -4,8 +4,6 @@ namespace App\Ninja\Tickets\Inbound;
 
 use App\Models\AccountTicketSettings;
 use App\Models\Contact;
-use App\Models\Ticket;
-use App\Models\TicketComment;
 use App\Models\TicketInvitation;
 use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
