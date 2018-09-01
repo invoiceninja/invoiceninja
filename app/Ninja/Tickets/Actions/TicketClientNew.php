@@ -42,12 +42,17 @@ class TicketClientNew extends BaseAction
      */
     public function fire() : void
     {
+    Log::error('firing actions');
 
         $this->setDefaultAgent();
 
+        Log::error('default agent set');
+
+        Log::error($this->accountTicketSettings->alert_ticket_assign_agent);
+
         if($this->accountTicketSettings->alert_ticket_assign_agent > 0)
         {
-
+        Log::error('inside alter agent code');
             $ticketMailer = new TicketMailer();
 
             $toEmail = $this->ticket->agent->email;
@@ -83,8 +88,12 @@ class TicketClientNew extends BaseAction
 
     public function newTicketTemplateAction()
     {
+        Log::error('outside new ticket template code');
+        Log::error($this->accountTicketSettings->new_ticket_template_id);
+
         if($this->accountTicketSettings->new_ticket_template_id > 0)
         {
+            Log::error('inside new ticket template code');
 
             $ticketMailer = new TicketMailer();
 
