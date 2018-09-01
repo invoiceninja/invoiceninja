@@ -163,7 +163,7 @@ class TicketRepository extends BaseRepository
             }
             else {
 
-                $ticket = Ticket::createNew();
+                $ticket = Ticket::createNew($user);
 
                 $ticket->ticket_number = Ticket::getNextTicketNumber($user->account->id);
 
