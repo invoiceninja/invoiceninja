@@ -86,7 +86,7 @@ class BaseAction
             $view = 'ticket_template';
 
             $data = [
-                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->new_ticket_template_id),
+                'body' => self::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->new_ticket_template_id),
                 'account' => $this->account,
                 'replyTo' => $this->ticket->getTicketEmailFormat(),
                 'invitation' => $this->ticket->invitations->first()
