@@ -226,7 +226,7 @@ class TicketController extends BaseController
         $input = $request->input();
         $input['action'] = TICKET_AGENT_NEW;
 
-        $ticket = $this->ticketService->save($input, $request->input());
+        $ticket = $this->ticketService->save($input, $request->entity());
 
         return redirect("tickets/$ticket->public_id/edit");
 
