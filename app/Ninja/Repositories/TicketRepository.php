@@ -155,8 +155,6 @@ class TicketRepository extends BaseRepository
 
                 $ticket->contact_key = $contact->contact_key;
 
-                //$ticket->agent_id = $user->id;  ///whhhhhhyyy
-
                 $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
 
                 $ticket->priority_id = TICKET_PRIORITY_LOW;
@@ -230,8 +228,10 @@ class TicketRepository extends BaseRepository
         }
 
         Log::error('about to insert a ticket invitation');
-        Log::error("found ? {$found} internal? {$input['is_internal']}");
+        Log::error("found ? {$found}");
         if(!$found && isset($input['is_internal']) && !$input['is_internal'] && $ticket->contact) {
+            Log::error("found ? {$found} internal? {$input['is_internal']}");
+
             Log::error('inside!!');
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
         }
