@@ -146,7 +146,8 @@ class TicketService extends BaseService
         
         $ticket->comments()->save($ticketComment);
 
-        $this->save($data, $ticket);
+        $data['action'] = TICKET_MERGE;
+        $this->ticketRepo->save($data, $ticket);
 
         //Update parent ticket
         $updatedTicket = Ticket::scope($data['updated_ticket_id'])->first();
