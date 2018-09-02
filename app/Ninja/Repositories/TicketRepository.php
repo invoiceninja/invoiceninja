@@ -132,7 +132,6 @@ class TicketRepository extends BaseRepository
     {
 
         $contact = false;
-
         $oldTicket = $ticket;
 
         if(Auth::user())
@@ -150,20 +149,15 @@ class TicketRepository extends BaseRepository
 
                 //if client is creating the ticket, we need to harvest the ticket_master_user
                 $ticket = Ticket::createNew($user);
-
                 $ticket->client_id = $contact->client_id;
-
                 $ticket->contact_key = $contact->contact_key;
-
                 $ticket->ticket_number = Ticket::getNextTicketNumber($contact->account->id);
-
                 $ticket->priority_id = TICKET_PRIORITY_LOW;
 
             }
             else {
 
                 $ticket = Ticket::createNew($user);
-
                 $ticket->ticket_number = Ticket::getNextTicketNumber($user->account->id);
 
             }
@@ -174,23 +168,20 @@ class TicketRepository extends BaseRepository
             $input = array_except($input, array('client_id'));
 
         $ticket->fill($input);
-
         $changedAttributes = $ticket->getDirty();
-
         $ticket->save();
 
-        /* handle new comment */
+        /** handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1)
         {
 
             $ticketComment = TicketComment::createNew($ticket);
-
             $ticketComment->description = $input['description'];
 
-            if(!Auth::user())//do we need to filter for is_internal here?
-                $ticketComment->contact_key = $input['contact_key'];
-            else
-                $ticketComment->agent_id = Auth::user()->id;
+            if(array_intersect($input, [INBOUND_CONTACT_REPLY, TICKET_CLIENT_UPDATE, TICKET_CLIENT_NEW]))
+                $ticketComment->contact_key = $ticket->contact_key;
+            elseif(array_intersect($input, [INBOUND_ADMIN_REPLY, INBOUND_AGENT_REPLY, TICKET_AGENT_UPDATE, TICKET_AGENT_NEW]))
+                $ticketComment->agent_id = $ticket->agent_id ? $ticket->agent_id : Auth::user()->id;
 
             $ticket->comments()->save($ticketComment);
 
@@ -208,7 +199,6 @@ class TicketRepository extends BaseRepository
                 if ($document) {
 
                     $document->ticket_id = $ticket->id;
-
                     $document->save();
 
                 }
@@ -217,7 +207,7 @@ class TicketRepository extends BaseRepository
 
         }
 
-        //ticket invitations - create if none exists for primary contact
+        /** ticket invitations - create if none exists for primary contact */
         $found = false;
 
         foreach($ticket->invitations as $invite) {
@@ -231,7 +221,6 @@ class TicketRepository extends BaseRepository
         Log::error("found ? {$found}");
         if(!$found && isset($input['is_internal']) && !$input['is_internal'] && $ticket->contact) {
             Log::error("found ? {$found} internal? {$input['is_internal']}");
-
             Log::error('inside!!');
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
         }
@@ -269,15 +258,10 @@ class TicketRepository extends BaseRepository
     {
         Log::error('inside create method');
         $ticketInvitation = TicketInvitation::createNew($user);
-
         $ticketInvitation->ticket_id = $ticket->id;
-
         $ticketInvitation->contact_id = $contactId;
-
         $ticketInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
-
         $ticketInvitation->ticket_hash = strtolower(str_random(RANDOM_KEY_LENGTH));
-
         $ticketInvitation->save();
 
         Log::error("ticket hash = {$ticketInvitation->ticket_hash}");

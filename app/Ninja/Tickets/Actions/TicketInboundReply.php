@@ -3,6 +3,7 @@
 namespace App\Ninja\Tickets\Actions;
 
 use App\Models\Ticket;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class TicketInboundNew

@@ -59,62 +59,42 @@ class TicketFactory
          * It may be a range of methods - probabaly best to split each action into its own sequence.
          */
 
-        $this->performSequenceFor($this->action);
+        $classEntity = "App\Ninja\Tickets\Actions\\" . ucfirst(camel_case($this->action));
 
+        $handler = new $classEntity($this->updatedTicket);
+        $handler->fire();
     }
 
 
     private function performSequenceFor($action)
     {
+
+
+
+
+        return;
+        /**
         switch ($action)
         {
 
-            case TICKET_CLIENT_NEW:
-
-                $handler = new TicketClientNew($this->updatedTicket);
-
-                $handler->fire();
-
-            break;
-
-            case TICKET_INBOUND_NEW:
-
-                $handler = new TicketInboundNew($this->updatedTicket);
-
-                $handler->fire();
+        case TICKET_CLIENT_NEW:
+        case INBOUND_CONTACT_REPLY:
+        case TICKET_INBOUND_NEW:
+        case TICKET_AGENT_NEW:
 
             break;
 
             case TICKET_INBOUND_REPLY:
-
-            break;
-
+            case INBOUND_ADMIN_REPLY:
+            case INBOUND_AGENT_REPLY:
             case TICKET_CLIENT_UPDATE:
-                /* Check if new comment_template is configured and fire notification to agent*/
-            break;
-
-            case TICKET_AGENT_NEW:
-                /* Check if new_ticket_template exists - fire notifications that apply*/
-            break;
-
             case TICKET_AGENT_UPDATE:
-                /* Check if updated_template exists - fire notifications that apply*/
-            break;
-
             case TICKET_MERGE:
-                /* Check if updated_template exists - fire notification that apply*/
-            break;
-
             case TICKET_ASSIGNED:
-                /* Check if ticket assignment template exists - fire notifications that apply */
-            break;
-
             case TICKET_OVERDUE:
-                /* Check if overdue template exists - fire notifications that apply */
-            break;
 
         }
-
+        */
     }
 
 }

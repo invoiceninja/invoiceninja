@@ -129,15 +129,11 @@ class TicketController extends BaseController
     {
 
         $data = $request->input();
-
         $data['document_ids'] = $request->document_ids;
-
         $data['action'] = TICKET_AGENT_UPDATE;
 
         $ticket = $request->entity();
-
         $ticket = $this->ticketService->save($data, $ticket);
-
         $ticket->load('documents');
 
         $entityType = $ticket->getEntityType();
@@ -148,7 +144,7 @@ class TicketController extends BaseController
 
         $data = array_merge($this->getViewmodel($ticket), $data);
 
-        return View::make('tickets.edit', $data);
+            return View::make('tickets.edit', $data);
 
     }
 

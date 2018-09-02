@@ -27,11 +27,14 @@ class UpdateTicketRequest extends TicketRequest
      */
     public function rules()
     {
+
+        $data = $this->all();
+
         $rules =  [
             'client_public_id' => 'min:1|numeric',
         ];
 
-        if($this->is_internal == false)
+        if($data['is_internal'] && $data['is_internal'] == false)
             $rules['client_public_id'] = 'min:1|numeric|required';
 
         return $rules;

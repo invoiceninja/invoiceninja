@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
  * Class TicketClientNew
  * @package App\Ninja\Tickets\Actions
  */
-class TicketClientNew extends BaseAction
+class TicketAgentNew extends BaseAction
 {
     /**
      * Check if a default agent exists

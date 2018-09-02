@@ -8,21 +8,23 @@ use App\Ninja\Mailers\TicketMailer;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class TicketClientNew
+ * Class InboundAgentReply
  * @package App\Ninja\Tickets\Actions
  */
-class TicketClientNew extends BaseAction
+class InboundAgentReply extends BaseAction
 {
+
     /**
-     * Check if a default agent exists
-     * Fire notification to agent / slack if configured
-     * Fire notification to client if new_ticket_template exists
+     * Handle a contact reply to an existing ticket
      */
 
+    /**
+     * @var Ticket
+     */
     protected $ticket;
 
     /**
-     * TicketClientNew constructor.
+     * TicketInboundNew constructor.
      */
     public function __construct(Ticket $ticket)
     {
@@ -36,29 +38,22 @@ class TicketClientNew extends BaseAction
     }
 
     /**
-     * fires the sequence for this ticket action
+     * Fire sequence for INBOUND_CONTACT_REPLY
      */
-    public function fire() : void
+    public function fire()
     {
-
-        $this->setDefaultAgent();
-
-        if($this->alert_ticket_assign_agent() && $this->default_agent_id())
+        if($this->update_ticket_template_id())
         {
-
-            $toEmail = $this->ticket->agent->email;
-
+            $toEmail = $this->ticket->contact->email;
             $fromEmail = $this->buildFromAddress();
-
             $fromName = $this->accountTicketSettings->from_name;
-
-            $subject = trans('texts.ticket_assignment', ['ticket_number' => $this->ticket->ticket_number, 'agent' => $this->ticket->agent->getName()]);
+            $subject = trans('texts.ticket_updated_template_subject', ['ticket_number' => $this->ticket->ticket_number]);
 
             $view = 'ticket_template';
 
             $data = [
-                'bccEmail' => $this->accountTicketSettings->alert_ticket_assign_email,
-                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->alert_ticket_assign_agent),
+                'bccEmail' => $this->accountTicketSettings->alert_new_comment_email,
+                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->update_ticket_template_id),
                 'account' => $this->account,
                 'replyTo' => $this->ticket->getTicketEmailFormat(),
                 'invitation' => $this->ticket->invitations->first()
@@ -74,10 +69,6 @@ class TicketClientNew extends BaseAction
             Log::error($msg);
         }
 
-        $this->newTicketTemplateAction();
-
     }
-
-
 
 }

@@ -26,9 +26,7 @@ class BaseAction
     {
 
         $ticketVariables = TicketTemplateService::getVariables($ticket);
-
         $template = $ticket->getTicketTemplate($templateId);
-
         $ticketVariables = array_merge($ticketVariables,
             [
                 'ticket_master' => $accountTicketSettings->ticket_master->getName(),
@@ -77,13 +75,9 @@ class BaseAction
         {
 
             $toEmail = $this->ticket->contact->email;
-
             $fromEmail = $this->buildFromAddress();
-
             $fromName = $this->accountTicketSettings->from_name;
-
             $subject = trans('texts.ticket_new_template_subject', ['ticket_number' => $this->ticket->ticket_number]);
-
             $view = 'ticket_template';
 
             $data = [
@@ -101,6 +95,22 @@ class BaseAction
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
             Log::error($msg);
+        }
+
+    }
+
+    /**
+     * Set default agent - if exists
+     */
+    public function setDefaultAgent() : void
+    {
+
+        if($this->default_agent_id())
+        {
+
+            $this->ticket->agent_id = $this->accountTicketSettings->default_agent_id;
+            $this->ticket->save();
+
         }
 
     }

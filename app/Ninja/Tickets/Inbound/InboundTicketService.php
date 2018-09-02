@@ -49,35 +49,42 @@ class InboundTicketService
         if($ticket_hash = $this->inboundTicketFactory->mailboxHash()) {
 
             $data = [];
+            $user = null;
 
             $ticketInvitation = TicketInvitation::whereTicketHash($ticket_hash)->first();
+            Log::error('existing inbound support request?');
 
             if($ticketInvitation)
             {
+                Log::error('contact inbound support request?');
 
                 /** Contact based external ticket */
                 $ticket = $ticketInvitation->ticket;
-
+                $user = $ticket->user;
+                $data['action'] = $this->getSender($ticket);
                 $data['is_internal'] = 0;
 
             }
             elseif ($ticketExists = Ticket::scope($ticket_hash)->first())
             {
+
+                Log::error('internal inbound support request?');
+
                 /** Internal Ticket*/
                 $ticket = $ticketExists;
-
+                $user = $ticket->user;
                 $data['is_internal'] = 1;
+                $data['action'] = $this->getSender($ticket);
 
             }
                 if($ticket)
                 {
-                    // if it is a reply, we need to work out if it is a contact reply
-                   // or an agent reply!!
-                    $data['action'] = TICKET_INBOUND_REPLY;
-
-                    $data['description'] = $this->inboundTicketFactory->TextBody();
-
-                    $ticket = $this->ticketRepo->save($data, $ticket);
+                    /**
+                     * if it is a reply, we need to work out if it is a contact reply
+                     * or an agent reply!!
+                     */
+                    $data['description'] = $this->inboundTicketFactory->StrippedTextReply();
+                    $ticket = $this->ticketRepo->save($data, $ticket, $user);
 
                     return $ticket;
 
@@ -93,12 +100,23 @@ class InboundTicketService
             return $this->checkSupportEmailAttempt();
     }
 
+    private function getSender(Ticket $ticket) : string
+    {
+        if ($ticket->contact_key && $ticket->contact && ($ticket->contact->email == $this->inboundTicketFactory->fromEmail()))
+            return INBOUND_CONTACT_REPLY;
+        elseif($ticket->agent_id && $ticket->agent && ($ticket->agent->email == $this->inboundTicketFactory->fromEmail()))
+            return INBOUND_AGENT_REPLY;
+        elseif($ticket->user_id && $ticket->user && ($ticket->user->email == $this->inboundTicketFactory->fromEmail()))
+            return INBOUND_ADMIN_REPLY;
+
+    }
+
     /**
      * @return $ticket
      */
     private function checkSupportEmailAttempt()
     {
-
+        Log::error('new inbound support request?');
         $to = $this->inboundTicketFactory->to();
 
         /*
@@ -170,7 +188,7 @@ class InboundTicketService
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->inboundTicketFactory->TextBody(),
+            'description' => $this->inboundTicketFactory->StrippedTextReply(),
             'action' => TICKET_INBOUND_NEW,
             'is_internal' => 0,
         ];
@@ -195,7 +213,7 @@ class InboundTicketService
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->inboundTicketFactory->TextBody(),
+            'description' => $this->inboundTicketFactory->StrippedTextReply(),
             'action' => TICKET_INBOUND_NEW,
             'is_internal' => 0,
         ];
@@ -215,7 +233,7 @@ class InboundTicketService
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->inboundTicketFactory->TextBody(),
+            'description' => $this->inboundTicketFactory->StrippedTextReply(),
             'action' => TICKET_INBOUND_NEW,
         ];
 
