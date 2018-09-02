@@ -81,12 +81,12 @@ class TicketFactory
         case INBOUND_CONTACT_REPLY:
         case TICKET_INBOUND_NEW:
         case TICKET_AGENT_NEW:
+        case INBOUND_AGENT_REPLY:
+        case INBOUND_ADMIN_REPLY:
 
             break;
 
             case TICKET_INBOUND_REPLY:
-            case INBOUND_ADMIN_REPLY:
-            case INBOUND_AGENT_REPLY:
             case TICKET_CLIENT_UPDATE:
             case TICKET_AGENT_UPDATE:
             case TICKET_MERGE:
