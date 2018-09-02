@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Tickets\Actions;
 
+use App\Models\Ticket;
+
 class TicketMerge extends BaseAction
 {
     /**
