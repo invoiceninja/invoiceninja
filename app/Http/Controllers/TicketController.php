@@ -130,7 +130,11 @@ class TicketController extends BaseController
 
         $data = $request->input();
         $data['document_ids'] = $request->document_ids;
-        $data['action'] = TICKET_AGENT_UPDATE;
+
+        if($data['closed'])
+            $data['action'] = TICKET_AGENT_CLOSED;
+        else
+            $data['action'] = TICKET_AGENT_UPDATE; /** NOT NECESSARILY! could be closing ticket - which would have a different action */
 
         $ticket = $request->entity();
         $ticket = $this->ticketService->save($data, $ticket);

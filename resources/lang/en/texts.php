@@ -2979,6 +2979,7 @@ $LANG = array(
     'ticket_contact_reply' => 'Ticket :ticket_number has been updated by client :contact',
     'ticket_new_template_subject' => 'Ticket :ticket_number has been created.',
     'ticket_updated_template_subject' => 'Ticket :ticket_number has been updated.',
+    'ticket_closed_template_subject' => 'Ticket :ticket_number has been closed.',
     'payment_reference' => 'Payment Reference',
     'merge' => 'Merge',
     'merged' => 'Merged',

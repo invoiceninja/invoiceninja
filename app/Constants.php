@@ -706,6 +706,7 @@ if (! defined('APP_NAME')) {
     define('TICKET_MERGE', 'ticket_merge');
     define('TICKET_ASSIGNED', 'ticket_assigned');
     define('TICKET_OVERDUE', 'ticket_overdue');
+    define('TICKET_AGENT_CLOSED', 'ticket_agent_closed');
 
     /* Default ticket statuses - Category - support*/
     $supportTicketStatuses = [

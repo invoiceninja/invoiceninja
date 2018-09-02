@@ -62,6 +62,7 @@ class InboundTicketService
                 $ticket = $ticketInvitation->ticket;
                 $user = $ticket->user;
                 $data['action'] = $this->getSender($ticket);
+                $data['status_id'] = TICKET_STATUS_OPEN;
                 $data['is_internal'] = 0;
 
             }
@@ -74,6 +75,7 @@ class InboundTicketService
                 $ticket = $ticketExists;
                 $user = $ticket->user;
                 $data['is_internal'] = 1;
+                $data['status_id'] = TICKET_STATUS_OPEN;
                 $data['action'] = $this->getSender($ticket);
 
             }
