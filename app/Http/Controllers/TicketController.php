@@ -293,8 +293,6 @@ class TicketController extends BaseController
 
         $ticket = $request->entity();
 
-        $ticket->action = TICKET_MERGE;
-
         $this->ticketService->mergeTicket($ticket, $request->input());
 
         Session::reflash();

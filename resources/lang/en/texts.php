@@ -2885,6 +2885,7 @@ $LANG = array(
     'restore_ticket' => 'Restore Ticket',
     'delete_ticket' => 'Delete Ticket',
     'archived_ticket' => 'Successfully archived ticket',
+    'archived_tickets' => 'Successfully archived tickets',
     'restored_ticket' => 'Successfully restored ticket',
     'deleted_ticket' => 'Successfully deleted ticket',
     'open' => 'Open',

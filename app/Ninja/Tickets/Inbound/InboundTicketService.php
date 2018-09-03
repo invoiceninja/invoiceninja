@@ -179,7 +179,7 @@ class InboundTicketService
      * @param $contact
      * @return $ticket
      */
-    private function createTicket($user, $contact)
+    private function createTicket($user, $contact) : Ticket
     {
 
         $data = [
@@ -205,7 +205,7 @@ class InboundTicketService
      * @param $account
      * @return $ticket
      */
-    private function createClientlessTicket($user, $contactEmail, $account)
+    private function createClientlessTicket($user, $contactEmail, $account) : Ticket
     {
 
         $data = [
@@ -224,7 +224,7 @@ class InboundTicketService
 
     }
 
-    private function createInternalTicket($ticketMaster, $user, $account)
+    private function createInternalTicket($ticketMaster, $user, $account) : Ticket
     {
 
         $data = [

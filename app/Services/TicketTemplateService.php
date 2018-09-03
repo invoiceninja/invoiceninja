@@ -108,7 +108,7 @@ class TicketTemplateService extends BaseService
             '$agent' => $agent,
             '$status' => $ticket->status->name,
             '$subject' => $ticket->subject,
-            '$description' => $ticket->description,
+            '$description' => $ticket->getLastComment()->description,
             '$agent_signature' => $signature,
         ];
     }
