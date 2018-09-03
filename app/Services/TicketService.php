@@ -150,6 +150,9 @@ class TicketService extends BaseService
         $this->ticketRepo->save($data, $ticket);
 
         //Update parent ticket
+        $data = [];
+        $data['action'] = TICKET_SAVE_ONLY;
+
         $updatedTicket = Ticket::scope($data['updated_ticket_id'])->first();
 
         $updatedTicketComment = TicketComment::createNew($updatedTicket);
@@ -158,7 +161,7 @@ class TicketService extends BaseService
 
         $updatedTicket->comments()->save($updatedTicketComment);
 
-        $updatedTicket->save();
+        $this->ticketRepo->save($data, $updatedTicket);
 
     }
 

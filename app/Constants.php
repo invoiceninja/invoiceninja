@@ -707,6 +707,7 @@ if (! defined('APP_NAME')) {
     define('TICKET_ASSIGNED', 'ticket_assigned');
     define('TICKET_OVERDUE', 'ticket_overdue');
     define('TICKET_AGENT_CLOSED', 'ticket_agent_closed');
+    define('TICKET_SAVE_ONLY', 'ticket_save_only');
 
     /* Default ticket statuses - Category - support*/
     $supportTicketStatuses = [

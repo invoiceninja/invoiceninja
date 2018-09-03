@@ -248,7 +248,9 @@ class TicketRepository extends BaseRepository
          * context for the various workflows.
          */
         Log::error('just before dispatch');
-        $this->dispatch(new TicketAction($changedAttributes, $oldTicket, $ticket, $input['action']));
+
+        if($input['action'] != TICKET_SAVE_ONLY)
+            $this->dispatch(new TicketAction($changedAttributes, $oldTicket, $ticket, $input['action']));
 
         return $ticket;
 
