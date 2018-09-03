@@ -71,6 +71,7 @@ class AddTicketsSchema extends Migration
             $table->dateTime('due_date');
             $table->dateTime('closed');
             $table->dateTime('reopened');
+            $table->boolean('overdue_notification_sent')->default(0);
             $table->timestamps();
             $table->softDeletes();
 

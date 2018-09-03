@@ -43,9 +43,7 @@ class BaseAction
      */
     public function __call($template, $args)
     {
-
         return $this->accountTicketSettings->$template ? TRUE : FALSE ;
-
     }
 
     /**

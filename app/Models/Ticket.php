@@ -332,7 +332,7 @@ class Ticket extends EntityModel
             $domain = Domain::getSupportDomainFromId($this->account->domain_id);
 
         if($this->is_internal == true)
-            return $this->account->accountTicketSettings->support_email_local_part.'+'.$this->ticket_number.'@'.$domain;
+            return $this->account->account_ticket_settings->support_email_local_part.'+'.$this->ticket_number.'@'.$domain;
         else
             return $this->ticket_number.'+'.$this->getContactTicketHash().'@'.$domain;
     }

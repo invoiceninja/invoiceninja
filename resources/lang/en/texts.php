@@ -2980,6 +2980,7 @@ $LANG = array(
     'ticket_new_template_subject' => 'Ticket :ticket_number has been created.',
     'ticket_updated_template_subject' => 'Ticket :ticket_number has been updated.',
     'ticket_closed_template_subject' => 'Ticket :ticket_number has been closed.',
+    'ticket_overdue_template_subject' => 'Ticket :ticket_number is now overdue',
     'payment_reference' => 'Payment Reference',
     'merge' => 'Merge',
     'merged' => 'Merged',
