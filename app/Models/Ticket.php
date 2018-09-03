@@ -345,11 +345,18 @@ class Ticket extends EntityModel
 
     public function getClientMergeableTickets()
     {
+        $getInternal = false;
+
+        if($this->is_internal == true)
+            $getInternal = true;
+
+
         return Ticket::scope()
             ->where('client_id', '=', $this->client_id)
             ->where('public_id', '!=', $this->public_id)
             ->where('merged_parent_ticket_id', '=', NULL)
             ->where('status_id', '!=', 3)
+            ->where('is_internal', '=', $getInternal)
             ->get();
     }
 
