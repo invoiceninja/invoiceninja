@@ -69,7 +69,7 @@ class PaymentTransformer extends EntityTransformer
             'exchange_rate' => (float) $payment->exchange_rate,
             'exchange_currency_id' => (int) $payment->exchange_currency_id,
             'refunded' => (float) $payment->refunded,
-            'payment_status_id' => (int) $payment->payment_status_id,
+            'payment_status_id' => (int) ($payment->payment_status_id ?: PAYMENT_STATUS_COMPLETED),
         ]);
     }
 }
