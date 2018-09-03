@@ -365,7 +365,10 @@ class Ticket extends EntityModel
             return true;
     }
 
-
+    public function getLastComment()
+    {
+        return $this->comments()->first();
+    }
 }
 
 
