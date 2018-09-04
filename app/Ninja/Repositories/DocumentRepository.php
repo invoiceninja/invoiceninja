@@ -4,6 +4,7 @@ namespace App\Ninja\Repositories;
 
 use App\Models\Contact;
 use App\Models\Document;
+use App\Models\User;
 use DB;
 use Form;
 use Illuminate\Support\Facades\Log;
@@ -99,6 +100,12 @@ class DocumentRepository extends BaseRepository
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
             $account = $contact->account;
             $ticketMaster = $account->account_ticket_settings->ticket_master;
+        }
+        elseif(isset($data['user_id']) && $data['user_id'] > 0){
+            $ticketMaster = User::find($data['user_id']);
+            // if saving a document from a inboundticket,
+            // we need to harvest the user_id of the ticket owner / master, this can be
+            // passed from the inbound ticket service
         }
         else
             $account = \Auth::user()->account;

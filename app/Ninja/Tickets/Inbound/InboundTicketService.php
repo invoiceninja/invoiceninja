@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
 use App\Models\User;
+use App\Ninja\Repositories\DocumentRepository;
 use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
 
@@ -86,6 +87,20 @@ class InboundTicketService
                      * or an agent reply!!
                      */
                     $data['description'] = $this->inboundTicketFactory->StrippedTextReply();
+
+                    foreach($this->inboundTicketFactory->attachments() as $attachment)
+                    {
+                        
+                        $doc = [];
+                        $doc['file'] = $attachment->content;
+                        $doc['ticket_id'] = $ticket->id;
+                        $doc['user_id'] = $ticket->user_id;
+
+                        $documentRepo = new DocumentRepository();
+                        $documentRepo->upload($doc);
+
+                    }
+
                     $ticket = $this->ticketRepo->save($data, $ticket, $user);
 
                     return $ticket;
