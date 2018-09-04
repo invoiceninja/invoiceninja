@@ -67,7 +67,7 @@ class InboundTicketService
                 $data['is_internal'] = 0;
 
             }
-            elseif ($ticketExists = Ticket::scope($ticket_hash)->first())
+            elseif ($ticketExists = Ticket::scope($ticket_hash)->first())//no scopeable account / user!!
             {
 
                 Log::error('internal inbound support request?');
@@ -88,13 +88,17 @@ class InboundTicketService
                      */
                     $data['description'] = $this->inboundTicketFactory->StrippedTextReply();
 
+                    Log::error('number of attachments = '. count($this->inboundTicketFactory->attachments()));
+
                     foreach($this->inboundTicketFactory->attachments() as $attachment)
                     {
-                        
+                        Log::error('inside attachments');
+                        Log::error('file name = '.$attachment->name);
                         $doc = [];
                         $doc['file'] = $attachment->content;
                         $doc['ticket_id'] = $ticket->id;
                         $doc['user_id'] = $ticket->user_id;
+
 
                         $documentRepo = new DocumentRepository();
                         $documentRepo->upload($doc);
