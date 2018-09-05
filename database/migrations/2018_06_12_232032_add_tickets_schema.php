@@ -206,6 +206,9 @@ class AddTicketsSchema extends Migration
             $table->boolean('show_agent_details')->default(true);
             $table->string('postmark_api_token');
 
+            $table->boolean('allow_inbound_email_tickets_internal')->default(1);
+            $table->boolean('allow_inbound_email_tickets_external')->default(1);
+
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('ticket_master_id')->references('id')->on('users')->onDelete('cascade');
         });

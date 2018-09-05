@@ -41,6 +41,10 @@ class InboundTicketCheck
             LookupAccount::setServerByField('support_email_local_part', $parts[0]);
         }
 
+        /**
+         * If we don't trigger any of these if blocks, we need to die()
+         */
+
         return $next($request);
     }
 }

@@ -2997,7 +2997,10 @@ $LANG = array(
     'new_internal_ticket' => 'New internal ticket',
     'internal_ticket' => 'Internal ticket',
     'create_ticket' => 'Create ticket',
-
+    'allow_inbound_email_tickets_internal' => 'New Tickets by email (Internal)',
+    'allow_inbound_email_tickets_external' => 'New Tickets by email (Client)',
+    'allow_inbound_email_tickets_internal_help' => 'Allow internal users to create new tickets by email',
+    'allow_inbound_email_tickets_external_help' => 'Allow clients to create new tickets by email'
 
 
 );

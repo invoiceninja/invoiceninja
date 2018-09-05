@@ -66,6 +66,23 @@
                                     ->fromQuery($account->users, 'displayName', 'id')
                                  !!}
                             </div>
+
+                            <div id="">
+                                {!! Former::checkbox('allow_inbound_email_tickets_internal')
+                               ->text(trans('texts.enable'))
+                               ->help(trans('texts.allow_inbound_email_tickets_internal_help'))
+                               ->label(trans('texts.allow_inbound_email_tickets_internal'))
+                               ->value(1) !!}
+                            </div>
+
+                            <div id="">
+                                {!! Former::checkbox('allow_inbound_email_tickets_external')
+                               ->text(trans('texts.enable'))
+                               ->help(trans('texts.allow_inbound_email_tickets_external_help'))
+                               ->label(trans('texts.allow_inbound_email_tickets_external'))
+                               ->value(1) !!}
+                            </div>
+
                         </div>
                     </div>
 

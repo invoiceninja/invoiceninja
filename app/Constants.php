@@ -697,6 +697,7 @@ if (! defined('APP_NAME')) {
     define('TICKET_CLIENT_NEW', 'ticket_client_new');
     define('TICKET_CLIENT_UPDATE', 'ticket_client_update');
     define('TICKET_INBOUND_NEW', 'ticket_inbound_new');
+    define('TICKET_INBOUND_NEW_INTERNAL', 'ticket_inbound_new_internal');
     define('TICKET_INBOUND_REPLY', 'ticket_inbound_reply');
     define('INBOUND_CONTACT_REPLY', 'inbound_contact_reply');
     define('INBOUND_AGENT_REPLY', 'inbound_agent_reply');
