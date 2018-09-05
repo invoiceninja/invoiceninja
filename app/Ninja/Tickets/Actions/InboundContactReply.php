@@ -25,7 +25,7 @@ class InboundContactReply extends BaseAction
     public function fire(Ticket $ticket)
     {
         $account = $ticket->account;
-        $accountTicketSettings = $account->accountTicketSettings;
+        $accountTicketSettings = $account->account_ticket_settings;
 
         if($accountTicketSettings->alert_new_comment > 0)
         {

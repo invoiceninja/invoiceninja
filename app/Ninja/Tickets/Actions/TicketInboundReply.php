@@ -25,7 +25,7 @@ class TicketInboundReply extends BaseAction
     {
 
         $account = $ticket->account;
-        $accountTicketSettings = $account->accountTicketSettings;
+        $accountTicketSettings = $account->account_ticket_settings;
 
     }
 

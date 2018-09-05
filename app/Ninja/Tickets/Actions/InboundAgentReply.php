@@ -18,30 +18,12 @@ class InboundAgentReply extends BaseAction
      * Handle a contact reply to an existing ticket
      */
 
-    /**
-     * @var Ticket
-     */
-    protected $ticket;
-
-    /**
-     * TicketInboundNew constructor.
-     */
-    public function __construct(Ticket $ticket)
+    public function fire(Ticket $ticket)
     {
 
-        $this->ticket = $ticket;
+        $account = $ticket->account;
+        $accountTicketSettings = $account->account_ticket_settings;
 
-        $this->account = $ticket->account;
-
-        $this->accountTicketSettings = $ticket->account->account_ticket_settings;
-
-    }
-
-    /**
-     * Fire sequence for INBOUND_CONTACT_REPLY
-     */
-    public function fire()
-    {
         if($this->update_ticket_template_id())
         {
             $toEmail = $this->ticket->contact->email;

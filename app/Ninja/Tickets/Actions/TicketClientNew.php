@@ -19,25 +19,6 @@ class TicketClientNew extends BaseAction
      * Fire notification to client if new_ticket_template exists
      */
 
-    protected $ticket;
-
-    /**
-     * TicketClientNew constructor.
-     */
-    public function __construct(Ticket $ticket)
-    {
-
-        $this->ticket = $ticket;
-
-        $this->account = $ticket->account;
-
-        $this->accountTicketSettings = $ticket->account->account_ticket_settings;
-
-    }
-
-    /**
-     * fires the sequence for this ticket action
-     */
     public function fire(Ticket $ticket)
     {
         $account = $ticket->account;

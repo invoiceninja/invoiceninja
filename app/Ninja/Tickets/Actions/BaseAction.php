@@ -60,7 +60,7 @@ class BaseAction
     public function newTicketTemplateAction(Ticket $ticket) : void
     {
         $account = $ticket->account;
-        $accountTicketSettings = $account->accountTicketSettings;
+        $accountTicketSettings = $account->account_ticket_settings;
 
         if($accountTicketSettings->new_ticket_template_id > 0)
         {

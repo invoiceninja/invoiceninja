@@ -27,7 +27,7 @@ class TicketAgentNew extends BaseAction
 
         $this->setDefaultAgent($ticket, $accountTicketSettings);
 
-        if($this->alert_ticket_assign_agent() && $this->default_agent_id())
+        if($accountTicketSettings->alert_ticket_assign_agent > 0 && $accountTicketSettings->default_agent_id > 0)
         {
 
             $toEmail = $this->ticket->agent->email;

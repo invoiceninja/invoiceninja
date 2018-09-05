@@ -22,7 +22,7 @@ class InboundAdminReply extends BaseAction
     public function fire(Ticket $ticket)
     {
         $account = $ticket->account;
-        $accountTicketSettings = $account->accountTicketSettings;
+        $accountTicketSettings = $account->account_ticket_settings;
 
         if($accountTicketSettings->update_ticket_template_id > 0)
         {
