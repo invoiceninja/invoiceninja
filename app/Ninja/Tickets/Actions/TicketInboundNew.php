@@ -29,9 +29,8 @@ class TicketInboundNew extends BaseAction
     public function fire(Ticket $ticket)
     {
         Log::error('inside ticket inbound new and just about to fire action');
-        $handler = new TicketClientNew($ticket);
-
-        $handler->fire();
+        $handler = new TicketClientNew();
+        $handler->fire($ticket);
 
     }
 
