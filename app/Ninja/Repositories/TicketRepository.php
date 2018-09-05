@@ -171,10 +171,11 @@ class TicketRepository extends BaseRepository
         $changedAttributes = $ticket->getDirty();
         $ticket->save();
 
+        Log::error('description = '.$input['description']);
         /** handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1)
         {
-
+        Log::error('inside saving comment');
             $ticketComment = TicketComment::createNew($ticket);
             $ticketComment->description = $input['description'];
 
@@ -184,7 +185,7 @@ class TicketRepository extends BaseRepository
                 $ticketComment->agent_id = $ticket->agent_id ? $ticket->agent_id : Auth::user()->id;
 
 
-            //Log::error(print_r($ticketComment,1));
+            Log::error(print_r($ticketComment,1));
 
             $ticket->comments()->save($ticketComment);
 

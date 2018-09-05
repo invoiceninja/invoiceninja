@@ -190,6 +190,8 @@ class DocumentRepository extends BaseRepository
 
         $document->save();
 
+        unlink($filePath);
+
         return $document;
     }
 

@@ -46,7 +46,6 @@ class InboundTicketService
     public function process()
     {
         /** Attempt to parse the hash and harvest the $ticket */
-        Log::error('mailbox hasg = '.$this->inboundTicketFactory->mailboxHash());
 
         if($ticket_hash = $this->inboundTicketFactory->mailboxHash()) {
 
@@ -114,7 +113,7 @@ class InboundTicketService
     private function processTicket(Ticket $ticket, array $data, $user) : Ticket
     {
 
-        $data['description'] = $this->inboundTicketFactory->StrippedTextReply();
+        $data['description'] = $this->getMessage();
 
         Log::error('number of attachments = '. count($this->inboundTicketFactory->attachments()));
 
@@ -144,7 +143,7 @@ class InboundTicketService
     }
 
     private function getSender(Ticket $ticket) : string
-    {Log::error(print_r($ticket,1));
+    {
         if ($ticket->contact_key && $ticket->contact && ($ticket->contact->email == $this->inboundTicketFactory->fromEmail()))
             return INBOUND_CONTACT_REPLY;
         elseif($ticket->agent_id && $ticket->agent && ($ticket->agent->email == $this->inboundTicketFactory->fromEmail()))
@@ -221,7 +220,7 @@ class InboundTicketService
                 $user = User::whereEmail($from)->first();
 
                 if($user && ($accountTicketSettings->allow_inbound_email_tickets_internal == true))
-                    return $this->createInternalTicket($accountTicketSettings->ticket_master, $user, $accountTicketSettings->account);
+                    return $this->createInternalTicket($accountTicketSettings, $user);
             }
             else {
 
@@ -249,7 +248,7 @@ class InboundTicketService
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->inboundTicketFactory->StrippedTextReply(),
+            'description' => $this->getMessage(),
             'action' => TICKET_INBOUND_NEW,
             'is_internal' => 0,
         ];
@@ -274,7 +273,7 @@ class InboundTicketService
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->inboundTicketFactory->StrippedTextReply(),
+            'description' => $this->getMessage(),
             'action' => TICKET_SAVE_ONLY, //we cant send a ticket to someone we don't know!!
             'is_internal' => 0,
         ];
@@ -283,23 +282,36 @@ class InboundTicketService
 
     }
 
-    private function createInternalTicket($ticketMaster, $user, $account) : Ticket
+    private function createInternalTicket($accountTicketSettings, $user) : Ticket
     {
+        $agentId = 0;
+
+        if($accountTicketSettings->default_agent_id > 0)
+            $agentId = $accountTicketSettings->default_agent_id;
 
         $data = [
-            'user_id' => $ticketMaster->id,
+            'user_id' => $user->id,
             'is_internal' => 1,
-            'agent_id' => $user->id,
+            'agent_id' => $agentId,
             'priority_id' => TICKET_PRIORITY_LOW,
             'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->inboundTicketFactory->StrippedTextReply(),
+            'description' => $this->getMessage(),
             'action' => TICKET_INBOUND_NEW_INTERNAL,
         ];
 
+
+        Log::error('createinternal ticket description = '.$this->inboundTicketFactory->StrippedTextReply());
         return $this->ticketRepo->save($data, null, $user);
 
     }
 
+    private function getMessage() : string {
+
+        if(strlen($this->inboundTicketFactory->StrippedTextReply()) > 0)
+            return $this->inboundTicketFactory->StrippedTextReply();
+        else
+            return $this->inboundTicketFactory->TextBody();
+    }
 }
