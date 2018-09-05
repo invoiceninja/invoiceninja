@@ -278,7 +278,7 @@ class InboundTicketService
             'is_internal' => 1,
             'agent_id' => $user->id,
             'priority_id' => TICKET_PRIORITY_LOW,
-            'status_id' => TICKET_STATUS_NEW_INTERNAL,
+            'status_id' => TICKET_INBOUND_NEW_INTERNAL,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
             'description' => $this->inboundTicketFactory->StrippedTextReply(),
