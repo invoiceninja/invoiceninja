@@ -2,7 +2,10 @@
 
 namespace App\Ninja\Tickets\Inbound;
 
-Class Attachment extends TicketFactory {
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+
+Class Attachment extends InboundTicketFactory{
 
 
     /**
@@ -19,13 +22,13 @@ Class Attachment extends TicketFactory {
 
         $this->attachment = $attachment;
 
-        $this->name = $this->attachment->name;
+        $this->Name = $this->attachment->Name;
 
-        $this->contentType = $this->attachment->contentType;
+        $this->ContentType = $this->attachment->ContentType;
 
-        $this->contentLength = $this->attachment->contentLength;
+        $this->ContentLength = $this->attachment->ContentLength;
 
-        $this->content = $this->attachment->content;
+        $this->Content = $this->attachment->Content;
 
     }
 
@@ -42,10 +45,12 @@ Class Attachment extends TicketFactory {
     /**
      * @param $directory
      */
-    public function download($directory)
+    public function download()
     {
+        $directory = sys_get_temp_dir();
+        file_put_contents($directory . $this->Name, $this->_read());
 
-        file_put_contents($directory . $this->name, $this->_read());
+        return File::get($directory.$this->Name);
 
     }
 

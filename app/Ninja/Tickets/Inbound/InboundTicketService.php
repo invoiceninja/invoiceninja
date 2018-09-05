@@ -46,6 +46,8 @@ class InboundTicketService
     public function process()
     {
         /** Attempt to parse the hash and harvest the $ticket */
+        Log::error('mailbox hasg = '.$this->inboundTicketFactory->mailboxHash());
+
         if($ticket_hash = $this->inboundTicketFactory->mailboxHash()) {
 
             $data = [];
@@ -77,6 +79,10 @@ class InboundTicketService
             $ticket_number = $this->inboundTicketFactory->mailboxHash();
 
             $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', '=', $localPart)->first();
+
+            if(!$accountTicketSettings)
+                return;
+
             $ticket = Ticket::whereAccountId($accountTicketSettings->account_id)
                     ->whereTicketNumber($ticket_number)->first();
 
@@ -115,15 +121,20 @@ class InboundTicketService
         foreach($this->inboundTicketFactory->attachments() as $attachment)
         {
             Log::error('inside attachments');
-            Log::error('file name = '.$attachment->name);
+            Log::error('file name = '.$attachment->Name);
+            //Log::error('file content = '.$attachment->Content);
+            //Log::error('file encoded' .base64_encode(chunk_split($attachment->Content)));
+
             $doc = [];
-            $doc['file'] = $attachment->content;
+            $doc['file'] = $attachment->download();
+            $doc['filePath'] = sys_get_temp_dir().$attachment->Name;
+            $doc['fileName'] = $attachment->Name;
             $doc['ticket_id'] = $ticket->id;
             $doc['user_id'] = $ticket->user_id;
 
 
             $documentRepo = new DocumentRepository();
-            $documentRepo->upload($doc);
+            $documentRepo->inboundUpload($doc, $user->account);
 
         }
 
@@ -133,14 +144,13 @@ class InboundTicketService
     }
 
     private function getSender(Ticket $ticket) : string
-    {
+    {Log::error(print_r($ticket,1));
         if ($ticket->contact_key && $ticket->contact && ($ticket->contact->email == $this->inboundTicketFactory->fromEmail()))
             return INBOUND_CONTACT_REPLY;
         elseif($ticket->agent_id && $ticket->agent && ($ticket->agent->email == $this->inboundTicketFactory->fromEmail()))
             return INBOUND_AGENT_REPLY;
         elseif($ticket->user_id && $ticket->user && ($ticket->user->email == $this->inboundTicketFactory->fromEmail()))
             return INBOUND_ADMIN_REPLY;
-        else '';
 
     }
 
@@ -150,7 +160,7 @@ class InboundTicketService
      */
     private function checkSupportEmailAttempt()
     {
-        Log::error('new inbound support request?');
+        Log::error('new inbound support request from - ' . $this->inboundTicketFactory->fromEmail());
         $to = $this->inboundTicketFactory->to();
 
         /*
@@ -160,6 +170,7 @@ class InboundTicketService
         $parts = explode("@", $to);
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
 
+        Log::error('did we find the right local part ? ' . $parts[0]);
 
         /**
          *
@@ -181,6 +192,7 @@ class InboundTicketService
             $contacts = Contact::whereAccountId($accountTicketSettings->account_id)
                                 ->whereEmail($from)->get();
 
+            Log::error("this many contacts found " .count($contacts));
 
             if(count($contacts) == 1 && ($accountTicketSettings->allow_inbound_email_tickets_external == true)) {
 
@@ -263,7 +275,7 @@ class InboundTicketService
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
             'description' => $this->inboundTicketFactory->StrippedTextReply(),
-            'action' => TICKET_INBOUND_NEW,
+            'action' => TICKET_SAVE_ONLY, //we cant send a ticket to someone we don't know!!
             'is_internal' => 0,
         ];
 

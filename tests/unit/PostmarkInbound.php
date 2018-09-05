@@ -4,7 +4,7 @@ class PostmarkInbound extends PHPUnit_Framework_TestCase{
 
     protected function setUp()
     {
-        $this->inbound = new \App\Ninja\Tickets\Inbound\InboundTicketFactory(file_get_contents('inbound.json'));
+        $this->inbound = new \App\Ninja\Tickets\Inbound\InboundTicketFactory(file_get_contents(__DIR__ . '/inbound.json'));
     }
 
     public function testTo()
@@ -19,12 +19,12 @@ class PostmarkInbound extends PHPUnit_Framework_TestCase{
 
     public function testFromEmail()
     {
-        $this->assertEquals($this->inbound->fromEmail(), 'myUser@theirDomain.com');
+        $this->assertEquals($this->inbound->fromEmail(), 'david@romulus.com.au');
     }
 
     public function testFromFull()
     {
-        $this->assertEquals($this->inbound->fromFull(), 'John Doe <myUser@theirDomain.com>');
+        $this->assertEquals($this->inbound->fromFull(), 'John Doe <david@romulus.com.au>');
     }
 
     public function testFromName()

@@ -30,35 +30,35 @@ class TicketAgentNew extends BaseAction
         if($accountTicketSettings->alert_ticket_assign_agent > 0 && $accountTicketSettings->default_agent_id > 0)
         {
 
-            $toEmail = $this->ticket->agent->email;
+            $toEmail = $ticket->agent->email;
 
-            $fromEmail = $this->buildFromAddress();
+            $fromEmail = $this->buildFromAddress($accountTicketSettings);
 
-            $fromName = $this->accountTicketSettings->from_name;
+            $fromName = $accountTicketSettings->from_name;
 
-            $subject = trans('texts.ticket_assignment', ['ticket_number' => $this->ticket->ticket_number, 'agent' => $this->ticket->agent->getName()]);
+            $subject = trans('texts.ticket_assignment', ['ticket_number' => $ticket->ticket_number, 'agent' => $ticket->agent->getName()]);
 
             $view = 'ticket_template';
 
             $data = [
-                'bccEmail' => $this->accountTicketSettings->alert_ticket_assign_email,
-                'body' => parent::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->alert_ticket_assign_agent),
-                'account' => $this->account,
-                'replyTo' => $this->ticket->getTicketEmailFormat(),
-                'invitation' => $this->ticket->invitations->first()
+                'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent),
+                'account' => $account,
+                'replyTo' => $ticket->getTicketEmailFormat(),
+                'invitation' => $ticket->invitations->first()
             ];
 
             if (Utils::isSelfHost() && config('app.debug'))
-                \Log::info("Sending email - To: {$toEmail} | Reply: {$this->ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $ticketMailer = new TicketMailer();
-            Log::error("Sending email - To: {$toEmail} | Reply: {$this->ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
             Log::error($msg);
         }
 
-        $this->newTicketTemplateAction();
+        $this->newTicketTemplateAction($ticket);
 
     }
 

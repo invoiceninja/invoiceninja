@@ -178,10 +178,13 @@ class TicketRepository extends BaseRepository
             $ticketComment = TicketComment::createNew($ticket);
             $ticketComment->description = $input['description'];
 
-            if(array_intersect($input, [INBOUND_CONTACT_REPLY, TICKET_CLIENT_UPDATE, TICKET_CLIENT_NEW]))
+            if(in_array($input['action'], [INBOUND_CONTACT_REPLY, TICKET_CLIENT_UPDATE, TICKET_CLIENT_NEW]))
                 $ticketComment->contact_key = $ticket->contact_key;
-            elseif(array_intersect($input, [INBOUND_ADMIN_REPLY, INBOUND_AGENT_REPLY, TICKET_AGENT_UPDATE, TICKET_AGENT_NEW]))
+            elseif(in_array($input['action'], [INBOUND_ADMIN_REPLY, INBOUND_AGENT_REPLY, TICKET_AGENT_UPDATE, TICKET_AGENT_NEW]))
                 $ticketComment->agent_id = $ticket->agent_id ? $ticket->agent_id : Auth::user()->id;
+
+
+            //Log::error(print_r($ticketComment,1));
 
             $ticket->comments()->save($ticketComment);
 

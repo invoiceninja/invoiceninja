@@ -13,8 +13,8 @@ class TicketMerge extends BaseAction
     public function fire(Ticket $ticket)
     {
 
-        $handler = new TicketAgentClosed($ticket);
-        $handler->fire();
+        $handler = new TicketAgentClosed();
+        $handler->fire($ticket);
 
     }
 }
