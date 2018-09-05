@@ -34,6 +34,8 @@ class TicketInboundNewInternal extends BaseAction
     {
 
         $this->ticket = $ticket;
+        $this->account = $ticket->account;
+        $this->accountTicketSettings = $this->account->accountTicketSettings;
 
     }
 
