@@ -2,7 +2,7 @@
 
 namespace App\Ninja\Tickets\Inbound;
 
-Class Attachments extends TicketFactory  implements \Iterator {
+Class Attachments implements \Iterator {
 
 
     /**
