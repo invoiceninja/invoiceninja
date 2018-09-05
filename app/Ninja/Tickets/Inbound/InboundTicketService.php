@@ -278,11 +278,11 @@ class InboundTicketService
             'is_internal' => 1,
             'agent_id' => $user->id,
             'priority_id' => TICKET_PRIORITY_LOW,
-            'status_id' => TICKET_INBOUND_NEW_INTERNAL,
+            'status_id' => TICKET_STATUS_NEW,
             'category_id' => 1,
             'subject' => $this->inboundTicketFactory->subject(),
             'description' => $this->inboundTicketFactory->StrippedTextReply(),
-            'action' => TICKET_INBOUND_NEW,
+            'action' => TICKET_INBOUND_NEW_INTERNAL,
         ];
 
         return $this->ticketRepo->save($data, null, $user);
