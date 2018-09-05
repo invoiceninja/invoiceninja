@@ -21,30 +21,11 @@ class TicketInboundReply extends BaseAction
      *      Harvest TICKET_NUMBER - Determine replying agent and fire notification sequence
      */
 
-    /**
-     * @var Ticket
-     */
-    protected $ticket;
-
-    /**
-     * TicketInboundNew constructor.
-     */
-    public function __construct(Ticket $ticket)
+    public function fire(Ticket $ticket)
     {
 
-        $this->ticket = $ticket;
-
-        $this->account = $ticket->account;
-
-        $this->accountTicketSettings = $ticket->account->account_ticket_settings;
-
-    }
-
-    /**
-     * Fire sequency for TICKET_INBOUND_NEW
-     */
-    public function fire()
-    {
+        $account = $ticket->account;
+        $accountTicketSettings = $account->accountTicketSettings;
 
     }
 

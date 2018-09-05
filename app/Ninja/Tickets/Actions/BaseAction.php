@@ -4,6 +4,7 @@ namespace App\Ninja\Tickets\Actions;
 
 use App\Constants\Domain;
 use App\Libraries\Utils;
+use App\Models\AccountTicketSettings;
 use App\Models\Ticket;
 use App\Ninja\Mailers\TicketMailer;
 use App\Services\TicketTemplateService;
@@ -37,22 +38,12 @@ class BaseAction
     }
 
     /**
-     * @param $template
-     * @param $args
-     * @return bool
-     */
-    public function __call($template, $args)
-    {
-        return $this->accountTicketSettings->$template ? TRUE : FALSE ;
-    }
-
-    /**
      * @return string
      */
-    public function buildFromAddress() : string
+    public function buildFromAddress(AccountTicketSettings $accountTicketSettings) : string
     {
 
-        $fromName = $this->accountTicketSettings->support_email_local_part;
+        $fromName = $accountTicketSettings->support_email_local_part;
 
         if(Utils::isNinjaProd())
             $domainName = Domain::getSupportDomainFromId($this->account->domain_id);
@@ -66,29 +57,31 @@ class BaseAction
     /**
      * fires new_ticket_template to client
      */
-    public function newTicketTemplateAction() : void
+    public function newTicketTemplateAction(Ticket $ticket) : void
     {
+        $account = $ticket->account;
+        $accountTicketSettings = $account->accountTicketSettings;
 
-        if($this->new_ticket_template_id())
+        if($accountTicketSettings->new_ticket_template_id > 0)
         {
 
-            $toEmail = $this->ticket->contact->email;
-            $fromEmail = $this->buildFromAddress();
-            $fromName = $this->accountTicketSettings->from_name;
-            $subject = trans('texts.ticket_new_template_subject', ['ticket_number' => $this->ticket->ticket_number]);
+            $toEmail = $ticket->contact->email;
+            $fromEmail = $this->buildFromAddress($accountTicketSettings);
+            $fromName = $accountTicketSettings->from_name;
+            $subject = trans('texts.ticket_new_template_subject', ['ticket_number' => $ticket->ticket_number]);
             $view = 'ticket_template';
 
             $data = [
-                'body' => self::buildTicketBodyResponse($this->ticket, $this->accountTicketSettings, $this->accountTicketSettings->new_ticket_template_id),
-                'account' => $this->account,
-                'replyTo' => $this->ticket->getTicketEmailFormat(),
-                'invitation' => $this->ticket->invitations->first()
+                'body' => self::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->new_ticket_template_id),
+                'account' => $account,
+                'replyTo' => $ticket->getTicketEmailFormat(),
+                'invitation' => $ticket->invitations->first()
             ];
 
             if (Utils::isSelfHost() && config('app.debug'))
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
 
-            Log::error("Sending email - To: {$toEmail} | Reply: {$this->ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
             $ticketMailer = new TicketMailer();
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
@@ -97,19 +90,17 @@ class BaseAction
 
     }
 
-    /**
-     * Set default agent - if exists
-     */
-    public function setDefaultAgent() : void
+    public function setDefaultAgent($ticket, $accountTicketSettings) : void
     {
 
-        if($this->default_agent_id())
+        if($accountTicketSettings->default_agent_id > 0)
         {
 
-            $this->ticket->agent_id = $this->accountTicketSettings->default_agent_id;
-            $this->ticket->save();
+            $ticket->agent_id = $accountTicketSettings->default_agent_id;
+            $ticket->save();
 
         }
 
     }
+
 }

@@ -57,8 +57,8 @@ class TicketFactory
 
         $classEntity = "App\Ninja\Tickets\Actions\\" . ucfirst(camel_case($this->action));
 
-        $handler = new $classEntity($this->updatedTicket);
-        $handler->fire();
+        $handler = new $classEntity();
+        $handler->fire($this->updatedTicket);
     }
 
 

@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Log;
 class TicketOverdue extends BaseAction
 {
 
+    /**
+     * @var
+     */
     protected $ticket;
 
     /**
@@ -72,6 +75,11 @@ class TicketOverdue extends BaseAction
     }
 
 
+    /**
+     * @param $account
+     * @param $accountTicketSettings
+     * @return string
+     */
     public function buildFromLocalAddress($account, $accountTicketSettings) : string
     {
 

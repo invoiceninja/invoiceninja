@@ -21,30 +21,15 @@ class TicketInboundNew extends BaseAction
      */
 
     /**
-     * @var Ticket
-     */
-    protected $ticket;
-
-    /**
-     * TicketInboundNew constructor.
-     */
-    public function __construct(Ticket $ticket)
-    {
-
-        $this->ticket = $ticket;
-
-    }
-
-    /**
      * Fire sequence for TICKET_INBOUND_NEW
      *
      * Curent scope there is no difference from
      * TICKET_CLIENT_NEW so we simply init that class and ->fire()
      */
-    public function fire()
+    public function fire(Ticket $ticket)
     {
         Log::error('inside ticket inbound new and just about to fire action');
-        $handler = new TicketClientNew($this->ticket);
+        $handler = new TicketClientNew($ticket);
 
         $handler->fire();
 
