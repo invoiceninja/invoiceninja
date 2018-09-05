@@ -36,7 +36,7 @@ class TicketFactory
     /**
      * DeltaFactory constructor.
      */
-    public function __construct($originalTicket, $changedAttributes, $updatedTicket, $action)
+    public function __construct($originalTicket, $changedAttributes, Ticket $updatedTicket, $action)
     {
 
         $this->originalTicket = $originalTicket;
