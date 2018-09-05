@@ -140,6 +140,7 @@ class InboundTicketService
             return INBOUND_AGENT_REPLY;
         elseif($ticket->user_id && $ticket->user && ($ticket->user->email == $this->inboundTicketFactory->fromEmail()))
             return INBOUND_ADMIN_REPLY;
+        else '';
 
     }
 

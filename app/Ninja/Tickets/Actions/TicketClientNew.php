@@ -41,7 +41,7 @@ class TicketClientNew extends BaseAction
 
             $data = [
                 'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
-                'body' => parent::buildTicketBodyResponse($this->ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent),
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),
                 'invitation' => $ticket->invitations->first()
