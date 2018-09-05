@@ -70,7 +70,7 @@ class InboundTicketService
             }
 
             /** Checking for Internal support reply */
-            $explodeEmail = explode("@", $this->inboundTicketFactory->to()); 
+            $explodeEmail = explode("@", $this->inboundTicketFactory->to());
             $explodeLocalPart = explode("+", $explodeEmail[0]); //ticket_number
 
             $localPart = $explodeLocalPart[0];
@@ -207,7 +207,7 @@ class InboundTicketService
                  */
                 $user = User::whereEmail($from)->first();
 
-                if($user ($accountTicketSettings->allow_inbound_email_tickets_internal == true))
+                if($user && ($accountTicketSettings->allow_inbound_email_tickets_internal == true))
                     return $this->createInternalTicket($accountTicketSettings->ticket_master, $user, $accountTicketSettings->account);
             }
             else {
