@@ -2,7 +2,9 @@
 
 namespace App\Ninja\Tickets\Actions;
 
+use App\Libraries\Utils;
 use App\Models\Ticket;
+use App\Ninja\Mailers\TicketMailer;
 use Illuminate\Support\Facades\Log;
 
 /**
