@@ -23,7 +23,7 @@ class TicketAgentNew extends BaseAction
     {
 
         $account = $ticket->account;
-        $accountTicketSettings = $account->accountTicketSettings;
+        $accountTicketSettings = $account->account_ticket_settings;
 
         $this->setDefaultAgent($ticket, $accountTicketSettings);
 
