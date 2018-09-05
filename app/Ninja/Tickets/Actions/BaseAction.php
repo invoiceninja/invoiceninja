@@ -46,7 +46,7 @@ class BaseAction
         $fromName = $accountTicketSettings->support_email_local_part;
 
         if(Utils::isNinjaProd())
-            $domainName = Domain::getSupportDomainFromId($this->account->domain_id);
+            $domainName = Domain::getSupportDomainFromId($accountTicketSettings->account->domain_id);
         else
             $domainName = config('ninja.tickets.ticket_support_domain');
 

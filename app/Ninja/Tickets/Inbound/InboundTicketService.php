@@ -65,7 +65,7 @@ class InboundTicketService
                 $data['status_id'] = TICKET_STATUS_OPEN;
                 $data['is_internal'] = 0;
 
-                    return $this->processTicket($ticket, $data);
+                    return $this->processTicket($ticket, $data, $user);
 
             }
 
@@ -91,7 +91,7 @@ class InboundTicketService
                 $data['status_id'] = TICKET_STATUS_OPEN;
                 $data['action'] = $this->getSender($ticket);
 
-                    return $this->processTicket($ticket, $data);
+                    return $this->processTicket($ticket, $data, $user);
             }
 
 
@@ -105,7 +105,7 @@ class InboundTicketService
             return $this->checkSupportEmailAttempt();
     }
 
-    private function processTicket(Ticket $ticket, array $data) : Ticket
+    private function processTicket(Ticket $ticket, array $data, $user) : Ticket
     {
 
         $data['description'] = $this->inboundTicketFactory->StrippedTextReply();
