@@ -32,7 +32,7 @@ class TicketInboundNewInternal extends BaseTicketAction
 
         $this->setDefaultAgent($ticket, $accountTicketSettings);
 
-        if($accountTicketSettings->alert_ticket_assign_agent_id > 0 && $accountTicketSettings->default_agent_id > 0)
+        if($accountTicketSettings->alert_ticket_assign_agent_id > 0 && $accountTicketSettings->default_agent_id > 0 && $ticket->agent_id > 0)
         {
 
             $toEmail = $ticket->agent->email;

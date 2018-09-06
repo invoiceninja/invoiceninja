@@ -27,7 +27,7 @@ class TicketInboundContactReply extends BaseTicketAction
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
 
-        if($accountTicketSettings->alert_new_comment_id > 0)
+        if($accountTicketSettings->alert_new_comment_id > 0 && $ticket->agent_id > 0)
         {
             $toEmail = $ticket->agent->email;
 

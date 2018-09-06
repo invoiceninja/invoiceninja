@@ -106,7 +106,7 @@ class ClientPortalTicketController extends ClientPortalController
         $account = $contact->account;
 
         $ticket = Ticket::scope($ticketId, $account->id)
-                        //->with('status', 'comments', 'documents', 'account')
+                        ->with('comments', 'documents')
                         ->first();
 
         $data['method'] = 'PUT';
@@ -131,6 +131,7 @@ class ClientPortalTicketController extends ClientPortalController
         $data['method'] = 'PUT';
         $data['entityType'] = ENTITY_TICKET;
         $data['action'] = TICKET_INBOUND_CONTACT_REPLY;
+
         $ticket = $this->ticketService->save($data, $request->entity());
         $ticket->load('documents');
 

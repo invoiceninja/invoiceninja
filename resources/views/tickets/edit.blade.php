@@ -176,7 +176,7 @@
         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
 
-        <div class="tab-content" style="padding-right:12px;max-width:600px;">
+        <div class="tab-content" style="padding-right:12px;">
 
             <div role="tabpanel" class="tab-pane active" id="private_notes" style="padding-bottom:44px">
                 {!! Former::textarea('private_notes')
@@ -350,6 +350,8 @@
 
             if (data) {
                 self.update(data);
+                console.log(data.name);
+
             }
         }
 
