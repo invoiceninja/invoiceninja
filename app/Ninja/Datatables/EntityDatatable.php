@@ -124,7 +124,7 @@ class EntityDatatable
             $iconOutput .= '<span class="fa fa-user-plus" data-toggle="tooltip" data-placement="bottom" title="'. trans('texts.unassigned') .'"></span>&nbsp';
 
         /* Is the ticket overdue ? */
-        if(Carbon::parse($model->due_date) < Carbon::now())
+        if($model->due_date != '0000-00-00 00:00:00' && Carbon::parse($model->due_date) < Carbon::now())
             $iconOutput .= '<span class="fa fa-bomb" data-toggle="tooltip" data-placement="bottom" title="'. trans('texts.alert_ticket_overdue_agent_id') .'"></span>&nbsp';
 
         /* Is the ticket awaiting a response? */

@@ -139,11 +139,11 @@ class InboundTicketService
     private function getSender(Ticket $ticket) : string
     {
         if ($ticket->contact_key && $ticket->contact && ($ticket->contact->email == $this->inboundTicketFactory->fromEmail()))
-            return INBOUND_CONTACT_REPLY;
+            return TICKET_INBOUND_CONTACT_REPLY;
         elseif($ticket->agent_id && $ticket->agent && ($ticket->agent->email == $this->inboundTicketFactory->fromEmail()))
-            return INBOUND_AGENT_REPLY;
+            return TICKET_INBOUND_AGENT_REPLY;
         elseif($ticket->user_id && $ticket->user && ($ticket->user->email == $this->inboundTicketFactory->fromEmail()))
-            return INBOUND_ADMIN_REPLY;
+            return TICKET_INBOUND_ADMIN_REPLY;
 
     }
 

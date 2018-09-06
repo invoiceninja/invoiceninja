@@ -274,6 +274,7 @@ class CreateTestData extends Command
                 'contact_key'=> $client->getPrimaryContact()->contact_key,
                 'due_date'=> date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
                 'ticket_number' => $maxTicketNumber ? $maxTicketNumber : 1,
+                'action' => TICKET_SAVE_ONLY,
             ];
 
             $ticket = $this->ticketRepo->save($data);
