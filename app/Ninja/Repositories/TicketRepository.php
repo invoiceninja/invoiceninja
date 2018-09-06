@@ -184,9 +184,6 @@ class TicketRepository extends BaseRepository
             elseif(in_array($input['action'], [TICKET_INBOUND_ADMIN_REPLY, TICKET_INBOUND_AGENT_REPLY, TICKET_AGENT_UPDATE, TICKET_AGENT_NEW]))
                 $ticketComment->agent_id = $ticket->agent_id ? $ticket->agent_id : Auth::user()->id;
 
-
-            Log::error(print_r($ticketComment,1));
-
             $ticket->comments()->save($ticketComment);
 
         }

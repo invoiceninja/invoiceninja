@@ -130,7 +130,7 @@ class ClientPortalTicketController extends ClientPortalController
         $data['contact_key'] = $contact->contact_key;
         $data['method'] = 'PUT';
         $data['entityType'] = ENTITY_TICKET;
-        $data['action'] = TICKET_CLIENT_UPDATE;
+        $data['action'] = TICKET_INBOUND_CONTACT_REPLY;
         $ticket = $this->ticketService->save($data, $request->entity());
         $ticket->load('documents');
 

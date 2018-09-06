@@ -63,9 +63,9 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('client/tickets/{ticketId}', 'ClientPortalTicketController@view');
     Route::put('client/tickets/{ticketId}', 'ClientPortalTicketController@update');
 
+    Route::post('client/tickets/documents', 'DocumentController@postUpload');
     Route::get('client/tickets/documents/{documents}/{filename?}', 'DocumentController@get');
     Route::get('client/tickets/documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
-    Route::post('client/tickets/documents', 'DocumentController@postUpload');
     Route::delete('client/tickets/documents/{documents}', 'DocumentController@delete');
 
     Route::get('client/tasks', 'ClientPortalController@taskIndex');

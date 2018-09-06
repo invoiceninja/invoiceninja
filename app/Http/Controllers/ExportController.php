@@ -76,7 +76,7 @@ class ExportController extends BaseController
 
         // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->load(['account_ticket_settings', 'clients' => function ($query) {
+        $account->load(['clients' => function ($query) {
             $query->withArchived()
                   ->with(['contacts', 'invoices' => function ($query) {
                       $query->withArchived()
