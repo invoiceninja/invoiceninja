@@ -31,7 +31,6 @@ class InboundTicketService
     /**
      * InboundTicketService constructor.
      */
-
     public function __construct(InboundTicketFactory $inboundTicketFactory, TicketRepository $ticketRepo)
     {
 
@@ -53,11 +52,9 @@ class InboundTicketService
             $user = null;
 
             $ticketInvitation = TicketInvitation::whereTicketHash($ticket_hash)->first();
-            Log::error('existing inbound support request?');
 
             if($ticketInvitation)
             {
-                Log::error('contact inbound support request?');
 
                 /** Contact based external ticket */
                 $ticket = $ticketInvitation->ticket;
@@ -88,7 +85,6 @@ class InboundTicketService
 
             if ($ticket)
             {
-                Log::error('internal inbound support request?');
 
                 /** Internal Ticket*/
                 $user = $ticket->user;
@@ -114,8 +110,6 @@ class InboundTicketService
     {
 
         $data['description'] = $this->getMessage();
-
-        Log::error('number of attachments = '. count($this->inboundTicketFactory->attachments()));
 
         foreach($this->inboundTicketFactory->attachments() as $attachment)
         {
@@ -159,7 +153,6 @@ class InboundTicketService
      */
     private function checkSupportEmailAttempt()
     {
-        Log::error('new inbound support request from - ' . $this->inboundTicketFactory->fromEmail());
         $to = $this->inboundTicketFactory->to();
 
         /*
@@ -169,19 +162,9 @@ class InboundTicketService
         $parts = explode("@", $to);
         $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', $parts[0])->first();
 
-        Log::error('did we find the right local part ? ' . $parts[0]);
-
-        /**
-         *
-         * Need to add additional options here for allowing inbound email new support requests
-         * for both external and internal tickets (users)
-         */
-
         /**
          * harvest the contact using the account and contact email address
          *
-         * what happens if it is the agent who is firing back a reply
-         * how do we process this?
          */
 
         $from = $this->inboundTicketFactory->fromEmail();
@@ -191,7 +174,6 @@ class InboundTicketService
             $contacts = Contact::whereAccountId($accountTicketSettings->account_id)
                                 ->whereEmail($from)->get();
 
-            Log::error("this many contacts found " .count($contacts));
 
             if(count($contacts) == 1 && ($accountTicketSettings->allow_inbound_email_tickets_external == true)) {
 
@@ -216,12 +198,12 @@ class InboundTicketService
             {
                 /**
                  * No contacts found, new internal tickets not able to be created via email,so we die.
-                 *
+                 */
 
             }
             else {
 
-                Log::error('No contacts or users with this email address are registered in the system - '.$from);
+                Log::info('No contacts or users with this email address are registered in the system - '.$from);
                 return null;
 
             }

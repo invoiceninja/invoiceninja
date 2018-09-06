@@ -699,9 +699,9 @@ if (! defined('APP_NAME')) {
     define('TICKET_INBOUND_NEW', 'ticket_inbound_new');
     define('TICKET_INBOUND_NEW_INTERNAL', 'ticket_inbound_new_internal');
     define('TICKET_INBOUND_REPLY', 'ticket_inbound_reply');
-    define('INBOUND_CONTACT_REPLY', 'inbound_contact_reply');
-    define('INBOUND_AGENT_REPLY', 'inbound_agent_reply');
-    define('INBOUND_ADMIN_REPLY', 'inbound_admin_reply');
+    define('TICKET_INBOUND_CONTACT_REPLY', 'ticket_inbound_contact_reply');
+    define('TICKET_INBOUND_AGENT_REPLY', 'ticket_inbound_agent_reply');
+    define('TICKET_INBOUND_ADMIN_REPLY', 'ticket_inbound_admin_reply');
     define('TICKET_AGENT_UPDATE', 'ticket_agent_update');
     define('TICKET_AGENT_NEW', 'ticket_agent_new');
     define('TICKET_MERGE', 'ticket_merge');

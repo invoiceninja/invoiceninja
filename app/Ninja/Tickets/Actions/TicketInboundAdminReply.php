@@ -8,19 +8,19 @@ use App\Ninja\Mailers\TicketMailer;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class InboundAgentReply
+ * Class TicketInboundAdminReply
  * @package App\Ninja\Tickets\Actions
  */
-class InboundAgentReply extends BaseTicketAction
+class TicketInboundAdminReply extends BaseTicketAction
 {
 
     /**
      * Handle a contact reply to an existing ticket
      */
 
+
     public function fire(Ticket $ticket)
     {
-
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
 

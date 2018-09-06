@@ -8,8 +8,8 @@ use App\Ninja\Tickets\Actions\TicketInboundNew;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class DeltaFactory
- * @package App\Ninja\Tickets\Deltas
+ * Class TicketFactory
+ * @package App\Ninja\Tickets\Factory
  */
 class TicketFactory
 {
@@ -32,19 +32,17 @@ class TicketFactory
     /**
      * @var $action
      */
+    protected $action;
 
     /**
-     * DeltaFactory constructor.
+     * TicketFactory constructor.
      */
     public function __construct($originalTicket, $changedAttributes, Ticket $updatedTicket, $action)
     {
 
         $this->originalTicket = $originalTicket;
-
         $this->changedAttributes = $changedAttributes;
-
         $this->updatedTicket = $updatedTicket;
-
         $this->action = $action;
 
     }

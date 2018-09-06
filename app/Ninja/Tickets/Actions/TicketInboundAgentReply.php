@@ -8,40 +8,34 @@ use App\Ninja\Mailers\TicketMailer;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class TicketInboundNew
+ * Class TicketInboundAgentReply
  * @package App\Ninja\Tickets\Actions
  */
-class InboundContactReply extends BaseTicketAction
+class TicketInboundAgentReply extends BaseTicketAction
 {
 
     /**
      * Handle a contact reply to an existing ticket
      */
 
-
-    /**
-     * Fire sequence for INBOUND_CONTACT_REPLY
-     */
     public function fire(Ticket $ticket)
     {
+
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
 
-        if($accountTicketSettings->alert_new_comment_id > 0)
+        if($accountTicketSettings->update_ticket_template_id > 0)
         {
-            $toEmail = $ticket->agent->email;
-
+            $toEmail = $ticket->contact->email;
             $fromEmail = $this->buildFromAddress($accountTicketSettings);
-
             $fromName = $accountTicketSettings->from_name;
-
-            $subject = trans('texts.ticket_contact_reply', ['ticket_number' => $ticket->ticket_number, 'contact' => $ticket->getContactName()]);
+            $subject = trans('texts.ticket_updated_template_subject', ['ticket_number' => $ticket->ticket_number]);
 
             $view = 'ticket_template';
 
             $data = [
                 'bccEmail' => $accountTicketSettings->alert_new_comment_id_email,
-                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_new_comment_id),
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->update_ticket_template_id),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),
                 'invitation' => $ticket->invitations->first()

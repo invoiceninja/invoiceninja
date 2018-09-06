@@ -2,6 +2,10 @@
 
 namespace App\Ninja\Tickets\Inbound;
 
+/**
+ * Class Attachments
+ * @package App\Ninja\Tickets\Inbound
+ */
 Class Attachments implements \Iterator {
 
 
