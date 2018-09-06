@@ -53,6 +53,47 @@ If you're looking for a module to work on you can see suggested issues `listed h
 
 .. NOTE:: Our module implemention is currenty being actively worked on, you can join the discussion on our Slack group: http://slack.invoiceninja.com/
 
+Extending Core Views
+""""""""""""""""""""
+
+You can extend base views in various ways.  Currently, you can:
+
+- dynamically include views on main entity pages by defining a view in the proper namespace and also defining the relation(s) needed on the core entity.
+
+For example, to add fields to the Product model, you define a view in your module at Resources/views/products/edit.blade.php that displays the fields.  You then create a new configuration file under Config/ called relations.php with content such as:
+
+.. code-block:: php
+
+    <?php
+
+    return [
+        'product' => [
+            'MyProductExtras' => function ($self) {
+                return $self->hasOne('Modules\MyProductExtras\Models\MyProductExtras');
+           }
+        ],
+    ];
+
+The inverse relationship is defined locally in the module entity, e.g. MyProductExtras in the above example.
+
+
+Settings
+""""""""
+
+If your module has settings, you can have them automatically added to the main settings page.  To do so, you need to:
+
+- add 'has_settings': 1 in the module.json;
+- add 2 routes:
+
+.. code-block:: php
+    
+    Route::get('settings/blog', 'BlogController@settings');
+    Route::post('settings/blog', 'BlogController@saveSettings');)
+
+In the @settings method, simply return the name of the settings view in your module.  In the @saveSettings method, perform any validation and storage you require for your module.
+
+.. NOTE:: Replace 'blog' from the above examples with the correct name for your module 
+
 Share Module
 """"""""""""
 
