@@ -50,6 +50,24 @@
                 </div>
             </div>
         @endforeach
+        
+        @if (Utils::isSelfHost())
+            <div class="panel panel-default">
+                <div class="panel-heading" style="color:white">
+                    {{ trans('texts.module_settings') }}
+                </div>
+                @forelse(Module::getOrdered() as $module)
+                    @if($module->get('has_settings'))
+                        <div class="list-group">
+                            <a href="{{ URL::to('settings/' . $module->getLowerName()) }}" class="list-group-item {{ $selected === $module->getName() ? 'selected' : '' }}"
+                            style="width:100%;text-align:left">{{ $module->name }}</a>
+                        </div>
+                    @endif
+                @empty
+
+                @endforelse
+            </div>
+        @endif
     </div>
 
     <div class="col-md-9">
