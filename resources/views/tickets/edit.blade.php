@@ -47,10 +47,6 @@
         @endif
     </div>
 
-    <div style="display:none">
-        {!! Former::text('data')->data_bind('value: ko.mapping.toJSON(model)') !!}
-    </div>
-
     <div class="panel panel-default">
         @if($isAdminUser)
             @include('tickets.partials.ticket_meta_data_admin')
@@ -350,8 +346,6 @@
 
             if (data) {
                 self.update(data);
-                console.log(data.name);
-
             }
         }
 
