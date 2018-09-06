@@ -26,15 +26,16 @@ class AccountTicketSettings extends Eloquent
         'update_ticket_template_id',
         'default_priority',
         'ticket_number_start',
-        'alert_new_comment',
-        'alert_new_comment_email',
-        'alert_ticket_assign_agent',
+        'alert_new_comment_id',
+        'alert_new_comment_id_email',
+        'alert_ticket_assign_agent_id',
         'alert_ticket_assign_email',
-        'alert_ticket_overdue_agent',
+        'alert_ticket_overdue_agent_id',
         'alert_ticket_overdue_email',
         'show_agent_details',
         'ticket_master_id',
         'default_agent_id',
+        'support_email_local_part',
     ];
 
     public function account()

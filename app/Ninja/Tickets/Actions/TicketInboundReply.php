@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
  * Class TicketInboundNew
  * @package App\Ninja\Tickets\Actions
  */
-class TicketInboundReply extends BaseAction
+class TicketInboundReply extends BaseTicketAction
 {
 
     /**

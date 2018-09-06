@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
  * Class InboundAgentReply
  * @package App\Ninja\Tickets\Actions
  */
-class TicketAgentClosed extends BaseAction
+class TicketAgentClosed extends BaseTicketAction
 {
 
     /**
@@ -33,7 +33,7 @@ class TicketAgentClosed extends BaseAction
             $view = 'ticket_template';
 
             $data = [
-                'bccEmail' => $accountTicketSettings->alert_new_comment_email,
+                'bccEmail' => $accountTicketSettings->alert_new_comment_id_email,
                 'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->close_ticket_template_id),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),

@@ -50,7 +50,7 @@ class SendOverdueTickets extends Command
             ->whereIn('status_id', [1,2])
             ->where('overdue_notification_sent', '=', 0)
             ->whereHas('account.account_ticket_settings', function ($query) {
-                $query->where('alert_ticket_overdue_agent', '>', '0');
+                $query->where('alert_ticket_overdue_agent_id', '>', '0');
             })->get();
 
 

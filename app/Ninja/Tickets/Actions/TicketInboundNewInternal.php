@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
  * Class TicketInboundNewInternal
  * @package App\Ninja\Tickets\Actions
  */
-class TicketInboundNewInternal extends BaseAction
+class TicketInboundNewInternal extends BaseTicketAction
 {
 
     /**
@@ -32,7 +32,7 @@ class TicketInboundNewInternal extends BaseAction
 
         $this->setDefaultAgent($ticket, $accountTicketSettings);
 
-        if($accountTicketSettings->alert_ticket_assign_agent > 0 && $accountTicketSettings->default_agent_id > 0)
+        if($accountTicketSettings->alert_ticket_assign_agent_id > 0 && $accountTicketSettings->default_agent_id > 0)
         {
 
             $toEmail = $ticket->agent->email;
@@ -47,7 +47,7 @@ class TicketInboundNewInternal extends BaseAction
 
             $data = [
                 'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
-                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent),
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent_id),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),
                 'invitation' => $ticket->invitations->first()

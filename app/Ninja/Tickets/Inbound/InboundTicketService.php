@@ -215,12 +215,9 @@ class InboundTicketService
             elseif(count($contacts) == 0)
             {
                 /**
-                 * No contacts found, check if it is an internal user!
-                 */
-                $user = User::whereEmail($from)->first();
+                 * No contacts found, new internal tickets not able to be created via email,so we die.
+                 *
 
-                if($user && ($accountTicketSettings->allow_inbound_email_tickets_internal == true))
-                    return $this->createInternalTicket($accountTicketSettings, $user);
             }
             else {
 
@@ -281,7 +278,7 @@ class InboundTicketService
         return $this->ticketRepo->save($data, null, $user);
 
     }
-
+/*
     private function createInternalTicket($accountTicketSettings, $user) : Ticket
     {
         $agentId = 0;
@@ -306,7 +303,7 @@ class InboundTicketService
         return $this->ticketRepo->save($data, null, $user);
 
     }
-
+*/
     private function getMessage() : string {
 
         if(strlen($this->inboundTicketFactory->StrippedTextReply()) > 0)

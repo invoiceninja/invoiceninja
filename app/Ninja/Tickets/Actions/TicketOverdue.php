@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * Class TicketOverdue
  * @package App\Ninja\Tickets\Actions
  */
-class TicketOverdue extends BaseAction
+class TicketOverdue extends BaseTicketAction
 {
 
     /**
@@ -31,12 +31,12 @@ class TicketOverdue extends BaseAction
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
 
-        Log::error($accountTicketSettings->alert_ticket_overdue_agent);
+        Log::error($accountTicketSettings->alert_ticket_overdue_agent_id);
         Log::error($ticket->agent_id);
         Log::error($ticket->ticket_number);
 
 
-        if($accountTicketSettings->alert_ticket_overdue_agent > 0 && $ticket->agent_id > 0)
+        if($accountTicketSettings->alert_ticket_overdue_agent_id > 0 && $ticket->agent_id > 0)
         {
         Log::error('inside!');
             $toEmail = $ticket->agent->email;
@@ -51,7 +51,7 @@ class TicketOverdue extends BaseAction
 
             $data = [
                 'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
-                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_overdue_agent),
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_overdue_agent_id),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),
                 'invitation' => $ticket->invitations->first()

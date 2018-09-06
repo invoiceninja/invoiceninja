@@ -125,7 +125,7 @@ class EntityDatatable
 
         /* Is the ticket overdue ? */
         if(Carbon::parse($model->due_date) < Carbon::now())
-            $iconOutput .= '<span class="fa fa-bomb" data-toggle="tooltip" data-placement="bottom" title="'. trans('texts.alert_ticket_overdue_agent') .'"></span>&nbsp';
+            $iconOutput .= '<span class="fa fa-bomb" data-toggle="tooltip" data-placement="bottom" title="'. trans('texts.alert_ticket_overdue_agent_id') .'"></span>&nbsp';
 
         /* Is the ticket awaiting a response? */
         if(strlen($model->lastContactByContactKey) > 0)

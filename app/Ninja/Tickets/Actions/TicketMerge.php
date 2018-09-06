@@ -4,7 +4,7 @@ namespace App\Ninja\Tickets\Actions;
 
 use App\Models\Ticket;
 
-class TicketMerge extends BaseAction
+class TicketMerge extends BaseTicketAction
 {
     /**
      * Handle notifications for when tickets are merged

@@ -11,10 +11,10 @@ use App\Services\TicketTemplateService;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class BaseAction
+ * Class BaseTicketAction
  * @package App\Ninja\Tickets\Actions
  */
-class BaseAction
+class BaseTicketAction
 {
 
     /**

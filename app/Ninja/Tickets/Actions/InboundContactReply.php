@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
  * Class TicketInboundNew
  * @package App\Ninja\Tickets\Actions
  */
-class InboundContactReply extends BaseAction
+class InboundContactReply extends BaseTicketAction
 {
 
     /**
@@ -27,7 +27,7 @@ class InboundContactReply extends BaseAction
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
 
-        if($accountTicketSettings->alert_new_comment > 0)
+        if($accountTicketSettings->alert_new_comment_id > 0)
         {
             $toEmail = $ticket->agent->email;
 
@@ -40,8 +40,8 @@ class InboundContactReply extends BaseAction
             $view = 'ticket_template';
 
             $data = [
-                'bccEmail' => $accountTicketSettings->alert_new_comment_email,
-                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_new_comment),
+                'bccEmail' => $accountTicketSettings->alert_new_comment_id_email,
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_new_comment_id),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),
                 'invitation' => $ticket->invitations->first()

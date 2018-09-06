@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
  * Class TicketClientNew
  * @package App\Ninja\Tickets\Actions
  */
-class TicketAgentNew extends BaseAction
+class TicketAgentNew extends BaseTicketAction
 {
     /**
      * Check if a default agent exists
@@ -27,7 +27,7 @@ class TicketAgentNew extends BaseAction
 
         $this->setDefaultAgent($ticket, $accountTicketSettings);
 
-        if($accountTicketSettings->alert_ticket_assign_agent > 0 && $accountTicketSettings->default_agent_id > 0)
+        if($accountTicketSettings->alert_ticket_assign_agent_id > 0 && $accountTicketSettings->default_agent_id > 0)
         {
 
             $toEmail = $ticket->agent->email;
@@ -42,7 +42,7 @@ class TicketAgentNew extends BaseAction
 
             $data = [
                 'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
-                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent),
+                'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent_id),
                 'account' => $account,
                 'replyTo' => $ticket->getTicketEmailFormat(),
                 'invitation' => $ticket->invitations->first()

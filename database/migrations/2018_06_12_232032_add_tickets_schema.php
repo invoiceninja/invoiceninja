@@ -196,17 +196,16 @@ class AddTicketsSchema extends Migration
             $table->string('ticket_number_prefix');
             $table->unsignedInteger('ticket_number_start');
 
-            $table->unsignedInteger('alert_new_comment')->default(0);
-            $table->longtext('alert_new_comment_email');
-            $table->unsignedInteger('alert_ticket_assign_agent')->default(0);
+            $table->unsignedInteger('alert_new_comment_id')->default(0);
+            $table->longtext('alert_new_comment_id_email');
+            $table->unsignedInteger('alert_ticket_assign_agent_id')->default(0);
             $table->longtext('alert_ticket_assign_email');
-            $table->unsignedInteger('alert_ticket_overdue_agent')->default(0);
+            $table->unsignedInteger('alert_ticket_overdue_agent_id')->default(0);
             $table->longtext('alert_ticket_overdue_email');
 
             $table->boolean('show_agent_details')->default(true);
             $table->string('postmark_api_token');
 
-            $table->boolean('allow_inbound_email_tickets_internal')->default(1);
             $table->boolean('allow_inbound_email_tickets_external')->default(1);
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
