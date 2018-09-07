@@ -47,6 +47,29 @@ class Ticket extends EntityModel
         'user_id',
     ];
 
+
+    public static function relationEntities()
+    {
+        return [
+            'invoice' => trans('texts.invoice'),
+            'quote' => trans('texts.quote'),
+            'payment' => trans('texts.payment'),
+            'credit' => trans('texts.credit'),
+            'expense' => trans('texts.expense'),
+            'task' => trans('texts.task'),
+            'project' => trans('texts.project'),
+        ];
+    }
+
+    public static function clientRelationEntities()
+    {
+        return [
+            'invoice' => trans('texts.invoice'),
+            'quote' => trans('texts.quote'),
+            'payment' => trans('texts.payment'),
+        ];
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -145,6 +168,11 @@ class Ticket extends EntityModel
     public function merged_children()
     {
         return $this->hasMany(static::class, 'merged_parent_ticket_id');
+    }
+
+    public function relations()
+    {
+        return $this->hasMany('App\Models\TicketRelation');
     }
 
     /**

@@ -167,6 +167,7 @@
                         @endif
                     </a></li>
             @endif
+            <li role="presentation"><a href="#linked_objects" aria-controls="linked_objects" role="tab" data-toggle="tab">{{ trans("texts.linked_objects") }}</a></li>
         </ul>
 
         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
@@ -193,6 +194,15 @@
                         @endforeach
                     @endif
                 </div>
+            </div>
+
+            <div row="tabpanel" class="tab-pane" id="linked_objects">
+                {!! Former::select('client_public_id')
+                    ->label('')
+                    ->addOption('', '')
+                    ->data_bind("dropdown: client_public_id, enable: isAdminUser, dropdownOptions: {highlighter: comboboxHighlighter}")
+                    ->addClass('')
+                    ->addGroupClass('') !!}
             </div>
 
 

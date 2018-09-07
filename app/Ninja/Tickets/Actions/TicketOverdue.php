@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\AccountTicketSettings;
 use App\Models\Ticket;
 use App\Ninja\Mailers\TicketMailer;
+use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -31,22 +32,20 @@ class TicketOverdue extends BaseTicketAction
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
 
-        Log::error($accountTicketSettings->alert_ticket_overdue_agent_id);
-        Log::error($ticket->agent_id);
-        Log::error($ticket->ticket_number);
+        /** Update priority status of ticket */
+        $data['priority_id'] = TICKET_PRIORITY_HIGH;
+        $data['action'] = TICKET_SAVE_ONLY;
 
+        $ticketRepo = new TicketRepository();
+        $ticketRepo->save($data, $ticket, $ticket->user);
 
         if($accountTicketSettings->alert_ticket_overdue_agent_id > 0 && $ticket->agent_id > 0)
         {
-        Log::error('inside!');
+
             $toEmail = $ticket->agent->email;
-
             $fromEmail = $this->buildFromLocalAddress($account, $accountTicketSettings);
-
             $fromName = $accountTicketSettings->from_name;
-
             $subject = trans('texts.ticket_overdue_template_subject', ['ticket_number' => $ticket->ticket_number]);
-
             $view = 'ticket_template';
 
             $data = [
@@ -61,10 +60,10 @@ class TicketOverdue extends BaseTicketAction
                 \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $ticketMailer = new TicketMailer();
-            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+            Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-            Log::error($msg);
+            Log::info('Mail sent status = '.$msg);
 
             $ticket->overdue_notification_sent = true;
             $ticket->save();

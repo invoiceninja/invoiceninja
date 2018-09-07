@@ -305,4 +305,13 @@ class TicketController extends BaseController
 
     }
 
+    public function getEntityRelationByClient($public_client_id, $account_id, $entity)
+    {
+        $client = Client::scope($public_client_id, $account_id)->first();
+        $entityRelation = Utils::pluralizeEntityType($entity);
+
+        return $client->$entityRelation;
+
+    }
+
 }
