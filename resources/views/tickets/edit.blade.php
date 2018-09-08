@@ -203,6 +203,13 @@
                     ->data_bind("dropdown: client_public_id, enable: isAdminUser, dropdownOptions: {highlighter: comboboxHighlighter}")
                     ->addClass('')
                     ->addGroupClass('') !!}
+
+                {!! Former::select('linked_object')
+                    ->label('')
+                    ->text(trans('texts.type'))
+                    ->addOption('', '')
+                    ->fromQuery(\App\Models\Ticket::relationEntities())
+                 !!}
             </div>
 
 
