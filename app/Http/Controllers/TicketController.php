@@ -314,4 +314,10 @@ class TicketController extends BaseController
 
     }
 
+    public function getEntityCollection($account_id, $entity)
+    {
+        return $entity::scope(null, $account_id)->get();
+
+
+    }
 }

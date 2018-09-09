@@ -197,18 +197,13 @@
             </div>
 
             <div row="tabpanel" class="tab-pane" id="linked_objects">
-                {!! Former::select('client_public_id')
-                    ->label('')
-                    ->addOption('', '')
-                    ->data_bind("dropdown: client_public_id, enable: isAdminUser, dropdownOptions: {highlighter: comboboxHighlighter}")
-                    ->addClass('')
-                    ->addGroupClass('') !!}
 
                 {!! Former::select('linked_object')
                     ->label('')
                     ->text(trans('texts.type'))
                     ->addOption('', '')
                     ->fromQuery(\App\Models\Ticket::relationEntities())
+                    ->data_bind("event: {change: onEntityChange }")
                  !!}
             </div>
 
@@ -344,6 +339,29 @@
                 var public_id = doc.public_id?doc.public_id():doc;
                 self.documents.remove(function(document) {
                     return document.public_id() == public_id;
+                });
+            }
+
+
+            self.onEntityChange = function(obj, event) {
+                if ( ! event.originalEvent) {
+                    return;
+                }
+
+                var entity = $(event.currentTarget).val();
+
+
+                $.ajax({
+                    url: "/tickets/entities/" + {{  $account->id }} + '/' + entity,
+                    type: "POST",
+                    //data: ko.toJSON(self),
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    success: function (result) {
+                        if (result.url) {
+                            location.href = result.url;
+                        }
+                    }
                 });
             }
         };
