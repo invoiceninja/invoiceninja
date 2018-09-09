@@ -1,8 +1,10 @@
-@foreach(Module::getOrdered() as $module)
-    @if(View::exists($module->getLowerName() . '::extend.list'))
-        @includeIf($module->getLowerName() . '::extend.list')
-    @endif
-@endforeach
+@if (Utils::isSelfHost())
+	@foreach(Module::getOrdered() as $module)
+	    @if(View::exists($module->getLowerName() . '::extend.list'))
+	        @includeIf($module->getLowerName() . '::extend.list')
+	    @endif
+	@endforeach
+@endif
 
 {!! Former::open(\App\Models\EntityModel::getFormUrl($entityType) . '/bulk')
 		->addClass('listForm_' . $entityType) !!}
@@ -52,7 +54,9 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-    @stack('top_right_buttons')
+	@if (Utils::isSelfHost())
+    	@stack('top_right_buttons')
+    @endif
 
 	@if ($entityType == ENTITY_PROPOSAL)
 		{!! DropdownButton::normal(trans('texts.proposal_templates'))
