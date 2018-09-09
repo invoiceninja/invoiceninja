@@ -108,4 +108,6 @@ class EntityDatatable
             return $str;
         }
     }
+
+    public function sumColumn() { return null; }
 }

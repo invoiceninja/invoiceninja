@@ -294,15 +294,27 @@
 						var  ret = secondsToTime(currentSumMoment.add(addMoment).asSeconds())
 						return (ret.h + ":" + ret.m + ":" + ret.s);
 						break;
+<<<<<<< Updated upstream
 						//add a switch case to apply to other entityTypes
 					default:
 						return "error summing column vars";
+=======
+						case "client":
+
+						//add a switch case to apply to other entityTypes
+					default:
+						return "";
+>>>>>>> Stashed changes
 				}
 			}
 
 			function changeSumLabel() {
 				var dTable = $('.listForm_{{ $entityType }} .data-table').DataTable();
+<<<<<<< Updated upstream
 				 @if (method_exists($datatable , "sumColumn" ))
+=======
+				 @if ($datatable->sumColumn() != null)
+>>>>>>> Stashed changes
 					var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
 					var sum = "";
 
