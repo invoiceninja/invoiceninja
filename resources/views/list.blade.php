@@ -40,6 +40,7 @@
 			@endif
 		</select>
 	</span>
+	<label id="sum_column"></label>
 </div>
 
 <div id="top_right_buttons" class="pull-right">
@@ -245,6 +246,7 @@
 	    window.onDatatableReady_{{ Utils::pluralizeEntityType($entityType) }} = function() {
 	        $(':checkbox').click(function() {
 	            setBulkActionsEnabled_{{ $entityType }}();
+							changeSumLabel();
 	        });
 
 	        $('.listForm_{{ $entityType }} tbody tr').unbind('click').click(function(event) {
@@ -253,6 +255,7 @@
 	                var checked = $checkbox.prop('checked');
 	                $checkbox.prop('checked', !checked);
 	                setBulkActionsEnabled_{{ $entityType }}();
+									changeSumLabel();
 	            }
 	        });
 
@@ -279,6 +282,42 @@
 	        $('.listForm_{{ $entityType }} button.archive').not('.dropdown-toggle').text(buttonLabel);
 	    }
 
+			function sumColumnVars(currentSum, add) {
+				switch ("{{ $entityType }}") {
+					case "task":
+						if(currentSum == "") {
+							currentSum = "00:00:00";
+						}
+
+						currentSumMoment = moment.duration(currentSum);
+						addMoment = moment.duration(add);
+						var  ret = secondsToTime(currentSumMoment.add(addMoment).asSeconds())
+						return (ret.h + ":" + ret.m + ":" + ret.s);
+						break;
+						//add a switch case to apply to other entityTypes
+					default:
+						return "error summing column vars";
+				}
+			}
+
+			function changeSumLabel() {
+				var dTable = $('.listForm_{{ $entityType }} .data-table').DataTable();
+				 @if (method_exists($datatable , "sumColumn" ))
+					var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
+					var sum = "";
+
+					var cboxArray = document.getElementsByName("ids[]")
+
+					for (i = 0 ; i < sumColumnNodes.length ; i++) {
+						if(cboxArray[i].checked) {
+						var value = sumColumnNodes[i].firstChild.innerHTML;
+						sum = sumColumnVars(sum, value);
+						}
+					}
+
+					document.getElementById("sum_column").innerHTML = sum; //change this to set label value
+				 @endif
+			}
 
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({
