@@ -196,15 +196,42 @@
                 </div>
             </div>
 
-            <div row="tabpanel" class="tab-pane" id="linked_objects">
+            <div row="tabpanel" class="tab-pane" id="linked_objects" style="width:600px;height:300px;">
 
-                {!! Former::select('linked_object')
-                    ->label('')
-                    ->text(trans('texts.type'))
-                    ->addOption('', '')
-                    ->fromQuery(\App\Models\Ticket::relationEntities())
-                    ->data_bind("event: {change: onEntityChange }")
-                 !!}
+                <div style="">
+
+                    <div style="float:left;margin:10px;">
+                    {!! Former::select('linked_object')
+                        ->style('width:170px;padding:10px;')
+                        ->label('')
+                        ->text(trans('texts.type'))
+                        ->addOption('', '')
+                        ->fromQuery(\App\Models\Ticket::relationEntities())
+                        ->data_bind("event: {change: onEntityChange }")
+                     !!}
+                    </div>
+
+                    <div style="float:left;margin:10px;">
+                    {!! Former::select('linked_item')
+                        ->style('width:170px;padding:10px;')
+                        ->label('')
+                        ->text(trans('texts.type'))
+                        ->addOption('', '')
+                        ->data_bind("options: relations")
+                     !!}
+                    </div>
+
+                    <div style="float:left;margin:10px;">
+                    {!! Button::normal(trans('texts.link'))->small()->withAttributes(['onclick' => 'addRelation()']) !!}
+                    </div>
+
+                </div>
+
+                @if($ticket->relations)
+                    @foreach($ticket->relations as $relations)
+                        <div></div>{{$relation->entity}}</div>
+                    @endforeach
+                @endif
             </div>
 
 
@@ -307,6 +334,8 @@
                 }
             }
 
+            self.relations = ko.observableArray();
+
             self.due_date.pretty = ko.computed({
                 read: function() {
 
@@ -349,23 +378,33 @@
                 }
 
                 var entity = $(event.currentTarget).val();
+                var client_public_id = {{$ticket->client->public_id}};
+                var account_id = {{ $account->id }};
 
+                var obj = { client_public_id: client_public_id, account_id: account_id, entity: entity };
 
                 $.ajax({
-                    url: "/tickets/entities/" + {{  $account->id }} + '/' + entity,
+                    url: "/tickets/entities/",
                     type: "POST",
-                    //data: ko.toJSON(self),
-                    contentType: "application/json; charset=utf-8",
+                    data: obj,
+                    //contentType: "application/json; charset=utf-8",
                     async: false,
                     success: function (result) {
-                        if (result.url) {
-                            location.href = result.url;
-                        }
+                        buildRelationList(result);
                     }
                 });
             }
         };
 
+
+        function buildRelationList(data) {
+            model.relations([]);
+
+            for(j=0; j<data.length; j++) {
+                model.relations.push(data[j].public_id);
+            }
+
+        }
 
         function DocumentModel(data) {
             var self = this;
@@ -500,7 +539,7 @@
             if (!getClientDisplayName(client)) {
                 continue;
             }
-                    @endif
+            @endif
             var clientName = client.name || '';
             for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];

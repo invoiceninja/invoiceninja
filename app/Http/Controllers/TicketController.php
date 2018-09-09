@@ -142,7 +142,7 @@ class TicketController extends BaseController
 
         $ticket = $request->entity();
         $ticket = $this->ticketService->save($data, $ticket);
-        $ticket->load('documents');
+        $ticket->load('documents', 'relations');
 
         $entityType = $ticket->getEntityType();
 
@@ -314,9 +314,36 @@ class TicketController extends BaseController
 
     }
 
-    public function getEntityCollection($account_id, $entity)
+    public function getEntityCollection()
     {
-        return $entity::scope(null, $account_id)->get();
+        $isQuote = false;
+
+        $entity = request()->entity;
+        $client_public_id = null;
+
+        if(request()->client_public_id > 0) {
+            $client_public_id = request()->client_public_id;
+
+            return $this->getEntityRelationByClient($client_public_id, request()->account_id, $entity);
+        }
+
+
+        if(request()->entity == 'quote'){
+            $entity = 'invoice';
+            $isQuote = true;
+        }
+
+        $className = '\App\Models\\'.ucfirst($entity);
+        $entityModel = new $className();
+
+        $query = $entityModel::scope($client_public_id, request()->account_id);
+
+        if($entity == 'invoice' && $isQuote)
+            $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
+        else if($entity == 'invoice' && !$isQuote)
+            $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD);
+
+            return $query->orderBy('id', 'desc')->get();
 
 
     }
