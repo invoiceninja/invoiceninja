@@ -47,7 +47,7 @@ To run the database migration use:
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in module.json.
 
-There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json. 
+There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json.
 
 If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
 
@@ -83,16 +83,8 @@ Settings
 If your module has settings, you can have them automatically added to the main settings page.  To do so, you need to:
 
 - add 'has_settings': 1 in the module.json;
-- add 2 routes:
-
-.. code-block:: php
-    
-    Route::get('settings/blog', 'BlogController@settings');
-    Route::post('settings/blog', 'BlogController@saveSettings');)
-
-In the @settings method, simply return the name of the settings view in your module.  In the @saveSettings method, perform any validation and storage you require for your module.
-
-.. NOTE:: Replace 'blog' from the above examples with the correct name for your module 
+- create a Blade template named 'settings.blade.php' under the /Resources folder;
+- add whatever routes are needed to implement/save your settings.
 
 Share Module
 """"""""""""
