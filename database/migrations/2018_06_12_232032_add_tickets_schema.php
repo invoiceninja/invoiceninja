@@ -90,6 +90,7 @@ class AddTicketsSchema extends Migration
             $table->string('entity', 255);
             $table->unsignedInteger('entity_id');
             $table->unsignedInteger('ticket_id');
+            $table->text('entity_url');
 
             $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
 

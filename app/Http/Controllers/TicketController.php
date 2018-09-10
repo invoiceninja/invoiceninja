@@ -379,25 +379,72 @@ class TicketController extends BaseController
      */
     public function addEntity()
     {
-        $entity = request()->entity;
+        $entityType = request()->entity;
 
-        if(request()->entity = 'quote')
-            $entity = 'invoice';
+        if(request()->entity == 'quote')
+            $entityType = 'invoice';
 
-        $className = '\App\Models\\'.ucfirst($entity);
+        $className = '\App\Models\\'.ucfirst($entityType);
         $entityModel = new $className();
 
         $entityId = $entityModel::getPortalPrivateId(request()->entity_id, request()->account_id);
+        $str = buildEntityUrl($entityType, request()->entity_id, request()->account_id);
 
         $tr = new TicketRelation();
-        $tr->entity = $entity;
+        $tr->entity = $entityType;
         $tr->entity_id = $entityId;
         $tr->ticket_id = request()->ticket_id;
+        $tr->entity_url = $str;
         $tr->save();
 
-            //return $tr->ticket->relations;
+            return $str;
 
-            return link_to("{request()->entity}s/{request()->entity_id}/edit", request()->entity_id, ['class' => ''])->toHtml();
+    }
+
+    private function buildEntityUrl($entityType, $publicId, $accountId) : string
+    {
+        $className = '\App\Models\\'.ucfirst($entityType);
+
+        if($entityType == 'quote')
+            $entityType = 'invoice';
+
+        $entityModel = new $className();
+
+        $entity = $entityModel::scope($publicId, $accountId)->first();
+
+        return link_to("{$entityType}s/{$publicId}/edit", self::setLinkDescription($entityType, $entity), ['class' => ''])->toHtml();
+
+    }
+
+    private static function setLinkDescription($entityType, $entity)
+    {
+        switch($entityType)
+        {
+            case 'quote':
+                return $entity->invoice_number;
+
+            case 'invoice':
+                return $entity->invoice_number;
+
+            case 'task':
+                return $entity->description;
+
+            case 'payment':
+                return trans('texts.invoice') . ' #'. $entity->invoice_number;
+
+            case 'credit':
+                return $entity->client->getDisplayName(). ' ' .$entity->amount;
+
+            case 'expense':
+                return $entity->public_notes;
+
+            case 'project':
+                return $entity->name;
+
+            default:
+                return '';
+
+        }
     }
 
 }
