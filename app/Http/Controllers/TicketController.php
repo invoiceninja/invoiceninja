@@ -363,7 +363,7 @@ class TicketController extends BaseController
 
         if($client_public_id > 0) {
             $clientPrivateId = Client::getPortalPrivateId($client_public_id, request()->account_id);
-            $query->where('client_id', '=', '$clientPrivateId');
+            $query->where('client_id', '=', $clientPrivateId);
         }
 
         if(count($excludeIds) > 0)
@@ -380,6 +380,7 @@ class TicketController extends BaseController
     public function addEntity()
     {
         $entityType = request()->entity;
+        $linkEntity = request()->entity;
 
         if(request()->entity == 'quote')
             $entityType = 'invoice';
@@ -388,7 +389,7 @@ class TicketController extends BaseController
         $entityModel = new $className();
 
         $entityId = $entityModel::getPortalPrivateId(request()->entity_id, request()->account_id);
-        $str = buildEntityUrl($entityType, request()->entity_id, request()->account_id);
+        $str = self::buildEntityUrl($linkEntity, request()->entity_id, request()->account_id);
 
         $tr = new TicketRelation();
         $tr->entity = $entityType;
@@ -397,22 +398,22 @@ class TicketController extends BaseController
         $tr->entity_url = $str;
         $tr->save();
 
-            return $str;
+            return $tr;
 
     }
 
-    private function buildEntityUrl($entityType, $publicId, $accountId) : string
+    private static function buildEntityUrl($entityType, $publicId, $accountId) : string
     {
-        $className = '\App\Models\\'.ucfirst($entityType);
+        $linkEntity = $entityType;
 
         if($entityType == 'quote')
             $entityType = 'invoice';
 
+        $className = '\App\Models\\'.ucfirst($entityType);
         $entityModel = new $className();
-
         $entity = $entityModel::scope($publicId, $accountId)->first();
 
-        return link_to("{$entityType}s/{$publicId}/edit", self::setLinkDescription($entityType, $entity), ['class' => ''])->toHtml();
+        return link_to("{$linkEntity}s/{$publicId}/edit", self::setLinkDescription($linkEntity, $entity), ['class' => ''])->toHtml();
 
     }
 
@@ -421,22 +422,22 @@ class TicketController extends BaseController
         switch($entityType)
         {
             case 'quote':
-                return $entity->invoice_number;
+                return trans('texts.quote'). ' ' .$entity->invoice_number;
 
             case 'invoice':
-                return $entity->invoice_number;
+                return trans('texts.invoice'). ' ' .$entity->invoice_number;
 
             case 'task':
-                return $entity->description;
+                return trans('texts.task'). ' ' .$entity->description;
 
             case 'payment':
-                return trans('texts.invoice') . ' #'. $entity->invoice_number;
+                return trans('texts.payment'). '('. trans('texts.invoice') . ' #'. $entity->invoice->invoice_number. ')';
 
             case 'credit':
-                return $entity->client->getDisplayName(). ' ' .$entity->amount;
+                return trans('texts.credit'). ' (' .$entity->client->getDisplayName(). ' ' .$entity->amount.')';
 
             case 'expense':
-                return $entity->public_notes;
+                return strlen($entity->public_notes) ? trans('texts.expense'). ' ' .$entity->public_notes : trans('texts.expense'). ' ' .$entity->amount;
 
             case 'project':
                 return $entity->name;

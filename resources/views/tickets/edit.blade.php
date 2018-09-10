@@ -229,9 +229,9 @@
 
                 <div style="clear:both; float:left;">
                     <ul data-bind="foreach: relations">
-                        <li data-bind="text: entity_id"></li>
+                        <li data-bind="text: entity_url"></li>
                     </ul>
-                </div>   
+                </div>
 
             </div>
 
@@ -583,7 +583,7 @@
             var linked_object = $('#linked_object').val();
             var linked_item = $('#linked_item').val()
             var ticket_id = {{ $ticket->id }};
-
+            console.log(linked_object);
             var obj = { entity: linked_object, entity_id: linked_item, ticket_id: ticket_id };
 
             $.ajax({
@@ -592,19 +592,11 @@
                 data: obj,
                 async: false,
                 success: function (result) {
-                   buildRelationList(result);
+                   model.relations.push(result);
                 }
             });
         }
 
-        function buildRelationList(data) {
-            //model.relations([]);
-
-            //for(j=0; j<data.length; j++) {
-                model.relations.push(data[j]);
-            //}
-
-        }
     </script>
 
 @stop
