@@ -2925,6 +2925,7 @@ $LANG = array(
     'send' => 'Send',
     'auto_billing' => 'Auto billing',
     'button' => 'Button',
+    'days_since_last_email' => 'Days Since Last Email',
 );
 
 return $LANG;
