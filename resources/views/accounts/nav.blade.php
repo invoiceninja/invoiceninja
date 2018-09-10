@@ -23,7 +23,6 @@
 </script>
 
 <div class="row">
-
     <div class="col-md-3">
         @foreach([
             BASIC_SETTINGS => \App\Models\Account::$basicSettings,
@@ -50,8 +49,8 @@
                 </div>
             </div>
         @endforeach
-        
-        @if (Utils::isSelfHost())
+
+        @if (Utils::isSelfHost() && $showModuleSettings)
             <div class="panel panel-default">
                 <div class="panel-heading" style="color:white">
                     {{ trans('texts.module_settings') }}
@@ -69,5 +68,4 @@
             </div>
         @endif
     </div>
-
-    <div class="col-md-9">
+</div>
