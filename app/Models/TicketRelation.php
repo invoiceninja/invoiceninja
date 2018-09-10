@@ -8,6 +8,8 @@ namespace App\Models;
  */
 class TicketRelation extends EntityModel
 {
+    public $timestamps = false;
+
     /**
      * @return mixed
      */
@@ -22,6 +24,11 @@ class TicketRelation extends EntityModel
     public function getEntity()
     {
         return $this->belongsTo('App\Models\\'.ucfirst($this->entity), 'entity_id', 'id');
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo('App\Models\Ticket');
     }
 
 }

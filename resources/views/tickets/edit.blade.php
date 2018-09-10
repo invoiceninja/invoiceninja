@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <div row="tabpanel" class="tab-pane" id="linked_objects" style="width:600px;height:300px;">
+            <div row="tabpanel" class="tab-pane" id="linked_objects" style="width:600px;min-height: 300px; height: auto !important;">
 
                 <div style="">
 
@@ -217,7 +217,7 @@
                         ->label('')
                         ->text(trans('texts.type'))
                         ->addOption('', '')
-                        ->data_bind("options: relations")
+                        ->data_bind("options: entityItems")
                      !!}
                     </div>
 
@@ -227,11 +227,12 @@
 
                 </div>
 
-                @if($ticket->relations)
-                    @foreach($ticket->relations as $relations)
-                        <div></div>{{$relation->entity}}</div>
-                    @endforeach
-                @endif
+                <div style="clear:both; float:left;">
+                    <ul data-bind="foreach: relations">
+                        <li data-bind="text: entity_id"></li>
+                    </ul>
+                </div>   
+
             </div>
 
 
@@ -334,7 +335,8 @@
                 }
             }
 
-            self.relations = ko.observableArray();
+            self.relations = ko.observableArray({!! $ticket->relations !!});
+            self.entityItems = ko.observableArray();
 
             self.due_date.pretty = ko.computed({
                 read: function() {
@@ -378,30 +380,31 @@
                 }
 
                 var entity = $(event.currentTarget).val();
-                var client_public_id = {{$ticket->client->public_id}};
+                var client_public_id = {{$ticket->client ? $ticket->client->public_id : 'null'}};
                 var account_id = {{ $account->id }};
+                var ticket_id = {{ $ticket->id }};
 
-                var obj = { client_public_id: client_public_id, account_id: account_id, entity: entity };
+                var obj = { client_public_id: client_public_id, account_id: account_id, entity: entity, ticket_id: ticket_id };
 
                 $.ajax({
                     url: "/tickets/entities/",
                     type: "POST",
                     data: obj,
-                    //contentType: "application/json; charset=utf-8",
                     async: false,
                     success: function (result) {
-                        buildRelationList(result);
+                        buildEntityList(result);
                     }
                 });
             }
+
         };
 
 
-        function buildRelationList(data) {
-            model.relations([]);
+        function buildEntityList(data) {
+            model.entityItems([]);
 
             for(j=0; j<data.length; j++) {
-                model.relations.push(data[j].public_id);
+                model.entityItems.push(data[j].public_id);
             }
 
         }
@@ -575,6 +578,33 @@
 
         @endif
 
+        function addRelation()
+        {
+            var linked_object = $('#linked_object').val();
+            var linked_item = $('#linked_item').val()
+            var ticket_id = {{ $ticket->id }};
+
+            var obj = { entity: linked_object, entity_id: linked_item, ticket_id: ticket_id };
+
+            $.ajax({
+                url: "/tickets/entities/create",
+                type: "POST",
+                data: obj,
+                async: false,
+                success: function (result) {
+                   buildRelationList(result);
+                }
+            });
+        }
+
+        function buildRelationList(data) {
+            //model.relations([]);
+
+            //for(j=0; j<data.length; j++) {
+                model.relations.push(data[j]);
+            //}
+
+        }
     </script>
 
 @stop

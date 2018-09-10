@@ -8,9 +8,9 @@ use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Ninja\Datatables\TicketDatatable;
 use App\Ninja\Repositories\TicketRepository;
+use Chumper\Datatable\Datatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use DataTable;
 
 /**
  * Class ticketService.
@@ -47,7 +47,7 @@ class TicketService extends BaseService
      * @return TicketRepository
      */
 
-    protected function getRepo()
+    protected function getRepo() : TicketRepository
     {
         return $this->ticketRepo;
     }
@@ -59,7 +59,7 @@ class TicketService extends BaseService
      * @return mixed|null
      */
 
-    public function save($data, $ticket = false)
+    public function save($data, $ticket = false) : Ticket
     {
         $ticket = $this->ticketRepo->save($data, $ticket);
 
@@ -80,7 +80,7 @@ class TicketService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    public function getClientDatatable($clientId)
+    public function getClientDatatable($clientId) : Datatable
     {
         $query = DB::table('tickets')
             ->leftjoin('ticket_statuses', 'tickets.status_id', '=', 'ticket_statuses.id')
@@ -122,7 +122,7 @@ class TicketService extends BaseService
      * @param $ticket
      */
 
-    private function processTicket($data, $ticket)
+    private function processTicket($data, $ticket) : void
     {
         /* If comment added to ticket fire notifications */
 
@@ -131,7 +131,8 @@ class TicketService extends BaseService
 
     }
 
-    public function mergeTicket(Ticket $ticket, $data) {
+    public function mergeTicket(Ticket $ticket, $data) : void
+    {
 
         //Close ticket
         $data['merged_parent_ticket_id'] = Ticket::getPrivateId($data['updated_ticket_id']);

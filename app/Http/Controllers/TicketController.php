@@ -11,26 +11,36 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Ticket;
-use App\Models\TicketComment;
-use App\Models\TicketStatus;
+use App\Models\TicketRelation;
 use App\Models\User;
 use App\Ninja\Datatables\TicketDatatable;
 use App\Ninja\Repositories\TicketRepository;
 use App\Services\TicketService;
-use Illuminate\Http\Response;
+use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Session;
+use DB;
 
+/**
+ * Class TicketController
+ * @package App\Http\Controllers
+ */
 class TicketController extends BaseController
 {
 
+    /**
+     * @var TicketService
+     */
     protected $ticketService;
 
+    /**
+     * @var
+     */
     protected $ticketRepository;
     /**
      * TicketController constructor.
@@ -75,7 +85,7 @@ class TicketController extends BaseController
      * @param $publicId
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function show($publicId)
+    public function show($publicId) : Redirect
     {
 
         Session::reflash();
@@ -182,6 +192,11 @@ class TicketController extends BaseController
 
     }
 
+    /**
+     * @param TicketRequest $request
+     * @param int $parentTicketId
+     * @return View
+     */
     public function create(TicketRequest $request, $parentTicketId = 0)
     {
 
@@ -225,6 +240,10 @@ class TicketController extends BaseController
         return View::make('tickets.new_ticket', $data);
     }
 
+    /**
+     * @param CreateTicketRequest $request
+     * @return Redirect
+     */
     public function store(CreateTicketRequest $request)
     {
         $input = $request->input();
@@ -262,7 +281,7 @@ class TicketController extends BaseController
     /**
      * @param Request $request
      */
-    public function inbound(TicketInboundRequest $request)
+    public function inbound(TicketInboundRequest $request) : void
     {
 
         $ticket = $request->entity();
@@ -275,6 +294,10 @@ class TicketController extends BaseController
 
     }
 
+    /**
+     * @param $publicId
+     * @return View
+     */
     public function merge($publicId)
     {
         $ticket = Ticket::scope($publicId)->first();
@@ -292,43 +315,38 @@ class TicketController extends BaseController
         return View::make('tickets.merge', $data);
     }
 
+    /**
+     * @param TicketMergeRequest $request
+     * @return Redirect
+     */
     public function actionMerge(TicketMergeRequest $request)
     {
 
         $ticket = $request->entity();
-
         $this->ticketService->mergeTicket($ticket, $request->input());
 
         Session::reflash();
 
-        return redirect("tickets/$request->updated_ticket_id/edit");
+            return redirect("tickets/$request->updated_ticket_id/edit");
 
     }
 
-    public function getEntityRelationByClient($public_client_id, $account_id, $entity)
-    {
-        $client = Client::scope($public_client_id, $account_id)->first();
-        $entityRelation = Utils::pluralizeEntityType($entity);
-
-        return $client->$entityRelation;
-
-    }
-
+    /**
+     * @return Eloquent
+     */
     public function getEntityCollection()
     {
+        $excludeIds = TicketRelation::where('ticket_id', '=', request()->ticket_id)
+                                            ->where('entity', '=', request()->entity)
+                                            ->pluck('entity_id')
+                                            ->all(); //need to transform these to public IDS!!!
+
         $isQuote = false;
 
         $entity = request()->entity;
         $client_public_id = null;
 
-        if(request()->client_public_id > 0) {
-            $client_public_id = request()->client_public_id;
-
-            return $this->getEntityRelationByClient($client_public_id, request()->account_id, $entity);
-        }
-
-
-        if(request()->entity == 'quote'){
+        if($entity == 'quote'){
             $entity = 'invoice';
             $isQuote = true;
         }
@@ -343,8 +361,43 @@ class TicketController extends BaseController
         else if($entity == 'invoice' && !$isQuote)
             $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD);
 
+        if($client_public_id > 0) {
+            $clientPrivateId = Client::getPortalPrivateId($client_public_id, request()->account_id);
+            $query->where('client_id', '=', '$clientPrivateId');
+        }
+
+        if(count($excludeIds) > 0)
+            $query->whereNotIn('id', array_values($excludeIds));
+
             return $query->orderBy('id', 'desc')->get();
 
 
     }
+
+    /**
+     *
+     */
+    public function addEntity()
+    {
+        $entity = request()->entity;
+
+        if(request()->entity = 'quote')
+            $entity = 'invoice';
+
+        $className = '\App\Models\\'.ucfirst($entity);
+        $entityModel = new $className();
+
+        $entityId = $entityModel::getPortalPrivateId(request()->entity_id, request()->account_id);
+
+        $tr = new TicketRelation();
+        $tr->entity = $entity;
+        $tr->entity_id = $entityId;
+        $tr->ticket_id = request()->ticket_id;
+        $tr->save();
+
+            //return $tr->ticket->relations;
+
+            return link_to("{request()->entity}s/{request()->entity_id}/edit", request()->entity_id, ['class' => ''])->toHtml();
+    }
+
 }

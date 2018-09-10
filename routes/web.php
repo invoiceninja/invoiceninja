@@ -301,6 +301,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('tickets/merge/{public_id}', 'TicketController@merge');
     Route::post('tickets/merge/', 'TicketController@actionMerge');
     Route::post('tickets/entities', 'TicketController@getEntityCollection');
+    Route::post('tickets/entities/create', 'TicketController@addEntity');
 
     // vendor
     Route::resource('vendors', 'VendorController');
