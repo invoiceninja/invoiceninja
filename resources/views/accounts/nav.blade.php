@@ -56,7 +56,7 @@
                     {{ trans('texts.module_settings') }}
                 </div>
                 @forelse(Module::getOrdered() as $module)
-                    @if($module->get('has_settings'))
+                    @if($module->get('has_settings') && View::exists($module->getLowerName() . '::settings'))
                         <div class="list-group">
                             <a href="{{ URL::to('settings/' . $module->getLowerName()) }}" class="list-group-item {{ $selected === $module->getName() ? 'selected' : '' }}"
                             style="width:100%;text-align:left">{{ $module->name }}</a>

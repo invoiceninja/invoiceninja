@@ -1485,7 +1485,7 @@ class Utils
 
     public static function hasModuleSettings() {
         $module = Module::collections()->first(function($value, $key) {
-            return $value->get('has_settings') == 1;
+            return ($value->get('has_settings') == 1 && View::exists($value->getLowerName() . '::settings'));
         });
 
         return $module ? true : false;
