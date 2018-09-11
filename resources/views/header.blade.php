@@ -535,6 +535,7 @@
             </div>
         </div>
     </div>
+    @stack('component_scripts')
     <!-- /#page-content-wrapper -->
 </div>
 
