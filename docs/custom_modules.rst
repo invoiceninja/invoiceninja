@@ -58,14 +58,6 @@ Components
 
 There are UI widgets that can be re-used as part of a custom module implementation.
 
-To use a widget, you must:
-
-- Add to the bottom of the content section:
-
-.. code-block:: php
-
-    @stack('component_scripts')
-
 To render the widget, use the fully-qualified class name anywhere above the @stack declaration:
 
 .. code-block:: php
@@ -80,7 +72,7 @@ Currently, the following widgets exist:
 
 |Name|Description|Parameters|
 |--|--|--|
-|SimpleSelectComponent|Displays a select box|entityType: entity type<br/>items: list of entities<br/>itemLabel: attribute of item to use as primary field value<br/>fieldLabel: label for the field<br/>secondaryItemLabel: attribute of item to display in conjunction with itemLabel; defaults to null<br/>module: name of module, if applicable. Used to perform translation for localization; defaults to null<br/>selectId: ID of the input; defaults to fieldLabel appended with '_id'|
+|SimpleSelectComponent|Displays a select box|entityType: entity type<br/>items: list of entities<br/>itemLabel: attribute of item to use as primary field value<br/>fieldLabel: label for the field<br/>secondaryItemLabel: attribute of item to display in conjunction with itemLabel; can be a reference to a JavaScript function; field name must begin with 'entity', e.g. 'entity.notes'; defaults to null<br/>module: name of module, if applicable. Used to perform translation for localization; defaults to null<br/>selectId: ID of the input; defaults to fieldLabel appended with '_id'|
 
 Share Module
 """"""""""""
