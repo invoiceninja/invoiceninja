@@ -54,8 +54,8 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-	@if (Utils::isSelfHost())
-    	@stack('top_right_buttons')
+    @if (Utils::isSelfHost())
+        @stack('top_right_buttons')
     @endif
 
 	@if ($entityType == ENTITY_PROPOSAL)
