@@ -65,7 +65,8 @@ class AddJsonPermissions extends Migration
             'invoice',
             'client',
             'recurring_invoice',
-            'reports',
+	    'reports',
+	    'dashboard',
         ];
         foreach($permissionEntities as $entity) {
             array_push($viewPermissionEntities, 'view_'.$entity);
