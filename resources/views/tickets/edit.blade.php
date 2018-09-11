@@ -229,9 +229,10 @@
 
                 <div style="clear:both; float:left;">
                     <ul data-bind="foreach: relations">
-                        <li data-bind="text: entity_url"></li>
+                        <li data-bind="html: entity_url"></li>
                     </ul>
                 </div>
+
 
             </div>
 
@@ -355,7 +356,6 @@
 
             self.isAdminUser = ko.observable({!! $isAdminUser !!});
 
-
             if (data) {
                 ko.mapping.fromJS(data, self.mapping, this);
             }
@@ -375,26 +375,10 @@
 
 
             self.onEntityChange = function(obj, event) {
-                if ( ! event.originalEvent) {
-                    return;
-                }
 
-                var entity = $(event.currentTarget).val();
-                var client_public_id = {{$ticket->client ? $ticket->client->public_id : 'null'}};
-                var account_id = {{ $account->id }};
-                var ticket_id = {{ $ticket->id }};
+               // var entity = $(event.currentTarget).val();
+                getItemsForEntity();
 
-                var obj = { client_public_id: client_public_id, account_id: account_id, entity: entity, ticket_id: ticket_id };
-
-                $.ajax({
-                    url: "/tickets/entities/",
-                    type: "POST",
-                    data: obj,
-                    async: false,
-                    success: function (result) {
-                        buildEntityList(result);
-                    }
-                });
             }
 
         };
@@ -406,6 +390,27 @@
             for(j=0; j<data.length; j++) {
                 model.entityItems.push(data[j].public_id);
             }
+
+        }
+
+        function getItemsForEntity()
+        {
+            var linked_object = $('#linked_object').val();
+            var ticket_id = {{ $ticket->id }};
+            var account_id = {{ $account->id }};
+            var client_public_id = {{$ticket->client ? $ticket->client->public_id : 'null'}};
+
+            var obj = { client_public_id: client_public_id, account_id: account_id, entity: linked_object, ticket_id: ticket_id };
+
+            $.ajax({
+                url: "/tickets/entities/",
+                type: "GET",
+                data: obj,
+                success: function (result) {
+                    buildEntityList(result);
+                }
+            });
+
 
         }
 
@@ -583,16 +588,17 @@
             var linked_object = $('#linked_object').val();
             var linked_item = $('#linked_item').val()
             var ticket_id = {{ $ticket->id }};
-            console.log(linked_object);
+
             var obj = { entity: linked_object, entity_id: linked_item, ticket_id: ticket_id };
 
             $.ajax({
                 url: "/tickets/entities/create",
                 type: "POST",
                 data: obj,
-                async: false,
                 success: function (result) {
                    model.relations.push(result);
+                   getItemsForEntity();
+
                 }
             });
         }
