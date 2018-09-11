@@ -9,24 +9,26 @@
             var entityType = '{!! $entityType !!}';
             var items = {!! $items !!};
             var secondaryItemLabel = '{!! $secondaryItemLabel !!}';
+            var secondaryItemLabelType = '{!! empty($secondaryItemLabelType) ? "field" : $secondaryItemLabelType !!}';
 
             var itemMap = {};
             var $itemSelect = $('select#{!! $selectId !!}');
+
             for (var i=0; i<items.length; i++) {
-                var item = items[i];
+                var entity = items[i];
                 var itemName = '';
 
-                itemMap[item.public_id] = item;
+                itemMap[entity.public_id] = entity;
 
                 switch(entityType) {
                     case '{!! ENTITY_CLIENT !!}':
-                        itemName = getClientDisplayName(item);
+                        itemName = getClientDisplayName(entity);
                         break;
                     case '{!! ENTITY_CONTACT !!}':
-                        itemName = getContactDisplayName(item);
+                        itemName = getContactDisplayName(entity);
                         break;
                     default:
-                        itemName = item.{!! $itemLabel !!};
+                        itemName = entity.{!! $itemLabel !!};
 
                 }
 
@@ -37,23 +39,17 @@
                 var itemNameLabel = '';
 
                 if(secondaryItemLabel != '') {
-                    switch(entityType) {
-                        case '{!! ENTITY_CLIENT !!}':
-                            itemNameLabel = getContactDisplayName(item.{!! $secondaryItemLabel !!});
-                            break;
-                        default:
-                            itemNameLabel = item.{!! $secondaryItemLabel !!};
-                    }
-                }
+                    itemNameLabel = {!! empty($secondaryItemLabel) ? "''" : $secondaryItemLabel !!};
+                 }
 
-                $itemSelect.append(new Option(itemName + ((itemNameLabel) ? ' - ' + itemNameLabel : ''), item.public_id));
+                $itemSelect.append(new Option(itemName + ((itemNameLabel != '') ? ' - ' + itemNameLabel : ''), entity.public_id));
             }
             @if (! empty($itemPublicId))
                 $itemSelect.val({{ $itemPublicId }});
             @endif
 
             $itemSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
-                var item = itemMap[$('#{!! $selectId !!}').val()];
+                var entity = itemMap[$('#{!! $selectId !!}').val()];
             });
         });
     </script>

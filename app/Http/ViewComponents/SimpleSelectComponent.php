@@ -27,12 +27,12 @@ class SimpleSelectComponent implements Htmlable
         if ($selectId) {
             $this->selectId = $selectId;
         } else {
-            $this->selectId = $label . '_id';
+            $this->selectId = $fieldLabel . '_id';
         }
     }
 
     public function toHtml()
     {
-        return View::make('components.simple_select')->with(['entityType' => $this->entityType, 'items' => $this->items, 'itemLabel' => $this->itemLabel, 'secondaryItemLabel' => $this->secondaryItemLabel, 'label' => mtrans($this->module, $this->fieldLabel), 'selectId' => $this->selectId])->render();
+        return View::make('components.simple_select')->with(['entityType' => $this->entityType, 'items' => $this->items, 'itemLabel' => $this->itemLabel, 'secondaryItemLabel' => $this->secondaryItemLabel, 'fieldLabel' => mtrans($this->module, $this->fieldLabel), 'selectId' => $this->selectId])->render();
     }
 }
