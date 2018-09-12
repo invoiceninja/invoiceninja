@@ -44,7 +44,6 @@ class ReportController extends BaseController
         $data = [
             'clients' => $clients,
             'message' => $message,
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('reports.d3', $data);
