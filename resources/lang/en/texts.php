@@ -2925,8 +2925,7 @@ $LANG = array(
     'send' => 'Send',
     'auto_billing' => 'Auto billing',
     'button' => 'Button',
-    'module_settings' => 'Module Settings',
-    'days_since_last_email' => 'Days Since Last Email',
+    'module_settings' => 'Module Settings',    
 );
 
 return $LANG;

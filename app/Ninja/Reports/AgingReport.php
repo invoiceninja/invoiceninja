@@ -14,7 +14,7 @@ class AgingReport extends AbstractReport
             'invoice_number' => [],
             'invoice_date' => [],
             'due_date' => [],
-            'days_since_last_email' => [],
+            'last_sent' => [],
             'age' => [],
             'amount' => [],
             'balance' => [],
