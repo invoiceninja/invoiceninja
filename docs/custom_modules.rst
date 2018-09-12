@@ -86,6 +86,27 @@ If your module has settings, you can have them automatically added to the main s
 - create a Blade template named 'settings.blade.php' under the /Resources folder;
 - add whatever routes are needed to implement/save your settings.
 
+Components
+==========
+
+There are UI widgets that can be re-used as part of a custom module implementation.
+
+To render the widget, use the fully-qualified class name anywhere above the @stack declaration:
+
+.. code-block:: php
+
+    @render('App\Http\ViewComponents\ComponentName', [$variables])
+
+Depending on the widget, certain variables will need to be passed via the second parameter of the @render statement.
+
+.. NOTE::  Any data required by the widget must be passed in @render statement.  This means the module developer must ensure to perform any data access in the controller and pass it into the enclosing view.
+
+Currently, the following widgets exist:
+
+|Name|Description|Parameters|
+|--|--|--|
+|SimpleSelectComponent|Displays a select box|entityType: entity type<br/>items: list of entities<br/>itemLabel: attribute of item to use as primary field value<br/>fieldLabel: label for the field<br/>secondaryItemLabel: attribute of item to display in conjunction with itemLabel; can be a reference to a JavaScript function; field name must begin with 'entity', e.g. 'entity.notes'; defaults to null<br/>module: name of module, if applicable. Used to perform translation for localization; defaults to null<br/>selectId: ID of the input; defaults to fieldLabel appended with '_id'|
+
 Share Module
 """"""""""""
 
