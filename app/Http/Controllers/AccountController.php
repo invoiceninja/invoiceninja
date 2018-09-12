@@ -291,7 +291,6 @@ class AccountController extends BaseController
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
             return View::make('accounts.import_export', [
                 'title' => trans('texts.import_export'),
-                'showModuleSettings' => Utils::hasModuleSettings()
             ]);
         } elseif ($section == ACCOUNT_MANAGEMENT) {
             return self::showAccountManagement();
@@ -319,7 +318,6 @@ class AccountController extends BaseController
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'title' => trans("texts.{$section}"),
                 'section' => $section,
-                'showModuleSettings' => Utils::hasModuleSettings(),
             ];
 
             return View::make($view, $data);
@@ -339,7 +337,6 @@ class AccountController extends BaseController
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
             'title' => trans('texts.system_settings'),
             'section' => ACCOUNT_SYSTEM_SETTINGS,
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.system_settings', $data);
@@ -367,7 +364,6 @@ class AccountController extends BaseController
             'title' => trans('texts.invoice_settings'),
             'section' => ACCOUNT_INVOICE_SETTINGS,
             'recurringHours' => $recurringHours,
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.invoice_settings', $data);
@@ -388,7 +384,6 @@ class AccountController extends BaseController
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
             'sizes' => Cache::get('sizes'),
             'title' => trans('texts.company_details'),
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.details', $data);
@@ -415,7 +410,6 @@ class AccountController extends BaseController
             'portalLink' => $portalLink,
             'planDetails' => $planDetails,
             'title' => trans('texts.account_management'),
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.management', $data);
@@ -442,7 +436,6 @@ class AccountController extends BaseController
             'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
             'oauthLoginUrls' => $oauthLoginUrls,
             'referralCounts' => $this->referralRepository->getCounts(Auth::user()->referral_code),
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.user_details', $data);
@@ -461,7 +454,6 @@ class AccountController extends BaseController
             'title' => trans('texts.localization'),
             'weekdays' => Utils::getTranslatedWeekdayNames(),
             'months' => Utils::getMonthOptions(),
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.localization', $data);
@@ -478,7 +470,6 @@ class AccountController extends BaseController
             'title' => trans('texts.bank_accounts'),
             'advanced' => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
             'warnPaymentGateway' => ! $account->account_gateways->count(),
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ]);
     }
 
@@ -510,7 +501,6 @@ class AccountController extends BaseController
             'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
             'account' => $account,
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ]);
     }
 
@@ -522,7 +512,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.product_library'),
-            'showModuleSettings' => Utils::hasModuleSettings(),
+            
         ];
 
         return View::make('accounts.products', $data);
@@ -539,7 +529,6 @@ class AccountController extends BaseController
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(),
             'countInvoices' => Invoice::scope()->withTrashed()->count(),
             'hasInclusiveTaxRates' => TaxRate::scope()->whereIsInclusive(true)->count() ? true : false,
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.tax_rates', $data);
@@ -553,7 +542,6 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.payment_terms'),
-            'showModuleSettings' => Utils::hasModuleSettings(),
         ];
 
         return View::make('accounts.payment_terms', $data);
@@ -710,7 +698,7 @@ class AccountController extends BaseController
             'account' => $account,
             'products' => Product::scope()->orderBy('product_key')->get(),
             'gateway_types' => $options,
-            'showModuleSettings' => Utils::hasModuleSettings(),
+            
         ];
 
         return View::make('accounts.client_portal', $data);
