@@ -152,4 +152,6 @@ class TaskDatatable extends EntityDatatable
 
         return $actions;
     }
+
+    public function sumColumn() { return 4; }
 }
