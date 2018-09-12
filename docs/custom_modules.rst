@@ -47,11 +47,44 @@ To run the database migration use:
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in module.json.
 
-There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json. 
+There are two types of modules: you can either create a standard module which displays a list of a new entity type or you can create a blank module which adds functionality. For example, a custom integration with a third-party app. If you do not want an entry in the application navigation sidebar, add "no-sidebar": 1 to the custom module's module.json.
 
 If you're looking for a module to work on you can see suggested issues `listed here <https://github.com/invoiceninja/invoiceninja/issues?q=is%3Aissue+is%3Aopen+label%3A%22custom+module%22>`_.
 
 .. NOTE:: Our module implemention is currenty being actively worked on, you can join the discussion on our Slack group: http://slack.invoiceninja.com/
+
+Extending Core Views
+""""""""""""""""""""
+
+You can extend base views in various ways.  Currently, you can:
+
+- dynamically include views on main entity pages by defining a view in the proper namespace and also defining the relation(s) needed on the core entity.
+
+For example, to add fields to the Product model, you define a view in your module at Resources/views/products/edit.blade.php that displays the fields.  You then create a new configuration file under Config/ called relations.php with content such as:
+
+.. code-block:: php
+
+    <?php
+
+    return [
+        'product' => [
+            'MyProductExtras' => function ($self) {
+                return $self->hasOne('Modules\MyProductExtras\Models\MyProductExtras');
+           }
+        ],
+    ];
+
+The inverse relationship is defined locally in the module entity, e.g. MyProductExtras in the above example.
+
+
+Settings
+""""""""
+
+If your module has settings, you can have them automatically added to the main settings page.  To do so, you need to:
+
+- add 'has_settings': 1 in the module.json;
+- create a Blade template named 'settings.blade.php' under the /Resources folder;
+- add whatever routes are needed to implement/save your settings.
 
 Share Module
 """"""""""""
