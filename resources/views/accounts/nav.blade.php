@@ -53,7 +53,7 @@
         @if (Utils::isSelfHost() && Utils::hasModuleSettings())
             <div class="panel panel-default">
                 <div class="panel-heading" style="color:white">
-                    {{ trans('texts.module_settings') }}
+                    {{ trans('texts.custom_module_settings') }}
                 </div>
                 @foreach(Utils::getModulesWithSettings() as $module)
                     <div class="list-group">
