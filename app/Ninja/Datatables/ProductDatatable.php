@@ -88,4 +88,6 @@ class ProductDatatable extends EntityDatatable
             ],
         ];
     }
+
+    public function sumColumn() { return array_search('cost' , $this->columnFields()); }
 }

@@ -145,4 +145,6 @@ class ClientDatatable extends EntityDatatable
             ],
         ];
     }
+
+    public function sumColumn() { return array_search('balance' , $this->columnFields()); }
 }

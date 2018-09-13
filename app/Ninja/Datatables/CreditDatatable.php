@@ -89,4 +89,6 @@ class CreditDatatable extends EntityDatatable
             ],
         ];
     }
+
+    public function sumColumn() { return array_search('amount', $this->columnFields()); }
 }

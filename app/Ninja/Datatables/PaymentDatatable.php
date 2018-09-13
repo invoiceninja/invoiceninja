@@ -168,4 +168,6 @@ class PaymentDatatable extends EntityDatatable
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
+
+    public function sumColumn() { return array_search('amount' , $this->columnFields()); }
 }

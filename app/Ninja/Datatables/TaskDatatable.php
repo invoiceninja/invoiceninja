@@ -153,9 +153,5 @@ class TaskDatatable extends EntityDatatable
         return $actions;
     }
 
-<<<<<<< Updated upstream
-    public function sumColumn() { return 4; }
-=======
   public function sumColumn() { return array_search('duration' , $this->columnFields()); }
->>>>>>> Stashed changes
 }

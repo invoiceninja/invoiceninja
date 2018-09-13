@@ -83,4 +83,6 @@ class ProjectDatatable extends EntityDatatable
             ],
         ];
     }
+
+    public function sumColumn() { return array_search('budgeted_hours' , $this->columnFields()); }
 }

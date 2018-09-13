@@ -232,4 +232,6 @@ class InvoiceDatatable extends EntityDatatable
 
         return $actions;
     }
+
+    public function sumColumn() { return array_search('amount' , $this->columnFields()); }
 }
