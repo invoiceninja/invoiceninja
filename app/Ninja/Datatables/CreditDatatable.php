@@ -10,6 +10,7 @@ class CreditDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CREDIT;
     public $sortCol = 4;
+    public $fieldToSum = 'amount';
 
     public function columns()
     {

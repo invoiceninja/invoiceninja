@@ -11,6 +11,7 @@ class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
     public $sortCol = 3;
+    public $fieldToSum = 'amount';
 
     public function columns()
     {
