@@ -62,6 +62,9 @@ class UserAccountTransformer extends EntityTransformer
         'expense_categories',
         'account_email_settings',
         'custom_payment_terms',
+        'tax_rates',
+        'expense_categories',
+        'account_email_settings',
     ];
 
     protected $tokenName;
@@ -103,6 +106,7 @@ class UserAccountTransformer extends EntityTransformer
 
         return $this->includeCollection($this->account->users, $transformer, 'users');
     }
+
 
     /**
      * @param Account $account
@@ -201,6 +205,7 @@ class UserAccountTransformer extends EntityTransformer
             'email_template_reminder1' => $account->getEmailTemplate('reminder1'),
             'email_template_reminder2' => $account->getEmailTemplate('reminder2'),
             'email_template_reminder3' => $account->getEmailTemplate('reminder3'),
+
         ];
     }
 }

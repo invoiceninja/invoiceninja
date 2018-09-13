@@ -424,10 +424,11 @@
                 'tasks',
                 'expenses',
                 'vendors',
+                'tickets',
             ] as $option)
                 @if (in_array($option, ['dashboard', 'settings'])
                     || Auth::user()->can('view', substr($option, 0, -1))
-                    || Auth::user()->can('create', substr($option, 0, -1)))
+                    || Auth::user()->can('createEntity', substr($option, 0, -1)))
                     @include('partials.navigation_option')
                 @endif
             @endforeach
@@ -535,6 +536,10 @@
             </div>
         </div>
     </div>
+    
+    @if(Utils::isSelfHost())
+        @stack('component_scripts')
+    @endif
     <!-- /#page-content-wrapper -->
 </div>
 

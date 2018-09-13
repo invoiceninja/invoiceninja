@@ -65,7 +65,7 @@ class VendorDatatable extends EntityDatatable
                     return false;
                 },
                 function ($model) {
-                    return Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('edit', [ENTITY_VENDOR, $model]) && Auth::user()->can('createEntity', ENTITY_EXPENSE);
                 },
 
             ],
@@ -75,7 +75,7 @@ class VendorDatatable extends EntityDatatable
                     return URL::to("expenses/create/0/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('createEntity', ENTITY_EXPENSE);
                 },
             ],
         ];

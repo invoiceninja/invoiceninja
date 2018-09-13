@@ -119,6 +119,11 @@
                             {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>
                     @endif
+                    @if(isset($account) && $account->enable_client_portal_dashboard)
+                        <li {!! Request::is('*client/tickets*') ? 'class="active"' : '' !!}>
+                            {!! link_to('client/tickets', trans('texts.tickets') ) !!}
+                        </li>
+                    @endif
                     @if ($account->enable_portal_password && request()->contact->password)
                         <li>
                             {!! link_to('/client/logout', trans('texts.logout')) !!}

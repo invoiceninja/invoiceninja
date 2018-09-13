@@ -31,6 +31,8 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\CalculatePayouts',
         'App\Console\Commands\UpdateKey',
         'App\Console\Commands\MobileLocalization',
+        'App\Console\Commands\SendOverdueTickets',
+        'App\Console\Commands\MakeModuleSettings',
     ];
 
     /**

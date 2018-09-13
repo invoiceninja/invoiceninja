@@ -18,6 +18,7 @@ use Session;
 use stdClass;
 use View;
 use WePay;
+use Nwidart\Modules\Facades\Module;
 
 class Utils
 {
@@ -362,7 +363,14 @@ class Utils
                 if (substr($field, 0, 1) == '-') {
                     $data[] = substr($field, 1);
                 } elseif ($module) {
-                    $data[] = mtrans($module, $field);
+                    if(strpos($field, '::') >= 1) {
+                        $customField = explode('::', $field);
+                        if(count($customField) == 2) {
+                            $data[] = trans("texts.$customField[0]", [ 'VALUE' => $customField[1]], 'en');
+                        }
+                    } else {
+                        $data[] = mtrans($module, $field);
+                    }
                 } else {
                     $data[] = trans("texts.$field");
                 }
@@ -647,6 +655,10 @@ class Utils
             return 'proposal_categories';
         } elseif ($type === ENTITY_TASK_STATUS) {
             return 'task_statuses';
+        } elseif ($type === ENTITY_TICKET_STATUS) {
+            return 'ticket_statuses';
+        } elseif ($type === ENTITY_TICKET_CATEGORY) {
+            return 'ticket_categories';
         } else {
             return $type . 's';
         }
@@ -774,6 +786,22 @@ class Utils
             return $date;
         } else {
             return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
+        }
+    }
+
+    public static function toSqlDateTime($date, $formatResult = true)
+    {
+        if (! $date) {
+            return;
+        }
+
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        $dateTime = DateTime::createFromFormat($format, $date);
+
+        if (! $dateTime) {
+            return $date;
+        } else {
+            return $formatResult ? $dateTime->format('Y-m-d H:i:s') : $dateTime;
         }
     }
 
@@ -1227,6 +1255,7 @@ class Utils
             'invoice_id',
             'credit_id',
             'invitation_id',
+            'ticket_id',
         ];
 
         $fields1 = $entity1->getAttributes();
@@ -1481,4 +1510,66 @@ class Utils
         );
         return strtr($s, $replace);
     }
+
+
+    public static function hasModuleSettings() {
+         $module = Module::toCollection()->first(function($module) {
+            return View::exists($module->getLowerName() . '::settings');
+        });
+
+        return $module ? true : false;
+    }
+
+    public static function getModulesWithSettings() {
+        $modules = Module::toCollection()->filter(function($module) {
+            return View::exists($module->getLowerName() . '::settings');
+        });
+
+        return $modules;
+    }
+
+    /**
+     * @return array of file sizes, using a MAX of the php.ini variables upload_max_filesize and post_max_size
+     * and iterating down by / 2 until a min size of 100kB
+     */
+    public function getMaxFileUploadSizes()
+    {
+        $maxUploadSize = $this->fileUploadMaxSize();
+
+        $selectArray = [];
+
+        while($maxUploadSize > 100) {
+            array_push($selectArray, [$maxUploadSize => $maxUploadSize]);
+            $maxUploadSize = $maxUploadSize / 2;
+        }
+
+        return array_reverse($selectArray);
+    }
+
+    /**
+     * @return  Returns a file size limit in kilobytes based on the PHP upload_max_filesize and post_max_size
+     */
+    public function fileUploadMaxSize() {
+
+       return min($this->parse_size(ini_get('post_max_size')), $this->parse_size(ini_get('upload_max_filesize')));
+
+    }
+
+    /**
+     * @param $size
+     * @return float in kilobytes to match laravel file size validator
+     */
+    private function parse_size($size) {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
+        $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
+        if ($unit) {
+            // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])))/1024;
+        }
+        else {
+            return round($size)/1024;
+        }
+    }
+
+
 }

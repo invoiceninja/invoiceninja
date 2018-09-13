@@ -115,6 +115,19 @@ class EntityModel extends Eloquent
         }
     }
 
+    public static function getPortalPrivateId($publicId, $accountId)
+    {
+        if(! $publicId)
+            return null;
+
+        $className = get_called_class();
+
+        if(method_exists($className, 'trashed'))
+            return $className::scope($publicId, $accountId)->withTrashed()->value('id');
+        else
+            return $className::scope($publicId, $accountId)->value('id');
+    }
+
     /**
      * @return string
      */
@@ -179,7 +192,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && method_exists($this, 'getEntityType') && ! Auth::user()->hasPermission('view_' . $this->getEntityType())  && $this->getEntityType() != ENTITY_TAX_RATE) {
+        if (Auth::check() && method_exists($this, 'getEntityType') && ! Auth::user()->hasPermission('view_' . $this->getEntityType())  && $this->getEntityType() != ENTITY_TAX_RATE && $this->getEntityType() != ENTITY_TICKET) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -343,6 +356,7 @@ class EntityModel extends Eloquent
             'self-update' => 'download',
             'reports' => 'th-list',
             'projects' => 'briefcase',
+            'tickets' => 'life-ring',
         ];
 
         return array_get($icons, $entityType);
@@ -457,15 +471,16 @@ class EntityModel extends Eloquent
       */
     public function __call($method, $params)
     {
-        if (count(config('modules.relations'))) {
-            $entityType = $this->getEntityType();
+        $entity = strtolower(class_basename($this));
 
-            if ($entityType) {
-                $config = implode('.', ['modules.relations.' . $entityType, $method]);
-                if (config()->has($config)) {
-                    $function = config()->get($config);
-                    return $function($this);
-                }
+        if ($entity) {
+            $configPath = "modules.relations.$entity.$method";
+
+            
+            if (config()->has($configPath)) {
+                $function = config()->get($configPath);
+
+                return $function($this);
             }
         }
 

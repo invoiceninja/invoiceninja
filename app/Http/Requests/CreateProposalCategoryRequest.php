@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Proposal;
+use App\Models\ProposalCategory;
+
 class CreateProposalCategoryRequest extends ProposalCategoryRequest
 {
     /**
@@ -11,7 +14,7 @@ class CreateProposalCategoryRequest extends ProposalCategoryRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PROPOSAL_CATEGORY);
+        return $this->user()->can('create', Proposal::class) || $this->user()->can('create', ProposalCategory::class);
     }
 
     /**

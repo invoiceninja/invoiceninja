@@ -245,7 +245,7 @@ class InvoicePresenter extends EntityPresenter
             ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
         ];
 
-        if (Auth::user()->can('create', ENTITY_QUOTE)) {
+        if (Auth::user()->can('createEntity', ENTITY_QUOTE)) {
             $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
         }
 
@@ -368,5 +368,17 @@ class InvoicePresenter extends EntityPresenter
         }
 
         return $data;
+    }
+
+    public function days_since_last_email()
+    {
+        $invoice = $this->entity;
+        $lastSentDate = $invoice->last_sent_date;
+
+        if(! $lastSentDate) {
+            return 0;
+        }
+
+        return Carbon::parse($lastSentDate)->diffInDays();
     }
 }
