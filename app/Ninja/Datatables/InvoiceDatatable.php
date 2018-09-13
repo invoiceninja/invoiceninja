@@ -11,6 +11,7 @@ class InvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_INVOICE;
     public $sortCol = 3;
+    public $fieldToSum = 'amount';
 
     public function columns()
     {
@@ -232,6 +233,4 @@ class InvoiceDatatable extends EntityDatatable
 
         return $actions;
     }
-
-    public function sumColumn() { return array_search('amount' , $this->columnFields()); }
 }

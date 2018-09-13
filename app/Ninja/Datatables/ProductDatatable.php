@@ -11,6 +11,7 @@ class ProductDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PRODUCT;
     public $sortCol = 4;
+    public $fieldToSum = 'cost';
 
     public function columns()
     {
@@ -88,6 +89,4 @@ class ProductDatatable extends EntityDatatable
             ],
         ];
     }
-
-    public function sumColumn() { return array_search('cost' , $this->columnFields()); }
 }

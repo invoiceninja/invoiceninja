@@ -10,6 +10,7 @@ use App\Models\Invoice;
 class RecurringInvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_RECURRING_INVOICE;
+    public $fieldToSum = 'amount';
 
     public function columns()
     {
@@ -125,6 +126,4 @@ class RecurringInvoiceDatatable extends EntityDatatable
 
         ];
     }
-
-    public function sumColumn() { return array_search('amount', $this->columnFields()); }
 }

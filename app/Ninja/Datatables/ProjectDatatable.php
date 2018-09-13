@@ -10,6 +10,7 @@ class ProjectDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROJECT;
     public $sortCol = 1;
+    public $fieldToSum = 'budgeted_hours';
 
     public function columns()
     {
@@ -83,6 +84,4 @@ class ProjectDatatable extends EntityDatatable
             ],
         ];
     }
-
-    public function sumColumn() { return array_search('budgeted_hours' , $this->columnFields()); }
 }

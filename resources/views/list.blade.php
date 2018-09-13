@@ -306,21 +306,9 @@
 						return (ret.h + ":" + ret.m + ":" + ret.s);
 						break;
 
-						case "client":
-						case "product":
-						case "invoice":
-						case "payment":
-						case "recurring_invoice":
-						case "credit":
-						case "quote":
-						case "project":
-						case "expense":
+						default:
 						if(currentSum == "") { currentSum = "0"}
 						return (convertStringToNumber(currentSum) + convertStringToNumber(add)).toString();
-						break;
-						//add a switch case to apply to other types
-					default:
-						return "";
 				}
 			}
 
@@ -351,10 +339,22 @@
 						}
 					}
 
-					if(sum != "NaN") { document.getElementById("sum_column_{{ $entityType }}").innerHTML = sum; }
+					/*if(sum != "NaN") {*/ document.getElementById("sum_column_{{ $entityType }}").innerHTML = sum; //}
 
 				 @endif
 			}
+
+			// parse 1,000.00 or 1.000,00
+function convertStringToNumber(str) {
+	str = str + '' || '';
+	if (str.indexOf(':') >= 0) {
+		return roundToTwo(moment.duration(str).asHours());
+	} else {
+		return parseFloat(str);
+		var number = Number(str.replace(/[^0-9\-]+/g, ''));
+		return number / 100;
+	}
+}
 
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({

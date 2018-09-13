@@ -12,6 +12,7 @@ class PaymentDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT;
     public $sortCol = 7;
+    public $fieldToSum = 'amount';
 
     protected static $refundableGateways = [
         GATEWAY_STRIPE,
@@ -168,6 +169,4 @@ class PaymentDatatable extends EntityDatatable
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-
-    public function sumColumn() { return array_search('amount' , $this->columnFields()); }
 }
