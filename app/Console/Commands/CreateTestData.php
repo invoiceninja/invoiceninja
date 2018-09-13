@@ -12,7 +12,6 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\TicketRepository;
-use App\Ninja\Repositories\TicketStatusRepository;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\ProjectRepository;
@@ -23,7 +22,6 @@ use App\Models\ExpenseCategory;
 use Auth;
 use Faker\Factory;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Utils;
 
 /**
@@ -57,11 +55,9 @@ class CreateTestData extends Command
      * @param AccountRepository $accountRepo
      * @param TicketRepository $ticketRepo
      * @param ProjectRepository $projectRepo
-     * @param TicketStatusRepository $ticketStatusRepo
      */
 
     public function __construct(
-        TicketStatusRepository $ticketStatusRepo,
         TicketRepository $ticketRepo,
         ClientRepository $clientRepo,
         InvoiceRepository $invoiceRepo,
@@ -85,7 +81,6 @@ class CreateTestData extends Command
         $this->projectRepo = $projectRepo;
         $this->accountRepo = $accountRepo;
         $this->ticketRepo = $ticketRepo;
-        $this->ticketStatusRepo = $ticketStatusRepo;
     }
 
     /**
@@ -183,70 +178,6 @@ class CreateTestData extends Command
 
     }
 
-    /**
-     * @param $client
-     */
-    private function createTicketStubs()
-    {
-
-        /* Create Default Ticket Statuses*/
-
-        $ticketStatusSupport = [
-            'name'=> trans('texts.new'),
-            'trigger_column' =>'',
-            'trigger_threshold' =>'',
-            'color' =>'#fff',
-            'description' =>'Newly created ticket.',
-            'category_id' => 1,
-            'sort_order' => 1,
-            'is_deleted' => 0,
-        ];
-
-        $ticketStatus = $this->ticketStatusRepo->save($ticketStatusSupport);
-        $this->info('Ticket Status: '. $ticketStatus->name);
-
-        $ticketStatusSupport = [
-            'name'=> trans('texts.open'),
-            'trigger_column' =>'',
-            'trigger_threshold' =>'',
-            'color' =>'#fff',
-            'description' =>'Open ticket - replied.',
-            'category_id' => 1,
-            'sort_order' => 2,
-            'is_deleted' =>0,
-        ];
-
-        $ticketStatus = $this->ticketStatusRepo->save($ticketStatusSupport);
-        $this->info('Ticket Status: '. $ticketStatus->name);
-
-        $ticketStatusSupport = [
-            'name'=> trans('texts.closed'),
-            'trigger_column' =>'',
-            'trigger_threshold' =>'',
-            'color' =>'#fff',
-            'description' =>'Closed ticket - resolved.',
-            'category_id' => 1,
-            'sort_order' => 3,
-            'is_deleted' => 0,
-        ];
-
-        $ticketStatus = $this->ticketStatusRepo->save($ticketStatusSupport);
-        $this->info('Ticket Status: '. $ticketStatus->name);
-
-        $ticketStatusSupport = [
-            'name'=> trans('texts.merged'),
-            'trigger_column' =>'',
-            'trigger_threshold' =>'',
-            'color' =>'#fff',
-            'description' =>'Merged ticket.',
-            'category_id' => 1,
-            'sort_order' => 4,
-            'is_deleted' => 0,
-        ];
-
-        $ticketStatus = $this->ticketStatusRepo->save($ticketStatusSupport);
-        $this->info('Ticket Status: '. $ticketStatus->name);
-    }
 
     /**
      * @param $client
@@ -279,15 +210,15 @@ class CreateTestData extends Command
 
             $ticket = $this->ticketRepo->save($data);
 
-                $ticketComment = TicketComment::createNew($ticket);
-                $ticketComment->description = $this->faker->realText(70);
-                $ticketComment->contact_key = $client->getPrimaryContact()->contact_key;
-                $ticket->comments()->save($ticketComment);
+            $ticketComment = TicketComment::createNew($ticket);
+            $ticketComment->description = $this->faker->realText(70);
+            $ticketComment->contact_key = $client->getPrimaryContact()->contact_key;
+            $ticket->comments()->save($ticketComment);
 
-                $ticketComment = TicketComment::createNew($ticket);
-                $ticketComment->description = $this->faker->realText(40);
-                $ticketComment->user_id = 1;
-                $ticket->comments()->save($ticketComment);
+            $ticketComment = TicketComment::createNew($ticket);
+            $ticketComment->description = $this->faker->realText(40);
+            $ticketComment->user_id = 1;
+            $ticket->comments()->save($ticketComment);
 
             $this->info("Ticket: - {$ticket->ticket_number} - {$client->account->account_ticket_settings->ticket_number_start} - {$maxTicketNumber}");
         }
