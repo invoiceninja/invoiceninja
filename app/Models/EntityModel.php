@@ -457,15 +457,16 @@ class EntityModel extends Eloquent
       */
     public function __call($method, $params)
     {
-        if (count(config('modules.relations'))) {
-            $entityType = $this->getEntityType();
+        $entity = strtolower(class_basename($this));
 
-            if ($entityType) {
-                $config = implode('.', ['modules.relations.' . $entityType, $method]);
-                if (config()->has($config)) {
-                    $function = config()->get($config);
-                    return $function($this);
-                }
+        if ($entity) {
+            $configPath = "modules.relations.$entity.$method";
+
+            
+            if (config()->has($configPath)) {
+                $function = config()->get($configPath);
+
+                return $function($this);
             }
         }
 
