@@ -64,7 +64,7 @@
                         <tbody>
                         <tr><td class="td-left">{!! trans('texts.created_at') !!}:</td><td>{!! \App\Libraries\Utils::fromSqlDateTime($ticket->created_at) !!}</td></tr>
                         <tr><td class="td-left">{!! trans('texts.last_updated') !!}:</td><td>{!! \App\Libraries\Utils::fromSqlDateTime($ticket->updated_at) !!}</td></tr>
-                        <tr><td class="td-left">{!! trans('texts.status') !!}:</td><td>{{ $ticket->status->name }}</td></tr>
+                        <tr><td class="td-left">{!! trans('texts.status') !!}:</td><td>{{ $ticket->getStatusName() }}</td></tr>
                         <tr><td class="td-left">{!! trans('texts.priority') !!}:</td><td>{{ $ticket->getPriorityName() }}</td></tr>
                         </tbody>
                     </table>

@@ -23,29 +23,6 @@ class AddTicketsSchema extends Migration
             $table->softDeletes();
         });
 
-/*
-        Schema::create('ticket_statuses', function ($table) {
-            $table->increments('id');
-            $table->string('name', 255);
-            $table->string('trigger_column', 255);
-            $table->text('trigger_threshold');
-            $table->string('color', 255);
-            $table->text('description');
-            $table->unsignedInteger('category_id');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('account_id');
-            $table->unsignedInteger('public_id');
-            $table->unsignedInteger('sort_order');
-            $table->boolean('is_deleted')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('category_id')->references('id')->on('ticket_categories');
-
-        });
-*/
         Schema::create('tickets', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');

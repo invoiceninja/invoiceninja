@@ -1,16 +1,17 @@
 <?php
 namespace App\Services;
 
-use App\Jobs\Ticket\TicketSendNotificationEmail;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Ticket;
 use App\Models\TicketComment;
+use App\Models\TicketRelation;
 use App\Ninja\Datatables\TicketDatatable;
 use App\Ninja\Repositories\TicketRepository;
 use Chumper\Datatable\Datatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 /**
  * Class ticketService.
@@ -117,19 +118,6 @@ class TicketService extends BaseService
         return $table->make();
     }
 
-    /**
-     * @param $data
-     * @param $ticket
-     */
-
-    private function processTicket($data, $ticket) : void
-    {
-        /* If comment added to ticket fire notifications */
-
-        if(strlen($data['comment']) >= 1)
-            $this->dispatch(new TicketSendNotificationEmail($data, $ticket));
-
-    }
 
     public function mergeTicket(Ticket $ticket, $data) : void
     {
@@ -169,6 +157,52 @@ class TicketService extends BaseService
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
 
         return $clients->get();
+    }
+
+    /**
+     * Returns a filtered collection of entities that can be attached
+     * as linked objects to a ticket
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function getRelationCollection(Request $request)
+    {
+
+        $excludeIds = TicketRelation::where('ticket_id', '=', $request->ticket_id)
+            ->where('entity', '=', $request->entity)
+            ->pluck('entity_id')
+            ->all();
+
+        $isQuote = false;
+
+        $entity = $request->entity;
+        $client_public_id = null;
+
+        if($entity == 'quote'){
+            $entity = 'invoice';
+            $isQuote = true;
+        }
+
+        $className = '\App\Models\\'.ucfirst($entity);
+        $entityModel = new $className();
+
+        $query = $entityModel::scope($client_public_id, $request->account_id);
+
+        if($entity == 'invoice' && $isQuote)
+            $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
+        else if($entity == 'invoice' && !$isQuote)
+            $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD);
+
+        if($client_public_id > 0) {
+            $clientPrivateId = Client::getPortalPrivateId($client_public_id, $request->account_id);
+            $query->where('client_id', '=', $clientPrivateId);
+        }
+
+        if(count($excludeIds) > 0)
+            $query->whereNotIn('id', array_values($excludeIds));
+
+        return $query->orderBy('id', 'desc')->get();
     }
 
 }

@@ -287,7 +287,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
 
-    Route::get('tickets/entities', 'TicketController@getEntityCollection');
+    Route::get('tickets/entities', 'TicketController@getTicketRelationCollection');
     Route::resource('tickets', 'TicketController');
     Route::get('/tickets/create/{parent_ticket_id?}', 'TicketController@create');
     Route::get('api/tickets', 'TicketController@getDatatable');
@@ -302,6 +302,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('tickets/merge/{public_id}', 'TicketController@merge');
     Route::post('tickets/merge/', 'TicketController@actionMerge');
     Route::post('tickets/entities/create', 'TicketController@addEntity');
+    Route::post('tickets/entities/remove', 'TicketController@removeEntity');
 
     // vendor
     Route::resource('vendors', 'VendorController');

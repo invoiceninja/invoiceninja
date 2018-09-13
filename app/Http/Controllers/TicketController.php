@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Events\TicketUserViewed;
 use App\Http\Requests\CreateTicketRequest;
+use App\Http\Requests\TicketAddEntityRequest;
 use App\Http\Requests\TicketInboundRequest;
 use App\Http\Requests\TicketMergeRequest;
+use App\Http\Requests\TicketRemoveEntityRequest;
 use App\Http\Requests\TicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Libraries\Utils;
@@ -42,6 +44,7 @@ class TicketController extends BaseController
      * @var
      */
     protected $ticketRepository;
+
     /**
      * TicketController constructor.
      * @param TicketService $ticketService
@@ -83,9 +86,9 @@ class TicketController extends BaseController
 
     /**
      * @param $publicId
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Redirect
      */
-    public function show($publicId) : Redirect
+    public function show($publicId)
     {
 
         Session::reflash();
@@ -96,7 +99,7 @@ class TicketController extends BaseController
 
     /**
      * @param TicketRequest $request
-     * @return mixed
+     * @return View
      */
     public function edit(TicketRequest $request)
     {
@@ -121,18 +124,7 @@ class TicketController extends BaseController
 
     /**
      * @param UpdateTicketRequest $request
-     *
-     * Updating a ticket can change the following:
-     *
-     * Priority
-     * Status
-     * Ticket closed
-     * Ticket reopened
-     * Comment updated (agent / client)
-     * Due Date
-     *
-     * We need to pass a action variable so we can handle the appropriate workflow
-     *
+     * @return View
      */
 
     public function update(UpdateTicketRequest $request)
@@ -148,8 +140,6 @@ class TicketController extends BaseController
         else
             $data['action'] = TICKET_SAVE_ONLY;
 
-        Log::error('data action = '.$data['action']);
-
         $ticket = $request->entity();
         $ticket = $this->ticketService->save($data, $ticket);
         $ticket->load('documents', 'relations');
@@ -162,7 +152,7 @@ class TicketController extends BaseController
 
         $data = array_merge($this->getViewmodel($ticket), $data);
 
-            return View::make('tickets.edit', $data);
+        return View::make('tickets.edit', $data);
 
     }
 
@@ -232,7 +222,7 @@ class TicketController extends BaseController
             'title' => trans('texts.new_ticket'),
             'account' => Auth::user()->account->load('clients.contacts', 'users'),
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
-            'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
+            'datetime_format' => Auth::user()->account->getMomentDateTimeFormat(),
             'old' => $request->old() ? $request->old() : $mockTicket,
             'clients' => Client::scope()->with('contacts')->get(),
         ];
@@ -263,7 +253,7 @@ class TicketController extends BaseController
 
         return [
             'clients' => $clients,
-            //'status' => $ticket->status(),
+            'status' => $ticket->status(),
             'comments' => $ticket->comments(),
             'account' => Auth::user()->account,
             'url' => 'tickets/' . $ticket->public_id,
@@ -281,7 +271,7 @@ class TicketController extends BaseController
     /**
      * @param Request $request
      */
-    public function inbound(TicketInboundRequest $request)
+    public function inbound(TicketInboundRequest $request) : void
     {
 
         $ticket = $request->entity();
@@ -327,125 +317,42 @@ class TicketController extends BaseController
 
         Session::reflash();
 
-            return redirect("tickets/$request->updated_ticket_id/edit");
+        return redirect("tickets/$request->updated_ticket_id/edit");
 
     }
 
     /**
-     * @return Eloquent
+     * @return Collection
      */
-    public function getEntityCollection()
+    public function getTicketRelationCollection()
     {
-        $excludeIds = TicketRelation::where('ticket_id', '=', request()->ticket_id)
-                                            ->where('entity', '=', request()->entity)
-                                            ->pluck('entity_id')
-                                            ->all(); //need to transform these to public IDS!!!
 
-        $isQuote = false;
-
-        $entity = request()->entity;
-        $client_public_id = null;
-
-        if($entity == 'quote'){
-            $entity = 'invoice';
-            $isQuote = true;
-        }
-
-        $className = '\App\Models\\'.ucfirst($entity);
-        $entityModel = new $className();
-
-        $query = $entityModel::scope($client_public_id, request()->account_id);
-
-        if($entity == 'invoice' && $isQuote)
-            $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
-        else if($entity == 'invoice' && !$isQuote)
-            $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD);
-
-        if($client_public_id > 0) {
-            $clientPrivateId = Client::getPortalPrivateId($client_public_id, request()->account_id);
-            $query->where('client_id', '=', $clientPrivateId);
-        }
-
-        if(count($excludeIds) > 0)
-            $query->whereNotIn('id', array_values($excludeIds));
-
-            return $query->orderBy('id', 'desc')->get();
-
+        return $this->ticketService->getRelationCollection(request());
 
     }
 
     /**
-     *
+     * Add ticket relation entity.
+     * returns a formatted URL
+     * @return string
      */
-    public function addEntity()
+    public function addEntity(TicketAddEntityRequest $request)
     {
-        $entityType = request()->entity;
-        $linkEntity = request()->entity;
 
-        if(request()->entity == 'quote')
-            $entityType = 'invoice';
-
-        $className = '\App\Models\\'.ucfirst($entityType);
-        $entityModel = new $className();
-
-        $entityId = $entityModel::getPortalPrivateId(request()->entity_id, request()->account_id);
-        $str = self::buildEntityUrl($linkEntity, request()->entity_id, request()->account_id);
-
-        $tr = new TicketRelation();
-        $tr->entity = $entityType;
-        $tr->entity_id = $entityId;
-        $tr->ticket_id = request()->ticket_id;
-        $tr->entity_url = $str;
-        $tr->save();
-
-            return $tr;
+        return $request->addEntity();
 
     }
 
-    private static function buildEntityUrl($entityType, $publicId, $accountId) : string
+    /**
+     * Remove ticket
+     * @return primary ID
+     */
+    public function removeEntity(TicketRemoveEntityRequest $request)
     {
-        $linkEntity = $entityType;
-
-        if($entityType == 'quote')
-            $entityType = 'invoice';
-
-        $className = '\App\Models\\'.ucfirst($entityType);
-        $entityModel = new $className();
-        $entity = $entityModel::scope($publicId, $accountId)->first();
-
-        return link_to("{$linkEntity}s/{$publicId}/edit", self::setLinkDescription($linkEntity, $entity), ['class' => ''])->toHtml();
-
+        TicketRelation::destroy(request()->id);
+        return request()->id;
     }
 
-    private static function setLinkDescription($entityType, $entity)
-    {
-        switch($entityType)
-        {
-            case 'quote':
-                return trans('texts.quote'). ' ' .$entity->invoice_number;
 
-            case 'invoice':
-                return trans('texts.invoice'). ' ' .$entity->invoice_number;
-
-            case 'task':
-                return trans('texts.task'). ' ' .$entity->description;
-
-            case 'payment':
-                return trans('texts.payment'). '('. trans('texts.invoice') . ' #'. $entity->invoice->invoice_number. ')';
-
-            case 'credit':
-                return trans('texts.credit'). ' (' .$entity->client->getDisplayName(). ' ' .$entity->amount.')';
-
-            case 'expense':
-                return strlen($entity->public_notes) ? trans('texts.expense'). ' ' .$entity->public_notes : trans('texts.expense'). ' ' .$entity->amount;
-
-            case 'project':
-                return $entity->name;
-
-            default:
-                return '';
-
-        }
-    }
 
 }
