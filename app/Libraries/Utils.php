@@ -1485,16 +1485,15 @@ class Utils
 
     public static function hasModuleSettings() {
          $module = Module::toCollection()->first(function($module) {
-            return ($module->get('has_settings') && $module->get('has_settings') == 1 && View::exists($module->getLowerName() . '::settings'));
+            return View::exists($module->getLowerName() . '::settings');
         });
-        
 
         return $module ? true : false;
     }
 
     public static function getModulesWithSettings() {
         $modules = Module::toCollection()->filter(function($module) {
-            return ($module->get('has_settings') && $module->get('has_settings') == 1 && View::exists($module->getLowerName() . '::settings'));
+            return View::exists($module->getLowerName() . '::settings');
         });
 
         return $modules;
