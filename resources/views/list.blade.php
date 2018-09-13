@@ -340,22 +340,10 @@
 						}
 					}
 
-					/*if(sum != "NaN") {*/ document.getElementById("sum_column_{{ $entityType }}").innerHTML = sum; //}
+					if(sum != "NaN") { document.getElementById("sum_column_{{ $entityType }}").innerHTML = sum; }
 
 				 @endif
 			}
-
-			// parse 1,000.00 or 1.000,00
-function convertStringToNumber(str) {
-	str = str + '' || '';
-	if (str.indexOf(':') >= 0) {
-		return roundToTwo(moment.duration(str).asHours());
-	} else {
-		return parseFloat(str);
-		var number = Number(str.replace(/[^0-9\-]+/g, ''));
-		return number / 100;
-	}
-}
 
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({
