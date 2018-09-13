@@ -160,6 +160,7 @@ class Account extends Eloquent
         'custom_value1',
         'custom_value2',
         'custom_messages',
+        'custom_fields_options',
     ];
 
     /**
@@ -228,6 +229,11 @@ class Account extends Eloquent
         'expense2',
         'vendor1',
         'vendor2',
+    ];
+
+    public static $customFieldsOptions = [
+        'client1_filter',
+        'client2_filter',
     ];
 
     public static $customLabels = [
@@ -557,6 +563,32 @@ class Account extends Eloquent
         $labels = $this->custom_fields;
 
         return ! empty($labels->$field) ? $labels->$field : '';
+    }
+
+    public function customFieldsOption($option) {
+        $options = $this->custom_fields_options;
+
+        return ! empty($options->$option) ? $options->$option : '';
+    }
+
+    public function setCustomFieldsOptionsAttribute($data) {
+        $options = [];
+
+        if(! is_array($data)) {
+            $data = json_decode($data);
+        }
+
+        foreach ($data as $key => $value) {
+            if($value) {
+                $options[$key] = $value;
+            }
+        }
+
+        $this->attributes['custom_fields_options'] = count($options) ? json_encode($options) : null;
+    }
+
+    public function getCustomFieldsOptionsAttribute($value) {
+        return json_decode($value ?: '{}');
     }
 
     /**

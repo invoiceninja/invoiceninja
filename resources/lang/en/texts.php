@@ -3076,7 +3076,9 @@ $LANG = array(
     'create_ticket' => 'Create ticket',
     'allow_inbound_email_tickets_external' => 'New Tickets by email (Client)',
     'allow_inbound_email_tickets_external_help' => 'Allow clients to create new tickets by email'
-
+    'include_in_filter' => 'Include in filter',
+    'custom_client1' => ':VALUE',
+    'custom_client2' => ':VALUE',
 );
 
 return $LANG;

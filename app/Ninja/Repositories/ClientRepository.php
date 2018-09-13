@@ -57,6 +57,14 @@ class ClientRepository extends BaseRepository
                         'clients.id_number'
                     );
 
+         if(Auth::user()->account->customFieldsOption('client1_filter')) {
+            $query->addSelect('clients.custom_value1');
+        }
+
+        if(Auth::user()->account->customFieldsOption('client2_filter')) {
+            $query->addSelect('clients.custom_value2');
+        }
+
         $this->applyFilters($query, ENTITY_CLIENT);
 
         if ($filter) {
@@ -67,6 +75,14 @@ class ClientRepository extends BaseRepository
                       ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
                       ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
+
+            if(Auth::user()->account->customFieldsOption('client1_filter')) {
+                $query->orWhere('clients.custom_value1', 'like' , '%'.$filter.'%');
+            }
+
+            if(Auth::user()->account->customFieldsOption('client2_filter')) {
+                $query->orWhere('clients.custom_value2', 'like' , '%'.$filter.'%');
+            }
         }
 
         if ($userId) {

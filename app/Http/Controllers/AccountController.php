@@ -1063,6 +1063,7 @@ class AccountController extends BaseController
                 $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
                 $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
                 $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
+                $account->custom_fields_options = request()->custom_fields_options;
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');

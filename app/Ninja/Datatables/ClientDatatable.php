@@ -42,6 +42,21 @@ class ClientDatatable extends EntityDatatable
                 Auth::user()->account->clientNumbersEnabled()
             ],
             [
+                'custom_client1::' . Auth::user()->account->customLabel('client1'),
+                function ($model) {
+                    return $model->custom_value1    ;
+                },
+                Auth::user()->account->customFieldsOption('client1_filter')
+            ],
+            [
+                'custom_client2::' . Auth::user()->account->customLabel('client2'),
+                function ($model) {
+                    return $model->custom_value2;
+                },
+                Auth::user()->account->customFieldsOption('client2_filter')
+            ],
+
+            [
                 'client_created_at',
                 function ($model) {
                     return Utils::timestampToDateString(strtotime($model->created_at));

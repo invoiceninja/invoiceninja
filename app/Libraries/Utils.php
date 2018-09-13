@@ -363,7 +363,14 @@ class Utils
                 if (substr($field, 0, 1) == '-') {
                     $data[] = substr($field, 1);
                 } elseif ($module) {
-                    $data[] = mtrans($module, $field);
+                    if(strpos($field, '::') >= 1) {
+                        $customField = explode('::', $field);
+                        if(count($customField) == 2) {
+                            $data[] = trans("texts.$customField[0]", [ 'VALUE' => $customField[1]], 'en');
+                        }
+                    } else {
+                        $data[] = mtrans($module, $field);
+                    }
                 } else {
                     $data[] = trans("texts.$field");
                 }
