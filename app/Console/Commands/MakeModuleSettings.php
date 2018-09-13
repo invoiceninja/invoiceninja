@@ -47,6 +47,8 @@ class MakeModuleSettings extends GeneratorCommand
 
         return (new Stub('/module-settings-view.stub', [
             'MODULE_NAME' => $module->getName(),
+            'LOWER_NAME' => $module->getLowerName(),
+            'SHOW_ROUTES' => $this->option('route') ? true : false
         ]))->render();
     }
 
@@ -67,6 +69,7 @@ class MakeModuleSettings extends GeneratorCommand
                 ]))->render(),
                 FILE_APPEND
             );
+            $this->info('Added routes to module routes.php.');
         }
     }
 

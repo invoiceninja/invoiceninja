@@ -1,6 +1,6 @@
 
 Route::group(['middleware' => ['web', 'lookup:user', 'auth:user'], 'namespace' => 'Modules\Manufacturer\Http\Controllers'], function()
 {
-    Route::get('settings/$MODULE_NAME$', $MODULE_NAME$Controller@showSettings);
-    Route::post('settings/$MODULE_NAME$', $MODULE_NAME$Controller@saveSettings);
+    Route::get('settings/$MODULE_NAME$', '$MODULE_NAME$Controller@showSettings');
+    Route::post('settings/$MODULE_NAME$', '$MODULE_NAME$Controller@saveSettings');
 });
