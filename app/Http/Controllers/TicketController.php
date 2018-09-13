@@ -222,7 +222,7 @@ class TicketController extends BaseController
             'title' => trans('texts.new_ticket'),
             'account' => Auth::user()->account->load('clients.contacts', 'users'),
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
-            'datetime_format' => Auth::user()->account->getMomentDateTimeFormat(),
+            'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
             'old' => $request->old() ? $request->old() : $mockTicket,
             'clients' => Client::scope()->with('contacts')->get(),
         ];
