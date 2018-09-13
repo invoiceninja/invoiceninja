@@ -33,23 +33,6 @@
     NINJA.fontSize = {{ DEFAULT_FONT_SIZE }};
     @endif
 
-    NINJA.parseFloat = function(str) {
-        if (! str) {
-            return '';
-        } else {
-            str = str + '';
-        }
-
-        // check for comma as decimal separator
-        if (str.match(/,[\d]{1,2}$/)) {
-            str = str.replace(',', '.');
-        }
-
-        str = str.replace(/[^0-9\.\-]/g, '');
-
-        return window.parseFloat(str);
-    }
-
     function formatMoneyInvoice(value, invoice, decorator, precision) {
         var account = invoice.account;
         var client = invoice.client;

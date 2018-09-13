@@ -1050,6 +1050,16 @@ function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
 }
 
+// parse 1,000.00 or 1.000,00
+function convertStringToNumber(str) {
+    str = str + '' || '';
+    if (str.indexOf(':') >= 0) {
+        return roundToTwo(moment.duration(str).asHours());
+    } else {
+        return NINJA.parseFloat(str);
+    }
+}
+
 // http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
