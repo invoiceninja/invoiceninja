@@ -13,14 +13,6 @@ class TicketInboundNew extends BaseTicketAction
 {
 
     /**
-     * A inbound ticket could have several flavours:
-     *
-     * 1. New support request...... support@support.invoiceninja.com
-     * -> New Ticket Creation + Events
-     *
-     */
-
-    /**
      * Fire sequence for TICKET_INBOUND_NEW
      *
      * Curent scope there is no difference from

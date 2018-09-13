@@ -23,7 +23,7 @@ class TicketRequest extends EntityRequest
 
     public function authorize()
     {
-        if(request()->is('tickets/create') && $this->user()->can('createEntity', ENTITY_TICKET))
+        if(request()->is('tickets/create*') && $this->user()->can('createEntity', ENTITY_TICKET))
             return true;
         elseif (request()->is('tickets/*/edit') && $this->user()->can('view', $this->entity()))
             return true;

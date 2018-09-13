@@ -7,6 +7,10 @@ use App\Libraries\Utils;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * Class Ticket
+ * @package App\Models
+ */
 class Ticket extends EntityModel
 {
     use PresentableTrait;
@@ -48,6 +52,9 @@ class Ticket extends EntityModel
     ];
 
 
+    /**
+     * @return array
+     */
     public static function relationEntities()
     {
         return [
@@ -61,6 +68,9 @@ class Ticket extends EntityModel
         ];
     }
 
+    /**
+     * @return array
+     */
     public static function clientRelationEntities()
     {
         return [
@@ -121,14 +131,6 @@ class Ticket extends EntityModel
     /**
      * @return mixed
      */
-    public function status()
-    {
-        return $this->belongsTo('App\Models\TicketStatus');
-    }
-
-    /**
-     * @return mixed
-     */
     public function documents()
     {
         return $this->hasMany('App\Models\Document')->orderBy('id');
@@ -150,26 +152,41 @@ class Ticket extends EntityModel
         return $this->hasMany('App\Models\TicketInvitation')->orderBy('ticket_invitations.contact_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function parent_ticket()
     {
         return $this->belongsTo(static::class, 'parent_ticket_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function child_tickets()
     {
         return $this->hasMany(static::class, 'parent_ticket_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function merged_ticket_parent()
     {
         return $this->belongsTo(static::class, 'merged_parent_ticket_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function merged_children()
     {
         return $this->hasMany(static::class, 'merged_parent_ticket_id');
     }
 
+    /**
+     * @return mixed
+     */
     public function relations()
     {
         return $this->hasMany('App\Models\TicketRelation');
@@ -215,15 +232,28 @@ class Ticket extends EntityModel
         {
             case TICKET_PRIORITY_LOW:
                 return trans('texts.low');
-                break;
             case TICKET_PRIORITY_MEDIUM:
                 return trans('texts.medium');
-                break;
             case TICKET_PRIORITY_HIGH:
                 return trans('texts.high');
-                break;
         }
     }
+
+    public function getStatus()
+    {
+        switch($this->status_id)
+        {
+            case TICKET_STATUS_NEW:
+                return trans('texts.new');
+            case TICKET_STATUS_OPEN:
+                return trans('texts.open');
+            case TICKET_STATUS_CLOSED:
+                return trans('texts.closed');
+            case TICKET_STATUS_MERGED:
+                return trans('texts.merged');
+        }
+    }
+
 
     /**
      *
@@ -238,20 +268,12 @@ class Ticket extends EntityModel
 
     }
 
+    /**
+     * @return \DateTime|string
+     */
     public function getMinDueDate()
     {
         return Utils::fromSqlDateTime($this->created_at);
-    }
-
-    /**
-     * @return array
-     *
-     * Ticket status can be client specific,
-     * need to return statuses per account.
-     */
-    public function getAccountStatusArray()
-    {
-        return TicketStatus::where('account_id', '=', $this->account->id)->get();
     }
 
     /**
@@ -268,7 +290,7 @@ class Ticket extends EntityModel
 
     /**
      * @return string
-    */
+     */
     public function agentName()
     {
         if($this->agent && $this->agent->getName())
@@ -278,23 +300,47 @@ class Ticket extends EntityModel
     }
 
 
+    /**
+     * @return mixed
+     */
     public function getStatusName()
     {
-        return $this->status->name;
+        return $this->getStatus();
     }
 
+    /**
+     * @param bool $entityType
+     * @return array
+     */
     public static function getStatuses($entityType = false)
     {
-        $statuses = [];
+        return [
+            TICKET_STATUS_NEW => trans('texts.new'),
+            TICKET_STATUS_OPEN => trans('texts.open'),
+            TICKET_STATUS_CLOSED => trans('texts.closed'),
+            TICKET_STATUS_MERGED => trans('texts.merged'),
+        ];
 
-        foreach (TicketStatus::scope()->get() as $status) {
-
-            $statuses[$status->public_id] = $status->name;
-        }
-
-        return $statuses;
     }
 
+    public static function getStatusNameById($statusId)
+    {
+        switch($statusId)
+        {
+            case TICKET_STATUS_NEW:
+                return trans('texts.new');
+            case TICKET_STATUS_OPEN:
+                return trans('texts.open');
+            case TICKET_STATUS_CLOSED:
+                return trans('texts.closed');
+            case TICKET_STATUS_MERGED:
+                return trans('texts.merged');
+        }
+    }
+
+    /**
+     * @return mixed
+     */
     public function agent()
     {
         return $this->hasOne('App\Models\User', 'id', 'agent_id');
@@ -320,38 +366,50 @@ class Ticket extends EntityModel
         return implode(", ", $ccEmailArray);
     }
 
-    public function getTicketReplyTo()
-    {
-
-    }
-
+    /**
+     * @return mixed
+     */
     public function getTicketFromName()
     {
         return config('ninja.tickets.ticket_support_email_name');
     }
 
+    /**
+     * @return mixed
+     */
     public function getTicketFromEmail()
     {
         return config('ninja.tickets.ticket_support_email');
     }
 
+    /**
+     * @param $accountId
+     * @return int|mixed
+     */
     public static function getNextTicketNumber($accountId)
     {
 
         $ticket = Ticket::whereAccountId($accountId)->withTrashed()->orderBy('ticket_number', 'DESC')->first();
 
-        if ($ticket) 
+        if ($ticket)
             return max($ticket->ticket_number + 1, $ticket->account->account_ticket_settings->ticket_number_start);
         else
             return 1;
 
     }
 
+    /**
+     * @param $templateId
+     * @return mixed
+     */
     public function getTicketTemplate($templateId)
     {
         return TicketTemplate::where('id', '=', $templateId)->first();
     }
 
+    /**
+     * @return string
+     */
     public function getTicketEmailFormat()
     {
         if(!Utils::isNinjaProd())
@@ -365,12 +423,18 @@ class Ticket extends EntityModel
             return $this->ticket_number.'+'.$this->getContactTicketHash().'@'.$domain;
     }
 
+    /**
+     * @return mixed
+     */
     public function getContactTicketHash()
     {
         $ticketInvitation = TicketInvitation::whereTicketId($this->id)->whereContactId($this->contact->id)->first();
         return $ticketInvitation->ticket_hash;
     }
 
+    /**
+     * @return mixed
+     */
     public function getClientMergeableTickets()
     {
         $getInternal = false;
@@ -388,6 +452,9 @@ class Ticket extends EntityModel
             ->get();
     }
 
+    /**
+     * @return bool
+     */
     public function isMergeAble()
     {
         if($this->status_id == 3)
@@ -400,6 +467,9 @@ class Ticket extends EntityModel
             return true;
     }
 
+    /**
+     * @return mixed
+     */
     public function getLastComment()
     {
         return $this->comments()->first();
@@ -408,20 +478,25 @@ class Ticket extends EntityModel
 
 
 
-Ticket::creating(function ($ticket) {
-});
+Ticket::creating(
+    function ($ticket) {
+    });
 
-Ticket::created(function ($ticket) {
-    $account_ticket_settings = $ticket->account->account_ticket_settings;
-    $account_ticket_settings->ticket_number_start = $ticket->ticket_number+1;
-    $account_ticket_settings->save();
-});
+Ticket::created(
+    function ($ticket) {
+        $account_ticket_settings = $ticket->account->account_ticket_settings;
+        $account_ticket_settings->ticket_number_start = $ticket->ticket_number+1;
+        $account_ticket_settings->save();
+    });
 
-Ticket::updating(function ($ticket) {
-});
+Ticket::updating(
+    function ($ticket) {
+    });
 
-Ticket::updated(function ($ticket) {
-});
+Ticket::updated(
+    function ($ticket) {
+    });
 
-Expense::deleting(function ($ticket) {
-});
+Expense::deleting(
+    function ($ticket) {
+    });

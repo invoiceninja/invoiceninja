@@ -47,14 +47,14 @@ class TicketClientNew extends BaseTicketAction
                 'invitation' => $ticket->invitations->first()
             ];
 
-            if (Utils::isSelfHost() && config('app.debug'))
-                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
-
             $ticketMailer = new TicketMailer();
-            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-            Log::error($msg);
+
+            if (Utils::isSelfHost() && config('app.debug')) {
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+                \Log::error($msg);
+            }
         }
 
         $this->newTicketTemplateAction($ticket);

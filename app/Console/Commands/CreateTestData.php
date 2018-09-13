@@ -118,7 +118,7 @@ class CreateTestData extends Command
             Auth::loginUsingId(1);
         }
 
-        $this->createTicketStubs();
+        //$this->createTicketStubs();
         //$this->createTicketTemplates();
         $this->createClients();
         $this->createVendors();

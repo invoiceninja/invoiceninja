@@ -56,14 +56,14 @@ class TicketOverdue extends BaseTicketAction
                 'invitation' => $ticket->invitations->first()
             ];
 
-            if (Utils::isSelfHost() && config('app.debug'))
-                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
-
             $ticketMailer = new TicketMailer();
-            Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-            Log::info('Mail sent status = '.$msg);
+
+            if (Utils::isSelfHost() && config('app.debug')) {
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+                \Log::error($msg);
+            }
 
             $ticket->overdue_notification_sent = true;
             $ticket->save();

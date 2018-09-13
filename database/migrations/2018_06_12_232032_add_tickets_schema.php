@@ -23,7 +23,7 @@ class AddTicketsSchema extends Migration
             $table->softDeletes();
         });
 
-
+/*
         Schema::create('ticket_statuses', function ($table) {
             $table->increments('id');
             $table->string('name', 255);
@@ -45,7 +45,7 @@ class AddTicketsSchema extends Migration
             $table->foreign('category_id')->references('id')->on('ticket_categories');
 
         });
-
+*/
         Schema::create('tickets', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
@@ -78,7 +78,7 @@ class AddTicketsSchema extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $table->foreign('status_id')->references('id')->on('ticket_statuses');
+           // $table->foreign('status_id')->references('id')->on('ticket_statuses');
 
 
         });

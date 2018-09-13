@@ -140,7 +140,7 @@
             ->dropup() !!}
             @endif
 
-                @if($ticket && $ticket->status->id == 3)
+                @if($ticket && $ticket->status_id == 3)
                     {!! Button::warning(trans('texts.ticket_reopen'))->large()->withAttributes(['onclick' => 'reopenAction()']) !!}
                 @elseif(!$ticket)
                     {!! Button::primary(trans('texts.ticket_open'))->large()->withAttributes(['onclick' => 'submitAction()']) !!}

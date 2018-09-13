@@ -6,7 +6,6 @@ use App\Models\AccountTicketSettings;
 use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\TicketInvitation;
-use App\Models\User;
 use App\Ninja\Repositories\DocumentRepository;
 use App\Ninja\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Log;
@@ -53,21 +52,21 @@ class InboundTicketService
 
             $ticketInvitation = TicketInvitation::whereTicketHash($ticket_hash)->first();
 
+            /** Contact based external ticket */
             if($ticketInvitation)
             {
 
-                /** Contact based external ticket */
                 $ticket = $ticketInvitation->ticket;
                 $user = $ticket->user;
                 $data['action'] = $this->getSender($ticket);
                 $data['status_id'] = TICKET_STATUS_OPEN;
                 $data['is_internal'] = 0;
 
-                    return $this->processTicket($ticket, $data, $user);
+                return $this->processTicket($ticket, $data, $user);
 
             }
 
-            /** Checking for Internal support reply */
+            /** Check for Internal support reply */
             $explodeEmail = explode("@", $this->inboundTicketFactory->to());
             $explodeLocalPart = explode("+", $explodeEmail[0]); //ticket_number
 
@@ -76,23 +75,24 @@ class InboundTicketService
 
             $accountTicketSettings = AccountTicketSettings::where('support_email_local_part', '=', $localPart)->first();
 
+            /** Test if we have found a matching account*/
             if(!$accountTicketSettings)
                 return;
 
             $ticket = Ticket::whereAccountId($accountTicketSettings->account_id)
-                    ->whereTicketNumber($ticket_number)->first();
+                ->whereTicketNumber($ticket_number)->first();
 
 
+            /** Internal Ticket if $ticket == TRUE */
             if ($ticket)
             {
 
-                /** Internal Ticket*/
                 $user = $ticket->user;
                 $data['is_internal'] = 1;
                 $data['status_id'] = TICKET_STATUS_OPEN;
                 $data['action'] = $this->getSender($ticket);
 
-                    return $this->processTicket($ticket, $data, $user);
+                return $this->processTicket($ticket, $data, $user);
             }
 
 
@@ -106,17 +106,20 @@ class InboundTicketService
             return $this->checkSupportEmailAttempt();
     }
 
-    private function processTicket(Ticket $ticket, array $data, $user) : Ticket
+    /**
+     * @param Ticket $ticket
+     * @param array $data
+     * @param $user
+     * @return Ticket
+     * @throws \Exception
+     */
+    private function processTicket(Ticket $ticket, array $data, $user)
     {
 
         $data['description'] = $this->getMessage();
 
         foreach($this->inboundTicketFactory->attachments() as $attachment)
         {
-            Log::error('inside attachments');
-            Log::error('file name = '.$attachment->Name);
-            //Log::error('file content = '.$attachment->Content);
-            //Log::error('file encoded' .base64_encode(chunk_split($attachment->Content)));
 
             $doc = [];
             $doc['file'] = $attachment->download();
@@ -136,6 +139,10 @@ class InboundTicketService
         return $ticket;
     }
 
+    /**
+     * @param Ticket $ticket
+     * @return string
+     */
     private function getSender(Ticket $ticket) : string
     {
         if ($ticket->contact_key && $ticket->contact && ($ticket->contact->email == $this->inboundTicketFactory->fromEmail()))
@@ -148,7 +155,7 @@ class InboundTicketService
     }
 
     /**
-     * returns nothing or a $ticket
+     * Returns nothing or a $ticket
      * cannot define a nullable return type until we support PHP7.1
      */
     private function checkSupportEmailAttempt()
@@ -164,7 +171,6 @@ class InboundTicketService
 
         /**
          * harvest the contact using the account and contact email address
-         *
          */
 
         $from = $this->inboundTicketFactory->fromEmail();
@@ -172,7 +178,7 @@ class InboundTicketService
         if($accountTicketSettings) {
 
             $contacts = Contact::whereAccountId($accountTicketSettings->account_id)
-                                ->whereEmail($from)->get();
+                ->whereEmail($from)->get();
 
 
             if(count($contacts) == 1 && ($accountTicketSettings->allow_inbound_email_tickets_external == true)) {
@@ -187,11 +193,11 @@ class InboundTicketService
             elseif(count($contacts) > 1 && ($accountTicketSettings->allow_inbound_email_tickets_external == true))
             {
                 /**
-                * Handle an edge case where one email address is registered across two different accounts.
-                * Need to handle this by creating a modified ticket without client/contact
-                * the contact email is stored in the contact_key field and a range of clients are harvested for selection when the
-                * ticket master views the ticket
-                */
+                 * Handle an edge case where one email address is registered across two different accounts.
+                 * Need to handle this by creating a modified ticket without client/contact
+                 * the contact email is stored in the contact_key field and a range of clients are harvested for selection when the
+                 * ticket master views the ticket
+                 */
                 return $this->createClientlessTicket($accountTicketSettings->ticket_master, $from, $accountTicketSettings->account);
             }
             elseif(count($contacts) == 0)
@@ -216,7 +222,7 @@ class InboundTicketService
      * @param $contact
      * @return $ticket
      */
-    private function createTicket($user, $contact) : Ticket
+    private function createTicket($user, $contact)
     {
 
         $data = [
@@ -232,7 +238,7 @@ class InboundTicketService
             'is_internal' => 0,
         ];
 
-            return $this->ticketRepo->save($data, null, $user);
+        return $this->ticketRepo->save($data, null, $user);
 
     }
 
@@ -242,7 +248,7 @@ class InboundTicketService
      * @param $account
      * @return $ticket
      */
-    private function createClientlessTicket($user, $contactEmail, $account) : Ticket
+    private function createClientlessTicket($user, $contactEmail, $account)
     {
 
         $data = [
@@ -260,33 +266,12 @@ class InboundTicketService
         return $this->ticketRepo->save($data, null, $user);
 
     }
-/*
-    private function createInternalTicket($accountTicketSettings, $user) : Ticket
+
+    /**
+     * @return string
+     */
+    private function getMessage() : string
     {
-        $agentId = 0;
-
-        if($accountTicketSettings->default_agent_id > 0)
-            $agentId = $accountTicketSettings->default_agent_id;
-
-        $data = [
-            'user_id' => $user->id,
-            'is_internal' => 1,
-            'agent_id' => $agentId,
-            'priority_id' => TICKET_PRIORITY_LOW,
-            'status_id' => TICKET_STATUS_NEW,
-            'category_id' => 1,
-            'subject' => $this->inboundTicketFactory->subject(),
-            'description' => $this->getMessage(),
-            'action' => TICKET_INBOUND_NEW_INTERNAL,
-        ];
-
-
-        Log::error('createinternal ticket description = '.$this->inboundTicketFactory->StrippedTextReply());
-        return $this->ticketRepo->save($data, null, $user);
-
-    }
-*/
-    private function getMessage() : string {
 
         if(strlen($this->inboundTicketFactory->StrippedTextReply()) > 0)
             return $this->inboundTicketFactory->StrippedTextReply();

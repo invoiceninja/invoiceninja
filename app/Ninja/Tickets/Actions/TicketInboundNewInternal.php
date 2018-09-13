@@ -36,15 +36,10 @@ class TicketInboundNewInternal extends BaseTicketAction
         {
 
             $toEmail = $ticket->agent->email;
-
             $fromEmail = $this->buildFromAddress($accountTicketSettings);
-
             $fromName = $accountTicketSettings->from_name;
-
             $subject = trans('texts.ticket_assignment', ['ticket_number' => $ticket->ticket_number, 'agent' => $ticket->agent->getName()]);
-
             $view = 'ticket_template';
-
             $data = [
                 'bccEmail' => $accountTicketSettings->alert_ticket_assign_email,
                 'body' => parent::buildTicketBodyResponse($ticket, $accountTicketSettings, $accountTicketSettings->alert_ticket_assign_agent_id),
@@ -53,14 +48,14 @@ class TicketInboundNewInternal extends BaseTicketAction
                 'invitation' => $ticket->invitations->first()
             ];
 
-            if (Utils::isSelfHost() && config('app.debug'))
-                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
-
             $ticketMailer = new TicketMailer();
-            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-            Log::error($msg);
+
+            if (Utils::isSelfHost() && config('app.debug')) {
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+                \Log::error($msg);
+            }
         }
 
 

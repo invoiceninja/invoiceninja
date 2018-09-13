@@ -84,7 +84,7 @@
                             ->addOption('', '')
                             ->data_bind("dropdown: client_public_id, dropdownOptions: {highlighter: comboboxHighlighter}")
                             ->addClass('pull-right')
-                            ->addGroupClass('') !!}
+                            ->addGroupClass('client-select') !!}
 
                 </div>
 
@@ -227,92 +227,92 @@
             var clientMap = {};
             var $clientSelect = $('select#client_public_id');
 
-                // create client dictionary
-                for (var i=0; i<clients.length; i++) {
-                    var client = clients[i];
-                    clientMap[client.public_id] = client;
+            // create client dictionary
+            for (var i=0; i<clients.length; i++) {
+                var client = clients[i];
+                clientMap[client.public_id] = client;
 
-                    if (!getClientDisplayName(client)) {
-                        continue;
-                    }
-
-                    var clientName = client.name || '';
-                    for (var j=0; j<client.contacts.length; j++) {
-                        var contact = client.contacts[j];
-                        var contactName = getContactDisplayNameWithEmail(contact);
-                        if (clientName && contactName) {
-                            clientName += ' • ';
-                        }
-                        if (contactName) {
-                            clientName += contactName;
-                        }
-                    }
-                    $clientSelect.append(new Option(clientName, client.public_id));
+                if (!getClientDisplayName(client)) {
+                    continue;
                 }
 
-                //harvest and set the client_id and contact_id here
-                var $input = $('select#client_public_id');
-                $input.combobox().on('change', function(e) {
-                    var clientId = parseInt($('input[name=client_public_id]').val(), 10) || 0;
-
-                    if (clientId > 0) {
-
-                        model.client_public_id(clientId);
-
+                var clientName = client.name || '';
+                for (var j=0; j<client.contacts.length; j++) {
+                    var contact = client.contacts[j];
+                    var contactName = getContactDisplayNameWithEmail(contact);
+                    if (clientName && contactName) {
+                        clientName += ' • ';
                     }
-                });
+                    if (contactName) {
+                        clientName += contactName;
+                    }
+                }
+                $clientSelect.append(new Option(clientName, client.public_id));
+            }
+
+            //harvest and set the client_id and contact_id here
+            var $input = $('select#client_public_id');
+            $input.combobox().on('change', function(e) {
+                var clientId = parseInt($('input[name=client_public_id]').val(), 10) || 0;
+
+                if (clientId > 0) {
+
+                    model.client_public_id(clientId);
+
+                }
+            });
 
             <!----- User Selector ----->
             var users = {!! $account->users !!};
             var userMap = {};
             var $userSelect = $('select#agent_id');
 
-                // create user dictionary
-                for (var i=0; i<users.length; i++) {
-                    var user = users[i];
-                    userMap[user.id] = user;
+            // create user dictionary
+            for (var i=0; i<users.length; i++) {
+                var user = users[i];
+                userMap[user.id] = user;
 
-                    var userName = user.first_name + ' ' + user.last_name || '';
-                    $userSelect.append(new Option(userName, user.id));
+                var userName = user.first_name + ' ' + user.last_name || '';
+                $userSelect.append(new Option(userName, user.id));
+            }
+
+            //harvest and set the agent_id here
+            var $input = $('select#agent_id');
+            $input.combobox().on('change', function(e) {
+                var agentId = parseInt($('input[name=agent_id]').val(), 10) || 0;
+
+                if (agentId > 0) {
+
+                    model.agent_id(agentId);
+
                 }
-
-                //harvest and set the agent_id here
-                var $input = $('select#agent_id');
-                $input.combobox().on('change', function(e) {
-                    var agentId = parseInt($('input[name=agent_id]').val(), 10) || 0;
-
-                    if (agentId > 0) {
-
-                        model.agent_id(agentId);
-
-                    }
-                });
+            });
 
             <!----- Parent Ticket Selector ----->
             var parent_tickets = {!! $parent_tickets !!};
             var ticketMap = {};
             var $ticketSelect = $('select#parent_ticket_id');
 
-                // create client dictionary
-                for (var i=0; i<parent_tickets.length; i++) {
-                    var ticket = parent_tickets[i];
-                    ticketMap[ticket.public_id] = ticket;
+            // create client dictionary
+            for (var i=0; i<parent_tickets.length; i++) {
+                var ticket = parent_tickets[i];
+                ticketMap[ticket.public_id] = ticket;
 
-                    var ticketName = '{{ trans('texts.ticket_number') }}' + '' + ticket.ticket_number;
-                    $ticketSelect.append(new Option(ticketName, ticket.public_id));
+                var ticketName = '{{ trans('texts.ticket_number') }}' + '' + ticket.ticket_number;
+                $ticketSelect.append(new Option(ticketName, ticket.public_id));
+            }
+
+            //harvest and set the parent_ticket_id here
+            var $input = $('select#parent_ticket_id');
+            $input.combobox().on('change', function(e) {
+                var parentTicketId = parseInt($('input[name=parent_ticket_id]').val(), 10) || 0;
+
+                if (parentTicketId > 0) {
+
+                    model.parent_ticket_id(parentTicketId);
+
                 }
-
-                //harvest and set the parent_ticket_id here
-                var $input = $('select#parent_ticket_id');
-                $input.combobox().on('change', function(e) {
-                    var parentTicketId = parseInt($('input[name=parent_ticket_id]').val(), 10) || 0;
-
-                    if (parentTicketId > 0) {
-
-                        model.parent_ticket_id(parentTicketId);
-
-                    }
-                });
+            });
 
 
             ko.applyBindings(model);

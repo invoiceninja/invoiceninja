@@ -2,6 +2,10 @@
 
 namespace App\Ninja\Tickets\Inbound;
 
+    /**
+     * Class InboundTicketFactory
+     * @package App\Ninja\Tickets\Inbound
+     */
 /**
  * Class InboundTicketFactory
  * @package App\Ninja\Tickets\Inbound
@@ -22,15 +26,15 @@ class InboundTicketFactory {
     /**
      * InboundTicketFactory constructor.
      * @param bool $json
+     * @throws \Exception
      */
     public function __construct($json = FALSE)
     {
 
         if(empty($json))
             throw new \Exception('Invalid source');
-        
-        $this->json = $json;
 
+        $this->json = $json;
         $this->source = $this->jsonToArray();
 
     }
@@ -69,14 +73,14 @@ class InboundTicketFactory {
 
         $name = ucfirst($name);
 
-            return ($this->source->$name) ? $this->source->$name : FALSE;
+        return ($this->source->$name) ? $this->source->$name : FALSE;
 
     }
 
     /**
-     *
+     * Returns "to" email address
      */
-    public function to()
+    public function to() : string
     {
 
         return str_replace('"', "", $this->source->To);
@@ -84,9 +88,9 @@ class InboundTicketFactory {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function originalRecipient()
+    public function originalRecipient() : string
     {
 
         return $this->source->OriginalRecipient;
@@ -94,9 +98,9 @@ class InboundTicketFactory {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function fromEmail()
+    public function fromEmail() : string
     {
 
         return $this->source->FromFull->Email;
@@ -106,7 +110,7 @@ class InboundTicketFactory {
     /**
      * @return string
      */
-    public function fromFull()
+    public function fromFull() : string
     {
 
         return $this->source->FromFull->Name . ' <' . $this->source->FromFull->Email . '>';
@@ -114,9 +118,9 @@ class InboundTicketFactory {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function fromName()
+    public function fromName() : string
     {
 
         return $this->source->FromFull->Name;
@@ -157,19 +161,19 @@ class InboundTicketFactory {
      * @param $header
      * @return string
      */
-    private static function _parseReceivedSpf($header)
+    private static function _parseReceivedSpf($header) : string
     {
 
         preg_match_all('/^(\w+\b.*?){1}/', $header, $matches);
 
-            return strtolower($matches[1][0]);
+        return strtolower($matches[1][0]);
 
     }
 
     /**
      * @return array
      */
-    public function recipients()
+    public function recipients() : array
     {
 
         return self::_parseRecipients($this->source->ToFull);
@@ -179,7 +183,7 @@ class InboundTicketFactory {
     /**
      * @return array
      */
-    public function undisclosedRecipients()
+    public function undisclosedRecipients() : array
     {
 
         return self::_parseRecipients($this->source->CcFull);
@@ -190,7 +194,7 @@ class InboundTicketFactory {
      * @param $recipients
      * @return array
      */
-    private static function _parseRecipients($recipients)
+    private static function _parseRecipients($recipients) : array
     {
 
         $objects = array_map(function ($object)
@@ -206,7 +210,7 @@ class InboundTicketFactory {
 
         }, $recipients);
 
-            return $objects;
+        return $objects;
     }
 
     /**
@@ -220,9 +224,9 @@ class InboundTicketFactory {
     }
 
     /**
-     * @return Subject
+     * @return Subject string
      */
-    public function subject()
+    public function subject() : string
     {
 
         return $this->source->Subject;
@@ -232,7 +236,7 @@ class InboundTicketFactory {
     /**
      * @return bool
      */
-    public function hasAttachments()
+    public function hasAttachments() : bool
     {
 
         return count($this->source->Attachments) > 0 ? TRUE : FALSE;

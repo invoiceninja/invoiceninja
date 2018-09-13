@@ -263,7 +263,7 @@ class TicketController extends BaseController
 
         return [
             'clients' => $clients,
-            'status' => $ticket->status(),
+            //'status' => $ticket->status(),
             'comments' => $ticket->comments(),
             'account' => Auth::user()->account,
             'url' => 'tickets/' . $ticket->public_id,
@@ -281,7 +281,7 @@ class TicketController extends BaseController
     /**
      * @param Request $request
      */
-    public function inbound(TicketInboundRequest $request) : void
+    public function inbound(TicketInboundRequest $request)
     {
 
         $ticket = $request->entity();

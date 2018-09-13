@@ -38,6 +38,7 @@ class BaseTicketAction
     }
 
     /**
+     * Builds the account support email address
      * @return string
      */
     public function buildFromAddress(AccountTicketSettings $accountTicketSettings) : string
@@ -78,18 +79,24 @@ class BaseTicketAction
                 'invitation' => $ticket->invitations->first()
             ];
 
-            if (Utils::isSelfHost() && config('app.debug'))
-                \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
-
-            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
             $ticketMailer = new TicketMailer();
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-            Log::error($msg);
+
+            if (Utils::isSelfHost() && config('app.debug')) {
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$fromEmail} | From: {$subject}");
+                \Log::info($msg);
+            }
         }
 
     }
 
+    /**
+     * Sets the default agent to a ticket if exists
+     *
+     * @param $ticket
+     * @param $accountTicketSettings
+     */
     public function setDefaultAgent($ticket, $accountTicketSettings) : void
     {
 

@@ -56,25 +56,20 @@ class TicketAction extends Job implements ShouldQueue
     {
 
         $this->deltaAttributes = $deltaAttributes;
-
         $this->originalTicket = $originalTicket;
-
         $this->updatedTicket = $updatedTicket;
-
         $this->server = config('database.default');
-
         $this->action = $action;
 
     }
 
     /**
-     * handles actions
+     * process action
      */
     public function handle()
     {
-Log::error('firing ticket action');
-        $ticketHandler = new App\Ninja\Tickets\Factory\TicketFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket, $this->action);
 
+        $ticketHandler = new App\Ninja\Tickets\Factory\TicketFactory($this->originalTicket, $this->deltaAttributes, $this->updatedTicket, $this->action);
         $ticketHandler->process();
 
     }

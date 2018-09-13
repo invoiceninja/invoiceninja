@@ -30,13 +30,9 @@ class TicketInboundContactReply extends BaseTicketAction
         if($accountTicketSettings->alert_new_comment_id > 0 && $ticket->agent_id > 0)
         {
             $toEmail = $ticket->agent->email;
-
             $fromEmail = $this->buildFromAddress($accountTicketSettings);
-
             $fromName = $accountTicketSettings->from_name;
-
             $subject = trans('texts.ticket_contact_reply', ['ticket_number' => $ticket->ticket_number, 'contact' => $ticket->getContactName()]);
-
             $view = 'ticket_template';
 
             $data = [
@@ -47,14 +43,14 @@ class TicketInboundContactReply extends BaseTicketAction
                 'invitation' => $ticket->invitations->first()
             ];
 
-            if (Utils::isSelfHost() && config('app.debug'))
-                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
-
             $ticketMailer = new TicketMailer();
-            Log::error("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
 
             $msg = $ticketMailer->sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data);
-            Log::error($msg);
+
+            if (Utils::isSelfHost() && config('app.debug')) {
+                \Log::info("Sending email - To: {$toEmail} | Reply: {$ticket->getTicketEmailFormat()} | From: {$fromEmail}");
+                \Log::error($msg);
+            }
         }
 
     }

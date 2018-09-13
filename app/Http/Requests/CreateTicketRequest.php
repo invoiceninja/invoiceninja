@@ -59,8 +59,8 @@ class CreateTicketRequest extends EntityRequest
         if($data['parent_ticket_id'] > 0)
             $data['parent_ticket_id'] = Ticket::getPrivateId($data['parent_ticket_id']);
 
-        if(isset($data['agent_id']) && $data['agent_id'] == 0)
-            $data['agent_id'] = Auth::user()->id;
+        //if(isset($data['agent_id']) && $data['agent_id'] == 0)
+        //    $data['agent_id'] = Auth::user()->id;
 
         $this->replace($data);
 

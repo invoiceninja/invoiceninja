@@ -15,11 +15,18 @@ use Illuminate\Support\Facades\Log;
 use Utils;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
+/**
+ * Class TicketRepository
+ * @package App\Ninja\Repositories
+ */
 class TicketRepository extends BaseRepository
 {
 
     use DispatchesJobs;
 
+    /**
+     * @return string
+     */
     public function getClassName()
     {
 
@@ -27,6 +34,9 @@ class TicketRepository extends BaseRepository
 
     }
 
+    /**
+     * @return mixed
+     */
     public function all()
     {
 
@@ -34,6 +44,12 @@ class TicketRepository extends BaseRepository
 
     }
 
+    /**
+     * @param null $filter
+     * @param bool $userId
+     * @param string $entityType
+     * @return mixed
+     */
     public function find($filter = null, $userId = false, $entityType = ENTITY_TICKET)
     {
 
@@ -41,7 +57,6 @@ class TicketRepository extends BaseRepository
             ->where('tickets.account_id', '=', Auth::user()->account_id)
             ->leftJoin('clients', 'clients.id', '=', 'tickets.client_id')
             ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->leftJoin('ticket_statuses', 'ticket_statuses.id', '=', 'tickets.status_id')
             ->leftJoin('ticket_comments', function ($join) {
                 $join->on('ticket_comments.ticket_id', '=', 'tickets.id');
                 $join->where('ticket_comments.id', '=', DB::raw('(SELECT ticket_comments.id FROM ticket_comments where ticket_comments.ticket_id = tickets.id ORDER BY id DESC limit 1) '));
@@ -68,7 +83,6 @@ class TicketRepository extends BaseRepository
                 'tickets.status_id',
                 'tickets.private_notes',
                 'tickets.subject',
-                'ticket_statuses.name as status',
                 'tickets.contact_key',
                 'tickets.merged_parent_ticket_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
@@ -106,9 +120,9 @@ class TicketRepository extends BaseRepository
             $query->where(function ($query) use ($filter) {
 
                 $query->where('clients.name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
+                    ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                    ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                    ->orWhere('contacts.email', 'like', '%'.$filter.'%');
 
             });
 
@@ -117,7 +131,7 @@ class TicketRepository extends BaseRepository
         if ($userId) {
 
             $query->where('tickets.user_id', '=', $userId)
-                    ->orWhere('tickets.agent_id', '=', Auth::user()->id);
+                ->orWhere('tickets.agent_id', '=', Auth::user()->id);
 
         }
 
@@ -128,6 +142,13 @@ class TicketRepository extends BaseRepository
 
     }
 
+    /**
+     * @param $input
+     * @param bool $ticket
+     * @param bool $harvestedUser
+     * @return bool|mixed
+     * @throws \Exception
+     */
     public function save($input, $ticket = false, $harvestedUser = false)
     {
 
@@ -169,13 +190,18 @@ class TicketRepository extends BaseRepository
 
         $ticket->fill($input);
         $changedAttributes = $ticket->getDirty();
+
         $ticket->save();
 
-        Log::error('description = '.$input['description']);
         /** handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1)
         {
-        Log::error('inside saving comment');
+
+            if($ticket->status_id == 1) {
+                $ticket->status_id = 2;
+                $ticket->save();
+            }
+
             $ticketComment = TicketComment::createNew($ticket);
             $ticketComment->description = $input['description'];
 
@@ -218,28 +244,22 @@ class TicketRepository extends BaseRepository
 
         }
 
-        Log::error('about to insert a ticket invitation');
-        Log::error("found ? {$found}");
         if(!$found && isset($input['is_internal']) && !$input['is_internal'] && $ticket->contact) {
-            Log::error("found ? {$found} internal? {$input['is_internal']}");
-            Log::error('inside!!');
             $this->createTicketInvite($ticket, $ticket->contact->id, $user);
         }
 
-        Log::error('after ticket created');
         /**
          * iterate through ticket ccs and ensure an invite exists for ticket CC's - todo v2.0
 
-            foreach(explode(",", $ticket->ccs) as $ccKey) {
+        foreach(explode(",", $ticket->ccs) as $ccKey) {
 
-            $contact = Contact::where('contact_key', '=', $ccKey)->first();
+        $contact = Contact::where('contact_key', '=', $ccKey)->first();
 
-            if($contact->id)
-            }
-        */
+        if($contact->id)
+        }
+         */
 
         /**
-         * This is where the magic happens.
          *
          * Once we have saved the $ticket to the datastore we need to perform
          * various tasks on the ticket. We pass the changed attributes along
@@ -248,7 +268,6 @@ class TicketRepository extends BaseRepository
          * Included in the payload will be an ACTION variable to provide
          * context for the various workflows.
          */
-        Log::error('just before dispatch');
 
         if($input['action'] != TICKET_SAVE_ONLY)
             $this->dispatch(new TicketAction($changedAttributes, $oldTicket, $ticket, $input['action']));
@@ -257,17 +276,19 @@ class TicketRepository extends BaseRepository
 
     }
 
+    /**
+     * @param $ticket
+     * @param $contactId
+     * @param $user
+     */
     private function createTicketInvite($ticket, $contactId, $user)
     {
-        Log::error('inside create method');
         $ticketInvitation = TicketInvitation::createNew($user);
         $ticketInvitation->ticket_id = $ticket->id;
         $ticketInvitation->contact_id = $contactId;
         $ticketInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $ticketInvitation->ticket_hash = strtolower(str_random(RANDOM_KEY_LENGTH));
         $ticketInvitation->save();
-
-        Log::error("ticket hash = {$ticketInvitation->ticket_hash}");
     }
 
     /**
