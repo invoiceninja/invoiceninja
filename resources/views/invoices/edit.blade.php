@@ -143,7 +143,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					@can('create', $invoice->client)
+					@can('create', ENTITY_CLIENT)
 					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, html: $root.clientLinkText"></a>
 					@endcan
                     <span data-bind="visible: $root.invoice().client().public_id() > 0" style="display:none">|
@@ -1033,7 +1033,7 @@
 		});
 
 		// If no clients exists show the client form when clicking on the client select input
-		@can('create', $invoice->client);
+		@can('create', ENTITY_CLIENT);
 		if (clients.length === 0) {
 			$('.client_select input.form-control').on('click', function() {
 				model.showClientForm();

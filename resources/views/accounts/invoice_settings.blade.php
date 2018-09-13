@@ -32,6 +32,9 @@
     @foreach (App\Models\Account::$customFields as $field)
         {{ Former::populateField("custom_fields[$field]", $account->customLabel($field)) }}
     @endforeach
+    @foreach(App\Models\Account::$customFieldsOptions as $field)
+        {{ Former::populateField("custom_fields_options[$field]", $account->customFieldsOption($field)) }}
+    @endforeach
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -262,9 +265,18 @@
                     <div class="panel-body">
 
                         {!! Former::text('custom_fields[client1]')
-                                ->label('client_field') !!}
+                                ->label('client_field')
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('custom_fields_options[client1_filter]')
+                                            ->value(1)
+                                            ->raw() . trans('texts.include_in_filter')) !!}
+
                         {!! Former::text('custom_fields[client2]')
                                 ->label('client_field')
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('custom_fields_options[client2_filter]')
+                                            ->value(1)
+                                            ->raw() . trans('texts.include_in_filter'))
                                 ->help(trans('texts.custom_client_fields_helps') . ' ' . trans('texts.custom_fields_tip')) !!}
 
                         <br/>

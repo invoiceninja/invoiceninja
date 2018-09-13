@@ -17,7 +17,7 @@
 
 <div class="pull-left">
 	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT, ENTITY_PROJECT]))
-		@can('create', 'invoice')
+		@can('createEntity', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endcan
 	@endif
@@ -48,7 +48,7 @@
 			@endif
 		</select>
 	</span>
-	<label id="sum_column"></label>
+	<span id="sum_column_{{ $entityType }}"></span>
 </div>
 
 <div id="top_right_buttons" class="pull-right">
@@ -103,7 +103,7 @@
 			  ['label' => trans('texts.new_recurring_expense'), 'url' => url('/recurring_expenses/create')],
 			]
 		  )->split() !!}
-		@if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+		@if (Auth::user()->can('createEntity', ENTITY_EXPENSE_CATEGORY))
 			{!! DropdownButton::normal(trans('texts.categories'))
                 ->withAttributes(['class'=>'categoriesDropdown'])
                 ->withContents([
@@ -126,7 +126,8 @@
 			});
 		</script>
 	@elseif (($entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_QUOTE) && ! isset($clientId))
-        @if (Auth::user()->can('create', ENTITY_RECURRING_QUOTE))
+
+        @if (Auth::user()->can('createEntity', ENTITY_RECURRING_QUOTE))
             {!! DropdownButton::normal(trans('texts.recurring_quotes'))
                 ->withAttributes(['class'=>'recurringDropdown'])
                 ->withContents([
@@ -150,7 +151,7 @@
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
     @endif
 
-	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
+	@if (Auth::user()->can('createEntity', $entityType) && empty($vendorId))
     	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))
 			->asLinkTo(url(
 				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) .
@@ -300,34 +301,47 @@
 						if(currentSum == "") {
 							currentSum = "00:00:00";
 						}
-
 						currentSumMoment = moment.duration(currentSum);
 						addMoment = moment.duration(add);
 						var  ret = secondsToTime(currentSumMoment.add(addMoment).asSeconds())
 						return (ret.h + ":" + ret.m + ":" + ret.s);
 						break;
-						//add a switch case to apply to other entityTypes
-					default:
-						return "error summing column vars";
+
+						default:
+						if(currentSum == "") { currentSum = "0"}
+						return (convertStringToNumber(currentSum) + convertStringToNumber(add)).toString();
 				}
 			}
 
 			function changeSumLabel() {
 				var dTable = $('.listForm_{{ $entityType }} .data-table').DataTable();
-				 @if (method_exists($datatable , "sumColumn" ))
-					var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
+				 @if ($datatable->sumColumn() != null)
+				 	@if(in_array($entityType, [ENTITY_TASK]))
+						var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
+					@endif
+					@if(in_array($entityType, [ENTITY_PRODUCT, ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_RECURRING_INVOICE, ENTITY_CREDIT,
+					  ENTITY_QUOTE, ENTITY_PROJECT, ENTITY_EXPENSE]))
+						sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).data().toArray();
+					@endif
 					var sum = "";
-
-					var cboxArray = document.getElementsByName("ids[]")
+					var cboxArray = dTable.column(0).nodes();//document.getElementsByName("ids[]")
 
 					for (i = 0 ; i < sumColumnNodes.length ; i++) {
-						if(cboxArray[i].checked) {
-						var value = sumColumnNodes[i].firstChild.innerHTML;
+						if(cboxArray[i].firstChild.checked) {
+						var value;
+						@if(in_array($entityType, [ENTITY_TASK]))
+							value = sumColumnNodes[i].firstChild.innerHTML;
+						@endif
+						@if (in_array($entityType, [ENTITY_CLIENT, ENTITY_PRODUCT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_RECURRING_INVOICE, ENTITY_CREDIT,
+						  ENTITY_QUOTE, ENTITY_PROJECT, ENTITY_EXPENSE]))
+							value = sumColumnNodes[i];
+						@endif
 						sum = sumColumnVars(sum, value);
 						}
 					}
 
-					document.getElementById("sum_column").innerHTML = sum; //change this to set label value
+					if(sum != "NaN") { document.getElementById("sum_column_{{ $entityType }}").innerHTML = sum; }
+
 				 @endif
 			}
 

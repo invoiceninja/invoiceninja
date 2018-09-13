@@ -54,4 +54,22 @@ return [
     ],
 
 
+    // Google maps
+    'google_maps_enabled' => env('GOOGLE_MAPS_ENABLED', true),
+    'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY', ''),
+
+    // Voice commands
+    'voice_commands' => [
+        'app_id' => env('MSBOT_LUIS_APP_ID', 'ea1cda29-5994-47c4-8c25-2b58ae7ae7a8'),
+        'subscription_key' => env('MSBOT_LUIS_SUBSCRIPTION_KEY'),
+    ],
+
+    //Tickets
+    'tickets' => [
+        'ticket_support_domain' => env('TICKET_SUPPORT_DOMAIN',''),
+        'ticket_support_domain_2' => env('TICKET_SUPPORT_DOMAIN_2',''),
+    ],
+
+    'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
+
 ];

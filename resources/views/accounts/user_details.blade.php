@@ -2,6 +2,8 @@
 
 @section('content')
     @parent
+    <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 
     {!! Former::open_for_files()->addClass('warn-on-exit')->rules(array(
         'first_name' => 'required',
@@ -15,6 +17,7 @@
     {{ Former::populateField('last_name', $user->last_name) }}
     {{ Former::populateField('email', $user->email) }}
     {{ Former::populateField('phone', $user->phone) }}
+    {{ Former::populateField('signature', $user->signature) }}
     {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
     {{ Former::populateField('enable_two_factor', $user->google_2fa_secret ? 1 : 0) }}
 
@@ -38,6 +41,23 @@
                 {!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
                 {!! Former::text('phone') !!}
+                {!! Former::file('avatar')
+                    ->max(2, 'MB')
+                    ->accept('image')
+                    ->label(trans('texts.avatar'))
+                    ->inlineHelp(trans('texts.logo_help')) !!}
+
+                @if ($user->hasAvatar())
+                    <div class="form-group">
+                        <div class="col-lg-4 col-sm-4"></div>
+                        <div class="col-lg-8 col-sm-8">
+                            <a href="{{ $user->getAvatarUrl(true) }}" target="_blank">
+                                {!! HTML::image($user->getAvatarUrl(true), 'Logo', ['style' => 'max-width:300px']) !!}
+                            </a> &nbsp;
+                            <a href="#" onclick="deleteLogo()">{{ trans('texts.remove_avatar') }}</a>
+                        </div>
+                    </div>
+                @endif
 
                 <br/>
 
@@ -90,6 +110,20 @@
                 </div>
             </div>
 
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{!! trans('texts.signature') !!}</h3>
+                </div>
+                <div class="panel-body">
+                    {!! Former::textarea('signature')->style('display:none')->raw() !!}
+                    <div id="signatureEditor" class="form-control" style="min-height:160px" onclick="focusEditor()"></div>
+                    <div class="pull-right" style="padding-top:10px;text-align:right">
+                        {!! Button::normal(trans('texts.raw'))->withAttributes(['onclick' => 'showRaw()'])->small() !!}
+                    </div>
+                    @include('partials/quill_toolbar', ['name' => 'signature'])
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -111,6 +145,31 @@
                 ->submit()->large()
                 ->appendIcon(Icon::create('floppy-disk')) !!}
     </center>
+
+
+    <div class="modal fade" id="rawModal" tabindex="-1" role="dialog" aria-labelledby="rawModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="rawModalLabel">{{ trans('texts.raw_html') }}</h4>
+                </div>
+
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                    <div class="panel panel-default">
+                        <div class="modal-body">
+                            <textarea id="raw-textarea" rows="20" style="width:100%"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" onclick="updateRaw()" class="btn btn-success" data-dismiss="modal">{{ trans('texts.update') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -174,6 +233,11 @@
 
 
     {!! Former::close() !!}
+
+
+
+    {!! Form::open(['url' => 'remove_avatar', 'class' => 'removeAvatarForm']) !!}
+    {!! Form::close() !!}
 
     <script type="text/javascript">
 
@@ -273,6 +337,54 @@
                 window.location = '{{ URL::to('/auth_unlink') }}';
             });
         }
+
+
+        var editor = false;
+        $(function() {
+            editor = new Quill('#signatureEditor', {
+                modules: {
+                    'toolbar': { container: '#signatureToolbar' },
+                    'link-tooltip': true
+                },
+                theme: 'snow'
+            });
+            editor.setHTML($('#signature').val());
+            editor.on('text-change', function(delta, source) {
+                if (source == 'api') {
+                    return;
+                }
+                var html = editor.getHTML();
+                $('#signature').val(html);
+                NINJA.formIsChanged = true;
+            });
+        });
+
+        function focusEditor() {
+            editor.focus();
+        }
+
+        function showRaw() {
+            var signature = $('#signature').val();
+            $('#raw-textarea').val(formatXml(signature));
+            $('#rawModal').modal('show');
+        }
+
+        function updateRaw() {
+            var value = $('#raw-textarea').val();
+            editor.setHTML(value);
+            $('#signature').val(value);
+        }
+
+        $(function() {
+            $('#country_id').combobox();
+        });
+
+        function deleteLogo() {
+            sweetConfirm(function() {
+                $('.removeAvatarForm').submit();
+            });
+        }
+
     </script>
 
 @stop

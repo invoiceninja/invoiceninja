@@ -10,6 +10,7 @@ class ProjectDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PROJECT;
     public $sortCol = 1;
+    public $fieldToSum = 'budgeted_hours';
 
     public function columns()
     {
@@ -78,7 +79,7 @@ class ProjectDatatable extends EntityDatatable
                     return "javascript:submitForm_project('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_INVOICE);
+                    return Auth::user()->can('createEntity', ENTITY_INVOICE);
                 },
             ],
         ];

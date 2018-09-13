@@ -649,7 +649,7 @@ class ClientPortalController extends BaseController
         return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, Input::get('sSearch'));
     }
 
-    private function returnError($error = false)
+    public function returnError($error = false)
     {
         if (request()->phantomjs) {
             abort(404);
@@ -662,7 +662,7 @@ class ClientPortalController extends BaseController
         ]);
     }
 
-    private function getContact()
+    public function getContact()
     {
         $contactKey = session('contact_key');
 
@@ -1069,4 +1069,6 @@ class ClientPortalController extends BaseController
         return view('clients.statement', $data);
 
     }
+
+
 }

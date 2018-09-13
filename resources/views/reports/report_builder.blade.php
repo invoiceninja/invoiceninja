@@ -487,16 +487,6 @@
 			}, 1);
         });
 
-		// parse 1,000.00 or 1.000,00
-		function convertStringToNumber(str) {
-			str = str + '' || '';
-			if (str.indexOf(':') >= 0) {
-				return roundToTwo(moment.duration(str).asHours());
-			} else {
-				return NINJA.parseFloat(str);
-			}
-		}
-
 		function ReportTypeModel(type, transType) {
 			var self = this;
 			self.type = type;

@@ -42,6 +42,7 @@ use App\Events\TaskWasCreated;
 use App\Events\TaskWasDeleted;
 use App\Events\TaskWasRestored;
 use App\Events\TaskWasUpdated;
+use App\Events\TicketUserViewed;
 use App\Models\Invoice;
 use App\Ninja\Repositories\ActivityRepository;
 
@@ -591,6 +592,17 @@ class ActivityListener
         $this->activityRepo->create(
             $event->expense,
             ACTIVITY_TYPE_RESTORE_EXPENSE
+        );
+    }
+
+    /**
+     * @param TicketUserViewed $event
+     */
+    public function userViewedTicket(TicketUserViewed $event)
+    {
+        $this->activityRepo->create(
+            $event->ticket,
+            ACTIVITY_TYPE_USER_VIEW_TICKET
         );
     }
 }
