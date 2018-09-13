@@ -91,7 +91,7 @@ class InvoiceTransformer extends EntityTransformer
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
             'client_id' => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),
-            'invoice_status_id' => (int) $invoice->invoice_status_id,
+            'invoice_status_id' => (int) ($invoice->invoice_status_id ?: 1),
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),
             'invoice_number' => $invoice->is_recurring ? '' : $invoice->invoice_number,
