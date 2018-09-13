@@ -2,9 +2,12 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Models\Contact;
 use App\Models\Document;
+use App\Models\User;
 use DB;
 use Form;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Utils;
 
@@ -43,6 +46,7 @@ class DocumentRepository extends BaseRepository
                         'documents.invoice_id',
                         'documents.expense_id',
                         'documents.user_id',
+                        'documents.ticket_id',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'expenses.public_id as expense_public_id',
@@ -50,6 +54,145 @@ class DocumentRepository extends BaseRepository
                     );
 
         return $query;
+    }
+
+
+
+    public function inboundUpload($data, $account)
+    {
+
+        $uploaded = $data['file'];
+
+        $extension = pathinfo($data['fileName'], PATHINFO_EXTENSION);
+
+        if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
+            $documentType = Document::$extraExtensions[$extension];
+        } else {
+            $documentType = $extension;
+        }
+
+        if (empty(Document::$types[$documentType])) {
+            return 'Unsupported file type';
+        }
+
+        $documentTypeData = Document::$types[$documentType];
+
+        $filePath = $data['filePath'];
+        $name = $data['fileName'];
+        $size = filesize($filePath);
+
+        if ($size / 1000 > MAX_DOCUMENT_SIZE) {
+            return 'File too large';
+        }
+
+        $hash = sha1_file($filePath);
+
+        $ticketMaster = false;
+
+        if($contactKey = session('contact_key')) {
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            $account = $contact->account;
+            $ticketMaster = $account->account_ticket_settings->ticket_master;
+        }
+        elseif(isset($data['user_id']) && $data['user_id'] > 0){
+            $ticketMaster = User::find($data['user_id']);
+            Log::error('inside doc repo with user id = '. $ticketMaster->id);
+            // if saving a document from a inboundticket,
+            // we need to harvest the user_id of the ticket owner / master, this can be
+            // passed from the inbound ticket service
+        }
+        else
+            $account = \Auth::user()->account;
+
+        $filename = $account->account_key.'/'.$hash.'.'.$documentType;
+
+        $document = Document::createNew($ticketMaster);
+        $document->fill($data);
+
+        $disk = $document->getDisk();
+        if (! $disk->exists($filename)) {// Have we already stored the same file
+            $stream = fopen($filePath, 'r');
+            $disk->getDriver()->putStream($filename, $stream, ['mimetype' => $documentTypeData['mime']]);
+            //fclose($stream);
+        }
+
+        // This is an image; check if we need to create a preview
+        if (in_array($documentType, ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
+            $makePreview = false;
+            $imageSize = getimagesize($filePath);
+            $width = $imageSize[0];
+            $height = $imageSize[1];
+            $imgManagerConfig = [];
+            if (in_array($documentType, ['gif', 'bmp', 'tiff', 'psd'])) {
+                // Needs to be converted
+                $makePreview = true;
+            } elseif ($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE) {
+                $makePreview = true;
+            }
+
+            if (in_array($documentType, ['bmp', 'tiff', 'psd'])) {
+                if (! class_exists('Imagick')) {
+                    // Cant't read this
+                    $makePreview = false;
+                } else {
+                    $imgManagerConfig['driver'] = 'imagick';
+                }
+            }
+
+            if ($makePreview) {
+                $previewType = 'jpeg';
+                if (in_array($documentType, ['png', 'gif', 'tiff', 'psd'])) {
+                    // Has transparency
+                    $previewType = 'png';
+                }
+
+                $document->preview = $account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
+                if (! $disk->exists($document->preview)) {
+                    // We haven't created a preview yet
+                    $imgManager = new ImageManager($imgManagerConfig);
+
+                    $img = $imgManager->make($filePath);
+
+                    if ($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE) {
+                        $previewWidth = $width;
+                        $previewHeight = $height;
+                    } elseif ($width > $height) {
+                        $previewWidth = DOCUMENT_PREVIEW_SIZE;
+                        $previewHeight = $height * DOCUMENT_PREVIEW_SIZE / $width;
+                    } else {
+                        $previewHeight = DOCUMENT_PREVIEW_SIZE;
+                        $previewWidth = $width * DOCUMENT_PREVIEW_SIZE / $height;
+                    }
+
+                    $img->resize($previewWidth, $previewHeight);
+
+                    $previewContent = (string) $img->encode($previewType);
+                    $disk->put($document->preview, $previewContent);
+                    $base64 = base64_encode($previewContent);
+                } else {
+                    $base64 = base64_encode($disk->get($document->preview));
+                }
+            } else {
+                $base64 = base64_encode(file_get_contents($filePath));
+            }
+        }
+
+        $document->path = $filename;
+        $document->type = $documentType;
+        $document->size = $size;
+        $document->hash = $hash;
+        $document->name = substr($name, -255);
+
+        if (! empty($imageSize)) {
+            $document->width = $imageSize[0];
+            $document->height = $imageSize[1];
+        }
+
+        $document->save();
+
+        unlink($filePath);
+
+        return $document;
     }
 
     public function upload($data, &$doc_array = null)
@@ -63,6 +206,7 @@ class DocumentRepository extends BaseRepository
         }
 
         $extension = strtolower($uploaded->getClientOriginalExtension());
+
         if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
             $documentType = Document::$extraExtensions[$extension];
         } else {
@@ -76,7 +220,9 @@ class DocumentRepository extends BaseRepository
         $documentTypeData = Document::$types[$documentType];
 
         $filePath = $uploaded->path();
+
         $name = $uploaded->getClientOriginalName();
+
         $size = filesize($filePath);
 
         if ($size / 1000 > MAX_DOCUMENT_SIZE) {
@@ -89,9 +235,27 @@ class DocumentRepository extends BaseRepository
         }
 
         $hash = sha1_file($filePath);
-        $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType;
 
-        $document = Document::createNew();
+        $ticketMaster = false;
+
+        if($contactKey = session('contact_key')) {
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            $account = $contact->account;
+            $ticketMaster = $account->account_ticket_settings->ticket_master;
+        }
+        elseif(isset($data['user_id']) && $data['user_id'] > 0){
+            $ticketMaster = User::find($data['user_id']);
+            Log::error('inside doc repo with user id = '. $ticketMaster->id);
+            // if saving a document from a inboundticket,
+            // we need to harvest the user_id of the ticket owner / master, this can be
+            // passed from the inbound ticket service
+        }
+        else
+            $account = \Auth::user()->account;
+
+        $filename = $account->account_key.'/'.$hash.'.'.$documentType;
+
+        $document = Document::createNew($ticketMaster);
         $document->fill($data);
 
         if ($isProposal) {
@@ -136,7 +300,7 @@ class DocumentRepository extends BaseRepository
                     $previewType = 'png';
                 }
 
-                $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
+                $document->preview = $account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
                 if (! $disk->exists($document->preview)) {
                     // We haven't created a preview yet
                     $imgManager = new ImageManager($imgManagerConfig);

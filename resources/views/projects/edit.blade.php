@@ -65,6 +65,30 @@
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/projects'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+
+		@if (false && $project && Auth::user()->can('createEntity', ENTITY_TASK))
+			{!! DropdownButton::normal(trans('texts.more_actions'))
+				  ->withContents([
+					  [
+						  'url' => url('/tasks/create/' . ($project->client ? $project->client->public_id : '0'). '/' . $project->public_id),
+						  'label' => trans('texts.new_task'),
+					  ],
+					  [
+						  'url' => 'javascript:submitAction("invoice")',
+						  'label' => trans('texts.invoice_project'),
+					  ],
+				  	  \DropdownButton::DIVIDER,
+					  [
+						  'url' => 'javascript:submitAction("archive")',
+						  'label' => trans('texts.archive_project')
+					  ],
+					  [
+						  'url' => 'javascript:onDeleteClick()',
+						  'label' => trans('texts.delete_project')
+					  ],
+				  ])
+				  ->large() !!}
+		@endif
 	</center>
 	@endif
 

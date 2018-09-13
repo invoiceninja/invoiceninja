@@ -65,7 +65,7 @@ class ProposalTemplateDatatable extends EntityDatatable
                     return URL::to("proposals/create/0/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', [ENTITY_PROPOSAL, $model]);
+                    return Auth::user()->can('createEntity', [ENTITY_PROPOSAL, $model]);
                 },
             ],
         ];

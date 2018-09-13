@@ -31,4 +31,10 @@ class QuoteRequest extends EntityRequest
 
         return $invoice;
     }
+
+
+    public function authorize()
+    {
+        return $this->user()->can('createEntity', ENTITY_QUOTE);
+    }
 }

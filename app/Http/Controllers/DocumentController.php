@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateDocumentRequest;
 use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
+use App\Models\Contact;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
 use Redirect;
@@ -56,6 +57,7 @@ class DocumentController extends BaseController
 
     public function getPreview(DocumentRequest $request)
     {
+
         $document = $request->entity();
 
         if (empty($document->preview)) {
@@ -118,6 +120,7 @@ class DocumentController extends BaseController
                     'code' => 200,
                 ];
             }
+
             return Response::json($response, 200);
         }
     }

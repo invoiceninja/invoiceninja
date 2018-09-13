@@ -4,19 +4,21 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class QuotePolicy
+ * @package App\Policies
+ */
 class QuotePolicy extends EntityPolicy
 {
     /**
      * @param User  $user
-     * @param mixed $item
      *
      * @return bool
      */
-    public static function create(User $user, $item)
+    public function create(User $user)
     {
-        if (! parent::create($user, $item)) {
+        if(!$this->createPermission($user, ENTITY_QUOTE))
             return false;
-        }
 
         return $user->hasFeature(FEATURE_QUOTES);
     }

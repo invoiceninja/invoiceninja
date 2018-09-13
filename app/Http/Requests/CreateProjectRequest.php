@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Project;
+
 class CreateProjectRequest extends ProjectRequest
 {
     /**
@@ -11,7 +13,7 @@ class CreateProjectRequest extends ProjectRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PROJECT);
+        return $this->user()->can('create', Project::class);
     }
 
     /**

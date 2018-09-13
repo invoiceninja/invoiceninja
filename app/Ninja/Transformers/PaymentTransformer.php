@@ -20,7 +20,6 @@ class PaymentTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
-     * @SWG\Property(property="payment_type_id", type="integer", example=1)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="invoice_number", type="string", example="Invoice Number")
      * @SWG\Property(property="private_notes", type="string", example="Notes")

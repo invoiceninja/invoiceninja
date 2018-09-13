@@ -746,7 +746,7 @@ class InvoiceRepository extends BaseRepository
                     ) {
                         $product = Product::findProductByKey($productKey);
                         if (! $product) {
-                            if (Auth::user()->can('create', ENTITY_PRODUCT)) {
+                            if (Auth::user()->can('createEntity', ENTITY_PRODUCT)) {
                                 $product = Product::createNew();
                                 $product->product_key = trim($item['product_key']);
                             } else {

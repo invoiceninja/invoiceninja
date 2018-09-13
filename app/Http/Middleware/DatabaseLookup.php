@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\LookupTicketInvitation;
 use Illuminate\Http\Request;
 use Closure;
 use App\Models\LookupAccount;
@@ -46,10 +47,14 @@ class DatabaseLookup
                 LookupInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->proposal_invitation_key) {
                 LookupProposalInvitation::setServerByField('invitation_key', $key);
+            } elseif ($key = request()->ticket_invitation_key) {
+                LookupTicketInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
             } elseif ($key = request()->account_key) {
                 LookupAccount::setServerByField('account_key', $key);
+            } elseif($key = request()->MailboxHash) {
+                LookupTicketInvitation::setServerByField('ticket_hash', $key);
             } else {
                 $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
                 if ($subdomain != 'app') {

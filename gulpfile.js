@@ -35,6 +35,7 @@ elixir(function(mix) {
         bowerDir + '/bootstrap/dist/css/bootstrap.css',
         bowerDir + '/font-awesome/css/font-awesome.css',
         bowerDir + '/datatables/media/css/jquery.dataTables.css',
+        bowerDir + '/dropzone/dist/dropzone.css',
         bowerDir + '/datatables-bootstrap3/BS3/assets/css/datatables.css',
         'bootstrap-combobox.css',
         'public.style.css',

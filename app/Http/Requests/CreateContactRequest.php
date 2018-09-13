@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Client;
+
 class CreateContactRequest extends ContactRequest
 {
     /**
@@ -11,7 +13,7 @@ class CreateContactRequest extends ContactRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_CONTACT);
+        return $this->user()->can('create', Client::class);
     }
 
     /**

@@ -210,6 +210,26 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         //$this->notify(new ResetPasswordNotification($token));
         app('App\Ninja\Mailers\ContactMailer')->sendPasswordReset($this, $token);
     }
+
+    public static function getContactIfLoggedIn()
+    {
+        if($contact = Contact::where('contact_key', '=',session('contact_key'))->with('account')->first())
+            return $contact;
+        else
+            return false;
+    }
+
+    public static function getContactByContactKey($contact_key)
+    {
+        if(strlen($contact_key) == 0)
+            return false;
+
+        if($contact = Contact::where('contact_key', '=', $contact_key)->first())
+            return $contact;
+        else
+            return false;
+    }
+
 }
 
 Contact::creating(function ($contact)
