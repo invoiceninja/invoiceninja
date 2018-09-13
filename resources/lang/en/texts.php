@@ -2925,6 +2925,23 @@ $LANG = array(
     'send' => 'Send',
     'auto_billing' => 'Auto billing',
     'button' => 'Button',
+    'more' => 'More',
+    'edit_recurring_invoice' => 'Edit Recurring Invoice',
+    'edit_recurring_quote' => 'Edit Recurring Quote',
+    'quote_status' => 'Quote Status',
+    'please_select_an_invoice' => 'Please select an invoice',
+    'filtered_by' => 'Filtered by',
+    'payment_status' => 'Payment Status',
+    'payment_status_1' => 'Pending',
+    'payment_status_2' => 'Voided',
+    'payment_status_3' => 'Failed',
+    'payment_status_4' => 'Completed',
+    'payment_status_5' => 'Partially Refunded',
+    'payment_status_6' => 'Refunded',
+    'send_receipt_to_client' => 'Send receipt to the client',
+    'refunded' => 'Refunded',
+    'marked_quote_as_sent' => 'Successfully marked quote as sent',
+    'custom_module_settings' => 'Custom Module Settings'
 );
 
 return $LANG;
