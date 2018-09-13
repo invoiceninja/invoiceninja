@@ -54,6 +54,7 @@ class ActivityTransformer extends EntityTransformer
 			'notes' => $activity->notes ?: '',
 			'adjustment' => (float) $activity->adjustment,
 			'balance' => (float) $activity->balance,
+
         ];
     }
 }

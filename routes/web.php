@@ -32,6 +32,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@viewInvoice');
     Route::get('proposal/{proposal_invitation_key}/download', 'ClientPortalProposalController@downloadProposal');
     Route::get('proposal/{proposal_invitation_key}', 'ClientPortalProposalController@viewProposal');
+    Route::get('ticket/{ticket_invitation_key}', 'ClientPortalTicketController@viewTicket');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('authorize/{invitation_key}', 'ClientPortalController@authorizeInvoice');
     Route::get('view', 'HomeController@viewLogo');
@@ -56,6 +57,17 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
+    Route::get('client/tickets', 'ClientPortalTicketController@index');
+    Route::get('client/tickets/create', 'ClientPortalTicketController@create');
+    Route::post('client/tickets/create', 'ClientPortalTicketController@store');
+    Route::get('client/tickets/{ticketId}', 'ClientPortalTicketController@view');
+    Route::put('client/tickets/{ticketId}', 'ClientPortalTicketController@update');
+
+    Route::post('client/tickets/documents', 'DocumentController@postUpload');
+    Route::get('client/tickets/documents/{documents}/{filename?}', 'DocumentController@get');
+    Route::get('client/tickets/documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
+    Route::delete('client/tickets/documents/{documents}', 'DocumentController@delete');
+
     Route::get('client/tasks', 'ClientPortalController@taskIndex');
     Route::get('client/dashboard/{contact_key?}', 'ClientPortalController@dashboard');
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
@@ -70,6 +82,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('api/client.recurring_quotes', ['as' => 'api.client.recurring_quotes', 'uses' => 'ClientPortalController@recurringQuoteDatatable']);
     Route::get('api/client.documents', ['as' => 'api.client.documents', 'uses' => 'ClientPortalController@documentDatatable']);
     Route::get('api/client.payments', ['as' => 'api.client.payments', 'uses' => 'ClientPortalController@paymentDatatable']);
+    Route::get('api/client.tickets', ['as' => 'api.client.tickets', 'uses' => 'ClientPortalTicketController@ticketDatatable']);
     Route::get('api/client.tasks', ['as' => 'api.client.tasks', 'uses' => 'ClientPortalController@taskDatatable']);
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
@@ -82,6 +95,10 @@ Route::group(['middleware' => 'lookup:license'], function () {
         Route::post('/signup/register', 'AccountController@doRegister');
         Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     }
+});
+
+Route::group(['middleware' => 'ticket'], function () {
+    Route::post('/tickets/inbound', 'TicketController@inbound');
 });
 
 Route::group(['middleware' => 'lookup:postmark'], function () {
@@ -145,6 +162,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
+    Route::post('settings/tickets', 'AccountController@saveTickets');
     Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
@@ -269,6 +287,23 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
 
+    Route::get('tickets/entities', 'TicketController@getTicketRelationCollection');
+    Route::resource('tickets', 'TicketController');
+    Route::get('/tickets/create/{parent_ticket_id?}', 'TicketController@create');
+    Route::get('api/tickets', 'TicketController@getDatatable');
+    Route::get('api/ticket_templates', 'TicketTemplateController@getDatatable');
+    Route::get('ticket_template/create', 'TicketTemplateController@create');
+    Route::get('ticket_templates/{public_id}/edit', 'TicketTemplateController@edit');
+    Route::put('ticket_templates/{public_id}', 'TicketTemplateController@update');
+    Route::post('ticket_template/create', 'TicketTemplateController@store');
+    Route::post('ticket_templates/bulk', 'TicketTemplateController@bulk');
+    Route::post('tickets/bulk', 'TicketController@bulk');
+    Route::post('api/tickets/checkSupportLocalPart', 'AccountController@checkUniqueLocalPart');
+    Route::get('tickets/merge/{public_id}', 'TicketController@merge');
+    Route::post('tickets/merge/', 'TicketController@actionMerge');
+    Route::post('tickets/entities/create', 'TicketController@addEntity');
+    Route::post('tickets/entities/remove', 'TicketController@removeEntity');
+
     // vendor
     Route::resource('vendors', 'VendorController');
     Route::get('api/vendors', 'VendorController@getDatatable');
@@ -344,6 +379,7 @@ Route::group([
     Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::post('settings/{section?}', 'AccountController@doSection');
     Route::post('remove_logo', 'AccountController@removeLogo');
+    Route::post('remove_avatar', 'AccountController@removeAvatar');
 
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');

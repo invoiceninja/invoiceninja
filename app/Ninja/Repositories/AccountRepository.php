@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
+use App\Models\AccountTicketSettings;
 use App\Models\AccountToken;
 use App\Models\Client;
 use App\Models\Company;
@@ -126,6 +127,10 @@ class AccountRepository
         $emailSettings = new AccountEmailSettings();
         $account->account_email_settings()->save($emailSettings);
 
+        $accountTicketSettings = new AccountTicketSettings();
+        $accountTicketSettings->ticket_master_id = $user->id;
+
+        $account->account_ticket_settings()->save($accountTicketSettings);
         return $account;
     }
 
@@ -464,6 +469,11 @@ class AccountRepository
             $user->notify_sent = true;
             $user->notify_paid = true;
             $account->users()->save($user);
+
+
+            $account_ticket_settings = new AccountTicketSettings();
+            $account_ticket_settings->ticket_master_id = $user->id;
+            $account->account_ticket_settings()->save($account_ticket_settings);
 
             if ($config = env(NINJA_GATEWAY_CONFIG)) {
                 $accountGateway = new AccountGateway();

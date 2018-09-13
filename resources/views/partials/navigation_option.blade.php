@@ -10,7 +10,8 @@
             href="{{ url('/reports/calendar') }}">
             <i class="fa fa-calendar" style="width:20px"></i>
         </a>
-    @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))
+    @elseif ($option == 'dashboard')
+    @elseif (Auth::user()->can('createEntity', $option) || Auth::user()->can('createEntity', substr($option, 0, -1)))
         <a type="button" class="btn btn-primary btn-sm pull-right"
             href="{{ url("/{$option}/create") }}">
             <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>

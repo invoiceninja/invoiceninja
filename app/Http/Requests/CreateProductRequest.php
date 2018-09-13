@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
+
 class CreateProductRequest extends ProductRequest
 {
     /**
@@ -11,7 +13,7 @@ class CreateProductRequest extends ProductRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_PRODUCT);
+        return $this->user()->can('create', Product::class);
     }
 
     /**

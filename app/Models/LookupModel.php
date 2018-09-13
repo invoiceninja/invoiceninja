@@ -22,7 +22,7 @@ class LookupModel extends Eloquent
 
     public static function createNew($accountKey, $data)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled')) {
             return;
         }
 
@@ -44,7 +44,7 @@ class LookupModel extends Eloquent
 
     public static function deleteWhere($where)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled')) {
             return;
         }
 
@@ -59,9 +59,9 @@ class LookupModel extends Eloquent
 
     public static function setServerByField($field, $value)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled'))
             return;
-        }
+
 
         $className = get_called_class();
         $className = str_replace('Lookup', '', $className);
@@ -107,9 +107,9 @@ class LookupModel extends Eloquent
 
     protected static function setDbServer($server)
     {
-        if (! env('MULTI_DB_ENABLED')) {
+        if (! config('multi_db_enabled'))
             return;
-        }
+
 
         config(['database.default' => $server]);
     }

@@ -12,6 +12,7 @@ class TaskDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TASK;
     public $sortCol = 3;
+    public $fieldToSum = 'duration';
 
     public function columns()
     {
@@ -152,6 +153,4 @@ class TaskDatatable extends EntityDatatable
 
         return $actions;
     }
-
-    public function sumColumn() { return 4; }
 }
