@@ -12,6 +12,7 @@ class EntityDatatable
     public $isBulkEdit;
     public $hideClient;
     public $sortCol = 1;
+    public $fieldToSum;
 
     public function __construct($isBulkEdit = true, $hideClient = false, $entityType = false)
     {
@@ -142,4 +143,5 @@ class EntityDatatable
 
     }
 
+    public function sumColumn() { return array_search($this->fieldToSum , $this->columnFields()); }
 }

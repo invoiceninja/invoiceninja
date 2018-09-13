@@ -48,7 +48,7 @@
 			@endif
 		</select>
 	</span>
-	<label id="sum_column"></label>
+	<span id="sum_column_{{ $entityType }}"></span>
 </div>
 
 <div id="top_right_buttons" class="pull-right">
@@ -301,36 +301,61 @@
 						if(currentSum == "") {
 							currentSum = "00:00:00";
 						}
-
 						currentSumMoment = moment.duration(currentSum);
 						addMoment = moment.duration(add);
 						var  ret = secondsToTime(currentSumMoment.add(addMoment).asSeconds())
 						return (ret.h + ":" + ret.m + ":" + ret.s);
 						break;
-						//add a switch case to apply to other entityTypes
-					default:
-						return "error summing column vars";
+
+						default:
+						if(currentSum == "") { currentSum = "0"}
+						return (convertStringToNumber(currentSum) + convertStringToNumber(add)).toString();
 				}
 			}
 
 			function changeSumLabel() {
 				var dTable = $('.listForm_{{ $entityType }} .data-table').DataTable();
-				 @if (method_exists($datatable , "sumColumn" ))
-					var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
+				 @if ($datatable->sumColumn() != null)
+				 	@if(in_array($entityType, [ENTITY_TASK]))
+						var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
+					@endif
+					@if(in_array($entityType, [ENTITY_PRODUCT, ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_RECURRING_INVOICE, ENTITY_CREDIT,
+					  ENTITY_QUOTE, ENTITY_PROJECT, ENTITY_EXPENSE]))
+						sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).data().toArray();
+					@endif
 					var sum = "";
-
-					var cboxArray = document.getElementsByName("ids[]")
+					var cboxArray = dTable.column(0).nodes();//document.getElementsByName("ids[]")
 
 					for (i = 0 ; i < sumColumnNodes.length ; i++) {
-						if(cboxArray[i].checked) {
-						var value = sumColumnNodes[i].firstChild.innerHTML;
+						if(cboxArray[i].firstChild.checked) {
+						var value;
+						@if(in_array($entityType, [ENTITY_TASK]))
+							value = sumColumnNodes[i].firstChild.innerHTML;
+						@endif
+						@if (in_array($entityType, [ENTITY_CLIENT, ENTITY_PRODUCT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_RECURRING_INVOICE, ENTITY_CREDIT,
+						  ENTITY_QUOTE, ENTITY_PROJECT, ENTITY_EXPENSE]))
+							value = sumColumnNodes[i];
+						@endif
 						sum = sumColumnVars(sum, value);
 						}
 					}
 
-					document.getElementById("sum_column").innerHTML = sum; //change this to set label value
+					/*if(sum != "NaN") {*/ document.getElementById("sum_column_{{ $entityType }}").innerHTML = sum; //}
+
 				 @endif
 			}
+
+			// parse 1,000.00 or 1.000,00
+function convertStringToNumber(str) {
+	str = str + '' || '';
+	if (str.indexOf(':') >= 0) {
+		return roundToTwo(moment.duration(str).asHours());
+	} else {
+		return parseFloat(str);
+		var number = Number(str.replace(/[^0-9\-]+/g, ''));
+		return number / 100;
+	}
+}
 
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({
