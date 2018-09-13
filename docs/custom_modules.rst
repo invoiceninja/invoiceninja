@@ -82,9 +82,10 @@ Settings
 
 If your module has settings, you can have them automatically added to the main settings page.  To do so, you need to:
 
-- add 'has_settings': 1 in the module.json;
 - create a Blade template named 'settings.blade.php' under the /Resources folder;
 - add whatever routes are needed to implement/save your settings.
+
+.. Tip:: You can run the Artisan command ``ninja:make-module-settings`` to generate a stub settings template, and optionally add routes to your module routes.php.
 
 Components
 """"""""""
