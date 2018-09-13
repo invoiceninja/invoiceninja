@@ -347,7 +347,7 @@ class TicketController extends BaseController
      * Remove ticket
      * @return primary ID
      */
-    public function removeEntity()
+    public function removeEntity(TicketRemoveEntityRequest $request)
     {
         TicketRelation::destroy(request()->id);
             return request()->id;
