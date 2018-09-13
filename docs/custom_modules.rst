@@ -103,27 +103,27 @@ Depending on the widget, certain variables will need to be passed via the second
 
 Currently, the following widgets exist:
 
-SimpleSelectComponent
-^^^^^^^^^^^^^^^^^^^^^
-Displays a select box
+**SimpleSelectComponent** ``App\Http\ViewComponents\SimpleSelectComponent``
+  *Displays a select box for an entity*
 
-================== ===========================================================
-Parameter          Parameter Details
-================== ===========================================================
-entityType         entity type
-items              list of entities
-itemLabel          attribute of item to use as primary field value
-fieldLabel         label for the field
-secondaryItemLabel attribute of item to display in conjunction with itemLabel;
-                   can be a reference to a JavaScript function;
-                   field name must begin with 'entity', e.g. 'entity.notes';
-                   defaults to null
-module             name of module, if applicable;
-                   used to perform translation for localization;
-                   defaults to null
-selectId           ID of the input;
-                   defaults to fieldLabel appended with '_id'
-================== ===========================================================
+
+    ================== ===========================================================
+    Parameter          Parameter Details
+    ================== ===========================================================
+    entityType         * entity type
+    items              * list of entities
+    itemLabel          * attribute of item to use as primary field value
+    fieldLabel         * label for the field
+    secondaryItemLabel * attribute of item to display in conjunction with itemLabel;
+                       * can be a reference to a JavaScript function;
+                       * field name must begin with 'entity', e.g. 'entity.notes';
+                       * defaults to null
+    module             * name of module, if applicable;
+                       * used to perform translation for localization;
+                       * defaults to null
+    selectId           * ID of the input;
+                       * defaults to fieldLabel appended with '_id'
+    ================== ===========================================================
 
 
 Share Module
