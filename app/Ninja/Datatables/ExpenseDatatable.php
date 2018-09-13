@@ -115,7 +115,7 @@ class ExpenseDatatable extends EntityDatatable
                     return URL::to("expenses/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                    return Auth::user()->can('createEntity', ENTITY_EXPENSE);
                 },
             ],
             [
@@ -133,7 +133,7 @@ class ExpenseDatatable extends EntityDatatable
                     return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('createEntity', ENTITY_INVOICE);
                 },
             ],
         ];

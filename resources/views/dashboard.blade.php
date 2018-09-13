@@ -160,11 +160,13 @@
                 t.addClass("active").siblings().removeClass("active");
 
                 if(t.attr("data-button") === "totals"){
+
                     chartCurrencyId = 'totals';
                 }else {
                     chartCurrencyId = currencyMap[t.text()].id;
                 }
                 displayTotalsNote();
+
                 loadData();
 				if (isStorageSupported()) {
 					localStorage.setItem('last:dashboard_currency_id', $(this).attr('data-button'));
@@ -190,6 +192,7 @@
 
                     var realCurrencyId = chartCurrencyId;
                     if(chartCurrencyId === "totals") realCurrencyId = account.currency.id;
+
 
                     var totals = response.totals;
                     $('.revenue-div').text(formatMoney(totals.revenue, realCurrencyId, account.country_id));

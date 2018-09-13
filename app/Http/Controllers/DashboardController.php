@@ -84,6 +84,7 @@ class DashboardController extends BaseController
                 Utils::logError($e);
                 $balancesTotals += $item->value;
             }
+
         }
 
         // calculate expenses totals

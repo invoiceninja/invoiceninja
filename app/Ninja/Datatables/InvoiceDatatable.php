@@ -4,6 +4,7 @@ namespace App\Ninja\Datatables;
 
 use App\Models\Invoice;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use URL;
 use Utils;
 
@@ -21,20 +22,24 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if(Auth::user()->can('view', [$this->entityType, $model])) {
+
+                    $model->entityType = $entityType;
+
+                    if(Auth::user()->can('viewModel', $model)) {
                         $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                         return $this->addNote($str, $model->private_notes);
                     }
                     else
                         return $model->invoice_number;
-
-
                 },
             ],
             [
                 'client_name',
-                function ($model) {
-                    if(Auth::user()->can('view', [ENTITY_CLIENT, $model]))
+                function ($model) use ($entityType){
+
+                    $model->entityType = ENTITY_CLIENT;
+
+                    if(Auth::user()->can('viewModel', $model))
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     else
                         return Utils::getClientDisplayName($model);
@@ -99,7 +104,7 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_INVOICE);
+                    return Auth::user()->can('createEntity', ENTITY_INVOICE);
                 },
             ],
             [
@@ -108,7 +113,7 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("quotes/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_QUOTE);
+                    return Auth::user()->can('createEntity', ENTITY_QUOTE);
                 },
             ],
             [
@@ -166,8 +171,8 @@ class InvoiceDatatable extends EntityDatatable
                 function ($model) {
                     return URL::to("invoices/{$model->quote_invoice_id}/edit");
                 },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('view', [ENTITY_INVOICE, $model]);
+                function ($model) use ($entityType) {$model->entityType = ENTITY_INVOICE;
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('viewModel', $model);
                 },
             ],
             [

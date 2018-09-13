@@ -105,9 +105,9 @@ class AccountApiController extends BaseAPIController
         $user = Auth::user();
         $account = $user->account;
 
-        if ($createToken) {
+        if ($createToken)
             $this->accountRepo->createTokens($user, $request->token_name);
-        }
+
 
         $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
         $transformer = new UserAccountTransformer($account, $request->serializer, $request->token_name);

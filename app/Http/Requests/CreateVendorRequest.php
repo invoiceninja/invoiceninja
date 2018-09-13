@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Vendor;
+
 class CreateVendorRequest extends VendorRequest
 {
     /**
@@ -11,7 +13,7 @@ class CreateVendorRequest extends VendorRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_VENDOR);
+        return $this->user()->can('create', Vendor::class);
     }
 
     /**

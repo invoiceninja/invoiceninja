@@ -17,7 +17,7 @@
 
 <div class="pull-left">
 	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT, ENTITY_PROJECT]))
-		@can('create', 'invoice')
+		@can('createEntity', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endcan
 	@endif
@@ -103,7 +103,7 @@
 			  ['label' => trans('texts.new_recurring_expense'), 'url' => url('/recurring_expenses/create')],
 			]
 		  )->split() !!}
-		@if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+		@if (Auth::user()->can('createEntity', ENTITY_EXPENSE_CATEGORY))
 			{!! DropdownButton::normal(trans('texts.categories'))
                 ->withAttributes(['class'=>'categoriesDropdown'])
                 ->withContents([
@@ -126,7 +126,8 @@
 			});
 		</script>
 	@elseif (($entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_QUOTE) && ! isset($clientId))
-        @if (Auth::user()->can('create', ENTITY_RECURRING_QUOTE))
+
+        @if (Auth::user()->can('createEntity', ENTITY_RECURRING_QUOTE))
             {!! DropdownButton::normal(trans('texts.recurring_quotes'))
                 ->withAttributes(['class'=>'recurringDropdown'])
                 ->withContents([
@@ -150,7 +151,7 @@
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
     @endif
 
-	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
+	@if (Auth::user()->can('createEntity', $entityType) && empty($vendorId))
     	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))
 			->asLinkTo(url(
 				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) .

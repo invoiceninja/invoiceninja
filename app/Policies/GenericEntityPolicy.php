@@ -33,7 +33,7 @@ class GenericEntityPolicy
 
     /**
      * @param User $user
-     * @param $entityTypee
+     * @param $entityType
      * @param $ownerUserId
      * @param mixed $entityType
      *
