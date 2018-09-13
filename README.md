@@ -85,6 +85,7 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Alexander Zamponi](https://github.com/alexz707)
 * [Matthieu Calie](https://github.com/Matth--)
 * [Christopher Di Carlo](https://github.com/dicarlosystems) - [Di Carlo Systems Inc.](https://www.dicarlosystems.ca)
+* [Kristian Feldsam](https://github.com/feldsam) - [FeldHost™](https://www.feldhost.net)
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.
