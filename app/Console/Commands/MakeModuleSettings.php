@@ -66,6 +66,7 @@ class MakeModuleSettings extends GeneratorCommand
                 $this->getModuleRoutesFilePath(),
                 (new Stub('/module-settings-routes.stub', [
                     'MODULE_NAME' => $module->getName(),
+                    'LOWER_NAME' => $module->getLowerName(),
                 ]))->render(),
                 FILE_APPEND
             );
@@ -85,7 +86,7 @@ class MakeModuleSettings extends GeneratorCommand
         $path = $this->laravel['modules']->getModulePath($this->getModuleName());
         $seederPath = $this->laravel['modules']->config('paths.generator.module-settings-view');
 
-        return $path . $seederPath . '/' . $this->getFileName() . '.php';
+        return $path . $seederPath . '/' . $this->getFileName();
     }
 
     protected function getArguments()
