@@ -21,6 +21,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    expenses
    vendors
    reports
+   tickets
    settings
 
 .. _advanced-settings:
