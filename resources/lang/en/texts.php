@@ -2940,7 +2940,7 @@ $LANG = array(
     'send_receipt_to_client' => 'Send receipt to the client',
     'refunded' => 'Refunded',
     'marked_quote_as_sent' => 'Successfully marked quote as sent',
-    'custom_module_settings' => 'Custom Module Settings'
+    'custom_module_settings' => 'Custom Module Settings',
 
     // custom fields
     'include_in_filter' => 'Include in filter',
