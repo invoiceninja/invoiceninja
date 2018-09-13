@@ -28,7 +28,7 @@ trait ChargesFees
 
         if ($settings->fee_percent) {
             $amount = $this->partial > 0 ? $this->partial : $this->balance;
-            $fee += $amount * $settings->fee_percent / 100;
+            $fee += $amount / (1 - $settings->fee_percent / 100) - $amount;
         }
 
         // calculate final amount with tax

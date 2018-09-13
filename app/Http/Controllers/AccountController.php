@@ -289,7 +289,9 @@ class AccountController extends BaseController
         } elseif ($section == ACCOUNT_INVOICE_SETTINGS) {
             return self::showInvoiceSettings();
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
-            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
+            return View::make('accounts.import_export', [
+                'title' => trans('texts.import_export'),
+            ]);
         } elseif ($section == ACCOUNT_MANAGEMENT) {
             return self::showAccountManagement();
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
@@ -510,6 +512,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.product_library'),
+            
         ];
 
         return View::make('accounts.products', $data);
@@ -633,6 +636,7 @@ class AccountController extends BaseController
         $data['invoiceFonts'] = Cache::get('fonts');
         $data['section'] = $section;
         $data['pageSizes'] = array_combine(InvoiceDesign::$pageSizes, InvoiceDesign::$pageSizes);
+        $data['showModuleSettings'] = Utils::hasModuleSettings();
 
         $design = false;
         foreach ($data['invoiceDesigns'] as $item) {
@@ -694,6 +698,7 @@ class AccountController extends BaseController
             'account' => $account,
             'products' => Product::scope()->orderBy('product_key')->get(),
             'gateway_types' => $options,
+            
         ];
 
         return View::make('accounts.client_portal', $data);
@@ -719,6 +724,7 @@ class AccountController extends BaseController
             ];
         }
         $data['title'] = trans('texts.email_templates');
+        $data['showModuleSettings'] = Utils::hasModuleSettings();
 
         return View::make('accounts.templates_and_reminders', $data);
     }

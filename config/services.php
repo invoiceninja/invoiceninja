@@ -24,6 +24,10 @@ return [
 	'mandrill' => [
 		'secret' => '',
 	],
+	
+	'sparkpost' => [
+                'secret' => env('SPARKPOST_API_KEY'),
+        ],
 
 	'ses' => [
 		'key' => '',

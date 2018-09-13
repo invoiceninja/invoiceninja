@@ -105,6 +105,11 @@ class Task extends EntityModel
         }
     }
 
+
+    public static function getTimeString($timestamp)
+    {
+        return Utils::timestampToDateTimeString($timestamp);
+    }
     /**
      * @return string
      */
@@ -157,6 +162,9 @@ class Task extends EntityModel
         return $duration;
     }
 
+    public function getTimeLog() {
+        return $this->time_log;
+    }
     /**
      * @return int
      */

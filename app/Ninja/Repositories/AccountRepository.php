@@ -181,6 +181,12 @@ class AccountRepository
         if ($account->customLabel('client2')) {
             $data[$account->present()->customLabel('client2')] = [];
         }
+        if ($account->customLabel('invoice_text1')) {
+            $data[$account->present()->customLabel('invoice_text1')] = [];
+        }
+        if ($account->customLabel('invoice_text2')) {
+            $data[$account->present()->customLabel('invoice_text2')] = [];
+        }
 
         if ($user->hasPermission(['view_client', 'view_invoice'], true)) {
             $clients = Client::scope()

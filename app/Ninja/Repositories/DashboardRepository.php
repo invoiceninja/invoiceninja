@@ -165,11 +165,13 @@ class DashboardRepository
         list($timeframe, $records) = $this->rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate);
 
         if ($entityType == ENTITY_INVOICE) {
-            if (! $exchageRateCustomFieldIndex = $account->getInvoiceExchangeRateCustomFieldIndex()) {
-                return [];
+            // as default invoice exchange rate column we use just 1 value
+            $invoiceExchangeRateColumn = 1;
+            if ($exchageRateCustomFieldIndex = $account->getInvoiceExchangeRateCustomFieldIndex()) {
+                $invoiceExchangeRateColumn = 'invoices.custom_text_value'.$exchageRateCustomFieldIndex;
             }
 
-            $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.amount, invoices.amount / invoices.custom_text_value'.$exchageRateCustomFieldIndex.')) as total, sum(if(clients.currency_id = '.$currencyId.', invoices.balance, invoices.balance / invoices.custom_text_value'.$exchageRateCustomFieldIndex.')) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+            $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.amount, invoices.amount / '.$invoiceExchangeRateColumn.')) as total, sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.balance, invoices.balance / '.$invoiceExchangeRateColumn.')) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
                 ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                 ->where('invoices.is_public', '=', true)
                 ->where('is_recurring', '=', false);
@@ -277,10 +279,16 @@ class DashboardRepository
 
     public function averages($account, $userId, $viewAll)
     {
+        // as default invoice exchange rate column we use just 1 value
+        $invoiceExchangeRateColumn = 1;
+        if ($exchageRateCustomFieldIndex = $account->getInvoiceExchangeRateCustomFieldIndex()) {
+            $invoiceExchangeRateColumn = DB::getQueryGrammar()->wrap('invoices.custom_text_value'.$exchageRateCustomFieldIndex, true);
+        }
+
         $select = DB::raw(
             'AVG('.DB::getQueryGrammar()->wrap('invoices.amount', true).') as invoice_avg, '
             .'IFNULL('.DB::getQueryGrammar()->wrap('clients.currency_id', true).', '.$account->currency->id.') as currency_id,'
-            .DB::getQueryGrammar()->wrap('invoices.custom_text_value2', true).' as exchange_rate,'
+            .$invoiceExchangeRateColumn.' as exchange_rate,'
             .'COUNT(*)  as invoice_count'
         );
         $averageInvoice = DB::table('accounts')

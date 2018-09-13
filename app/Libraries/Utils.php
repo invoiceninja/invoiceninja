@@ -18,6 +18,7 @@ use Session;
 use stdClass;
 use View;
 use WePay;
+use Nwidart\Modules\Facades\Module;
 
 class Utils
 {
@@ -1487,5 +1488,22 @@ class Utils
             'Ы'=>'y', 'ž'=>'z', 'З'=>'z', 'з'=>'z', 'ź'=>'z', 'ז'=>'z', 'ż'=>'z', 'ſ'=>'z', 'Ж'=>'zh', 'ж'=>'zh'
         );
         return strtr($s, $replace);
+    }
+
+    public static function hasModuleSettings() {
+         $module = Module::toCollection()->first(function($module) {
+            return ($module->get('has_settings') && $module->get('has_settings') == 1 && View::exists($module->getLowerName() . '::settings'));
+        });
+        
+
+        return $module ? true : false;
+    }
+
+    public static function getModulesWithSettings() {
+        $modules = Module::toCollection()->filter(function($module) {
+            return ($module->get('has_settings') && $module->get('has_settings') == 1 && View::exists($module->getLowerName() . '::settings'));
+        });
+
+        return $modules;
     }
 }

@@ -369,4 +369,16 @@ class InvoicePresenter extends EntityPresenter
 
         return $data;
     }
+
+    public function days_since_last_email()
+    {
+        $invoice = $this->entity;
+        $lastSentDate = $invoice->last_sent_date;
+
+        if(! $lastSentDate) {
+            return 0;
+        }
+
+        return Carbon::parse($lastSentDate)->diffInDays();
+    }
 }

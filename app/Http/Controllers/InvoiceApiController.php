@@ -349,7 +349,7 @@ class InvoiceApiController extends BaseAPIController
 
         // Workaround to support line item taxes w/Zapier
         foreach (['tax_rate1', 'tax_name1', 'tax_rate2', 'tax_name2'] as $field) {
-            if (! empty($item['item_' . $field])) {
+            if (isset($item['item_' . $field])) {
                 $item[$field] = $item['item_' . $field];
             }
         }
@@ -365,10 +365,13 @@ class InvoiceApiController extends BaseAPIController
             $invoice = $recurringInvoice;
         }
 
+        $reminder = request()->reminder;
+        $template = request()->template;
+
         if (config('queue.default') !== 'sync') {
-            $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id));
+            $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder, $template));
         } else {
-            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder, $template);
             if ($result !== true) {
                 return $this->errorResponse($result, 500);
             }

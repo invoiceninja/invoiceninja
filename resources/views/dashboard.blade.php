@@ -89,12 +89,14 @@
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 		var chartStartDate;
         var chartEndDate;
+        var dashboardTotalsInAllCurrenciesHelp;
 
         $(function() {
 
             // Initialize date range selector
 			chartStartDate = moment().subtract(29, 'days');
 	        chartEndDate = moment();
+            dashboardTotalsInAllCurrenciesHelp = $("#dashboard-totals-in-all-currencies-help");
 			lastRange = false;
 
 			if (isStorageSupported()) {
@@ -129,6 +131,7 @@
 				if (label) {
 					$('.range-label-div').text(label);
 				}
+                displayTotalsNote();
                 loadData();
 
 				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
@@ -156,11 +159,12 @@
 
                 t.addClass("active").siblings().removeClass("active");
 
-                if(t.attr("data-button") == "totals"){
+                if(t.attr("data-button") === "totals"){
                     chartCurrencyId = 'totals';
                 }else {
                     chartCurrencyId = currencyMap[t.text()].id;
                 }
+                displayTotalsNote();
                 loadData();
 				if (isStorageSupported()) {
 					localStorage.setItem('last:dashboard_currency_id', $(this).attr('data-button'));
@@ -170,6 +174,7 @@
             $("#group-btn-group > .btn").click(function(){
                 $(this).addClass("active").siblings().removeClass("active");
                 chartGroupBy = $(this).attr('data-button');
+                displayTotalsNote();
                 loadData();
 				if (isStorageSupported()) {
 					localStorage.setItem('last:dashboard_group_by', chartGroupBy);
@@ -184,7 +189,7 @@
                     loadChart(response.data);
 
                     var realCurrencyId = chartCurrencyId;
-                    if(chartCurrencyId == "totals") realCurrencyId = account.currency.id;
+                    if(chartCurrencyId === "totals") realCurrencyId = account.currency.id;
 
                     var totals = response.totals;
                     $('.revenue-div').text(formatMoney(totals.revenue, realCurrencyId, account.country_id));
@@ -206,6 +211,14 @@
                 })
             }
 
+            function displayTotalsNote() {
+                if(chartCurrencyId === "totals"){
+                    dashboardTotalsInAllCurrenciesHelp.show();
+                }else {
+                    dashboardTotalsInAllCurrenciesHelp.hide();
+                }
+            }
+
         });
     @else
         $(function() {
@@ -214,6 +227,18 @@
     @endif
 
 </script>
+
+
+@if ($invoiceExchangeRateMissing)
+    <div class="row" id="dashboard-totals-in-all-currencies-help" style="display: none">
+        <div class="col-xs-12">
+            <div class="alert alert-warning custom-message">{!! trans('texts.dashboard_totals_in_all_currencies_help', [
+                'link' => link_to('/settings/invoice_settings#invoice_fields', trans('texts.custom_field'), ['target' => '_blank']),
+                'name' => trans('texts.exchange_rate')
+            ]) !!}</div>
+        </div>
+    </div>
+@endif
 
 <div class="row">
     <div class="col-md-2">

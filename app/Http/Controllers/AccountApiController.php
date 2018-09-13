@@ -69,6 +69,15 @@ class AccountApiController extends BaseAPIController
         }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            // TODO remove token_name check once legacy apps are deactivated
+            if ($user->google_2fa_secret && strpos($request->token_name, 'invoice-ninja-') !== false) {
+                $secret = \Crypt::decrypt($user->google_2fa_secret);
+                if (! $request->one_time_password) {
+                    return $this->errorResponse(['message' => 'OTP_REQUIRED'], 401);
+                } elseif (! \Google2FA::verifyKey($secret, $request->one_time_password)) {
+                    return $this->errorResponse(['message' => 'Invalid one time password'], 401);
+                }
+            }
             if ($user && $user->failed_logins > 0) {
                 $user->failed_logins = 0;
                 $user->save();

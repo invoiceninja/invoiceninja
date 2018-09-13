@@ -85,6 +85,7 @@ class ReportController extends BaseController
             'product',
             'profit_and_loss',
             'task',
+            'task_details',
             'tax_rate',
             'quote',
         ];

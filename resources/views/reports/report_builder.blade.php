@@ -232,7 +232,7 @@
 					->raw() !!} &nbsp;
 
 		{!! Button::normal(trans('texts.export'))
-				->withAttributes(['onclick' => 'onExportClick()'])
+				->withAttributes(['style' => 'display:none', 'onclick' => 'onExportClick()', 'data-bind' => 'visible: showExportButton, css: enableExportButton'])
 				->appendIcon(Icon::create('download-alt')) !!}
 
 		{!! Button::normal(trans('texts.cancel_schedule'))
@@ -494,8 +494,6 @@
 				return roundToTwo(moment.duration(str).asHours());
 			} else {
 				return NINJA.parseFloat(str);
-				var number = Number(str.replace(/[^0-9\-]+/g, ''));
-				return number / 100;
 			}
 		}
 
@@ -568,7 +566,7 @@
 					options.push(new SubgroupModel('method', "{{ trans('texts.method') }}"));
 				} else if (reportType == 'profit_and_loss') {
 					options.push(new SubgroupModel('type', "{{ trans('texts.type') }}"));
-				} else if (reportType == 'task') {
+				} else if (reportType == 'task' || reportType == 'task_details') {
 					options.push(new SubgroupModel('project', "{{ trans('texts.project') }}"));
 				} else if (reportType == 'client') {
 					options.push(new SubgroupModel('country', "{{ trans('texts.country') }}"));
@@ -638,6 +636,10 @@
 				return self.export_format() == 'zip' ? 'disabled' : 'enabled';
 			});
 
+            self.enableExportButton = ko.computed(function() {
+                return self.export_format() == '' ? 'disabled' : 'enabled';
+            });
+
 			self.showScheduleButton = ko.computed(function() {
 				return ! scheduledReportMap[self.report_type()];
 			});
@@ -645,6 +647,10 @@
 			self.showCancelScheduleButton = ko.computed(function() {
 				return !! scheduledReportMap[self.report_type()];
 			});
+
+            self.showExportButton = ko.computed(function() {
+                return self.export_format() != '';
+            });
 		}
 
 		$(function(){

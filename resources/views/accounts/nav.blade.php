@@ -23,7 +23,6 @@
 </script>
 
 <div class="row">
-
     <div class="col-md-3">
         @foreach([
             BASIC_SETTINGS => \App\Models\Account::$basicSettings,
@@ -50,6 +49,20 @@
                 </div>
             </div>
         @endforeach
+
+        @if (Utils::isSelfHost() && Utils::hasModuleSettings())
+            <div class="panel panel-default">
+                <div class="panel-heading" style="color:white">
+                    {{ trans('texts.custom_module_settings') }}
+                </div>
+                @foreach(Utils::getModulesWithSettings() as $module)
+                    <div class="list-group">
+                        <a href="{{ URL::to('settings/' . $module->getLowerName()) }}" class="list-group-item {{ $selected === $module->getName() ? 'selected' : '' }}"
+                        style="width:100%;text-align:left">{{ $module->name }}</a>
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     <div class="col-md-9">

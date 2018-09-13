@@ -467,6 +467,21 @@ class User extends Authenticatable
 
         return true;
     }
+
+    public function permissionsMap()
+    {
+        $data = [];
+        $permissions = json_decode($this->permissions);
+
+        if (! $permissions) {
+            return $data;
+        }
+
+        $keys = array_values((array) $permissions);
+        $values = array_fill(0, count($keys), true);
+
+        return array_combine($keys, $values);
+    }
 }
 
 User::created(function ($user)

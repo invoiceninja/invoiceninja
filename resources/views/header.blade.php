@@ -535,6 +535,10 @@
             </div>
         </div>
     </div>
+    
+    @if(Utils::isSelfHost())
+        @stack('component_scripts')
+    @endif
     <!-- /#page-content-wrapper -->
 </div>
 

@@ -7,6 +7,7 @@ use App\Models\Currency;
 use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
 use Auth;
+use App\Libraries\MoneyUtils;
 use Utils;
 use View;
 
@@ -77,8 +78,12 @@ class DashboardController extends BaseController
                 $currencies[$item->currency_id] = Currency::where('id', $item->currency_id)->firstOrFail();
             }
 
-            $rate = $currencies[$item->currency_id]->exchange_rate;
-            $balancesTotals += $rate ? ($item->value / $rate) : 0;
+            try {
+                $balancesTotals += MoneyUtils::convert($item->value, $currencies[$item->currency_id]->code, $account->currency->code);
+            } catch (\Exception $e) {
+                Utils::logError($e);
+                $balancesTotals += $item->value;
+            }
         }
 
         // calculate expenses totals
@@ -124,6 +129,7 @@ class DashboardController extends BaseController
             'averageInvoiceTotal' => $averageInvoiceTotal,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
+            'invoiceExchangeRateMissing' => $account->getInvoiceExchangeRateCustomFieldIndex() ? false : true,
             'activities' => $activities,
             'pastDue' => $pastDue,
             'upcoming' => $upcoming,

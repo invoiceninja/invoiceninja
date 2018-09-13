@@ -61,6 +61,7 @@ class UserAccountTransformer extends EntityTransformer
         'tax_rates',
         'expense_categories',
         'account_email_settings',
+        'custom_payment_terms',
     ];
 
     protected $tokenName;
@@ -77,6 +78,18 @@ class UserAccountTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->account, $this->serializer);
 
         return $this->includeItem($user, $transformer, 'user');
+    }
+
+	/**
+     * @param Account $account
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeCustomPaymentTerms(User $user)
+    {
+        $transformer = new PaymentTermTransformer($this->account, $this->serializer);
+
+        return $this->includeCollection($this->account->custom_payment_terms, $transformer, 'payment_terms');
     }
 
 	/**
@@ -133,6 +146,7 @@ class UserAccountTransformer extends EntityTransformer
 
         return [
             'account_key' => $account->account_key,
+            'user_id' => (int) ($user->public_id + 1),
             'name' => $account->present()->name ?: '',
             'token' => $account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
@@ -172,7 +186,21 @@ class UserAccountTransformer extends EntityTransformer
             'custom_invoice_taxes1' => (bool) $account->custom_invoice_taxes1,
             'custom_invoice_taxes2' => (bool) $account->custom_invoice_taxes1,
             'custom_fields' => $account->custom_fields ?: '',
-			'invoice_fields' => $account->invoice_fields ?: '',
+            'invoice_fields' => $account->invoice_fields ?: '',
+            'custom_messages' => $account->custom_messages,
+			'email_footer' => $account->getEmailFooter(),
+            'email_subject_invoice' => $account->getEmailSubject(ENTITY_INVOICE),
+            'email_subject_quote' => $account->getEmailSubject(ENTITY_QUOTE),
+            'email_subject_payment' => $account->getEmailSubject(ENTITY_PAYMENT),
+            'email_template_invoice' => $account->getEmailTemplate(ENTITY_INVOICE),
+            'email_template_quote' => $account->getEmailTemplate(ENTITY_QUOTE),
+            'email_template_payment' => $account->getEmailTemplate(ENTITY_PAYMENT),
+            'email_subject_reminder1' => $account->getEmailSubject('reminder1'),
+            'email_subject_reminder2' => $account->getEmailSubject('reminder2'),
+            'email_subject_reminder3' => $account->getEmailSubject('reminder3'),
+            'email_template_reminder1' => $account->getEmailTemplate('reminder1'),
+            'email_template_reminder2' => $account->getEmailTemplate('reminder2'),
+            'email_template_reminder3' => $account->getEmailTemplate('reminder3'),
         ];
     }
 }
