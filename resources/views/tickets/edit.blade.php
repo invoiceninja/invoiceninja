@@ -1,7 +1,7 @@
 @extends('header')
 
 @section('head')
-@parent
+    @parent
 
     <script src="{{ asset('js/jquery.datetimepicker.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/jquery.datetimepicker.css') }}" rel="stylesheet" type="text/css"/>
@@ -56,19 +56,19 @@
     </div>
 
     @if($ticket && $ticket->is_internal == true)
-    <div class="panel panel-default">
-        <center class="buttons">
-            <h3>{!! trans('texts.internal_ticket') !!}</h3>
-        </center>
-        <table width="100%">
-            <tr>
-                <td width="50%" style="vertical-align:top;">
-                    <table class="table table-striped datatable">
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
+        <div class="panel panel-default">
+            <center class="buttons">
+                <h3>{!! trans('texts.internal_ticket') !!}</h3>
+            </center>
+            <table width="100%">
+                <tr>
+                    <td width="50%" style="vertical-align:top;">
+                        <table class="table table-striped datatable">
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
     @endif
 
     @if($ticket)
@@ -92,53 +92,53 @@
 
     @if(!$ticket->merged_parent_ticket_id)
 
-    <div class="panel panel-default" style="margin-top:30px; padding-bottom: 0px !important">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                @if($ticket)
-                    {!! trans('texts.reply') !!}
-                @else
-                    {!! trans('texts.new_ticket') !!}
-                @endif</h3>
-        </div>
+        <div class="panel panel-default" style="margin-top:30px; padding-bottom: 0px !important">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    @if($ticket)
+                        {!! trans('texts.reply') !!}
+                    @else
+                        {!! trans('texts.new_ticket') !!}
+                    @endif</h3>
+            </div>
 
-        <div class="panel-body">
+            <div class="panel-body">
 
-            @if(!$ticket)
-                {{trans('texts.subject')}}
-                {!! Former::small_text('subject')
-                         ->label('')
-                         ->id('subject')
-                         ->style('width:100%;')
-                !!}
+                @if(!$ticket)
+                    {{trans('texts.subject')}}
+                    {!! Former::small_text('subject')
+                             ->label('')
+                             ->id('subject')
+                             ->style('width:100%;')
+                    !!}
 
-                {{ trans('texts.description') }}
-            @endif
-            {!! Former::textarea('description')->label(trans('texts.description'))->style('display:none')->raw() !!}
+                    {{ trans('texts.description') }}
+                @endif
+                {!! Former::textarea('description')->label(trans('texts.description'))->style('display:none')->raw() !!}
 
-            <div id="descriptionEditor" class="form-control" style="max-height:300px;" onclick="focusEditor()"></div>
+                <div id="descriptionEditor" class="form-control" style="max-height:300px;" onclick="focusEditor()"></div>
 
-            <div class="pull-left">
-                @include('partials/quill_toolbar', ['name' => 'description'])
+                <div class="pull-left">
+                    @include('partials/quill_toolbar', ['name' => 'description'])
+                </div>
+
             </div>
 
         </div>
 
-    </div>
+        @can('edit', $ticket)
+        <div class="row">
+            <center class="buttons">
 
-    @can('edit', $ticket)
-    <div class="row">
-        <center class="buttons">
-
-            @if(!$ticket->is_internal && $ticket->client)
-            {!! DropdownButton::normal(trans('texts.more_actions'))
-            ->withContents([
-                ['label'=>trans('texts.ticket_merge'),'url'=>'/tickets/merge/'. $ticket->public_id ],
-                ['label'=>trans('texts.new_internal_ticket'), 'url'=>'/tickets/create/'.$ticket->public_id],
-            ])
-            ->large()
-            ->dropup() !!}
-            @endif
+                @if(!$ticket->is_internal && $ticket->client)
+                    {!! DropdownButton::normal(trans('texts.more_actions'))
+                    ->withContents([
+                        ['label'=>trans('texts.ticket_merge'),'url'=>'/tickets/merge/'. $ticket->public_id ],
+                        ['label'=>trans('texts.new_internal_ticket'), 'url'=>'/tickets/create/'.$ticket->public_id],
+                    ])
+                    ->large()
+                    ->dropup() !!}
+                @endif
 
                 @if($ticket && $ticket->status_id == 3)
                     {!! Button::warning(trans('texts.ticket_reopen'))->large()->withAttributes(['onclick' => 'reopenAction()']) !!}
@@ -149,9 +149,9 @@
                     {!! Button::primary(trans('texts.ticket_update'))->large()->withAttributes(['onclick' => 'submitAction()']) !!}
                 @endif
 
-        </center>
-    </div>
-    @endcan
+            </center>
+        </div>
+        @endcan
 
     @endif
 
@@ -201,28 +201,30 @@
                 <div style="">
 
                     <div style="float:left;margin:10px;">
-                    {!! Former::select('linked_object')
-                        ->style('width:170px;padding:10px;')
-                        ->label('')
-                        ->text(trans('texts.type'))
-                        ->addOption('', '')
-                        ->fromQuery(\App\Models\Ticket::relationEntities())
-                        ->data_bind("event: {change: onEntityChange }")
-                     !!}
+                        {!! Former::select('linked_object')
+                            ->style('width:170px;padding:10px;')
+                            ->label('')
+                            ->text(trans('texts.type'))
+                            ->addOption('', '')
+                            ->fromQuery(\App\Models\Ticket::relationEntities())
+                            ->data_bind("event: {change: onEntityChange }")
+                         !!}
                     </div>
 
                     <div style="float:left;margin:10px;">
-                    {!! Former::select('linked_item')
-                        ->style('width:170px;padding:10px;')
-                        ->label('')
-                        ->text(trans('texts.type'))
-                        ->addOption('', '')
-                        ->data_bind("options: entityItems")
-                     !!}
+                        {!! Former::select('linked_item')
+                            ->style('width:170px;padding:10px;')
+                            ->label('')
+                            ->text(trans('texts.type'))
+                            ->addOption('', '')
+                            ->data_bind("options: entityItems")
+                         !!}
                     </div>
 
                     <div style="float:left;margin:10px;">
-                    {!! Button::normal(trans('texts.link'))->small()->withAttributes(['onclick' => 'addRelation()']) !!}
+                        {!! Button::normal(trans('texts.link'))
+                                    ->small()
+                                    ->withAttributes(['onclick' => 'addRelation()', 'data-bind' => 'enable: checkObjectAndItemExist']) !!}
                     </div>
 
                 </div>
@@ -239,9 +241,9 @@
 
         </div>
         @if(!$ticket->merged_parent_ticket_id && Auth::user()->can('edit', $ticket))
-        <div class="pull-right">
-            {!! Button::primary(trans('texts.save'))->large()->withAttributes(['onclick' => 'saveAction()']) !!}
-        </div>
+            <div class="pull-right">
+                {!! Button::primary(trans('texts.save'))->large()->withAttributes(['onclick' => 'saveAction()']) !!}
+            </div>
         @endif
         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
@@ -338,6 +340,7 @@
 
             self.relations = ko.observableArray({!! $ticket->relations !!});
             self.entityItems = ko.observableArray();
+            self.checkObjectAndItemExist = ko.observable(false);
 
             self.due_date.pretty = ko.computed({
                 read: function() {
@@ -376,7 +379,6 @@
 
             self.onEntityChange = function(obj, event) {
 
-               // var entity = $(event.currentTarget).val();
                 getItemsForEntity();
 
             }
@@ -391,14 +393,25 @@
                 model.entityItems.push(data[j].public_id);
             }
 
+            if (data.length > 0)
+                model.checkObjectAndItemExist(true);
+            else
+                model.checkObjectAndItemExist(false);
+
         }
 
         function getItemsForEntity()
         {
+            model.entityItems([]);
+            model.checkObjectAndItemExist(false);
+
             var linked_object = $('#linked_object').val();
             var ticket_id = {{ $ticket->id }};
             var account_id = {{ $account->id }};
             var client_public_id = {{$ticket->client ? $ticket->client->public_id : 'null'}};
+
+            if(!linked_object)
+                    return;
 
             var obj = { client_public_id: client_public_id, account_id: account_id, entity: linked_object, ticket_id: ticket_id };
 
@@ -411,8 +424,57 @@
                 }
             });
 
+        }
+
+        function addRelation()
+        {
+            var linked_object = $('#linked_object').val();
+            var linked_item = $('#linked_item').val()
+            var ticket_id = {{ $ticket->id }};
+
+            var obj = { entity: linked_object, entity_id: linked_item, ticket_id: ticket_id };
+
+            $.ajax({
+                url: "/tickets/entities/create",
+                type: "POST",
+                data: obj,
+                success: function (result) {
+
+                    if(!result.entity_url)
+                        return alert('{{ trans('texts.error_title') }}');
+
+                    model.relations.push(result);
+                    getItemsForEntity();
+
+                }
+            });
+        }
+
+        function removeRelation(entityId)
+        {
+            var obj = {id : entityId};
+
+            $.ajax({
+                url: "/tickets/entities/remove",
+                type: "POST",
+                data: obj,
+                success: function (relationId) {
+
+                    if(!relationId)
+                        return alert('{{ trans('texts.error_title') }}');
+
+                    model.relations.remove(function(relation) {
+                        return relation.id == relationId;
+                    });
+
+                    getItemsForEntity();
+
+                }
+            });
+
 
         }
+
 
         function DocumentModel(data) {
             var self = this;
@@ -532,7 +594,7 @@
 
 
         <!-- Initialize client selector -->
-        @if($clients)
+                @if($clients)
 
         var clients = {!! $clients !!};
         var clientMap = {};
@@ -547,7 +609,7 @@
             if (!getClientDisplayName(client)) {
                 continue;
             }
-            @endif
+                    @endif
             var clientName = client.name || '';
             for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
@@ -583,25 +645,7 @@
 
         @endif
 
-        function addRelation()
-        {
-            var linked_object = $('#linked_object').val();
-            var linked_item = $('#linked_item').val()
-            var ticket_id = {{ $ticket->id }};
 
-            var obj = { entity: linked_object, entity_id: linked_item, ticket_id: ticket_id };
-
-            $.ajax({
-                url: "/tickets/entities/create",
-                type: "POST",
-                data: obj,
-                success: function (result) {
-                   model.relations.push(result);
-                   getItemsForEntity();
-
-                }
-            });
-        }
 
     </script>
 

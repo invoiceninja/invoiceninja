@@ -58,7 +58,7 @@ class BaseTicketAction
     /**
      * fires new_ticket_template to client
      */
-    public function newTicketTemplateAction(Ticket $ticket) : void
+    public function newTicketTemplateAction(Ticket $ticket)
     {
         $account = $ticket->account;
         $accountTicketSettings = $account->account_ticket_settings;
@@ -97,7 +97,7 @@ class BaseTicketAction
      * @param $ticket
      * @param $accountTicketSettings
      */
-    public function setDefaultAgent($ticket, $accountTicketSettings) : void
+    public function setDefaultAgent($ticket, $accountTicketSettings)
     {
 
         if($accountTicketSettings->default_agent_id > 0)

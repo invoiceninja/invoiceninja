@@ -21,7 +21,11 @@ window.dropzone = new Dropzone('#document-upload .dropzone', {
 @endif
     dictRemoveFileConfirmation: "{{trans('texts.are_you_sure')}}",
     @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-        "dict{{ Utils::toClassCase($key) }}" : {!! json_encode(trans('texts.dropzone_'.$key)) !!},
+        @if(!$account_ticket_settings->client_upload && $key == 'default_message')
+            "dict{{ Utils::toClassCase($key) }}" : {!! json_encode(trans('texts.dropzone_default_message_disabled')) !!},
+        @else
+            "dict{{ Utils::toClassCase($key) }}" : {!! json_encode(trans('texts.dropzone_'.$key)) !!},
+        @endif
     @endforeach
     maxFilesize: {{ floatval(MAX_DOCUMENT_SIZE/1000) }},
     parallelUploads: 1,

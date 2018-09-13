@@ -1135,6 +1135,7 @@ $LANG = array(
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
     'dropzone_default_message' => 'Drop files or click to upload',
+    'dropzone_default_message_disabled' => 'Uploads disabled',
     'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
     'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
     'dropzone_file_too_big' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',

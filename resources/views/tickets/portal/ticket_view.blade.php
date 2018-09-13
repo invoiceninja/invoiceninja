@@ -130,7 +130,7 @@
 
     <div class="row">
         <center class="buttons">
-            @if($ticket && $ticket->status->id == 3)
+            @if($ticket && $ticket->status_id == 3)
             {!! Button::warning(trans('texts.ticket_reopen'))->large()->withAttributes(['onclick' => 'reopenAction()']) !!}
             @elseif(!$ticket)
             {!! Button::primary(trans('texts.ticket_open'))->large()->withAttributes(['onclick' => 'submitAction()']) !!}
@@ -144,7 +144,6 @@
     <div role="tabpanel" class="panel panel-default" style="margin-top:30px;">
 
         <ul class="nav nav-tabs" role="tablist" style="border: none">
-            <li role="presentation"><a href="#related_entities" aria-controls="related_entities" role="tab" data-toggle="tab">{{ trans("texts.linked_objects") }}</a></li>
         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                 <li role="presentation" class="active"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
                         {{ trans("texts.documents") }}
@@ -159,10 +158,6 @@
         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
 
         <div class="tab-content" style="padding-right:12px;">
-
-            <div role="tabpanel" class="tab-pane" id="related_entities" style="padding-bottom:44px">
-                <span>Linked objects</span>
-            </div>
 
             <div role="tabpanel" class="tab-pane active" id="attached-documents" style="position:relative; z-index:9;">
                 <div id="document-upload">

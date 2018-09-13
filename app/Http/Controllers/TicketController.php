@@ -253,7 +253,7 @@ class TicketController extends BaseController
 
         return [
             'clients' => $clients,
-            'status' => $ticket->status(),
+            //'status' => $ticket->status(),
             'comments' => $ticket->comments(),
             'account' => Auth::user()->account,
             'url' => 'tickets/' . $ticket->public_id,
@@ -324,10 +324,10 @@ class TicketController extends BaseController
     /**
      * @return Collection
      */
-    public function getTicketRelationCollection()
+    public function getTicketRelationCollection(\Illuminate\Http\Request $request)
     {
 
-        return $this->ticketService->getRelationCollection(request());
+        return $this->ticketService->getRelationCollection($request);
 
     }
 
@@ -347,10 +347,10 @@ class TicketController extends BaseController
      * Remove ticket
      * @return primary ID
      */
-    public function removeEntity(TicketRemoveEntityRequest $request)
+    public function removeEntity()
     {
         TicketRelation::destroy(request()->id);
-        return request()->id;
+            return request()->id;
     }
 
 

@@ -10,6 +10,8 @@ class TicketRelation extends EntityModel
 {
     public $timestamps = false;
 
+    protected $hidden = [];
+
     /**
      * @return mixed
      */
