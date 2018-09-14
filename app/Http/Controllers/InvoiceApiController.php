@@ -428,6 +428,7 @@ class InvoiceApiController extends BaseAPIController
         $this->invoiceService->save($data, $request->entity());
 
         $invoice = Invoice::scope($publicId)
+                        ->withTrashed()
                         ->with('client', 'invoice_items', 'invitations')
                         ->firstOrFail();
 
