@@ -30,6 +30,8 @@ class Authenticate
     {
         $authenticated = Auth::guard($guard)->check();
 
+        $invitationKey = false;
+
         if($request->invitation_key)
             $invitationKey = $request->invitation_key;
         elseif($request->proposal_invitation_key)
@@ -70,7 +72,7 @@ class Authenticate
             $contact = false;
             if ($contact_key) {
                 $contact = $this->getContact($contact_key);
-            } elseif ($invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key), ! empty($request->ticket_invitation_key))) {
+            } elseif ($invitationKey && $invitation = $this->getInvitation($invitationKey, ! empty($request->proposal_invitation_key), ! empty($request->ticket_invitation_key))) {
                 $contact = $invitation->contact;
                 Session::put('contact_key', $contact->contact_key);
             }

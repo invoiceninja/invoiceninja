@@ -196,8 +196,9 @@ class TicketRepository extends BaseRepository
         /** handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1)
         {
-
-            if($ticket->status_id == 1) {
+            /** don't change the status if it is a new ticket */
+            if($ticket->status_id == 1 && !in_array($input['action'],[TICKET_CLIENT_NEW, TICKET_AGENT_NEW]))
+            {
                 $ticket->status_id = 2;
                 $ticket->save();
             }
