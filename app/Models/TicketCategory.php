@@ -14,10 +14,4 @@ class TicketCategory extends Eloquent
     {
         return ENTITY_TICKET_CATEGORY;
     }
-
-    public function statuses()
-    {
-        return $this->hasMany('App\Models\TicketStatus');
-    }
-
 }

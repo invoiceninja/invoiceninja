@@ -252,68 +252,6 @@ class AddTicketsSchema extends Migration
                 $accountTicketSettings->ticket_master_id = $user->id;
 
                 $account->account_ticket_settings()->save($accountTicketSettings);
-
-
-                /* Create ticket status */
-
-                $ticketStatus = new \App\Models\TicketStatus();
-                $ticketStatus->name = trans('texts.new');
-                $ticketStatus->color = '#fff';
-                $ticketStatus->description = 'Newly created ticket.';
-                $ticketStatus->category_id = $ticketCategory->id;
-                $ticketStatus->sort_order = 1;
-                $ticketStatus->is_deleted = 0;
-                $ticketStatus->public_id = 1;
-                $ticketStatus->user_id = $account->user_id;
-                $ticketStatus->account_id = $account->id;
-
-                $ticketStatus->save();
-
-
-                $ticketStatus = new \App\Models\TicketStatus();
-                $ticketStatus->name = trans('texts.open');
-                $ticketStatus->color = '#fff';
-                $ticketStatus->description = 'Open ticket - replied.';
-                $ticketStatus->category_id = $ticketCategory->id;
-                $ticketStatus->sort_order = 2;
-                $ticketStatus->is_deleted = 0;
-                $ticketStatus->public_id = 2;
-                $ticketStatus->user_id = $account->user_id;
-                $ticketStatus->account_id = $account->id;
-
-                $ticketStatus->save();
-
-
-
-                $ticketStatus = new \App\Models\TicketStatus();
-                $ticketStatus->name = trans('texts.closed');
-                $ticketStatus->color = '#fff';
-                $ticketStatus->description = 'Closed ticket - resolved.';
-                $ticketStatus->category_id = $ticketCategory->id;
-                $ticketStatus->sort_order = 3;
-                $ticketStatus->is_deleted = 0;
-                $ticketStatus->public_id = 3;
-                $ticketStatus->user_id = $account->user_id;
-                $ticketStatus->account_id = $account->id;
-
-                $ticketStatus->save();
-
-
-
-                $ticketStatus = new \App\Models\TicketStatus();
-                $ticketStatus->name = trans('texts.merged');
-                $ticketStatus->color = '#fff';
-                $ticketStatus->description = 'Merged ticket.';
-                $ticketStatus->category_id = $ticketCategory->id;
-                $ticketStatus->sort_order = 4;
-                $ticketStatus->is_deleted = 0;
-                $ticketStatus->public_id = 4;
-                $ticketStatus->user_id = $account->user_id;
-                $ticketStatus->account_id = $account->id;
-
-                $ticketStatus->save();
-
-
             }
 
         }
@@ -329,7 +267,6 @@ class AddTicketsSchema extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ticket_statuses');
         Schema::dropIfExists('ticket_categories');
         Schema::dropIfExists('ticket_templates');
         Schema::dropIfExists('ticket_relations');
@@ -338,5 +275,69 @@ class AddTicketsSchema extends Migration
         Schema::dropIfExists('tickets');
         Schema::dropIfExists('lookup_ticket_invitations');
         Schema::dropIfExists('ticket_invitations');
+
+        if(!Utils::isNinja()) {
+            Schema::table('activities', function ($table) {
+                $table->dropIndex(['contact_id', 'account_id']);
+                $table->dropIndex(['payment_id', 'account_id']);
+                $table->dropIndex(['invitation_id', 'account_id']);
+                $table->dropIndex(['user_id', 'account_id']);
+                $table->dropIndex(['invoice_id', 'account_id']);
+                $table->dropIndex(['client_id', 'account_id']);
+            });
+
+            Schema::table('invitations', function ($table) {
+                $table->dropIndex(['deleted_at', 'invoice_id']);
+            });
+        }
+
+        if(Schema::hasColumn('documents', 'ticket_id')) {
+            Schema::table('documents', function(Blueprint $table) {
+                $table->dropColumn('ticket_id');
+            });
+        }
+
+        if(Schema::hasColumn('activities', 'ticket_id')) {
+            Schema::table('activities', function ($table) {
+                $table->dropColumn('ticket_id');
+                $table->dropIndex(['ticket_id', 'account_id']);
+            });
+        }
+
+        if(Schema::hasColumn('lookup_accounts', 'support_email_local_part')) {
+            Schema::table('lookup_accounts', function ($table) {
+                $table->dropColumn('support_email_local_part');
+            });
+        }
+
+        if(Schema::hasColumn('users', 'avatar')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('avatar');
+            });
+        }
+
+        if(Schema::hasColumn('users', 'avatar_width')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('avatar_width');
+            });
+        }
+
+        if(Schema::hasColumn('users', 'avatar_height')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('avatar_height');
+            });
+        }
+
+        if(Schema::hasColumn('users', 'avatar_size')) {
+            Schema::table('users', function ($table) {
+                $table->unsignedInteger('avatar_size');
+            });
+        }
+
+        if(Schema::hasColumn('users', 'signature')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('signature');
+            });
+        }
     }
 }
