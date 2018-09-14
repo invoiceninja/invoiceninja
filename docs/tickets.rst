@@ -5,7 +5,8 @@ The Invoice Ninja ticketing system will allow you to manage your client and your
 
 
 Tickets Listing Page
-====================
+""""""""""""""""""""
+
 The ticket listing page displays all of your tickets, who they are from and who they are delegated to. A smart icon system allows you to easily understand the status of each ticket and any actions required.
 
 Lets take you through each column of the ticket listing page:
@@ -22,7 +23,7 @@ You can filter the list by selecting from the filter drop the drop down filterin
 
 
 Ticket Lifecycle
-^^^^^^^^^^^^^^^^
+""""""""""""""""
 
 The ticket lifecycle is tracked by its status, these are:
 
