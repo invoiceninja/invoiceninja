@@ -82,12 +82,13 @@ Settings
 
 If your module has settings, you can have them automatically added to the main settings page.  To do so, you need to:
 
-- add 'has_settings': 1 in the module.json;
 - create a Blade template named 'settings.blade.php' under the /Resources folder;
 - add whatever routes are needed to implement/save your settings.
 
+.. Tip:: You can run the Artisan command ``ninja:make-module-settings`` to generate a stub settings template, and optionally add routes to your module routes.php.
+
 Components
-==========
+""""""""""
 
 There are UI widgets that can be re-used as part of a custom module implementation.
 
@@ -103,9 +104,28 @@ Depending on the widget, certain variables will need to be passed via the second
 
 Currently, the following widgets exist:
 
-|Name|Description|Parameters|
-|--|--|--|
-|SimpleSelectComponent|Displays a select box|entityType: entity type<br/>items: list of entities<br/>itemLabel: attribute of item to use as primary field value<br/>fieldLabel: label for the field<br/>secondaryItemLabel: attribute of item to display in conjunction with itemLabel; can be a reference to a JavaScript function; field name must begin with 'entity', e.g. 'entity.notes'; defaults to null<br/>module: name of module, if applicable. Used to perform translation for localization; defaults to null<br/>selectId: ID of the input; defaults to fieldLabel appended with '_id'|
+**SimpleSelectComponent** ``App\Http\ViewComponents\SimpleSelectComponent``
+  *Displays a select box for an entity*
+
+
+    ================== ===========================================================
+    Parameter          Parameter Details
+    ================== ===========================================================
+    entityType         * entity type
+    items              * list of entities
+    itemLabel          * attribute of item to use as primary field value
+    fieldLabel         * label for the field
+    secondaryItemLabel * attribute of item to display in conjunction with itemLabel;
+                       * can be a reference to a JavaScript function;
+                       * field name must begin with 'entity', e.g. 'entity.notes';
+                       * defaults to null
+    module             * name of module, if applicable;
+                       * used to perform translation for localization;
+                       * defaults to null
+    selectId           * ID of the input;
+                       * defaults to fieldLabel appended with '_id'
+    ================== ===========================================================
+
 
 Share Module
 """"""""""""

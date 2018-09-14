@@ -67,6 +67,7 @@ if (! defined('APP_NAME')) {
         ENTITY_PROJECT,
         ENTITY_PROPOSAL,
         ENTITY_QUOTE,
+	      'dashboard',
         'reports',
         ENTITY_TICKET,
         ENTITY_TASK,

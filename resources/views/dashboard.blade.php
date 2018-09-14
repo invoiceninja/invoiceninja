@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
 
-    @if (Auth::user()->hasPermission('admin'))
+    @if (Auth::user()->hasPermission('view_dashboard'))
         function loadChart(data) {
             var ctx = document.getElementById('chart-canvas').getContext('2d');
             if (window.myChart) {
@@ -257,7 +257,7 @@
     @else
         <div class="col-md-10">
     @endif
-        @if (Auth::user()->hasPermission('admin'))
+        @if (Auth::user()->hasPermission('view_dashboard'))
         <div class="pull-right">
             @if (count($currencies) > 1)
             <div id="currency-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc;">
@@ -422,7 +422,7 @@
     </div>
 </div>
 
-@if (Auth::user()->hasPermission('admin'))
+@if (Auth::user()->hasPermission('view_dashboard'))
 <div class="row">
     <div class="col-md-12">
         <div id="progress-div" class="progress">
