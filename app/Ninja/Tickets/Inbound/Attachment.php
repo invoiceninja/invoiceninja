@@ -50,7 +50,7 @@ Class Attachment extends InboundTicketFactory{
     {
 
         $directory = sys_get_temp_dir();
-        file_put_contents($directory . $this->Name, $this->_read());
+        file_put_contents($directory . '/' . $this->Name, $this->_read());
 
             return File::get($directory.$this->Name);
 

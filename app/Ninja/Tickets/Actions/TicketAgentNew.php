@@ -58,7 +58,8 @@ class TicketAgentNew extends BaseTicketAction
             }
         }
 
-        $this->newTicketTemplateAction($ticket);
+        if(!$ticket->is_internal)
+            $this->newTicketTemplateAction($ticket);
 
     }
 

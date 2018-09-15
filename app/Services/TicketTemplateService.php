@@ -97,16 +97,15 @@ class TicketTemplateService extends BaseService
 
         }
 
-
         return [
             '$ticket_number' => $ticket->ticket_number,
-            '$ticket_status' => $ticket->status->name,
+            '$ticket_status' => Ticket::getStatusNameById($ticket->status_id),
             '$client' => $client,
             '$contact' => $contact,
             '$priority' => $ticket->getPriorityName(),
             '$due_date' => $ticket->getDueDate(),
             '$agent' => $agent,
-            '$status' => $ticket->status->name,
+            '$status' => Ticket::getStatusNameById($ticket->status_id),
             '$subject' => $ticket->subject,
             '$description' => $ticket->getLastComment()->description ?? '',
             '$agent_signature' => $signature,
