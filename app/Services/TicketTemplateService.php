@@ -105,7 +105,7 @@ class TicketTemplateService extends BaseService
             '$priority' => $ticket->getPriorityName(),
             '$due_date' => $ticket->getDueDate(),
             '$agent' => $agent,
-            '$status' => $ticket->status->name,
+            '$status' => Ticket::getStatusNameById($ticket->status_id),
             '$subject' => $ticket->subject,
             '$description' => $ticket->getLastComment()->description ?? '',
             '$agent_signature' => $signature,
