@@ -2437,6 +2437,7 @@ $LANG = array(
     'currency_honduran_lempira' => 'Honduran Lempira',
     'currency_surinamese_dollar' => 'Surinamese Dollar',
     'currency_bahraini_dinar' => 'Bahraini Dinar',
+    'currency_venezuelan_bolivars' => 'Venezuelan Bolivars',	
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
