@@ -1081,6 +1081,16 @@ function secondsToTime(secs)
         "h": hours,
         "m": minutes,
         "s": seconds
+        "toString": function() {
+          var totalSumToString = "";
+          if(this.h.toString().length == 1) { totalSumToString += "0" }
+          totalSumToString += this.h + ":";
+          if(this.m.toString().length == 1) { totalSumToString += "0" }
+          totalSumToString += this.m + ":";
+          if(this.s.toString().length == 1) { totalSumToString += "0" }
+          totalSumToString += this.s;
+          return totalSumToString;
+         }
     };
     return obj;
 }

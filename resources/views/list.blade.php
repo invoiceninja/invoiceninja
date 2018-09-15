@@ -305,14 +305,7 @@
 						currentSumMoment = moment.duration(currentSum);
 						addMoment = moment.duration(add);
 						var totalSum = secondsToTime(currentSumMoment.add(addMoment).asSeconds())
-						var totalSumToString = "";
-						if(totalSum.h.toString().length == 1) { totalSumToString += "0" }
-						totalSumToString += totalSum.h + ":";
-						if(totalSum.m.toString().length == 1) { totalSumToString += "0" }
-						totalSumToString += totalSum.m + ":";
-						if(totalSum.s.toString().length == 1) { totalSumToString += "0" }
-						totalSumToString += totalSum.s;
-						return totalSumToString;
+						return totalSum.toString();
 						break;
 
 						default:
