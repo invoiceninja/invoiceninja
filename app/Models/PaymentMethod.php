@@ -255,7 +255,7 @@ class PaymentMethod extends EntityModel
 
 PaymentMethod::deleting(function ($paymentMethod) {
     $accountGatewayToken = $paymentMethod->account_gateway_token;
-    if ($accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
+    if ($accountGatewayToken && $accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
         $newDefault = $accountGatewayToken->payment_methods->first(function ($paymentMethdod) use ($accountGatewayToken) {
             return $paymentMethdod->id != $accountGatewayToken->default_payment_method_id;
         });
