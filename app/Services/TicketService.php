@@ -59,7 +59,7 @@ class TicketService extends BaseService
      * @return mixed|null
      */
 
-    public function save($data, $ticket = false) : Ticket
+    public function save($data, $ticket = false)
     {
         $ticket = $this->ticketRepo->save($data, $ticket);
 
@@ -80,10 +80,9 @@ class TicketService extends BaseService
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    public function getClientDatatable($clientId) : Datatable
+    public function getClientDatatable($clientId)
     {
         $query = DB::table('tickets')
-            ->leftjoin('ticket_statuses', 'tickets.status_id', '=', 'ticket_statuses.id')
             ->where('tickets.client_id', '=', $clientId)
             ->where('tickets.is_deleted', '=', false)
             ->where('tickets.is_internal', '=', false)
@@ -96,7 +95,7 @@ class TicketService extends BaseService
                 'tickets.updated_at',
                 'tickets.deleted_at',
                 'tickets.is_deleted',
-                'ticket_statuses.name as ticketStatus',
+                'tickets.status_id',
                 'tickets.merged_parent_ticket_id'
             );
 
@@ -111,7 +110,7 @@ class TicketService extends BaseService
                 return Utils::fromSqlDateTime($model->created_at);
             })
             ->addColumn('status', function ($model) {
-                return $model->ticketStatus;
+                return Ticket::getStatusNameById($model->status_id);
             });
 
         return $table->make();
