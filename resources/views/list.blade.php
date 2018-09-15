@@ -49,7 +49,7 @@
 		</select>
 	</span>
 	&nbsp;
-	<span class="well well-sm" id="sum_column_{{ $entityType }}" style="display:none;padding-left:16px;padding-right:16px;"></span>
+	<span class="well well-sm" id="sum_column_{{ $entityType }}" style="display:none;padding-left:12px;padding-right:12px;"></span>
 </div>
 
 <div id="top_right_buttons" class="pull-right">
