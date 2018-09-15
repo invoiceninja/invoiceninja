@@ -304,8 +304,7 @@
 						}
 						currentSumMoment = moment.duration(currentSum);
 						addMoment = moment.duration(add);
-						var totalSum = secondsToTime(currentSumMoment.add(addMoment).asSeconds())
-						return totalSum.toString();
+						return secondsToTime(currentSumMoment.add(addMoment).asSeconds(), true);
 						break;
 
 						default:
