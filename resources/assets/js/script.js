@@ -1066,7 +1066,7 @@ function endsWith(str, suffix) {
 }
 
 // http://codeaid.net/javascript/convert-seconds-to-hours-minutes-and-seconds-%28javascript%29
-function secondsToTime(secs)
+function secondsToTime(secs, toString)
 {
     secs = Math.round(secs);
     var hours = Math.floor(secs / (60 * 60));
@@ -1077,22 +1077,24 @@ function secondsToTime(secs)
     var divisor_for_seconds = divisor_for_minutes % 60;
     var seconds = Math.ceil(divisor_for_seconds);
 
-    var obj = {
-        "h": hours,
-        "m": minutes,
-        "s": seconds
-        "toString": function() {
-          var totalSumToString = "";
-          if(this.h.toString().length == 1) { totalSumToString += "0" }
-          totalSumToString += this.h + ":";
-          if(this.m.toString().length == 1) { totalSumToString += "0" }
-          totalSumToString += this.m + ":";
-          if(this.s.toString().length == 1) { totalSumToString += "0" }
-          totalSumToString += this.s;
-          return totalSumToString;
-         }
-    };
-    return obj;
+    if (toString) {
+        var totalSumToString = "";
+        if(hours.toString().length == 1) { totalSumToString += "0" }
+        totalSumToString += hours + ":";
+        if(minutes.toString().length == 1) { totalSumToString += "0" }
+        totalSumToString += minutes + ":";
+        if(seconds.toString().length == 1) { totalSumToString += "0" }
+        totalSumToString += seconds;
+        return totalSumToString;
+    } else {
+        var obj = {
+            "h": hours,
+            "m": minutes,
+            "s": seconds
+        }
+
+        return obj;
+    }
 }
 
 function twoDigits(value) {

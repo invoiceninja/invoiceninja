@@ -49,7 +49,7 @@
 		</select>
 	</span>
 	&nbsp;
-	<span class="well well-sm" id="sum_column_{{ $entityType }}"></span>
+	<span class="well well-sm" id="sum_column_{{ $entityType }}" style="display:none;padding-left:16px;padding-right:16px;"></span>
 </div>
 
 <div id="top_right_buttons" class="pull-right">
@@ -322,22 +322,26 @@
 					@else
 						sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).data().toArray();
 					@endif
-					var sum = "";
+					var sum = 0;
 					var cboxArray = dTable.column(0).nodes();
 
 					for (i = 0 ; i < sumColumnNodes.length ; i++) {
 						if(cboxArray[i].firstChild.checked) {
-						var value;
-						@if(in_array($entityType, [ENTITY_TASK]))
-							value = sumColumnNodes[i].firstChild.innerHTML;
-						@else
-							value = sumColumnNodes[i];
-						@endif
-						sum = sumColumnVars(sum, value);
+							var value;
+							@if(in_array($entityType, [ENTITY_TASK]))
+								value = sumColumnNodes[i].firstChild.innerHTML;
+							@else
+								value = sumColumnNodes[i];
+							@endif
+							sum = sumColumnVars(sum, value);
 						}
 					}
 
-					if(sum != "NaN") { document.getElementById("sum_column_{{ $entityType }}").innerHTML = "Total: " + sum; }
+					if (sum) {
+						$('#sum_column_{{ $entityType }}').show().text("{{ trans('texts.total') }}: " + sum)
+					} else {
+						$('#sum_column_{{ $entityType }}').hide();
+					}
 
 				 @endif
 			}
