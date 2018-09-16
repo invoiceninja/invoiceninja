@@ -823,6 +823,7 @@ class BasePaymentDriver
         $license->license_key = Utils::generateLicense();
         $license->affiliate_id = $affiliateId;
         $license->product_id = $productId;
+        $license->is_claimed = 0;
         $license->save();
 
         // Add the license key to the invoice content
