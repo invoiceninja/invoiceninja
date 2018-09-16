@@ -87,7 +87,7 @@ class CheckData extends Command
         $this->checkClientBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
-        $this->checkLogoFiles();
+        //$this->checkLogoFiles();
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
