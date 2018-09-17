@@ -364,6 +364,17 @@ class User extends Authenticatable
         return false;
     }
 
+
+    public function viewModel($model, $entityType)
+    {
+        if($this->hasPermission('view_'.$entityType))
+            return true;
+        elseif($model->user_id == $this->id)
+            return true;
+        else
+            return false;
+    }
+
     /**
      * @param $entity
      *
