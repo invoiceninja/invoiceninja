@@ -28,6 +28,9 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('invoices/*/edit') && request()->isMethod('get') && $this->user()->can('edit', $invoice))
             return true;
 
+        if(request()->is('quotes/*/edit') && request()->isMethod('get') && $this->user()->can('edit', $invoice))
+            return true;
+
         if(request()->is('invoices/create') && $this->user()->can('create', ENTITY_INVOICE))
             return true;
 
