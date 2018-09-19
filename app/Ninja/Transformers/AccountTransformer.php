@@ -19,7 +19,7 @@ class AccountTransformer extends EntityTransformer
      * @SWG\Property(property="date_format_id", type="integer", example=1)
      * @SWG\Property(property="datetime_format_id", type="integer", example=1)
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
-     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true) 
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="address1", type="string", example="10 Main St.")
      * @SWG\Property(property="address2", type="string", example="1st Floor")
      * @SWG\Property(property="city", type="string", example="New York")
@@ -54,7 +54,7 @@ class AccountTransformer extends EntityTransformer
      * @SWG\Property(property="token_billing_type_id", type="integer", example=1)
      * @SWG\Property(property="invoice_footer", type="string", example="Footer")
      * @SWG\Property(property="pdf_email_attachment", type="boolean", example=false)
-     * @SWG\Property(property="font_size", type="string", example="14")     
+     * @SWG\Property(property="font_size", type="string", example="14")
      * @SWG\Property(property="invoice_labels", type="string", example="Labels")
      * @SWG\Property(property="custom_design1", type="string", example="Design")
      * @SWG\Property(property="custom_design2", type="string", example="Design")
@@ -331,6 +331,7 @@ class AccountTransformer extends EntityTransformer
             'invoice_number_pattern' => $account->invoice_number_pattern,
             'quote_number_pattern' => $account->quote_number_pattern,
             'quote_terms' => $account->quote_terms,
+            'enable_email_markup' => (bool) $account->enable_email_markup,
             'website' => $account->website,
             'header_font_id' => (int) $account->header_font_id,
             'body_font_id' => (int) $account->body_font_id,
