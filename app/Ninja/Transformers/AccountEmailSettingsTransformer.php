@@ -5,7 +5,7 @@ namespace App\Ninja\Transformers;
 use App\Models\AccountEmailSettings;
 
 /**
- * Class AccountTransformer.
+ * Class AccountEmailSettingsTransformer.
  */
 class AccountEmailSettingsTransformer extends EntityTransformer
 {
