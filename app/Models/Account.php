@@ -1580,7 +1580,7 @@ class Account extends Eloquent
      */
     public function getEmailDesignId()
     {
-        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
+        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->account_email_settings->email_design_id : EMAIL_DESIGN_PLAIN;
     }
 
     /**

@@ -215,7 +215,6 @@ class AccountTransformer extends EntityTransformer
             'invoice_number_pattern' => $account->invoice_number_pattern,
             'quote_number_pattern' => $account->quote_number_pattern,
             'quote_terms' => $account->quote_terms,
-            'email_design_id' => $account->email_design_id,
             'enable_email_markup' => (bool) $account->enable_email_markup,
             'website' => $account->website,
             'direction_reminder1' => (int) $account->direction_reminder1,
