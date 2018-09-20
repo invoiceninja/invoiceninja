@@ -15,6 +15,7 @@ use Redirect;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Utils;
+use Request;
 
 /**
  * Class Handler.
@@ -102,8 +103,18 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+        $value = Request::header('X-Ninja-Token');
+
         if ($e instanceof ModelNotFoundException) {
-            return Redirect::to('/');
+
+            if( isset($value) && strlen($value) > 1 ){
+                $headers = \App\Libraries\Utils::getApiHeaders();
+                $response = json_encode(['message' => 'record does not exist'], JSON_PRETTY_PRINT);
+
+                return Response::make($response, 404, $headers);
+            }
+            else
+                return Redirect::to('/');
         }
 
         if (! class_exists('Utils')) {
