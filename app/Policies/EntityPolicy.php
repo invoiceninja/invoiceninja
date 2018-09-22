@@ -123,6 +123,10 @@ class EntityPolicy
 
     public function createEntity(User $user, $entityType)
     {
+        // check if the feature is enabled
+        if(! $user->hasFeature($entityType))
+            return false;
+        
         return $user->hasPermission('create_' . $entityType);
     }
 
