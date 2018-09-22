@@ -1632,7 +1632,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        $invoice = static::scope($this->quote_invoice_id)->with('invitations')->first();
+        $invoice = static::scope($this->quote_invoice_id, $this->account_id)->with('invitations')->first();
 
         if (! $invoice) {
             return false;
