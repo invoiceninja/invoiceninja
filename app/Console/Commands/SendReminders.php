@@ -9,6 +9,7 @@ use Cache;
 use Utils;
 use Exception;
 use DateTime;
+use Auth;
 use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\Currency;
