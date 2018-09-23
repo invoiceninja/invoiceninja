@@ -8,6 +8,7 @@ use Str;
 use Cache;
 use Utils;
 use Exception;
+use DateTime;
 use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\Currency;
@@ -15,6 +16,7 @@ use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Models\ScheduledReport;
+use App\Services\PaymentService;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use App\Jobs\ExportReportResults;
@@ -46,16 +48,22 @@ class SendReminders extends Command
     protected $accountRepo;
 
     /**
+     * @var PaymentService
+     */
+    protected $paymentService;
+
+    /**
      * SendReminders constructor.
      *
      * @param Mailer            $mailer
      * @param InvoiceRepository $invoiceRepo
      * @param accountRepository $accountRepo
      */
-    public function __construct(InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, UserMailer $userMailer)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentService $paymentService, AccountRepository $accountRepo, UserMailer $userMailer)
     {
         parent::__construct();
 
+        $this->paymentService = $paymentService;
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
@@ -69,6 +77,7 @@ class SendReminders extends Command
             config(['database.default' => $database]);
         }
 
+        $this->billInvoices();
         $this->chargeLateFees();
         $this->sendReminderEmails();
         $this->sendScheduledReports();
@@ -82,6 +91,33 @@ class SendReminders extends Command
                         ->from(CONTACT_EMAIL)
                         ->subject("SendReminders [{$database}]: Finished successfully");
             });
+        }
+    }
+
+    private function billInvoices()
+    {
+        $today = new DateTime();
+
+        $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE AND is_public IS TRUE
+            AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
+                [$today->format('Y-m-d')])
+            ->orderBy('invoices.id', 'asc')
+            ->get();
+        $this->info(date('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
+
+        /** @var Invoice $invoice */
+        foreach ($delayedAutoBillInvoices as $invoice) {
+            if ($invoice->isPaid()) {
+                continue;
+            }
+
+            if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
+                $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
+                Auth::loginUsingId($invoice->activeUser()->id);
+                $this->paymentService->autoBillInvoice($invoice);
+                Auth::logout();
+            }
         }
     }
 
