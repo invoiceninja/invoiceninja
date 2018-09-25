@@ -13,6 +13,7 @@ use App\Http\Requests\UpdateTicketRequest;
 use App\Libraries\Utils;
 use App\Models\Client;
 use App\Models\Ticket;
+use App\Models\TicketComment;
 use App\Models\TicketRelation;
 use App\Models\User;
 use App\Ninja\Datatables\TicketDatatable;
@@ -351,6 +352,17 @@ class TicketController extends BaseController
     {
         TicketRelation::destroy(request()->id);
             return request()->id;
+    }
+
+    public function search()
+    {
+        
+        if(env(SCOUT_DRIVER) != null) {
+
+            $result = TicketComment::search(request()->term)->where('agent_id', Auth::user()->id)->get()->pluck('description');
+            return response()->json($result);
+        }
+
     }
 
 

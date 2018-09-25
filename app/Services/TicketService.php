@@ -86,6 +86,7 @@ class TicketService extends BaseService
             ->where('tickets.client_id', '=', $clientId)
             ->where('tickets.is_deleted', '=', false)
             ->where('tickets.is_internal', '=', false)
+            ->where('tickets.deleted_at', '=', null)
             ->select(
                 'tickets.description',
                 'tickets.public_id',

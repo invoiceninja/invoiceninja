@@ -96,10 +96,6 @@ class DocumentRepository extends BaseRepository
         }
         elseif(isset($data['user_id']) && $data['user_id'] > 0){
             $ticketMaster = User::find($data['user_id']);
-            Log::error('inside doc repo with user id = '. $ticketMaster->id);
-            // if saving a document from a inboundticket,
-            // we need to harvest the user_id of the ticket owner / master, this can be
-            // passed from the inbound ticket service
         }
         else
             $account = \Auth::user()->account;
@@ -245,10 +241,6 @@ class DocumentRepository extends BaseRepository
         }
         elseif(isset($data['user_id']) && $data['user_id'] > 0){
             $ticketMaster = User::find($data['user_id']);
-            Log::error('inside doc repo with user id = '. $ticketMaster->id);
-            // if saving a document from a inboundticket,
-            // we need to harvest the user_id of the ticket owner / master, this can be
-            // passed from the inbound ticket service
         }
         else
             $account = \Auth::user()->account;

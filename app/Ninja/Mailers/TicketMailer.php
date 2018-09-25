@@ -81,9 +81,9 @@ class TicketMailer
         {
 
             $attachments[] = PostmarkAttachment::fromFile(public_path('images/invoiceninja-logo.png'), 'invoiceninja-logo.png', null, 'cid:invoiceninja-logo.png');
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-facebook.png'), 'icon-facebook.png', null, 'cid:icon-facebook.png');
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-twitter.png'), 'icon-twitter.png', null, 'cid:icon-twitter.png');
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-github.png'), 'icon-github.png', null, 'cid:icon-github.png');
+            //$attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-facebook.png'), 'icon-facebook.png', null, 'cid:icon-facebook.png');
+            //$attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-twitter.png'), 'icon-twitter.png', null, 'cid:icon-twitter.png');
+            //$attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-github.png'), 'icon-github.png', null, 'cid:icon-github.png');
 
         }
 

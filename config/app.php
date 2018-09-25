@@ -177,6 +177,8 @@ return [
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        Laravel\Scout\ScoutServiceProvider::class,
+        ScoutEngines\Elasticsearch\ElasticsearchProvider::class,
 
     ],
 

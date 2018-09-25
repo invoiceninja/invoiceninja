@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-
 use App\Libraries\Utils;
+use Laravel\Scout\Searchable;
 
 class TicketComment extends EntityModel
 {
+    use Searchable;
+
     protected $touches = ['ticket'];
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getEntityType()
     {
@@ -25,14 +27,17 @@ class TicketComment extends EntityModel
         return $this->belongsTo('App\Models\Ticket');
     }
 
-    /*
-     * @return string
+    /**
+     * @return User
      */
     public function agent()
     {
         return $this->hasOne('App\Models\User', 'id', 'agent_id');
     }
 
+    /**
+     * @return User
+     */
     public function user()
     {
         return $this->hasOne('App\Models\User', 'id', 'user_id');
@@ -54,4 +59,5 @@ class TicketComment extends EntityModel
 
 
     }
+
 }
