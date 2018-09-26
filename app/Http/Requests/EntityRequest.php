@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Libraries\HistoryUtils;
 use App\Models\Contact;
 use App\Models\EntityModel;
-use Illuminate\Support\Facades\Log;
 use Input;
 use Utils;
 
@@ -60,6 +59,7 @@ class EntityRequest extends Request
             $this->entity = $class::scope($publicId, $accountId)->withTrashed()->firstOrFail();
         } else {
             $this->entity = $class::scope($publicId, $accountId)->firstOrFail();
+
         }
 
         return $this->entity;
