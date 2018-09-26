@@ -354,6 +354,10 @@ class TicketController extends BaseController
             return request()->id;
     }
 
+    /**
+     * Algolia / Elasticsearch
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search()
     {
         

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Constants\Domain;
 use App\Libraries\Utils;
+use App\Services\TicketTemplateService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -78,6 +79,30 @@ class Ticket extends EntityModel
             'quote' => trans('texts.quote'),
             'payment' => trans('texts.payment'),
         ];
+    }
+
+    /**
+     * Used for ticket autocomplete
+     *
+     * @return string
+     */
+    public static function templateVariables()
+    {
+
+        $arr[]['description'] ='$ticketNumber';
+        $arr[]['description'] ='$ticketStatus';
+        $arr[]['description'] = '$client';
+        $arr[]['description'] = '$contact';
+        $arr[]['description'] = '$priority';
+        $arr[]['description'] = '$dueDate';
+        $arr[]['description'] = '$agent';
+        $arr[]['description'] = '$status';
+        $arr[]['description'] = '$subject';
+        $arr[]['description'] = '$description';
+        $arr[]['description'] = '$signature';
+
+
+        return json_encode($arr);
     }
 
     /**
@@ -239,6 +264,9 @@ class Ticket extends EntityModel
         }
     }
 
+    /**
+     * @return array|\Illuminate\Contracts\Translation\Translator|null|string
+     */
     public function getStatus()
     {
         switch($this->status_id)
@@ -323,6 +351,10 @@ class Ticket extends EntityModel
 
     }
 
+    /**
+     * @param $statusId
+     * @return array|\Illuminate\Contracts\Translation\Translator|null|string
+     */
     public static function getStatusNameById($statusId)
     {
         switch($statusId)
@@ -474,15 +506,31 @@ class Ticket extends EntityModel
     {
         return $this->comments()->first();
     }
+
+    public static function buildTicketBody(Ticket $ticket, string $response) : string
+    {
+
+        $ticketVariables = TicketTemplateService::getVariables($ticket);
+
+        return str_replace(array_keys($ticketVariables), array_values($ticketVariables), $response);
+
+    }
+
 }
 
 
 
 Ticket::creating(
+/**
+ * @param $ticket
+ */
     function ($ticket) {
     });
 
 Ticket::created(
+/**
+ * @param $ticket
+ */
     function ($ticket) {
         $account_ticket_settings = $ticket->account->account_ticket_settings;
         $account_ticket_settings->ticket_number_start = $ticket->ticket_number+1;
@@ -490,13 +538,22 @@ Ticket::created(
     });
 
 Ticket::updating(
+/**
+ * @param $ticket
+ */
     function ($ticket) {
     });
 
 Ticket::updated(
+/**
+ * @param $ticket
+ */
     function ($ticket) {
     });
 
 Expense::deleting(
+/**
+ * @param $ticket
+ */
     function ($ticket) {
     });

@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use App\Models\TicketComment;
 use App\Models\TicketInvitation;
 use App\Models\User;
+use App\Ninja\Tickets\Actions\BaseTicketAction;
 use Auth;
 use DB;
 use Illuminate\Support\Facades\Log;
@@ -196,6 +197,10 @@ class TicketRepository extends BaseRepository
         /** handle new comment */
         if(isset($input['description']) && strlen($input['description']) >=1)
         {
+
+            if($ticket)
+                $input['description'] = Ticket::buildTicketBody($ticket, $input['description']);
+
             /** don't change the status if it is a new ticket */
             if($ticket->status_id == 1 && !in_array($input['action'],[TICKET_CLIENT_NEW, TICKET_AGENT_NEW]))
             {
