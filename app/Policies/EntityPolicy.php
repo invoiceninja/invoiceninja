@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class EntityPolicy.
@@ -122,10 +123,6 @@ class EntityPolicy
 
     public function createEntity(User $user, $entityType)
     {
-        // check if the feature is enabled
-        if(! $user->hasFeature($entityType))
-            return false;
-        
         return $user->hasPermission('create_' . $entityType);
     }
 
