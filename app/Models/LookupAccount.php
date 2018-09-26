@@ -25,7 +25,7 @@ class LookupAccount extends LookupModel
 
     public static function createAccount($accountKey, $companyId)
     {
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return;
 
 
@@ -58,7 +58,7 @@ class LookupAccount extends LookupModel
 
     public static function updateAccount($accountKey, $account)
     {
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return;
 
 
@@ -76,7 +76,7 @@ class LookupAccount extends LookupModel
 
     public static function updateSupportLocalPart($accountKey, $support_email_local_part)
     {
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return;
 
 
@@ -95,7 +95,7 @@ class LookupAccount extends LookupModel
 
     public static function validateField($field, $value, $account = false)
     {
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return true;
 
 

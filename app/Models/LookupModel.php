@@ -22,9 +22,9 @@ class LookupModel extends Eloquent
 
     public static function createNew($accountKey, $data)
     {
-        if (! config('multi_db_enabled')) {
+        if (! config('ninja.multi_db_enabled'))
             return;
-        }
+
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -44,9 +44,9 @@ class LookupModel extends Eloquent
 
     public static function deleteWhere($where)
     {
-        if (! config('multi_db_enabled')) {
+        if (! config('ninja.multi_db_enabled'))
             return;
-        }
+
 
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
@@ -59,7 +59,7 @@ class LookupModel extends Eloquent
 
     public static function setServerByField($field, $value)
     {
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return;
 
 
@@ -107,7 +107,7 @@ class LookupModel extends Eloquent
 
     protected static function setDbServer($server)
     {
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return;
 
 
