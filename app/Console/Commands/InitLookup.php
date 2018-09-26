@@ -362,6 +362,7 @@ class InitLookup extends Command
         DB::statement('truncate lookup_invitations');
         DB::statement('truncate lookup_proposal_invitations');
         DB::statement('truncate lookup_account_tokens');
+        DB::statement('truncate lookup_ticket_invitations');
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 

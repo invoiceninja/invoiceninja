@@ -56,7 +56,7 @@ class AccountTicketSettings extends Eloquent
 
     public static function checkUniqueLocalPart($localPart, Account $account)
     {
-        if (config('multi_db_enabled')) {
+        if (config('ninja.multi_db_enabled')) {
             $result = LookupAccount::where('support_email_local_part', '=', $localPart)
                                             ->where('account_key', '!=', $account->account_key)->get();
         }
