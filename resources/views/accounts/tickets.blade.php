@@ -15,237 +15,247 @@
 
     @include('accounts.nav', ['selected' => ACCOUNT_TICKETS])
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.tickets') !!}</h3>
+        </div>
+        <div class="panel-body form-padding-right">
 
-            <div role="tabpanel">
-                <ul class="nav nav-tabs" role="tablist" style="border: none">
-                    <li role="presentation" class="active"><a href="#defaults" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a></li>
-                    <li role="presentation"><a href="#domain" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.domain') }}</a></li>
-                    <li role="presentation"><a href="#attachments" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.attachments') }}</a></li>
-                    <li role="presentation"><a href="#notifications" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.notifications') }}</a></li>
-                    <li role="presentation"><a href="#templates" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.templates') }}</a></li>
-                </ul>
+        <div class="row">
+            <div class="col-md-12">
 
-                <div class="tab-content panel">
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active"><a href="#defaults" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a></li>
+                        <li role="presentation"><a href="#domain" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.domain') }}</a></li>
+                        <li role="presentation"><a href="#attachments" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.attachments') }}</a></li>
+                        <li role="presentation"><a href="#notifications" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.notifications') }}</a></li>
+                        <li role="presentation"><a href="#templates" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.templates') }}</a></li>
+                    </ul>
 
-                    <div role="tabpanel" class="tab-pane active" id="defaults" >
-                        <div class="panel-body form-padding-right">
+                    <div class="tab-content panel">
 
-                            {!! Former::text('ticket_number_start')
-                                     ->label(trans('texts.counter'))
-                                    ->help('ticket_number_start_help')
-                                    !!}
+                        <div role="tabpanel" class="tab-pane active" id="defaults" >
+                            <div class="panel-body form-padding-right">
 
-                            <div id="">
-                                {!! Former::select('default_priority')
-                                    ->text(trans('texts.default_priority'))
-                                    ->options([
-                                    TICKET_PRIORITY_LOW => trans('texts.low'),
-                                    TICKET_PRIORITY_MEDIUM => trans('texts.medium'),
-                                    TICKET_PRIORITY_HIGH => trans('texts.high'),
-                                ])
-                                 !!}
+                                {!! Former::text('ticket_number_start')
+                                         ->label(trans('texts.counter'))
+                                        ->help('ticket_number_start_help')
+                                        !!}
+
+                                <div id="">
+                                    {!! Former::select('default_priority')
+                                        ->text(trans('texts.default_priority'))
+                                        ->options([
+                                        TICKET_PRIORITY_LOW => trans('texts.low'),
+                                        TICKET_PRIORITY_MEDIUM => trans('texts.medium'),
+                                        TICKET_PRIORITY_HIGH => trans('texts.high'),
+                                    ])
+                                     !!}
+                                </div>
+
+                                <div id="">
+                                    {!! Former::select('ticket_master_id')
+                                        ->label(trans('texts.ticket_master'))
+                                        ->text(trans('texts.ticket_master'))
+                                        ->help(trans('texts.ticket_master_help'))
+                                        ->fromQuery($account->users, 'displayName', 'id')
+                                     !!}
+                                </div>
+
+                                <div id="">
+                                    {!! Former::select('default_agent_id')
+                                        ->addOption('','0')
+                                        ->label(trans('texts.default_agent'))
+                                        ->text(trans('texts.default_agent'))
+                                        ->help(trans('texts.default_agent_help'))
+                                        ->fromQuery($account->users, 'displayName', 'id')
+                                     !!}
+                                </div>
+
+                                <div id="">
+                                    {!! Former::checkbox('allow_inbound_email_tickets_external')
+                                   ->text(trans('texts.enable'))
+                                   ->help(trans('texts.allow_inbound_email_tickets_external_help'))
+                                   ->label(trans('texts.allow_inbound_email_tickets_external'))
+                                   ->value(1) !!}
+                                </div>
+
                             </div>
+                        </div>
 
-                            <div id="">
-                                {!! Former::select('ticket_master_id')
-                                    ->label(trans('texts.ticket_master'))
-                                    ->text(trans('texts.ticket_master'))
-                                    ->help(trans('texts.ticket_master_help'))
-                                    ->fromQuery($account->users, 'displayName', 'id')
-                                 !!}
-                            </div>
+                        <div role="tabpanel" class="tab-pane" id="domain" >
+                                <div class="panel-body form-padding-right" >
 
-                            <div id="">
-                                {!! Former::select('default_agent_id')
-                                    ->addOption('','0')
-                                    ->label(trans('texts.default_agent'))
-                                    ->text(trans('texts.default_agent'))
-                                    ->help(trans('texts.default_agent_help'))
-                                    ->fromQuery($account->users, 'displayName', 'id')
-                                 !!}
-                            </div>
+                                    <div class="alert alert-danger" role="alert" id="local_part_unavailable">
+                                        {!! trans('texts.local_part_unavailable')  !!}
+                                    </div>
 
-                            <div id="">
-                                {!! Former::checkbox('allow_inbound_email_tickets_external')
-                               ->text(trans('texts.enable'))
-                               ->help(trans('texts.allow_inbound_email_tickets_external_help'))
-                               ->label(trans('texts.allow_inbound_email_tickets_external'))
-                               ->value(1) !!}
-                            </div>
+                                    <div class="alert alert-success" role="alert" id="local_part_available">
+                                        {!! trans('texts.local_part_available')  !!}
+                                    </div>
+
+                                    {!! Former::text('support_email_local_part')
+                                            ->placeholder('texts.local_part_placeholder')
+                                            ->label(trans('texts.local_part'))
+                                            ->append(Button::info(trans('texts.search'))->withAttributes(['onclick' => 'checkSupportEmail()']))
+                                            ->help('texts.local_part_help') !!}
+
+
+                                    {!! Former::text('from_name')
+                                            ->placeholder('texts.from_name_placeholder')
+                                            ->label(trans('texts.from_name'))
+                                            ->help('texts.from_name_help')!!}
+
+                                </div>
 
                         </div>
-                    </div>
 
-                    <div role="tabpanel" class="tab-pane" id="domain" >
+                        <div role="tabpanel" class="tab-pane" id="attachments" >
                             <div class="panel-body form-padding-right" >
 
-                                <div class="alert alert-danger" role="alert" id="local_part_unavailable">
-                                    {!! trans('texts.local_part_unavailable')  !!}
+                                {!! Former::checkbox('client_upload')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.enable_client_upload_help'))
+                                    ->label(trans('texts.client_upload'))
+                                    ->value(1) !!}
+
+                                <div id="max_file_size">
+                                    {!! Former::select('max_file_size')
+                                        ->text(trans('texts.max_file_size'))
+                                        ->fromQuery($account_ticket_settings->max_file_sizes())
+                                    ->help(trans('texts.max_file_size_help'))
+                                     !!}
                                 </div>
 
-                                <div class="alert alert-success" role="alert" id="local_part_available">
-                                    {!! trans('texts.local_part_available')  !!}
+
+                                {!! Former::text('mime_types')
+                                    ->placeholder('texts.mime_types_placeholder')
+                                    ->label(trans('texts.mime_types'))
+                                    ->help('mime_types_help') !!}
+
+                            </div>
+
+                        </div>
+
+
+                        <div role="tabpanel" class="tab-pane" id="notifications" >
+                            <div class="panel-body form-padding-right" >
+
+                                <div id="">
+                                    {!! Former::select('new_ticket_template_id')
+                                        ->text(trans('texts.new_ticket_template_id'))
+                                        ->addOption('','0')
+                                        ->fromQuery($templates, "name", "id")
+                                    ->help(trans('texts.new_ticket_autoresponder_help'))
+                                     !!}
                                 </div>
 
-                                {!! Former::text('support_email_local_part')
-                                        ->placeholder('texts.local_part_placeholder')
-                                        ->label(trans('texts.local_part'))
-                                        ->append(Button::info(trans('texts.search'))->withAttributes(['onclick' => 'checkSupportEmail()']))
-                                        ->help('texts.local_part_help') !!}
+                                <div id="">
+                                    {!! Former::select('update_ticket_template_id')
+                                        ->text(trans('texts.update_ticket_template_id'))
+                                        ->addOption('','0')
+                                        ->fromQuery($templates, "name", "id")
+                                    ->help(trans('texts.update_ticket_autoresponder_help'))
+                                     !!}
+                                </div>
+
+                                <div id="">
+                                    {!! Former::select('close_ticket_template_id')
+                                        ->text(trans('texts.close_ticket_template_id'))
+                                        ->addOption('','0')
+                                        ->fromQuery($templates, "name", "id")
+                                    ->help(trans('texts.close_ticket_autoresponder_help'))
+                                     !!}
+                                </div>
+
+                                <div id="">
+                                    {!! Former::select('alert_new_comment_id')
+                                        ->text(trans('texts.alert_new_comment_id'))
+                                        ->addOption('','0')
+                                        ->fromQuery($templates, "name", "id")
+                                    ->help(trans('texts.alert_comment_ticket_help'))
+                                     !!}
+                                </div>
+
+                                {!! Former::text('alert_new_comment_id_email')
+                                    ->placeholder('texts.comma_separated_values')
+                                    ->label(trans('texts.update_ticket_notification_list'))
+                                    ->help('alert_comment_ticket_email_help') !!}
+
+                                <div id="">
+                                    {!! Former::select('alert_ticket_assign_agent_id')
+                                        ->text(trans('texts.alert_ticket_assign_agent_id'))
+                                        ->addOption('','0')
+                                        ->fromQuery($templates, "name", "id")
+                                    ->help(trans('texts.alert_ticket_assign_agent_id_hel'))
+                                     !!}
+                                </div>
+
+                                {!! Former::text('alert_ticket_assign_email')
+                                    ->placeholder('texts.comma_separated_values')
+                                    ->label(trans('texts.alert_ticket_assign_agent_id_notifications'))
+                                    ->help('alert_ticket_assign_agent_id_help') !!}
+
+                                <div id="">
+                                    {!! Former::select('alert_ticket_overdue_agent_id')
+                                        ->text(trans('texts.alert_ticket_overdue_agent_id'))
+                                        ->addOption('','0')
+                                        ->fromQuery($templates, "name", "id")
+                                    ->help(trans('texts.alert_ticket_overdue_agent_id_help'))
+                                     !!}
+                                </div>
+
+                                {!! Former::text('alert_ticket_overdue_email')
+                                    ->placeholder('texts.comma_separated_values')
+                                    ->label(trans('texts.alert_ticket_overdue_email'))
+                                    ->help('alert_ticket_overdue_email_help') !!}
 
 
-                                {!! Former::text('from_name')
-                                        ->placeholder('texts.from_name_placeholder')
-                                        ->label(trans('texts.from_name'))
-                                        ->help('texts.from_name_help')!!}
 
                             </div>
-
-                    </div>
-
-                    <div role="tabpanel" class="tab-pane" id="attachments" >
-                        <div class="panel-body form-padding-right" >
-
-                            {!! Former::checkbox('client_upload')
-                                ->text(trans('texts.enable'))
-                                ->help(trans('texts.enable_client_upload_help'))
-                                ->label(trans('texts.client_upload'))
-                                ->value(1) !!}
-
-                            <div id="max_file_size">
-                                {!! Former::select('max_file_size')
-                                    ->text(trans('texts.max_file_size'))
-                                    ->fromQuery($account_ticket_settings->max_file_sizes())
-                                ->help(trans('texts.max_file_size_help'))
-                                 !!}
-                            </div>
-
-
-                            {!! Former::text('mime_types')
-                                ->placeholder('texts.mime_types_placeholder')
-                                ->label(trans('texts.mime_types'))
-                                ->help('mime_types_help') !!}
-
                         </div>
 
-                    </div>
+                        {!! Former::close() !!}
 
+                        <div role="tabpanel" class="tab-pane" id="templates" >
+                            <div class="panel-body form-padding-right" >
+                                {!! Button::primary(trans('texts.add_template'))
+                                    ->asLinkTo(URL::to('/ticket_template/create'))
+                                    ->withAttributes(['class' => 'pull-right'])
+                                    ->appendIcon(Icon::create('plus-sign')) !!}
 
-                    <div role="tabpanel" class="tab-pane" id="notifications" >
-                        <div class="panel-body form-padding-right" >
+                                @include('partials.bulk_form', ['entityType' => ENTITY_TICKET_TEMPLATE])
 
-                            <div id="">
-                                {!! Former::select('new_ticket_template_id')
-                                    ->text(trans('texts.new_ticket_template_id'))
-                                    ->addOption('','0')
-                                    ->fromQuery($templates, "name", "id")
-                                ->help(trans('texts.new_ticket_autoresponder_help'))
-                                 !!}
+                                {!! Datatable::table()
+                                  ->addColumn(
+                                    trans('texts.name'),
+                                    trans('texts.description'),
+                                    trans('texts.action'))
+                                  ->setUrl(url('api/ticket_templates/'))
+                                  ->setOptions('sPaginationType', 'bootstrap')
+                                  ->setOptions('bFilter', false)
+                                  ->setOptions('bAutoWidth', false)
+                                  ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
+                                  ->render('datatable') !!}
+
                             </div>
-
-                            <div id="">
-                                {!! Former::select('update_ticket_template_id')
-                                    ->text(trans('texts.update_ticket_template_id'))
-                                    ->addOption('','0')
-                                    ->fromQuery($templates, "name", "id")
-                                ->help(trans('texts.update_ticket_autoresponder_help'))
-                                 !!}
-                            </div>
-
-                            <div id="">
-                                {!! Former::select('close_ticket_template_id')
-                                    ->text(trans('texts.close_ticket_template_id'))
-                                    ->addOption('','0')
-                                    ->fromQuery($templates, "name", "id")
-                                ->help(trans('texts.close_ticket_autoresponder_help'))
-                                 !!}
-                            </div>
-
-                            <div id="">
-                                {!! Former::select('alert_new_comment_id')
-                                    ->text(trans('texts.alert_new_comment_id'))
-                                    ->addOption('','0')
-                                    ->fromQuery($templates, "name", "id")
-                                ->help(trans('texts.alert_comment_ticket_help'))
-                                 !!}
-                            </div>
-
-                            {!! Former::text('alert_new_comment_id_email')
-                                ->placeholder('texts.comma_separated_values')
-                                ->label(trans('texts.update_ticket_notification_list'))
-                                ->help('alert_comment_ticket_email_help') !!}
-
-                            <div id="">
-                                {!! Former::select('alert_ticket_assign_agent_id')
-                                    ->text(trans('texts.alert_ticket_assign_agent_id'))
-                                    ->addOption('','0')
-                                    ->fromQuery($templates, "name", "id")
-                                ->help(trans('texts.alert_ticket_assign_agent_id_hel'))
-                                 !!}
-                            </div>
-
-                            {!! Former::text('alert_ticket_assign_email')
-                                ->placeholder('texts.comma_separated_values')
-                                ->label(trans('texts.alert_ticket_assign_agent_id_notifications'))
-                                ->help('alert_ticket_assign_agent_id_help') !!}
-
-                            <div id="">
-                                {!! Former::select('alert_ticket_overdue_agent_id')
-                                    ->text(trans('texts.alert_ticket_overdue_agent_id'))
-                                    ->addOption('','0')
-                                    ->fromQuery($templates, "name", "id")
-                                ->help(trans('texts.alert_ticket_overdue_agent_id_help'))
-                                 !!}
-                            </div>
-
-                            {!! Former::text('alert_ticket_overdue_email')
-                                ->placeholder('texts.comma_separated_values')
-                                ->label(trans('texts.alert_ticket_overdue_email'))
-                                ->help('alert_ticket_overdue_email_help') !!}
-
-
-
                         </div>
-                    </div>
 
-                    {!! Former::close() !!}
-
-                    <div role="tabpanel" class="tab-pane" id="templates" >
-                        <div class="panel-body form-padding-right" >
-                            {!! Button::primary(trans('texts.add_template'))
-                                ->asLinkTo(URL::to('/ticket_template/create'))
-                                ->withAttributes(['class' => 'pull-right'])
-                                ->appendIcon(Icon::create('plus-sign')) !!}
-
-                            @include('partials.bulk_form', ['entityType' => ENTITY_TICKET_TEMPLATE])
-
-                            {!! Datatable::table()
-                              ->addColumn(
-                                trans('texts.name'),
-                                trans('texts.description'),
-                                trans('texts.action'))
-                              ->setUrl(url('api/ticket_templates/'))
-                              ->setOptions('sPaginationType', 'bootstrap')
-                              ->setOptions('bFilter', false)
-                              ->setOptions('bAutoWidth', false)
-                              ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
-                              ->render('datatable') !!}
-
-                        </div>
                     </div>
 
                 </div>
 
-            </div>
+                <center>
+                    {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id'=>'saveButton']) !!}
+                </center>
 
-            <center>
-                {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id'=>'saveButton']) !!}
-            </center>
+            </div>
 
         </div>
 
+
+        </div>
     </div>
 
 <script>

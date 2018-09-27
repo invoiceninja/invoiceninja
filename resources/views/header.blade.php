@@ -394,7 +394,9 @@
             'reports' => false,
             'settings' => false,
         ] as $key => $value)
-              @if (in_array($key, ['dashboard', 'settings'])
+              @if(!Auth::user()->account->isModuleEnabled(substr($key, 0, -1)))
+                  {{ '' }}
+              @elseif (in_array($key, ['dashboard', 'settings'])
                 || Auth::user()->can('view', substr($key, 0, -1))
                 || Auth::user()->can('create', substr($key, 0, -1)))
                   {!! Form::nav_link($key, $value ?: $key) !!}
@@ -426,7 +428,9 @@
                 'vendors',
                 'tickets',
             ] as $option)
-                @if (in_array($option, ['dashboard', 'settings'])
+                @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
+                    {{ '' }}
+                @elseif (in_array($option, ['dashboard', 'settings'])
                     || Auth::user()->can('view', substr($option, 0, -1))
                     || Auth::user()->can('createEntity', substr($option, 0, -1)))
                     @include('partials.navigation_option')

@@ -361,7 +361,7 @@ class TicketController extends BaseController
     public function search()
     {
         
-        if(env(SCOUT_DRIVER) != null) {
+        if( config('ninja.scout_driver') != null) {
 
             $result = TicketComment::search(request()->term)->where('agent_id', Auth::user()->id)->get()->pluck('description');
             return response()->json($result);
