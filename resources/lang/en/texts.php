@@ -2437,7 +2437,7 @@ $LANG = array(
     'currency_honduran_lempira' => 'Honduran Lempira',
     'currency_surinamese_dollar' => 'Surinamese Dollar',
     'currency_bahraini_dinar' => 'Bahraini Dinar',
-    'currency_venezuelan_bolivars' => 'Venezuelan Bolivars',	
+    'currency_venezuelan_bolivars' => 'Venezuelan Bolivars',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -3080,6 +3080,24 @@ $LANG = array(
     'include_in_filter' => 'Include in filter',
     'custom_client1' => ':VALUE',
     'custom_client2' => ':VALUE',
+    'compare' => 'Compare',
+    'hosted_login' => 'Hosted Login',
+    'selfhost_login' => 'Selfhost Login',
+    'google_login' => 'Google Login',
+    'thanks_for_patience' => 'Thank for your patience while we work to implement these features.\n\nWe hope to have them completed in the next few months.\n\nUntil then we"ll continue to support the',
+    'legacy_mobile_app' => 'legacy mobile app',
+    'today' => 'Today',
+    'current' => 'Current',
+    'previous' => 'Previous',
+    'current_period' => 'Current Period',
+    'comparison_period' => 'Comparison Period',
+    'previous_period' => 'Previous Period',
+    'previous_year' => 'Previous Year',
+    'compare_to' => 'Compare to',
+    'last_week' => 'Last Week',
+    'clone_to_invoice' => 'Clone to Invoice',
+    'clone_to_quote' => 'Clone to Quote',
+    'convert' => 'Convert',
 );
 
 return $LANG;
