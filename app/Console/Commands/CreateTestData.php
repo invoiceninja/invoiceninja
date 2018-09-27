@@ -184,6 +184,8 @@ class CreateTestData extends Command
      */
     private function createTickets($client)
     {
+        $this->info('creating tickets');
+        
         for ($i = 0; $i < $this->count; $i++)
         {
             $maxTicketNumber = Ticket::getNextTicketNumber(Auth::user()->account->id);

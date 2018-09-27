@@ -37,7 +37,7 @@ class AddTicketsSchema extends Migration
             $table->unsignedInteger('category_id');
             $table->unsignedInteger('merged_parent_ticket_id')->nullable();
             $table->unsignedInteger('parent_ticket_id')->nullable();
-            $table->unsignedInteger('ticket_number');
+            $table->string('ticket_number');
             $table->text('subject');
             $table->text('description');
             $table->longtext('tags');
