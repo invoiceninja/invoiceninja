@@ -24,7 +24,7 @@ class InboundTicketCheck
     public function handle(Request $request, Closure $next)
     {
 
-        if (! config('multi_db_enabled'))
+        if (! config('ninja.multi_db_enabled'))
             return $next($request);
 
         $inbound = new InboundTicketFactory($request->input());

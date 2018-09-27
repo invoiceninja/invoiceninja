@@ -303,6 +303,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('tickets/merge/', 'TicketController@actionMerge');
     Route::post('tickets/entities/create', 'TicketController@addEntity');
     Route::post('tickets/entities/remove', 'TicketController@removeEntity');
+    Route::post('tickets/search', 'TicketController@search');
 
     // vendor
     Route::resource('vendors', 'VendorController');

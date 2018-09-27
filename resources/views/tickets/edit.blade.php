@@ -5,9 +5,13 @@
 
     <script src="{{ asset('js/jquery.datetimepicker.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/jquery.datetimepicker.css') }}" rel="stylesheet" type="text/css"/>
-    <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
+
+    <script src="{{ asset('js/tinymce.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/tinymce-mentions-plugin.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/tinymce-mentions-autocomplete.css') }}" rel="stylesheet" type="text/css"/>
+
+
 
 @stop
 
@@ -114,17 +118,15 @@
 
                     {{ trans('texts.description') }}
                 @endif
-                {!! Former::textarea('description')->label(trans('texts.description'))->style('display:none')->raw() !!}
 
-                <div id="descriptionEditor" class="form-control" style="max-height:300px;" onclick="focusEditor()"></div>
+                    <textarea id="description" name="description"></textarea>
 
-                <div class="pull-left">
-                    @include('partials/quill_toolbar', ['name' => 'description'])
-                </div>
 
             </div>
+        </div>
 
         </div>
+        <div id='msgs' class='column' style='font-size:10pt;font-weight:normal;color:red;'>
 
         @can('edit', $ticket)
         <div class="row">
@@ -283,6 +285,31 @@
 
     <script type="text/javascript">
 
+        tinymce.init({
+            selector: '#description',
+            plugins : "mention",
+            mentions: {
+                delimiter: '#',
+                queryBy: 'description',
+                source: function (query, process, delimiter) {
+                    // Do your ajax call
+                    // When using multiple delimiters you can alter the query depending on the delimiter used
+                    if (delimiter === '#') {
+                        $.ajax({
+                            type: "POST",
+                            url:"/tickets/search",
+                            data: {term: query},
+                            success: function (msg, status, jqXHR) {
+                                process(msg);
+                            },
+                            dataType: 'json'
+                        });
+                    }
+                }
+            },
+
+        });
+
         <!-- Initialize ticket_comment accordion -->
         $( function() {
             $( "#accordion" ).accordion();
@@ -411,7 +438,7 @@
             var client_public_id = {{$ticket->client ? $ticket->client->public_id : 'null'}};
 
             if(!linked_object)
-                    return;
+                return;
 
             var obj = { client_public_id: client_public_id, account_id: account_id, entity: linked_object, ticket_id: ticket_id };
 
@@ -552,7 +579,7 @@
 
         function checkCommentText(errorString) {
 
-            if( $('#description').val().length < 1 ) {
+            if( tinyMCE.activeEditor.getContent({format : 'raw'}).length < 1 ) {
                 $('#ticket_message').text(errorString);
                 $('#errorModal').modal('show');
 
@@ -568,29 +595,6 @@
 
         }
 
-        var editor = false;
-        $(function() {
-            editor = new Quill('#descriptionEditor', {
-                modules: {
-                    'toolbar': { container: '#descriptionToolbar' },
-                    'link-tooltip': true
-                },
-                theme: 'snow'
-            });
-            editor.setHTML($('#description').val());
-            editor.on('text-change', function(delta, source) {
-                if (source == 'api') {
-                    return;
-                }
-                var html = editor.getHTML();
-                $('#description').val(html);
-                NINJA.formIsChanged = true;
-            });
-        });
-
-        function focusEditor() {
-            editor.focus();
-        }
 
 
         <!-- Initialize client selector -->
@@ -609,7 +613,8 @@
             if (!getClientDisplayName(client)) {
                 continue;
             }
-                    @endif
+            @endif
+
             var clientName = client.name || '';
             for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
@@ -642,10 +647,7 @@
             }
         });
 
-
         @endif
-
-
 
     </script>
 

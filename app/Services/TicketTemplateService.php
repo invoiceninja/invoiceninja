@@ -108,7 +108,7 @@ class TicketTemplateService extends BaseService
             '$status' => Ticket::getStatusNameById($ticket->status_id),
             '$subject' => $ticket->subject,
             '$description' => $ticket->getLastComment()->description ?? '',
-            '$agent_signature' => $signature,
+            '$signature' => $signature,
         ];
     }
 }
