@@ -530,10 +530,10 @@ Ticket::creating(
 Ticket::created(
 /**
  * @param $ticket
- */
+ */ //todo we don't need to pad here, need to pad when we insert into ticket_number field in ticket table
     function ($ticket) {
         $account_ticket_settings = $ticket->account->account_ticket_settings;
-        $account_ticket_settings->ticket_number_start = $ticket->ticket_number+1;
+        $account_ticket_settings->ticket_number_start = str_pad($ticket->ticket_number+1, $ticket->account->invoice_number_padding, '0', STR_PAD_LEFT);
         $account_ticket_settings->save();
     });
 
