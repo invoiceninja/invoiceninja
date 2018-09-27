@@ -3098,6 +3098,8 @@ $LANG = array(
     'clone_to_invoice' => 'Clone to Invoice',
     'clone_to_quote' => 'Clone to Quote',
     'convert' => 'Convert',
+    'last7_days' => 'Last 7 Days',
+    'last30_days' => 'Last 30 days',
 );
 
 return $LANG;
