@@ -176,7 +176,7 @@ class UserAccountTransformer extends EntityTransformer
             'show_currency_code' => (bool) $account->show_currency_code,
             'enable_second_tax_rate' => (bool) $account->enable_second_tax_rate,
             'start_of_week' => (int) $account->start_of_week,
-            'financial_year_start' => (int) $account->financial_year_start,
+            'financial_year_start' => (int) $account->financialYearStartMonth(),
             'enabled_modules' => (int) $account->enabled_modules,
             'payment_terms' => (int) $account->payment_terms,
             'payment_type_id' => (int) $account->payment_type_id,

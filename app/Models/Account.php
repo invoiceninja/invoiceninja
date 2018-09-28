@@ -1820,6 +1820,17 @@ class Account extends Eloquent
         return $this->company->accounts()->orderBy('id')->first();
     }
 
+    public function financialYearStartMonth()
+    {
+        if (! $this->financial_year_start) {
+            return 1;
+        }
+
+        $yearStart = Carbon::parse($this->financial_year_start);
+
+        return $yearStart ? $yearStart->month : 1;
+    }
+
     public function financialYearStart()
     {
         if (! $this->financial_year_start) {

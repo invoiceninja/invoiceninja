@@ -24,23 +24,23 @@ class DashboardApiController extends BaseAPIController
         $defaultCurrency = $user->account->currency_id;
 
         $dashboardRepo = $this->dashboardRepo;
+        $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
+
+        // optimization for new mobile app
+        if (request()->only_activity) {
+            return $this->response([
+                'id' => 1,
+                'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
+            ]);
+        }
+
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
         $paidToDate = $dashboardRepo->paidToDate($user->account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($user->account, $userId, $viewAll);
-        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);
-        $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
+        $balances = $dashboardRepo->balances($user->account, $userId, $viewAll);
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
-
-        $hasQuotes = false;
-        foreach ([$upcoming, $pastDue] as $data) {
-            foreach ($data as $invoice) {
-                if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) {
-                    $hasQuotes = true;
-                }
-            }
-        }
 
         $data = [
             'id' => 1,
