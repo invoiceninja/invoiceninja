@@ -41,7 +41,7 @@ class TicketTemplateController extends BaseController
     public function index()
     {
 
-        return Redirect::to('settings/' . ACCOUNT_TICKETS);
+        return Redirect::to('settings/' . ACCOUNT_TICKETS . '#templates');
 
     }
 

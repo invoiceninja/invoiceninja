@@ -221,7 +221,7 @@
                         <div role="tabpanel" class="tab-pane" id="templates" >
                             <div class="panel-body form-padding-right" >
                                 {!! Button::primary(trans('texts.add_template'))
-                                    ->asLinkTo(URL::to('/ticket_template/create'))
+                                    ->asLinkTo(URL::to('/ticket_templates/create'))
                                     ->withAttributes(['class' => 'pull-right'])
                                     ->appendIcon(Icon::create('plus-sign')) !!}
 
