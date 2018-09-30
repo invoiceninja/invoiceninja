@@ -7,7 +7,6 @@ use App\Models\Invoice;
 use App\Models\RecurringExpense;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\RecurringExpenseRepository;
-use App\Services\PaymentService;
 use App\Jobs\SendInvoiceEmail;
 use DateTime;
 use Illuminate\Console\Command;
@@ -37,22 +36,15 @@ class SendRecurringInvoices extends Command
     protected $invoiceRepo;
 
     /**
-     * @var PaymentService
-     */
-    protected $paymentService;
-
-    /**
      * SendRecurringInvoices constructor.
      *
      * @param InvoiceRepository $invoiceRepo
-     * @param PaymentService    $paymentService
      */
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentService $paymentService, RecurringExpenseRepository $recurringExpenseRepo)
+    public function __construct(InvoiceRepository $invoiceRepo, RecurringExpenseRepository $recurringExpenseRepo)
     {
         parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
-        $this->paymentService = $paymentService;
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
@@ -66,7 +58,6 @@ class SendRecurringInvoices extends Command
 
         $this->resetCounters();
         $this->createInvoices();
-        $this->billInvoices();
         $this->createExpenses();
 
         $this->info(date('r') . ' Done');
@@ -120,33 +111,6 @@ class SendRecurringInvoices extends Command
             }
 
             Auth::logout();
-        }
-    }
-
-    private function billInvoices()
-    {
-        $today = new DateTime();
-
-        $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE AND is_public IS TRUE
-            AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
-                [$today->format('Y-m-d')])
-            ->orderBy('invoices.id', 'asc')
-            ->get();
-        $this->info(date('r ') . $delayedAutoBillInvoices->count() . ' due recurring invoice instance(s) found');
-
-        /** @var Invoice $invoice */
-        foreach ($delayedAutoBillInvoices as $invoice) {
-            if ($invoice->isPaid()) {
-                continue;
-            }
-
-            if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
-                $this->info(date('r') . ' Processing Autobill-delayed Invoice: ' . $invoice->id);
-                Auth::loginUsingId($invoice->activeUser()->id);
-                $this->paymentService->autoBillInvoice($invoice);
-                Auth::logout();
-            }
         }
     }
 

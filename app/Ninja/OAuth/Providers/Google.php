@@ -6,7 +6,7 @@ class Google implements ProviderInterface
     public function getTokenResponse($token)
     {
 
-        $client = new \Google_Client(['client_id' => env('GOOGLE_CLIENT_ID','')]);
+        $client = new \Google_Client();
         return $client->verifyIdToken($token);
     }
 

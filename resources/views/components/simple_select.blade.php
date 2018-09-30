@@ -1,5 +1,7 @@
+
 {!! Former::select($selectId)
     ->addOption('', '')
+    ->fromQuery($items, $itemLabel, 'public_id')
     ->label($fieldLabel) !!}
 
 @push('component_scripts')
@@ -29,7 +31,6 @@
                         break;
                     default:
                         itemName = entity.{!! $itemLabel !!};
-
                 }
 
                 if (!itemName) {
@@ -41,12 +42,7 @@
                 if(secondaryItemLabel != '') {
                     itemNameLabel = {!! empty($secondaryItemLabel) ? "''" : $secondaryItemLabel !!};
                  }
-
-                $itemSelect.append(new Option(itemName + ((itemNameLabel != '') ? ' - ' + itemNameLabel : ''), entity.public_id));
             }
-            @if (! empty($itemPublicId))
-                $itemSelect.val({{ $itemPublicId }});
-            @endif
 
             $itemSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
                 var entity = itemMap[$('#{!! $selectId !!}').val()];
