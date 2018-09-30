@@ -292,10 +292,11 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('/tickets/create/{parent_ticket_id?}', 'TicketController@create');
     Route::get('api/tickets', 'TicketController@getDatatable');
     Route::get('api/ticket_templates', 'TicketTemplateController@getDatatable');
-    Route::get('ticket_template/create', 'TicketTemplateController@create');
+    Route::get('ticket_templates', 'TicketTemplateController@index');
+    Route::get('ticket_templates/create', 'TicketTemplateController@create');
     Route::get('ticket_templates/{public_id}/edit', 'TicketTemplateController@edit');
     Route::put('ticket_templates/{public_id}', 'TicketTemplateController@update');
-    Route::post('ticket_template/create', 'TicketTemplateController@store');
+    Route::post('ticket_templates/create', 'TicketTemplateController@store');
     Route::post('ticket_templates/bulk', 'TicketTemplateController@bulk');
     Route::post('tickets/bulk', 'TicketController@bulk');
     Route::post('api/tickets/checkSupportLocalPart', 'AccountController@checkUniqueLocalPart');

@@ -76,8 +76,8 @@ class ProposalDatatable extends EntityDatatable
                 function ($model) {
                     return URL::to("proposals/{$model->public_id}/edit");
                 },
-                function ($model) {
-                    return Auth::user()->can('view', [ENTITY_PROPOSAL, $model]) ;
+                function ($model) {$model->entityType = ENTITY_PROPOSAL;
+                    return Auth::user()->can('viewModel', $model) ;
                 },
             ],
         ];

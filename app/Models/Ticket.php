@@ -427,7 +427,7 @@ class Ticket extends EntityModel
         if ($ticket)
             return str_pad($ticket->account->account_ticket_settings->ticket_number_start, $ticket->account->invoice_number_padding, '0', STR_PAD_LEFT);
         else
-            return 1;
+            return str_pad(1, $ticket->account->invoice_number_padding, '0', STR_PAD_LEFT);
 
     }
 
