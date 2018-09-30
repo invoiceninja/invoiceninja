@@ -143,6 +143,7 @@ class TicketController extends BaseController
 
         $ticket = $request->entity();
         $ticket = $this->ticketService->save($data, $ticket);
+
         $ticket->load('documents', 'relations');
 
         $entityType = $ticket->getEntityType();
@@ -354,10 +355,14 @@ class TicketController extends BaseController
             return request()->id;
     }
 
+    /**
+     * Algolia / Elasticsearch
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search()
     {
         
-        if(env(SCOUT_DRIVER) != null) {
+        if( config('ninja.scout_driver') != null) {
 
             $result = TicketComment::search(request()->term)->where('agent_id', Auth::user()->id)->get()->pluck('description');
             return response()->json($result);

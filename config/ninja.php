@@ -71,5 +71,6 @@ return [
     ],
 
     'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
+    'scout_driver' => env('SCOUT_DRIVER'),
 
 ];

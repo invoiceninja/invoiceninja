@@ -129,6 +129,7 @@ class AccountRepository
 
         $accountTicketSettings = new AccountTicketSettings();
         $accountTicketSettings->ticket_master_id = $user->id;
+        $accountTicketSettings->ticket_number_start = 1;
 
         $account->account_ticket_settings()->save($accountTicketSettings);
         return $account;
