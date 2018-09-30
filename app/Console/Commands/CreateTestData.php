@@ -20,6 +20,7 @@ use App\Models\TaxRate;
 use App\Models\Project;
 use App\Models\ExpenseCategory;
 use Auth;
+use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Utils;
@@ -190,6 +191,7 @@ class CreateTestData extends Command
         {
             $maxTicketNumber = Ticket::getNextTicketNumber(Auth::user()->account->id);
 
+            $this->info('next ticket number = '.$maxTicketNumber);
 
             $data = [
                 'priority_id'=> TICKET_PRIORITY_LOW,
@@ -205,7 +207,7 @@ class CreateTestData extends Command
                 'private_notes'=> $this->faker->realText(50),
                 'ccs'=> json_encode([]),
                 'contact_key'=> $client->getPrimaryContact()->contact_key,
-                'due_date'=> date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'due_date'=> Carbon::now(),
                 'ticket_number' => $maxTicketNumber ? $maxTicketNumber : 1,
                 'action' => TICKET_SAVE_ONLY,
             ];

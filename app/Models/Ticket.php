@@ -534,7 +534,7 @@ Ticket::created(
  */
     function ($ticket) {
         $account_ticket_settings = $ticket->account->account_ticket_settings;
-        $account_ticket_settings->increment('ticket_number_start');
+        $account_ticket_settings->increment('ticket_number_start', 1);
         $account_ticket_settings->save();
     });
 
