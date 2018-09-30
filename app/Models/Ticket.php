@@ -423,11 +423,12 @@ class Ticket extends EntityModel
 
         $ticket = Ticket::whereAccountId($accountId)->withTrashed()->orderBy('id', 'DESC')->first();
 
+        $account = Account::where('id', '=', $accountId)->first();
 
         if ($ticket)
             return str_pad($ticket->account->account_ticket_settings->ticket_number_start, $ticket->account->invoice_number_padding, '0', STR_PAD_LEFT);
         else
-            return str_pad(1, $ticket->account->invoice_number_padding, '0', STR_PAD_LEFT);
+            return str_pad(1, $account->invoice_number_padding, '0', STR_PAD_LEFT);
 
     }
 
