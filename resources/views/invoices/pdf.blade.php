@@ -6,7 +6,7 @@
 <canvas id="signatureCanvas" style="display:none;"></canvas>
 @endif
 
-@if (!Utils::isNinja() || !Utils::isPro())
+@if (!Utils::isPro() && !request()->borderless))
 <div class="modal fade" id="moreDesignsModal" tabindex="-1" role="dialog" aria-labelledby="moreDesignsModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
