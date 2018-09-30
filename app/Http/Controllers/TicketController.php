@@ -143,7 +143,7 @@ class TicketController extends BaseController
 
         $ticket = $request->entity();
         $ticket = $this->ticketService->save($data, $ticket);
-        $ticket = $this->ticketService->save($data, $ticket);
+
         $ticket->load('documents', 'relations');
 
         $entityType = $ticket->getEntityType();
