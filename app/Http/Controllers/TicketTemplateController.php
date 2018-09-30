@@ -84,7 +84,7 @@ class TicketTemplateController extends BaseController
             'url' => '/ticket_templates/'.$publicId,
         ]);
 
-            return View::make('accounts.ticket_templates', $data);
+        return View::make('accounts.ticket_templates', $data);
 
     }
 
@@ -121,11 +121,11 @@ class TicketTemplateController extends BaseController
 
         $data = array_merge($data,[
             'method' => 'POST',
-            'url' => '/ticket_template/create',
+            'url' => '/ticket_templates/create',
             'title' => trans('texts.add_template')
         ]);
 
-            return View::make('accounts.ticket_templates', $data);
+        return View::make('accounts.ticket_templates', $data);
 
     }
 
@@ -166,7 +166,7 @@ class TicketTemplateController extends BaseController
 
         Session::flash('message', $message);
 
-            return Redirect::to('settings/' . ACCOUNT_TICKETS);
+        return Redirect::to('settings/' . ACCOUNT_TICKETS . '#templates');
 
     }
 
@@ -192,7 +192,7 @@ class TicketTemplateController extends BaseController
 
         Session::flash('message', $message);
 
-            return Redirect::to('settings/' . ACCOUNT_TICKETS);
+        return Redirect::to('settings/' . ACCOUNT_TICKETS . '#templates');
 
     }
 
