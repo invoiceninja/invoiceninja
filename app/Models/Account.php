@@ -1665,6 +1665,20 @@ class Account extends Eloquent
     }
 
     /**
+     * @return string
+     */
+    public function clientViewJS()
+    {
+        $js = '';
+
+        if ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
+            $js = $this->client_view_js;
+        }
+
+        return $js;
+    }
+
+    /**
      * @param string $protocol
      *
      * @return string

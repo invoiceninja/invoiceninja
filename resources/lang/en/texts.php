@@ -3100,6 +3100,7 @@ $LANG = array(
     'convert' => 'Convert',
     'last7_days' => 'Last 7 Days',
     'last30_days' => 'Last 30 days',
+    'custom_js' => 'Custom JS',
 );
 
 return $LANG;

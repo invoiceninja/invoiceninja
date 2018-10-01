@@ -687,6 +687,7 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account->load('country');
         $css = $account->client_view_css ? $account->client_view_css : '';
+        $js = $account->client_view_js ? $account->client_view_js : '';
 
         if (Utils::isNinja() && $css) {
             // Unescape the CSS for display purposes
@@ -714,6 +715,7 @@ class AccountController extends BaseController
 
         $data = [
             'client_view_css' => $css,
+            'client_view_js' => $js,
             'enable_portal_password' => $account->enable_portal_password,
             'send_portal_password' => $account->send_portal_password,
             'title' => trans('texts.client_portal'),
@@ -885,6 +887,7 @@ class AccountController extends BaseController
 
         $account->fill($request->all());
         $account->client_view_css = $request->client_view_css;
+        $account->client_view_js = $request->client_view_js;
         $account->subdomain = $request->subdomain;
         $account->iframe_url = $request->iframe_url;
         $account->is_custom_domain = $request->is_custom_domain;
