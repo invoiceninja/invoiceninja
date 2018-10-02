@@ -246,7 +246,7 @@ class AddTicketsSchema extends Migration
 
                 /* Create account_ticket_settings record for account */
 
-                $user = $account->users()->where('public_id', '=', 0)->first();
+                $user = $account->users()->where('public_id', '=', 0)->orWhereNull('public_id')->first();
 
                 if($user) {
 
@@ -277,9 +277,9 @@ class AddTicketsSchema extends Migration
         Schema::dropIfExists('ticket_relations');
         Schema::dropIfExists('ticket_comments');
         Schema::dropIfExists('account_ticket_settings');
-        Schema::dropIfExists('tickets');
         Schema::dropIfExists('lookup_ticket_invitations');
         Schema::dropIfExists('ticket_invitations');
+        Schema::dropIfExists('tickets');
 
         if(!Utils::isNinja()) {
             Schema::table('activities', function ($table) {
@@ -335,7 +335,7 @@ class AddTicketsSchema extends Migration
 
         if(Schema::hasColumn('users', 'avatar_size')) {
             Schema::table('users', function ($table) {
-                $table->unsignedInteger('avatar_size');
+                $table->dropColumn('avatar_size');
             });
         }
 
