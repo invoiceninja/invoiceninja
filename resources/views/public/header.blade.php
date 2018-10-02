@@ -163,7 +163,7 @@
     @yield('content')
 </div>
 
-@if(!empty($account) && !empty($account->clientViewJS()))
+@if(Utils::isSelfHost() && !empty($account) && !empty($account->clientViewJS()))
   {!! $account->clientViewJS() !!}
 @endif
 

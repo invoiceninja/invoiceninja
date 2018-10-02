@@ -41,7 +41,7 @@ class SaveClientPortalSettings extends Request
             $input['client_view_css'] = HTMLUtils::sanitizeCSS($this->client_view_css);
         }
 
-        if ($this->client_view_js && Utils::isNinja()) {
+        if ($this->client_view_js && Utils::isSelfHost()) {
             $input['client_view_js'] = HTMLUtils::sanitizeJS($this->client_view_js);
         }
 

@@ -64,9 +64,11 @@
                         <li role="presentation">
                             <a href="#custom_css" aria-controls="custom_css" role="tab" data-toggle="tab">{{ trans('texts.custom_css') }}</a>
                         </li>
-                        <li role="presentation">
-                            <a href="#custom_js" aria-controls="custom_js" role="tab" data-toggle="tab">{{ trans('texts.custom_js') }}</a>
-                        </li>
+                        @if (Utils::isSelfHost())
+                            <li role="presentation">
+                                <a href="#custom_js" aria-controls="custom_js" role="tab" data-toggle="tab">{{ trans('texts.custom_js') }}</a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
 
@@ -164,18 +166,20 @@
 
                         </div>
                     </div>
-                    <div role="tabpanel" class="tab-pane" id="custom_js">
-                        <div class="panel-body">
+                    @if (Utils::isSelfHost())
+                        <div role="tabpanel" class="tab-pane" id="custom_js">
+                            <div class="panel-body">
 
-                            {!! Former::textarea('client_view_js')
-                                ->label(trans('texts.custom_js'))
-                                ->rows(10)
-                                ->raw()
-                                ->maxlength(60000)
-                                ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
+                                {!! Former::textarea('client_view_js')
+                                    ->label(trans('texts.custom_js'))
+                                    ->rows(10)
+                                    ->raw()
+                                    ->maxlength(60000)
+                                    ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
 
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
