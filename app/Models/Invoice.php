@@ -848,7 +848,8 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public static function calcLink($invoice)
     {
-        return link_to('invoices/' . $invoice->public_id, $invoice->invoice_number);
+        $linkPrefix = ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) ? 'quotes/' : 'invoices/';
+        return link_to($linkPrefix . $invoice->public_id, $invoice->invoice_number);
     }
 
     /**
