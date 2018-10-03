@@ -502,7 +502,7 @@ class PermissionsCest
 
     public function setCreatePermissions(FunctionalTester $I)
     {
-        $I->wantTo('create a create only permission user');
+        $I->wantTo('make a create only permission user');
 
         $permissions = [];
 
@@ -526,6 +526,18 @@ class PermissionsCest
     public function testCreateProposalCreateOnlyPermissions(FunctionalTester $I)
     {
         $I->amOnPage('/proposals/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProposalSnippetCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/proposals/snippets/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProposalTemplateCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/proposals/templates/create');
         $I->seeResponseCodeIs(200);
     }
 

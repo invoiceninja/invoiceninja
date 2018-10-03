@@ -441,10 +441,10 @@ class User extends Authenticatable
      */
     public function canCreateOrEdit($entityType, $entity = false)
     {
-        if($entityType)
-            return $this->hasPermission('edit_'.$entityType) || $this->hasPermission('create_'.$entityType);
-        else
+        if($entity)
             return ($entity && $this->can('edit', $entity)) || ($entity && $this->can('create', $entity));
+        elseif($entityType)
+            return $this->hasPermission('edit_'.$entityType) || $this->hasPermission('create_'.$entityType);
 
     }
 
