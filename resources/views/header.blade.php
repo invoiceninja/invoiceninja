@@ -430,9 +430,7 @@
             ] as $option)
                 @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
                     {{ '' }}
-                @elseif (in_array($option, ['dashboard', 'settings'])
-                    || Auth::user()->can('view', substr($option, 0, -1))
-                    || Auth::user()->can('createEntity', substr($option, 0, -1)))
+                @else
                     @include('partials.navigation_option')
                 @endif
             @endforeach
