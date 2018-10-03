@@ -33,7 +33,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
     * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
     * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.flutter)
 * Legacy
-    * [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8)
+    * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1220337560?ls=1&mt=8)
     * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
 
 ## Installation Options
