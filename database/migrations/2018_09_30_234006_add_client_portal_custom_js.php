@@ -14,7 +14,7 @@ class AddClientPortalCustomJs extends Migration
     public function up()
     {
         Schema::table('accounts', function ($table) {
-            $table->text('client_view_js')->nullable();
+            $table->text('client_view_js')->default('');
         });
     }
 
