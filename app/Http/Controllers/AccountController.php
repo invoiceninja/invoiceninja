@@ -724,6 +724,11 @@ class AccountController extends BaseController
             
         ];
 
+        if (Utils::isSelfHost()) {
+            $js = $account->client_view_js ? $account->client_view_js : '';
+            $data['client_view_js'] = $js;
+        }
+
         return View::make('accounts.client_portal', $data);
     }
 
@@ -885,6 +890,7 @@ class AccountController extends BaseController
 
         $account->fill($request->all());
         $account->client_view_css = $request->client_view_css;
+        $account->client_view_js = $request->client_view_js;
         $account->subdomain = $request->subdomain;
         $account->iframe_url = $request->iframe_url;
         $account->is_custom_domain = $request->is_custom_domain;

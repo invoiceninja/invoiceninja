@@ -50,6 +50,14 @@ class HTMLUtils
         return $purifier->purify($html);
     }
 
+    public static function sanitizeJS($js) {
+        if(!stripos($js, '<script')) {
+            $js = "<script type=\"text/javascript\">{$js}</script>";
+        }
+
+        return $js;
+    }
+
     public static function previousUrl($fallback)
     {
         $previous = url()->previous();

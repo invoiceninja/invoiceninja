@@ -163,6 +163,10 @@
     @yield('content')
 </div>
 
+@if(Utils::isSelfHost() && !empty($account) && !empty($account->clientViewJS()))
+  {!! $account->clientViewJS() !!}
+@endif
+
 <footer id="footer" role="contentinfo">
     <div class="top">
         <div class="wrap">

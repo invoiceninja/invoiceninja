@@ -41,6 +41,10 @@ class SaveClientPortalSettings extends Request
             $input['client_view_css'] = HTMLUtils::sanitizeCSS($this->client_view_css);
         }
 
+        if ($this->client_view_js && Utils::isSelfHost()) {
+            $input['client_view_js'] = HTMLUtils::sanitizeJS($this->client_view_js);
+        }
+
         if (Utils::isNinja()) {
             if ($this->custom_link == 'subdomain') {
                 $subdomain = substr(strtolower($input['subdomain']), 0, MAX_SUBDOMAIN_LENGTH);
