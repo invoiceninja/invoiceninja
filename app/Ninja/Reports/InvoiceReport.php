@@ -87,6 +87,21 @@ class InvoiceReport extends AbstractReport
             exit;
         }
 
+        if ($this->isExport && $exportFormat == 'zip-invoices') {
+            if (! extension_loaded('GMP')) {
+                die(trans('texts.gmp_required'));
+            }
+
+            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
+            foreach ($clients->get() as $client) {
+                foreach ($client->invoices as $invoice) {
+                      $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
+                }
+            }
+            $zip->finish();
+            exit;
+        }
+
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
                 $isFirst = true;
