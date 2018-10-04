@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'analytics' => [
+        'tracking_id' => env('TRACKING_ID'),
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
