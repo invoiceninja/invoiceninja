@@ -5,7 +5,11 @@ namespace Tests\Unit;
 use App\Utils\NumberHelper;
 use Tests\TestCase;
 
-@covers App\Utils\NumberHelper
+  /**
+   * @test
+   * @covers  App\Utils\NumberHelper::
+   *
+   */
 
 class NumberTest extends TestCase
 {
