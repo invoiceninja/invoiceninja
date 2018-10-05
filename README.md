@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
 </p>
 
-[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
+[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=v5.0)](https://travis-ci.org/invoiceninja/invoiceninja)
 
 **Invoice Ninja v 5.0** is coming soon!
 
