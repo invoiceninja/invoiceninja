@@ -3,16 +3,15 @@
 namespace App\Models\Traits;
 
 /**
- * Class CalculatesInvoiceTotals
+ * Class CalculatesInvoiceTotals.
  */
-
 class CalculatesInvoiceTotals
 {
-
     protected $invoice;
 
     /**
      * InvoiceTotals constructor.
+     *
      * @param $invoice
      */
     public function __construct($invoice)
@@ -20,16 +19,11 @@ class CalculatesInvoiceTotals
         $this->invoice = $invoice;
     }
 
-
     public function calculate()
     {
-
     }
 
     private function sumLineItems()
     {
-
     }
-
-
 }
