@@ -3,6 +3,7 @@
 </p>
 
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=v5.0)](https://travis-ci.org/invoiceninja/invoiceninja)
+[![codecov](https://codecov.io/gh/invoiceninja/invoiceninja/branch/v5.0/graph/badge.svg)](https://codecov.io/gh/invoiceninja/invoiceninja)
 
 **Invoice Ninja v 5.0** is coming soon!
 
