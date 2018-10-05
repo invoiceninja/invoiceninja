@@ -7,7 +7,7 @@ use Tests\TestCase;
 
   /**
    * @test
-   * @covers  App\Utils\NumberHelper::
+   * @covers  App\Utils\NumberHelper
    *
    */
 
