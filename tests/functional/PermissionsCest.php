@@ -399,7 +399,7 @@ class PermissionsCest
     public function testEditQuoteOnly(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/1/edit');
-        $I->seeResponseCodeIs(403);
+        $I->seeResponseCodeIs(200);
     }
 
     public function testViewQuoteOnly(FunctionalTester $I)
