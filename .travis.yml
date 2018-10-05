@@ -55,11 +55,11 @@ before_script:
   # Make sure the app is up-to-date
 
 script:
-  - php ./vendor/bin/phpunit --debug --verbose
+  - php ./vendor/bin/phpunit --debug --verbose --coverage-clover=coverage.xml
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
-    
+
 notifications:
   email:
     on_success: never
