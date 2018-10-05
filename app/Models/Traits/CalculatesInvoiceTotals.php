@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Ninja\Domain\Invoice;
+namespace App\Models\Traits;
 
 /**
- * Class InvoiceTotals
+ * Class CalculatesInvoiceTotals
  */
 
-class InvoiceTotals
+class CalculatesInvoiceTotals
 {
 
     protected $invoice;

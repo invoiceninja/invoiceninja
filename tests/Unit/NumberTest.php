@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Ninja\Domain\Helpers\NumberHelper;
+use App\Utils\NumberHelper;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
