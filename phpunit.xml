@@ -22,9 +22,11 @@
             <directory suffix=".php">./app</directory>
             <exclude>
               <directory suffix=".php">./vendor</directory>
-              <directory suffix=".php">./app/providers</directory>
-              <file>./app/console/kernel.php</file>
-              <file>./app/exceptions/handler.php</file>
+              <directory suffix=".php">./app/Providers</directory>
+              <directory suffix=".php">/app/Http</directory>
+              <file>./app/Console/Kernel.php</file>
+              <file>./app/Exceptions/Handler.php</file>
+              <directory>/app/Http</directory>
           </exclude>
         </whitelist>
 
