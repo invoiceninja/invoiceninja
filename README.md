@@ -5,6 +5,7 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=v5.0)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![codecov](https://codecov.io/gh/invoiceninja/invoiceninja/branch/v5.0/graph/badge.svg)](https://codecov.io/gh/invoiceninja/invoiceninja)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d39acb4bf0f74a0698dc77f382769ba5)](https://www.codacy.com/app/turbo124/invoiceninja?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=invoiceninja/invoiceninja&amp;utm_campaign=Badge_Grade)
+
 **Invoice Ninja v 5.0** is coming soon!
 
 We will be using the lessons learnt in Invoice Ninja 4.0 to build a bigger better platform to work from. If you would like to contribute to the project we will gladly accept contributions for code, user guides, bug tracking and feedback! Please consider the following guidelines prior to submitting a pull request:
