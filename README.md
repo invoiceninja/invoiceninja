@@ -1,6 +1,10 @@
-**Invoice Ninja v 5.0**
+<p align="center">
+    <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
+</p>
 
-Invoice Ninja v 5.0 is coming soon!
+[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
+
+**Invoice Ninja v 5.0** is coming soon!
 
 We will be using the lessons learnt in Invoice Ninja 4.0 to build a bigger better platform to work from. If you would like to contribute to the project we will gladly accept contributions for code, user guides, bug tracking and feedback! Please consider the following guidelines prior to submitting a pull request:
 
