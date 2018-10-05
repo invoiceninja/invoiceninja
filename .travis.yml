@@ -1,0 +1,65 @@
+language: php
+
+sudo: true
+
+# Prevent tests from taking more than 50 minutes
+group: deprecated-2017Q4
+
+php:
+  - 7.2
+
+addons:
+  hosts:
+    - www.ninja.test
+
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
+
+env:
+  global:
+    - COMPOSER_DISCARD_CHANGES=true
+    - COMPOSER_NO_INTERACTION=1
+    - COMPOSER_DISABLE_XDEBUG_WARN=1
+
+before_install:
+  # set GitHub token and update composer
+  - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
+  - composer self-update && composer -V
+#  - export USE_ZEND_ALLOC=0
+  - rvm use 1.9.3 --install --fuzzy
+
+install:
+  # install Composer dependencies
+  #  - rm composer.lock
+  # these providers require referencing git commit's which cause Travis to fail
+  #  - sed -i '/mollie/d' composer.json
+  #  - sed -i '/2checkout/d' composer.json
+  - travis_retry composer install --prefer-dist;
+
+before_script:
+  # copy configuration files
+  - cp .env.travis .env
+  - php artisan key:generate --no-interaction
+  - sed -i '$a NINJA_DEV=true' .env
+  # create the database and user
+  - mysql -u root -e "create database IF NOT EXISTS ninja0;"
+  # migrate and seed the database
+  # Start webserver on ninja.test:8000
+  - php artisan serve --host=www.ninja.test --port=8000 & # '&' allows to run in background
+  # Start PhantomJS
+  - phantomjs --webdriver=4444 & # '&' allows to run in background
+  # Give it some time to start
+  - sleep 5
+  # Make sure the app is up-to-date
+
+script:
+  - php ./vendor/bin/phpunit --debug --verbose
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+  slack:
+    invoiceninja: SLraaKBDvjeRuRtY9o3Yvp1b

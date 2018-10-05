@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Ninja\Domain\Helpers;
+namespace App\Utils;
 
 /**
  * Class NumberHelper
- * @package App\Ninja
+ * @package App\Utils
  */
 class NumberHelper
 {
