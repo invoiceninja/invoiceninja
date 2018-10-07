@@ -579,6 +579,10 @@
 				if (['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_EXPENSE }}', '{{ ENTITY_DOCUMENT }}'].indexOf(self.report_type()) >= 0) {
 					options.push(new ExportFormatModel('zip', 'ZIP - {{ trans('texts.documents') }}'));
 				}
+				
+				if (['{{ ENTITY_INVOICE }}'].indexOf(self.report_type()) >= 0) {
+					options.push(new ExportFormatModel('zip-invoices', 'ZIP - {{ trans('texts.invoices') }}'));
+				}
 
 				return options;
 			});
@@ -626,9 +630,9 @@
 				return self.export_format() == 'zip' ? 'disabled' : 'enabled';
 			});
 
-            self.enableExportButton = ko.computed(function() {
-                return self.export_format() == '' ? 'disabled' : 'enabled';
-            });
+            		self.enableScheduleButton = ko.computed(function() {
+				return ['zip', 'zip-invoices'].indexOf(self.export_format()) >= 0 ? 'disabled' : 'enabled';
+			});
 
 			self.showScheduleButton = ko.computed(function() {
 				return ! scheduledReportMap[self.report_type()];
