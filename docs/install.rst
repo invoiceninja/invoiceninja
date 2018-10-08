@@ -16,6 +16,8 @@ Detailed Guides
 
 - CentOS and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-centos-7/>`_
 
+- Hostmonster: `catsinja.com <http://blog.catsinja.com/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
+
 Automatic Install/Update
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

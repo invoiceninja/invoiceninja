@@ -44,7 +44,7 @@ class ProfitAndLossReport extends AbstractReport
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
                 '',
                 $account->formatMoney($payment->getCompletedAmount(), $client),
-                $payment->present()->payment_date,
+                $this->isExport ? $payment->payment_date : $payment->present()->payment_date,
                 $payment->present()->method,
             ];
 
@@ -75,7 +75,7 @@ class ProfitAndLossReport extends AbstractReport
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
                 $vendor ? ($this->isExport ? $vendor->name : $vendor->present()->link) : '',
                 '-' . $expense->present()->amount,
-                $expense->present()->expense_date,
+                $this->isExport ? $expense->expense_date : $expense->present()->expense_date,
                 $expense->present()->category,
             ];
 

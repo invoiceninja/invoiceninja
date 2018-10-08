@@ -64,15 +64,15 @@
                 <td>{{ $account->formatMoney($invoice->amount - $invoice->balance, $invoice->client) }}</td>
                 <td>{{ $invoice->po_number }}</td>
                 <td>{{ $invoice->present()->status }}</td>
-                <td>{{ $invoice->present()->invoice_date }}</td>
-                <td>{{ $invoice->present()->due_date }}</td>
+                <td>{{ $invoice->invoice_date }}</td>
+                <td>{{ $invoice->due_date }}</td>
                 <td>{{ $invoice->discount == 0 ? '' :
                     ($invoice->is_amount_discount
                         ? $account->formatMoney($invoice->discount, $invoice->client)
                         : $invoice->discount . '%') }}</td>
                 @if (empty($entityType))
                     <td>{{ $invoice->present()->partial }}</td>
-                    <td>{{ $invoice->present()->partial_due_date }}</td>
+                    <td>{{ $invoice->partial_due_date }}</td>
                 @endif
                 <td>{{ $invoice->public_notes }}</td>
                 <td>{{ $invoice->private_notes }}</td>

@@ -19,7 +19,7 @@
             @endif
             <td>{{ $account->formatMoney($credit->amount, $credit->client) }}</td>
             <td>{{ $account->formatMoney($credit->balance, $credit->client) }}</td>
-            <td>{{ $credit->present()->credit_date }}</td>
+            <td>{{ $credit->credit_date }}</td>
             <td>{{ $credit->public_notes }}</td>
             <td>{{ $credit->private_notes }}</td>
         </tr>

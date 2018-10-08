@@ -67,7 +67,7 @@ class ProductReport extends AbstractReport
                     $row = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
-                        $invoice->present()->invoice_date,
+                        $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
                         $item->product_key,
                         $item->notes,
                         $item->qty + 0,
