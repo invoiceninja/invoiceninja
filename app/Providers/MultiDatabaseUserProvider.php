@@ -112,14 +112,25 @@ class MultiDatabaseUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        // First we will add each credential element to the query as a where clause.
-        // Then we can execute the query and, if we found a user, return it in a
-        // generic "user" object that will be utilized by the Guard instances.
+        /*
+        * We use the email address to determine which serveer to link up.
+        */
+
+        foreach($credentials as $key => $value) {
+
+            if(Str::contains($key, 'email'))
+                $this->setDefaultDatabase(false, $value, false);
+
+        }
+
+        /**
+        | Build query
+        */
+
         $query = $this->conn->table($this->table);
 
         foreach ($credentials as $key => $value) {
-            if (!Str::contains($key, 'password')) {
-                $this->setDefaultDatabase(false, $value, false);
+            if (!Str::contains($key, 'password')) {        
                 $query->where($key, $value);
             }
         }
@@ -188,7 +199,7 @@ class MultiDatabaseUserProvider implements UserProvider
             }
 
             if ($username) {
-                $query->where('username', '=', $username);
+                $query->where('email', '=', $username);
             }
 
             $user = $query->get();
@@ -205,48 +216,16 @@ class MultiDatabaseUserProvider implements UserProvider
 
     private function setDB($database)
     {
-       // DB::disconnect('db-ninja-1');
-       // DB::purge('db-ninja-1');
-       // DB::purge('db-ninja-2');
-       // DB::purge('default');
-
+        /** Get the database name we want to switch to*/
         $db_name = config("database.connections.".$database.".database");
+        //$db_host = config("database.connections.".$database.".db_host");
 
-
+        /* This will set the default configuration for the request / session?*/
         config(['database.default' => $database]);
 
-        //Config::set('database.connections.default.database', Config::get('database.connections.' . $database . '.database'));
-        $this->conn = app('db')->connection(config("database.connections.database.".$database.".".$db_name));
-      //  $this->conn = DB::connection(config("database.connections.".$database));
+        /* Set the connection to complete the user authentication */
+        //$this->conn = app('db')->connection(config("database.connections.database." . $database . "." . $db_name));
+        $this->conn = app('db')->connection(config("database.connections.database." . $database));
     
-        //DB::connection(config("database.connections.database.".$database.".".$db_name));
-
-        Log::error('if this works the new DB name should = '. Config::get('database.connections.' . $database . '.database') .' does it ? = '. DB::getDatabaseName());
-
-        /*
-        Log::error('trying to make connection for ' . $database);
-        $config = App::make('config');
-
-        // Will contain the array of connections that appear in our database config file.
-        $connections = $config->get('database.connections');
-
-        // This line pulls out the default connection by key (by default it's `mysql`)
-        $defaultConnection = $connections[$config->get('database.default')];
-
-        // Now we simply copy the default connection information to our new connection.
-        $newConnection = $defaultConnection;
-
-        // Override the database name.
-        $newConnection['database'] = Config::get('database.connections.' . $database . '.database');
-
-        // This will add our new connection to the run-time configuration for the duration of the request.
-        App::make('config')->set('database.connections.default', $newConnection);
-
-        $this->conn = app('db')->connection();
-
-        DB::connection($database);
-
-        Log::error('if this works the new DB name should = '. $newConnection['database'] .' does it ? = '. DB::getDatabaseName());
-        */
     }
 }
