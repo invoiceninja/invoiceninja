@@ -21,7 +21,7 @@ Most of the system tables are cached (ie, currencies, languages, etc). If you ma
 Custom Localization
 """""""""""""""""""
 
-Invoice Ninja has many translations build-in. Many of them are contributed by users via `Transifex <https://www.transifex.com/invoice-ninja/invoice-ninja/>`_. But not every translation can be sent upstream.
+Invoice Ninja has many translations built-in. Many of them are contributed by users via `Transifex <https://www.transifex.com/invoice-ninja/invoice-ninja/>`_. But not every translation can be sent upstream.
 It is possible to selectively override text strings as required. Any text that is not overridden is taken from the default locale file.
 
 By default the locale override folder ``storage/lang`` does not exist. You have to create it when you want to use this feature. The layout of this folder is the same as the main translation folder, which is located at ``resources/lang``.
