@@ -188,8 +188,14 @@ class ContactMailer extends Mailer
             }
         }
 
+        $body = $this->templateService->processVariables($body, $variables);
+
+        if (Utils::isNinja()) {
+            $body = \HTMLUtils::sanitizeHTML($body);
+        }
+
         $data = [
-            'body' => $this->templateService->processVariables($body, $variables),
+            'body' => $body,
             'link' => $invitation->getLink(),
             'entityType' => $proposal ? ENTITY_PROPOSAL : $invoice->getEntityType(),
             'invoiceId' => $invoice->id,
