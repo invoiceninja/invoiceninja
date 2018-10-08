@@ -116,21 +116,19 @@ class MultiDatabaseUserProvider implements UserProvider
         * We use the email address to determine which serveer to link up.
         */
 
-        foreach($credentials as $key => $value) {
-
-            if(Str::contains($key, 'email'))
+        foreach ($credentials as $key => $value) {
+            if (Str::contains($key, 'email')) {
                 $this->setDefaultDatabase(false, $value, false);
-
+            }
         }
 
         /**
-        | Build query
-        */
-
+         * | Build query.
+         */
         $query = $this->conn->table($this->table);
 
         foreach ($credentials as $key => $value) {
-            if (!Str::contains($key, 'password')) {        
+            if (!Str::contains($key, 'password')) {
                 $query->where($key, $value);
             }
         }
@@ -184,7 +182,6 @@ class MultiDatabaseUserProvider implements UserProvider
         $databases = ['db-ninja-1', 'db-ninja-2'];
 
         foreach ($databases as $database) {
-
             $this->setDB($database);
             //Log::error('database name = '. DB::getDatabaseName());
 
@@ -203,13 +200,13 @@ class MultiDatabaseUserProvider implements UserProvider
             }
 
             $user = $query->get();
-            
-          //  Log::error(print_r($user,1));
-          //  Log::error($database);
+
+            //  Log::error(print_r($user,1));
+            //  Log::error($database);
 
             if (count($user) >= 1) {
-                    Log::error('found a DB!');
-                    break;
+                Log::error('found a DB!');
+                break;
             }
         }
     }
@@ -217,7 +214,7 @@ class MultiDatabaseUserProvider implements UserProvider
     private function setDB($database)
     {
         /** Get the database name we want to switch to*/
-        $db_name = config("database.connections.".$database.".database");
+        $db_name = config('database.connections.'.$database.'.database');
         //$db_host = config("database.connections.".$database.".db_host");
 
         /* This will set the default configuration for the request / session?*/
@@ -225,7 +222,6 @@ class MultiDatabaseUserProvider implements UserProvider
 
         /* Set the connection to complete the user authentication */
         //$this->conn = app('db')->connection(config("database.connections.database." . $database . "." . $db_name));
-        $this->conn = app('db')->connection(config("database.connections.database." . $database));
-    
+        $this->conn = app('db')->connection(config('database.connections.database.'.$database));
     }
 }
