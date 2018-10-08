@@ -16,6 +16,8 @@ Detailed Guides
 
 - CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
+- Hostmonster: `catsinja.com <http://blog.catsinja.com/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
+
 Automatic Install/Update
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

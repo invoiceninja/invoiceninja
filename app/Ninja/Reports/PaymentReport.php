@@ -62,9 +62,9 @@ class PaymentReport extends AbstractReport
             $this->data[] = [
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
-                $invoice->present()->invoice_date,
+                $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
                 $lastInvoiceId == $invoice->id ? '' : $account->formatMoney($invoice->amount, $client),
-                $payment->present()->payment_date,
+                $this->isExport ? $payment->payment_date : $payment->present()->payment_date,
                 $amount,
                 $payment->present()->method,
                 $payment->private_notes,
