@@ -2,10 +2,16 @@
 
 namespace App\Providers;
 
+use App\User;
+use Illuminate\Auth\GenericUser;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MultiDatabaseUserProvider implements UserProvider
@@ -39,7 +45,7 @@ class MultiDatabaseUserProvider implements UserProvider
      *
      * @return void
      */
-    public function __construct(ConnectionInterface $conn, HasherContract $hasher, $table)
+    public function __construct(ConnectionInterface $conn, HasherContract $hasher, $table = 'users')
     {
         $this->conn = $conn;
         $this->table = $table;
@@ -167,8 +173,11 @@ class MultiDatabaseUserProvider implements UserProvider
         $databases = ['db-ninja-1', 'db-ninja-2'];
 
         foreach ($databases as $database) {
-            $query = DB::connection(config('database.'.$database))
-                        ->table('users');
+
+            $this->setDB($database);
+            //Log::error('database name = '. DB::getDatabaseName());
+
+            $query = $this->conn->table('users');
 
             if ($id) {
                 $query->where('id', '=', $id);
@@ -183,13 +192,61 @@ class MultiDatabaseUserProvider implements UserProvider
             }
 
             $user = $query->get();
+            
+          //  Log::error(print_r($user,1));
+          //  Log::error($database);
 
-            if ($user) {
-                config(['database.default' => $database]);
-                $this->conn = DB::connection($database);
-
-                break;
+            if (count($user) >= 1) {
+                    Log::error('found a DB!');
+                    break;
             }
         }
+    }
+
+    private function setDB($database)
+    {
+       // DB::disconnect('db-ninja-1');
+       // DB::purge('db-ninja-1');
+       // DB::purge('db-ninja-2');
+       // DB::purge('default');
+
+        $db_name = config("database.connections.".$database.".database");
+
+
+        config(['database.default' => $database]);
+
+        //Config::set('database.connections.default.database', Config::get('database.connections.' . $database . '.database'));
+        $this->conn = app('db')->connection(config("database.connections.database.".$database.".".$db_name));
+      //  $this->conn = DB::connection(config("database.connections.".$database));
+    
+        //DB::connection(config("database.connections.database.".$database.".".$db_name));
+
+        Log::error('if this works the new DB name should = '. Config::get('database.connections.' . $database . '.database') .' does it ? = '. DB::getDatabaseName());
+
+        /*
+        Log::error('trying to make connection for ' . $database);
+        $config = App::make('config');
+
+        // Will contain the array of connections that appear in our database config file.
+        $connections = $config->get('database.connections');
+
+        // This line pulls out the default connection by key (by default it's `mysql`)
+        $defaultConnection = $connections[$config->get('database.default')];
+
+        // Now we simply copy the default connection information to our new connection.
+        $newConnection = $defaultConnection;
+
+        // Override the database name.
+        $newConnection['database'] = Config::get('database.connections.' . $database . '.database');
+
+        // This will add our new connection to the run-time configuration for the duration of the request.
+        App::make('config')->set('database.connections.default', $newConnection);
+
+        $this->conn = app('db')->connection();
+
+        DB::connection($database);
+
+        Log::error('if this works the new DB name should = '. $newConnection['database'] .' does it ? = '. DB::getDatabaseName());
+        */
     }
 }
