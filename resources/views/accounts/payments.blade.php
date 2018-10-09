@@ -153,6 +153,12 @@
 										->step('any')
 										->append('%') !!}
 
+								{!! Former::checkbox('adjust_fee_percent')
+									->label(' ')
+				                    ->text(trans('texts.adjust_fee_percent_help'))
+									->onchange('updateFeeSample()')
+				                    ->value(1) !!}
+
 								{!! Former::text('fee_cap')
  										->label('maximum')
 										->onchange('updateFeeSample()')
@@ -258,13 +264,15 @@
 		if (settings) {
 			$('#fee_amount').val(settings.fee_amount);
 			$('#fee_percent').val(settings.fee_percent);
-			$('#fee_cap').val(settings.fee_cap);
+			$('#fee_cap').val(settings.fee_cap > 0 ? settings.fee_cap : '');
+			$('#adjust_fee_percent').prop('checked', settings.adjust_fee_percent);
 			setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
 			setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
 		} else {
 			$('#fee_amount').val('');
 			$('#fee_percent').val('');
 			$('#fee_cap').val('');
+			$('#adjust_fee_percent').prop('checked', false);
 			setTaxRate(1, '', '');
 			setTaxRate(2, '', '');
 		}
@@ -342,7 +350,16 @@
 		var feeAmount = NINJA.parseFloat($('#fee_amount').val()) || 0;
 		var feePercent = NINJA.parseFloat($('#fee_percent').val()) || 0;
 		var feeCap = NINJA.parseFloat($('#fee_cap').val()) || 0;
-		var total = feeAmount + (feePercent * 100 / 100);
+		var total = feeAmount;
+
+		if (feePercent > 0) {
+			if ($('#adjust_fee_percent').is(':checked')) {
+				total += (100 + feeAmount) / (1 - feePercent / 100) - (100 + feeAmount);
+			} else {
+				total += 100 * feePercent / 100;
+			}
+		}
+
 		var subtotal = total;
 
 		var taxRate1 = $('#tax_rate1').val();
