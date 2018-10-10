@@ -3101,6 +3101,8 @@ $LANG = array(
     'last7_days' => 'Last 7 Days',
     'last30_days' => 'Last 30 days',
     'custom_js' => 'Custom JS',
+    'adjust_fee_percent_help' => 'Adjust percent to account for fee',
+
 );
 
 return $LANG;
