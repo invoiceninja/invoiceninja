@@ -8,8 +8,8 @@
 // Bootstrap
 //@import '~bootstrap/scss/bootstrap';
 
-@import "node_modules/bulma/bulma";
-@import "node_modules/bulma-extensions/src/sass/index.sass";
+@import "~/bulma/css/bulma.css";
+@import "~/bulma-extensions/dist/css/bulma-extensions.css";
 
 .navbar-laravel {
   background-color: #fff;

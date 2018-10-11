@@ -20,7 +20,7 @@ mix.scripts([
 ], 'public/js/ninja.js');
 
 
-//mix.sass('resources/sass/app.scss', 'public/css/vendor');
+mix.sass('resources/sass/app.scss', 'public/css/vendor');
 //mix.sass('node_modules/bulma/bulma.sass', 'public/css/vendor');
 //mix.sass('node_modules/bulma-extensions/bulma-quickview/src/sass/index.sass', 'public/css/vendor');
 
