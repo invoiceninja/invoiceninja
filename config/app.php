@@ -161,6 +161,11 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         /*
+         * Dependency Service Providers
+         */
+        Spatie\Html\HtmlServiceProvider::class,
+
+        /*
          * Package Service Providers...
          */
 
@@ -222,6 +227,11 @@ return [
         'Validator'    => Illuminate\Support\Facades\Validator::class,
         'View'         => Illuminate\Support\Facades\View::class,
 
+        /*
+         * Dependency Facades
+         */
+
+        'Html' => Spatie\Html\Facades\Html::class,
     ],
 
 ];

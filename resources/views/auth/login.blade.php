@@ -1,49 +1,80 @@
-<!DOCTYPE html>
-<html>
+@extends('master')
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Free Bulma template</title>
+@section('head')
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
-    <!-- Bulma Version 0.7.1-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/login.css">
-</head>
+    <style type="text/css">
+        html,body {
+            font-family: 'Open Sans', serif;
+            font-size: 14px;
+            font-weight: 300;
+        }
+        .hero.is-success {
+            background: #F2F6FA;
+        }
+        .hero .nav, .hero.is-success .nav {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+        .box {
+            margin-top: 5rem;
+        }
+        .avatar {
+            margin-top: -70px;
+            padding-bottom: 20px;
+        }
+        .avatar img {
+            padding: 5px;
+            background: #fff;
+            border-radius: 50%;
+            -webkit-box-shadow: 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1);
+            box-shadow: 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1);
+        }
+        input {
+            font-weight: 300;
+        }
+        p {
+            font-weight: 700;
+        }
+        p.subtitle {
+            padding-top: 1rem;
+        }
+    </style>
+@endsection
 
-<body>
+@section('body')
+
+    <body>
     <section class="hero is-success is-fullheight">
         <div class="hero-body">
             <div class="container has-text-centered">
                 <div class="column is-4 is-offset-4">
-                    <h3 class="title has-text-grey">Login</h3>
-                    <p class="subtitle has-text-grey">Please login to proceed.</p>
+                    <h3 class="title has-text-grey">@lang('auth.account_login')</h3>
                     <div class="box">
                         <figure class="avatar">
                             <img src="https://placehold.it/128x128">
                         </figure>
-                        <form>
+                        {{ html()->form('POST', '/login')->open() }}
+
                             <div class="field">
                                 <div class="control">
-                                    <input class="input is-large" type="email" placeholder="Your Email" autofocus="">
+                                    {{ html()->email('email')->placeholder(__('texts.email_address'))->class('input is-large') }}
                                 </div>
                             </div>
 
                             <div class="field">
                                 <div class="control">
-                                    <input class="input is-large" type="password" placeholder="Your Password">
+                                    {{ html()->password('password')->placeholder(__('texts.password'))->class('input is-large') }}
                                 </div>
                             </div>
                             <div class="field">
                                 <label class="checkbox">
-                  <input type="checkbox">
-                  Remember me
-                </label>
+                                    <input type="checkbox">
+                                    Remember me
+                                </label>
                             </div>
-                            <button class="button is-block is-info is-large is-fullwidth">Login</button>
-                        </form>
+                            {{ Spatie\Html\Elements\Element::withTag('button')->text(__('auth.login'))->class('button is-block is-info is-large is-fullwidth') }}
+
+                        {{ html()->form()->close() }}
                     </div>
                     <p class="has-text-grey">
                         <a href="../">Sign Up</a> &nbsp;·&nbsp;
@@ -54,7 +85,7 @@
             </div>
         </div>
     </section>
-    <script async type="text/javascript" src="../js/bulma.js"></script>
-</body>
+    </body>
 
-</html>
+@endsection
+

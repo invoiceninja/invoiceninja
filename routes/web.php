@@ -19,3 +19,7 @@ Route::get('/logins', function () {
 });
 Route::get('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@showLoginForm']);
 Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@login']);
+
+
+
+require_once app_path() . '/Constants.php';
