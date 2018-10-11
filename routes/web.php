@@ -11,14 +11,11 @@
 |
 */
 
-Route::get('/', function () {
-    return view('master');
-});
-Route::get('/logins', function () {
-    return view('login.login');
-});
+Route::get('/', function () { return redirect()->route('login');});
+
 Route::get('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@showLoginForm']);
 Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@login']);
+Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 
 
 
