@@ -3,10 +3,13 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
 // Variables
-@import 'variables';
+//@import 'variables';
 
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
+//@import '~bootstrap/scss/bootstrap';
+
+@import "node_modules/bulma/bulma";
+@import "node_modules/bulma-extensions/src/sass/index.sass";
 
 .navbar-laravel {
   background-color: #fff;
