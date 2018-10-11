@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 
     /*
     |--------------------------------------------------------------------------
@@ -13,10 +13,12 @@ return [
     |
     */
 
-    "password" => "Passwords must be at least six characters and match the confirmation.",
-    "user" => "We can't find a user with that e-mail address.",
-    "token" => "This password reset token is invalid.",
-    "sent" => "We have e-mailed your password reset link!",
-    "reset" => "Your password has been reset!",
+    "password" => "パスワードは６文字以上必要です。またパスワードの確認と一致している必要があります。",
 
-];
+    "user" => "そのEメールアドレスのユーザは存在しません。",
+
+    "token" => "このパスワード・リセット・トークンは正しくありません。",
+
+    "sent" => "パスワードリマインダーが送信されました！",
+
+);

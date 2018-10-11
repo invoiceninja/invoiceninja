@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 
     /*
     |--------------------------------------------------------------------------
@@ -13,10 +13,12 @@ return [
     |
     */
 
-    "password" => "Passwords must be at least six characters and match the confirmation.",
-    "user" => "We can't find a user with that e-mail address.",
-    "token" => "This password reset token is invalid.",
-    "sent" => "We have e-mailed your password reset link!",
-    "reset" => "Your password has been reset!",
+    "password" => "Las contraseñas deben contener al menos 6 caracteres y coincidir.",
 
-];
+    "user"     => "No podemos encontrar a un usuario con ese correo electrónico.",
+
+    "token"    => "Este token de recuperación de contraseña es inválido.",
+
+    "sent"     => "¡Recordatorio de contraseña enviado!",
+
+);

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Password Reminder Language Lines
@@ -13,10 +12,9 @@ return [
     |
     */
 
-    "password" => "Passwords must be at least six characters and match the confirmation.",
-    "user" => "We can't find a user with that e-mail address.",
-    "token" => "This password reset token is invalid.",
-    "sent" => "We have e-mailed your password reset link!",
-    "reset" => "Your password has been reset!",
-
+    'password' => '密碼至少要有六個字元且與密碼確認欄位一致。',
+    'reset'    => '密碼已成功重設！',
+    'sent'     => '密碼重設郵件已發送！',
+    'token'    => '密碼重設隨機碼 (token) 無效。',
+    'user'     => '找不到該電子郵件信箱對應的使用者。',
 ];

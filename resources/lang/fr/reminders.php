@@ -1,6 +1,6 @@
 <?php
 
-return [
+return array(
 
     /*
     |--------------------------------------------------------------------------
@@ -13,10 +13,12 @@ return [
     |
     */
 
-    "password" => "Passwords must be at least six characters and match the confirmation.",
-    "user" => "We can't find a user with that e-mail address.",
-    "token" => "This password reset token is invalid.",
-    "sent" => "We have e-mailed your password reset link!",
-    "reset" => "Your password has been reset!",
+    "password" => "Les mots de passe doivent avoir au moins six caractères et doivent être identiques.",
 
-];
+    "user"     => "Nous ne pouvons trouver cet utilisateur avec cette adresse e-mail.",
+
+    "token"    => "Ce jeton de réinitialisation du mot de passe n'est pas valide.",
+
+    "sent"     => "Rappel du mot de passe envoyé !",
+
+);

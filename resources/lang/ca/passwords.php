@@ -13,10 +13,10 @@ return [
     |
     */
 
-    "password" => "Passwords must be at least six characters and match the confirmation.",
-    "user" => "We can't find a user with that e-mail address.",
-    "token" => "This password reset token is invalid.",
-    "sent" => "We have e-mailed your password reset link!",
-    "reset" => "Your password has been reset!",
+    'password' => 'Les contrasenyes han de contenir almenys 6 caràcters i coincidir.',
+    'reset'    => "La contrasenya s'ha restablert!",
+    'sent'     => 'Recordatori de contrasenya enviat!',
+    'token'    => 'Aquest token de recuperació de contrasenya és invàlid.',
+    'user'     => 'No podem trobar a un usuari amb aquest correu electrònic.',
 
 ];
