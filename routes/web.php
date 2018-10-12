@@ -18,5 +18,7 @@ Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@login'])
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 
 
+Route::get('/dashboard', function () {return view('dummy_dashboard'); });
+
 
 require_once app_path() . '/Constants.php';

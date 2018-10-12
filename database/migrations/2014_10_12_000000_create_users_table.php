@@ -15,6 +15,8 @@ class CreateUsersTable extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->increments('id');
+            $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('users', function (Blueprint $table) {
@@ -35,10 +37,10 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
-            $table->string('avatar', 255);
-            $table->unsignedInteger('avatar_width');
-            $table->unsignedInteger('avatar_height');
-            $table->unsignedInteger('avatar_size');
+            $table->string('avatar', 255)->default('');
+            $table->unsignedInteger('avatar_width')->nullable();
+            $table->unsignedInteger('avatar_height')->nullable();
+            $table->unsignedInteger('avatar_size')->nullable();
             $table->text('signature');
             $table->string('password');
             $table->rememberToken();
