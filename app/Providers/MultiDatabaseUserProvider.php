@@ -183,7 +183,6 @@ class MultiDatabaseUserProvider implements UserProvider
 
         foreach ($databases as $database) {
             $this->setDB($database);
-            //Log::error('database name = '. DB::getDatabaseName());
 
             $query = $this->conn->table('users');
 
@@ -205,7 +204,6 @@ class MultiDatabaseUserProvider implements UserProvider
             //  Log::error($database);
 
             if (count($user) >= 1) {
-                Log::error('found a DB!');
                 break;
             }
         }

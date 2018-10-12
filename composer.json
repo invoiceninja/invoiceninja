@@ -1,14 +1,28 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
-    "license": "MIT",
+    "name": "invoiceninja/invoiceninja",
+    "description": "Invoices, expenses & time-tracking built with Laravel",
+    "keywords": [
+        "invoice",
+        "laravel"
+    ],
+    "license": "Attribution Assurance License",
+    "authors": [
+        {
+            "name": "Hillel Coren",
+            "email": "hillelcoren@gmail.com"
+        },
+        {
+            "name": "David Bomba",
+            "email": "turbo124@gmail.com"
+        }
+    ],
     "type": "project",
     "require": {
         "php": "^7.1.3",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.7.*",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "spatie/laravel-html": "^2.19"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
