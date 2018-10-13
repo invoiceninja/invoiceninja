@@ -1,0 +1,272 @@
+    .social{
+        color: #fff;
+          &.btn-sm {
+            padding: 0 10px 0 0;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0;
+          }
+          &.btn-lg {
+
+            border-radius: 0;
+          }
+          &.btn{
+            border-radius: 0;
+          }
+          i{
+              width: 1.8125rem;
+              line-height: 2;
+          }
+
+          &.facebook{
+            background: #3b5998;
+            &:hover {
+              background: #344e86;
+            }
+          }
+          [class*="-facebook"] {
+            background: #2d4373;
+          }
+
+          &.twitter{
+            background: #00aced;
+            &:hover {
+              background: #0099d4;
+            }
+          }
+          [class*="-twitter"] {
+            background: #0087ba;
+          }
+
+          &.linkedin{
+            background: #4875b4;
+            &:hover {
+              background: #4169a2;
+            }
+          }
+          [class*="-linkedin"] {
+            background: #395d90;
+          }
+
+          &.flickr{
+            background: #ff0084;
+            &:hover {
+              background: #e60077;
+            }
+          }
+          [class*="-flickr"] {
+            background: #cc006a;
+          }
+
+          &.tumblr{
+            background: #32506d;
+            &:hover {
+              background: #2a435c;
+            }
+          }
+          [class*="-tumblr"] {
+            background: #22364a;
+          }
+
+          &.xing{
+            background: #026466;
+            &:hover {
+              background: #024b4d;
+            }
+          }
+          [class*="-xing"] {
+            background: #013334;
+          }
+
+          &.github{
+            background: #4183c4;
+            &:hover {
+              background: #3876b4;
+            }
+          }
+          [class*="-github"] {
+            background: #3269a0;
+          }
+
+          &.html5{
+            background: #e34f26;
+            &:hover {
+              background: #d4431b;
+            }
+          }
+          [class*="-html5"] {
+            background: #be3c18;
+          }
+
+          &.openid{
+            background: #f78c40;
+            &:hover {
+              background: #f67d28;
+            }
+          }
+          [class*="-openid"] {
+            background: #f56f0f;
+          }
+
+          &.stack-overflow{
+            background: #fe7a15;
+            &:hover {
+              background: #f86c01;
+            }
+          }
+          [class*="-stack-overflow"] {
+            background: #df6101;
+          }
+
+          &.css3{
+            background: #0170ba;
+            &:hover {
+              background: #0161a1;
+            }
+          }
+          [class*="-css3"] {
+            background: #015187;
+          }
+
+          &.youtube{
+            background: #b00;
+            &:hover {
+              background: #a20000;
+            }
+          }
+          [class*="-youtube"] {
+            background: #880000;
+          }
+
+          &.dribbble{
+            background: #ea4c89;
+            &:hover {
+              background: #e7357a;
+            }
+          }
+          [class*="-dribbble"] {
+            background: #e51e6b;
+          }
+
+          &.dropbox{
+            background: #007ee5;
+            &:hover {
+              background: #0070cc;
+            }
+          }
+          [class*="-dropbox"] {
+            background: #0070cc;
+          }
+
+          &.google-plus{
+            background: #d34836;
+            &:hover {
+              background: #c43d2b;
+            }
+          }
+          [class*="-google-plus"] {
+            background: #b03626;
+          }
+
+          &.instagram{
+            background: #517fa4;
+            &:hover {
+              background: #497293;
+            }
+          }
+          [class*="-instagram"] {
+            background: #406582;
+          }
+
+          &.pinterest{
+            background: #cb2027;
+            &:hover {
+              background: #b51d23;
+            }
+          }
+          [class*="-pinterest"] {
+            background: #9f191f;
+          }
+
+          &.vk{
+            background: #45668e;
+            &:hover {
+              background: #3d5a7d;
+            }
+          }
+          [class*="-vk"] {
+            background: #344d6c;
+          }
+
+          &.yahoo{
+            background: #400191;
+            &:hover {
+              background: #350178;
+            }
+          }
+          [class*="-yahoo"] {
+            background: #2a015e;
+          }
+
+          &.behance{
+            background: #1769ff;
+            &:hover {
+              background: #0059fd;
+            }
+          }
+          [class*="-behance"] {
+            background: #0050e3;
+          }
+
+          &.reddit{
+            background: #ff4500;
+            &:hover {
+              background: #e63e00;
+            }
+          }
+          [class*="-reddit"] {
+            background: #cc3700;
+          }
+
+          &.spotify{
+            background: #7ab800;
+            &:hover {
+              background: #699f00;
+            }
+          }
+          [class*="-spotify"] {
+            background: #588500;
+          }
+
+          &.vine{
+            background: #00bf8f;
+            &:hover {
+              background: #00a67c;
+            }
+          }
+          [class*="-vine"] {
+            background: #008c69;
+          }
+
+          &.foursquare{
+            background: #1073af;
+            &:hover {
+              background: #0e6498;
+            }
+          }
+          [class*="-foursquare"] {
+            background: #0c5480;
+          }
+
+          &.vimeo{
+            background: #aad450;
+            &:hover {
+              background: #a0cf3c;
+            }
+          }
+          [class*="-vimeo"] {
+            background: #93c130;
+          }
+
+
+     }

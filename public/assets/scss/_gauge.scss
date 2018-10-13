@@ -1,0 +1,44 @@
+.gaugejs-wrap {
+  position: relative;
+  margin: 0 auto;
+  canvas.gaugejs {
+    width: 100% !important;
+    height: auto !important;
+  }
+  i, &.sparkline .value {
+    top: 50%;
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+  i {
+    position: absolute;
+    left: 0;
+    z-index: 1000;
+    margin-top: -15px;
+    font-size: 30px;
+  }
+  &.type-2 {
+    .value {
+      display: block;
+      margin-top: -85px;
+    }
+    label {
+      display: block;
+      margin-top: -10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #9da0a8;
+      text-transform: uppercase;
+    }
+  }
+  &.sparkline {
+    position: relative;
+    .value {
+      position: absolute;
+      margin-top: -5px;
+      font-size: 10px;
+      line-height: 10px;
+    }
+  }
+}

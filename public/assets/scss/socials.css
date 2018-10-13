@@ -1,0 +1,164 @@
+.social {
+  color: #fff; }
+  .social.btn-sm {
+    padding: 0 10px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0; }
+  .social.btn-lg {
+    border-radius: 0; }
+  .social.btn {
+    border-radius: 0; }
+  .social i {
+    width: 1.8125rem;
+    line-height: 2; }
+  .social.facebook {
+    background: #3b5998; }
+    .social.facebook:hover {
+      background: #344e86; }
+  .social [class*="-facebook"] {
+    background: #2d4373; }
+  .social.twitter {
+    background: #00aced; }
+    .social.twitter:hover {
+      background: #0099d4; }
+  .social [class*="-twitter"] {
+    background: #0087ba; }
+  .social.linkedin {
+    background: #4875b4; }
+    .social.linkedin:hover {
+      background: #4169a2; }
+  .social [class*="-linkedin"] {
+    background: #395d90; }
+  .social.flickr {
+    background: #ff0084; }
+    .social.flickr:hover {
+      background: #e60077; }
+  .social [class*="-flickr"] {
+    background: #cc006a; }
+  .social.tumblr {
+    background: #32506d; }
+    .social.tumblr:hover {
+      background: #2a435c; }
+  .social [class*="-tumblr"] {
+    background: #22364a; }
+  .social.xing {
+    background: #026466; }
+    .social.xing:hover {
+      background: #024b4d; }
+  .social [class*="-xing"] {
+    background: #013334; }
+  .social.github {
+    background: #4183c4; }
+    .social.github:hover {
+      background: #3876b4; }
+  .social [class*="-github"] {
+    background: #3269a0; }
+  .social.html5 {
+    background: #e34f26; }
+    .social.html5:hover {
+      background: #d4431b; }
+  .social [class*="-html5"] {
+    background: #be3c18; }
+  .social.openid {
+    background: #f78c40; }
+    .social.openid:hover {
+      background: #f67d28; }
+  .social [class*="-openid"] {
+    background: #f56f0f; }
+  .social.stack-overflow {
+    background: #fe7a15; }
+    .social.stack-overflow:hover {
+      background: #f86c01; }
+  .social [class*="-stack-overflow"] {
+    background: #df6101; }
+  .social.css3 {
+    background: #0170ba; }
+    .social.css3:hover {
+      background: #0161a1; }
+  .social [class*="-css3"] {
+    background: #015187; }
+  .social.youtube {
+    background: #b00; }
+    .social.youtube:hover {
+      background: #a20000; }
+  .social [class*="-youtube"] {
+    background: #880000; }
+  .social.dribbble {
+    background: #ea4c89; }
+    .social.dribbble:hover {
+      background: #e7357a; }
+  .social [class*="-dribbble"] {
+    background: #e51e6b; }
+  .social.dropbox {
+    background: #007ee5; }
+    .social.dropbox:hover {
+      background: #0070cc; }
+  .social [class*="-dropbox"] {
+    background: #0070cc; }
+  .social.google-plus {
+    background: #d34836; }
+    .social.google-plus:hover {
+      background: #c43d2b; }
+  .social [class*="-google-plus"] {
+    background: #b03626; }
+  .social.instagram {
+    background: #517fa4; }
+    .social.instagram:hover {
+      background: #497293; }
+  .social [class*="-instagram"] {
+    background: #406582; }
+  .social.pinterest {
+    background: #cb2027; }
+    .social.pinterest:hover {
+      background: #b51d23; }
+  .social [class*="-pinterest"] {
+    background: #9f191f; }
+  .social.vk {
+    background: #45668e; }
+    .social.vk:hover {
+      background: #3d5a7d; }
+  .social [class*="-vk"] {
+    background: #344d6c; }
+  .social.yahoo {
+    background: #400191; }
+    .social.yahoo:hover {
+      background: #350178; }
+  .social [class*="-yahoo"] {
+    background: #2a015e; }
+  .social.behance {
+    background: #1769ff; }
+    .social.behance:hover {
+      background: #0059fd; }
+  .social [class*="-behance"] {
+    background: #0050e3; }
+  .social.reddit {
+    background: #ff4500; }
+    .social.reddit:hover {
+      background: #e63e00; }
+  .social [class*="-reddit"] {
+    background: #cc3700; }
+  .social.spotify {
+    background: #7ab800; }
+    .social.spotify:hover {
+      background: #699f00; }
+  .social [class*="-spotify"] {
+    background: #588500; }
+  .social.vine {
+    background: #00bf8f; }
+    .social.vine:hover {
+      background: #00a67c; }
+  .social [class*="-vine"] {
+    background: #008c69; }
+  .social.foursquare {
+    background: #1073af; }
+    .social.foursquare:hover {
+      background: #0e6498; }
+  .social [class*="-foursquare"] {
+    background: #0c5480; }
+  .social.vimeo {
+    background: #aad450; }
+    .social.vimeo:hover {
+      background: #a0cf3c; }
+  .social [class*="-vimeo"] {
+    background: #93c130; }
