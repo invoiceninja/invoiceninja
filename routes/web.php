@@ -11,17 +11,16 @@
 |
 */
 
+Route::get('/', function () { return view('welcome'); });
 Route::get('/', 'GuestController@defaultRoute');
 
-Route::get('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@showLoginForm']);
-Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@login']);
-Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
+Auth::routes(['verify' => true]);
+Route::get('/home', 'HomeController@index')->name('home');
 
-Route::group(['middleware' => ['auth:user','verified']], function () {
+Route::group(['middleware' => ['auth:user']], function () {
 
     Route::get('/dashboard', 'DashboardController@index');
+	Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 
 
 });
-
-require_once app_path() . '/Constants.php';
