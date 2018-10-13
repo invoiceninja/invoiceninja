@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class Contact extends Authenticatable
 {
     use Notifiable;
 
-    protected $guard = 'user';
+    protected $guard = 'contact';
 
     /**
      * The attributes that are mass assignable.
@@ -33,15 +32,5 @@ class User extends Authenticatable implements MustVerifyEmail
         'password', 'remember_token',
     ];
 
-    /**
-     * The attributes that should be casted to native types.
-     *
-     * @var array
-     *
-     * cast types = 'array, object'
-     */
-    protected $casts = [
-        'settings' => 'object',
-    ];
 
 }

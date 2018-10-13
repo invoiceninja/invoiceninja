@@ -17,4 +17,9 @@ if (! defined('APP_NAME')) {
 
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
+
+    define('TEST_USERNAME', env('TEST_USERNAME', 'user@example.com'));
+    define('TEST_CLIENTNAME', env('TEST_CLIENTNAME', 'client@example.com'));
+    define('TEST_PASSWORD', 'password');
+
 }

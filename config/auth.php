@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard'     => 'web',
+        'guard'     => 'user',
         'passwords' => 'users',
     ],
 
@@ -40,10 +40,17 @@ return [
             'driver'   => 'session',
             'provider' => 'users',
         ],
-
         'api' => [
             'driver'   => 'token',
             'provider' => 'users',
+        ],
+        'user' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'contact' => [
+            'driver' => 'session',
+            'provider' => 'clients',
         ],
     ],
 
@@ -69,11 +76,10 @@ return [
             'driver' => env('AUTH_PROVIDER', 'eloquent'),
             'model'  => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'contacts' => [
+            'driver' => env('AUTH_PROVIDER', 'eloquent'),
+            'model' => App\Models\Contact::class,
+        ],
     ],
 
     /*
@@ -93,7 +99,12 @@ return [
 
     'passwords' => [
         'users' => [
-            'provider' => 'users',
+            'driver' => env('AUTH_PROVIDER', 'eloquent'),
+            'table'    => 'password_resets',
+            'expire'   => 60,
+        ],
+        'contacts' => [
+            'driver' => env('AUTH_PROVIDER', 'eloquent'),
             'table'    => 'password_resets',
             'expire'   => 60,
         ],

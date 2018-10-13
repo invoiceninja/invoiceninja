@@ -88,6 +88,4 @@
             </ul>
         </div><!-- /.navbar-collapse -->
     </nav>
-</aside><!-- /#left-panel -->
-
-<!-- Left Panel -->
+</aside>

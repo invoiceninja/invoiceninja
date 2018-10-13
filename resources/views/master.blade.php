@@ -72,7 +72,7 @@
 
 
         <link rel="stylesheet" href="assets/css/normalize.css">
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+        <!--<link rel="stylesheet" href="assets/css/bootstrap.min.css">-->
         <link rel="stylesheet" href="assets/css/font-awesome.min.css">
         <link rel="stylesheet" href="assets/css/themify-icons.css">
         <link rel="stylesheet" href="assets/css/flag-icon.min.css">
@@ -84,10 +84,6 @@
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
 
         <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/html5shiv/3.7.3/html5shiv.min.js"></script> -->
-
-
-
-    <script src=" {{ mix('/js/ninja.js') }}"></script>
 
     @yield('head')
 

@@ -11,14 +11,17 @@
 |
 */
 
-Route::get('/', function () { return redirect()->route('login');});
+Route::get('/', 'GuestController@defaultRoute');
 
 Route::get('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@showLoginForm']);
 Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@login']);
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
 
+Route::group(['middleware' => ['auth:user','verified']], function () {
 
-Route::get('/dashboard', function () {return view('dummy_dashboard'); });
+    Route::get('/dashboard', 'DashboardController@index');
 
+
+});
 
 require_once app_path() . '/Constants.php';

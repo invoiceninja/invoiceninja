@@ -1,6 +1,5 @@
 <div id="right-panel" class="right-panel">
 
-    <!-- Header-->
     <header id="header" class="header">
 
         <div class="header-menu">
@@ -124,5 +123,4 @@
             </div>
         </div>
 
-    </header><!-- /header -->
-    <!-- Header-->
+    </header>
