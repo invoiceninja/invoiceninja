@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 
 class GuestController extends Controller
 {
-    //
+
     /**
      * GuestController constructor.
      */

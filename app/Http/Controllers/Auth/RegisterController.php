@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Contact;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -38,6 +40,40 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+        $this->middleware('guest:user');
+        $this->middleware('guest:contact');
+    }
+
+    public function showUserRegisterForm()
+    {
+        return view('auth.register', ['url' => 'admin']);
+    }
+
+    public function showContactRegisterForm()
+    {
+        return view('auth.register', ['url' => 'writer']);
+    }
+
+    protected function createUser(Request $request)
+    {
+        $this->validator($request->all())->validate();
+        $admin = User::create([
+            'first_name' => $request['name'],
+            'email' => $request['email'],
+            'password' => Hash::make($request['password']),
+        ]);
+        return redirect()->intended('login/user');
+    }
+
+    protected function createContact(Request $request)
+    {
+        $this->validator($request->all())->validate();
+        $writer = Contact::create([
+            'first_name' => $request['name'],
+            'email' => $request['email'],
+            'password' => Hash::make($request['password']),
+        ]);
+        return redirect()->intended('login/contact');
     }
 
     /**

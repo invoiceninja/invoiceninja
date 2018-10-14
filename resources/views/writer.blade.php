@@ -1,4 +1,4 @@
-// resources/views/home.blade.php
+// resources/views/writer.blade.php
 
 @extends('layouts.auth')
 
@@ -10,7 +10,7 @@
                     <div class="card-header">Dashboard</div>
 
                     <div class="card-body">
-                        Hi there, regular user
+                        Hi there, awesome writer
                     </div>
                 </div>
             </div>
