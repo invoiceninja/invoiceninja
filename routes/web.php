@@ -11,22 +11,43 @@
 |
 */
 
-Auth::routes();
 
+// Authentication Routes Laravel Defaults... replaces //Auth::routes();
+Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::post('login', 'Auth\LoginController@login');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+
+// Password Reset Routes...
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
+
+/*
+Open Routes
+ */
 Route::get('/', 'HomeController@index')->name('default');
 Route::get('/contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
 
 
+/*
+Authenticated User Routes
+ */
 Route::group(['middleware' => ['auth:user']], function () {
 
 	Route::get('/home', 'HomeController@user')->name('user.dashboard');
 	Route::get('/logout', 'Auth\LoginController@logout')->name('user.logout');
+
 });
 
 
-
+/*
+Authenticated Contact Routes
+ */
 Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function () {
+
    Route::get('/', 'ContactController@index')->name('contact.dashboard');
    Route::get('logout/', 'Auth\ContactLoginController@logout')->name('contact.logout');
+   
 }); 
