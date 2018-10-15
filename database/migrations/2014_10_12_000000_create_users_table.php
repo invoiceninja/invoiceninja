@@ -15,6 +15,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('name')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -51,6 +52,51 @@ class CreateUsersTable extends Migration
 
         });
 
+        Schema::create('clients', function (Blueprint $table) {
+
+            $table->increments('id');
+            $table->unsignedInteger('account_id')->index();
+            $table->string('name')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+
+        });
+
+        Schema::create('contacts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('account_id')->index();
+            $table->unsignedInteger('client_id')->index();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('confirmation_code')->nullable();
+            $table->boolean('registered')->default(false);
+            $table->boolean('confirmed')->default(false);
+            $table->smallInteger('failed_logins')->nullable();
+            $table->string('oauth_user_id')->nullable()->unique();
+            $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
+            $table->string('google_2fa_secret')->nullable();
+            $table->string('accepted_terms_version')->nullable();
+            $table->string('avatar', 255)->default('');
+            $table->unsignedInteger('avatar_width')->nullable();
+            $table->unsignedInteger('avatar_height')->nullable();
+            $table->unsignedInteger('avatar_size')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+
+        });
+
+
         Schema::create('user_accounts', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
@@ -60,6 +106,9 @@ class CreateUsersTable extends Migration
             $table->boolean('is_admin');
             $table->boolean('is_locked'); // locks user out of account
             $table->boolean('is_default'); //default account to present to the user
+
+            $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -94,6 +143,8 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('contacts');
+        Schema::dropIfExists('clients');
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('user_accounts');
         Schema::dropIfExists('users');
