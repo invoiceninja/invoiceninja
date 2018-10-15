@@ -2,4 +2,4 @@
 
 
 
-Contact homepage
+<h1>Contact homepage</h1>
