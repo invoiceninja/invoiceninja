@@ -11,22 +11,5 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js/vendor');
-
-mix.scripts([
-    'public/js/vendor/app.js',
-], 'public/js/ninja.js');
-
-
-mix.sass('resources/sass/app.scss', 'public/css/vendor');
-
-mix.styles([
-    'public/css/vendor/app.css',
-    'public/css/vendor/these.css',
-    'public/css/vendor/animate.css',
-    'public/css/vendor/bootstrap-select.css',
-    'public/css/vendor/cs-skin-elastic.css',
-    'public/css/vendor/flag-icon.min.css'
-], 'public/css/ninja.css');
-
-mix.version();
+mix.js('resources/js/app.js', 'public/js')
+   .sass('resources/sass/app.scss', 'public/css');

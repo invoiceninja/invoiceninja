@@ -2,26 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use Notifiable;
 
     protected $guard = 'user';
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'password',
+        'first_name', 'last_name', 'email', 'password',
     ];
 
     /**
@@ -32,16 +28,4 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password', 'remember_token',
     ];
-
-    /**
-     * The attributes that should be casted to native types.
-     *
-     * @var array
-     *
-     * cast types = 'array, object'
-     */
-    protected $casts = [
-        'settings' => 'object',
-    ];
-
 }

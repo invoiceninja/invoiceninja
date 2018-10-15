@@ -1,29 +1,32 @@
 <?php
 
-Auth::routes(['verify' => true]);
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
 
-Route::get('/', 'GuestController@defaultRoute');
-Route::get('/home', 'HomeController@index')->name('home');
+Auth::routes();
 
-Route::get('/login/user', 'Auth\LoginController@showLoginForm');
-Route::get('/login/contact', 'Auth\LoginController@showLoginForm');
-Route::get('/register/user', 'Auth\RegisterController@showUserRegisterForm');
-Route::get('/register/contact', 'Auth\RegisterController@showContactRegisterForm');
+Route::get('/', 'HomeController@index')->name('default');
+Route::get('/contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
+Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
 
-Route::post('/login/user', 'Auth\LoginController@userLogin');
-Route::post('/login/contact', 'Auth\LoginController@contactLogin');
-Route::post('/register/user', 'Auth\RegisterController@createUser');
-Route::post('/register/contact', 'Auth\RegisterController@createContact');
-
-Route::view('/home', 'home')->middleware('auth');
-Route::view('/admin', 'admin');
-Route::view('/writer', 'writer');
 
 Route::group(['middleware' => ['auth:user']], function () {
 
-    Route::get('/dashboard', 'DashboardController@index');
-	Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@logout']);
-
-
+	Route::get('/home', 'HomeController@user')->name('user.dashboard');
+	Route::get('/logout', 'Auth\LoginController@logout')->name('user.logout');
 });
 
+
+
+Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function () {
+   Route::get('/', 'ContactController@index')->name('contact.dashboard');
+   Route::get('logout/', 'Auth\ContactLoginController@logout')->name('contact.logout');
+}); 

@@ -1,19 +1,4 @@
-// resources/views/home.blade.php
+@extends('layouts.app')
 
-@extends('layouts.auth')
 
-@section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Dashboard</div>
-
-                    <div class="card-body">
-                        Hi there, regular user
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+<p>this is the default no permission view where you should be dumped</p>
