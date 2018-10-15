@@ -26,7 +26,7 @@ class UsersTableSeeder extends Seeder
         $faker = Faker\Factory::create();
 
         $account = Account::create([
-            'name' => $faker->name,
+            'name' => $faker->name(),
         ]);
 
         $user = User::create([
