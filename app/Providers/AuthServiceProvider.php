@@ -27,7 +27,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Auth::provider('multidb', function ($app, array $config) {
-            return new MultiDatabaseUserProvider($this->app['db']->connection(), $this->app['hash'], 'users');
+            return new MultiDatabaseUserProvider($this->app['db']->connection(), $this->app['hash']);
         });
     }
 }
