@@ -18,11 +18,5 @@
         "lodash": "^4.17.5",
         "popper.js": "^1.12",
         "vue": "^2.5.7"
-    },
-    "dependencies": {
-        "bulma": "^0.7.1",
-        "bulma-admin-bar": "^1.0.0",
-        "bulma-extensions": "^3.0.0",
-        "gulp": "^3.9.1"
     }
 }
