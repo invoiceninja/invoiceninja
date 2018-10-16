@@ -40,9 +40,10 @@ Authenticated User Routes
  */
 Route::group(['middleware' => ['auth:user']], function () {
 
-	Route::get('/home', 'HomeController@user')->name('user.dashboard');
+	Route::get('/dashboard', 'HomeController@user')->name('user.dashboard');
 	Route::get('/logout', 'Auth\LoginController@logout')->name('user.logout');
-
+    Route::resource('/invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
+    Route::get('/settings', 'SettingsController@index')->name('user.settings');
 });
 
 
