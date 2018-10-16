@@ -10,13 +10,23 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
+        "@coreui/coreui": "^2.0.12",
+        "@coreui/coreui-plugin-chartjs-custom-tooltips": "1.2.0",
+        "@coreui/icons": "^0.3.0",
         "axios": "^0.18",
         "bootstrap": "^4.0.0",
+        "chart.js": "^2.7.2",
         "cross-env": "^5.1",
+        "flag-icon-css": "3.2.0",
+        "font-awesome": "^4.7",
         "jquery": "^3.2",
         "laravel-mix": "^2.0",
         "lodash": "^4.17.5",
+        "pace-progress": "1.0.2",
+        "perfect-scrollbar": "1.4.0",
         "popper.js": "^1.12",
+        "simple-line-icons": "2.4.1",
         "vue": "^2.5.7"
-    }
+    },
+    "dependencies": {}
 }

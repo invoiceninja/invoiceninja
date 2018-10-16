@@ -1,6 +1,6 @@
 <?php
 
-namespace App\POPO;
+namespace App\DataMapper;
 
 class InvoiceItem
 {

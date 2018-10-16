@@ -164,6 +164,7 @@ return [
          * Dependency Service Providers
          */
         Spatie\Html\HtmlServiceProvider::class,
+        'Webpatser\Countries\CountriesServiceProvider',
 
         /*
          * Package Service Providers...
@@ -232,6 +233,8 @@ return [
          */
 
         'Html' => Spatie\Html\Facades\Html::class,
+        'Countries' => 'Webpatser\Countries\CountriesFacade',
+
     ],
 
 ];

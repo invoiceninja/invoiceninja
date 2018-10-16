@@ -32,4 +32,9 @@ class HomeController extends Controller
 
         return view('dashboard.index');
     }
+
+    public function signup()
+    {
+        return 'sign up page';
+    }
 }
