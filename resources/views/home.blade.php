@@ -32,10 +32,10 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <a class="navbar-brand" href="#">
-        <img class="navbar-brand-full" src="img/brand/logo.svg" width="89" height="25" alt="CoreUI Logo">
-        <img class="navbar-brand-minimized" src="img/brand/sygnet.svg" width="30" height="30" alt="CoreUI Logo">
+        <img class="navbar-brand-full" src="images/logo.png" width="50" height="50" alt="Invoice Ninja Logo">
+        <img class="navbar-brand-minimized" src="images/logo.png" width="30" height="30" alt="Invoice Ninja Logo">
     </a>
-    <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button" data-toggle="sidebar-lg-show">
+    <button class="sidebar-minimizer brand-minimizer" type="button">
         <span class="navbar-toggler-icon"></span>
     </button>
     <ul class="nav navbar-nav d-md-down-none">
