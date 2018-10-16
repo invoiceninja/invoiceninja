@@ -11,5 +11,16 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
-   .sass('resources/sass/app.scss', 'public/css');
+mix.js('resources/js/app.js', 'public/js/vendor');
+
+mix.scripts([
+    'node_modules/@coreui/coreui/dist/js/coreui.js',
+    'node_modules/bootstrap/dist/js/bootstrap.js',
+    'public/js/vendor/app.js'
+], 'public/js/ninja.js');
+
+mix.styles([
+    'node_modules/@coreui/coreui/dist/css/coreui.css'
+], 'public/css/ninja.css');
+
+mix.version();
