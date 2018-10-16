@@ -20,7 +20,12 @@ mix.scripts([
 ], 'public/js/ninja.js');
 
 mix.styles([
-    'node_modules/@coreui/coreui/dist/css/coreui.css'
+    'node_modules/@coreui/coreui/dist/css/coreui.css',
+    'node_modules/@coreui/icons/css/coreui-icons.css',
+    'node_modules/font-awesome/css/font-awesome.css'
 ], 'public/css/ninja.css');
+
+mix.copyDirectory('node_modules/font-awesome/fonts', 'public/fonts');
+
 
 mix.version();
