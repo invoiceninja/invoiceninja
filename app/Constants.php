@@ -22,4 +22,8 @@ if (! defined('APP_NAME')) {
     define('TEST_CLIENTNAME', env('TEST_CLIENTNAME', 'client@example.com'));
     define('TEST_PASSWORD', 'password');
 
+
+
+    define('BANK_LIBRARY_OFX', 1);
+
 }

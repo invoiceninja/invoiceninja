@@ -13,6 +13,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
+        require_once app_path() . '/Constants.php';
 
         Schema::create('countries', function ($table) {
             $table->increments('id');
@@ -29,6 +30,10 @@ class CreateUsersTable extends Migration
             $table->string('region_code', 3)->default('');
             $table->string('sub_region_code', 3)->default('');
             $table->boolean('eea')->default(0);
+            $table->boolean('swap_postal_code')->default(0);
+            $table->boolean('swap_currency_symbol')->default(false);
+            $table->string('thousand_separator')->nullable();
+            $table->string('decimal_separator')->nullable();
         });
 
         Schema::create('payment_types', function ($table) {
@@ -51,6 +56,8 @@ class CreateUsersTable extends Migration
             $table->string('thousand_separator');
             $table->string('decimal_separator');
             $table->string('code');
+            $table->boolean('swap_currency_symbol')->default(false);
+
         });
 
         Schema::create('sizes', function ($table) {
@@ -409,6 +416,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('sort_order')->default(10000);
             $table->boolean('recommended')->default(0);
             $table->string('site_url', 200)->nullable();
+            $table->boolean('is_offsite');
+            $table->boolean('is_secure');
         });
 
         DB::table('gateways')->update(['payment_library_id' => 1]);
@@ -470,6 +479,49 @@ class CreateUsersTable extends Migration
 
         });
 
+        Schema::create('banks', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('remote_id');
+            $table->integer('bank_library_id')->default(BANK_LIBRARY_OFX);
+            $table->text('config');
+        });
+
+        Schema::create('bank_accounts', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('account_id');
+            $table->unsignedInteger('bank_id');
+            $table->unsignedInteger('user_id');
+            $table->string('username');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('bank_id')->references('id')->on('banks');
+
+        });
+
+
+        Schema::create('bank_subaccounts', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('account_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('bank_account_id');
+
+            $table->string('account_name');
+            $table->string('account_number');
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('bank_account_id')->references('id')->on('bank_accounts')->onDelete('cascade');
+
+        });
+
     }
 
     /**
@@ -480,6 +532,9 @@ class CreateUsersTable extends Migration
     public function down()
     {
 
+        Schema::dropIfExists('bank_subaccounts');
+        Schema::dropIfExists('bank_accounts');
+        Schema::dropIfExists('banks');
         Schema::dropIfExists('payment_libraries');
         Schema::dropIfExists('languages');
         Schema::dropIfExists('payments');

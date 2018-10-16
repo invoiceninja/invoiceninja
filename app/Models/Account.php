@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits;
+use App\Models\Traits\AccountTrait;
 
 class Account extends Model
 {

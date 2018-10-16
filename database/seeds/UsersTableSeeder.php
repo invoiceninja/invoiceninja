@@ -33,7 +33,6 @@ class UsersTableSeeder extends Seeder
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
             'email' => TEST_USERNAME,
-            'account_id' => $account->id,
             'password' => Hash::make(TEST_PASSWORD),
             'registered' => true,
             'confirmed' => true,

@@ -26,7 +26,11 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('passw
 /*
 Open Routes
  */
-Route::get('/', 'HomeController@index')->name('default');
+//Route::get('/', 'HomeController@index')->name('default');
+Route::redirect('/', '/login', 301);
+
+Route::get('/signup', 'HomeController@signup')->name('signup');
+
 Route::get('/contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
 
