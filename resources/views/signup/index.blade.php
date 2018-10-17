@@ -30,7 +30,7 @@
                         <i class="icon-lock"></i>
                       </span>
                             </div>
-                            <input class="form-control" type="password" placeholder="Password">
+                            <input class="form-control" type="password" placeholder="@lang('texts.password')">
                         </div>
                         <div class="input-group mb-4">
                             <div class="input-group-prepend">
@@ -38,9 +38,9 @@
                         <i class="icon-lock"></i>
                       </span>
                             </div>
-                            <input class="form-control" type="password" placeholder="Repeat password">
+                            <input class="form-control" type="password" placeholder="@lang('texts.confirm_password')">
                         </div>
-                        <button class="btn btn-block btn-success" type="submit">Create Account</button>
+                        <button class="btn btn-block btn-success" type="submit">@lang('texts.create_account')</button>
                     </div>
 
                     {{ html()->form()->close() }}

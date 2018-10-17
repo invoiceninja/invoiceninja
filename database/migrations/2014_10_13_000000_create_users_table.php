@@ -132,7 +132,7 @@ class CreateUsersTable extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
-            $table->string('email')->unique();
+            $table->string('email',100)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
             $table->boolean('registered')->default(false);
@@ -218,7 +218,7 @@ class CreateUsersTable extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
-            $table->string('email')->unique(); //todo handle one contact across many accounts ?
+            $table->string('email'); //todo handle one contact across many accounts ?
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
             $table->boolean('registered')->default(false);
@@ -239,7 +239,7 @@ class CreateUsersTable extends Migration
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-
+            $table->unique(['account_id', 'email']);
         });
 
 
