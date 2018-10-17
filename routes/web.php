@@ -29,7 +29,9 @@ Open Routes
 //Route::get('/', 'HomeController@index')->name('default');
 Route::redirect('/', '/login', 301);
 
+
 Route::get('/signup', 'HomeController@signup')->name('signup');
+Route::post('/process_signup', 'HomeController@processSignup')->name('signup.submit');
 
 Route::get('/contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
@@ -40,9 +42,10 @@ Authenticated User Routes
  */
 Route::group(['middleware' => ['auth:user']], function () {
 
-	Route::get('/home', 'HomeController@user')->name('user.dashboard');
+	Route::get('/dashboard', 'HomeController@user')->name('user.dashboard');
 	Route::get('/logout', 'Auth\LoginController@logout')->name('user.logout');
-
+    Route::resource('/invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
+    Route::get('/settings', 'SettingsController@index')->name('user.settings');
 });
 
 

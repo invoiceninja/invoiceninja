@@ -13,7 +13,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        require_once app_path() . '/Constants.php';
+       // require_once app_path() . '/Constants.php';
 
         Schema::create('countries', function ($table) {
             $table->increments('id');
@@ -85,7 +85,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('timezone_id')->nullable();
             $table->unsignedInteger('currency_id')->nullable();
             $table->string('ip');
-            $table->string('account_key')->unique();
+            $table->string('account_key',100)->unique();
             $table->timestamp('last_login')->nullable();
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
@@ -132,7 +132,7 @@ class CreateUsersTable extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
-            $table->string('email')->unique();
+            $table->string('email',100)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
             $table->boolean('registered')->default(false);
@@ -140,7 +140,7 @@ class CreateUsersTable extends Migration
             $table->integer('theme_id')->nullable();
             $table->smallInteger('failed_logins')->nullable();
             $table->string('referral_code')->nullable();
-            $table->string('oauth_user_id')->nullable()->unique();
+            $table->string('oauth_user_id',100)->nullable()->unique();
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
@@ -218,13 +218,13 @@ class CreateUsersTable extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
-            $table->string('email')->unique(); //todo handle one contact across many accounts ?
+            $table->string('email',100);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
             $table->boolean('registered')->default(false);
             $table->boolean('confirmed')->default(false);
             $table->smallInteger('failed_logins')->nullable();
-            $table->string('oauth_user_id')->nullable()->unique();
+            $table->string('oauth_user_id',100)->nullable()->unique();
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
@@ -239,7 +239,7 @@ class CreateUsersTable extends Migration
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-
+            $table->unique(['account_id', 'email']);
         });
 
 
@@ -308,7 +308,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('contact_id');
             $t->unsignedInteger('invoice_id')->index();
-            $t->string('invitation_key')->index()->unique();
+            $t->string('invitation_key',100)->index()->unique();
             $t->timestamps();
             $t->softDeletes();
 
@@ -330,7 +330,7 @@ class CreateUsersTable extends Migration
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('name')->unique();
+            $t->string('name',100)->unique();
             $t->decimal('rate', 13, 3);
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

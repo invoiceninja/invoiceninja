@@ -3102,7 +3102,8 @@ $LANG = array(
     'last30_days' => 'Last 30 days',
     'custom_js' => 'Custom JS',
     'adjust_fee_percent_help' => 'Adjust percent to account for fee',
-
+    'email_already_register' => 'This email is already linked to an account',
+    'create_account' => 'Create Account',
 );
 
 return $LANG;

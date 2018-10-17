@@ -20,6 +20,7 @@
     "require": {
         "php": "^7.1.3",
         "asgrim/ofxparser": "^1.2",
+        "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
@@ -43,7 +44,8 @@
             "App\\": "app/"
         },
         "files": [
-            "app/Libraries/OFX.php"
+            "app/Libraries/OFX.php",
+            "app/Constants.php"
         ]
     },
     "autoload-dev": {
