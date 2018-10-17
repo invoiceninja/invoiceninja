@@ -23,6 +23,7 @@
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.7.*",
+        "laravel/socialite": "^3.1",
         "laravel/tinker": "^1.0",
         "spatie/laravel-html": "^2.19",
         "webpatser/laravel-countries": "dev-master#75992ad"

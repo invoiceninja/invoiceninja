@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SignupRequest;
-
 class HomeController extends Controller
 {
     /**
@@ -33,14 +31,5 @@ class HomeController extends Controller
         return view('dashboard.index');
     }
 
-    public function signup()
-    {
-        return view('signup.index');
-    }
-
-    public function processSignup(SignupRequest $request)
-    {
-        dd($request->validated());
-    }
 
 }
