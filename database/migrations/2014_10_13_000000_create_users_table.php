@@ -85,7 +85,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('timezone_id')->nullable();
             $table->unsignedInteger('currency_id')->nullable();
             $table->string('ip');
-            $table->string('account_key')->unique();
+            $table->string('account_key',100)->unique();
             $table->timestamp('last_login')->nullable();
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
