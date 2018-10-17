@@ -140,7 +140,7 @@ class CreateUsersTable extends Migration
             $table->integer('theme_id')->nullable();
             $table->smallInteger('failed_logins')->nullable();
             $table->string('referral_code')->nullable();
-            $table->string('oauth_user_id')->nullable()->unique();
+            $table->string('oauth_user_id',100)->nullable()->unique();
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
@@ -224,7 +224,7 @@ class CreateUsersTable extends Migration
             $table->boolean('registered')->default(false);
             $table->boolean('confirmed')->default(false);
             $table->smallInteger('failed_logins')->nullable();
-            $table->string('oauth_user_id')->nullable()->unique();
+            $table->string('oauth_user_id',100)->nullable()->unique();
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
@@ -308,7 +308,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('contact_id');
             $t->unsignedInteger('invoice_id')->index();
-            $t->string('invitation_key')->index()->unique();
+            $t->string('invitation_key',100)->index()->unique();
             $t->timestamps();
             $t->softDeletes();
 
@@ -330,7 +330,7 @@ class CreateUsersTable extends Migration
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('name')->unique();
+            $t->string('name',100)->unique();
             $t->decimal('rate', 13, 3);
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

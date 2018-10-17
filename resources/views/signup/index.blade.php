@@ -17,29 +17,27 @@
 
                         {{ html()->form('POST', route('signup.submit'))->open() }}
 
-
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">@</span>
                             </div>
-                            <input class="form-control" type="text" placeholder="Email">
+                            <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="@lang('texts.email')" required autofocus>
+                            @if ($errors->has('email'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('email') }}</strong>
+                                </span>
+                            @endif
                         </div>
+
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
-                      <span class="input-group-text">
-                        <i class="icon-lock"></i>
-                      </span>
+                              <span class="input-group-text">
+                                <i class="icon-lock"></i>
+                              </span>
                             </div>
-                            <input class="form-control" type="password" placeholder="@lang('texts.password')">
+                            <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="@lang('texts.password')" required>
                         </div>
-                        <div class="input-group mb-4">
-                            <div class="input-group-prepend">
-                      <span class="input-group-text">
-                        <i class="icon-lock"></i>
-                      </span>
-                            </div>
-                            <input class="form-control" type="password" placeholder="@lang('texts.confirm_password')">
-                        </div>
+
                         <button class="btn btn-block btn-success" type="submit">@lang('texts.create_account')</button>
                     </div>
 
