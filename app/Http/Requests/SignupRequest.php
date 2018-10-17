@@ -26,8 +26,9 @@ class SignupRequest extends Request
     public function rules()
     {
         return [
-            'email' => 'required|string|email|max:100|'.new UniqueUserRule(),
-            'password' => 'required|string|min:6|confirmed',
+            //'email' => 'required|string|email|max:100',
+            'password' => 'required|string|min:6',
+            'email' => new UniqueUserRule(),
         ];
     }
 }

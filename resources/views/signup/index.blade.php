@@ -27,6 +27,11 @@
                                     <strong>{{ $errors->first('email') }}</strong>
                                 </span>
                             @endif
+                            @if ($errors->has('email2'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('email2') }}</strong>
+                                </span>
+                            @endif
                         </div>
 
                         <div class="input-group mb-3">
@@ -36,6 +41,12 @@
                               </span>
                             </div>
                             <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="@lang('texts.password')" required>
+
+                            @if ($errors->has('password'))
+                                <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $errors->first('password') }}</strong>
+                                    </span>
+                            @endif
                         </div>
 
                         <button class="btn btn-block btn-success" type="submit">@lang('texts.create_account')</button>

@@ -22,20 +22,19 @@ class UniqueUserRule implements Rule
     {
         if (config('auth.providers.users.driver') == 'eloquent') //default eloquent = single DB
         {
-            return User::where('email', '=', $email)->count() == 0 ?? false; // true -> 0 emails found / false -> >=1 emails found
+            return User::where(['email' => $email])->get()->count() == 0 ?? false; // true -> 0 emails found / false -> >=1 emails found
         }
-        else { //multidb is active
 
-            foreach (unserialize(MULTI_DBS) as $db) {
-
-                if(User::on($db)->where('email', '=', $email)->count() >=1)
+            //multi-db active
+            foreach (unserialize(MULTI_DBS) as $db)
+            {
+                if(User::on($db)->where(['email' => $email])->get()->count() >=1) // if user already exists, validation will fail
                     return false;
 
             }
-
             return true;
 
-        }
+
 
 
     }

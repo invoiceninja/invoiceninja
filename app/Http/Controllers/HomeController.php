@@ -40,7 +40,7 @@ class HomeController extends Controller
 
     public function processSignup(SignupRequest $request)
     {
-
+        dd($request->validated());
     }
 
 }

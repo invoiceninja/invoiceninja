@@ -23,13 +23,13 @@ class UniqueEmailTest extends TestCase
     {
         parent::setUp();
 
-        $this->rule = new UniqueUserRule();
-    }
-
-    public function test_unique_emails_detected_on_database()
-    {
         if (config('auth.providers.users.driver') == 'eloquent')
             $this->markTestSkipped('Multi DB not enabled - skipping');
+
+         DB::connection('db-ninja-1')->table('users')->delete();
+         DB::connection('db-ninja-2')->table('users')->delete();
+
+        $this->rule = new UniqueUserRule();
 
         $user = [
             'first_name' => 'user_db_1',
@@ -40,14 +40,26 @@ class UniqueEmailTest extends TestCase
         User::on('db-ninja-1')->create($user);
         User::on('db-ninja-2')->create($user);
 
+    }
 
-        $this->assertFalse($this->rule->passes('unique_email', 'user@example.com'));
+    public function test_unique_emails_detected_on_database()
+    {
+
+        $this->assertFalse($this->rule->passes('email', 'user@example.com'));
+
+    }
+
+    public function test_no_unique_emails_detected()
+    {
+
+        $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
+
     }
 
     public function tearDown()
     {
-        DB::connection('db-ninja-1')->table('users')->delete();
-        DB::connection('db-ninja-2')->table('users')->delete();
+       // DB::connection('db-ninja-1')->table('users')->delete();
+       // DB::connection('db-ninja-2')->table('users')->delete();
     }
 
 }
