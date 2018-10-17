@@ -23,7 +23,7 @@
     @endif
 
     <meta charset="utf-8">
-    <title>@yield('meta_title') | {{ config('app.name') }}</title>
+    <title>@yield('meta_title', 'Invoice Ninja') | {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description')"/>
     <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
 

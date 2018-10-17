@@ -111,7 +111,7 @@
                 <a class="dropdown-item" href="{{  route('user.settings') }}">
                     <i class="fa fa-wrench"></i> @lang('texts.settings')</a>
 
-                <div class="divider"></div>
+                <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{ route('user.logout') }}">
                     <i class="fa fa-lock"></i> Logout</a>
             </div>
