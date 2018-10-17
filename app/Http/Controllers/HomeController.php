@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Request;
+use App\Http\Requests\SignupRequest;
 
 class HomeController extends Controller
 {
@@ -38,7 +38,7 @@ class HomeController extends Controller
         return view('signup.index');
     }
 
-    public function processSignup(Request $request)
+    public function processSignup(SignupRequest $request)
     {
 
     }

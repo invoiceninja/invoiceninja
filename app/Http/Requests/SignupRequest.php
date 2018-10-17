@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\ValidationRules\UniqueUserRule;
+use Illuminate\Support\Facades\Auth;
 
 class SignupRequest extends Request
 {
