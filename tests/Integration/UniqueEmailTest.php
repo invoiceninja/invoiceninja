@@ -4,9 +4,7 @@ namespace Tests\Unit;
 
 use App\Http\ValidationRules\UniqueUserRule;
 use App\Models\User;
-use App\Utils\NumberHelper;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -30,6 +28,9 @@ class UniqueEmailTest extends TestCase
 
     public function test_unique_emails_detected_on_database()
     {
+        if (config('auth.providers.users.driver') == 'eloquent')
+            $this->markTestSkipped('Multi DB not enabled - skipping');
+
         $user = [
             'first_name' => 'user_db_1',
             'email' => 'user@example.com',
