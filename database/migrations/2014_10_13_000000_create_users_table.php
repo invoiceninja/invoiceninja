@@ -13,7 +13,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        require_once app_path() . '/Constants.php';
+       // require_once app_path() . '/Constants.php';
 
         Schema::create('countries', function ($table) {
             $table->increments('id');

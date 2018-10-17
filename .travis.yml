@@ -44,7 +44,14 @@ before_script:
   - php artisan key:generate --no-interaction
   - sed -i '$a NINJA_DEV=true' .env
   # create the database and user
-  - mysql -u root -e "create database IF NOT EXISTS ninja0;"
+  - mysql -u root -e "create database IF NOT EXISTS db-ninja-1;"
+  - mysql -u root -e "create database IF NOT EXISTS db-ninja-2;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON db-ninja-1.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON db-ninja-2.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
+  # migrate and seed the database
+  - php artisan migrate --database=db-ninja-1 --seed --no-interaction
+  - php artisan migrate --database=db-ninja-2 --seed --no-interaction
+
   # migrate and seed the database
   # Start webserver on ninja.test:8000
   - php artisan serve --host=www.ninja.test --port=8000 & # '&' allows to run in background

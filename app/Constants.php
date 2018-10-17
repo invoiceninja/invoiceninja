@@ -25,5 +25,5 @@ if (! defined('APP_NAME')) {
 
 
     define('BANK_LIBRARY_OFX', 1);
-
+    define('MULTI_DBS', serialize(['db-ninja-1', 'db-ninja-2']));
 }

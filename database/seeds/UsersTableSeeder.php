@@ -17,7 +17,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
 
-        require_once app_path() . '/Constants.php';
+        //require_once app_path() . '/Constants.php';
 
         $this->command->info('Running UserTableSeeder');
 
