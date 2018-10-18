@@ -27,8 +27,12 @@ class SignupRequest extends Request
     {
         return [
             //'email' => 'required|string|email|max:100',
-            'password' => 'required|string|min:6',
-            'email' => new UniqueUserRule(),
+            'first_name'        => 'required|string|max:100',
+            'last_name'         =>  'required|string:max:100',
+            'password'          => 'required|string|min:6',
+            'email'             => new UniqueUserRule(),
+            'privacy_policy'    => 'required',
+            'terms_of_service'  => 'required'
         ];
     }
 }

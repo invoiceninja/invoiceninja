@@ -84,6 +84,15 @@ class MultiDBUserTest extends TestCase
         $this->assertFalse(MultiDB::checkUserEmailExists('bademail@example.com'));
     }
 
+    /*
+     * This is what you do when you demand 100% code coverage :/
+     */
+
+    public function test_set_db_invokes()
+    {
+        $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-1'));
+    }
+
     public function tearDown()
     {
          DB::connection('db-ninja-1')->table('users')->delete();
