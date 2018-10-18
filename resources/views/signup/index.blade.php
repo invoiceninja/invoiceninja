@@ -4,7 +4,7 @@
 
 <body class="app flex-row align-items-center">
 
-    <div class="container">
+    <div class="container" id="signup">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card mx-4">
@@ -16,6 +16,36 @@
                         <p class="text-muted"></p>
 
                         {{ html()->form('POST', route('signup.submit'))->open() }}
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="icon-user"></i>
+                                </span>
+                            </div>
+                            <input id="first_name" type="text" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" name="first_name" value="{{ old('first_name') }}" placeholder="@lang('texts.first_name')" required autofocus>
+                            @if ($errors->has('first_name'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('first_name') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="icon-user"></i>
+                                </span>
+                            </div>
+                            <input id="last_name" type="text" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" name="last_name" value="{{ old('last_name') }}" placeholder="@lang('texts.last_name')" required autofocus>
+                            @if ($errors->has('last_name'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('last_name') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
 
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
@@ -49,7 +79,21 @@
                             @endif
                         </div>
 
-                        <button class="btn btn-block btn-success" type="submit">@lang('texts.create_account')</button>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms_of_service" name="terms_of_service" value="" v-model="checked1" {{(old('terms_of_service') == "1") ? 'checked': ''}}>
+                            <label class="form-check-label" for="terms_of_service">
+                                @lang('texts.terms_of_service')
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="privacy_policy" name="privacy_policy" value="" v-model="checked2" {{(old('privacy_policy') == "1") ? 'checked': ''}}>
+                            <label class="form-check-label" for="privacy_policy">
+                                @lang('texts.privacy_policy')
+                            </label>
+                        </div>
+
+                        <button class="btn btn-block btn-success" type="submit" :disabled="!isDisabled">@lang('texts.create_account')</button>
                     </div>
 
                     {{ html()->form()->close() }}
@@ -73,9 +117,26 @@
         </div>
     </div>
 
+
+<script>
+    new Vue({
+        el : '#signup',
+        data: {
+            checked1 : false,
+            checked2 : false
+        },
+        computed: {
+            isDisabled: function(){
+                return (this.checked1 && this.checked2);
+            }
+        }
+    });
+</script>
+
 @endsection
 
 </body>
+
 
 
 </html>

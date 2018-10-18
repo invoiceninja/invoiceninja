@@ -37,7 +37,7 @@ class MultiDB
      * @param array $data
      * @return bool
      */
-    public static function getUser(array $data)
+    public static function hasUser(array $data)
     {
         if (config('auth.providers.users.driver') == 'eloquent') //default eloquent = single DB
         {

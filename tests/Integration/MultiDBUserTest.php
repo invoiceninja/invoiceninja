@@ -60,7 +60,7 @@ class MultiDBUserTest extends TestCase
 
     public function test_oauth_user_db2_exists()
     {
-        $user = MultiDB::getUser(['email' => 'db2@example.com', 'oauth_user_id' => 'abc']);
+        $user = MultiDB::hasUser(['email' => 'db2@example.com', 'oauth_user_id' => 'abc']);
 
         $this->assertEquals($user->email, 'db2@example.com');
 
@@ -68,10 +68,29 @@ class MultiDBUserTest extends TestCase
 
     public function test_oauth_user_db1_exists()
     {
-        $user = MultiDB::getUser(['email' => 'db1@example.com', 'oauth_user_id' => '123']);
+        $user = MultiDB::hasUser(['email' => 'db1@example.com', 'oauth_user_id' => '123']);
 
         $this->assertEquals($user->email, 'db1@example.com');
 
+    }
+
+    public function test_check_user_exists()
+    {
+        $this->assertTrue(MultiDB::checkUserEmailExists('db1@example.com'));
+    }
+
+    public function test_check_user_does_not_exist()
+    {
+        $this->assertFalse(MultiDB::checkUserEmailExists('bademail@example.com'));
+    }
+
+    /*
+     * This is what you do when you demand 100% code coverage :/
+     */
+
+    public function test_set_db_invokes()
+    {
+        $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-1'));
     }
 
     public function tearDown()
