@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Http\ValidationRules\UniqueUserRule;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -15,7 +16,8 @@ use Tests\TestCase;
  */
 class UniqueEmailTest extends TestCase
 {
-    use InteractsWithDatabase;
+    //use InteractsWithDatabase;
+    //use DatabaseMigrations;
 
     protected $rule;
 
@@ -58,8 +60,8 @@ class UniqueEmailTest extends TestCase
 
     public function tearDown()
     {
-       // DB::connection('db-ninja-1')->table('users')->delete();
-       // DB::connection('db-ninja-2')->table('users')->delete();
+        DB::connection('db-ninja-1')->table('users')->delete();
+        DB::connection('db-ninja-2')->table('users')->delete();
     }
 
 }

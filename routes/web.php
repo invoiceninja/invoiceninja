@@ -45,7 +45,7 @@ Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contac
 /*
 Authenticated User Routes
  */
-Route::group(['middleware' => ['auth:user']], function () {
+Route::group(['middleware' => ['auth:user', 'db']], function () {
 
 	Route::get('/dashboard', 'HomeController@user')->name('user.dashboard');
 	Route::get('/logout', 'Auth\LoginController@logout')->name('user.logout');

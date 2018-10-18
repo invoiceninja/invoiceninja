@@ -11,7 +11,7 @@ class UniqueUserRule implements Rule
 
     public function passes($attribute, $value)
     {
-        return $this->checkIfEmailExists($value);
+        return ! $this->checkIfEmailExists($value); //if it exists, return false!
     }
 
     public function message()
@@ -21,7 +21,7 @@ class UniqueUserRule implements Rule
 
     private function checkIfEmailExists($email) : bool
     {
-        return MultiDB::findUserWithEmail($email);
+        return MultiDB::checkUserEmailExists($email);
     }
 
 }

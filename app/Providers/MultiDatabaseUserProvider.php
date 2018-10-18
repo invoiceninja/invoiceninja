@@ -208,7 +208,7 @@ class MultiDatabaseUserProvider implements UserProvider
 
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
-        $databases = ['db-ninja-1', 'db-ninja-2'];
+        $databases = unserialize(MULTI_DBS);
 
         foreach ($databases as $database) {
             $this->setDB($database);

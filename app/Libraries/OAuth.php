@@ -27,6 +27,9 @@ class OAuth
 
     public static function handleAuth($user)
     {
+        if(MultiDB::checkUserEmailExists($user->getEmail())) //if email is in the system this is an existing user -> check they are arriving on the correct provider
+        {
 
+        }
     }
 }
