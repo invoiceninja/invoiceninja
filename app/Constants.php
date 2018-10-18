@@ -22,8 +22,13 @@ if (! defined('APP_NAME')) {
     define('TEST_CLIENTNAME', env('TEST_CLIENTNAME', 'client@example.com'));
     define('TEST_PASSWORD', 'password');
 
-
-
     define('BANK_LIBRARY_OFX', 1);
     define('MULTI_DBS', serialize(['db-ninja-1', 'db-ninja-2']));
+
+    define('SOCIAL_GOOGLE', 'Google');
+    define('SOCIAL_FACEBOOK', 'Facebook');
+    define('SOCIAL_GITHUB', 'GitHub');
+    define('SOCIAL_LINKEDIN', 'LinkedIn');
+    define('SOCIAL_TWITTER', 'Twitter');
+    define('SOCIAL_BITBUCKET', 'Bitbucket');
 }

@@ -17,6 +17,11 @@ Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
+// Social authentication
+
+Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
+
 // Password Reset Routes...
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
@@ -30,8 +35,8 @@ Open Routes
 Route::redirect('/', '/login', 301);
 
 
-Route::get('/signup', 'HomeController@signup')->name('signup');
-Route::post('/process_signup', 'HomeController@processSignup')->name('signup.submit');
+Route::get('/signup', 'SignupController@signup')->name('signup');
+Route::post('/process_signup', 'SignupController@processSignup')->name('signup.submit');
 
 Route::get('/contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
@@ -40,7 +45,7 @@ Route::post('/contact/login', 'Auth\ContactLoginController@login')->name('contac
 /*
 Authenticated User Routes
  */
-Route::group(['middleware' => ['auth:user']], function () {
+Route::group(['middleware' => ['auth:user', 'db']], function () {
 
 	Route::get('/dashboard', 'HomeController@user')->name('user.dashboard');
 	Route::get('/logout', 'Auth\LoginController@logout')->name('user.logout');
