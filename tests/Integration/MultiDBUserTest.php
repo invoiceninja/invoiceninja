@@ -60,7 +60,7 @@ class MultiDBUserTest extends TestCase
 
     public function test_oauth_user_db2_exists()
     {
-        $user = MultiDB::getUser(['email' => 'db2@example.com', 'oauth_user_id' => 'abc']);
+        $user = MultiDB::hasUser(['email' => 'db2@example.com', 'oauth_user_id' => 'abc']);
 
         $this->assertEquals($user->email, 'db2@example.com');
 
@@ -68,7 +68,7 @@ class MultiDBUserTest extends TestCase
 
     public function test_oauth_user_db1_exists()
     {
-        $user = MultiDB::getUser(['email' => 'db1@example.com', 'oauth_user_id' => '123']);
+        $user = MultiDB::hasUser(['email' => 'db1@example.com', 'oauth_user_id' => '123']);
 
         $this->assertEquals($user->email, 'db1@example.com');
 
