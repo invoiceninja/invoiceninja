@@ -34,9 +34,11 @@ class UniqueEmailTest extends TestCase
         $this->rule = new UniqueUserRule();
 
         $user = [
-            'first_name' => 'user_db_1',
-            'email' => 'user@example.com',
-            'password' => Hash::make('password'),
+            'first_name'    => 'user_db_1',
+            'email'         => 'user@example.com',
+            'password'      => Hash::make('password'),
+            'db'            => config('database.default')
+
         ];
 
         User::on('db-ninja-1')->create($user);

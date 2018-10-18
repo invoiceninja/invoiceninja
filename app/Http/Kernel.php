@@ -42,7 +42,7 @@ class Kernel extends HttpKernel
             'bindings',
         ],
         'db' => [
-
+            \App\Http\Middleware\SetDb::class,
         ],
     ];
 

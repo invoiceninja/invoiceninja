@@ -15,7 +15,7 @@ class SignupRequest extends Request
      */
     public function authorize()
     {
-        return ! Auth::user();
+        return ! auth()->user();
     }
 
     /**
