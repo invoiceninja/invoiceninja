@@ -74,6 +74,16 @@ class MultiDBUserTest extends TestCase
 
     }
 
+    public function test_check_user_exists()
+    {
+        $this->assertTrue(MultiDB::checkUserEmailExists('db1@example.com'));
+    }
+
+    public function test_check_user_does_not_exist()
+    {
+        $this->assertFalse(MultiDB::checkUserEmailExists('bademail@example.com'));
+    }
+
     public function tearDown()
     {
          DB::connection('db-ninja-1')->table('users')->delete();
