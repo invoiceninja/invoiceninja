@@ -63,9 +63,8 @@ class MultiDB
      */
     public static function setDB($database) : void
     {
-        /* This will set the default configuration for the request */
+        /* This will set the database connection for the request */
         config(['database.default' => $database]);
-        app('db')->connection(config('database.connections.database.'.$database));
     }
 
 }

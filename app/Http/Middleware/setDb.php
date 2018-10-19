@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use Closure;
 
-class setDb
+class SetDb
 {
     /**
      * Handle an incoming request.
@@ -16,9 +16,9 @@ class setDb
      */
     public function handle($request, Closure $next)
     {
-        if (!config('auth.providers.users.driver') == 'eloquent')  {
-
-            //MultiDB::setDB(auth()->user()->)
+        if (! config('auth.providers.users.driver') == 'eloquent')
+        {
+            MultiDB::setDB(auth()->user()->db);
         }
 
         return $next($request);

@@ -13,6 +13,9 @@ class User extends Authenticatable
     use SoftDeletes;
 
     protected $guard = 'user';
+
+    protected $dates = ['deleted_at'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,10 +25,10 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
-        'password',
         'phone',
         'signature',
         'avatar',
+        'accepted_terms_version'
     ];
 
     /**
@@ -34,7 +37,6 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password',
         'remember_token',
         'confirmation_code',
         'oauth_user_id',

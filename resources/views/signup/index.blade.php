@@ -70,7 +70,7 @@
                                 <i class="icon-lock"></i>
                               </span>
                             </div>
-                            <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="@lang('texts.password')" required>
+                            <input id="password" type="password" class="form-control" {{ $errors->has('password') ? ' is-invalid' : '' }} name="password" placeholder="@lang('texts.password')" required>
 
                             @if ($errors->has('password'))
                                 <span class="invalid-feedback" role="alert">
@@ -79,17 +79,19 @@
                             @endif
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="terms_of_service" name="terms_of_service" value="" v-model="checked1" {{(old('terms_of_service') == "1") ? 'checked': ''}}>
+                        <div class="form-check" style="margin-top:10px; margin-bottom: 10px;">
+                            <input class="form-check-input" type="checkbox" id="terms_of_service" name="terms_of_service" value="1" v-model="checked1" {{(old('terms_of_service') == "1") ? 'checked': ''}}>
                             <label class="form-check-label" for="terms_of_service">
-                                @lang('texts.terms_of_service')
+                                @lang('texts.agree_to_terms', ['terms' => ''])<a href=" {{config('ninja.terms_of_service_url.' . config('ninja.environment')) }}" target="_blank">@lang('texts.terms_of_service')</a>
+
                             </label>
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="privacy_policy" name="privacy_policy" value="" v-model="checked2" {{(old('privacy_policy') == "1") ? 'checked': ''}}>
+                        <div class="form-check" style="margin-top:10px; margin-bottom: 10px;">
+                            <input class="form-check-input" type="checkbox" id="privacy_policy" name="privacy_policy" value="1" v-model="checked2" {{(old('privacy_policy') == "1") ? 'checked': ''}}>
                             <label class="form-check-label" for="privacy_policy">
-                                @lang('texts.privacy_policy')
+                                @lang('texts.agree_to_terms', ['terms' => ''])<a href=" {{config('ninja.privacy_policy_url.' . config('ninja.environment')) }}" target="_blank">@lang('texts.privacy_policy')</a>
+
                             </label>
                         </div>
 
@@ -136,7 +138,5 @@
 @endsection
 
 </body>
-
-
 
 </html>
