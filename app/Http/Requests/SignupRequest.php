@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\ValidationRules\UniqueUserRule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class SignupRequest extends Request
 {
@@ -35,4 +36,14 @@ class SignupRequest extends Request
             'terms_of_service'  => 'required'
         ];
     }
+
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        //        $this->replace($input);
+
+        return $this->all();
+    }
+
 }

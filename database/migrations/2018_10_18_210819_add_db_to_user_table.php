@@ -20,6 +20,18 @@ class AddDbToUserTable extends Migration
         Schema::table('contacts', function (Blueprint $table) {
             $table->string('db', 100);
         });
+
+        Schema::table('users', function (Blueprint $table){
+            $table->dropColumn('confirmed');
+            $table->dropColumn('registered');
+        });
+
+        Schema::table('contacts', function (Blueprint $table){
+            $table->dropColumn('confirmed');
+            $table->dropColumn('registered');
+
+        });
+
     }
 
     /**
@@ -35,6 +47,17 @@ class AddDbToUserTable extends Migration
 
         Schema::table('contacts', function (Blueprint $table) {
             $table->dropColumn('db');
+        });
+
+        Schema::table('users', function (Blueprint $table){
+            $table->boolean('confirmed');
+            $table->boolean('registered');
+        });
+
+        Schema::table('contacts', function (Blueprint $table){
+            $table->boolean('confirmed');
+            $table->boolean('registered');
+
         });
     }
 }
