@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b059d33c67d5ecfe4b761dbc55f4e326",
+    "content-hash": "c51e927ba0169fada853f1d0763470ed",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -3070,6 +3070,40 @@
                 "laravel"
             ],
             "time": "2018-06-27T11:58:05+00:00"
+        },
+        {
+            "name": "wildbit/postmark-php",
+            "version": "2.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wildbit/postmark-php.git",
+                "reference": "70162fe99ac0a80e599f76ae84e4b6e655081e04"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wildbit/postmark-php/zipball/70162fe99ac0a80e599f76ae84e4b6e655081e04",
+                "reference": "70162fe99ac0a80e599f76ae84e4b6e655081e04",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Postmark\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The officially supported client for Postmark (http://postmarkapp.com)",
+            "time": "2018-07-24T22:40:23+00:00"
         }
     ],
     "packages-dev": [

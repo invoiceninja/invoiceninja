@@ -27,6 +27,7 @@ class UsersTableSeeder extends Seeder
 
         $account = Account::create([
             'name' => $faker->name(),
+            'account_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         ]);
 
         $user = User::create([
@@ -34,8 +35,7 @@ class UsersTableSeeder extends Seeder
             'last_name' => $faker->lastName,
             'email' => TEST_USERNAME,
             'password' => Hash::make(TEST_PASSWORD),
-            'registered' => true,
-            'confirmed' => true,
+            'email_verified_at' => now(),
         ]);
 
         $client = Client::create([
@@ -49,8 +49,7 @@ class UsersTableSeeder extends Seeder
             'email' => TEST_CLIENTNAME,
             'account_id' => $account->id,
             'password' => Hash::make(TEST_PASSWORD),
-            'registered' => true,
-            'confirmed' => true,
+            'email_verified_at' => now(),
             'client_id' =>$client->id,
         ]);
 

@@ -26,7 +26,7 @@ class MultiDBUserTest extends TestCase
     {
         parent::setUp();
 
-        if (config('auth.providers.users.driver') == 'eloquent')
+        if (! config('ninja.db.multi_db_enabled'))
             $this->markTestSkipped('Multi DB not enabled - skipping');
 
         User::unguard();

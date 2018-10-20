@@ -28,5 +28,8 @@
         "simple-line-icons": "2.4.1",
         "vue": "^2.5.17"
     },
-    "dependencies": {}
+    "dependencies": {
+        "laravel-echo": "^1.4.0",
+        "socket.io-client": "^2.1.1"
+    }
 }
