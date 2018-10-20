@@ -25,7 +25,7 @@ if (! defined('APP_NAME')) {
     define('TEST_PASSWORD', 'password');
 
     define('BANK_LIBRARY_OFX', 1);
-    define('MULTI_DBS', serialize(['db-ninja-1', 'db-ninja-2']));
+    //define('MULTI_DBS', serialize(['db-ninja-1', 'db-ninja-2']));
     define('RANDOM_KEY_LENGTH', 32); //63340286662973277706162286946811886609896461828096 combinations
 
     define('SOCIAL_GOOGLE', 'Google');

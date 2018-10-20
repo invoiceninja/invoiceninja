@@ -16,9 +16,11 @@ class SetDb
      */
     public function handle($request, Closure $next)
     {
-        if (! config('auth.providers.users.driver') == 'eloquent')
+        if (config('ninja.db.multi_db_enabled'))
         {
+
             MultiDB::setDB(auth()->user()->db);
+
         }
 
         return $next($request);

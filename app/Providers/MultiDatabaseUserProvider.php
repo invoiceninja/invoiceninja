@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Libraries\MultiDB;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
+use PhpParser\Node\Expr\BinaryOp\Mul;
 
 class MultiDatabaseUserProvider implements UserProvider
 {
@@ -208,9 +210,8 @@ class MultiDatabaseUserProvider implements UserProvider
 
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
-        $databases = unserialize(MULTI_DBS);
 
-        foreach ($databases as $database) {
+        foreach (MultiDB::getDbs() as $database) {
             $this->setDB($database);
 
             $query = $this->conn->table('users');

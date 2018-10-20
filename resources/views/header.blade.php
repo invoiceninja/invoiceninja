@@ -79,7 +79,7 @@
 
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <img class="img-avatar" src="images/logo.png" alt="admin@bootstrapmaster.com"> David Bomba
+                <img class="img-avatar" src="images/logo.png" alt="admin@bootstrapmaster.com"> {{ auth()->user()->getDisplayName() }}
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <!-- if multiple accounts exist, loop through here and display
