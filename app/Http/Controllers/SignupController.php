@@ -47,7 +47,7 @@ class SignupController extends Controller
 
         //created new account
         $ac = new Account();
-        $ac->name = $request->first_name. ' ' .$request->last_name;
+        $ac->name = $request->first_name . ' ' . $request->last_name;
         $ac->account_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $ac->ip = $request->ip();
         $ac->save();
