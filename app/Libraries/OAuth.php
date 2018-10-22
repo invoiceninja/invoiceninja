@@ -33,7 +33,7 @@ class OAuth
         }
     }
 
-    public static function toString($social_provider)
+    public static function providerToString($social_provider)
     {
         switch ($social_provider)
         {
@@ -49,6 +49,25 @@ class OAuth
                 return 'twitter';
             case SOCIAL_BITBUCKET:
                 return 'bitbucket';
+        }
+    }
+
+    public static function providerToInt($social_provider)
+    {
+        switch ($social_provider)
+        {
+            case 'google':
+                return SOCIAL_GOOGLE;
+            case 'facebook':
+                return SOCIAL_FACEBOOK;
+            case 'github':
+                return SOCIAL_GITHUB;
+            case 'linkedin':
+                return SOCIAL_LINKEDIN;
+            case 'twitter':
+                return SOCIAL_TWITTER;
+            case 'bitbucket':
+                return SOCIAL_BITBUCKET;
         }
     }
 }

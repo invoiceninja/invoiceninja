@@ -4,8 +4,9 @@ namespace Tests\Unit;
 
 use App\Http\ValidationRules\UniqueUserRule;
 use App\Models\User;
+use App\Models\Account;
+use App\Models\Company;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -33,11 +34,21 @@ class UniqueEmailTest extends TestCase
 
         $this->rule = new UniqueUserRule();
 
-        $account = factory(\App\Models\Account::class)->create();
+        $ac = factory(\App\Models\Account::class)->make();
 
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::on('db-ninja-1')->create($ac->toArray());
+        $account2 = Account::on('db-ninja-2')->create($ac->toArray());
+
+        $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
         ]);
+
+        $company2 = factory(\App\Models\Company::class)->make([
+            'account_id' => $account2->id,
+        ]);
+
+        Company::on('db-ninja-1')->create($company->toArray());
+        Company::on('db-ninja-2')->create($company2->toArray());
 
 
         $user = [
@@ -48,8 +59,16 @@ class UniqueEmailTest extends TestCase
             'account_id' => $account->id,
         ];
 
+        $user2 = [
+            'first_name' => 'user_db_2',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password'),
+            'db' => config('database.default'),
+            'account_id' => $account2->id,
+        ];
+
         User::on('db-ninja-1')->create($user);
-        User::on('db-ninja-2')->create($user);
+        User::on('db-ninja-2')->create($user2);
 
     }
 

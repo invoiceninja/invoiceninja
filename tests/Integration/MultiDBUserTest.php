@@ -3,6 +3,8 @@
 namespace Tests\Unit;
 
 use App\Libraries\MultiDB;
+use App\Models\Account;
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Support\Facades\DB;
@@ -31,16 +33,33 @@ class MultiDBUserTest extends TestCase
 
         User::unguard();
 
+        $ac = factory(\App\Models\Account::class)->make();
+
+        $account = Account::on('db-ninja-1')->create($ac->toArray());
+        $account2 = Account::on('db-ninja-2')->create($ac->toArray());
+
+        $company = factory(\App\Models\Company::class)->make([
+            'account_id' => $account->id,
+        ]);
+
+        $company2 = factory(\App\Models\Company::class)->make([
+            'account_id' => $account2->id,
+        ]);
+
+        Company::on('db-ninja-1')->create($company->toArray());
+        Company::on('db-ninja-2')->create($company2->toArray());
+
         $user = [
-            'first_name'        => 'user_db_1',
-            'last_name'         => 'user_db_1-s',
-            'phone'             => '55555',
+            'first_name' => 'user_db_1',
+            'last_name' => 'user_db_1-s',
+            'phone' => '55555',
             'email_verified_at' => now(),
-            'password'          => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-            'remember_token'    => str_random(10),
-            'email'             => 'db1@example.com',
-            'oauth_user_id'     => '123',
-            'db'                => config('database.default')
+            'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
+            'remember_token' => str_random(10),
+            'email' => 'db1@example.com',
+            'oauth_user_id' => '123',
+            'db' => config('database.default'),
+            'account_id' => $account->id,
         ];
 
 
@@ -53,7 +72,8 @@ class MultiDBUserTest extends TestCase
             'remember_token'    => str_random(10),
             'email'             => 'db2@example.com',
             'oauth_user_id'     => 'abc',
-            'db'                => config('database.default')
+            'db'                => config('database.default'),
+            'account_id' => $account2->id,
 
         ];
 

@@ -352,6 +352,8 @@ class CreateUsersTable extends Migration
         Schema::create('invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('company_id');
+            $t->unsignedInteger('inviteable_id');
+            $t->string('inviteable_type');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('client_contact_id');
             $t->unsignedInteger('invoice_id')->index();
@@ -366,7 +368,6 @@ class CreateUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });
 
