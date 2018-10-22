@@ -32,4 +32,23 @@ class OAuth
 
         }
     }
+
+    public static function toString($social_provider)
+    {
+        switch ($social_provider)
+        {
+            case SOCIAL_GOOGLE:
+                return 'google';
+            case SOCIAL_FACEBOOK:
+                return 'facebook';
+            case SOCIAL_GITHUB:
+                return 'github';
+            case SOCIAL_LINKEDIN:
+                return 'linkedin';
+            case SOCIAL_TWITTER:
+                return 'twitter';
+            case SOCIAL_BITBUCKET:
+                return 'bitbucket';
+        }
+    }
 }

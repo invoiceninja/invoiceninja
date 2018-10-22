@@ -33,12 +33,19 @@ class UniqueEmailTest extends TestCase
 
         $this->rule = new UniqueUserRule();
 
-        $user = [
-            'first_name'    => 'user_db_1',
-            'email'         => 'user@example.com',
-            'password'      => Hash::make('password'),
-            'db'            => config('database.default')
+        $account = factory(\App\Models\Account::class)->create();
 
+        $company = factory(\App\Models\Company::class)->create([
+            'account_id' => $account->id,
+        ]);
+
+
+        $user = [
+            'first_name' => 'user_db_1',
+            'email' => 'user@example.com',
+            'password' => Hash::make('password'),
+            'db' => config('database.default'),
+            'account_id' => $account->id,
         ];
 
         User::on('db-ninja-1')->create($user);
