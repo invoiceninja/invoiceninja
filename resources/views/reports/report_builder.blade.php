@@ -232,7 +232,7 @@
 					->raw() !!} &nbsp;
 
 		{!! Button::normal(trans('texts.export'))
-				->withAttributes(['style' => 'display:none', 'onclick' => 'onExportClick()', 'data-bind' => 'visible: showExportButton, css: enableExportButton'])
+				->withAttributes(['style' => 'display:none', 'onclick' => 'onExportClick()', 'data-bind' => 'visible: showExportButton'])
 				->appendIcon(Icon::create('download-alt')) !!}
 
 		{!! Button::normal(trans('texts.cancel_schedule'))
@@ -579,7 +579,7 @@
 				if (['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_EXPENSE }}', '{{ ENTITY_DOCUMENT }}'].indexOf(self.report_type()) >= 0) {
 					options.push(new ExportFormatModel('zip', 'ZIP - {{ trans('texts.documents') }}'));
 				}
-				
+
 				if (['{{ ENTITY_INVOICE }}'].indexOf(self.report_type()) >= 0) {
 					options.push(new ExportFormatModel('zip-invoices', 'ZIP - {{ trans('texts.invoices') }}'));
 				}
@@ -627,10 +627,6 @@
 			});
 
 			self.enableScheduleButton = ko.computed(function() {
-				return self.export_format() == 'zip' ? 'disabled' : 'enabled';
-			});
-
-            		self.enableScheduleButton = ko.computed(function() {
 				return ['zip', 'zip-invoices'].indexOf(self.export_format()) >= 0 ? 'disabled' : 'enabled';
 			});
 
