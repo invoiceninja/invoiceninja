@@ -742,7 +742,7 @@ class InvoiceRepository extends BaseRepository
                     if ($account->update_products
                         && ! $invoice->has_tasks
                         && ! $invoice->has_expenses
-                        && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee']))
+                        && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item']))
                     ) {
                         $product = Product::findProductByKey($productKey);
                         if (! $product) {
