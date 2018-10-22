@@ -6,9 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invitation extends Model
 {
-    public function inviteable()
+
+
+    public function invoices()
     {
-        return $this->morphTo();
+        return $this->morphedByMany(Invoice::class, 'inviteable');
+    }
+
+
+    public function proposals()
+    {
+        return $this->morphedByMany(Proposal::class, 'taggable');
     }
 
 }

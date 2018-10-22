@@ -55,7 +55,7 @@ class RegisterNewAccount
         $user = new User();
         $user->account_id = $ac->id;
         $user->password = Hash::make($this->request->input('password'));
-        $user->accepted_terms_version = NINJA_TERMS_VERSION;
+        $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
         $user->db = config('database.default');
         $user->fill($this->request->all());

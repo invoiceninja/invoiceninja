@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
             'invoices' => '\App\Models\Invoice',
             'proposals' => '\App\Models\Proposal',
         ]);
+
+        Blade::if('env', function($environment){
+            return config('ninja.environment') === $environment;
+        });
     }
 
     /**
