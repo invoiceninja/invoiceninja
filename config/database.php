@@ -51,8 +51,8 @@ return [
             'collation'      => 'utf8mb4_unicode_ci',
             'prefix'         => '',
             'prefix_indexes' => true,
-            'strict'         => false,
-            'engine'         => null,
+            'strict'         => env('DB_STRICT', false),
+            'engine'         => 'InnoDB',
         ],
 
         'pgsql' => [

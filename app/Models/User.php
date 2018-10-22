@@ -7,16 +7,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable
 {
     use Notifiable;
     use SoftDeletes;
-    use UserTrait;
+    use PresentableTrait;
 
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];
+
+    protected $presenter = 'App\Models\Presenters\UserPresenter';
+
 
     /**
      * The attributes that are mass assignable.

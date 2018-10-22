@@ -13,8 +13,8 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
  */
 
 Route::redirect('/', '/login', 301);
-Route::get('signup', 'SignupController@signup')->name('signup');
-Route::post('process_signup', 'SignupController@processSignup')->name('signup.submit');
+Route::get('signup', 'CompanyController@index')->name('signup');
+Route::post('signup', 'CompanyController@store')->name('signup.submit');
 Route::get('contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
 
