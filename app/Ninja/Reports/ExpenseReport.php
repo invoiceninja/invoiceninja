@@ -42,7 +42,7 @@ class ExpenseReport extends AbstractReport
             $columns['currency'] = ['columnSelector-false'];
         }
 
-        $columns['documents'] = [];
+        $columns['documents'] = ['columnSelector-false'];
 
         return $columns;
     }
@@ -114,12 +114,14 @@ class ExpenseReport extends AbstractReport
                 $row[] = $expense->present()->currencyCode;
             }
 
+            $documents = '';
             foreach ($expense->documents as $document) {
                 $expenseId = $row[0];
                 $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
                 $name = str_replace(' ', '_', $name);
-                $row[] = $name;
+                $documents[] = $name;
             }
+            $row[] = join(', ', $documents);
 
             $this->data[] = $row;
 
