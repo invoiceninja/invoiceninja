@@ -321,12 +321,13 @@
         // check for comma as decimal separator
         if (str.match(/,[\d]{1,2}$/)) {
             str = str.replace(',', '.');
+            str = str.replace('.', ',');
         }
 
         str = str.replace(/[^0-9\.\-]/g, '');
 
         return window.parseFloat(str);
-    }    
+    }
 
     $(function () {
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function () {
