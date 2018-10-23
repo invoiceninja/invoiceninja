@@ -518,7 +518,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.product_library'),
-            
+
         ];
 
         return View::make('accounts.products', $data);
@@ -721,7 +721,7 @@ class AccountController extends BaseController
             'account' => $account,
             'products' => Product::scope()->orderBy('product_key')->get(),
             'gateway_types' => $options,
-            
+
         ];
 
         if (Utils::isSelfHost()) {
@@ -1008,6 +1008,7 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
 
+        $account->show_product_notes = Input::get('show_product_notes') ? true : false;
         $account->fill_products = Input::get('fill_products') ? true : false;
         $account->update_products = Input::get('update_products') ? true : false;
         $account->convert_products = Input::get('convert_products') ? true : false;
