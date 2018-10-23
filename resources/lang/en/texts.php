@@ -3102,6 +3102,8 @@ $LANG = array(
     'last30_days' => 'Last 30 days',
     'custom_js' => 'Custom JS',
     'adjust_fee_percent_help' => 'Adjust percent to account for fee',
+    'show_product_notes' => 'Show product details',
+    'show_product_notes_help' => 'Include the <b>description and cost</b> in the product dropdown',
 
 );
 
