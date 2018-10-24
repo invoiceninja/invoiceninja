@@ -38,9 +38,6 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
  * Authenticated User Routes
  */
 
-Auth::routes(['verify' => true]);
-
-
 Route::group(['middleware' => ['auth:user', 'db']], function () {
 
 	Route::get('dashboard', 'HomeController@user')->name('user.dashboard');
