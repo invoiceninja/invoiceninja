@@ -2,10 +2,11 @@
 
 namespace App\Listeners;
 
+use App\Libraries\MultiDB;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendConfirmationNotification
+class SendVerificationNotification
 {
     /**
      * Create the event listener.
@@ -26,5 +27,7 @@ class SendConfirmationNotification
     public function handle($event)
     {
         //send confirmation email using $event->user
+        MultiDB::setDB($event->user->db);
+
     }
 }

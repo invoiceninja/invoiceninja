@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\SignupRequest;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\RegisterNewAccount;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Http\Requests\Account\CreateAccountRequest;
+use App\Jobs\Account\CreateAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
-class CompanyController extends Controller
+class AccountController extends Controller
 {
     use DispatchesJobs;
 
@@ -47,10 +42,10 @@ class CompanyController extends Controller
      * @param  \App\Http\Requests\SignupRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCompanyRequest $request)
+    public function store(CreateAccountRequest $request)
     {
 
-        CreateCompany::dispatchNow($request);
+        CreateAccount::dispatchNow($request);
 
         //todo redirect to localization setup workflow
         return redirect()->route('user.dashboard');

@@ -26,6 +26,11 @@ class Account extends Model
         'plan_paid',
         'plan_started',
         'plan_expires',
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_term',
+        'utm_content',
     ];
 
     /**

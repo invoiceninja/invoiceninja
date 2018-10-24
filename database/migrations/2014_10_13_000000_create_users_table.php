@@ -158,7 +158,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id')->index();
             $table->text('permissions');
-            $table->boolean('is_owner');
+            $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin');
             $table->boolean('is_locked')->default(false); // locks user out of account
             $table->timestamps();

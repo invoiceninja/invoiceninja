@@ -13,8 +13,8 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
  */
 
 Route::redirect('/', '/login', 301);
-Route::get('signup', 'CompanyController@index')->name('signup');
-Route::post('signup', 'CompanyController@store')->name('signup.submit');
+Route::get('signup', 'AccountController@index')->name('signup');
+Route::post('signup', 'AccountController@store')->name('signup.submit');
 Route::get('contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
 
@@ -37,6 +37,9 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
 /*
  * Authenticated User Routes
  */
+
+Auth::routes(['verify' => true]);
+
 
 Route::group(['middleware' => ['auth:user', 'db']], function () {
 
