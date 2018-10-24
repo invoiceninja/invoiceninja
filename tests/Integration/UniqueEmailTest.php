@@ -29,15 +29,15 @@ class UniqueEmailTest extends TestCase
         if (! config('ninja.db.multi_db_enabled'))
             $this->markTestSkipped('Multi DB not enabled - skipping');
 
-         DB::connection('db-ninja-1')->table('users')->delete();
-         DB::connection('db-ninja-2')->table('users')->delete();
+         DB::connection('db-ninja-01')->table('users')->delete();
+         DB::connection('db-ninja-02')->table('users')->delete();
 
         $this->rule = new UniqueUserRule();
 
         $ac = factory(\App\Models\Account::class)->make();
 
-        $account = Account::on('db-ninja-1')->create($ac->toArray());
-        $account2 = Account::on('db-ninja-2')->create($ac->toArray());
+        $account = Account::on('db-ninja-01')->create($ac->toArray());
+        $account2 = Account::on('db-ninja-02')->create($ac->toArray());
 
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
@@ -47,8 +47,8 @@ class UniqueEmailTest extends TestCase
             'account_id' => $account2->id,
         ]);
 
-        Company::on('db-ninja-1')->create($company->toArray());
-        Company::on('db-ninja-2')->create($company2->toArray());
+        Company::on('db-ninja-01')->create($company->toArray());
+        Company::on('db-ninja-02')->create($company2->toArray());
 
 
         $user = [
@@ -67,8 +67,8 @@ class UniqueEmailTest extends TestCase
             'account_id' => $account2->id,
         ];
 
-        User::on('db-ninja-1')->create($user);
-        User::on('db-ninja-2')->create($user2);
+        User::on('db-ninja-01')->create($user);
+        User::on('db-ninja-02')->create($user2);
 
     }
 
@@ -88,8 +88,8 @@ class UniqueEmailTest extends TestCase
 
     public function tearDown()
     {
-        DB::connection('db-ninja-1')->table('users')->delete();
-        DB::connection('db-ninja-2')->table('users')->delete();
+        DB::connection('db-ninja-01')->table('users')->delete();
+        DB::connection('db-ninja-02')->table('users')->delete();
     }
 
 }

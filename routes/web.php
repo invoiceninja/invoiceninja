@@ -50,8 +50,11 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
 /*
  * Inbound routes requiring DB Lookup
  */
-Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
+Route::group(['middleware' => ['auth:user', 'db']], function () {
 
+    Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
+
+});
 /*
 Authenticated Contact Routes
  */

@@ -44,6 +44,9 @@ class Kernel extends HttpKernel
         'db' => [
             \App\Http\Middleware\SetDb::class,
         ],
+        'url-db' => [
+            \App\Http\Middleware\UrlSetDb::class,
+        ]
     ];
 
     /**

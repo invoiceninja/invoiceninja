@@ -47,7 +47,7 @@ class CreateAccount
 
         Auth::loginUsingId($user->id, true);
 
-        event(new AccountCreated());
+        event(new AccountCreated($user));
 
         return $user;
     }

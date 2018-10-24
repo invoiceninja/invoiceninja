@@ -22,6 +22,7 @@
         "asgrim/ofxparser": "^1.2",
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",
+        "hashids/hashids": "^3.0",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.1",
@@ -37,6 +38,7 @@
         "beyondcode/laravel-dump-server": "^1.0",
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
+        "laravel/dusk": "^4.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^2.0",
         "phpunit/phpunit": "^7.0"
