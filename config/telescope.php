@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'limit' => env('TELESCOPE_LIMIT', 100),
+    'limit' => env('TELESCOPE_LIMIT', null),
 
     /*
     |--------------------------------------------------------------------------

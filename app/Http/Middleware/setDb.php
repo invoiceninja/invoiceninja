@@ -18,9 +18,7 @@ class SetDb
     {
         if (config('ninja.db.multi_db_enabled'))
         {
-
             MultiDB::setDB(auth()->user()->db);
-
         }
 
         return $next($request);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
 use App\Jobs\Account\CreateAccount;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller

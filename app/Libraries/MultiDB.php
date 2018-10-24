@@ -10,11 +10,9 @@ use App\Models\User;
  */
 class MultiDB
 {
+    const DB_PREFIX = 'db-ninja-';
 
-    const DB_NINJA_1 = 1;
-    const DB_NINJA_2 = 2;
-
-    public static $dbs = ['db-ninja-1', 'db-ninja-2'];
+    public static $dbs = ['db-ninja-01', 'db-ninja-02'];
 
     /**
      * @param $email

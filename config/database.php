@@ -81,7 +81,7 @@ return [
             'prefix_indexes' => true,
         ],
 
-        'db-ninja-1' => [
+        'db-ninja-01' => [
             'driver'         => 'mysql',
             'host'           => env('DB_HOST1', env('DB_HOST', 'localhost')),
             'database'       => env('DB_DATABASE1', env('DB_DATABASE', 'forge')),
@@ -96,7 +96,7 @@ return [
             'engine'         => 'InnoDB',
         ],
 
-        'db-ninja-2' => [
+        'db-ninja-02' => [
             'driver'         => 'mysql',
             'host'           => env('DB_HOST2', env('DB_HOST', 'localhost')),
             'database'       => env('DB_DATABASE2', env('DB_DATABASE', 'forge')),

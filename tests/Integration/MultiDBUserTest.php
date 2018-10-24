@@ -35,8 +35,8 @@ class MultiDBUserTest extends TestCase
 
         $ac = factory(\App\Models\Account::class)->make();
 
-        $account = Account::on('db-ninja-1')->create($ac->toArray());
-        $account2 = Account::on('db-ninja-2')->create($ac->toArray());
+        $account = Account::on('db-ninja-01')->create($ac->toArray());
+        $account2 = Account::on('db-ninja-02')->create($ac->toArray());
 
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
@@ -46,8 +46,8 @@ class MultiDBUserTest extends TestCase
             'account_id' => $account2->id,
         ]);
 
-        Company::on('db-ninja-1')->create($company->toArray());
-        Company::on('db-ninja-2')->create($company2->toArray());
+        Company::on('db-ninja-01')->create($company->toArray());
+        Company::on('db-ninja-02')->create($company2->toArray());
 
         $user = [
             'first_name' => 'user_db_1',
@@ -77,8 +77,8 @@ class MultiDBUserTest extends TestCase
 
         ];
 
-        User::on('db-ninja-1')->create($user);
-        User::on('db-ninja-2')->create($user2);
+        User::on('db-ninja-01')->create($user);
+        User::on('db-ninja-02')->create($user2);
     }
 
     public function test_oauth_user_db2_exists()
@@ -113,12 +113,12 @@ class MultiDBUserTest extends TestCase
 
     public function test_set_db_invokes()
     {
-        $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-1'));
+        $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-01'));
     }
 
     public function tearDown()
     {
-         DB::connection('db-ninja-1')->table('users')->delete();
-         DB::connection('db-ninja-2')->table('users')->delete();
+         DB::connection('db-ninja-01')->table('users')->delete();
+         DB::connection('db-ninja-02')->table('users')->delete();
     }
 }

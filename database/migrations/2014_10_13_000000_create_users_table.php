@@ -138,6 +138,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('industry_id')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->string('subdomain')->nullable();
+            $table->string('db')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
