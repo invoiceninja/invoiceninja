@@ -9,6 +9,7 @@ php:
   - 7.2
 
 addons:
+  chrome: stable
   hosts:
     - www.ninja.test
 
@@ -29,6 +30,7 @@ before_install:
   - composer self-update && composer -V
 #  - export USE_ZEND_ALLOC=0
   - rvm use 1.9.3 --install --fuzzy
+  - cp .env.travis .env
 
 install:
   # install Composer dependencies
@@ -36,11 +38,10 @@ install:
   # these providers require referencing git commit's which cause Travis to fail
   #  - sed -i '/mollie/d' composer.json
   #  - sed -i '/2checkout/d' composer.json
-  - travis_retry composer install --prefer-dist;
+  - travis_retry composer install --no-interaction --prefer-dist --no-suggest
 
 before_script:
   # copy configuration files
-  - cp .env.travis .env
   - php artisan key:generate --no-interaction
   - sed -i '$a NINJA_DEV=true' .env
   # create the database and user
@@ -52,19 +53,14 @@ before_script:
   - php artisan migrate --database=db-ninja-01 --seed --no-interaction
   - php artisan migrate --database=db-ninja-02 --seed --no-interaction
   - php artisan optimize
-
   # migrate and seed the database
   # Start webserver on ninja.test:8000
-  - php artisan serve --host=www.ninja.test --port=8000 & # '&' allows to run in background
-  # Start PhantomJS
-  - phantomjs --webdriver=4444 & # '&' allows to run in background
-  # Give it some time to start
-  - sleep 5
-  # Make sure the app is up-to-date
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+  - php artisan serve &
 
 script:
   - php ./vendor/bin/phpunit --debug --verbose --coverage-clover=coverage.xml
-
+  - php artisan dusk
 after_success:
     - bash <(curl -s https://codecov.io/bash)
 

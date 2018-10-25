@@ -862,16 +862,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v5.7.10",
+            "version": "v5.7.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "7d748c33b8c409b9b0c96704d6493853de41754d"
+                "reference": "52ee19c53c4fcd7fea8a83aacae5b8bc212ae19b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/7d748c33b8c409b9b0c96704d6493853de41754d",
-                "reference": "7d748c33b8c409b9b0c96704d6493853de41754d",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/52ee19c53c4fcd7fea8a83aacae5b8bc212ae19b",
+                "reference": "52ee19c53c4fcd7fea8a83aacae5b8bc212ae19b",
                 "shasum": ""
             },
             "require": {
@@ -1001,7 +1001,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2018-10-23T14:05:19+00:00"
+            "time": "2018-10-24T12:50:20+00:00"
         },
         {
             "name": "laravel/socialite",
@@ -1068,23 +1068,27 @@
         },
         {
             "name": "laravel/telescope",
-            "version": "v0.1.1",
+            "version": "v0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/telescope.git",
-                "reference": "77deb0410a18af3b3dcf64cdc99eec62179db16a"
+                "reference": "253dde9a80d50e90c7f9d4d6621151acf556d1a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/telescope/zipball/77deb0410a18af3b3dcf64cdc99eec62179db16a",
-                "reference": "77deb0410a18af3b3dcf64cdc99eec62179db16a",
+                "url": "https://api.github.com/repos/laravel/telescope/zipball/253dde9a80d50e90c7f9d4d6621151acf556d1a1",
+                "reference": "253dde9a80d50e90c7f9d4d6621151acf556d1a1",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
+                "laravel/framework": "~5.7.7",
                 "moontoast/math": "^1.1",
                 "php": "^7.1.3",
                 "symfony/var-dumper": "^4.1"
+            },
+            "require-dev": {
+                "nunomaduro/larastan": "^0.3.4"
             },
             "type": "library",
             "extra": {
@@ -1122,7 +1126,7 @@
                 "laravel",
                 "monitoring"
             ],
-            "time": "2018-10-23T18:09:26+00:00"
+            "time": "2018-10-24T11:28:33+00:00"
         },
         {
             "name": "laravel/tinker",
