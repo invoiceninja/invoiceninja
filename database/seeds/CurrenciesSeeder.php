@@ -89,6 +89,7 @@ class CurrenciesSeeder extends Seeder
             ['name' => 'Bahraini Dinar', 'code' => 'BHD', 'symbol' => 'BD ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Venezuelan Bolivars', 'code' => 'VES', 'symbol' => 'Bs.', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['name' => 'South Korean Won', 'code' => 'KRW', 'symbol' => 'W ', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
+            ['name' => 'Moroccan Dirham', 'code' => 'MAD', 'symbol' => 'MAD ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {
