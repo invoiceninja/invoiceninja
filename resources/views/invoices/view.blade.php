@@ -163,7 +163,7 @@
             @if ($invoice->isQuote())
                 {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
-                    {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()'])->large() !!}
+                    {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()', 'class' => 'require-authorization'])->large() !!}
 				@elseif ($invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
 					{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
                 @endif
@@ -171,11 +171,13 @@
 				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@elseif ($invoice->client->account->isGatewayConfigured() && floatval($invoice->balance) && !$invoice->is_recurring)
                 {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
-                @if (count($paymentTypes) > 1)
-                    {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
-                @elseif (count($paymentTypes) == 1)
-                    <a href='{{ $paymentURL }}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {!! $invoice->present()->gatewayFee($gatewayTypeId) !!}</a>
-                @endif
+				<span class="require-authorization">
+	                @if (count($paymentTypes) > 1)
+	                    {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
+	                @elseif (count($paymentTypes) == 1)
+	                    <a href='{{ $paymentURL }}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {!! $invoice->present()->gatewayFee($gatewayTypeId) !!}</a>
+	                @endif
+				</span>
     		@else
     			{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@endif
@@ -277,7 +279,7 @@
                 @endif
 
 				@if ($account->requiresAuthorization($invoice))
-					$('#paymentButtons a').on('click', function(e) {
+					$('.require-authorization a').on('click', function(e) {
 						e.preventDefault();
 						window.pendingPaymentHref = $(this).attr('href');
 						showAuthorizationModal();
