@@ -53,7 +53,7 @@ class VendorApiController extends BaseAPIController
     {
         $vendors = Vendor::scope()
                     ->withTrashed()
-                    ->orderBy('created_at', 'desc');
+                    ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($vendors);
     }

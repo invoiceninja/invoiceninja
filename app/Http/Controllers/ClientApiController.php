@@ -43,7 +43,7 @@ class ClientApiController extends BaseAPIController
     public function index()
     {
         $clients = Client::scope()
-            ->orderBy('created_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->withTrashed();
 
         if ($email = Input::get('email')) {

@@ -61,7 +61,7 @@ class InvoiceApiController extends BaseAPIController
         $invoices = Invoice::scope()
                         ->withTrashed()
                         ->with('invoice_items', 'client')
-                        ->orderBy('created_at', 'desc');
+                        ->orderBy('updated_at', 'desc');
 
         // Filter by invoice number
         if ($invoiceNumber = Input::get('invoice_number')) {
