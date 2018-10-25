@@ -9,6 +9,7 @@ php:
   - 7.2
 
 addons:
+  chrome: stable
   hosts:
     - www.ninja.test
 
@@ -36,7 +37,7 @@ install:
   # these providers require referencing git commit's which cause Travis to fail
   #  - sed -i '/mollie/d' composer.json
   #  - sed -i '/2checkout/d' composer.json
-  - travis_retry composer install --no-interaction
+  - travis_retry composer install --no-interaction --prefer-dist --no-suggest
 
 before_script:
   # copy configuration files
@@ -52,13 +53,10 @@ before_script:
   - php artisan migrate --database=db-ninja-01 --seed --no-interaction
   - php artisan migrate --database=db-ninja-02 --seed --no-interaction
   - php artisan optimize
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - ./vendor/laravel/dusk/bin/chromedriver-linux &
   # migrate and seed the database
   # Start webserver on ninja.test:8000
-  - php artisan serve --host=www.ninja.test --port=8000 & # '&' allows to run in background
-  # Start PhantomJS
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+  - php artisan serve & --host=www.ninja.test --port=8000
 
 script:
   - php ./vendor/bin/phpunit --debug --verbose --coverage-clover=coverage.xml
