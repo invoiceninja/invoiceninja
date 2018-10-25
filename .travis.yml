@@ -56,7 +56,7 @@ before_script:
   # migrate and seed the database
   # Start webserver on ninja.test:8000
   - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-  - php artisan serve & --host=www.ninja.test --port=8000
+  - php artisan serve &
 
 script:
   - php ./vendor/bin/phpunit --debug --verbose --coverage-clover=coverage.xml
