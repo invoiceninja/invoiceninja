@@ -97,6 +97,9 @@ class Gateway extends Eloquent
         'pdtKey',
         // Realex
         '3dSecure',
+        // WorldPay
+        'callbackPassword',
+        'secretWord',
     ];
 
     /**
