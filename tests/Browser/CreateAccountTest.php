@@ -3,6 +3,7 @@
 namespace Tests\Browser;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use Tests\DuskTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Dusk\Browser;
@@ -26,6 +27,7 @@ class CreateAccountTest extends DuskTestCase
      */
     public function testCreateAValidUser()
     {
+        DB::beginTransaction();
 
         $this->browse(function (Browser $browser) {
             $browser->visit('/signup')
@@ -39,6 +41,7 @@ class CreateAccountTest extends DuskTestCase
                 ->assertPathIs('/dashboard');
         });
 
+        DB::rollback();
     }
 
 }
