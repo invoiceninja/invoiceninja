@@ -4,6 +4,7 @@ namespace App\Jobs\User;
 
 use App\Models\User;
 use App\Models\UserCompany;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use App\Models\Account;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class CreateUser
 {
-
+    use MakesHash;
     use Dispatchable;
 
     protected $request;
@@ -45,7 +46,7 @@ class CreateUser
         $user->account_id = $this->account->id;
         $user->password = bcrypt($this->request->input('password'));
         $user->accepted_terms_version = config('ninja.terms_version');
-        $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
+        $user->confirmation_code = $this->createDbHash(config('database.default'));
         $user->db = config('database.default');
         $user->fill($this->request->all());
         $user->save();

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,6 +14,11 @@ class LoginTest extends TestCase
 {
 
     use DatabaseTransactions;
+
+    public function setUp()
+    {
+        parent::setUp();
+    }
 
     public function testLoginFormDisplayed()
     {

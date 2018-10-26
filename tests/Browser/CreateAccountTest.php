@@ -3,10 +3,10 @@
 namespace Tests\Browser;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use Tests\DuskTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-
+use Laravel\Dusk\Browser;
 
 class CreateAccountTest extends DuskTestCase
 {
@@ -27,30 +27,21 @@ class CreateAccountTest extends DuskTestCase
      */
     public function testCreateAValidUser()
     {
-        /*
-        $response = $this->post('/signup', [
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
-            'terms_of_service' => 1,
-            'privacy_policy' => 1,
-            'email' => config('ninja.testvars.username'),
-            'password' => config('ninja.testvars.password')
-        ]);
+        DB::beginTransaction();
 
+        $this->browse(function (Browser $browser) {
+            $browser->visit('/signup')
+                ->type('first_name',$this->faker->firstName())
+                ->type('last_name', $this->faker->lastName())
+                ->type('email', $this->faker->email())
+                ->type('password', $this->faker->password(7))
+                ->check('terms_of_service')
+                ->check('privacy_policy')
+                ->press(trans('texts.create_account'))
+                ->assertPathIs('/dashboard');
+        });
 
-        $response->assertSuccessful();
-        */
-
-        $this->visit('/signup')
-            ->type($this->faker->firstName(), 'first_name')
-            ->type($this->faker->lastName(), 'last_name')
-            ->type($this->faker->email(), 'email')
-            ->type($this->faker->password(7), 'password')
-            ->check('terms_of_service')
-            ->check('terms_of_service')
-            ->press(trans('texts.create_account'))
-            ->seePageIs('/dashboard');
-
+        DB::rollback();
     }
 
 }
