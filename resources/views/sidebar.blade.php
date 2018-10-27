@@ -9,7 +9,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="colors.html">
+                <a class="nav-link" href="/clients">
                     <i class="nav-icon icon-user"></i> @lang('texts.clients')</a>
             </li>
 

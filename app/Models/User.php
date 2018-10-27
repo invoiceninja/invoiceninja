@@ -53,17 +53,20 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
-    public function user_accounts()
+    public function account()
     {
-        return $this->hasMany(UserAccount::class);
+        return $this->hasOne(Account::class);
+    }
+
+    public function user_companies()
+    {
+        return $this->hasMany(UserCompany::class);
     }
 
     public function contacts()
     {
         return $this->hasMany(Contact::class);
     }
-
-
 
 
     public function owns($entity)

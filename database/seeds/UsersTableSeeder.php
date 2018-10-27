@@ -33,19 +33,15 @@ class UsersTableSeeder extends Seeder
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = User::create([
-            'account_id' => $account->id,
-            'first_name' => $faker->firstName,
-            'last_name' => $faker->lastName,
-            'email' => config('ninja.testvars.username'),
-            'password' => Hash::make(config('ninja.testvars.password')),
-            'email_verified_at' => now(),
+        $user = factory(\App\Models\User::class)->create([
+           'account_id' => $account->id,
         ]);
 
-        $client = Client::create([
-            'name' => $faker->name,
-            'company_id' => $company->id,
+        $client = factory(\App\Models\Client::class)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id
         ]);
+
 
         ClientContact::create([
             'first_name' => $faker->firstName,
@@ -64,6 +60,12 @@ class UsersTableSeeder extends Seeder
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+        ]);
+
+
+        factory(\App\Models\Client::class,50)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id
         ]);
     }
 }

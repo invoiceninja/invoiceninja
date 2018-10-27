@@ -40,9 +40,10 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
 
 Route::group(['middleware' => ['auth:user', 'db']], function () {
 
-	Route::get('dashboard', 'HomeController@user')->name('user.dashboard');
+	Route::get('dashboard', 'DashboardController@index')->name('user.dashboard');
 	Route::get('logout', 'Auth\LoginController@logout')->name('user.logout');
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
+    Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
     Route::get('settings', 'SettingsController@index')->name('user.settings');
 
 });
