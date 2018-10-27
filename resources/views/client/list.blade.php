@@ -1,8 +1,15 @@
 @extends('layouts.master')
 
+@section('head')
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
+    <script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+@endsection
+
 @section('header')
     @include('header')
-@endsection
+
+    @parent
+≈@endsection
 
 
 @section('sidebar')
@@ -17,6 +24,8 @@
 
         </div>
     </main>
+
+    
 
     @include('dashboard.aside')
 
