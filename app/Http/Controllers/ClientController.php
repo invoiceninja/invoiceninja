@@ -35,18 +35,21 @@ class ClientController extends Controller
                 ->addColumn('checkbox', function ($client){
                     return '<input type="checkbox" name="bulk" value="'. $client->id .'"/>';
                 })
+                ->rawColumns(['checkbox', 'action'])
                 ->make(true);
         }
 
-
+        $builder->addAction();
+        $builder->addCheckbox();
+        
         $html = $builder->columns([
-            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false, 'sortable' => false],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
             ['data' => 'name', 'name' => 'name', 'title' => trans('texts.name'), 'visible'=> true],
             ['data' => 'full_name', 'name' => 'full_name', 'title' => trans('texts.contact'), 'visible'=> true],
             ['data' => 'email', 'name' => 'email', 'title' => trans('texts.email'), 'visible'=> true],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => trans('texts.date_created'), 'visible'=> true],
             ['data' => 'last_login', 'name' => 'last_login', 'title' => trans('texts.last_login'), 'visible'=> true],
-            ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> false],
+            ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
             ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
         ]);
 
