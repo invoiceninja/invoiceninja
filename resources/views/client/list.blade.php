@@ -26,18 +26,9 @@
             <div id="ui-view">
                 <div class="animated fadeIn">
                     <div class="row col-lg-12 card">
-                        <table class="table table-striped table-bordered" id="clients-table">
-                            <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Name</th>
-                                <th>Website</th>
-                                <th>Balance</th>
-                                <th>Created At</th>
-                                <th>Updated At</th>
-                            </tr>
-                            </thead>
-                        </table>
+
+                        {!! $html->table() !!}
+
                     </div>
                 </div>
             </div>
@@ -54,25 +45,10 @@
     @include('footer')
 
 
-    <script>
-        $(function() {
+    {!! $html->scripts() !!}
 
-            $('#clients-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: '{!! route('clients.index') !!}',
-                columns: [
-                    { data: 'id', name: 'id', visible: true },
-                    { data: 'name', name: 'name' },
-                    { data: 'website', name: 'website' },
-                    { data: 'balance', name: 'balance' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' }
-                ]
-            });
-        });
-    </script>
 @endsection
+
 
 
 
