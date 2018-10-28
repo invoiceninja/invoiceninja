@@ -31,4 +31,10 @@ class ClientContact extends Authenticatable
         'password', 'remember_token',
     ];
 
+
+    public function client()
+    {
+        $this->hasOne(Client::class);
+    }
+
 }

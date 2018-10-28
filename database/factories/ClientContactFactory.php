@@ -13,12 +13,16 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(App\Models\Contact::class, function (Faker $faker) {
+$factory->define(App\Models\ClientContact::class, function (Faker $faker) {
     return [
-        'first_name'        => $faker->name,
-        'email'             => $faker->unique()->safeEmail,
-        'password'          => bcrypt('secret'),
-        'remember_token'    => str_random(10),
-        'db'                => config('database.default')
+        'first_name' => $faker->firstName,
+        'last_name' => $faker->lastName,
+        'phone' => $faker->phoneNumber,
+        'email_verified_at' => now(),
+        'email' => $faker->unique()->safeEmail,
+        'password' => bcrypt('password'),
+        'remember_token' => str_random(10),
+        'db' => config('database.default')
     ];
+
 });

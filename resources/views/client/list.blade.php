@@ -56,11 +56,11 @@
 
     <script>
         $(function() {
-            
+
             $('#clients-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '{!! route('datatables.data') !!}',
+                ajax: '{!! route('clients.index') !!}',
                 columns: [
                     { data: 'id', name: 'id', visible: true },
                     { data: 'name', name: 'name' },
@@ -73,7 +73,6 @@
         });
     </script>
 @endsection
-
 
 
 

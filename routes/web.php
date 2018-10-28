@@ -47,7 +47,6 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
     Route::get('settings', 'SettingsController@index')->name('user.settings');
 
 
-    Route::get('datatables', 'DatatablesController@anyData')->name('datatables.data');
 
 });
 

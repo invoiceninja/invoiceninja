@@ -16,6 +16,12 @@ class ClientController extends Controller
      */
     public function index()
     {
+        if(request()->ajax()){
+
+            return Datatables::of(Client::all())->make(true);
+
+        }
+
         return view('client.list');
     }
 
