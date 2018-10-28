@@ -46,6 +46,9 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
     Route::get('settings', 'SettingsController@index')->name('user.settings');
 
+
+    Route::get('datatables', 'DatatablesController@anyData')->name('datatables.data');
+
 });
 
 /*
