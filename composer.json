@@ -32,7 +32,8 @@
         "spatie/laravel-html": "^2.19",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/postmark-php": "^2.6",
-        "yajra/laravel-datatables": "^1.0"
+        "yajra/laravel-datatables": "^1.0",
+        "yajra/laravel-datatables-html": "^3.0"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

@@ -15,6 +15,6 @@ class DatatablesController extends Controller
      */
     public function anyData()
     {
-        return Datatables::of(Client::all())->removeColumn('website')->make(true);
+        return Datatables::of(Client::all())->make(true);
     }
 }

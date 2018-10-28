@@ -10,7 +10,7 @@
     @include('header')
 
     @parent
-≈@endsection
+@endsection
 
 
 @section('sidebar')
@@ -18,25 +18,29 @@
 @endsection
 
 @section('body')
-    <main class="main">
+    <main class="main" >
         <!-- Breadcrumb-->
         {{ Breadcrumbs::render('clients') }}
+
         <div class="container-fluid">
-
-
-            <table class="table table-bordered" id="clients-table">
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Website</th>
-                    <th>Balance</th>
-                    <th>Created At</th>
-                    <th>Updated At</th>
-                </tr>
-                </thead>
-            </table>
-
+            <div id="ui-view">
+                <div class="animated fadeIn">
+                    <div class="row col-lg-12 card">
+                        <table class="table table-striped table-bordered" id="clients-table">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Balance</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -52,15 +56,13 @@
 
     <script>
         $(function() {
-
-            console.log('inside');
-
+            
             $('#clients-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: '{!! route('datatables.data') !!}',
                 columns: [
-                    { data: 'id', name: 'id' },
+                    { data: 'id', name: 'id', visible: true },
                     { data: 'name', name: 'name' },
                     { data: 'website', name: 'website' },
                     { data: 'balance', name: 'balance' },
