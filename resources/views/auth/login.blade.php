@@ -70,8 +70,7 @@
             </div>
         </div>
     </div>
-
+    </body>
 @endsection
 
-    </body>
-</html>
+
