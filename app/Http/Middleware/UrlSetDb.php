@@ -16,7 +16,7 @@ class UrlSetDb
      * @return mixed
      */
 
-    public function handle($request, Closure $next, $hash)
+    public function handle($request, Closure $next)
     {
 
         if (config('ninja.db.multi_db_enabled'))
@@ -24,11 +24,11 @@ class UrlSetDb
             $hashids = new Hashids(); //decoded output is _always_ an array.
 
             //parse URL hash and set DB
-            $segments = explode("-", $hash);
+            $segments = explode("-", $request->route('confirmation_code'));
 
             $hashed_db = $hashids->decode($segments[0]);
 
-            MultiDB::setDB(MultiDB::DB_PREFIX . $hashed_db[0]);
+            MultiDB::setDB(MultiDB::DB_PREFIX . str_pad($hashed_db[0],  2 , "0", STR_PAD_LEFT));
         }
 
         return $next($request);

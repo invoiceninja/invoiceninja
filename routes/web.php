@@ -53,11 +53,12 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
 /*
  * Inbound routes requiring DB Lookup
  */
-Route::group(['middleware' => ['auth:user', 'db']], function () {
+Route::group(['middleware' => ['url-db']], function () {
 
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
 
 });
+
 /*
 Authenticated Contact Routes
  */
@@ -69,3 +70,8 @@ Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function 
    
 });
 
+Route::get('/mailable', function () {
+    $user = App\Models\User::find(1);
+
+    return new App\Mail\VerifyUser($user);
+});

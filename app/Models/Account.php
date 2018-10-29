@@ -50,6 +50,10 @@ class Account extends Model
         return $this->hasMany(Company::class);
     }
 
+    public function default_company()
+    {
+        return $this->hasOne(Company::class, 'default_company_id', 'id');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

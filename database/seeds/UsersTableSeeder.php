@@ -9,6 +9,7 @@ use Illuminate\Database\Seeder;
 
 class UsersTableSeeder extends Seeder
 {
+    use \App\Utils\Traits\MakesHash;
     /**
      * Run the database seeds.
      *
@@ -34,7 +35,8 @@ class UsersTableSeeder extends Seeder
         $account->save();
 
         $user = factory(\App\Models\User::class)->create([
-           'account_id' => $account->id,
+            'account_id' => $account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 
         $client = factory(\App\Models\Client::class)->create([
