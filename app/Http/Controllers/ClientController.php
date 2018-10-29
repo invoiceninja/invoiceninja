@@ -18,7 +18,6 @@ class ClientController extends Controller
      */
     public function index(Builder $builder)
     {
-        Log::error('here i Am');
         if (request()->ajax()) {
 
             $clients = Client::select('clients.*', DB::raw("CONCAT(client_contacts.first_name,' ',client_contacts.last_name) as full_name"), 'client_contacts.email')
