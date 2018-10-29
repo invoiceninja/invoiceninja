@@ -40,21 +40,25 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
 
 Route::group(['middleware' => ['auth:user', 'db']], function () {
 
-	Route::get('dashboard', 'HomeController@user')->name('user.dashboard');
+	Route::get('dashboard', 'DashboardController@index')->name('user.dashboard');
 	Route::get('logout', 'Auth\LoginController@logout')->name('user.logout');
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
+    Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
     Route::get('settings', 'SettingsController@index')->name('user.settings');
+
+
 
 });
 
 /*
  * Inbound routes requiring DB Lookup
  */
-Route::group(['middleware' => ['auth:user', 'db']], function () {
+Route::group(['middleware' => ['url-db']], function () {
 
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
 
 });
+
 /*
 Authenticated Contact Routes
  */
@@ -66,3 +70,12 @@ Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function 
    
 });
 
+
+/* Dev Playground
+Route::get('/mailable', function () {
+    $user = App\Models\User::find(1);
+
+    return new App\Mail\VerifyUser($user);
+});
+
+*/

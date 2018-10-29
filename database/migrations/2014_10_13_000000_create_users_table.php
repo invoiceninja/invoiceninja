@@ -268,7 +268,7 @@ class CreateUsersTable extends Migration
             $table->string('email',100);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
-            $table->boolean('registered')->default(false);
+            $table->boolean('is_primary')->default(false);
             $table->boolean('confirmed')->default(false);
             $table->smallInteger('failed_logins')->nullable();
             $table->string('oauth_user_id',100)->nullable()->unique();

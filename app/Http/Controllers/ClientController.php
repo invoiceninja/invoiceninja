@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class ClientController extends Controller
 {
@@ -11,9 +16,45 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Builder $builder)
     {
+        Log::error('here i Am');
+        if (request()->ajax()) {
 
+            $clients = Client::select('clients.*', DB::raw("CONCAT(client_contacts.first_name,' ',client_contacts.last_name) as full_name"), 'client_contacts.email')
+                ->leftJoin('client_contacts', function($leftJoin)
+                {
+                    $leftJoin->on('clients.id', '=', 'client_contacts.client_id')
+                        ->where('client_contacts.is_primary', '=', true);
+                });
+
+            return DataTables::of($clients->get())
+                ->addColumn('action', function ($client) {
+                    return '<a href="#edit-'. $client->id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                })
+                ->addColumn('checkbox', function ($client){
+                    return '<input type="checkbox" name="bulk" value="'. $client->id .'"/>';
+                })
+                ->rawColumns(['checkbox', 'action'])
+                ->make(true);
+        }
+
+        $builder->addAction();
+        $builder->addCheckbox();
+        
+        $html = $builder->columns([
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
+            ['data' => 'name', 'name' => 'name', 'title' => trans('texts.name'), 'visible'=> true],
+            ['data' => 'full_name', 'name' => 'full_name', 'title' => trans('texts.contact'), 'visible'=> true],
+            ['data' => 'email', 'name' => 'email', 'title' => trans('texts.email'), 'visible'=> true],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => trans('texts.date_created'), 'visible'=> true],
+            ['data' => 'last_login', 'name' => 'last_login', 'title' => trans('texts.last_login'), 'visible'=> true],
+            ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
+            ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
+        ]);
+
+
+        return view('client.list', compact('html'));
     }
 
     /**
@@ -81,4 +122,5 @@ class ClientController extends Controller
     {
         //
     }
+
 }

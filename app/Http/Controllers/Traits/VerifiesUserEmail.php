@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Traits;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 trait VerifiesUserEmail
 {
@@ -17,11 +18,13 @@ trait VerifiesUserEmail
             $user->confirmation_code = null;
             $user->save();
 
-            redirect()->route('user.dashboard')->with('message', trans('texts.security_confirmation'));
+            Auth::loginUsingId($user->id, true);
+
+            return redirect()->route('user.dashboard')->with('message', trans('texts.security_confirmation'));
 
         }
 
-        redirect()->route('login')->with('message', trans('texts.wrong_confirmation'));
+        return redirect()->route('login')->with('message', trans('texts.wrong_confirmation'));
 
     }
 }

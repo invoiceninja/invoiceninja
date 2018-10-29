@@ -2,6 +2,7 @@
 
 namespace App\Jobs\User;
 
+use App\Events\User\UserCreated;
 use App\Models\User;
 use App\Models\UserCompany;
 use App\Utils\Traits\MakesHash;
@@ -61,6 +62,9 @@ class CreateUser
             'permissions' => '',
 
         ]);
+
+
+        event(new UserCreated($user));
 
         return $user;
     }

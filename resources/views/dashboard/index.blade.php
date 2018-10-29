@@ -15,6 +15,9 @@
             {{ Breadcrumbs::render('dashboard') }}
         <div class="container-fluid">
 
+
+
+
         </div>
     </main>
 
@@ -25,5 +28,4 @@
 @section('footer')
     @include('footer')
 @endsection
-
 

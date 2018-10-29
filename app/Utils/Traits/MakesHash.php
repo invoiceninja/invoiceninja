@@ -27,7 +27,7 @@ trait MakesHash
      */
     public function createDbHash($db) : string
     {
-        return  getDbCode($db) . '-' . strtolower(str_random(RANDOM_KEY_LENGTH));
+        return  $this->getDbCode($db) . '-' . strtolower(str_random(RANDOM_KEY_LENGTH));
     }
 
     /**
