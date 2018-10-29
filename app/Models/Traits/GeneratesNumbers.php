@@ -175,13 +175,15 @@ trait GeneratesNumbers
         }
 
         $matches = false;
-        preg_match('/{\$date:(.*?)}/', $pattern, $matches);
+        preg_match_all('/{\$date:(.*?)}/', $pattern, $matches);
         if (count($matches) > 1) {
-            $format = $matches[1];
-            $search[] = $matches[0];
-            //$date = date_create()->format($format);
-            $date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
-            $replace[] = str_replace($format, $date, $matches[1]);
+            for ($i = 0; $i <= count($matches[1]) - 1; $i++) {
+                $format = $matches[1][$i];
+                $search[] = $matches[0][$i];
+                //$date = date_create()->format($format);
+                $date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
+                $replace[] = str_replace($format, $date, $matches[1][$i]);
+            }
         }
 
         $pattern = str_replace($search, $replace, $pattern);
