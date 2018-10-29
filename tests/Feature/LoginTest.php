@@ -18,10 +18,12 @@ class LoginTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+        Session::start();
     }
 
     public function testLoginFormDisplayed()
     {
+
         $response = $this->get('/login');
         $response->assertStatus(200);
     }
@@ -39,7 +41,9 @@ class LoginTest extends TestCase
 
         $response = $this->post('/login', [
             'email' => config('ninja.testvars.username'),
-            'password' => config('ninja.testvars.password')
+            'password' => config('ninja.testvars.password'),
+            '_token' => csrf_token()
+
         ]);
 
         $response->assertStatus(302);
@@ -60,7 +64,8 @@ class LoginTest extends TestCase
 
         $response = $this->post('/login', [
             'email' => config('ninja.testvars.username'),
-            'password' => 'invalid'
+            'password' => 'invaliddfd',
+            '_token' => csrf_token()
         ]);
 
         $response->assertSessionHasErrors();
@@ -78,7 +83,9 @@ class LoginTest extends TestCase
             'account_id' => $account->id,
         ]);
 
-        $response = $this->actingAs($user)->post('/logout');
+        $response = $this->actingAs($user)->post('/logout',[
+            '_token' => csrf_token()
+        ]);
         $response->assertStatus(302);
         $this->assertGuest();
     }
