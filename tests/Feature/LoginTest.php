@@ -24,7 +24,10 @@ class LoginTest extends TestCase
     public function testLoginFormDisplayed()
     {
 
-        $response = $this->get('/login');
+        $response = $this->get('/login', [
+            '_token' => csrf_token()
+        ]);
+
         $response->assertStatus(200);
     }
     /**
