@@ -3,8 +3,10 @@
 namespace App\Listeners;
 
 use App\Libraries\MultiDB;
+use App\Mail\VerifyUser;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Mail;
 
 class SendVerificationNotification
 {
@@ -29,5 +31,9 @@ class SendVerificationNotification
         //send confirmation email using $event->user
         MultiDB::setDB($event->user->db);
 
+        Mail::to($event->user->email)
+            //->cc('')
+            //->bcc('')
+            ->queue(new VerifyUser($event->user));
     }
 }

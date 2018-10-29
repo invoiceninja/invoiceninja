@@ -70,8 +70,12 @@ Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function 
    
 });
 
+
+/* Dev Playground
 Route::get('/mailable', function () {
     $user = App\Models\User::find(1);
 
     return new App\Mail\VerifyUser($user);
 });
+
+*/

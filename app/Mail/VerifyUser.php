@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class VerifyUser extends Mailable
+class VerifyUser extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -31,7 +31,8 @@ class VerifyUser extends Mailable
     public function build()
     {
 
-        return $this->from('example@example.com')
+        return $this->from('turbo124@gmail.com') //todo
+            ->subject(__trans('texts.confirmation_subject'))
             ->markdown('email.auth.verify', ['user' => $this->user])
             ->text('email.auth.verify_text');
     }
