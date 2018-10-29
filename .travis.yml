@@ -53,6 +53,7 @@ before_script:
   - php artisan migrate --database=db-ninja-01 --seed --no-interaction
   - php artisan migrate --database=db-ninja-02 --seed --no-interaction
   - php artisan optimize
+  - npm run production
   # migrate and seed the database
   # Start webserver on ninja.test:8000
   - export DISPLAY=:99.0
