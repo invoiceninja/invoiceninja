@@ -5,8 +5,8 @@ return [
      * Default table attributes when generating the table.
      */
     'table' => [
-        'class' => 'table',
-        'id'    => 'table table-striped table-bordered',
+        'class' => 'table table-hover',
+        'id'    => 'ninja',
     ],
     /*
      * Default condition to determine if a parameter is a callback or not

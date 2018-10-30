@@ -52,6 +52,11 @@ class ClientController extends Controller
             ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
         ]);
 
+        $builder->ajax([
+            'url' => route('clients.index'),
+            'type' => 'GET',
+            'data' => 'function(d) { d.key = "value"; }',
+        ]);
 
         return view('client.list', compact('html'));
     }
