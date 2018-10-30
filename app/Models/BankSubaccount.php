@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class BankSubaccount.
  */
-class BankSubaccount extends Model
+class BankSubaccount extends BaseModel
 {
     use SoftDeletes;
     /**

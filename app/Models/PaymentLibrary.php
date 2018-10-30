@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class PaymentLibrary.
  */
-class PaymentLibrary extends Model
+class PaymentLibrary extends BaseModel
 {
 
     /**

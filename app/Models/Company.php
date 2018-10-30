@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\AccountTrait;
 
-class Company extends Model
+class Company extends BaseModel
 {
 
     protected $fillable = [

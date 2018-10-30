@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
 
-class Client extends Model
+class Client extends BaseModel
 {
 
     public function contacts()

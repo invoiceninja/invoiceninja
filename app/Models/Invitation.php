@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Invitation extends Model
+class Invitation extends BaseModel
 {
 
 
@@ -16,7 +16,7 @@ class Invitation extends Model
 
     public function proposals()
     {
-        return $this->morphedByMany(Proposal::class, 'taggable');
+        return $this->morphedByMany(Proposal::class, 'inviteable');
     }
 
 }
