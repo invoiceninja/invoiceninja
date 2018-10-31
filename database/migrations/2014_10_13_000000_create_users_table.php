@@ -153,7 +153,7 @@ class CreateUsersTable extends Migration
         });
 
 
-        Schema::create('user_companies', function (Blueprint $table) {
+        Schema::create('company_user', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('account_id');

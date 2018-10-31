@@ -2,17 +2,11 @@
 
 namespace App\Jobs\Company;
 
-use App\Events\Company\CompanyCreated;
 use App\Events\UserSignedUp;
-use App\Jobs\Account\CreateAccount;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
-use App\Models\Account;
 use App\Models\Company;
-use App\Models\User;
-use App\Models\UserCompany;
-use Illuminate\Support\Facades\Hash;
 
 class CreateCompany
 {

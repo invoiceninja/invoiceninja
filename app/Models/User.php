@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\SetsUserSessionAttributes;
 use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
@@ -14,13 +15,13 @@ class User extends Authenticatable implements MustVerifyEmail
     use Notifiable;
     use SoftDeletes;
     use PresentableTrait;
+    use SetsUserSessionAttributes;
 
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
-
 
     /**
      * The attributes that are mass assignable.
@@ -52,22 +53,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
-    public function setIdAttribute($value)
-    {
-        $hashids = new Hashids(); //decoded output is _always_ an array.
-        $hashed_id_array = $hashids->decode($value);
 
-        $this->attributes['id'] = strtolower($hashed_id_array[0]);
-    }
 
-    public function account()
+    public function companies()
     {
-        return $this->hasOne(Account::class);
-    }
-
-    public function user_companies()
-    {
-        return $this->hasMany(UserCompany::class);
+        return $this->belongsToMany(Company::class);
     }
 
     public function contacts()

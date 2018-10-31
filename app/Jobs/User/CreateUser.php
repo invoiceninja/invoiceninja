@@ -4,12 +4,10 @@ namespace App\Jobs\User;
 
 use App\Events\User\UserCreated;
 use App\Models\User;
-use App\Models\UserCompany;
+use App\Models\CompanyUser;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
-use App\Models\Account;
-use Illuminate\Support\Facades\Hash;
 
 class CreateUser
 {
@@ -53,7 +51,7 @@ class CreateUser
         $user->save();
 
 
-        UserCompany::create([
+        CompanyUser::create([
             'user_id' => $user->id,
             'account_id' => $this->account->id,
             'company_id' => $this->company->id,

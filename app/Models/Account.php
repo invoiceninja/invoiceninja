@@ -45,10 +45,6 @@ class Account extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function companies()
-    {
-        return $this->hasMany(Company::class);
-    }
 
     public function default_company()
     {

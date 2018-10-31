@@ -37,6 +37,13 @@ class UsersTableSeeder extends Seeder
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+        ]);
+
         $client = factory(\App\Models\Client::class)->create([
             'user_id' => $user->id,
             'company_id' => $company->id
@@ -51,15 +58,6 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make(config('ninja.testvars.password')),
             'email_verified_at' => now(),
             'client_id' =>$client->id,
-        ]);
-
-        \App\Models\UserCompany::create([
-            'account_id' => $account->id,
-            'company_id' => $company->id,
-            'user_id' => $user->id,
-            'is_owner' => 1,
-            'is_admin' => 1,
-            'is_locked' => 0,
         ]);
 
 

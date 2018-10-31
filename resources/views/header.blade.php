@@ -86,9 +86,9 @@
                     <strong>@lang('texts.manage_companies')</strong>
                 </div>
 
-                @foreach() <!-- List all remaining companies here-->
+                @foreach($companies as $company) <!-- List all remaining companies here-->
                     <a class="dropdown-item" href="#">
-                        <div class="small mb-1">Mr Miyagi todos
+                        <div class="small mb-1">{{ $company->name }}
                         <span class="float-right">
                         </span>
                         </div>
@@ -101,9 +101,9 @@
                 <div class="dropdown-divider"></div>
 
                 <!-- Add Company-->
-                @if()
+                @if(count($companies) < 5)
                 <a class="dropdown-item" href="{{ route('user.logout') }}">
-                    <i class="fa fa-lock"></i> Logout</a>
+                    <i class="fa fa-lock"></i> @lang('texts.add_company')</a>
                 @endif
             </div>
         </li>

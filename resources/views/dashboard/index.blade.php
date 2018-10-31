@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('header')
-    @include('header')
+    @include('header', $header)
 @endsection
 
 
