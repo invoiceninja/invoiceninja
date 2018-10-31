@@ -22,6 +22,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $data['header'] = ;
+
         return view('dashboard.index');
     }
 

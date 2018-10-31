@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseModel extends Model
 {
+    /*
     public function setIdAttribute($value)
     {
         $hashids = new Hashids(); //decoded output is _always_ an array.
@@ -14,4 +15,5 @@ class BaseModel extends Model
 
         $this->attributes['id'] = strtolower($hashed_id_array[0]);
     }
+    */
 }

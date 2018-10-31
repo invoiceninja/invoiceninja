@@ -18,9 +18,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
 
-        //require_once app_path() . '/Constants.php';
-
-        $this->command->info('Running UserTableSeeder');
+        $this->command->info('Running UsersTableSeeder');
 
         Eloquent::unguard();
 

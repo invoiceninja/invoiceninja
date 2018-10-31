@@ -26,47 +26,47 @@
                         <span class="float-right">
                         <strong>0%</strong>
                         </span>
-                                            </div>
+                    </div>
                         <span class="progress progress-xs">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </span>
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <div class="small mb-1">First, wash all car.
+                </a>
+                <a class="dropdown-item" href="#">
+                    <div class="small mb-1">First, wash all car.
                         <span class="float-right">
                         <strong>25%</strong>
                         </span>
-                                            </div>
+                    </div>
                         <span class="progress progress-xs">
                         <div class="progress-bar bg-danger" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                         </span>
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <div class="small mb-1">Then wax. Wax on...
+                </a>
+                <a class="dropdown-item" href="#">
+                    <div class="small mb-1">Then wax. Wax on...
                         <span class="float-right">
                         <strong>50%</strong>
                         </span>
-                                            </div>
+                    </div>
                         <span class="progress progress-xs">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                         </span>
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <div class="small mb-1">No questions!
+                </a>
+                <a class="dropdown-item" href="#">
+                    <div class="small mb-1">No questions!
                         <span class="float-right">
                         <strong>75%</strong>
                         </span>
-                                            </div>
+                    </div>
                         <span class="progress progress-xs">
                         <div class="progress-bar bg-info" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
                         </span>
-                                        </a>
-                                        <a class="dropdown-item" href="#">
-                                            <div class="small mb-1">Wax on... wax off. Wax on... wax off.
+                </a>
+                <a class="dropdown-item" href="#">
+                    <div class="small mb-1">Wax on... wax off. Wax on... wax off.
                         <span class="float-right">
                         <strong>100%</strong>
                         </span>
-                                            </div>
+                    </div>
                         <span class="progress progress-xs">
                         <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
                         </span>
@@ -77,32 +77,42 @@
             </div>
         </li>
 
+        <li class="nav-item dropdown d-md-down-none">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-building" aria-hidden="true"></i> <!-- Insert company name here-->
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
+                <div class="dropdown-header text-center">
+                    <strong>@lang('texts.manage_companies')</strong>
+                </div>
+
+                @foreach() <!-- List all remaining companies here-->
+                    <a class="dropdown-item" href="#">
+                        <div class="small mb-1">Mr Miyagi todos
+                        <span class="float-right">
+                        </span>
+                        </div>
+                        <span class="progress progress-xs">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </span>
+                    </a>
+                @endforeach
+
+                <div class="dropdown-divider"></div>
+
+                <!-- Add Company-->
+                @if()
+                <a class="dropdown-item" href="{{ route('user.logout') }}">
+                    <i class="fa fa-lock"></i> Logout</a>
+                @endif
+            </div>
+        </li>
+
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <img class="img-avatar" src="images/logo.png" alt="admin@bootstrapmaster.com"> {{ auth()->user()->present()->name }}
+                <img class="img-avatar" src="images/logo.png" alt=""> {{ auth()->user()->present()->name }}
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <!-- if multiple accounts exist, loop through here and display
-                <div class="dropdown-header text-center">
-                    <strong>Accounts</strong>
-                </div>
-                <a class="dropdown-item" href="#">
-                    <i class="fa fa-bell-o"></i> Updates
-                    <span class="badge badge-info">42</span>
-                </a>
-                <a class="dropdown-item" href="#">
-                    <i class="fa fa-envelope-o"></i> Messages
-                    <span class="badge badge-success">42</span>
-                </a>
-                <a class="dropdown-item" href="#">
-                    <i class="fa fa-tasks"></i> Tasks
-                    <span class="badge badge-danger">42</span>
-                </a>
-                <a class="dropdown-item" href="#">
-                    <i class="fa fa-comments"></i> Comments
-                    <span class="badge badge-warning">42</span>
-                </a>
-                <!-- if multiple accounts exist, loop through here and display -->
                 <div class="dropdown-header text-center">
                     <strong>Settings</strong>
                 </div>
