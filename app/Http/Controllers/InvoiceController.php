@@ -214,9 +214,10 @@ class InvoiceController extends BaseController
         if (! Auth::user()->hasPermission('view_client')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
-		if ($clientId) {
-			$clients->whereId($clientId);
-		}
+
+        if ($clientId) {
+            $clients->whereId($clientId);
+        }
 
         $data = [
             'clients' => $clients->get(),
