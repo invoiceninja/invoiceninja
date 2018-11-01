@@ -64,7 +64,7 @@ class RandomDataSeeder extends Seeder
 
         factory(\App\Models\Client::class, 500)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
-            factory(\App\Models\ClientContact::class,10)->create([
+            factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,

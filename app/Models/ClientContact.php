@@ -38,4 +38,9 @@ class ClientContact extends Authenticatable
         $this->hasOne(Client::class);
     }
 
+    public function primary_contact()
+    {
+        $this->where('is_primary', true);
+    }
+
 }
