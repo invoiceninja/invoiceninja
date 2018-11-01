@@ -11,19 +11,20 @@ use Illuminate\Support\Facades\Auth;
 trait MakesHeaderData
 {
 
+    use UserSessionAttributes;
+
     public function metaData()
     {
         //companies
         $companies = Auth::user()->companies;
-dd(Auth::user());
-        $data['current_company'] = $companies->first(function ($company){
 
-                return $company->id == Auth::user()->current_company_id;
+        $data['current_company'] = $companies->first(function ($company){
+            return $company->id == $this->getCurrentCompanyId();
         });
 
-        dd($data);
-        $data['companies'] = $companies->forget($data['current_company']);
-
+        $data['companies'] = $companies->reject(function ($company){
+            return $company->id == $this->getCurrentCompanyId();
+        });
 
         return $data;
     }

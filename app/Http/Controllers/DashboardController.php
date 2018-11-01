@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Traits\MakesHeaderData;
 
 class DashboardController extends Controller
 {
-    use MakesHeaderData;
+
 
     /**
      * Create a new controller instance.
@@ -27,7 +26,7 @@ class DashboardController extends Controller
     public function index()
     {
         $data['header'] = $this->metaData();
-dd($data);
+
         return view('dashboard.index', $data);
     }
 

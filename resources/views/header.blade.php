@@ -12,7 +12,7 @@
     </button>
 
     <ul class="nav navbar-nav ml-auto">
-        <li class="nav-item dropdown d-md-down-none">
+        <li class="nav-item dropdown d-md-down-none" style="padding-left:20px; padding-right: 20px;">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 <i class="icon-list"></i>
                 <span class="badge badge-pill badge-warning">15</span>
@@ -77,9 +77,9 @@
             </div>
         </li>
 
-        <li class="nav-item dropdown d-md-down-none">
+        <li class="nav-item dropdown d-md-down-none" style="padding-left:20px; padding-right: 20px;">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <i class="fa fa-building" aria-hidden="true"></i> <!-- Insert company name here-->
+                <i class="fa fa-building" aria-hidden="true"></i> {{ $current_company->present()->name() }}
             </a>
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
                 <div class="dropdown-header text-center">
@@ -88,7 +88,7 @@
 
                 @foreach($companies as $company) <!-- List all remaining companies here-->
                     <a class="dropdown-item" href="#">
-                        <div class="small mb-1">{{ $company->name }}
+                        <div class="small mb-1">{{ $company->present()->name }}
                         <span class="float-right">
                         </span>
                         </div>
@@ -103,7 +103,7 @@
                 <!-- Add Company-->
                 @if(count($companies) < 5)
                 <a class="dropdown-item" href="{{ route('user.logout') }}">
-                    <i class="fa fa-lock"></i> @lang('texts.add_company')</a>
+                    <i class="fa fa-plus"></i> @lang('texts.add_company')</a>
                 @endif
             </div>
         </li>

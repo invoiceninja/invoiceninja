@@ -4,9 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\AccountTrait;
+use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel
 {
+    use PresentableTrait;
+
+    protected $presenter = 'App\Models\Presenters\CompanyPresenter';
+
 
     protected $fillable = [
 

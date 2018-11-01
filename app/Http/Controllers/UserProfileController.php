@@ -2,24 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\SignupRequest;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\RegisterNewAccount;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
-class CompanyController extends Controller
+class UserProfileController extends Controller
 {
-    use DispatchesJobs;
-
-    public function __construct()
-    {
-        $this->middleware('guest');
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -27,8 +13,7 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        return view('signup.index');
-
+        //
     }
 
     /**
@@ -44,17 +29,12 @@ class CompanyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCompanyRequest $request)
+    public function store(Request $request)
     {
-
-        CreateCompany::dispatchNow($request);
-
-        //todo redirect to localization setup workflow
-        return redirect()->route('dashboard.index');
-
+        //
     }
 
     /**

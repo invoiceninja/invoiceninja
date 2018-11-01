@@ -1,6 +1,6 @@
 <?php
 
-namespace App\models\Presenters;
+namespace App\Models\Presenters;
 
 class UserPresenter extends EntityPresenter
 {

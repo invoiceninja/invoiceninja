@@ -3,7 +3,7 @@
         <ul class="nav">
 
             <li class="nav-item ">
-                <a class="nav-link" href="{{ route('user.dashboard') }}">
+                <a class="nav-link" href="{{ route('dashboard.index') }}">
                     <i class="nav-icon icon-speedometer"></i> @lang('texts.dashboard')
                 </a>
             </li>

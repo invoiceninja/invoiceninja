@@ -15,7 +15,6 @@ class User extends Authenticatable implements MustVerifyEmail
     use Notifiable;
     use SoftDeletes;
     use PresentableTrait;
-    use SetsUserSessionAttributes;
 
     protected $guard = 'user';
 
