@@ -13,7 +13,7 @@ trait MakesHeaderData
 
     use UserSessionAttributes;
 
-    public function metaData()
+    public function headerData()
     {
         //companies
         $companies = Auth::user()->companies;

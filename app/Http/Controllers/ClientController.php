@@ -58,7 +58,7 @@ class ClientController extends Controller
             'data' => 'function(d) { d.key = "value"; }',
         ]);
 
-        $data['header'] = $this->metaData();
+        $data['header'] = $this->headerData();
         $data['html'] = $html;
 
         return view('client.list', $data);
