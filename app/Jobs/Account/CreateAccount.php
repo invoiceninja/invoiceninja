@@ -40,6 +40,9 @@ class CreateAccount
 
         $company = CreateCompany::dispatchNow($this->request, $account);
 
+        $account->default_company_id = $company->id;
+        $account->save();
+
         $user = CreateUser::dispatchNow($this->request, $account, $company);
 
         Auth::loginUsingId($user->id, true);
