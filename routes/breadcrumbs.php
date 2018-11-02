@@ -2,7 +2,7 @@
 
 // Dashboard
 Breadcrumbs::for('dashboard', function ($trail) {
-    $trail->push(trans('texts.dashboard'), route('user.dashboard'));
+    $trail->push(trans('texts.dashboard'), route('dashboard.index'));
 });
 
 // Dashboard > Client

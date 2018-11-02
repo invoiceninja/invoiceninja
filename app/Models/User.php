@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\SetsUserSessionAttributes;
 use App\Models\Traits\UserTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
@@ -20,7 +21,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $dates = ['deleted_at'];
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
-
 
     /**
      * The attributes that are mass assignable.
@@ -52,14 +52,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
-    public function account()
-    {
-        return $this->hasOne(Account::class);
-    }
 
-    public function user_companies()
+
+    public function companies()
     {
-        return $this->hasMany(UserCompany::class);
+        return $this->belongsToMany(Company::class);
     }
 
     public function contacts()

@@ -20,16 +20,30 @@ class ClientController extends Controller
     {
         if (request()->ajax()) {
 
-            $clients = Client::select('clients.*', DB::raw("CONCAT(client_contacts.first_name,' ',client_contacts.last_name) as full_name"), 'client_contacts.email')
+            /*
+            $clients = Client::query('clients.*', DB::raw("CONCAT(client_contacts.first_name,' ',client_contacts.last_name) as full_name"), 'client_contacts.email')
                 ->leftJoin('client_contacts', function($leftJoin)
                 {
                     $leftJoin->on('clients.id', '=', 'client_contacts.client_id')
                         ->where('client_contacts.is_primary', '=', true);
                 });
+            */
+
+            $clients = Client::query()->where('company_id', '=', $this->getCurrentCompanyId());
 
             return DataTables::of($clients->get())
+                ->addColumn('full_name', function ($clients) {
+                    return $clients->contacts->where('is_primary', true)->map(function ($contact){
+                        return $contact->first_name . ' ' . $contact->last_name;
+                    })->all();
+                })
+                ->addColumn('email', function ($clients) {
+                    return $clients->contacts->where('is_primary', true)->map(function ($contact){
+                        return $contact->email;
+                    })->all();
+                })
                 ->addColumn('action', function ($client) {
-                    return '<a href="#edit-'. $client->id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                    return '<a href="/clients/'. $client->present()->id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
                 })
                 ->addColumn('checkbox', function ($client){
                     return '<input type="checkbox" name="bulk" value="'. $client->id .'"/>';
@@ -52,8 +66,16 @@ class ClientController extends Controller
             ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
         ]);
 
+        $builder->ajax([
+            'url' => route('clients.index'),
+            'type' => 'GET',
+            'data' => 'function(d) { d.key = "value"; }',
+        ]);
 
-        return view('client.list', compact('html'));
+        $data['header'] = $this->headerData();
+        $data['html'] = $html;
+
+        return view('client.list', $data);
     }
 
     /**

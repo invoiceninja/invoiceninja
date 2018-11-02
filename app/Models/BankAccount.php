@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class BankAccount.
  */
-class BankAccount extends Model
+class BankAccount extends BaseModel
 {
     use SoftDeletes;
 

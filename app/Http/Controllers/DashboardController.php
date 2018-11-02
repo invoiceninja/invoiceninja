@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+
 class DashboardController extends Controller
 {
+
+
     /**
      * Create a new controller instance.
      *
@@ -22,7 +25,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('dashboard.index');
+        $data['header'] = $this->headerData();
+
+        return view('dashboard.index', $data);
     }
 
 

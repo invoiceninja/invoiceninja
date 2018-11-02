@@ -7,7 +7,7 @@
 @endsection
 
 @section('header')
-    @include('header')
+    @include('header', $header)
 
     @parent
 @endsection

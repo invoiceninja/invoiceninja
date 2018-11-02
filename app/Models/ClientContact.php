@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Hashids\Hashids;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -35,6 +36,11 @@ class ClientContact extends Authenticatable
     public function client()
     {
         $this->hasOne(Client::class);
+    }
+
+    public function primary_contact()
+    {
+        $this->where('is_primary', true);
     }
 
 }

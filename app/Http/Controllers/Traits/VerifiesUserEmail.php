@@ -20,7 +20,7 @@ trait VerifiesUserEmail
 
             Auth::loginUsingId($user->id, true);
 
-            return redirect()->route('user.dashboard')->with('message', trans('texts.security_confirmation'));
+            return redirect()->route('dashboard.index')->with('message', trans('texts.security_confirmation'));
 
         }
 

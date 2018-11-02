@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Proposal extends Model
+class Proposal extends BaseModel
 {
     //
 

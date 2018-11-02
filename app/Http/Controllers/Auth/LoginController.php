@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -20,6 +22,7 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers;
+    use UserSessionAttributes;
 
     /**
      * Where to redirect users after login.
@@ -36,6 +39,11 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest:user')->except('logout');
+    }
+
+    public function authenticated(Request $request, $user)
+    {
+        $this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
 
     public function redirectToProvider($provider)

@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
 
-class UsersTableSeeder extends Seeder
+class RandomDataSeeder extends Seeder
 {
     use \App\Utils\Traits\MakesHash;
     /**
@@ -18,7 +18,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
 
-        $this->command->info('Running UsersTableSeeder');
+        $this->command->info('Running RandomDataSeeder');
 
         Eloquent::unguard();
 
@@ -33,6 +33,7 @@ class UsersTableSeeder extends Seeder
         $account->save();
 
         $user = factory(\App\Models\User::class)->create([
+            'email'             => $faker->email,
             'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
@@ -53,7 +54,7 @@ class UsersTableSeeder extends Seeder
         ClientContact::create([
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
-            'email' => config('ninja.testvars.clientname'),
+            'email' => $faker->email,
             'company_id' => $company->id,
             'password' => Hash::make(config('ninja.testvars.password')),
             'email_verified_at' => now(),
@@ -61,7 +62,7 @@ class UsersTableSeeder extends Seeder
         ]);
 
 
-        factory(\App\Models\Client::class, 50)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
+        factory(\App\Models\Client::class, 500)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $user->id,
@@ -70,7 +71,7 @@ class UsersTableSeeder extends Seeder
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,10)->create([
+            factory(\App\Models\ClientContact::class,100)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
@@ -81,7 +82,7 @@ class UsersTableSeeder extends Seeder
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientLocation::class,10)->create([
+            factory(\App\Models\ClientLocation::class,100)->create([
                 'client_id' => $c->id,
             ]);
 

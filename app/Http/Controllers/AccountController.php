@@ -49,7 +49,7 @@ class AccountController extends Controller
         CreateAccount::dispatchNow($request);
 
         //todo redirect to localization setup workflow
-        return redirect()->route('user.dashboard');
+        return redirect()->route('dashboard.index');
 
     }
 

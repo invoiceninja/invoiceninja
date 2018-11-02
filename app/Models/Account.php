@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
-class Account extends Model
+class Account extends BaseModel
 {
     use SoftDeletes;
     use PresentableTrait;
@@ -45,10 +45,6 @@ class Account extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function companies()
-    {
-        return $this->hasMany(Company::class);
-    }
 
     public function default_company()
     {

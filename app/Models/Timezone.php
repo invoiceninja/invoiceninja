@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Timezone extends Model
+class Timezone extends BaseModel
 {
     /**
      * @var bool

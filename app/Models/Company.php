@@ -4,9 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\AccountTrait;
+use Laracasts\Presenter\PresentableTrait;
 
-class Company extends Model
+class Company extends BaseModel
 {
+    use PresentableTrait;
+
+    protected $presenter = 'App\Models\Presenters\CompanyPresenter';
+
 
     protected $fillable = [
 
@@ -37,7 +42,7 @@ class Company extends Model
 
     public function account()
     {
-        return $this->hasOne(Account::class);
+        return $this->belongsTo(Account::class);
     }
 
 

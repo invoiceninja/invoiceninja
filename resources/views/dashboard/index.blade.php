@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('header')
-    @include('header')
+    @include('header', $header)
 @endsection
 
 
@@ -14,8 +14,6 @@
         <!-- Breadcrumb-->
             {{ Breadcrumbs::render('dashboard') }}
         <div class="container-fluid">
-
-
 
 
         </div>
