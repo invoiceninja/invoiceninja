@@ -40,4 +40,20 @@ trait MakesHash
 
         return $hashids->encode( str_replace( MultiDB::DB_PREFIX, "", $db ) );
     }
+
+    public function encodePrimaryKey($value)
+    {
+        $hashids = new Hashids();
+
+        return $hashids->encode($value);
+    }
+
+    public function decodePrimaryKey($value)
+    {
+        $hashids = new Hashids();
+
+        $decoded_array =  $hashids->decode($value);
+
+        return $decoded_array[0];
+    }
 }

@@ -43,7 +43,7 @@ class ClientController extends Controller
                     })->all();
                 })
                 ->addColumn('action', function ($client) {
-                    return '<a href="#edit-'. $client->id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                    return '<a href="/clients/'. $client->present()->id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
                 })
                 ->addColumn('checkbox', function ($client){
                     return '<input type="checkbox" name="bulk" value="'. $client->id .'"/>';

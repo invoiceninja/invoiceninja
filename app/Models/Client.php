@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
-use Hashids\Hashids;
-use Illuminate\Database\Eloquent\Model;
+use Laracasts\Presenter\PresentableTrait;
 
 class Client extends BaseModel
 {
+    use PresentableTrait;
+
+    protected $presenter = 'App\Models\Presenters\ClientPresenter';
+
 
     public function contacts()
     {
