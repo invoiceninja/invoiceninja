@@ -3599,21 +3599,22 @@
         },
         {
             "name": "yajra/laravel-datatables",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yajra/datatables.git",
-                "reference": "a5e2eaac3d7bc155502a37ab490cbcf0dee63e06"
+                "reference": "060c1ef2dc8b3e688852698ca263e6130a2239e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yajra/datatables/zipball/a5e2eaac3d7bc155502a37ab490cbcf0dee63e06",
-                "reference": "a5e2eaac3d7bc155502a37ab490cbcf0dee63e06",
+                "url": "https://api.github.com/repos/yajra/datatables/zipball/060c1ef2dc8b3e688852698ca263e6130a2239e5",
+                "reference": "060c1ef2dc8b3e688852698ca263e6130a2239e5",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.0",
                 "yajra/laravel-datatables-buttons": "3.*|4.*",
+                "yajra/laravel-datatables-editor": "1.*",
                 "yajra/laravel-datatables-fractal": "1.*",
                 "yajra/laravel-datatables-html": "3.*",
                 "yajra/laravel-datatables-oracle": "8.*"
@@ -3640,7 +3641,7 @@
                 "jquery",
                 "laravel"
             ],
-            "time": "2018-08-15T12:31:12+00:00"
+            "time": "2018-11-02T03:53:13+00:00"
         },
         {
             "name": "yajra/laravel-datatables-buttons",
@@ -3707,6 +3708,68 @@
             "time": "2018-10-06T02:23:34+00:00"
         },
         {
+            "name": "yajra/laravel-datatables-editor",
+            "version": "v1.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yajra/laravel-datatables-editor.git",
+                "reference": "14db7b99172fa4afc830e6ee4e8093c3f3bc3a61"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yajra/laravel-datatables-editor/zipball/14db7b99172fa4afc830e6ee4e8093c3f3bc3a61",
+                "reference": "14db7b99172fa4afc830e6ee4e8093c3f3bc3a61",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "5.5.*|5.6.*|5.7.*",
+                "illuminate/database": "5.5.*|5.6.*|5.7.*",
+                "illuminate/http": "5.5.*|5.6.*|5.7.*",
+                "illuminate/validation": "5.5.*|5.6.*|5.7.*",
+                "php": ">=7.0",
+                "yajra/laravel-datatables-buttons": "3.*|4.*"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~3.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Yajra\\DataTables\\EditorServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Yajra\\DataTables\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arjay Angeles",
+                    "email": "aqangeles@gmail.com"
+                }
+            ],
+            "description": "Laravel DataTables Editor plugin for Laravel 5.5+.",
+            "keywords": [
+                "JS",
+                "datatables",
+                "editor",
+                "html",
+                "jquery",
+                "laravel"
+            ],
+            "time": "2018-09-05T06:13:38+00:00"
+        },
+        {
             "name": "yajra/laravel-datatables-fractal",
             "version": "v1.2.1",
             "source": {
@@ -3766,16 +3829,16 @@
         },
         {
             "name": "yajra/laravel-datatables-html",
-            "version": "v3.8.1",
+            "version": "v3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yajra/laravel-datatables-html.git",
-                "reference": "a66d455b5fd69262b730b71c77e0ed40207826f5"
+                "reference": "032e9ab02717ab9ff0339dfa0e3a04dfca4267bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yajra/laravel-datatables-html/zipball/a66d455b5fd69262b730b71c77e0ed40207826f5",
-                "reference": "a66d455b5fd69262b730b71c77e0ed40207826f5",
+                "url": "https://api.github.com/repos/yajra/laravel-datatables-html/zipball/032e9ab02717ab9ff0339dfa0e3a04dfca4267bd",
+                "reference": "032e9ab02717ab9ff0339dfa0e3a04dfca4267bd",
                 "shasum": ""
             },
             "require": {
@@ -3821,7 +3884,7 @@
                 "jquery",
                 "laravel"
             ],
-            "time": "2018-10-30T14:26:07+00:00"
+            "time": "2018-11-02T01:43:32+00:00"
         },
         {
             "name": "yajra/laravel-datatables-oracle",
