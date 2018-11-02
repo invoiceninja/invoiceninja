@@ -50,7 +50,12 @@ class CreateUser
         $user->fill($this->request->all());
         $user->save();
 
-
+        $user->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+        ]);
+/*
         CompanyUser::create([
             'user_id' => $user->id,
             'account_id' => $this->account->id,
@@ -61,7 +66,7 @@ class CreateUser
 
         ]);
 
-
+*/
         event(new UserCreated($user));
 
         return $user;
