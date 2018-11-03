@@ -20,31 +20,52 @@
 @section('body')
     <main class="main" >
         <!-- Breadcrumb-->
-        {{ Breadcrumbs::render('clients') }}
+        {{ Breadcrumbs::render('clients.edit', $client) }}
 
         <div class="container-fluid">
 
+            {{ html()->form('POST', route('signup.submit'))->open() }}
+
             <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#tab1" role="tab">
-                        Tab 1
+                    <a class="nav-link rounded-0 active" data-toggle="tab" href="#tab1" role="tab">
+                        @lang('texts.details')
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#tab2" role="tab">
-                        Tab 2
+                    <a class="nav-link rounded-0" data-toggle="tab" href="#tab2" role="tab">
+                        @lang('texts.contacts')
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#tab3" role="tab">
-                        Tab 3
+                    <a class="nav-link rounded-0" data-toggle="tab" href="#tab3" role="tab">
+                        @lang('texts.locations')
                     </a>
                 </li>
             </ul>
             <!-- Tab panes-->
             <div class="tab-content">
                 <div class="tab-pane p-3 active" id="tab1" role="tabpanel">
-                    Tab 1 Content
+
+                    <div class="row">
+
+                        @include('client.partial.client_details', $client)
+
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">@lang('texts.billing_address')</div>
+
+                                <div class="card-body">
+
+                                    @include('client.partial.client_location', $client)
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
                 <div class="tab-pane p-3" id="tab2" role="tabpanel">
                     Tab 2 Content
@@ -55,6 +76,9 @@
             </div>
 
         </div>
+
+
+        {{ html()->form()->close() }}
     </main>
 
 

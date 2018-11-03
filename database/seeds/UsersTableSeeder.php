@@ -78,7 +78,7 @@ class UsersTableSeeder extends Seeder
 
             factory(\App\Models\ClientLocation::class,1)->create([
                 'client_id' => $c->id,
-                'is_primary' => 1
+                'is_primary_billing' => 1
             ]);
 
             factory(\App\Models\ClientLocation::class,10)->create([

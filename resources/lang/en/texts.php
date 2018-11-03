@@ -3104,6 +3104,7 @@ $LANG = array(
     'adjust_fee_percent_help' => 'Adjust percent to account for fee',
     'email_already_register' => 'This email is already linked to an account',
     'create_account' => 'Create Account',
+    'locations' => 'Locations',
 );
 
 return $LANG;

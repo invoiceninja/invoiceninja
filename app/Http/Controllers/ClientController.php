@@ -120,8 +120,12 @@ class ClientController extends Controller
     {
         $client = $request->entity(Client::class, request('client'));
 
-        $data = $this->headerData();
-        $data['client'] = $client;
+        $client->load('contacts', 'primary_billing_location', 'primary_shipping_location', 'locations', 'primary_contact');
+
+        $data = [
+        'header' => $this->headerData(),
+        'client' => $client,
+        ];
 
         return view('client.edit', $data);
     }

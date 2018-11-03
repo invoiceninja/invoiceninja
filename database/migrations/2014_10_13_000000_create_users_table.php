@@ -247,7 +247,9 @@ class CreateUsersTable extends Migration
             $table->string('phone')->nullable();
             $table->decimal('latitude', 11, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
-            $table->boolean('is_primary')->default(false);
+            $table->boolean('is_primary_billing')->default(false);
+            $table->boolean('is_primary_shipping')->default(false);
+            $table->enum('type', ['billing', 'shipping'])->nullable();
             $table->text('description')->nullable();
             $table->text('private_notes')->nullable();
 
