@@ -120,7 +120,10 @@ class ClientController extends Controller
     {
         $client = $request->entity(Client::class, request('client'));
 
-        dd($client);
+        $data = $this->headerData();
+        $data['client'] = $client;
+
+        return view('client.edit', $data);
     }
 
     /**
