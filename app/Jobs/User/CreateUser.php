@@ -55,18 +55,7 @@ class CreateUser
             'is_owner' => 1,
             'is_admin' => 1,
         ]);
-/*
-        CompanyUser::create([
-            'user_id' => $user->id,
-            'account_id' => $this->account->id,
-            'company_id' => $this->company->id,
-            'is_admin' => true,
-            'is_owner' => true,
-            'permissions' => '',
 
-        ]);
-
-*/
         event(new UserCreated($user));
 
         return $user;
