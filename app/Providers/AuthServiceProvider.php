@@ -23,7 +23,6 @@ class AuthServiceProvider extends ServiceProvider
      * @return void
      */
 
-/*
     public function boot()
     {
         $this->registerPolicies();
@@ -37,16 +36,5 @@ class AuthServiceProvider extends ServiceProvider
 
         });
     }
-*/
-    public function register()
-    {
-        Auth::provider('users', function ($app, array $config) {
-            return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
-        });
 
-        Auth::provider('contacts', function ($app, array $config) {
-            return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
-
-        });
-    }
 }
