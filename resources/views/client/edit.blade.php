@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
     <script src="//cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
     <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('ninja.google_maps_api_key') }}"></script>
 @endsection
 
 @section('header')
@@ -43,8 +44,11 @@
                     </a>
                 </li>
             </ul>
+
             <!-- Tab panes-->
             <div class="tab-content">
+
+                <!-- Client Details-->
                 <div class="tab-pane p-3 active" id="tab1" role="tabpanel">
 
                     <div class="row">
@@ -57,26 +61,39 @@
 
                                 <div class="card-body">
 
-                                    @include('client.partial.client_location', $client)
+                                    @include('client.partial.client_location', ['location' => $client->primary_billing_location->first()])
 
                                 </div>
                             </div>
                         </div>
                     </div>
 
-
-
+                    <div class="row">
+                        @include('client.partial.map', ['location' => $client->primary_billing_location->first()])
+                    </div>
                 </div>
+                <!-- Client Details-->
+
+                <!-- Contact Details-->
                 <div class="tab-pane p-3" id="tab2" role="tabpanel">
-                    Tab 2 Content
+                    @foreach($client->contacts as $contact)
+                        @include('client.partial.contact_details', ['contact' => $contact])
+                    @endforeach
                 </div>
+                <!-- Contact Details-->
+
+                <!-- Client Locations -->
                 <div class="tab-pane p-3" id="tab3" role="tabpanel">
-                    Tab 3 Content
+
+                    @foreach($client->locations as $location)
+                        @include('client.partial.client_location',['location' => $location])
+                    @endforeach
                 </div>
+                <!-- Client Locations -->
+
             </div>
 
         </div>
-
 
         {{ html()->form()->close() }}
     </main>
@@ -89,7 +106,6 @@
 
 @section('footer')
     @include('footer')
-
 
 @endsection
 

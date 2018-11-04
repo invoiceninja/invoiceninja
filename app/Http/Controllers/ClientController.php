@@ -127,6 +127,7 @@ class ClientController extends Controller
         'client' => $client,
         ];
 
+
         return view('client.edit', $data);
     }
 
