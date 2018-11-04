@@ -4,7 +4,8 @@
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
     <script src="//cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
     <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('ninja.google_maps_api_key') }}"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('ninja.google_maps_api_key') }}&callback=initMap"
+            type="text/javascript"></script>
 @endsection
 
 @section('header')
