@@ -101,7 +101,7 @@
 
                     <div class="col-lg-6">
 
-                        @include('client.partial.client_location', ['location' => $client->primary_billing_location->first()])
+                        @include('client.partial.client_location', ['location' => $client->primary_billing_location->first(), 'address' => 'Billing'])
 
                     </div>
 
@@ -127,14 +127,14 @@
                 @foreach($client->locations as $location)
                     <div class="row">
                         <div class="col-lg-6">
-                            @include('client.partial.client_location',['location' => $location])
+                            @include('client.partial.client_location',['location' => $location, 'address' => 'Shipping'])
                         </div>
                         <div class="col-lg-6">
-                            @include('client.partial.map', ['location' => $location])
+                            @include('client.partial.map', ['location' => $location, 'address' => 'Shipping'])
                         </div>
                     </div>
                 @endforeach
-                @include('client.partial.map_js', ['locations' => $client->locations])
+                @include('client.partial.map_js', ['locations' => $client->locations, 'address' => 'Shipping'])
 
             </div>
             <!-- Client Locations -->
@@ -150,7 +150,7 @@
 
                     @include('client.partial.client_stats')
 
-                    @include('client.partial.client_meta')
+                    @include('client.partial.client_meta', $client)
 
                 </div>
 
