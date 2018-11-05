@@ -210,50 +210,52 @@
 
     </script>
 
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
-    <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
-    <script>
-    window.addEventListener("load", function(){
-        if (! window.cookieconsent) {
-            return;
-        }
-        @if (Utils::isNinja())
-            window.cookieconsent.initialise({
-                "palette": {
-                    "popup": {
-                        "background": "#000"
+    @if (! request()->borderless)
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
+        <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
+        <script>
+        window.addEventListener("load", function(){
+            if (! window.cookieconsent) {
+                return;
+            }
+            @if (Utils::isNinja())
+                window.cookieconsent.initialise({
+                    "palette": {
+                        "popup": {
+                            "background": "#000"
+                        },
+                        "button": {
+                            "background": "#f1d600"
+                        },
                     },
-                    "button": {
-                        "background": "#f1d600"
+                    "content": {
+                        "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
+                        "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                        "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                        "link": {!! json_encode(trans('texts.learn_more')) !!},
+                    }
+                });
+            @elseif (config('ninja.cookie_consent.enabled'))
+                window.cookieconsent.initialise({
+                    "palette": {
+                        "popup": {
+                            "background": "#000"
+                        },
+                        "button": {
+                            "background": "#f1d600"
+                        },
                     },
-                },
-                "content": {
-                    "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
-                    "message": {!! json_encode(trans('texts.cookie_message')) !!},
-                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                    "link": {!! json_encode(trans('texts.learn_more')) !!},
-                }
-            });
-        @elseif (config('ninja.cookie_consent.enabled'))
-            window.cookieconsent.initialise({
-                "palette": {
-                    "popup": {
-                        "background": "#000"
-                    },
-                    "button": {
-                        "background": "#f1d600"
-                    },
-                },
-                "content": {
-                    "href": "{{ config('ninja.cookie_consent.link') }}",
-                    "message": {!! json_encode(config('ninja.cookie_consent.message') ?: trans('texts.cookie_message')) !!},
-                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                    "link": {!! json_encode(trans('texts.learn_more')) !!},
-                }
-            });
-        @endif
-    });
-    </script>
+                    "content": {
+                        "href": "{{ config('ninja.cookie_consent.link') }}",
+                        "message": {!! json_encode(config('ninja.cookie_consent.message') ?: trans('texts.cookie_message')) !!},
+                        "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                        "link": {!! json_encode(trans('texts.learn_more')) !!},
+                    }
+                });
+            @endif
+        });
+        </script>
+    @endif
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
