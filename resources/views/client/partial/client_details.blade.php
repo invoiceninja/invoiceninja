@@ -1,4 +1,4 @@
-<div class="col-lg-6">
+<div class="col-lg-5">
     <div class="card">
         <div class="card-header">@lang('texts.edit_client')</div>
 
