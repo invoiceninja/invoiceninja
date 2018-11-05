@@ -30,32 +30,32 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link rounded-0 active" data-toggle="tab" href="#tab1" role="tab">
-                        @lang('texts.details')
+                        <i class="icon-calculator"></i> @lang('texts.details')
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link rounded-0" data-toggle="tab" href="#tab5" role="tab">
-                        Details 2
+                        <i class="icon-microchip"></i> Details 2
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link rounded-0" data-toggle="tab" href="#tab2" role="tab">
-                        @lang('texts.contacts')
+                       <i class="icon-user"></i> @lang('texts.contacts')
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link rounded-0" data-toggle="tab" href="#tab3" role="tab">
-                        @lang('texts.locations')
+                        <i class="icon-map"></i> @lang('texts.locations')
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link rounded-0" data-toggle="tab" href="#tab4" role="tab">
-                        @lang('texts.invoices') 
+                        <i class="fa fa-heart-o"></i> @lang('texts.invoices') 
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link rounded-0" data-toggle="tab" href="#tab6" role="tab">
-                        @lang('texts.quotes') 
+                        <i class="fa fa-coffee"></i> @lang('texts.quotes') 
                     </a>
                 </li>
                 <li class="nav-item">
@@ -101,16 +101,11 @@
                         @include('client.partial.client_details', $client)
 
                         <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">@lang('texts.billing_address')</div>
 
-                                <div class="card-body">
-
-                                    @include('client.partial.client_location', ['location' => $client->primary_billing_location->first()])
-
-                                </div>
-                            </div>
+                            @include('client.partial.client_location', ['location' => $client->primary_billing_location->first()])
+                            
                         </div>
+
                     </div>
 
                     <div class="row">

@@ -1,6 +1,6 @@
 <div class="col-lg-6">
     <div class="card">
-        <div class="card-header">@lang('texts.contact_information')</div>
+        <div class="card-header bg-primary">@lang('texts.contact_information')</div>
 
         <div class="card-body">
 

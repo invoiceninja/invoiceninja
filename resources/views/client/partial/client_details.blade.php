@@ -1,6 +1,6 @@
 <div class="col-lg-5">
     <div class="card">
-        <div class="card-header">@lang('texts.edit_client')</div>
+        <div class="card-header bg-primary">@lang('texts.edit_client')</div>
 
         <div class="card-body">
             <div class="form-group row">

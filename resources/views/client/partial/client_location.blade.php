@@ -1,4 +1,7 @@
+                            <div class="card">
+                                <div class="card-header bg-primary">@lang('texts.billing_address')</div>
 
+                                <div class="card-body">
     <div class="form-group row">
         <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address1')</label>
         <div class="col-lg-9">
@@ -43,3 +46,6 @@
         </div>
     </div>
 
+
+</div>
+</div>
