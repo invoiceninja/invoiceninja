@@ -218,7 +218,7 @@ class PaymentController extends BaseController
             Session::flash('message', trans($credit ? 'texts.created_payment_and_credit' : 'texts.created_payment'));
         }
 
-        return redirect()->to($payment->client->getRoute() . '#payments');
+        return url($payment->client->getRoute());
     }
 
     /**
