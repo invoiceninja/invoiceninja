@@ -44,8 +44,6 @@ class PaymentCreated extends Notification implements ShouldQueue
      */
     public function toSlack($notifiable)
     {
-        $url = 'http://www.ninja.test/subscriptions/create';
-
         return (new SlackMessage)
                     ->from(APP_NAME)
                     ->image('https://app.invoiceninja.com/favicon-v2.png')
