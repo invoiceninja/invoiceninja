@@ -82,7 +82,6 @@ script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
@@ -92,6 +91,7 @@ script:
   #- php ./vendor/codeception/codeception/codecept run --debug run acceptance GoProCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
 
 after_script:
   - php artisan ninja:check-data --no-interaction --database='db-ninja-1'
