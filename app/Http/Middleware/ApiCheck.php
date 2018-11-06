@@ -71,7 +71,9 @@ class ApiCheck
             return $next($request);
         }
 
-        if (! Utils::hasFeature(FEATURE_API) && ! $hasApiSecret) {
+        $isMobileApp = strpos(array_get($_SERVER, 'HTTP_USER_AGENT'), '(dart:io)') !== false;
+
+        if (! Utils::hasFeature(FEATURE_API) && ! $hasApiSecret && ! $isMobileApp) {
             $error['error'] = ['message' => 'API requires pro plan'];
 
             return Response::json($error, 403, $headers);
