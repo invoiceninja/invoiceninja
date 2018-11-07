@@ -2115,7 +2115,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'save_as_default' => 'Guardar como padrão',
     'template' => 'Template',
     'start_of_week_help' => 'Utilizado pelos selectores <b>date</b>',
-    'financial_year_start_help' => 'Utilizado pelos selectores <b>interevalo de data>',
+    'financial_year_start_help' => 'Utilizado pelos selectores <b>interevalo de data</b>',
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Este ano',
 
