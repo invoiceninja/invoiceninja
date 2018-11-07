@@ -1,6 +1,5 @@
 const mix = require('laravel-mix');
 
-
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -21,11 +20,16 @@ mix.scripts([
     'public/js/vendor/app.js'
 ], 'public/js/ninja.js');
 
+mix.minify('public/js/ninja.js');
+
+
 mix.styles([
     'node_modules/@coreui/coreui/dist/css/coreui.css',
     'node_modules/@coreui/icons/css/coreui-icons.css',
     'node_modules/font-awesome/css/font-awesome.css'
 ], 'public/css/ninja.css');
+
+mix.minify('public/css/ninja.css');
 
 mix.copyDirectory('node_modules/font-awesome/fonts', 'public/fonts');
 
