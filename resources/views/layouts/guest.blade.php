@@ -68,23 +68,6 @@
 
 </head>
 
-
-@include('header', $header)
-@yield('header')
-
-
-@include('sidebar')
-@yield('sidebar')
-
-
-@section('body')
 @yield('body')
-
-@include('dashboard.aside')
-
-
-@include('footer')
-@yield('footer')
-
 
 </html>
