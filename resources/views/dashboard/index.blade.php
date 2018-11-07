@@ -1,13 +1,4 @@
-@extends('layouts.master')
-
-@section('header')
-    @include('header', $header)
-@endsection
-
-
-@section('sidebar')
-    @include('sidebar')
-@endsection
+@extends('layouts.master', ['header' => $header])
 
 @section('body')
     <main class="main">
@@ -19,11 +10,4 @@
         </div>
     </main>
 
-    @include('dashboard.aside')
-
 @endsection
-
-@section('footer')
-    @include('footer')
-@endsection
-
