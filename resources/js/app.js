@@ -9,6 +9,7 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 
+Vue.config.devtools = true;
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -18,6 +19,10 @@ window.Vue = require('vue');
 
 Vue.component('example-component', require('./components/ExampleComponent.vue'));
 
-const app = new Vue({
-    el: '#app'
-});
+window.onload = function () {
+
+	const app = new Vue({
+	    el: '#app'
+	});
+
+}

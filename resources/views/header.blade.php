@@ -4,8 +4,8 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <a class="navbar-brand" href="https://invoiceninja.com">
-        <img class="navbar-brand-full" src="images/logo.png" width="50" height="50" alt="Invoice Ninja Logo">
-        <img class="navbar-brand-minimized" src="images/logo.png" width="30" height="30" alt="Invoice Ninja Logo">
+        <img class="navbar-brand-full" src="/images/logo.png" width="50" height="50" alt="Invoice Ninja Logo">
+        <img class="navbar-brand-minimized" src="/images/logo.png" width="30" height="30" alt="Invoice Ninja Logo">
     </a>
     <button class="sidebar-minimizer brand-minimizer" type="button">
         <span class="navbar-toggler-icon"></span>
@@ -110,7 +110,7 @@
 
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <img class="img-avatar" src="images/logo.png" alt=""> {{ auth()->user()->present()->name }}
+                <img class="img-avatar" src="/images/logo.png" alt=""> {{ auth()->user()->present()->name }}
             </a>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-header text-center">
@@ -134,4 +134,4 @@
         <span class="navbar-toggler-icon"></span>
     </button>
 </header>
-<div class="app-body">
+<div class="app-body" id="app">
