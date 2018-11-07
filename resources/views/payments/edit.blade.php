@@ -226,8 +226,7 @@
 
         @if ($payment)
             $('#saveButton').attr('disabled', true);
-            submitAjax();
-            return false;
+            return true;
         @else
             // warn if amount is more than balance/credit will be created
             var invoiceId = $('input[name=invoice]').val();
