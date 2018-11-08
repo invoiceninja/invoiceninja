@@ -1042,7 +1042,7 @@ ko.bindingHandlers.productTypeahead = {
                 templates: {
                     suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
                         + _.escape(item.product_key) + "<br/>"
-                        + roundToTwo(item.cost, true) + ' • '
+                        + roundSignificant(item.cost, true) + ' • '
                         + _.escape(item.notes.substring(0, 100)) + '</div>' }
                 },
                 source: searchData(allBindings.items, allBindings.key, false, 'notes'),
