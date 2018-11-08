@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a303a80da2daa2e7a83a8e75364336cd",
+    "content-hash": "753b0ff8fa34e1e5a54d950d3d780d30",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -3413,55 +3413,6 @@
                 "dump"
             ],
             "time": "2018-10-02T16:36:10+00:00"
-        },
-        {
-            "name": "thepinecode/i18n",
-            "version": "v0.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thepinecode/i18n.git",
-                "reference": "f5932b85b7419ae74465ad99ee0168c06d490f41"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thepinecode/i18n/zipball/f5932b85b7419ae74465ad99ee0168c06d490f41",
-                "reference": "f5932b85b7419ae74465ad99ee0168c06d490f41",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.0"
-            },
-            "require-dev": {
-                "orchestra/testbench": "~3.5.0"
-            },
-            "type": "project",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Pine\\I18n\\I18nServiceProvider"
-                    ]
-                },
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Pine\\I18n\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Gergo D. Nagy",
-                    "email": "dngege@gmail.com"
-                }
-            ],
-            "description": "Push your translations to the front-end.",
-            "time": "2018-05-31T12:43:57+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
