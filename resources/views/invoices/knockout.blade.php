@@ -1100,7 +1100,7 @@ ko.bindingHandlers.productTypeahead = {
                             }
                         @endif
 
-                        model.cost(roundToTwo(cost, true));
+                        model.cost(roundSignificant(cost));
                     }
                 }
                 if (! model.qty() && ! model.isTask()) {
