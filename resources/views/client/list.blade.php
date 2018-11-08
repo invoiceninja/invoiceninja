@@ -7,7 +7,6 @@
     <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
 @endsection
 
-
 @section('body')
     @parent
     <main class="main" >
@@ -26,15 +25,9 @@
             </div>
         </div>
     </main>
-
 @endsection
 
 @section('footer')
     @parent
     {!! $html->scripts() !!}
-
 @endsection
-
-
-
-
