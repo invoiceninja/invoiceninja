@@ -211,6 +211,6 @@ trait SendsEmails
 
         $limit += $this->created_at->diffInMonths() * 100;
 
-        return min($limit, 2000);
+        return min($limit, 5000);
     }
 }
