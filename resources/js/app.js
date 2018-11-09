@@ -11,6 +11,9 @@ window.Vue = require('vue');
 
 Vue.config.devtools = true;
 
+const _ = require('lodash');
+Vue.prototype.trans = string => _.get(window.i18n, string);
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

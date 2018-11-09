@@ -50,7 +50,7 @@ trait MakesHash
 
     public function decodePrimaryKey($value)
     {
-        $hashids = new Hashids();
+        $hashids = new Hashids('', 10);
 
         $decoded_array =  $hashids->decode($value);
 
