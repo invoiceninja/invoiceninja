@@ -2441,7 +2441,8 @@ $LANG = array(
     'currency_venezuelan_bolivars' => 'Venezuelan Bolivars',
     'currency_south_korean_won' => 'South Korean Won',
     'currency_moroccan_dirham' => 'Moroccan Dirham',
-    'currency_jamaican_Dollar' => 'Jamaican Dollar',
+    'currency_jamaican_dollar' => 'Jamaican Dollar',
+    'currency_angolan_kwanza' => 'Angolan Kwanza',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
