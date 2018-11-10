@@ -20,9 +20,15 @@ class ClientContact extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'first_name', 'last_name', 'email', 'password',
+        'first_name', 
+        'last_name',
+        'email', 
+        'password',
+        'phone',
+        'custom_value1',
+        'custom_value2',
     ];
-
+    
     /**
      * The attributes that should be hidden for arrays.
      *

@@ -7,6 +7,7 @@
 
                     <div class="card-body">
                         I'm an example component.
+                        {{ trans('texts.clients')}}
                     </div>
                 </div>
             </div>

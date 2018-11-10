@@ -18,5 +18,15 @@ class EditClientRequest extends Request
        // return ! auth()->user(); //todo permissions
     }
 
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        //$input['id'] = $this->encodePrimaryKey($input['id']);
+
+        //$this->replace($input);
+
+        return $this->all();
+    }
 
 }

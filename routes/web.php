@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Authentication Routes Laravel Defaults... replaces //Auth::routes();
  */
@@ -70,6 +69,12 @@ Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function 
    Route::get('logout', 'Auth\ContactLoginController@logout')->name('contact.logout');
    
 });
+
+/*
+ * Injects users translation strings in json format for frontend consumption.
+ */
+Route::get('js/lang.js', 'TranslationController@index')->name('assets.lang');
+
 
 
 /* Dev Playground

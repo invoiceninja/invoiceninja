@@ -63,28 +63,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src=" {{ mix('/js/ninja.min.js') }}"></script>
+    <script src="/js/lang.js"></script>
+    <style type="text/css">
+        .bg-primary2 {
+         background-color: #167090 !important;
+         color: #fff;
+       }
+   
+        a.bg-primary2:hover, a.bg-primary:focus,
+        button.bg-primary:hover,
+        button.bg-primary:focus {
+            background-color: #56b3d4 !important;
+        }
 
+    </style>
     @yield('head')
-
 </head>
-
 
 @include('header', $header)
 @yield('header')
 
-
 @include('sidebar')
 @yield('sidebar')
-
 
 @section('body')
 @yield('body')
 
 @include('dashboard.aside')
 
-
 @include('footer')
 @yield('footer')
-
-
 </html>
