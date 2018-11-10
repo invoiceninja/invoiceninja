@@ -2661,9 +2661,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['client']
+    props: ['client', 'errors']
 });
 
 /***/ }),
@@ -2673,8 +2674,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ClientContactEdit__ = __webpack_require__("./resources/js/components/client/ClientContactEdit.vue");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ClientContactEdit___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ClientContactEdit__);
 //
 //
 //
@@ -2714,13 +2713,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            'client': []
+            'client': [],
+            'errors': []
         };
     },
     props: {
@@ -2734,19 +2745,31 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     beforeMount: function beforeMount() {
         this.client = this.clientdata;
     },
-    components: { ClientContactEdit: __WEBPACK_IMPORTED_MODULE_0__ClientContactEdit___default.a },
     methods: {
         remove: function remove(itemId) {
             this.client.contacts = this.client.contacts.filter(function (item) {
                 return itemId != item.id;
             });
+        },
+        submit: function submit() {
+            var _this = this;
+
+            this.errors = {};
+
+            axios.post('/clients', this.fields).then(function (response) {
+                alert('Message sent!');
+            }).catch(function (error) {
+                if (error.response.status === 422) {
+                    _this.errors = error.response.data.errors || {};
+                }
+            });
         }
     },
     created: function created() {
-        console.dir('created');
+        //console.dir('created');
     },
     updated: function updated() {
-        console.dir('updated');
+        //console.dir('updated');
     }
 });
 
@@ -20789,61 +20812,110 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container-fluid" }, [
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-md-6" }, [
-        _c(
-          "div",
-          { staticClass: "card" },
-          [
-            _c("div", { staticClass: "card-header bg-primary" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("client-edit", { attrs: { client: _vm.client } })
-          ],
-          1
-        )
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "col-md-6" }, [
-        _c(
-          "div",
-          { staticClass: "card" },
-          [
-            _c("div", { staticClass: "card-header bg-primary" }, [
-              _vm._v(_vm._s(_vm.trans("texts.contact_information")))
-            ]),
-            _vm._v(" "),
-            _vm._l(_vm.client.contacts, function(contact, index) {
-              return _c("contact-edit", {
-                key: contact.id,
-                attrs: { contact: contact, index: index },
-                on: { remove: _vm.remove }
-              })
-            })
-          ],
-          2
-        )
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "float-right" }, [
-        _c(
-          "button",
-          {
-            staticClass: "btn btn-primary",
-            attrs: { type: "button" },
-            on: {
-              click: function($event) {
-                _vm.addContact()
-              }
-            }
-          },
-          [_vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))]
-        )
+  return _c(
+    "form",
+    {
+      on: {
+        submit: function($event) {
+          $event.preventDefault()
+          return _vm.submit($event)
+        }
+      }
+    },
+    [
+      _c("div", { staticClass: "container-fluid" }, [
+        _c("div", { staticClass: "row form-group" }, [
+          _c("div", { staticClass: "col-md-12" }, [
+            _c("span", { staticClass: "float-right" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-success btn-lg",
+                  attrs: { type: "button" }
+                },
+                [
+                  _c("i", { staticClass: "fa fa-save" }),
+                  _vm._v(" " + _vm._s(_vm.trans("texts.save")))
+                ]
+              )
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-md-6" }, [
+            _c(
+              "div",
+              { staticClass: "card" },
+              [
+                _c("div", { staticClass: "card-header bg-primary2" }, [
+                  _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+                ]),
+                _vm._v(" "),
+                _c("client-edit", {
+                  attrs: { client: _vm.client, errors: _vm.errors }
+                })
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-6" }, [
+            _c(
+              "div",
+              { staticClass: "card" },
+              [
+                _c("div", { staticClass: "card-header bg-primary2" }, [
+                  _vm._v(
+                    _vm._s(_vm.trans("texts.contact_information")) +
+                      "\n                            "
+                  ),
+                  _c("span", { staticClass: "float-right" }, [
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-primary btn-sm",
+                        attrs: { type: "button" }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-plus-circle" }),
+                        _vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))
+                      ]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _vm._l(_vm.client.contacts, function(contact, index) {
+                  return _c("contact-edit", {
+                    key: contact.id,
+                    attrs: { contact: contact, index: index },
+                    on: { remove: _vm.remove }
+                  })
+                })
+              ],
+              2
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "float-right" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    _vm.addContact()
+                  }
+                }
+              },
+              [_vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))]
+            )
+          ])
+        ])
       ])
-    ])
-  ])
+    ]
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -20902,7 +20974,13 @@ var render = function() {
             }
           }
         })
-      ])
+      ]),
+      _vm._v(" "),
+      _vm.errors && _vm.errors.name
+        ? _c("div", { staticClass: "text-danger" }, [
+            _vm._v(_vm._s(_vm.errors.name[0]))
+          ])
+        : _vm._e()
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "form-group row" }, [

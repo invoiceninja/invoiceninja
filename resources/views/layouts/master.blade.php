@@ -64,7 +64,19 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src=" {{ mix('/js/ninja.min.js') }}"></script>
     <script src="/js/lang.js"></script>
-    
+    <style type="text/css">
+        .bg-primary2 {
+         background-color: #167090 !important;
+         color: #fff;
+       }
+   
+        a.bg-primary2:hover, a.bg-primary:focus,
+        button.bg-primary:hover,
+        button.bg-primary:focus {
+            background-color: #56b3d4 !important;
+        }
+
+    </style>
     @yield('head')
 </head>
 

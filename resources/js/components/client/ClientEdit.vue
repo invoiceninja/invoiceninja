@@ -5,6 +5,7 @@
         <div class="col-sm-9">
             <input type="text" name="name" :placeholder="trans('texts.client_name')" v-model="client.name" class="form-control" id="name">
         </div>
+        <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
     </div>
 
     <div class="form-group row">
@@ -45,6 +46,6 @@
 </template>
 <script>
     export default {
-        props: ['client']
+        props: ['client','errors']
     }
 </script>	
