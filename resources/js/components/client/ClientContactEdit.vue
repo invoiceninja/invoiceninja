@@ -28,14 +28,14 @@
             </div>
         </div>
 
-        <div class="form-group row">
+        <div class="form-group row" v-if="contact.custom_value1">
             <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.custom_value1') }}</label>
             <div class="col-sm-9">
                 <input type="text" name="custom_value1" :placeholder="trans('texts.custom_value1')" v-model="contact.custom_value1" class="form-control" id="custom_value1">
             </div>
         </div>
 
-        <div class="form-group row">
+        <div class="form-group row" v-if="contact.custom_value1">
             <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.custom_value2') }}</label>
             <div class="col-sm-9">
                 <input type="text" name="custom_value2" :placeholder="trans('texts.custom_value2')" v-model="contact.custom_value2" class="form-control" id="custom_value2">

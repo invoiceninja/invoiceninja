@@ -2616,46 +2616,65 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    props: ['client']
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/components/client/ClientEditForm.vue":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ClientContactEdit__ = __webpack_require__("./resources/js/components/client/ClientContactEdit.vue");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ClientContactEdit___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__ClientContactEdit__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -2718,7 +2737,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     components: { ClientContactEdit: __WEBPACK_IMPORTED_MODULE_0__ClientContactEdit___default.a },
     methods: {
         remove: function remove(itemId) {
-
             this.client.contacts = this.client.contacts.filter(function (item) {
                 return itemId != item.id;
             });
@@ -20651,85 +20669,89 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _c("div", { staticClass: "form-group row" }, [
-      _c(
-        "label",
-        {
-          staticClass: "col-sm-3 col-form-label text-right",
-          attrs: { for: "name" }
-        },
-        [_vm._v(_vm._s(_vm.trans("texts.custom_value1")))]
-      ),
-      _vm._v(" "),
-      _c("div", { staticClass: "col-sm-9" }, [
-        _c("input", {
-          directives: [
+    _vm.contact.custom_value1
+      ? _c("div", { staticClass: "form-group row" }, [
+          _c(
+            "label",
             {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.contact.custom_value1,
-              expression: "contact.custom_value1"
-            }
-          ],
-          staticClass: "form-control",
-          attrs: {
-            type: "text",
-            name: "custom_value1",
-            placeholder: _vm.trans("texts.custom_value1"),
-            id: "custom_value1"
-          },
-          domProps: { value: _vm.contact.custom_value1 },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
+              staticClass: "col-sm-3 col-form-label text-right",
+              attrs: { for: "name" }
+            },
+            [_vm._v(_vm._s(_vm.trans("texts.custom_value1")))]
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-9" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.contact.custom_value1,
+                  expression: "contact.custom_value1"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: {
+                type: "text",
+                name: "custom_value1",
+                placeholder: _vm.trans("texts.custom_value1"),
+                id: "custom_value1"
+              },
+              domProps: { value: _vm.contact.custom_value1 },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.contact, "custom_value1", $event.target.value)
+                }
               }
-              _vm.$set(_vm.contact, "custom_value1", $event.target.value)
-            }
-          }
-        })
-      ])
-    ]),
+            })
+          ])
+        ])
+      : _vm._e(),
     _vm._v(" "),
-    _c("div", { staticClass: "form-group row" }, [
-      _c(
-        "label",
-        {
-          staticClass: "col-sm-3 col-form-label text-right",
-          attrs: { for: "name" }
-        },
-        [_vm._v(_vm._s(_vm.trans("texts.custom_value2")))]
-      ),
-      _vm._v(" "),
-      _c("div", { staticClass: "col-sm-9" }, [
-        _c("input", {
-          directives: [
+    _vm.contact.custom_value1
+      ? _c("div", { staticClass: "form-group row" }, [
+          _c(
+            "label",
             {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.contact.custom_value2,
-              expression: "contact.custom_value2"
-            }
-          ],
-          staticClass: "form-control",
-          attrs: {
-            type: "text",
-            name: "custom_value2",
-            placeholder: _vm.trans("texts.custom_value2"),
-            id: "custom_value2"
-          },
-          domProps: { value: _vm.contact.custom_value2 },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
+              staticClass: "col-sm-3 col-form-label text-right",
+              attrs: { for: "name" }
+            },
+            [_vm._v(_vm._s(_vm.trans("texts.custom_value2")))]
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-9" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.contact.custom_value2,
+                  expression: "contact.custom_value2"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: {
+                type: "text",
+                name: "custom_value2",
+                placeholder: _vm.trans("texts.custom_value2"),
+                id: "custom_value2"
+              },
+              domProps: { value: _vm.contact.custom_value2 },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.contact, "custom_value2", $event.target.value)
+                }
               }
-              _vm.$set(_vm.contact, "custom_value2", $event.target.value)
-            }
-          }
-        })
-      ])
-    ]),
+            })
+          ])
+        ])
+      : _vm._e(),
     _vm._v(" "),
     _c("div", { staticClass: "float-right" }, [
       _c(
@@ -20760,7 +20782,7 @@ if (false) {
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-fd9bc3c4\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/components/client/ClientEdit.vue":
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-f2594bfc\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/components/client/ClientEditForm.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -20770,253 +20792,18 @@ var render = function() {
   return _c("div", { staticClass: "container-fluid" }, [
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col-md-6" }, [
-        _c("div", { staticClass: "card" }, [
-          _c("div", { staticClass: "card-header bg-primary" }, [
-            _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _c("div", { staticClass: "form-group row" }, [
-              _c(
-                "label",
-                {
-                  staticClass: "col-sm-3 col-form-label text-right",
-                  attrs: { for: "name" }
-                },
-                [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-9" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.client.name,
-                      expression: "client.name"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "name",
-                    placeholder: _vm.trans("texts.client_name"),
-                    id: "name"
-                  },
-                  domProps: { value: _vm.client.name },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.client, "name", $event.target.value)
-                    }
-                  }
-                })
-              ])
+        _c(
+          "div",
+          { staticClass: "card" },
+          [
+            _c("div", { staticClass: "card-header bg-primary" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
             ]),
             _vm._v(" "),
-            _c("div", { staticClass: "form-group row" }, [
-              _c(
-                "label",
-                {
-                  staticClass: "col-sm-3 col-form-label text-right",
-                  attrs: { for: "name" }
-                },
-                [_vm._v(_vm._s(_vm.trans("texts.id_number")))]
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-9" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.client.id_number,
-                      expression: "client.id_number"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "id_number",
-                    placeholder: _vm.trans("texts.id_number"),
-                    id: "id_number"
-                  },
-                  domProps: { value: _vm.client.id_number },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.client, "id_number", $event.target.value)
-                    }
-                  }
-                })
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group row" }, [
-              _c(
-                "label",
-                {
-                  staticClass: "col-sm-3 col-form-label text-right",
-                  attrs: { for: "name" }
-                },
-                [_vm._v(_vm._s(_vm.trans("texts.vat_number")))]
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-9" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.client.vat_number,
-                      expression: "client.vat_number"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "vat_number",
-                    placeholder: _vm.trans("texts.vat_number"),
-                    id: "vat_number"
-                  },
-                  domProps: { value: _vm.client.vat_number },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.client, "vat_number", $event.target.value)
-                    }
-                  }
-                })
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group row" }, [
-              _c(
-                "label",
-                {
-                  staticClass: "col-sm-3 col-form-label text-right",
-                  attrs: { for: "name" }
-                },
-                [_vm._v(_vm._s(_vm.trans("texts.website")))]
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-9" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.client.website,
-                      expression: "client.website"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "website",
-                    placeholder: _vm.trans("texts.website"),
-                    id: "websites"
-                  },
-                  domProps: { value: _vm.client.website },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.client, "website", $event.target.value)
-                    }
-                  }
-                })
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group row" }, [
-              _c(
-                "label",
-                {
-                  staticClass: "col-sm-3 col-form-label text-right",
-                  attrs: { for: "name" }
-                },
-                [_vm._v(_vm._s(_vm.trans("texts.custom_value1")))]
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-9" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.client.custom_value1,
-                      expression: "client.custom_value1"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "custom_value1",
-                    placeholder: _vm.trans("texts.custom_value1"),
-                    id: "custom_value1"
-                  },
-                  domProps: { value: _vm.client.custom_value1 },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.client, "custom_value1", $event.target.value)
-                    }
-                  }
-                })
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group row" }, [
-              _c(
-                "label",
-                {
-                  staticClass: "col-sm-3 col-form-label text-right",
-                  attrs: { for: "name" }
-                },
-                [_vm._v(_vm._s(_vm.trans("texts.custom_value2")))]
-              ),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-9" }, [
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.client.custom_value2,
-                      expression: "client.custom_value2"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    name: "custom_value2",
-                    placeholder: _vm.trans("texts.custom_value2"),
-                    id: "custom_value2"
-                  },
-                  domProps: { value: _vm.client.custom_value2 },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.client, "custom_value2", $event.target.value)
-                    }
-                  }
-                })
-              ])
-            ])
-          ])
-        ])
+            _c("client-edit", { attrs: { client: _vm.client } })
+          ],
+          1
+        )
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "col-md-6" }, [
@@ -21054,6 +20841,269 @@ var render = function() {
           },
           [_vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))]
         )
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-f2594bfc", module.exports)
+  }
+}
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-fd9bc3c4\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/components/client/ClientEdit.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "card-body" }, [
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-sm-3 col-form-label text-right",
+          attrs: { for: "name" }
+        },
+        [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-sm-9" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.client.name,
+              expression: "client.name"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: {
+            type: "text",
+            name: "name",
+            placeholder: _vm.trans("texts.client_name"),
+            id: "name"
+          },
+          domProps: { value: _vm.client.name },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.client, "name", $event.target.value)
+            }
+          }
+        })
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-sm-3 col-form-label text-right",
+          attrs: { for: "name" }
+        },
+        [_vm._v(_vm._s(_vm.trans("texts.id_number")))]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-sm-9" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.client.id_number,
+              expression: "client.id_number"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: {
+            type: "text",
+            name: "id_number",
+            placeholder: _vm.trans("texts.id_number"),
+            id: "id_number"
+          },
+          domProps: { value: _vm.client.id_number },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.client, "id_number", $event.target.value)
+            }
+          }
+        })
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-sm-3 col-form-label text-right",
+          attrs: { for: "name" }
+        },
+        [_vm._v(_vm._s(_vm.trans("texts.vat_number")))]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-sm-9" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.client.vat_number,
+              expression: "client.vat_number"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: {
+            type: "text",
+            name: "vat_number",
+            placeholder: _vm.trans("texts.vat_number"),
+            id: "vat_number"
+          },
+          domProps: { value: _vm.client.vat_number },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.client, "vat_number", $event.target.value)
+            }
+          }
+        })
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-sm-3 col-form-label text-right",
+          attrs: { for: "name" }
+        },
+        [_vm._v(_vm._s(_vm.trans("texts.website")))]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-sm-9" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.client.website,
+              expression: "client.website"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: {
+            type: "text",
+            name: "website",
+            placeholder: _vm.trans("texts.website"),
+            id: "websites"
+          },
+          domProps: { value: _vm.client.website },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.client, "website", $event.target.value)
+            }
+          }
+        })
+      ])
+    ]),
+    _vm._v(" "),
+    _vm.client.custom_value1
+      ? _c("div", { staticClass: "form-group row" }, [
+          _c(
+            "label",
+            {
+              staticClass: "col-sm-3 col-form-label text-right",
+              attrs: { for: "name" }
+            },
+            [_vm._v(_vm._s(_vm.trans("texts.custom_value1")))]
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-sm-9" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.client.custom_value1,
+                  expression: "client.custom_value1"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: {
+                type: "text",
+                name: "custom_value1",
+                placeholder: _vm.trans("texts.custom_value1"),
+                id: "custom_value1"
+              },
+              domProps: { value: _vm.client.custom_value1 },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.client, "custom_value1", $event.target.value)
+                }
+              }
+            })
+          ])
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _c("div", { staticClass: "form-group row" }, [
+      _c(
+        "label",
+        {
+          staticClass: "col-sm-3 col-form-label text-right",
+          attrs: { for: "name" }
+        },
+        [_vm._v(_vm._s(_vm.trans("texts.custom_value2")))]
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-sm-9" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.client.custom_value2,
+              expression: "client.custom_value2"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: {
+            type: "text",
+            name: "custom_value2",
+            placeholder: _vm.trans("texts.custom_value2"),
+            id: "custom_value2"
+          },
+          domProps: { value: _vm.client.custom_value2 },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.$set(_vm.client, "custom_value2", $event.target.value)
+            }
+          }
+        })
       ])
     ])
   ])
@@ -32124,6 +32174,7 @@ Vue.prototype.trans = function (string) {
 
 Vue.component('example-component', __webpack_require__("./resources/js/components/ExampleComponent.vue"));
 Vue.component('client-edit', __webpack_require__("./resources/js/components/client/ClientEdit.vue"));
+Vue.component('client-edit-form', __webpack_require__("./resources/js/components/client/ClientEditForm.vue"));
 Vue.component('contact-edit', __webpack_require__("./resources/js/components/client/ClientContactEdit.vue"));
 
 window.onload = function () {
@@ -32314,6 +32365,54 @@ if (false) {(function () {
     hotAPI.createRecord("data-v-fd9bc3c4", Component.options)
   } else {
     hotAPI.reload("data-v-fd9bc3c4", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ "./resources/js/components/client/ClientEditForm.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/components/client/ClientEditForm.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-f2594bfc\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/components/client/ClientEditForm.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/components/client/ClientEditForm.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-f2594bfc", Component.options)
+  } else {
+    hotAPI.reload("data-v-f2594bfc", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

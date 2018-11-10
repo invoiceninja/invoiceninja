@@ -5,7 +5,7 @@
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
 
-<client-edit v-bind:clientdata="{{ $client }}"></client-edit>
+<client-edit-form v-bind:clientdata="{{ $client }}"></client-edit-form>
 
 </main>
 
