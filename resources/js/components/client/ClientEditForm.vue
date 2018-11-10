@@ -5,7 +5,19 @@
             <div class="row form-group">
                 <div class="col-md-12">
                     <span class="float-right">
-                        <button type="button" class="btn btn-success btn-lg"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
+                            <div class="btn-group ml-2 show">
+                                <button class="btn btn-lg btn-success" type="button"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
+                                <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <div class="dropdown-menu show" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(171px, 44px, 0px);">
+                                <a class="dropdown-item" href="#"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">{{ trans('texts.archive_client') }}</a>
+                                <a class="dropdown-item" href="#">{{ trans('texts.delete_client') }}</a>
+                                </div>
+                            </div>
+                            
                     </span>
                 </div>
             </div>
@@ -38,13 +50,7 @@
 
                         </div>    
 
-                    </div>
-
-                    <div class="float-right">
-                            <button type="button" class="btn btn-primary" v-on:click="addContact()"> {{ trans('texts.add_contact') }}</button>
-                    </div>  
-
-          
+                    </div>          
             </div>
         </div>
     </form>
@@ -76,7 +82,7 @@ export default {
         submit() {
             this.errors = {};
               
-              axios.post('/clients', this.fields).then(response => {
+              axios.put('/clients', this.fields).then(response => {
                 alert('Message sent!');
               }).catch(error => {
                     if (error.response.status === 422) {
