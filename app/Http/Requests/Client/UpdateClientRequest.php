@@ -22,8 +22,8 @@ class UpdateClientRequest extends Request
 
     {
         return [
-            'name' => required,
-        ]
+            'name' => 'required',
+        ];
     }
 
 

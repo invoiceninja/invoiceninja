@@ -1,23 +1,21 @@
 <template>
     <form @submit.prevent="submit">
         <div class="container-fluid">
-
             <div class="row form-group">
                 <div class="col-md-12">
                     <span class="float-right">
-                            <div class="btn-group ml-2 show">
-                                <button class="btn btn-lg btn-success" type="button"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
-                                <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <div class="dropdown-menu show" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(171px, 44px, 0px);">
+                        <div class="btn-group ml-2">
+                            <button class="btn btn-lg btn-success" type="button" @click="submit"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
+                            <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <div class="dropdown-menu">
                                 <a class="dropdown-item" href="#"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">{{ trans('texts.archive_client') }}</a>
-                                <a class="dropdown-item" href="#">{{ trans('texts.delete_client') }}</a>
-                                </div>
+                                    <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">{{ trans('texts.archive_client') }}</a>
+                                        <a class="dropdown-item" href="#">{{ trans('texts.delete_client') }}</a>
                             </div>
-                            
+                        </div>            
                     </span>
                 </div>
             </div>
@@ -61,7 +59,7 @@ export default {
     data: function () {
         return {
             'client': [],
-            'errors': []
+            'errors': [],
         }
     },
     props: {
@@ -81,22 +79,26 @@ export default {
         },
         submit() {
             this.errors = {};
-              
-              axios.put('/clients', this.fields).then(response => {
-                alert('Message sent!');
-              }).catch(error => {
-                    if (error.response.status === 422) {
-                    this.errors = error.response.data.errors || {};
-                    }
-                });
-        }
+            
+
+            axios.put('/clients/' + this.client.hash_id, this.client).then(response => {
+                this.client = response.data;
+                console.dir(response);
+            }).catch(error => {
+                if (error.response.status === 422) {
+                this.errors = error.response.data.errors || {};
+                }
+            });
+        },
       
     },
     created:function() {
         //console.dir('created');
+        
     },
     updated:function() {
         //console.dir('updated');
     }
+    
 }
 </script>

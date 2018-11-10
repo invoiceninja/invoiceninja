@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -10,7 +11,6 @@ use Yajra\DataTables\Html\Builder;
 
 class ClientController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
@@ -118,6 +118,7 @@ class ClientController extends Controller
      */
     public function edit(EditClientRequest $request)
     {
+
         $client = $request->entity(Client::class, request('client'));
 
         $client->load('contacts', 'primary_billing_location', 'primary_shipping_location', 'locations', 'primary_contact');
@@ -138,9 +139,20 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(\App\Http\Requests\Client\UpdateClientRequest $request, $id)
+    public function update(UpdateClientRequest $request, $id)
     {
+        \Illuminate\Support\Facades\Log::error(print_r($request->input('contacts'),1));
+        
         $client = $request->entity(Client::class, request('client'));
+
+        $client->fill($request->all())->save();
+
+        $client->contacts()->delete();
+        $client->contacts()->create($request->input('contacts'));
+
+        $client->load('contacts', 'primary_billing_location', 'primary_shipping_location', 'locations', 'primary_contact');
+
+        return response()->json($client, 200);
 
     }
 

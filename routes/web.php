@@ -1,6 +1,4 @@
 <?php
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 /*
  * Authentication Routes Laravel Defaults... replaces //Auth::routes();
  */
