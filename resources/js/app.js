@@ -6,11 +6,13 @@
  */
 
 require('./bootstrap');
-
 window.Vue = require('vue');
 
+/* Development only*/
 Vue.config.devtools = true;
 
+
+/* Allows us to use our native translation easily using {{ trans() }} syntax */
 const _ = require('lodash');
 Vue.prototype.trans = string => _.get(window.i18n, string);
 
@@ -21,6 +23,8 @@ Vue.prototype.trans = string => _.get(window.i18n, string);
  */
 
 Vue.component('example-component', require('./components/ExampleComponent.vue'));
+Vue.component('client-edit', require('./components/client/ClientEdit.vue'));
+Vue.component('contact-edit', require('./components/client/ClientContactEdit.vue'));
 
 window.onload = function () {
 

@@ -5,20 +5,7 @@
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
 
-    <div class="container-fluid" >
-
-        <div class="row">
-            <div class="col-lg-12">
-
-            {{ html()->form('PUT', route('signup.submit'))->open() }}
-    
-                <example-component></example-component>
-            </div>
-
-        </div>
-
-            {{ html()->form()->close() }}
-    </div>
+<client-edit v-bind:clientdata="{{ $client }}"></client-edit>
 
 </main>
 
