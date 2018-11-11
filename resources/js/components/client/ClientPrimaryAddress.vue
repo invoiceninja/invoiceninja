@@ -10,10 +10,10 @@
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="billing" role="tabpanel">
-				<generic-address :data="client.primary_billing_location"></generic-address>
+				<generic-address :data="client.primary_billing_location ? client.primary_billing_location : 'null'"></generic-address>
 			</div>
 			<div class="tab-pane" id="shipping" role="tabpanel">
-				<generic-address :data="client.primary_shipping_location"></generic-address>
+				<generic-address :data="client.primary_shipping_location ? client.primary_shipping_location : 'null'"></generic-address>
 			</div>
 		</div>
 	</div>	

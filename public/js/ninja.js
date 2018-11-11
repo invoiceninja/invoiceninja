@@ -21269,7 +21269,11 @@ var render = function() {
         },
         [
           _c("generic-address", {
-            attrs: { data: _vm.client.primary_billing_location }
+            attrs: {
+              data: _vm.client.primary_billing_location
+                ? _vm.client.primary_billing_location
+                : "null"
+            }
           })
         ],
         1
@@ -21283,7 +21287,11 @@ var render = function() {
         },
         [
           _c("generic-address", {
-            attrs: { data: _vm.client.primary_shipping_location }
+            attrs: {
+              data: _vm.client.primary_shipping_location
+                ? _vm.client.primary_shipping_location
+                : "null"
+            }
           })
         ],
         1
