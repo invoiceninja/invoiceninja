@@ -54,12 +54,12 @@ class Client extends BaseModel
 
     public function primary_billing_location()
     {
-        return $this->hasMany(ClientLocation::class)->whereIsPrimaryBilling(true);
+        return $this->hasOne(ClientLocation::class)->whereIsPrimaryBilling(true);
     }
 
     public function primary_shipping_location()
     {
-        return $this->hasMany(ClientLocation::class)->whereIsPrimaryShipping(true);
+        return $this->hasOne(ClientLocation::class)->whereIsPrimaryShipping(true);
     }
 
     public function primary_contact()

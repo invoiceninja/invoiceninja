@@ -19,37 +19,39 @@
                     </span>
                 </div>
             </div>
-
+            
             <div class="row">
-
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
-
+                <!-- Client Details and Address Column -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
                             <client-edit :client="client" :errors="errors"></client-edit>
-
-                        </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
+                            <client-primary-address v-bind:client="client"></client-primary-address>
+                    </div>
+                </div>
+                <!-- End Client Details and Address Column -->
 
-                        <div class="card">
-                            <div class="card-header bg-primary2">{{ trans('texts.contact_information') }}
-                                <span class="float-right">
-                                    <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
-                                </span>
-                            </div>
-
-                                <contact-edit   v-for="(contact, index) in client.contacts" 
-                                                v-bind:contact="contact" 
-                                                v-bind:index="index" 
-                                                :key="contact.id" 
-                                                @remove="remove"></contact-edit>
-
-                        </div>    
-
-                    </div>          
-            </div>
+                <!-- Contact Details Column -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary2">{{ trans('texts.contact_information') }}
+                            <span class="float-right">
+                                <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
+                            </span>
+                        </div>
+                            <contact-edit   v-for="(contact, index) in client.contacts" 
+                                            v-bind:contact="contact" 
+                                            v-bind:index="index" 
+                                            :key="contact.id" 
+                                            @remove="remove"></contact-edit>
+                    </div>    
+                </div>     
+                <!-- End Contact Details Column --> 
+            </div>            
         </div>
     </form>
 </template>
@@ -87,6 +89,9 @@ export default {
             }).catch(error => {
                 if (error.response.status === 422) {
                 this.errors = error.response.data.errors || {};
+                }
+                else if(error.response.status === 419) {
+                    //csrf token has expired, we'll need to force a page reload
                 }
             });
         },
