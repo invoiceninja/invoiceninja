@@ -2759,6 +2759,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.client = this.clientdata;
     },
     methods: {
+        copy: function copy(type) {
+            if (type.includes('copy_billing')) {
+                this.client.primary_shipping_location = Object.assign({}, this.client.primary_billing_location);
+            } else {
+                this.client.primary_billing_location = Object.assign({}, this.client.primary_shipping_location);
+            }
+        },
         remove: function remove(itemId) {
             this.client.contacts = this.client.contacts.filter(function (item) {
                 return itemId != item.id;
@@ -2798,6 +2805,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
 //
 //
 //
@@ -21268,6 +21277,20 @@ var render = function() {
           attrs: { id: "billing", role: "tabpanel" }
         },
         [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-sm btn-light",
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  _vm.$emit("copy", "copy_shipping")
+                }
+              }
+            },
+            [_vm._v(" " + _vm._s(_vm.trans("texts.copy_shipping")))]
+          ),
+          _vm._v(" "),
           _c("generic-address", {
             attrs: {
               data: _vm.client.primary_billing_location
@@ -21286,6 +21309,20 @@ var render = function() {
           attrs: { id: "shipping", role: "tabpanel" }
         },
         [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-sm btn-light",
+              attrs: { type: "button" },
+              on: {
+                click: function($event) {
+                  _vm.$emit("copy", " copy_billing")
+                }
+              }
+            },
+            [_vm._v(" " + _vm._s(_vm.trans("texts.copy_billing")))]
+          ),
+          _vm._v(" "),
           _c("generic-address", {
             attrs: {
               data: _vm.client.primary_shipping_location
@@ -21403,7 +21440,10 @@ var render = function() {
                   _vm._v(_vm._s(_vm.trans("texts.address")))
                 ]),
                 _vm._v(" "),
-                _c("client-primary-address", { attrs: { client: _vm.client } })
+                _c("client-primary-address", {
+                  attrs: { client: _vm.client },
+                  on: { copy: _vm.copy }
+                })
               ],
               1
             )

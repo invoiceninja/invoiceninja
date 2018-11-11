@@ -30,7 +30,7 @@
 
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
-                            <client-primary-address v-bind:client="client"></client-primary-address>
+                            <client-primary-address v-bind:client="client" @copy="copy"></client-primary-address>
                     </div>
                 </div>
                 <!-- End Client Details and Address Column -->
@@ -74,6 +74,13 @@ export default {
         this.client = this.clientdata;
     },
     methods: {
+        copy(type) {
+            if(type.includes('copy_billing')){
+                this.client.primary_shipping_location = Object.assign({}, this.client.primary_billing_location); 
+            }else {
+                this.client.primary_billing_location = Object.assign({}, this.client.primary_shipping_location); 
+            }
+        },
         remove (itemId) {
             this.client.contacts = this.client.contacts.filter(function (item) {
                 return itemId != item.id;
