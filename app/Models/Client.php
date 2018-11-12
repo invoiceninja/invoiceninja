@@ -5,39 +5,28 @@ namespace App\Models;
 use Laracasts\Presenter\PresentableTrait;
 use Hashids\Hashids;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends BaseModel
 {
     use PresentableTrait;
     use MakesHash;
+    use SoftDeletes;
 
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
-    protected $appends = ['hash_id'];
+    protected $appends = ['client_id'];
 
-    protected $fillable = [
-        'name',
-        'id_number',
-        'vat_number',
-        'work_phone',
-        'custom_value1',
-        'custom_value2',
-        'address1',
-        'address2',
-        'city',
-        'state',
-        'postal_code',
-        'country_id',
-        'private_notes',
-        'size_id',
-        'industry_id',
-        'currency_id',
-        'language_id',
-        'payment_terms',
-        'website',
+    protected $guarded = [
+        'id'
     ];
 
-    public function getHashIdAttribute()
+    public function getRouteKeyName()
+    {
+        return 'client_id';
+    }
+
+    public function getClientIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
@@ -54,12 +43,12 @@ class Client extends BaseModel
 
     public function primary_billing_location()
     {
-        return $this->hasMany(ClientLocation::class)->whereIsPrimaryBilling(true);
+        return $this->hasOne(ClientLocation::class)->whereIsPrimaryBilling(true);
     }
 
     public function primary_shipping_location()
     {
-        return $this->hasMany(ClientLocation::class)->whereIsPrimaryShipping(true);
+        return $this->hasOne(ClientLocation::class)->whereIsPrimaryShipping(true);
     }
 
     public function primary_contact()
