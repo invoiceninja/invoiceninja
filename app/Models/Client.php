@@ -13,7 +13,7 @@ class Client extends BaseModel
 
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
-    protected $appends = ['hash_id'];
+    protected $appends = ['client_id'];
 
     protected $fillable = [
         'name',
@@ -37,7 +37,12 @@ class Client extends BaseModel
         'website',
     ];
 
-    public function getHashIdAttribute()
+    public function getRouteKeyName()
+    {
+        return 'client_id';
+    }
+
+    public function getClientIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
