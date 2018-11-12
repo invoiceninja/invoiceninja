@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 
 class RouteServiceProvider extends ServiceProvider
 {
+    use \App\Utils\Traits\MakesHash;
     /**
      * This namespace is applied to your controller routes.
      *
@@ -26,6 +27,10 @@ class RouteServiceProvider extends ServiceProvider
         //
 
         parent::boot();
+
+        Route::bind('client', function ($value) {
+            return \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
     }
 
     /**

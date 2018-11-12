@@ -116,10 +116,8 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(EditClientRequest $request)
+    public function edit(EditClientRequest $request, Client $client)
     {
-
-        $client = $request->entity(Client::class, request('client'));
 
         $client->load('contacts', 'primary_billing_location', 'primary_shipping_location', 'locations', 'primary_contact');
 
@@ -141,8 +139,7 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, $id)
     {
-        \Illuminate\Support\Facades\Log::error(print_r($request->input('contacts'),1));
-        
+                
         $client = $request->entity(Client::class, request('client'));
 
         $client->fill($request->all())->save();
