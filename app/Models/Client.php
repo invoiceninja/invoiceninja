@@ -15,7 +15,7 @@ class Client extends BaseModel
 
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
-    protected $appends = ['client_id'];
+    //protected $appends = ['client_id'];
 
     protected $guarded = [
         'id'

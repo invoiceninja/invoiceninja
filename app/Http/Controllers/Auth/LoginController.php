@@ -41,20 +41,40 @@ class LoginController extends Controller
         $this->middleware('guest:user')->except('logout');
     }
 
+    /**
+     * Once the user is authenticated, we need to set
+     * the default company into a session variable
+     *
+     * @return void
+     */
     public function authenticated(Request $request, $user)
     {
         $this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
 
+    /**
+     * Redirect the user to the provider authentication page
+     *
+     * @return void
+     */
     public function redirectToProvider($provider)
     {
         return Socialite::driver($provider)->redirect();
     }
 
+    /**
+     * Received the returning object from the provider
+     * which we will use to resolve the user
+     *
+     * @return redirect
+     */
     public function handleProviderCallback($provider)
     {
-        $user = Socialite::driver('github')->user();
+        $user = Socialite::driver($provider)->user();
 
+            /** If user exists, redirect to dashboard */
+
+            /** If user does not exist, create account sequence */
         dd($user);
     }
 }

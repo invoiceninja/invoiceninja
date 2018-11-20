@@ -2,49 +2,39 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\AccountTrait;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel
 {
     use PresentableTrait;
+    use MakesHash;
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
-
-    protected $fillable = [
-
-        'name',
-        'address1',
-        'address2',
-        'city',
-        'state',
-        'postal_code',
-        'country_id',
-        'industry_id',
-        'work_phone',
-        'work_email',
-        'language_id',
-        'vat_number',
-        'id_number',
-        'tax_name1',
-        'tax_rate1',
-        'tax_name2',
-        'tax_rate2',
-        'website',
-        'timezone_id',
-        'currency_id',
-
+    protected $guarded = [
+        'id',
+        'company_id'
     ];
 
+    //protected $appends = ['company_id'];
 
+    public function getRouteKeyName()
+    {
+        return 'company_id';
+    }
+
+    public function getCompanyIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
 
     public function account()
     {
         return $this->belongsTo(Account::class);
     }
-
 
     public function users()
     {

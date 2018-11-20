@@ -52,6 +52,33 @@
                                         </a>
                                     </div>
                                 </div>
+                                
+                                <div class="row mt-4">
+                                    <hr>
+                                </div>
+                                
+                                <div class="row mt-4" id="app">
+                                    <div class="col-3 text-center">
+                                        <button type="button" class="btn btn-lg btn-brand btn-google" @click="this.window.location.href='/auth/google'" >
+                                          <i class="fa fa-google"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <button type="button" class="btn btn-lg btn-brand btn-facebook" @click="this.window.location.href='/auth/facebook'">
+                                          <i class="fa fa-facebook"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <button type="button" class="btn btn-lg btn-brand btn-github" @click="this.window.location.href='/auth/github'">
+                                          <i class="fa fa-github"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-3 text-center">
+                                        <button type="button" class="btn btn-lg btn-brand btn-linkedin" @click="this.window.location.href='/auth/linkedin'">
+                                          <i class="fa fa-linkedin"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>

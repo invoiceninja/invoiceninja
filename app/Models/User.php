@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Traits\SetsUserSessionAttributes;
 use App\Models\Traits\UserTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -15,7 +16,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use Notifiable;
     use SoftDeletes;
     use PresentableTrait;
-
+    use MakesHash;
+    
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];

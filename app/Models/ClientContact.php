@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 
 class ClientContact extends Authenticatable
 {
     use Notifiable;
+    use MakesHash;
+    
+    protected $appends = ['contact_id'];
 
     protected $guard = 'contact';
 
@@ -19,14 +23,8 @@ class ClientContact extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = [
-        'first_name', 
-        'last_name',
-        'email', 
-        'password',
-        'phone',
-        'custom_value1',
-        'custom_value2',
+    protected $guarded = [
+        'id',
     ];
     
     /**
@@ -38,6 +36,16 @@ class ClientContact extends Authenticatable
         'password', 'remember_token',
     ];
 
+    
+    public function getRouteKeyName()
+    {
+        return 'contact_id';
+    }
+
+    public function getContactIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
 
     public function client()
     {
