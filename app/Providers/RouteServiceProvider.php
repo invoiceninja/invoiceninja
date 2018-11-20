@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 
 class RouteServiceProvider extends ServiceProvider
 {
+    use \App\Utils\Traits\MakesHash;
     /**
      * This namespace is applied to your controller routes.
      *
@@ -26,6 +27,61 @@ class RouteServiceProvider extends ServiceProvider
         //
 
         parent::boot();
+
+        Route::bind('client', function ($value) {
+            return \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('invoice', function ($value) {
+                return \App\Models\Invoice::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('payment', function ($value) {
+            return \App\Models\Payment::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('product', function ($value) {
+            return \App\Models\Product::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('company', function ($value) {
+            return \App\Models\Company::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('account', function ($value) {
+            return \App\Models\Account::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('client_contact', function ($value) {
+            return \App\Models\ClientContact::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('client_location', function ($value) {
+            return \App\Models\ClientLocation::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('expense', function ($value) {
+            return \App\Models\Expense::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('invitation', function ($value) {
+            return \App\Models\Invitation::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('task', function ($value) {
+            return \App\Models\Task::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('tax_rate', function ($value) {
+            return \App\Models\TaxRate::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+        Route::bind('proposal', function ($value) {
+            return \App\Models\Proposal::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+        });
+
+
+
     }
 
     /**
