@@ -107,7 +107,10 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        //
+        $client = Client::find(2);
+        $client->load('contacts', 'primary_billing_location', 'primary_shipping_location', 'locations', 'primary_contact');
+
+        return response()->json($client, 200);
     }
 
     /**

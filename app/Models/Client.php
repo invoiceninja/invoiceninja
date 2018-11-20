@@ -26,7 +26,7 @@ class Client extends BaseModel
         return 'client_id';
     }
 
-    public function getClientIdAttribute()
+    public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
