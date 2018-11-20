@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\AccountTrait;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel
 {
     use PresentableTrait;
+    use MakesHash;
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $guarded = [
         'id',
+        'company_id'
     ];
 
-    protected $appends = ['company_id'];
+    //protected $appends = ['company_id'];
 
     public function getRouteKeyName()
     {

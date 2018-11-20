@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
 class ClientLocation extends BaseModel
 {
+    use MakesHash;
+
     public $timestamps = false;
 
     protected $appends = ['client_location_id'];

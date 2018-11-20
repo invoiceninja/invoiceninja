@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends BaseModel
 {
+    use MakesHash;
+    
     protected $guarded = [
 		'id',
 	];
