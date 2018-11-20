@@ -1,7 +1,7 @@
 @extends('layouts.master', ['header' => $header])
 
 @section('body')
-<main class="main" id="app">
+<main class="main" id="client_edit">
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
 
@@ -26,12 +26,12 @@
             </div>
         </div>
         
-        <div class="row" id="client_edit">
+        <div class="row">
             <!-- Client Details and Address Column -->
             <div class="col-md-6">
                 				
 				@include('client.partial.client_details', $client)                               
-<!--
+
                 <div class="card">
                     <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
                     	<div>
@@ -54,7 +54,7 @@
 						</div>
 					</div>	
                 </div>
--->
+
             </div>
             <!-- End Client Details and Address Column -->
 
@@ -66,11 +66,11 @@
                             <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
                         </span>
                     </div>
-                    <!--
+                    
                     @foreach($client->contacts as $contact)
 	                    @include('client.partial.contact_details', ['contact' => $contact])
 	                @endforeach
-	            -->
+	            
                 </div>    
             </div>     
             <!-- End Contact Details Column --> 

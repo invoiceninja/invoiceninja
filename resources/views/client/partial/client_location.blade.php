@@ -2,7 +2,7 @@
     <div class="form-group row">
         <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address1')</label>
         <div class="col-lg-9">
-            <input name="address1" placeholder="@lang('texts.address1')" class="form-control" v-model="client.primary_billing_location.address1" id="address1">
+            <input name="address1" placeholder="@lang('texts.address1')" class="form-control" v-model="client.primary_billing_location.address1">
         </div>
     </div>
 
