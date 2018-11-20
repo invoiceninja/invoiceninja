@@ -1037,7 +1037,7 @@ $LANG = array(
     'old_browser' => 'Bitte verwende einen :link',
     'newer_browser' => 'neuerer Browser',
     'white_label_custom_css' => ':link für $:price um ein individuelles Styling zu ermöglichen und unser Projekt zu unterstützen.',
-    'bank_accounts_help' => 'Fügen Sie eine Bankverbindung hinzu, um Ausgaben automatisch zu importieren und Lieferanten zu erstellen. Unterstützt American Express und <a href=":link" target="_blank">400+ US-Banken.</a>',
+    'bank_accounts_help' => 'Fügen Sie eine Bankverbindung hinzu, um Ausgaben automatisch zu importieren und Lieferanten zu erstellen. Unterstützt American Express und :link',
     'us_banks' => '400+ US-Banken',
 
     'pro_plan_remove_logo' => ':link, um das InvoiceNinja-Logo zu entfernen, indem du dem Pro Plan beitrittst',
