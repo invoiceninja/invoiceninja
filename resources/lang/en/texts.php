@@ -3110,6 +3110,16 @@ $LANG = array(
     'show_product_notes' => 'Show product details',
     'show_product_notes_help' => 'Include the <b>description and cost</b> in the product dropdown',
     'important' => 'Important',
+    'thank_you_for_using_our_app' => 'Thank you for using our app!',
+    'if_you_like_it' => 'If you like it please',
+    'to_rate_it' => 'to rate it.',
+    'average' => 'Average',
+    'unapproved' => 'Unapproved',
+    'authenticate_to_change_setting' => 'Please authenticate to change this setting',
+    'locked' => 'Locked',
+    'authenticate' => 'Authenticate',
+    'please_authenticate' => 'Please authenticate',
+    'biometric_authentication' => 'Biometric Authentication',
 
 );
 
