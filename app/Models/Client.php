@@ -26,7 +26,7 @@ class Client extends BaseModel
         return 'client_id';
     }
 
-    public function getClientIdAttribute()
+    public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
@@ -34,21 +34,6 @@ class Client extends BaseModel
     public function contacts()
     {
         return $this->hasMany(ClientContact::class);
-    }
-
-    public function locations()
-    {
-        return $this->hasMany(ClientLocation::class);
-    }
-
-    public function primary_billing_location()
-    {
-        return $this->hasOne(ClientLocation::class)->whereIsPrimaryBilling(true);
-    }
-
-    public function primary_shipping_location()
-    {
-        return $this->hasOne(ClientLocation::class)->whereIsPrimaryShipping(true);
     }
 
     public function primary_contact()

@@ -1,50 +1,112 @@
 <div class="card">
-    <div class="card-header bg-primary">{{ $address }}</div>
+    <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
+        <div>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#billing" role="tab" aria-controls="billing">{{ trans('texts.billing_address') }}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#shipping" role="tab" aria-controls="shipping">{{ trans('texts.shipping_address') }}</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="billing" role="tabpanel">
+                <button type="button" class="btn btn-sm btn-light" @click="copy('copy_shipping')"> {{ trans('texts.copy_shipping') }}</button>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address1')</label>
+                        <div class="col-lg-9">
+                            <input name="address1" placeholder="@lang('texts.address1')" class="form-control" v-model="client.address1">
+                        </div>
+                    </div>
 
-    <div class="card-body">
-        <div class="form-group row">
-            <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address1')</label>
-            <div class="col-lg-9">
-                {{ html()->input('address1')->placeholder(__('texts.address1'))->value($location->address1)->class('form-control')->id('address1') }}
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address2')</label>
+                        <div class="col-lg-9">
+                            <input name="address2" placeholder="@lang('texts.address2')" class="form-control" v-model="client.address2" id="address2">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.city')</label>
+                        <div class="col-lg-9">
+                            <input name="city" placeholder="@lang('texts.city')" class="form-control" v-model="client.city" id="city">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.state')</label>
+                        <div class="col-lg-9">
+                            <input name="state" placeholder="@lang('texts.state')" class="form-control" v-model="client.state" id="state">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.postal_code')</label>
+                        <div class="col-lg-9">
+                            <input name="postal_code" placeholder="@lang('texts.postal_code')" class="form-control" v-model="client.postal_code" id="postal_code">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.country')</label>
+                        <div class="col-lg-9">
+                            <input name="country_id" placeholder="@lang('texts.country')" class="form-control" v-model="client.country_id" id="country">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="shipping" role="tabpanel">
+                <button type="button" class="btn btn-sm btn-light" @click="copy('copy_billing')"> {{ trans('texts.copy_billing') }}</button>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address1')</label>
+                        <div class="col-lg-9">
+                            <input name="shipping_address1" placeholder="@lang('texts.address1')" class="form-control" v-model="client.shipping_address1">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address2')</label>
+                        <div class="col-lg-9">
+                            <input name="shipping_address2" placeholder="@lang('texts.address2')" class="form-control" v-model="client.shipping_address2" id="address2">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.city')</label>
+                        <div class="col-lg-9">
+                            <input name="shipping_city" placeholder="@lang('texts.city')" class="form-control" v-model="client.shipping_city" id="city">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.state')</label>
+                        <div class="col-lg-9">
+                            <input name="shipping_state" placeholder="@lang('texts.state')" class="form-control" v-model="client.shipping_state" id="state">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.postal_code')</label>
+                        <div class="col-lg-9">
+                            <input name="shipping_postal_code" placeholder="@lang('texts.postal_code')" class="form-control" v-model="client.shipping_postal_code" id="postal_code">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.country')</label>
+                        <div class="col-lg-9">
+                            <input name="shipping_country_id" placeholder="@lang('texts.country')" class="form-control" v-model="client.shipping_country_id" id="country">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="form-group row">
-            <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.address2')</label>
-            <div class="col-lg-9">
-                {{ html()->input('address2')->placeholder(__('texts.address2'))->value($location->address2)->class('form-control')->id('address2') }}
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.city')</label>
-            <div class="col-lg-9">
-                {{ html()->input('city')->placeholder(__('texts.city'))->value($location->city)->class('form-control')->id('city') }}
-            </div>
-        </div>
-
-
-        <div class="form-group row">
-            <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.state')</label>
-            <div class="col-lg-9">
-                {{ html()->input('state')->placeholder(__('texts.state'))->value($location->state)->class('form-control')->id('state') }}
-            </div>
-        </div>
-
-
-        <div class="form-group row">
-            <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.postal_code')</label>
-            <div class="col-lg-9">
-                {{ html()->input('postal_code')->placeholder(__('texts.postal_code'))->value($location->postal_code)->class('form-control')->id('postal_code') }}
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label for="name" class="col-lg-3 col-form-label text-right">@lang('texts.country')</label>
-            <div class="col-lg-9">
-                {{ html()->input('country')->placeholder(__('texts.country'))->value($location->country)->class('form-control')->id('country') }}
-            </div>
-        </div>
-    </div>
-
+    </div>  
 </div>
+

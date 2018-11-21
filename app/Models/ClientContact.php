@@ -7,33 +7,29 @@ use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laracasts\Presenter\PresentableTrait;
 
 
 class ClientContact extends Authenticatable
 {
     use Notifiable;
     use MakesHash;
-    
-    protected $appends = ['contact_id'];
+    use PresentableTrait;
+
+   // protected $appends = ['contact_id'];
 
     protected $guard = 'contact';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+    protected $presenter = 'App\Models\Presenters\ClientContactPresenter';
+
     protected $guarded = [
         'id',
     ];
-    
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
+
     protected $hidden = [
-        'password', 'remember_token',
+        'id',
+        'password', 
+        'remember_token',
     ];
 
     
