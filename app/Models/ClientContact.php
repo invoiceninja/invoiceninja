@@ -27,7 +27,6 @@ class ClientContact extends Authenticatable
     ];
 
     protected $hidden = [
-        'id',
         'password', 
         'remember_token',
     ];

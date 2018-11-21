@@ -42,7 +42,7 @@
                 <div class="card">
                     <div class="card-header bg-primary2">{{ trans('texts.contact_information') }}
                         <span class="float-right">
-                            <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
+                            <button type="button" class="btn btn-primary btn-sm" @click="add()"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
                         </span>
                     </div>
                     
@@ -68,7 +68,6 @@
 	    },
 	    mounted() {
             console.log('Component mounted.')
-            //this.getItinerary()
 	    	this.client = {!! $client !!}
         },
 	    beforeMount: function () {
@@ -78,11 +77,24 @@
 	    	console.dir('created')
 	    },
 	    updated:function() {
-	        console.dir('updated');
+	        console.dir('updated')
 	    },
 	    methods:{
+            remove(contact){
+                let index = this.client.contacts.indexOf(contact)
+                this.client.contacts.splice(index, 1)
+            },
+            add(){
+                console.dir('i will add a contact here')
+                this.client.contacts.push({first_name: '', last_name: '', email: '', phone: ''})
+                window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight)
+                this.$nextTick(() => {
+                         let index = this.client.contacts.length - 1
+                         let input = this.$refs.first_name[index]
+                         input.focus();
+                      });
+            },
 	    	copy(type) {
-	    		console.dir('inside ');
 	            if(type.includes('copy_billing')){
 	                this.client.shipping_address1 = this.client.address1; 
 	                this.client.shipping_address2 = this.client.address2; 
