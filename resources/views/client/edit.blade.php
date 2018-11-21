@@ -32,28 +32,7 @@
                 				
 				@include('client.partial.client_details', $client)                               
 
-                <div class="card">
-                    <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
-                    	<div>
-						<ul class="nav nav-tabs" role="tablist">
-							<li class="nav-item">
-								<a class="nav-link active" data-toggle="tab" href="#billing" role="tab" aria-controls="billing">{{ trans('texts.billing_address') }}</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" data-toggle="tab" href="#shipping" role="tab" aria-controls="shipping">{{ trans('texts.shipping_address') }}</a>
-							</li>
-						</ul>
-						<div class="tab-content">
-							<div class="tab-pane active" id="billing" role="tabpanel">
-								<button type="button" class="btn btn-sm btn-light" v-on:click="$emit('copy', 'copy_shipping')"> {{ trans('texts.copy_shipping') }}</button>
-								@include('client.partial.client_location', ['location' => $client->primary_billing_location])
-							</div>
-							<div class="tab-pane" id="shipping" role="tabpanel">
-								<button type="button" class="btn btn-sm btn-light" v-on:click="$emit('copy',' copy_billing')"> {{ trans('texts.copy_billing') }}</button>
-							</div>
-						</div>
-					</div>	
-                </div>
+                @include('client.partial.client_location')
 
             </div>
             <!-- End Client Details and Address Column -->
@@ -102,6 +81,24 @@
 	        console.dir('updated');
 	    },
 	    methods:{
+	    	copy(type) {
+	    		console.dir('inside ');
+	            if(type.includes('copy_billing')){
+	                this.client.shipping_address1 = this.client.address1; 
+	                this.client.shipping_address2 = this.client.address2; 
+	                this.client.shipping_city = this.client.city; 
+	                this.client.shipping_state = this.client.state; 
+	                this.client.shipping_postal_code = this.client.postal_code; 
+	                this.client.shipping_country_id = this.client.country_id; 
+	            	}else {
+	                this.client.address1 = this.client.shipping_address1; 
+	                this.client.address2 = this.client.shipping_address2; 
+	                this.client.city = this.client.shipping_city; 
+	                this.client.state = this.client.shipping_state; 
+	                this.client.postal_code = this.client.shipping_postal_code; 
+	                this.client.country_id = this.client.shipping_country_id; 
+	            }
+	        }
 		}
     });
 </script>

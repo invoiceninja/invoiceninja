@@ -221,7 +221,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('industry_id')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->unsignedInteger('currency_id')->nullable();
-/*
+
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
             $table->string('city')->nullable();
@@ -235,7 +235,7 @@ class CreateUsersTable extends Migration
             $table->string('shipping_state')->nullable();
             $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
-*/
+
             $table->boolean('is_deleted')->default(false);
             $table->string('payment_terms')->nullable();  //todo type? depends how we are storing this
 
