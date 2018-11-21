@@ -2,6 +2,7 @@
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.first_name')</label>
         <div class="col-sm-9">
+            <input name="id" type="hidden" v-model="contact.id" value="{{ $client->present()->id }}">
             <input name="first_name" placeholder="@lang('texts.first_name')" class="form-control" v-model="contact.first_name">
         </div>
     </div>
