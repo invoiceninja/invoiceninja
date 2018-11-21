@@ -2,43 +2,46 @@
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.first_name')</label>
         <div class="col-sm-9">
-            {{ html()->input('first_name')->placeholder(__('texts.first_name'))->value($contact->first_name)->class('form-control')->id('first_name') }}
+            <input name="first_name" placeholder="@lang('texts.first_name')" class="form-control" v-model="contact.first_name">
         </div>
     </div>
 
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.last_name')</label>
         <div class="col-sm-9">
-            {{ html()->input('last_name')->placeholder(__('texts.last_name'))->value($contact->last_name)->class('form-control')->id('last_name') }}
+            <input name="last_name" placeholder="@lang('texts.last_name')" class="form-control" v-model="contact.last_name">
         </div>
     </div>
 
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.email')</label>
         <div class="col-sm-9">
-            {{ html()->input('email')->placeholder(__('texts.email'))->value($contact->first_name)->class('form-control')->id('email') }}
+            <input name="email" placeholder="@lang('texts.email')" class="form-control" v-model="contact.email">
         </div>
     </div>
 
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.phone')</label>
         <div class="col-sm-9">
-            {{ html()->input('phone')->placeholder(__('texts.phone'))->value($contact->phone)->class('form-control')->id('phone') }}
+            <input name="phone" placeholder="@lang('texts.phone')" class="form-control" v-model="contact.phone">
         </div>
     </div>
 
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.custom_value1')</label>
         <div class="col-sm-9">
-            {{ html()->input('custom_value1')->placeholder(__('texts.custom_value1'))->value($contact->custom_value1)->class('form-control')->id('custom_value1') }}
+            <input name="custom_value1" placeholder="@lang('texts.custom_value1')" class="form-control" v-model="contact.custom_value1">
         </div>
     </div>
 
     <div class="form-group row">
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.custom_value2')</label>
         <div class="col-sm-9">
-            {{ html()->input('custom_value2')->placeholder(__('texts.custom_value2'))->value($contact->custom_value2)->class('form-control')->id('custom_value2') }}
+            <input name="custom_value2" placeholder="@lang('texts.custom_value2')" class="form-control" v-model="contact.custom_value2">
         </div>
+    </div>
+    <div class="float-right">
+        <button type="button" class="btn btn-danger" v-on:click="$emit('remove',contact.id)"> {{ trans('texts.remove_contact') }}</button>
     </div>
 </div>
 

@@ -67,9 +67,9 @@
                         </span>
                     </div>
                     
-                    @foreach($client->contacts as $contact)
-	                    @include('client.partial.contact_details', ['contact' => $contact])
-	                @endforeach
+                    <template v-for="contact in client.contacts">
+	                    @include('client.partial.contact_details')
+                    </template>
 	            
                 </div>    
             </div>     
