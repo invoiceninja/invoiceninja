@@ -29,7 +29,11 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('client', function ($value) {
-            return \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            $client = \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            $client->load('contacts', 'primary_contact');
+
+            return $client;
+
         });
 
         Route::bind('invoice', function ($value) {

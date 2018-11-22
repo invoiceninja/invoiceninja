@@ -3,7 +3,7 @@
         <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.first_name')</label>
         <div class="col-sm-9">
             <input name="id" type="hidden" v-model="contact.id" value="{{ $client->present()->id }}">
-            <input name="first_name" placeholder="@lang('texts.first_name')" class="form-control" v-model="contact.first_name">
+            <input ref="first_name" name="first_name" placeholder="@lang('texts.first_name')" class="form-control" v-model="contact.first_name">
         </div>
     </div>
 
@@ -42,7 +42,7 @@
         </div>
     </div>
     <div class="float-right">
-        <button type="button" class="btn btn-danger" v-on:click="$emit('remove',contact.id)"> {{ trans('texts.remove_contact') }}</button>
+        <button type="button" class="btn btn-danger" v-on:click="remove(contact)"> {{ trans('texts.remove_contact') }}</button>
     </div>
 </div>
 

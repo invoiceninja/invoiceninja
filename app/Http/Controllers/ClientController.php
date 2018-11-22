@@ -5,12 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
+use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 class ClientController extends Controller
 {
+
+    protected $clientRepo;
+
+    public function __construct(ClientRepository $clientRepo)
+    {
+        $this->clientRepo = $clientRepo;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -122,13 +131,10 @@ class ClientController extends Controller
     public function edit(EditClientRequest $request, Client $client)
     {
 
-        $client->load('contacts', 'primary_contact');
-
         $data = [
         'header' => $this->headerData(),
         'client' => $client,
         ];
-
 
         return view('client.edit', $data);
     }
@@ -140,16 +146,10 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateClientRequest $request, $id)
+    public function update(UpdateClientRequest $request, Client $client)
     {
                 
-        $client = $request->entity(Client::class, request('client'));
-
-        $client->fill($request->all())->save();
-
-        $client->contacts()->delete();
-        $client->contacts()->create($request->input('contacts'));
-
+        $client = $this->clientRepo->save($request, $client);
         $client->load('contacts', 'primary_contact');
 
         return response()->json($client, 200);

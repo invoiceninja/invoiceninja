@@ -89,7 +89,6 @@ export default {
         submit() {
             this.errors = {};
             
-
             axios.put('/clients/' + this.client.hash_id, this.client).then(response => {
                 this.client = response.data;
                 console.dir(response);
