@@ -5,7 +5,7 @@
             <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.client_name')</label>
             <div class="col-sm-9">
                 <input name="name" placeholder="@lang('texts.name')" class="form-control" v-model="client.name" value="{{ $client->present()->name }}">
-                <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
+                <div v-if="errors && errors.name" class="text-danger">@{{ errors.name[0] }}</div>
             </div>
         </div>
 

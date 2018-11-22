@@ -33,6 +33,8 @@
         "laravel-echo": "^1.4.0",
         "quill": "^1.3.6",
         "socket.io-client": "^2.1.1",
+        "ts-loader": "3.5.0",
+        "typescript": "^3.1.6",
         "vue-i18n": "^8.3.0"
     }
 }
