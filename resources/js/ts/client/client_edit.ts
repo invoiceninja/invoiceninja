@@ -3,9 +3,8 @@ import Vue from 'vue';
 import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 
 var VueApp: any = Vue;
-//var clientObject: any;
-declare let window:any;
-window.clientObject = clientObject;
+
+declare var clientObject: any;
 
 var App = new VueApp({
         el : '#client_edit',
@@ -17,7 +16,7 @@ var App = new VueApp({
 	    },
 	    mounted(this: any) {
 	    	//this.client = {!! $client !!};
-	    	this.client = window.clientObject;
+	    	this.client = clientObject;
             console.dir(this.client);
         },
 	    beforeMount: function () {
