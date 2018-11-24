@@ -65,7 +65,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
 
 ## Third Party Developers
-* [Some Techie](https://www.sometechie.com/customize-invoice-ninja/)
+* [Bold Compass](https://boldcompass.com/customize-invoice-ninja/)
 
 ## Contributing
 All contributors are welcome!
@@ -80,7 +80,7 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
 * [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 * [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
-* [Joshua Dwire](https://github.com/joshuadwire) - [Some Techie](https://www.sometechie.com)
+* [Joshua Dwire](https://github.com/joshuadwire) - [Bold Compass](https://boldcompass.com/)
 * [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Zamponi](https://github.com/alexz707)
