@@ -94,7 +94,7 @@ class StartupCheck
             Session::put(SESSION_COUNTER, ++$count);
 
             if (Utils::isNinja()) {
-                if ($coupon = request()->coupon) {
+                if ($coupon = request()->coupon && ! $company->hasActivePlan()) {
                     if ($code = config('ninja.coupon_50_off')) {
                         if (hash_equals($coupon, $code)) {
                             $company->applyDiscount(.5);
