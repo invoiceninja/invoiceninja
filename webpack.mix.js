@@ -25,7 +25,7 @@ mix.webpackConfig({
         }
     });
 
-mix.js('resources/js/ts/client/client_edit.ts', 'public/js');
+mix.js('resources/js/src/client/client_edit.ts', 'public/js');
 
 mix.js('resources/js/app.js', 'public/js/vendor');
 
