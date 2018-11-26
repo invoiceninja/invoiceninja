@@ -1,18 +1,26 @@
 <?php
 
-namespace App\Utils\Traits;
+namespace App\Http\ViewComposers;
 
+use App\Utils\Traits\UserSessionAttributes;
+use Illuminate\View\View;
 
-/**
- * Class MakesHash
- * @package App\Utils\Traits
- */
-trait MakesHeaderData
+class HeaderComposer
 {
-
     use UserSessionAttributes;
 
-    public function headerData()
+    /**
+     * Bind data to the view.
+     *
+     * @param  View  $view
+     * @return void
+     */
+    public function compose(View $view)
+    {
+        $view->with('header', $this->headerData());
+    }
+
+    private function headerData()
     {
         //companies
         $companies = auth()->user()->companies;
