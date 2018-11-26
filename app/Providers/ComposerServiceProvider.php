@@ -14,14 +14,7 @@ class ComposerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer(
-            [
-                'client.edit', 
-                'client.list', 
-                'dashboard.index',
-            ],
-            'App\Http\ViewComposers\HeaderComposer'
-        );
+        View::composer('*', 'App\Http\ViewComposers\HeaderComposer');
     }
 
     /**

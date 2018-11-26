@@ -22,6 +22,9 @@ class HeaderComposer
 
     private function headerData()
     {
+        if(!auth()->user())
+            return [];
+        
         //companies
         $companies = auth()->user()->companies;
 

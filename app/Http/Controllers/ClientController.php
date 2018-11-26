@@ -6,13 +6,15 @@ use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
 use App\Repositories\ClientRepository;
+use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 class ClientController extends Controller
 {
-
+    use UserSessionAttributes;
+    
     protected $clientRepo;
 
     public function __construct(ClientRepository $clientRepo)
@@ -81,7 +83,6 @@ class ClientController extends Controller
             'data' => 'function(d) { d.key = "value"; }',
         ]);
 
-        //$data['header'] = $this->headerData();
         $data['html'] = $html;
 
         return view('client.list', $data);
@@ -132,7 +133,6 @@ class ClientController extends Controller
     {
 
         $data = [
-        'header' => $this->headerData(),
         'client' => $client,
         ];
 
