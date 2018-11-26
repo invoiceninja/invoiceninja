@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Utils\Traits;
-use Illuminate\Support\Facades\Auth;
 
 
 /**
@@ -16,7 +15,7 @@ trait MakesHeaderData
     public function headerData()
     {
         //companies
-        $companies = Auth::user()->companies;
+        $companies = auth()->user()->companies;
 
         $data['current_company'] = $companies->first(function ($company){
             return $company->id == $this->getCurrentCompanyId();
