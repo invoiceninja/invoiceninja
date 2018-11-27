@@ -18,14 +18,11 @@ class Client extends BaseModel
     //protected $appends = ['client_id'];
 
     protected $guarded = [
-        'id'
+        'id',
     ];
 
-    public function getRouteKeyName()
-    {
-        return 'client_id';
-    }
-
+    protected $fillable = [];
+    
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);

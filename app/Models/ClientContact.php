@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
@@ -15,6 +16,7 @@ class ClientContact extends Authenticatable
     use Notifiable;
     use MakesHash;
     use PresentableTrait;
+    use SoftDeletes;
 
    // protected $appends = ['contact_id'];
 
@@ -22,6 +24,8 @@ class ClientContact extends Authenticatable
 
     protected $presenter = 'App\Models\Presenters\ClientContactPresenter';
 
+    protected $dates = ['deleted_at'];
+    
     protected $guarded = [
         'id',
     ];
