@@ -23,10 +23,8 @@ class Client extends BaseModel
         'created_at',
         'deleted_at',
     ];
-
-    protected $fillable = ['name'];
     
-    protected $dates = ['deleted_at'];
+    //protected $dates = ['deleted_at'];
 
     public function getHashedIdAttribute()
     {
