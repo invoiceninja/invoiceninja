@@ -21,8 +21,8 @@ class ClientRepository extends BaseRepository
 
 	public function save(Request $request, Client $client) : ?Client
 	{
-
-        //$client->fill($request->all());
+		Log::error(print_r($request->input(),1));
+        $client->fill($request->input());
         $client->save();
 
         $this->clientContactRepo->save($request->input('contacts'), $client);

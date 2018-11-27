@@ -19,10 +19,15 @@ class Client extends BaseModel
 
     protected $guarded = [
         'id',
+        'updated_at',
+        'created_at',
+        'deleted_at',
     ];
 
-    protected $fillable = [];
+    protected $fillable = ['name'];
     
+    protected $dates = ['deleted_at'];
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);

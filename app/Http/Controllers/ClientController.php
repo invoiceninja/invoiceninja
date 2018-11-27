@@ -152,7 +152,6 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-                
         $client = UpdateClient::dispatchNow($request, $client);
         $client->load('contacts', 'primary_contact');
 
