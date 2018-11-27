@@ -46,12 +46,13 @@
 
     </div>
 </form>
+
+
+</main>
 <script>
-	var clientObject = {!! $client !!};
+    var client_object = {!! $client !!};
+    var hashed_id = '{{ $hashed_id }}';
 </script>
 
 <script src=" {{ mix('/js/client_edit.js') }}"></script>
-
-</main>
-
 @endsection

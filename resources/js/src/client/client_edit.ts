@@ -4,7 +4,8 @@ import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
 
 var VueApp: any = Vue;
 
-declare var clientObject: any;
+declare var client_object: any;
+declare var hashed_id: string;
 
 var App = new VueApp({
         el : '#client_edit',
@@ -16,7 +17,7 @@ var App = new VueApp({
 	    },
 	    mounted(this: any) {
 	    	//this.client = {!! $client !!};
-	    	this.client = clientObject;
+	    	this.client = client_object;
             console.dir(this.client);
         },
 	    beforeMount: function () {
@@ -35,7 +36,7 @@ var App = new VueApp({
             },
             add(this: any){
                 console.dir('i will add a contact here')
-                this.client.contacts.push({first_name: '', last_name: '', email: '', phone: ''});
+                this.client.contacts.push({first_name: '', last_name: '', email: '', phone: '', id: -1});
                 window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
                 this.$nextTick(() => {
                          let index = this.client.contacts.length - 1;
@@ -46,7 +47,7 @@ var App = new VueApp({
             submit(this: any) {
                 this.errors = {};
                 
-                axios.put('/clients/', this.client).then(response => {
+                axios.put('/clients/' + hashed_id, this.client).then(response => {
 //                axios.put('/clients/' + {{ $client->present()->id }}, this.client).then(response => {
                     this.client = response.data;
                 }).catch(error => {

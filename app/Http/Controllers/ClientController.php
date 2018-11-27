@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
+use App\Jobs\Client\UpdateClient;
 use App\Models\Client;
 use App\Repositories\ClientRepository;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 class ClientController extends Controller
 {
+    use UserSessionAttributes;
+    use MakesHash;
 
     protected $clientRepo;
 
@@ -81,7 +86,6 @@ class ClientController extends Controller
             'data' => 'function(d) { d.key = "value"; }',
         ]);
 
-        //$data['header'] = $this->headerData();
         $data['html'] = $html;
 
         return view('client.list', $data);
@@ -132,8 +136,8 @@ class ClientController extends Controller
     {
 
         $data = [
-        'header' => $this->headerData(),
         'client' => $client,
+        'hashed_id' => $this->encodePrimarykey($client->id)
         ];
 
         return view('client.edit', $data);
@@ -143,13 +147,12 @@ class ClientController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  App\Models\Client $client
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-                
-        $client = $this->clientRepo->save($request, $client);
+        $client = UpdateClient::dispatchNow($request, $client);
         $client->load('contacts', 'primary_contact');
 
         return response()->json($client, 200);

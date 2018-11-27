@@ -23,6 +23,7 @@ class UpdateClientRequest extends Request
     {
         return [
             'name' => 'required',
+            'contacts.*.email' => 'email|unique:client_contacts,id'
         ];
     }
 

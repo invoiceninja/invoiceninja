@@ -2,24 +2,32 @@
 
 namespace App\Repositories;
 
+use App\Models\Client;
 use App\Repositories\ClientContactRepository;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 
  */
 class ClientRepository extends BaseRepository
 {
-	protected $clientContactRepository;
+	protected $clientContactRepo;
 	
-    public function __construct(ClientContactRepository $clientContactRepository)
+    public function __construct(ClientContactRepository $clientContactRepo)
     {
-        $this->clientContactRepository = $clientContactRepository;
+        $this->clientContactRepo = $clientContactRepo;
     }
 
-	public function save($data)
+	public function save(Request $request, Client $client) : ?Client
 	{
-        $client->fill($request->all())->save();
+		Log::error(print_r($request->input(),1));
+        $client->fill($request->input());
+        $client->save();
 
+        $this->clientContactRepo->save($request->input('contacts'), $client);
+
+        return $client;
 	}
 
 }

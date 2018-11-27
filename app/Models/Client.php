@@ -18,13 +18,13 @@ class Client extends BaseModel
     //protected $appends = ['client_id'];
 
     protected $guarded = [
-        'id'
+        'id',
+        'updated_at',
+        'created_at',
+        'deleted_at',
     ];
-
-    public function getRouteKeyName()
-    {
-        return 'client_id';
-    }
+    
+    //protected $dates = ['deleted_at'];
 
     public function getHashedIdAttribute()
     {

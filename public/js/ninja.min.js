@@ -1,1 +1,807 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports,require("jquery"),require("perfect-scrollbar")):"function"==typeof define&&define.amd?define(["exports","jquery","perfect-scrollbar"],t):t(e.coreui={},e.jQuery,e.PerfectScrollbar)}(this,function(e,t,n){"use strict";function r(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function o(e,t,n){return t&&r(e.prototype,t),n&&r(e,n),e}t=t&&t.hasOwnProperty("default")?t.default:t,n=n&&n.hasOwnProperty("default")?n.default:n;var a=function(e){var t="ajaxLoad",n=e.fn[t],r={ACTIVE:"active",NAV_PILLS:"nav-pills",NAV_TABS:"nav-tabs",OPEN:"open",VIEW_SCRIPT:"view-script"},a={CLICK:"click"},i={HEAD:"head",NAV_DROPDOWN:".sidebar-nav .nav-dropdown",NAV_LINK:".sidebar-nav .nav-link",NAV_ITEM:".sidebar-nav .nav-item",VIEW_SCRIPT:".view-script"},s={defaultPage:"main.html",errorPage:"404.html",subpagesDirectory:"views/"},c=function(){function t(e,t){this._config=this._getConfig(t),this._element=e;var n=location.hash.replace(/^#/,"");""!==n?this.setUpUrl(n):this.setUpUrl(this._config.defaultPage),this._addEventListeners()}var n=t.prototype;return n.loadPage=function(t){var n=this._element,o=this._config,a=function e(t,n){void 0===n&&(n=0);var o=document.createElement("script");o.type="text/javascript",o.src=t[n],o.className=r.VIEW_SCRIPT,o.onload=o.onreadystatechange=function(){this.readyState&&"complete"!==this.readyState||t.length>n+1&&e(t,n+1)},document.getElementsByTagName("body")[0].appendChild(o)};e.ajax({type:"GET",url:o.subpagesDirectory+t,dataType:"html",beforeSend:function(){e(i.VIEW_SCRIPT).remove()},success:function(r){var o=document.createElement("div");o.innerHTML=r;var i=Array.from(o.querySelectorAll("script")).map(function(e){return e.attributes.getNamedItem("src").nodeValue});o.querySelectorAll("script").forEach(function(e){return e.parentNode.removeChild(e)}),e("body").animate({scrollTop:0},0),e(n).html(o),i.length&&a(i),window.location.hash=t},error:function(){window.location.href=o.errorPage}})},n.setUpUrl=function(t){e(i.NAV_LINK).removeClass(r.ACTIVE),e(i.NAV_DROPDOWN).removeClass(r.OPEN),e(i.NAV_DROPDOWN+':has(a[href="'+t.replace(/^\//,"").split("?")[0]+'"])').addClass(r.OPEN),e(i.NAV_ITEM+' a[href="'+t.replace(/^\//,"").split("?")[0]+'"]').addClass(r.ACTIVE),this.loadPage(t)},n.loadBlank=function(e){window.open(e)},n.loadTop=function(e){window.location=e},n._getConfig=function(e){return e=Object.assign({},s,e)},n._addEventListeners=function(){var t=this;e(document).on(a.CLICK,i.NAV_LINK+'[href!="#"]',function(e){e.preventDefault(),e.stopPropagation(),"_top"===e.currentTarget.target?t.loadTop(e.currentTarget.href):"_blank"===e.currentTarget.target?t.loadBlank(e.currentTarget.href):t.setUpUrl(e.currentTarget.getAttribute("href"))})},t._jQueryInterface=function(n){return this.each(function(){var r=e(this).data("coreui.ajaxLoad"),o="object"==typeof n&&n;r||(r=new t(this,o),e(this).data("coreui.ajaxLoad",r))})},o(t,null,[{key:"VERSION",get:function(){return"2.0.18"}},{key:"Default",get:function(){return s}}]),t}();return e.fn[t]=c._jQueryInterface,e.fn[t].Constructor=c,e.fn[t].noConflict=function(){return e.fn[t]=n,c._jQueryInterface},c}(t),i=function(e){return-1!==e.map(function(e){return document.body.classList.contains(e)}).indexOf(!0)},s=function(e,t){var n=t.indexOf(e),r=t.slice(0,n+1);i(r)?r.map(function(e){return document.body.classList.remove(e)}):document.body.classList.add(e)},c=function(e){var t="aside-menu",n="coreui.aside-menu",r=e.fn[t],a={CLICK:"click",LOAD_DATA_API:"load.coreui.aside-menu.data-api",TOGGLE:"toggle"},i={BODY:"body",ASIDE_MENU:".aside-menu",ASIDE_MENU_TOGGLER:".aside-menu-toggler"},c=["aside-menu-show","aside-menu-sm-show","aside-menu-md-show","aside-menu-lg-show","aside-menu-xl-show"],u=function(){function t(e){this._element=e,this._addEventListeners()}return t.prototype._addEventListeners=function(){e(i.ASIDE_MENU_TOGGLER).on(a.CLICK,function(e){e.preventDefault(),e.stopPropagation();var t=e.currentTarget.dataset.toggle;s(t,c)})},t._jQueryInterface=function(){return this.each(function(){var r=e(this),o=r.data(n);o||(o=new t(this),r.data(n,o))})},o(t,null,[{key:"VERSION",get:function(){return"2.0.18"}}]),t}();return e(window).on(a.LOAD_DATA_API,function(){var t=e(i.ASIDE_MENU);u._jQueryInterface.call(t)}),e.fn[t]=u._jQueryInterface,e.fn[t].Constructor=u,e.fn[t].noConflict=function(){return e.fn[t]=r,u._jQueryInterface},u}(t),u=function(e){var t="sidebar",r=e.fn[t],a={transition:400},i={ACTIVE:"active",BRAND_MINIMIZED:"brand-minimized",NAV_DROPDOWN_TOGGLE:"nav-dropdown-toggle",OPEN:"open",SIDEBAR_FIXED:"sidebar-fixed",SIDEBAR_MINIMIZED:"sidebar-minimized",SIDEBAR_OFF_CANVAS:"sidebar-off-canvas"},c={CLICK:"click",DESTROY:"destroy",INIT:"init",LOAD_DATA_API:"load.coreui.sidebar.data-api",TOGGLE:"toggle",UPDATE:"update"},u={BODY:"body",BRAND_MINIMIZER:".brand-minimizer",NAV_DROPDOWN_TOGGLE:".nav-dropdown-toggle",NAV_DROPDOWN_ITEMS:".nav-dropdown-items",NAV_ITEM:".nav-item",NAV_LINK:".nav-link",NAVIGATION_CONTAINER:".sidebar-nav",NAVIGATION:".sidebar-nav > .nav",SIDEBAR:".sidebar",SIDEBAR_MINIMIZER:".sidebar-minimizer",SIDEBAR_TOGGLER:".sidebar-toggler"},l=["sidebar-show","sidebar-sm-show","sidebar-md-show","sidebar-lg-show","sidebar-xl-show"],d=function(){function t(e){this._element=e,this.ps=null,this.perfectScrollbar(c.INIT),this.setActiveLink(),this._addEventListeners()}var r=t.prototype;return r.perfectScrollbar=function(e){var t=this;void 0!==n&&(e!==c.INIT||document.body.classList.contains(i.SIDEBAR_MINIMIZED)||(this.ps=this.makeScrollbar()),e===c.DESTROY&&this.destroyScrollbar(),e===c.TOGGLE&&(document.body.classList.contains(i.SIDEBAR_MINIMIZED)?this.destroyScrollbar():this.ps=this.makeScrollbar()),e!==c.UPDATE||document.body.classList.contains(i.SIDEBAR_MINIMIZED)||setTimeout(function(){t.destroyScrollbar(),t.ps=t.makeScrollbar()},a.transition))},r.makeScrollbar=function(e){void 0===e&&(e=u.NAVIGATION_CONTAINER);var t=new n(document.querySelector(e),{suppressScrollX:!0});return t.isRtl=!1,t},r.destroyScrollbar=function(){this.ps&&(this.ps.destroy(),this.ps=null)},r.setActiveLink=function(){e(u.NAVIGATION).find(u.NAV_LINK).each(function(t,n){var r=n,o=String(window.location).split("?")[0];"#"===o.substr(o.length-1)&&(o=o.slice(0,-1)),e(e(r))[0].href===o&&e(r).addClass(i.ACTIVE).parents(u.NAV_DROPDOWN_ITEMS).add(r).each(function(t,n){r=n,e(r).parent().addClass(i.OPEN)})})},r._addEventListeners=function(){var t=this;e(u.BRAND_MINIMIZER).on(c.CLICK,function(t){t.preventDefault(),t.stopPropagation(),e(u.BODY).toggleClass(i.BRAND_MINIMIZED)}),e(u.NAV_DROPDOWN_TOGGLE).on(c.CLICK,function(n){n.preventDefault(),n.stopPropagation();var r=n.target;e(r).parent().toggleClass(i.OPEN),t.perfectScrollbar(c.UPDATE)}),e(u.SIDEBAR_MINIMIZER).on(c.CLICK,function(n){n.preventDefault(),n.stopPropagation(),e(u.BODY).toggleClass(i.SIDEBAR_MINIMIZED),t.perfectScrollbar(c.TOGGLE)}),e(u.SIDEBAR_TOGGLER).on(c.CLICK,function(e){e.preventDefault(),e.stopPropagation();var t=e.currentTarget.dataset.toggle;s(t,l)}),e(u.NAVIGATION+" > "+u.NAV_ITEM+" "+u.NAV_LINK+":not("+u.NAV_DROPDOWN_TOGGLE+")").on(c.CLICK,function(){document.body.classList.remove("sidebar-show")})},t._jQueryInterface=function(){return this.each(function(){var n=e(this),r=n.data("coreui.sidebar");r||(r=new t(this),n.data("coreui.sidebar",r))})},o(t,null,[{key:"VERSION",get:function(){return"2.0.18"}}]),t}();return e(window).on(c.LOAD_DATA_API,function(){var t=e(u.SIDEBAR);d._jQueryInterface.call(t)}),e.fn[t]=d._jQueryInterface,e.fn[t].Constructor=d,e.fn[t].noConflict=function(){return e.fn[t]=r,d._jQueryInterface},d}(t),l=function(){for(var e={},t=document.styleSheets,n="",r=t.length-1;r>-1;r--){for(var o=t[r].cssRules,a=o.length-1;a>-1;a--)if(".ie-custom-properties"===o[a].selectorText){n=o[a].cssText;break}if(n)break}return n=n.substring(n.lastIndexOf("{")+1,n.lastIndexOf("}")),n.split(";").forEach(function(t){if(t){var n=t.split(": ")[0],r=t.split(": ")[1];n&&r&&(e["--"+n.trim()]=r.trim())}}),e},d=function(){return Boolean(document.documentMode)&&document.documentMode>=10},f=function(e){return e.match(/^--.*/i)},I=function(e,t){void 0===t&&(t=document.body);var n;if(f(e)&&d()){n=l()[e]}else n=window.getComputedStyle(t,null).getPropertyValue(e).replace(/^\s/,"");return n},p=function(e){if(void 0===e)throw new Error("Hex color is not defined");if(!e.match(/^#(?:[0-9a-f]{3}){1,2}$/i))throw new Error(e+" is not a valid hex color");var t,n,r;return 7===e.length?(t=parseInt(e.substring(1,3),16),n=parseInt(e.substring(3,5),16),r=parseInt(e.substring(5,7),16)):(t=parseInt(e.substring(1,2),16),n=parseInt(e.substring(2,3),16),r=parseInt(e.substring(3,5),16)),"rgba("+t+", "+n+", "+r+")"},h=function(e,t){if(void 0===t&&(t=100),void 0===e)throw new Error("Hex color is not defined");if(!e.match(/^#(?:[0-9a-f]{3}){1,2}$/i))throw new Error(e+" is not a valid hex color");var n,r,o;return 7===e.length?(n=parseInt(e.substring(1,3),16),r=parseInt(e.substring(3,5),16),o=parseInt(e.substring(5,7),16)):(n=parseInt(e.substring(1,2),16),r=parseInt(e.substring(2,3),16),o=parseInt(e.substring(3,5),16)),"rgba("+n+", "+r+", "+o+", "+t/100+")"},g=function(e){if(void 0===e)throw new Error("Hex color is not defined");if("transparent"===e)return"#00000000";var t=e.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);if(!t)throw new Error(e+" is not a valid rgb color");var n="0"+parseInt(t[1],10).toString(16),r="0"+parseInt(t[2],10).toString(16),o="0"+parseInt(t[3],10).toString(16);return"#"+n.slice(-2)+r.slice(-2)+o.slice(-2)};!function(e){if(void 0===e)throw new TypeError("CoreUI's JavaScript requires jQuery. jQuery must be included before CoreUI's JavaScript.");var t=e.fn.jquery.split(" ")[0].split(".");if(t[0]<2&&t[1]<9||1===t[0]&&9===t[1]&&t[2]<1||t[0]>=4)throw new Error("CoreUI's JavaScript requires at least jQuery v1.9.1 but less than v4.0.0")}(t),window.getStyle=I,window.hexToRgb=p,window.hexToRgba=h,window.rgbToHex=g,e.AjaxLoad=a,e.AsideMenu=c,e.Sidebar=u,Object.defineProperty(e,"__esModule",{value:!0})});
+/*!
+  * CoreUI v2.0.18 (https://coreui.io)
+  * Copyright 2018 Łukasz Holeczek
+  * Licensed under MIT (https://coreui.io)
+  */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('jquery'), require('perfect-scrollbar')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'jquery', 'perfect-scrollbar'], factory) :
+  (factory((global.coreui = {}),global.jQuery,global.PerfectScrollbar));
+}(this, (function (exports,$,PerfectScrollbar) { 'use strict';
+
+  $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
+  PerfectScrollbar = PerfectScrollbar && PerfectScrollbar.hasOwnProperty('default') ? PerfectScrollbar['default'] : PerfectScrollbar;
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.18): ajax-load.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  var AjaxLoad = function ($$$1) {
+    /**
+     * ------------------------------------------------------------------------
+     * Constants
+     * ------------------------------------------------------------------------
+     */
+    var NAME = 'ajaxLoad';
+    var VERSION = '2.0.18';
+    var DATA_KEY = 'coreui.ajaxLoad';
+    var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
+    var ClassName = {
+      ACTIVE: 'active',
+      NAV_PILLS: 'nav-pills',
+      NAV_TABS: 'nav-tabs',
+      OPEN: 'open',
+      VIEW_SCRIPT: 'view-script'
+    };
+    var Event = {
+      CLICK: 'click'
+    };
+    var Selector = {
+      HEAD: 'head',
+      NAV_DROPDOWN: '.sidebar-nav .nav-dropdown',
+      NAV_LINK: '.sidebar-nav .nav-link',
+      NAV_ITEM: '.sidebar-nav .nav-item',
+      VIEW_SCRIPT: '.view-script'
+    };
+    var Default = {
+      defaultPage: 'main.html',
+      errorPage: '404.html',
+      subpagesDirectory: 'views/'
+    };
+
+    var AjaxLoad =
+    /*#__PURE__*/
+    function () {
+      function AjaxLoad(element, config) {
+        this._config = this._getConfig(config);
+        this._element = element;
+        var url = location.hash.replace(/^#/, '');
+
+        if (url !== '') {
+          this.setUpUrl(url);
+        } else {
+          this.setUpUrl(this._config.defaultPage);
+        }
+
+        this._addEventListeners();
+      } // Getters
+
+
+      var _proto = AjaxLoad.prototype;
+
+      // Public
+      _proto.loadPage = function loadPage(url) {
+        var element = this._element;
+        var config = this._config;
+
+        var loadScripts = function loadScripts(src, element) {
+          if (element === void 0) {
+            element = 0;
+          }
+
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = src[element];
+          script.className = ClassName.VIEW_SCRIPT; // eslint-disable-next-line no-multi-assign
+
+          script.onload = script.onreadystatechange = function () {
+            if (!this.readyState || this.readyState === 'complete') {
+              if (src.length > element + 1) {
+                loadScripts(src, element + 1);
+              }
+            }
+          };
+
+          var body = document.getElementsByTagName('body')[0];
+          body.appendChild(script);
+        };
+
+        $$$1.ajax({
+          type: 'GET',
+          url: config.subpagesDirectory + url,
+          dataType: 'html',
+          beforeSend: function beforeSend() {
+            $$$1(Selector.VIEW_SCRIPT).remove();
+          },
+          success: function success(result) {
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = result;
+            var scripts = Array.from(wrapper.querySelectorAll('script')).map(function (script) {
+              return script.attributes.getNamedItem('src').nodeValue;
+            });
+            wrapper.querySelectorAll('script').forEach(function (script) {
+              return script.parentNode.removeChild(script);
+            });
+            $$$1('body').animate({
+              scrollTop: 0
+            }, 0);
+            $$$1(element).html(wrapper);
+
+            if (scripts.length) {
+              loadScripts(scripts);
+            }
+
+            window.location.hash = url;
+          },
+          error: function error() {
+            window.location.href = config.errorPage;
+          }
+        });
+      };
+
+      _proto.setUpUrl = function setUpUrl(url) {
+        $$$1(Selector.NAV_LINK).removeClass(ClassName.ACTIVE);
+        $$$1(Selector.NAV_DROPDOWN).removeClass(ClassName.OPEN);
+        $$$1(Selector.NAV_DROPDOWN + ":has(a[href=\"" + url.replace(/^\//, '').split('?')[0] + "\"])").addClass(ClassName.OPEN);
+        $$$1(Selector.NAV_ITEM + " a[href=\"" + url.replace(/^\//, '').split('?')[0] + "\"]").addClass(ClassName.ACTIVE);
+        this.loadPage(url);
+      };
+
+      _proto.loadBlank = function loadBlank(url) {
+        window.open(url);
+      };
+
+      _proto.loadTop = function loadTop(url) {
+        window.location = url;
+      }; // Private
+
+
+      _proto._getConfig = function _getConfig(config) {
+        config = Object.assign({}, Default, config);
+        return config;
+      };
+
+      _proto._addEventListeners = function _addEventListeners() {
+        var _this = this;
+
+        $$$1(document).on(Event.CLICK, Selector.NAV_LINK + "[href!=\"#\"]", function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (event.currentTarget.target === '_top') {
+            _this.loadTop(event.currentTarget.href);
+          } else if (event.currentTarget.target === '_blank') {
+            _this.loadBlank(event.currentTarget.href);
+          } else {
+            _this.setUpUrl(event.currentTarget.getAttribute('href'));
+          }
+        });
+      }; // Static
+
+
+      AjaxLoad._jQueryInterface = function _jQueryInterface(config) {
+        return this.each(function () {
+          var data = $$$1(this).data(DATA_KEY);
+
+          var _config = typeof config === 'object' && config;
+
+          if (!data) {
+            data = new AjaxLoad(this, _config);
+            $$$1(this).data(DATA_KEY, data);
+          }
+        });
+      };
+
+      _createClass(AjaxLoad, null, [{
+        key: "VERSION",
+        get: function get() {
+          return VERSION;
+        }
+      }, {
+        key: "Default",
+        get: function get() {
+          return Default;
+        }
+      }]);
+
+      return AjaxLoad;
+    }();
+    /**
+     * ------------------------------------------------------------------------
+     * jQuery
+     * ------------------------------------------------------------------------
+     */
+
+
+    $$$1.fn[NAME] = AjaxLoad._jQueryInterface;
+    $$$1.fn[NAME].Constructor = AjaxLoad;
+
+    $$$1.fn[NAME].noConflict = function () {
+      $$$1.fn[NAME] = JQUERY_NO_CONFLICT;
+      return AjaxLoad._jQueryInterface;
+    };
+
+    return AjaxLoad;
+  }($);
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.18): toggle-classes.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+  var removeClasses = function removeClasses(classNames) {
+    return classNames.map(function (className) {
+      return document.body.classList.contains(className);
+    }).indexOf(true) !== -1;
+  };
+
+  var toggleClasses = function toggleClasses(toggleClass, classNames) {
+    var breakpoint = classNames.indexOf(toggleClass);
+    var newClassNames = classNames.slice(0, breakpoint + 1);
+
+    if (removeClasses(newClassNames)) {
+      newClassNames.map(function (className) {
+        return document.body.classList.remove(className);
+      });
+    } else {
+      document.body.classList.add(toggleClass);
+    }
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.18): aside-menu.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  var AsideMenu = function ($$$1) {
+    /**
+     * ------------------------------------------------------------------------
+     * Constants
+     * ------------------------------------------------------------------------
+     */
+    var NAME = 'aside-menu';
+    var VERSION = '2.0.18';
+    var DATA_KEY = 'coreui.aside-menu';
+    var EVENT_KEY = "." + DATA_KEY;
+    var DATA_API_KEY = '.data-api';
+    var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
+    var Event = {
+      CLICK: 'click',
+      LOAD_DATA_API: "load" + EVENT_KEY + DATA_API_KEY,
+      TOGGLE: 'toggle'
+    };
+    var Selector = {
+      BODY: 'body',
+      ASIDE_MENU: '.aside-menu',
+      ASIDE_MENU_TOGGLER: '.aside-menu-toggler'
+    };
+    var ShowClassNames = ['aside-menu-show', 'aside-menu-sm-show', 'aside-menu-md-show', 'aside-menu-lg-show', 'aside-menu-xl-show'];
+    /**
+     * ------------------------------------------------------------------------
+     * Class Definition
+     * ------------------------------------------------------------------------
+     */
+
+    var AsideMenu =
+    /*#__PURE__*/
+    function () {
+      function AsideMenu(element) {
+        this._element = element;
+
+        this._addEventListeners();
+      } // Getters
+
+
+      var _proto = AsideMenu.prototype;
+
+      // Private
+      _proto._addEventListeners = function _addEventListeners() {
+        $$$1(Selector.ASIDE_MENU_TOGGLER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var toggle = event.currentTarget.dataset.toggle;
+          toggleClasses(toggle, ShowClassNames);
+        });
+      }; // Static
+
+
+      AsideMenu._jQueryInterface = function _jQueryInterface() {
+        return this.each(function () {
+          var $element = $$$1(this);
+          var data = $element.data(DATA_KEY);
+
+          if (!data) {
+            data = new AsideMenu(this);
+            $element.data(DATA_KEY, data);
+          }
+        });
+      };
+
+      _createClass(AsideMenu, null, [{
+        key: "VERSION",
+        get: function get() {
+          return VERSION;
+        }
+      }]);
+
+      return AsideMenu;
+    }();
+    /**
+     * ------------------------------------------------------------------------
+     * Data Api implementation
+     * ------------------------------------------------------------------------
+     */
+
+
+    $$$1(window).on(Event.LOAD_DATA_API, function () {
+      var asideMenu = $$$1(Selector.ASIDE_MENU);
+
+      AsideMenu._jQueryInterface.call(asideMenu);
+    });
+    /**
+     * ------------------------------------------------------------------------
+     * jQuery
+     * ------------------------------------------------------------------------
+     */
+
+    $$$1.fn[NAME] = AsideMenu._jQueryInterface;
+    $$$1.fn[NAME].Constructor = AsideMenu;
+
+    $$$1.fn[NAME].noConflict = function () {
+      $$$1.fn[NAME] = JQUERY_NO_CONFLICT;
+      return AsideMenu._jQueryInterface;
+    };
+
+    return AsideMenu;
+  }($);
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.18): sidebar.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  var Sidebar = function ($$$1) {
+    /**
+     * ------------------------------------------------------------------------
+     * Constants
+     * ------------------------------------------------------------------------
+     */
+    var NAME = 'sidebar';
+    var VERSION = '2.0.18';
+    var DATA_KEY = 'coreui.sidebar';
+    var EVENT_KEY = "." + DATA_KEY;
+    var DATA_API_KEY = '.data-api';
+    var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
+    var Default = {
+      transition: 400
+    };
+    var ClassName = {
+      ACTIVE: 'active',
+      BRAND_MINIMIZED: 'brand-minimized',
+      NAV_DROPDOWN_TOGGLE: 'nav-dropdown-toggle',
+      OPEN: 'open',
+      SIDEBAR_FIXED: 'sidebar-fixed',
+      SIDEBAR_MINIMIZED: 'sidebar-minimized',
+      SIDEBAR_OFF_CANVAS: 'sidebar-off-canvas'
+    };
+    var Event = {
+      CLICK: 'click',
+      DESTROY: 'destroy',
+      INIT: 'init',
+      LOAD_DATA_API: "load" + EVENT_KEY + DATA_API_KEY,
+      TOGGLE: 'toggle',
+      UPDATE: 'update'
+    };
+    var Selector = {
+      BODY: 'body',
+      BRAND_MINIMIZER: '.brand-minimizer',
+      NAV_DROPDOWN_TOGGLE: '.nav-dropdown-toggle',
+      NAV_DROPDOWN_ITEMS: '.nav-dropdown-items',
+      NAV_ITEM: '.nav-item',
+      NAV_LINK: '.nav-link',
+      NAVIGATION_CONTAINER: '.sidebar-nav',
+      NAVIGATION: '.sidebar-nav > .nav',
+      SIDEBAR: '.sidebar',
+      SIDEBAR_MINIMIZER: '.sidebar-minimizer',
+      SIDEBAR_TOGGLER: '.sidebar-toggler'
+    };
+    var ShowClassNames = ['sidebar-show', 'sidebar-sm-show', 'sidebar-md-show', 'sidebar-lg-show', 'sidebar-xl-show'];
+    /**
+     * ------------------------------------------------------------------------
+     * Class Definition
+     * ------------------------------------------------------------------------
+     */
+
+    var Sidebar =
+    /*#__PURE__*/
+    function () {
+      function Sidebar(element) {
+        this._element = element;
+        this.ps = null;
+        this.perfectScrollbar(Event.INIT);
+        this.setActiveLink();
+
+        this._addEventListeners();
+      } // Getters
+
+
+      var _proto = Sidebar.prototype;
+
+      // Public
+      _proto.perfectScrollbar = function perfectScrollbar(event) {
+        var _this = this;
+
+        if (typeof PerfectScrollbar !== 'undefined') {
+          if (event === Event.INIT && !document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+            this.ps = this.makeScrollbar();
+          }
+
+          if (event === Event.DESTROY) {
+            this.destroyScrollbar();
+          }
+
+          if (event === Event.TOGGLE) {
+            if (document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+              this.destroyScrollbar();
+            } else {
+              this.ps = this.makeScrollbar();
+            }
+          }
+
+          if (event === Event.UPDATE && !document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+            // ToDo: Add smooth transition
+            setTimeout(function () {
+              _this.destroyScrollbar();
+
+              _this.ps = _this.makeScrollbar();
+            }, Default.transition);
+          }
+        }
+      };
+
+      _proto.makeScrollbar = function makeScrollbar(container) {
+        if (container === void 0) {
+          container = Selector.NAVIGATION_CONTAINER;
+        }
+
+        var ps = new PerfectScrollbar(document.querySelector(container), {
+          suppressScrollX: true
+        }); // ToDo: find real fix for ps rtl
+
+        ps.isRtl = false;
+        return ps;
+      };
+
+      _proto.destroyScrollbar = function destroyScrollbar() {
+        if (this.ps) {
+          this.ps.destroy();
+          this.ps = null;
+        }
+      };
+
+      _proto.setActiveLink = function setActiveLink() {
+        $$$1(Selector.NAVIGATION).find(Selector.NAV_LINK).each(function (key, value) {
+          var link = value;
+          var cUrl = String(window.location).split('?')[0];
+
+          if (cUrl.substr(cUrl.length - 1) === '#') {
+            cUrl = cUrl.slice(0, -1);
+          }
+
+          if ($$$1($$$1(link))[0].href === cUrl) {
+            $$$1(link).addClass(ClassName.ACTIVE).parents(Selector.NAV_DROPDOWN_ITEMS).add(link).each(function (key, value) {
+              link = value;
+              $$$1(link).parent().addClass(ClassName.OPEN);
+            });
+          }
+        });
+      }; // Private
+
+
+      _proto._addEventListeners = function _addEventListeners() {
+        var _this2 = this;
+
+        $$$1(Selector.BRAND_MINIMIZER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          $$$1(Selector.BODY).toggleClass(ClassName.BRAND_MINIMIZED);
+        });
+        $$$1(Selector.NAV_DROPDOWN_TOGGLE).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var dropdown = event.target;
+          $$$1(dropdown).parent().toggleClass(ClassName.OPEN);
+
+          _this2.perfectScrollbar(Event.UPDATE);
+        });
+        $$$1(Selector.SIDEBAR_MINIMIZER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          $$$1(Selector.BODY).toggleClass(ClassName.SIDEBAR_MINIMIZED);
+
+          _this2.perfectScrollbar(Event.TOGGLE);
+        });
+        $$$1(Selector.SIDEBAR_TOGGLER).on(Event.CLICK, function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var toggle = event.currentTarget.dataset.toggle;
+          toggleClasses(toggle, ShowClassNames);
+        });
+        $$$1(Selector.NAVIGATION + " > " + Selector.NAV_ITEM + " " + Selector.NAV_LINK + ":not(" + Selector.NAV_DROPDOWN_TOGGLE + ")").on(Event.CLICK, function () {
+          document.body.classList.remove('sidebar-show');
+        });
+      }; // Static
+
+
+      Sidebar._jQueryInterface = function _jQueryInterface() {
+        return this.each(function () {
+          var $element = $$$1(this);
+          var data = $element.data(DATA_KEY);
+
+          if (!data) {
+            data = new Sidebar(this);
+            $element.data(DATA_KEY, data);
+          }
+        });
+      };
+
+      _createClass(Sidebar, null, [{
+        key: "VERSION",
+        get: function get() {
+          return VERSION;
+        }
+      }]);
+
+      return Sidebar;
+    }();
+    /**
+     * ------------------------------------------------------------------------
+     * Data Api implementation
+     * ------------------------------------------------------------------------
+     */
+
+
+    $$$1(window).on(Event.LOAD_DATA_API, function () {
+      var sidebar = $$$1(Selector.SIDEBAR);
+
+      Sidebar._jQueryInterface.call(sidebar);
+    });
+    /**
+     * ------------------------------------------------------------------------
+     * jQuery
+     * ------------------------------------------------------------------------
+     */
+
+    $$$1.fn[NAME] = Sidebar._jQueryInterface;
+    $$$1.fn[NAME].Constructor = Sidebar;
+
+    $$$1.fn[NAME].noConflict = function () {
+      $$$1.fn[NAME] = JQUERY_NO_CONFLICT;
+      return Sidebar._jQueryInterface;
+    };
+
+    return Sidebar;
+  }($);
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI Utilities (v2.0.18): get-style.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+  var getCssCustomProperties = function getCssCustomProperties() {
+    var cssCustomProperties = {};
+    var sheets = document.styleSheets;
+    var cssText = '';
+
+    for (var i = sheets.length - 1; i > -1; i--) {
+      var rules = sheets[i].cssRules;
+
+      for (var j = rules.length - 1; j > -1; j--) {
+        if (rules[j].selectorText === '.ie-custom-properties') {
+          cssText = rules[j].cssText;
+          break;
+        }
+      }
+
+      if (cssText) {
+        break;
+      }
+    }
+
+    cssText = cssText.substring(cssText.lastIndexOf('{') + 1, cssText.lastIndexOf('}'));
+    cssText.split(';').forEach(function (property) {
+      if (property) {
+        var name = property.split(': ')[0];
+        var value = property.split(': ')[1];
+
+        if (name && value) {
+          cssCustomProperties["--" + name.trim()] = value.trim();
+        }
+      }
+    });
+    return cssCustomProperties;
+  };
+
+  var minIEVersion = 10;
+
+  var isIE1x = function isIE1x() {
+    return Boolean(document.documentMode) && document.documentMode >= minIEVersion;
+  };
+
+  var isCustomProperty = function isCustomProperty(property) {
+    return property.match(/^--.*/i);
+  };
+
+  var getStyle = function getStyle(property, element) {
+    if (element === void 0) {
+      element = document.body;
+    }
+
+    var style;
+
+    if (isCustomProperty(property) && isIE1x()) {
+      var cssCustomProperties = getCssCustomProperties();
+      style = cssCustomProperties[property];
+    } else {
+      style = window.getComputedStyle(element, null).getPropertyValue(property).replace(/^\s/, '');
+    }
+
+    return style;
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI Utilities (v2.0.18): hex-to-rgb.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  /* eslint-disable no-magic-numbers */
+  var hexToRgb = function hexToRgb(color) {
+    if (typeof color === 'undefined') {
+      throw new Error('Hex color is not defined');
+    }
+
+    var hex = color.match(/^#(?:[0-9a-f]{3}){1,2}$/i);
+
+    if (!hex) {
+      throw new Error(color + " is not a valid hex color");
+    }
+
+    var r;
+    var g;
+    var b;
+
+    if (color.length === 7) {
+      r = parseInt(color.substring(1, 3), 16);
+      g = parseInt(color.substring(3, 5), 16);
+      b = parseInt(color.substring(5, 7), 16);
+    } else {
+      r = parseInt(color.substring(1, 2), 16);
+      g = parseInt(color.substring(2, 3), 16);
+      b = parseInt(color.substring(3, 5), 16);
+    }
+
+    return "rgba(" + r + ", " + g + ", " + b + ")";
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI Utilities (v2.0.18): hex-to-rgba.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  /* eslint-disable no-magic-numbers */
+  var hexToRgba = function hexToRgba(color, opacity) {
+    if (opacity === void 0) {
+      opacity = 100;
+    }
+
+    if (typeof color === 'undefined') {
+      throw new Error('Hex color is not defined');
+    }
+
+    var hex = color.match(/^#(?:[0-9a-f]{3}){1,2}$/i);
+
+    if (!hex) {
+      throw new Error(color + " is not a valid hex color");
+    }
+
+    var r;
+    var g;
+    var b;
+
+    if (color.length === 7) {
+      r = parseInt(color.substring(1, 3), 16);
+      g = parseInt(color.substring(3, 5), 16);
+      b = parseInt(color.substring(5, 7), 16);
+    } else {
+      r = parseInt(color.substring(1, 2), 16);
+      g = parseInt(color.substring(2, 3), 16);
+      b = parseInt(color.substring(3, 5), 16);
+    }
+
+    return "rgba(" + r + ", " + g + ", " + b + ", " + opacity / 100 + ")";
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.18): rgb-to-hex.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  /* eslint-disable no-magic-numbers */
+  var rgbToHex = function rgbToHex(color) {
+    if (typeof color === 'undefined') {
+      throw new Error('Hex color is not defined');
+    }
+
+    if (color === 'transparent') {
+      return '#00000000';
+    }
+
+    var rgb = color.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+
+    if (!rgb) {
+      throw new Error(color + " is not a valid rgb color");
+    }
+
+    var r = "0" + parseInt(rgb[1], 10).toString(16);
+    var g = "0" + parseInt(rgb[2], 10).toString(16);
+    var b = "0" + parseInt(rgb[3], 10).toString(16);
+    return "#" + r.slice(-2) + g.slice(-2) + b.slice(-2);
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.18): index.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+
+  (function ($$$1) {
+    if (typeof $$$1 === 'undefined') {
+      throw new TypeError('CoreUI\'s JavaScript requires jQuery. jQuery must be included before CoreUI\'s JavaScript.');
+    }
+
+    var version = $$$1.fn.jquery.split(' ')[0].split('.');
+    var minMajor = 1;
+    var ltMajor = 2;
+    var minMinor = 9;
+    var minPatch = 1;
+    var maxMajor = 4;
+
+    if (version[0] < ltMajor && version[1] < minMinor || version[0] === minMajor && version[1] === minMinor && version[2] < minPatch || version[0] >= maxMajor) {
+      throw new Error('CoreUI\'s JavaScript requires at least jQuery v1.9.1 but less than v4.0.0');
+    }
+  })($);
+  window.getStyle = getStyle;
+  window.hexToRgb = hexToRgb;
+  window.hexToRgba = hexToRgba;
+  window.rgbToHex = rgbToHex;
+
+  exports.AjaxLoad = AjaxLoad;
+  exports.AsideMenu = AsideMenu;
+  exports.Sidebar = Sidebar;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+//# sourceMappingURL=coreui.js.map
