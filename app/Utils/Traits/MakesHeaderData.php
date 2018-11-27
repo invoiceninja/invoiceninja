@@ -12,7 +12,7 @@ trait MakesHeaderData
 
     use UserSessionAttributes;
 
-    public function headerData()
+    public function headerData() : array
     {
         //companies
         $companies = auth()->user()->companies;

@@ -34,7 +34,7 @@ class CreateCompany
      *
      * @return void
      */
-    public function handle()
+    public function handle() : ?Company
     {
 
         $company = new Company();

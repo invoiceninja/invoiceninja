@@ -19,7 +19,7 @@ class MultiDB
      * @return bool
      */
 
-    public static function getDbs()
+    public static function getDbs() : array
     {
 
         return self::$dbs;
@@ -48,7 +48,7 @@ class MultiDB
      * @param array $data
      * @return bool
      */
-    public static function hasUser(array $data)
+    public static function hasUser(array $data) : ?User
     {
         if (! config('ninja.db.multi_db_enabled'))
         {
