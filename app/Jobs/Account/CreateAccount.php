@@ -35,7 +35,7 @@ class CreateAccount
      *
      * @return void
      */
-    public function handle()
+    public function handle() : ?User
     {
         /*
          * Create account

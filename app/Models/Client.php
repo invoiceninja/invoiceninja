@@ -22,6 +22,9 @@ class Client extends BaseModel
         'updated_at',
         'created_at',
         'deleted_at',
+        'contacts',
+        'primary_contact',
+        'q'
     ];
     
     //protected $dates = ['deleted_at'];

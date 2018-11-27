@@ -291,7 +291,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
-            $table->string('avatar', 255)->default('');
+            $table->string('avatar', 255)->nullable();
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
@@ -303,7 +303,7 @@ class CreateUsersTable extends Migration
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $table->unique(['company_id', 'email']);
+            //$table->unique(['company_id', 'email']);
         });
 
 

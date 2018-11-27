@@ -38,7 +38,7 @@ class CreateUser
      *
      * @return void
      */
-    public function handle()
+    public function handle() : ?User
     {
 
         $user = new User();

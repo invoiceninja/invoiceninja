@@ -34,7 +34,7 @@ class UpdateClient
      *
      * @return void
      */
-    public function handle(ClientRepository $clientRepo)
+    public function handle(ClientRepository $clientRepo) : ?Client
     {
         return $clientRepo->save($this->request, $this->client);
     }
