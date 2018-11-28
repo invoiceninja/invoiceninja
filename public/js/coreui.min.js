@@ -69,7 +69,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
-  * CoreUI v2.0.18 (https://coreui.io)
+  * CoreUI v2.0.21 (https://coreui.io)
   * Copyright 2018 Łukasz Holeczek
   * Licensed under MIT (https://coreui.io)
   */
@@ -100,7 +100,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.0.18): ajax-load.js
+   * CoreUI (v2.0.21): ajax-load.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -112,7 +112,7 @@
      * ------------------------------------------------------------------------
      */
     var NAME = 'ajaxLoad';
-    var VERSION = '2.0.18';
+    var VERSION = '2.0.21';
     var DATA_KEY = 'coreui.ajaxLoad';
     var JQUERY_NO_CONFLICT = $$$1.fn[NAME];
     var ClassName = {
@@ -305,7 +305,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.0.18): toggle-classes.js
+   * CoreUI (v2.0.21): toggle-classes.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -330,7 +330,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.0.18): aside-menu.js
+   * CoreUI (v2.0.21): aside-menu.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -342,7 +342,7 @@
      * ------------------------------------------------------------------------
      */
     var NAME = 'aside-menu';
-    var VERSION = '2.0.18';
+    var VERSION = '2.0.21';
     var DATA_KEY = 'coreui.aside-menu';
     var EVENT_KEY = "." + DATA_KEY;
     var DATA_API_KEY = '.data-api';
@@ -439,7 +439,81 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.0.18): sidebar.js
+   * CoreUI Utilities (v2.0.21): get-css-custom-properties.js
+   * Licensed under MIT (https://coreui.io/license)
+   * @returns {string} css custom property name
+   * --------------------------------------------------------------------------
+   */
+  var getCssCustomProperties = function getCssCustomProperties() {
+    var cssCustomProperties = {};
+    var sheets = document.styleSheets;
+    var cssText = '';
+
+    for (var i = sheets.length - 1; i > -1; i--) {
+      var rules = sheets[i].cssRules;
+
+      for (var j = rules.length - 1; j > -1; j--) {
+        if (rules[j].selectorText === '.ie-custom-properties') {
+          cssText = rules[j].cssText;
+          break;
+        }
+      }
+
+      if (cssText) {
+        break;
+      }
+    }
+
+    cssText = cssText.substring(cssText.lastIndexOf('{') + 1, cssText.lastIndexOf('}'));
+    cssText.split(';').forEach(function (property) {
+      if (property) {
+        var name = property.split(': ')[0];
+        var value = property.split(': ')[1];
+
+        if (name && value) {
+          cssCustomProperties["--" + name.trim()] = value.trim();
+        }
+      }
+    });
+    return cssCustomProperties;
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI Utilities (v2.0.21): get-style.js
+   * Licensed under MIT (https://coreui.io/license)
+   * --------------------------------------------------------------------------
+   */
+  var minIEVersion = 10;
+
+  var isIE1x = function isIE1x() {
+    return Boolean(document.documentMode) && document.documentMode >= minIEVersion;
+  };
+
+  var isCustomProperty = function isCustomProperty(property) {
+    return property.match(/^--.*/i);
+  };
+
+  var getStyle = function getStyle(property, element) {
+    if (element === void 0) {
+      element = document.body;
+    }
+
+    var style;
+
+    if (isCustomProperty(property) && isIE1x()) {
+      var cssCustomProperties = getCssCustomProperties();
+      style = cssCustomProperties[property];
+    } else {
+      style = window.getComputedStyle(element, null).getPropertyValue(property).replace(/^\s/, '');
+    }
+
+    return style;
+  };
+
+  /**
+   * --------------------------------------------------------------------------
+   * CoreUI (v2.0.21): sidebar.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -451,7 +525,7 @@
      * ------------------------------------------------------------------------
      */
     var NAME = 'sidebar';
-    var VERSION = '2.0.18';
+    var VERSION = '2.0.21';
     var DATA_KEY = 'coreui.sidebar';
     var EVENT_KEY = "." + DATA_KEY;
     var DATA_API_KEY = '.data-api';
@@ -483,6 +557,7 @@
       NAV_DROPDOWN_ITEMS: '.nav-dropdown-items',
       NAV_ITEM: '.nav-item',
       NAV_LINK: '.nav-link',
+      NAV_LINK_QUERIED: '.nav-link-queried',
       NAVIGATION_CONTAINER: '.sidebar-nav',
       NAVIGATION: '.sidebar-nav > .nav',
       SIDEBAR: '.sidebar',
@@ -501,11 +576,16 @@
     function () {
       function Sidebar(element) {
         this._element = element;
+        this.mobile = false;
         this.ps = null;
         this.perfectScrollbar(Event.INIT);
         this.setActiveLink();
+        this._breakpointTest = this._breakpointTest.bind(this);
+        this._clickOutListener = this._clickOutListener.bind(this);
 
         this._addEventListeners();
+
+        this._addMediaQuery();
       } // Getters
 
 
@@ -516,7 +596,9 @@
         var _this = this;
 
         if (typeof PerfectScrollbar !== 'undefined') {
-          if (event === Event.INIT && !document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+          var classList = document.body.classList;
+
+          if (event === Event.INIT && !classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
             this.ps = this.makeScrollbar();
           }
 
@@ -525,14 +607,15 @@
           }
 
           if (event === Event.TOGGLE) {
-            if (document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+            if (classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
               this.destroyScrollbar();
             } else {
+              this.destroyScrollbar();
               this.ps = this.makeScrollbar();
             }
           }
 
-          if (event === Event.UPDATE && !document.body.classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
+          if (event === Event.UPDATE && !classList.contains(ClassName.SIDEBAR_MINIMIZED)) {
             // ToDo: Add smooth transition
             setTimeout(function () {
               _this.destroyScrollbar();
@@ -566,7 +649,13 @@
       _proto.setActiveLink = function setActiveLink() {
         $$$1(Selector.NAVIGATION).find(Selector.NAV_LINK).each(function (key, value) {
           var link = value;
-          var cUrl = String(window.location).split('?')[0];
+          var cUrl;
+
+          if (link.classList.contains(Selector.NAV_LINK_QUERIED)) {
+            cUrl = String(window.location);
+          } else {
+            cUrl = String(window.location).split('?')[0];
+          }
 
           if (cUrl.substr(cUrl.length - 1) === '#') {
             cUrl = cUrl.slice(0, -1);
@@ -581,6 +670,57 @@
         });
       }; // Private
 
+
+      _proto._addMediaQuery = function _addMediaQuery() {
+        var sm = getStyle('--breakpoint-sm');
+
+        if (!sm) {
+          return;
+        }
+
+        var smVal = parseInt(sm, 10) - 1;
+        var mediaQueryList = window.matchMedia("(max-width: " + smVal + "px)");
+
+        this._breakpointTest(mediaQueryList);
+
+        mediaQueryList.addListener(this._breakpointTest);
+      };
+
+      _proto._breakpointTest = function _breakpointTest(e) {
+        this.mobile = Boolean(e.matches);
+
+        this._toggleClickOut();
+      };
+
+      _proto._clickOutListener = function _clickOutListener(event) {
+        if (!this._element.contains(event.target)) {
+          // or use: event.target.closest(Selector.SIDEBAR) === null
+          event.preventDefault();
+          event.stopPropagation();
+
+          this._removeClickOut();
+
+          document.body.classList.remove('sidebar-show');
+        }
+      };
+
+      _proto._addClickOut = function _addClickOut() {
+        document.addEventListener(Event.CLICK, this._clickOutListener, true);
+      };
+
+      _proto._removeClickOut = function _removeClickOut() {
+        document.removeEventListener(Event.CLICK, this._clickOutListener, true);
+      };
+
+      _proto._toggleClickOut = function _toggleClickOut() {
+        if (this.mobile && document.body.classList.contains('sidebar-show')) {
+          document.body.classList.remove('aside-menu-show');
+
+          this._addClickOut();
+        } else {
+          this._removeClickOut();
+        }
+      };
 
       _proto._addEventListeners = function _addEventListeners() {
         var _this2 = this;
@@ -610,8 +750,12 @@
           event.stopPropagation();
           var toggle = event.currentTarget.dataset.toggle;
           toggleClasses(toggle, ShowClassNames);
+
+          _this2._toggleClickOut();
         });
         $$$1(Selector.NAVIGATION + " > " + Selector.NAV_ITEM + " " + Selector.NAV_LINK + ":not(" + Selector.NAV_DROPDOWN_TOGGLE + ")").on(Event.CLICK, function () {
+          _this2._removeClickOut();
+
           document.body.classList.remove('sidebar-show');
         });
       }; // Static
@@ -669,74 +813,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI Utilities (v2.0.18): get-style.js
-   * Licensed under MIT (https://coreui.io/license)
-   * --------------------------------------------------------------------------
-   */
-  var getCssCustomProperties = function getCssCustomProperties() {
-    var cssCustomProperties = {};
-    var sheets = document.styleSheets;
-    var cssText = '';
-
-    for (var i = sheets.length - 1; i > -1; i--) {
-      var rules = sheets[i].cssRules;
-
-      for (var j = rules.length - 1; j > -1; j--) {
-        if (rules[j].selectorText === '.ie-custom-properties') {
-          cssText = rules[j].cssText;
-          break;
-        }
-      }
-
-      if (cssText) {
-        break;
-      }
-    }
-
-    cssText = cssText.substring(cssText.lastIndexOf('{') + 1, cssText.lastIndexOf('}'));
-    cssText.split(';').forEach(function (property) {
-      if (property) {
-        var name = property.split(': ')[0];
-        var value = property.split(': ')[1];
-
-        if (name && value) {
-          cssCustomProperties["--" + name.trim()] = value.trim();
-        }
-      }
-    });
-    return cssCustomProperties;
-  };
-
-  var minIEVersion = 10;
-
-  var isIE1x = function isIE1x() {
-    return Boolean(document.documentMode) && document.documentMode >= minIEVersion;
-  };
-
-  var isCustomProperty = function isCustomProperty(property) {
-    return property.match(/^--.*/i);
-  };
-
-  var getStyle = function getStyle(property, element) {
-    if (element === void 0) {
-      element = document.body;
-    }
-
-    var style;
-
-    if (isCustomProperty(property) && isIE1x()) {
-      var cssCustomProperties = getCssCustomProperties();
-      style = cssCustomProperties[property];
-    } else {
-      style = window.getComputedStyle(element, null).getPropertyValue(property).replace(/^\s/, '');
-    }
-
-    return style;
-  };
-
-  /**
-   * --------------------------------------------------------------------------
-   * CoreUI Utilities (v2.0.18): hex-to-rgb.js
+   * CoreUI Utilities (v2.0.21): hex-to-rgb.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -772,7 +849,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI Utilities (v2.0.18): hex-to-rgba.js
+   * CoreUI Utilities (v2.0.21): hex-to-rgba.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -812,7 +889,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.0.18): rgb-to-hex.js
+   * CoreUI (v2.0.21): rgb-to-hex.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
@@ -841,7 +918,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v2.0.18): index.js
+   * CoreUI (v2.0.21): index.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */
