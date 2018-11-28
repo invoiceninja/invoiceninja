@@ -22,7 +22,7 @@ Vue.component('client-primary-address', require('./components/client/ClientPrima
 Vue.component('generic-address', require('./components/generic/Address.vue'));
 Vue.component('client-edit-form', require('./components/client/ClientEditForm.vue'));
 Vue.component('contact-edit', require('./components/client/ClientContactEdit.vue'));
- 
+ */
 window.onload = function () {
 
 	const app = new Vue({
@@ -30,4 +30,3 @@ window.onload = function () {
 	});
 
 }
-*/
