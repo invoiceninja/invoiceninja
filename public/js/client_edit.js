@@ -13124,8 +13124,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //import * as Vue from 'vue';
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
 var axios_1 = __importDefault(__webpack_require__("./node_modules/axios/index.js"));
-var VueApp = vue_1.default;
-var App = new VueApp({
+//declare var axios: any;
+//declare var Vue: any;
+new vue_1.default({
     el: '#client_edit',
     data: function () {
         return {

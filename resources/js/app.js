@@ -6,15 +6,6 @@
  */
 
 require('./bootstrap');
-//window.Vue = require('vue');
-/* Development only*/
-Vue.config.devtools = true;
-
-window.axios = require('axios');
-window.axios.defaults.headers.common = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-};
 
 /* Allows us to use our native translation easily using {{ trans() }} syntax */
 //const _ = require('lodash');

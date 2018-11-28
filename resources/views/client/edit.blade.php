@@ -54,5 +54,5 @@
     var hashed_id = '{{ $hashed_id }}';
 </script>
 
-<script src=" {{ mix('/js/client_edit.js') }}"></script>
+<script defer src=" {{ mix('/js/client_edit.min.js') }}"></script>
 @endsection

@@ -13,7 +13,12 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-       // require_once app_path() . '/Constants.php';
+
+        Schema::create('languages', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('locale');
+        });
 
         Schema::create('countries', function ($table) {
             $table->increments('id');
@@ -140,6 +145,31 @@ class CreateUsersTable extends Migration
             $table->string('subdomain')->nullable();
             $table->string('db')->nullable();
 
+            $table->string('custom_label1')->nullable();
+            $table->string('custom_value1')->nullable();
+
+            $table->string('custom_label2')->nullable();
+            $table->string('custom_value2')->nullable();
+
+            $table->string('custom_client_label1')->nullable();
+            $table->string('custom_client_label2')->nullable();
+
+            $table->string('custom_invoice_label1')->nullable();
+            $table->string('custom_invoice_label2')->nullable();
+
+            $table->string('custom_product_label1')->nullable();
+            $table->string('custom_product_label2')->nullable();
+
+            $table->string('custom_task_label1')->nullable();
+            $table->string('custom_task_label2')->nullable();
+
+            $table->string('custom_expense_label1')->nullable();
+            $table->string('custom_expense_label2')->nullable();    
+            $table->string('vat_number')->nullable();
+            $table->string('id_number')->nullable();
+
+            $table->unsignedInteger('language_id')->default(1);
+
             $table->timestamps();
             $table->softDeletes();
             
@@ -149,6 +179,8 @@ class CreateUsersTable extends Migration
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('language_id')->references('id')->on('languages');
+
 
         });
 
@@ -228,6 +260,8 @@ class CreateUsersTable extends Migration
             $table->string('state')->nullable();
             $table->string('postal_code')->nullable();
             $table->unsignedInteger('country_id')->nullable();
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
 
             $table->string('shipping_address1')->nullable();
             $table->string('shipping_address2')->nullable();
@@ -238,6 +272,8 @@ class CreateUsersTable extends Migration
 
             $table->boolean('is_deleted')->default(false);
             $table->string('payment_terms')->nullable();  //todo type? depends how we are storing this
+            $table->string('vat_number')->nullable();
+            $table->string('id_number')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -281,6 +317,8 @@ class CreateUsersTable extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
             $table->string('email',100);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
@@ -352,6 +390,12 @@ class CreateUsersTable extends Migration
             $t->string('tax_name1');
             $t->decimal('tax_rate1', 13, 3);
 
+            $t->string('tax_name2');
+            $t->decimal('tax_rate2', 13, 3);
+
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->decimal('partial', 13, 2)->nullable();
@@ -411,6 +455,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('user_id');
 
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
 
             $t->string('product_key');
             $t->text('notes');
@@ -459,16 +505,6 @@ class CreateUsersTable extends Migration
 
         });
 
-        Schema::create('languages', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('locale');
-        });
-
-        Schema::table('companies', function ($table) {
-            $table->unsignedInteger('language_id')->default(1);
-            $table->foreign('language_id')->references('id')->on('languages');
-        });
 
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
@@ -493,38 +529,6 @@ class CreateUsersTable extends Migration
             $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
         });
 
-        Schema::table('companies', function ($table) {
-            $table->string('custom_label1')->nullable();
-            $table->string('custom_value1')->nullable();
-
-            $table->string('custom_label2')->nullable();
-            $table->string('custom_value2')->nullable();
-
-            $table->string('custom_client_label1')->nullable();
-            $table->string('custom_client_label2')->nullable();
-        });
-
-        Schema::table('clients', function ($table) {
-            $table->string('custom_value1')->nullable();
-            $table->string('custom_value2')->nullable();
-        });
-
-        Schema::table('companies', function ($table) {
-            $table->string('vat_number')->nullable();
-        });
-
-        Schema::table('clients', function ($table) {
-            $table->string('vat_number')->nullable();
-        });
-
-        Schema::table('companies', function ($table) {
-            $table->string('id_number')->nullable();
-        });
-
-        Schema::table('clients', function ($table) {
-            $table->string('id_number')->nullable();
-        });
-
         Schema::create('tasks', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
@@ -533,6 +537,9 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('invoice_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
 
             $table->string('description')->nullable();
             $table->boolean('is_deleted')->default(false);
