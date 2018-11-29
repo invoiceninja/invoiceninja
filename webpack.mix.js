@@ -28,6 +28,7 @@ mix.webpackConfig({
 mix.js('resources/js/src/client/client_edit.ts', 'public/js');
 mix.js('resources/js/app.js', 'public/js/vendor');
 mix.js('node_modules/@coreui/coreui/dist/js/coreui.js', 'public/js');
+
 mix.scripts([
     'public/js/vendor/app.js'
 ], 'public/js/ninja.js');

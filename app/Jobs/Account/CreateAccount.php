@@ -3,12 +3,13 @@
 namespace App\Jobs\Account;
 
 use App\Events\Account\AccountCreated;
-use App\Jobs\User\CreateUser;
 use App\Jobs\Company\CreateCompany;
+use App\Jobs\User\CreateUser;
+use App\Models\Account;
+use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
-use App\Models\Account;
 use Illuminate\Support\Facades\Auth;
 
 class CreateAccount
@@ -25,7 +26,7 @@ class CreateAccount
      * @return void
      */
 
-    public function __construct(Request $request)
+    public function __construct(array $request)
     {
         $this->request = $request;
     }
@@ -40,7 +41,7 @@ class CreateAccount
         /*
          * Create account
          */
-        $account = Account::create($this->request->toArray());
+        $account = Account::create($this->request);
 
         /*
          * Create company

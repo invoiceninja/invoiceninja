@@ -26,7 +26,7 @@ class CreateUser
      * @return void
      */
 
-    public function __construct(Request $request, $account, $company)
+    public function __construct(array $request, $account, $company)
     {
         $this->request = $request;
         $this->account = $account;
@@ -43,11 +43,11 @@ class CreateUser
 
         $user = new User();
         $user->account_id = $this->account->id;
-        $user->password = bcrypt($this->request->input('password'));
+        $user->password = bcrypt($this->request['password']);
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));
         $user->db = config('database.default');
-        $user->fill($this->request->all());
+        $user->fill($this->request);
         $user->save();
 
         $user->companies()->attach($this->company->id, [

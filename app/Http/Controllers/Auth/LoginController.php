@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Libraries\OAuth;
+use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -47,7 +50,7 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function authenticated(Request $request, $user)
+    public function authenticated(Request $request, User $user) : void
     {
         $this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
@@ -57,7 +60,7 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function redirectToProvider($provider)
+    public function redirectToProvider(string $provider) 
     {
         return Socialite::driver($provider)->redirect();
     }
@@ -68,13 +71,18 @@ class LoginController extends Controller
      *
      * @return redirect
      */
-    public function handleProviderCallback($provider)
+    public function handleProviderCallback(string $provider) 
     {
-        $user = Socialite::driver($provider)->user();
+        $socialite_user = Socialite::driver($provider)->user();
 
-            /** If user exists, redirect to dashboard */
+        if($user = OAuth::handleAuth($socialite_user, $provider))
+        {
+            Auth::login($user, true);
+            
+            return redirect($this->redirectTo);
+        }
 
-            /** If user does not exist, create account sequence */
-        dd($user);
+        //throw error
+
     }
 }

@@ -28,6 +28,7 @@ class MultiDB
 
     public static function checkUserEmailExists($email) : bool
     {
+
         if (! config('ninja.db.multi_db_enabled'))
         {
             return User::where(['email' => $email])->get()->count() >= 1 ?? false; // true >= 1 emails found / false -> == emails found
@@ -46,10 +47,11 @@ class MultiDB
 
     /**
      * @param array $data
-     * @return bool
+     * @return App\Models\User | bool
      */
     public static function hasUser(array $data) : ?User
     {
+        
         if (! config('ninja.db.multi_db_enabled'))
         {
             return User::where($data)->first();
@@ -76,10 +78,11 @@ class MultiDB
     /**
      * @param $database
      */
-    public static function setDB($database) : void
+    public static function setDB(string $database) : void
     {
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
     }
+
 
 }
