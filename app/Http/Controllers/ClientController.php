@@ -99,7 +99,7 @@ class ClientController extends Controller
     public function create()
     {
         $data = [
-        'client' => [],
+        'client' => new Client,
         'hashed_id' => ''
         ];
 
