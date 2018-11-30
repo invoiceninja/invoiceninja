@@ -98,7 +98,12 @@ class ClientController extends Controller
      */
     public function create()
     {
-        //
+        $data = [
+        'client' => [],
+        'hashed_id' => ''
+        ];
+
+        return view('client.create', $data);
     }
 
     /**
