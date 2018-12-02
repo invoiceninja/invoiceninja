@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
+use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
@@ -98,8 +100,14 @@ class ClientController extends Controller
      */
     public function create()
     {
+        $client = new Client;
+        $client_contact = new ClientContact;
+        $client_contact->first_name = "";
+
+        $client->contacts->add($client_contact);
+
         $data = [
-        'client' => new Client,
+        'client' => $client,
         'hashed_id' => ''
         ];
 
@@ -114,7 +122,14 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $client = StoreClient::dispatchNow($request, new Client);
+
+        $data = [
+        'client' => $client,
+        'hashed_id' => $this->encodePrimarykey($client->id)
+        ];
+
+        return view('client.edit', $data);
     }
 
     /**
