@@ -6,15 +6,6 @@
  */
 
 require('./bootstrap');
-//window.Vue = require('vue');
-/* Development only*/
-Vue.config.devtools = true;
-
-window.axios = require('axios');
-window.axios.defaults.headers.common = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-};
 
 /* Allows us to use our native translation easily using {{ trans() }} syntax */
 //const _ = require('lodash');
@@ -31,6 +22,7 @@ Vue.component('client-primary-address', require('./components/client/ClientPrima
 Vue.component('generic-address', require('./components/generic/Address.vue'));
 Vue.component('client-edit-form', require('./components/client/ClientEditForm.vue'));
 Vue.component('contact-edit', require('./components/client/ClientContactEdit.vue'));
+*/
  
 window.onload = function () {
 
@@ -39,4 +31,3 @@ window.onload = function () {
 	});
 
 }
-*/

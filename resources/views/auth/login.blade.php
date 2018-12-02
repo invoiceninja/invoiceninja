@@ -11,6 +11,11 @@
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
                                 <h1>@lang('texts.account_login')</h1>
+                                    @if (Session::has('error'))
+                                        <div class="alert alert-danger">
+                                            <li>{!! Session::get('error') !!}</li>
+                                        </div>
+                                    @endif
                                 <p class="text-muted"></p>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">

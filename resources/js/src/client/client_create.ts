@@ -3,12 +3,9 @@ import Vue from 'vue';
 import axios from 'axios';
 
 declare var client_object: any;
-declare var hashed_id: string;
-//declare var axios: any;
-//declare var Vue: any;
 
  new Vue({
-    el : '#client_edit',
+    el : '#client_create',
     data: function () {
         return {
             'client': [],
@@ -47,7 +44,7 @@ declare var hashed_id: string;
         submit(this: any) {
             this.errors = {};
             
-            axios.put('/clients/' + hashed_id, this.client).then(response => {
+            axios.post('/clients/', this.client).then(response => {
 //                axios.put('/clients/' + {{ $client->present()->id }}, this.client).then(response => {
                 this.client = response.data;
             }).catch(error => {

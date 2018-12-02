@@ -2,6 +2,8 @@
 
 namespace App\Libraries;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
@@ -25,15 +27,40 @@ class OAuth
      * @param Socialite $user
      */
 
-    public static function handleAuth($user)
+    public static function handleAuth(object $user, string $provider) : ?User
     {
-        if(MultiDB::checkUserEmailExists($user->getEmail())) //if email is in the system this is an existing user -> check they are arriving on the correct provider
-        {
+        /** 1. Ensure user arrives on the correct provider **/
 
+        $query = [
+            'oauth_user_id' =>$user->getId()) 
+            'oauth_provider_id'=>$provider
+        ];
+
+        if($user = MultiDB::hasUser($query)
+        {
+            return $user;
         }
+
+        /** 2. If email exists, then they already have an account did they select the wrong provider? redirect to a guest error screen */
+
+        if(MultiDB::checkUserEmailExists($user->getEmail()))
+        {
+            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+            return view('auth.login');
+        }
+
+        /*
+
+            Session::flash('error', 'User does not exist'); //todo add translations
+            return view('auth.login');
+        */
+       
+        /** 3. We will not handle automagically creating a new account here. */
+
+
     }
 
-    public static function providerToString($social_provider)
+    public static function providerToString(int $social_provider) : string
     {
         switch ($social_provider)
         {
@@ -52,7 +79,7 @@ class OAuth
         }
     }
 
-    public static function providerToInt($social_provider)
+    public static function providerToInt(string $social_provider) : int
     {
         switch ($social_provider)
         {

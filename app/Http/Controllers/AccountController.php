@@ -46,7 +46,7 @@ class AccountController extends Controller
     public function store(CreateAccountRequest $request)
     {
 
-        CreateAccount::dispatchNow($request);
+        CreateAccount::dispatchNow($request->all());
 
         //todo redirect to localization setup workflow
         return redirect()->route('dashboard.index');

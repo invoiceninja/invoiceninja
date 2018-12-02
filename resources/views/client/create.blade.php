@@ -1,10 +1,10 @@
 @extends('layouts.master', ['header' => $header])
 
 @section('body')
-<main class="main" id="client_edit">
+<main class="main" id="client_create">
 
     <!-- Breadcrumb-->
-    {{ Breadcrumbs::render('clients.edit', $client) }}
+    {{ Breadcrumbs::render('clients.create') }}
 
 <form @submit.prevent="submit">
     <div class="container-fluid">
@@ -51,8 +51,7 @@
 </main>
 <script>
     var client_object = {!! $client !!};
-    var hashed_id = '{{ $hashed_id }}';
 </script>
 
-<script defer src=" {{ mix('/js/client_edit.min.js') }}"></script>
+<script defer src=" {{ mix('/js/client_create.min.js') }}"></script>
 @endsection
