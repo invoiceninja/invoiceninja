@@ -13123,21 +13123,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 //import * as Vue from 'vue';
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
-var axios_1 = __importDefault(__webpack_require__("./node_modules/axios/index.js"));
+var form_1 = __importDefault(__webpack_require__("./resources/js/src/utils/form.ts"));
 //declare var axios: any;
 //declare var Vue: any;
 new vue_1.default({
     el: '#client_edit',
     data: function () {
         return {
-            'client': [],
-            'errors': [],
+            form: new form_1.default(client_object)
         };
     },
     mounted: function () {
-        //this.client = {!! $client !!};
-        this.client = client_object;
-        console.dir(this.client);
+        console.log('mounted');
     },
     beforeMount: function () {
         console.log('before mount');
@@ -13149,56 +13146,231 @@ new vue_1.default({
         console.dir('updated');
     },
     methods: {
-        remove: function (contact) {
-            var index = this.client.contacts.indexOf(contact);
-            this.client.contacts.splice(index, 1);
+        remove: function (form, contact) {
+            var index = form.contacts.indexOf(contact);
+            form.contacts.splice(index, 1);
         },
-        add: function () {
-            var _this = this;
+        add: function (form) {
             console.dir('i will add a contact here');
-            this.client.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
+            form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-            this.$nextTick(function () {
-                var index = _this.client.contacts.length - 1;
-                var input = _this.$refs.first_name[index];
+            form.$nextTick(function () {
+                var index = form.contacts.length - 1;
+                var input = form.$refs.first_name[index];
                 input.focus();
             });
         },
-        submit: function () {
-            var _this = this;
-            this.errors = {};
-            axios_1.default.put('/clients/' + hashed_id, this.client).then(function (response) {
-                //                axios.put('/clients/' + {{ $client->present()->id }}, this.client).then(response => {
-                _this.client = response.data;
-            }).catch(function (error) {
-                if (error.response.status === 422) {
-                    _this.errors = error.response.data.errors || {};
-                }
-                else if (error.response.status === 419) {
-                    //csrf token has expired, we'll need to force a page reload
-                }
-            });
+        onSubmit: function () {
+            this.form.put('/clients/' + hashed_id)
+                .then(function (response) { return alert('Wahoo!'); });
         },
         copy: function (type) {
             if (type.includes('copy_billing')) {
-                this.client.shipping_address1 = this.client.address1;
-                this.client.shipping_address2 = this.client.address2;
-                this.client.shipping_city = this.client.city;
-                this.client.shipping_state = this.client.state;
-                this.client.shipping_postal_code = this.client.postal_code;
-                this.client.shipping_country_id = this.client.country_id;
+                this.form.shipping_address1 = this.form.address1;
+                this.form.shipping_address2 = this.form.address2;
+                this.form.shipping_city = this.form.city;
+                this.form.shipping_state = this.form.state;
+                this.form.shipping_postal_code = this.form.postal_code;
+                this.form.shipping_country_id = this.form.country_id;
             }
             else {
-                this.client.address1 = this.client.shipping_address1;
-                this.client.address2 = this.client.shipping_address2;
-                this.client.city = this.client.shipping_city;
-                this.client.state = this.client.shipping_state;
-                this.client.postal_code = this.client.shipping_postal_code;
-                this.client.country_id = this.client.shipping_country_id;
+                this.form.address1 = this.form.shipping_address1;
+                this.form.address2 = this.form.shipping_address2;
+                this.form.city = this.form.shipping_city;
+                this.form.state = this.form.shipping_state;
+                this.form.postal_code = this.form.shipping_postal_code;
+                this.form.country_id = this.form.shipping_country_id;
             }
         }
     }
 });
+
+
+/***/ }),
+
+/***/ "./resources/js/src/utils/form-errors.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var FormErrors = /** @class */ (function () {
+    /**
+     * Create a new Errors instance.
+     */
+    function FormErrors() {
+        this.errors = {};
+    }
+    /**
+     * Determine if an errors exists for the given field.
+     *
+     * @param {string} field
+     */
+    FormErrors.prototype.has = function (field) {
+        return this.errors.hasOwnProperty(field);
+    };
+    /**
+     * Determine if we have any errors.
+     */
+    FormErrors.prototype.any = function () {
+        return Object.keys(this.errors).length > 0;
+    };
+    /**
+     * Retrieve the error message for a field.
+     *
+     * @param {string} field
+     */
+    FormErrors.prototype.get = function (field) {
+        if (this.errors[field]) {
+            return this.errors[field][0];
+        }
+    };
+    /**
+     * Record the new errors.
+     *
+     * @param {object} errors
+     */
+    FormErrors.prototype.record = function (errors) {
+        this.errors = errors;
+    };
+    /**
+     * Clear one or all error fields.
+     *
+     * @param {string|null} field
+     */
+    FormErrors.prototype.clear = function (field) {
+        if (field) {
+            delete this.errors[field];
+            return;
+        }
+        this.errors = {};
+    };
+    return FormErrors;
+}());
+exports.default = FormErrors;
+//@keydown="errors.clear($event.target.name)"
+//
+//
+//
+
+
+/***/ }),
+
+/***/ "./resources/js/src/utils/form.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var axios_1 = __importDefault(__webpack_require__("./node_modules/axios/index.js"));
+var form_errors_1 = __importDefault(__webpack_require__("./resources/js/src/utils/form-errors.ts"));
+var Form = /** @class */ (function () {
+    /**
+     * Create a new Form instance.
+     *
+     * @param {object} data
+     */
+    function Form(data) {
+        this.originalData = data;
+        for (var field in data) {
+            this[field] = data[field];
+        }
+        this.errors = new form_errors_1.default();
+    }
+    /**
+     * Fetch all relevant data for the form.
+     */
+    Form.prototype.data = function () {
+        var data = {};
+        for (var property in this.originalData) {
+            data[property] = this[property];
+        }
+        return data;
+    };
+    /**
+     * Reset the form fields.
+     */
+    Form.prototype.reset = function () {
+        for (var field in this.originalData) {
+            this[field] = '';
+        }
+        this.errors.clear();
+    };
+    /**
+     * Send a POST request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.post = function (url) {
+        return this.submit('post', url);
+    };
+    /**
+     * Send a PUT request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.put = function (url) {
+        return this.submit('put', url);
+    };
+    /**
+     * Send a PATCH request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.patch = function (url) {
+        return this.submit('patch', url);
+    };
+    /**
+     * Send a DELETE request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.delete = function (url) {
+        return this.submit('delete', url);
+    };
+    /**
+     * Submit the form.
+     *
+     * @param {string} requestType
+     * @param {string} url
+     */
+    Form.prototype.submit = function (requestType, url) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            axios_1.default[requestType](url, _this.data())
+                .then(function (response) {
+                _this.onSuccess(response.data);
+                resolve(response.data);
+            })
+                .catch(function (error) {
+                _this.onFail(error.response.data);
+                reject(error.response.data);
+            });
+        });
+    };
+    /**
+     * Handle a successful form submission.
+     *
+     * @param {object} data
+     */
+    Form.prototype.onSuccess = function (data) {
+        alert(data.message); // temporary
+        this.reset();
+    };
+    /**
+     * Handle a failed form submission.
+     *
+     * @param {object} errors
+     */
+    Form.prototype.onFail = function (errors) {
+        this.errors.record(errors);
+    };
+    return Form;
+}());
+exports.default = Form;
 
 
 /***/ }),

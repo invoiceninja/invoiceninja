@@ -1,5 +1,7 @@
 import axios from 'axios';
-class Form {
+import FormErrors from '../utils/form-errors';
+
+export default class Form {
 
     errors:any;
 

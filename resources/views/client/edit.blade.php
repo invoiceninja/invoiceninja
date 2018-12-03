@@ -6,7 +6,7 @@
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
 
-<form @submit.prevent="submit">
+<form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
     <div class="container-fluid">
         
         <div class="row">
@@ -29,7 +29,7 @@
                         </span>
                     </div>
                     
-                    <template v-for="contact in client.contacts">
+                    <template v-for="contact in form.contacts">
 	                    @include('client.partial.contact_details')
                     </template>
 	            
@@ -40,7 +40,7 @@
 
         <div class="row"> 
             <div class="col-md-12 text-center">
-                <button class="btn btn-lg btn-success" type="button" @click="submit"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
+                <button class="btn btn-lg btn-success" type="button" @click="onSubmit"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
             </div>
         </div>    
 

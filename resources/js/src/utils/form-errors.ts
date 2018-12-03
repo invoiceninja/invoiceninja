@@ -1,4 +1,4 @@
-class FormErrors {
+export default class FormErrors {
 
 	errors:any;
     /**
