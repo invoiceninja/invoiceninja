@@ -2,6 +2,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 
+
 declare var client_object: any;
 declare var hashed_id: string;
 //declare var axios: any;
