@@ -28,17 +28,17 @@ declare var hashed_id: string;
         console.dir('updated')
     },
     methods:{
-        remove(form: any, contact:any){
-            let index = form.contacts.indexOf(contact);
-            form.contacts.splice(index, 1);
+        remove(this:any, contact:any){
+            let index = this.form.contacts.indexOf(contact);
+            this.form.contacts.splice(index, 1);
         },
-        add(form: any){
+        add(this: any){
             console.dir('i will add a contact here')
-            form.contacts.push({first_name: '', last_name: '', email: '', phone: '', id: -1});
+            this.form.contacts.push({first_name: '', last_name: '', email: '', phone: '', id: -1});
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-            form.$nextTick(() => {
-                     let index = form.contacts.length - 1;
-                     let input = form.$refs.first_name[index];
+            this.$nextTick(() => {
+                     let index = this.form.contacts.length - 1;
+                     let input = this.$refs.first_name[index];
                      input.focus();
                   });
         },

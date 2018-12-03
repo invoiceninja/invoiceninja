@@ -13146,17 +13146,18 @@ new vue_1.default({
         console.dir('updated');
     },
     methods: {
-        remove: function (form, contact) {
-            var index = form.contacts.indexOf(contact);
-            form.contacts.splice(index, 1);
+        remove: function (contact) {
+            var index = this.form.contacts.indexOf(contact);
+            this.form.contacts.splice(index, 1);
         },
-        add: function (form) {
+        add: function () {
+            var _this = this;
             console.dir('i will add a contact here');
-            form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
+            this.form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-            form.$nextTick(function () {
-                var index = form.contacts.length - 1;
-                var input = form.$refs.first_name[index];
+            this.$nextTick(function () {
+                var index = _this.form.contacts.length - 1;
+                var input = _this.$refs.first_name[index];
                 input.focus();
             });
         },
@@ -13297,6 +13298,9 @@ var Form = /** @class */ (function () {
         for (var field in this.originalData) {
             this[field] = '';
         }
+        this.clear();
+    };
+    Form.prototype.clear = function () {
         this.errors.clear();
     };
     /**
@@ -13358,7 +13362,7 @@ var Form = /** @class */ (function () {
      */
     Form.prototype.onSuccess = function (data) {
         alert(data.message); // temporary
-        this.reset();
+        this.clear();
     };
     /**
      * Handle a failed form submission.
