@@ -44,7 +44,10 @@ declare var hashed_id: string;
         },
         onSubmit() {
             this.form.put('/clients/' + hashed_id)
-                .then(response => alert('Wahoo!'));
+                .then(response => alert('Wahoo!'))
+                .catch(error => {
+                    console.log(error.response)
+                });
         },
     	copy(type: any) {
             if(type.includes('copy_billing')){

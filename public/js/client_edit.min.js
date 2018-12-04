@@ -13163,7 +13163,10 @@ new vue_1.default({
         },
         onSubmit: function () {
             this.form.put('/clients/' + hashed_id)
-                .then(function (response) { return alert('Wahoo!'); });
+                .then(function (response) { return alert('Wahoo!'); })
+                .catch(function (error) {
+                console.log(error.response);
+            });
         },
         copy: function (type) {
             if (type.includes('copy_billing')) {
@@ -13298,9 +13301,6 @@ var Form = /** @class */ (function () {
         for (var field in this.originalData) {
             this[field] = '';
         }
-        this.clear();
-    };
-    Form.prototype.clear = function () {
         this.errors.clear();
     };
     /**
@@ -13346,12 +13346,20 @@ var Form = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             axios_1.default[requestType](url, _this.data())
                 .then(function (response) {
+                console.log('in the then');
                 _this.onSuccess(response.data);
                 resolve(response.data);
             })
                 .catch(function (error) {
-                _this.onFail(error.response.data);
+                console.log('in the catch');
                 reject(error.response.data);
+                if (error.response.status === 422) {
+                    //this.errors = error.response.data.errors || {};
+                    _this.onFail(error.response.data);
+                }
+                else if (error.response.status === 419) {
+                    //csrf token has expired, we'll need to force a page reload
+                }
             });
         });
     };
@@ -13361,8 +13369,8 @@ var Form = /** @class */ (function () {
      * @param {object} data
      */
     Form.prototype.onSuccess = function (data) {
-        alert(data.message); // temporary
-        this.clear();
+        // alert(data.message); // temporary
+        this.errors.clear();
     };
     /**
      * Handle a failed form submission.

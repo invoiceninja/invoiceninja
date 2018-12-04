@@ -45,14 +45,9 @@ export default class Form {
             this[field] = '';
         }
 
-        this.clear();
+        this.errors.clear();
         
     }
-
-    clear() {
-        this.errors.clear();
-    }
-
 
     /**
      * Send a POST request to the given URL.
@@ -104,14 +99,25 @@ export default class Form {
         return new Promise((resolve, reject) => {
             axios[requestType](url, this.data())
                 .then(response => {
+                    console.log('in the then');
                     this.onSuccess(response.data);
 
                     resolve(response.data);
                 })
                 .catch(error => {
-                    this.onFail(error.response.data);
+                      console.log('in the catch');
 
-                    reject(error.response.data);
+                     reject(error.response.data);
+                    if (error.response.status === 422) {
+                        //this.errors = error.response.data.errors || {};
+                        this.onFail(error.response.data);
+                    }
+                    else if(error.response.status === 419) {
+                        //csrf token has expired, we'll need to force a page reload
+                    }
+                    
+
+                   
                 });
         });
     }
@@ -123,9 +129,9 @@ export default class Form {
      * @param {object} data
      */
     onSuccess(data) {
-        alert(data.message); // temporary
+       // alert(data.message); // temporary
 
-        this.clear();
+        this.errors.clear();
     }
 
 
