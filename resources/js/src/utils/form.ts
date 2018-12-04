@@ -110,14 +110,13 @@ export default class Form {
                      reject(error.response.data);
                     if (error.response.status === 422) {
                         //this.errors = error.response.data.errors || {};
-                        this.onFail(error.response.data);
+                        this.onFail(error.response.data.errors);
+                        console.log(error.response.data.errors);
                     }
                     else if(error.response.status === 419) {
                         //csrf token has expired, we'll need to force a page reload
                     }
-                    
-
-                   
+                                      
                 });
         });
     }

@@ -13355,7 +13355,8 @@ var Form = /** @class */ (function () {
                 reject(error.response.data);
                 if (error.response.status === 422) {
                     //this.errors = error.response.data.errors || {};
-                    _this.onFail(error.response.data);
+                    _this.onFail(error.response.data.errors);
+                    console.log(error.response.data.errors);
                 }
                 else if (error.response.status === 419) {
                     //csrf token has expired, we'll need to force a page reload
