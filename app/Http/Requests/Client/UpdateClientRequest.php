@@ -21,11 +21,18 @@ class UpdateClientRequest extends Request
     public function rules()
 
     {
-        return [
+        $rules = [
             'name' => 'required',
             'contacts.*.email' => 'email|unique:client_contacts,email'
+            ];
 
+        $custom_messages = [
+            'unique' => 'The email is already in use.'
         ];
+
+        $this->validate($rules, $custom_messages);
+
+
     }
 
 
