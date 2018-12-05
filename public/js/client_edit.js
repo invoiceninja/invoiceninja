@@ -1633,6 +1633,104 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/index.js!./node_modules/sass-loader/lib/loader.js!./node_modules/vue-toastr/src/vue-toastr.scss":
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".toast-title {\n  font-weight: bold; }\n\n.toast-message {\n  -ms-word-wrap: break-word;\n  word-wrap: break-word; }\n  .toast-message a,\n  .toast-message label {\n    color: #FFFFFF; }\n  .toast-message a:hover {\n    color: #CCCCCC;\n    text-decoration: none; }\n\n.toast-close-button {\n  position: relative;\n  right: -0.3em;\n  top: -0.3em;\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  color: #FFFFFF;\n  -webkit-text-shadow: 0 1px 0 white;\n  text-shadow: 0 1px 0 white;\n  opacity: 0.8; }\n  .toast-close-button:hover, .toast-close-button:focus {\n    color: #000000;\n    text-decoration: none;\n    cursor: pointer;\n    opacity: 0.4; }\n\n/*Additional properties for button version\n iOS requires the button element instead of an anchor tag.\n If you want the anchor version, it requires `href=\"#\"`.*/\nbutton.toast-close-button {\n  padding: 0;\n  cursor: pointer;\n  background: transparent;\n  border: 0;\n  -webkit-appearance: none; }\n\n.toast-top-center {\n  top: 0;\n  right: 0;\n  width: 100%; }\n\n.toast-bottom-center {\n  bottom: 0;\n  right: 0;\n  width: 100%; }\n\n.toast-top-full-width {\n  top: 0;\n  right: 0;\n  width: 100%; }\n\n.toast-bottom-full-width {\n  bottom: 0;\n  right: 0;\n  width: 100%; }\n\n.toast-top-left {\n  top: 12px;\n  left: 12px; }\n\n.toast-top-right {\n  top: 12px;\n  right: 12px; }\n\n.toast-bottom-right {\n  right: 12px;\n  bottom: 12px; }\n\n.toast-bottom-left {\n  bottom: 12px;\n  left: 12px; }\n\n.toast-container {\n  position: fixed;\n  z-index: 999999;\n  pointer-events: none;\n  /*overrides*/ }\n  .toast-container * {\n    -moz-box-sizing: border-box;\n    -webkit-box-sizing: border-box;\n    box-sizing: border-box; }\n  .toast-container > div {\n    position: relative;\n    pointer-events: auto;\n    overflow: hidden;\n    margin: 0 0 6px;\n    padding: 15px 15px 15px 50px;\n    width: 300px;\n    -moz-border-radius: 3px 3px 3px 3px;\n    -webkit-border-radius: 3px 3px 3px 3px;\n    border-radius: 3px 3px 3px 3px;\n    background-position: 15px center;\n    background-repeat: no-repeat;\n    -moz-box-shadow: 0 0 12px #999999;\n    -webkit-box-shadow: 0 0 12px #999999;\n    box-shadow: 0 0 12px #999999;\n    color: #FFFFFF;\n    opacity: 0.8; }\n  .toast-container > :hover {\n    -moz-box-shadow: 0 0 12px #000000;\n    -webkit-box-shadow: 0 0 12px #000000;\n    box-shadow: 0 0 12px #000000;\n    opacity: 1;\n    cursor: pointer; }\n  .toast-container > .toast-info {\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGwSURBVEhLtZa9SgNBEMc9sUxxRcoUKSzSWIhXpFMhhYWFhaBg4yPYiWCXZxBLERsLRS3EQkEfwCKdjWJAwSKCgoKCcudv4O5YLrt7EzgXhiU3/4+b2ckmwVjJSpKkQ6wAi4gwhT+z3wRBcEz0yjSseUTrcRyfsHsXmD0AmbHOC9Ii8VImnuXBPglHpQ5wwSVM7sNnTG7Za4JwDdCjxyAiH3nyA2mtaTJufiDZ5dCaqlItILh1NHatfN5skvjx9Z38m69CgzuXmZgVrPIGE763Jx9qKsRozWYw6xOHdER+nn2KkO+Bb+UV5CBN6WC6QtBgbRVozrahAbmm6HtUsgtPC19tFdxXZYBOfkbmFJ1VaHA1VAHjd0pp70oTZzvR+EVrx2Ygfdsq6eu55BHYR8hlcki+n+kERUFG8BrA0BwjeAv2M8WLQBtcy+SD6fNsmnB3AlBLrgTtVW1c2QN4bVWLATaIS60J2Du5y1TiJgjSBvFVZgTmwCU+dAZFoPxGEEs8nyHC9Bwe2GvEJv2WXZb0vjdyFT4Cxk3e/kIqlOGoVLwwPevpYHT+00T+hWwXDf4AJAOUqWcDhbwAAAAASUVORK5CYII=\") !important; }\n  .toast-container > .toast-error {\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHOSURBVEhLrZa/SgNBEMZzh0WKCClSCKaIYOED+AAKeQQLG8HWztLCImBrYadgIdY+gIKNYkBFSwu7CAoqCgkkoGBI/E28PdbLZmeDLgzZzcx83/zZ2SSXC1j9fr+I1Hq93g2yxH4iwM1vkoBWAdxCmpzTxfkN2RcyZNaHFIkSo10+8kgxkXIURV5HGxTmFuc75B2RfQkpxHG8aAgaAFa0tAHqYFfQ7Iwe2yhODk8+J4C7yAoRTWI3w/4klGRgR4lO7Rpn9+gvMyWp+uxFh8+H+ARlgN1nJuJuQAYvNkEnwGFck18Er4q3egEc/oO+mhLdKgRyhdNFiacC0rlOCbhNVz4H9FnAYgDBvU3QIioZlJFLJtsoHYRDfiZoUyIxqCtRpVlANq0EU4dApjrtgezPFad5S19Wgjkc0hNVnuF4HjVA6C7QrSIbylB+oZe3aHgBsqlNqKYH48jXyJKMuAbiyVJ8KzaB3eRc0pg9VwQ4niFryI68qiOi3AbjwdsfnAtk0bCjTLJKr6mrD9g8iq/S/B81hguOMlQTnVyG40wAcjnmgsCNESDrjme7wfftP4P7SP4N3CJZdvzoNyGq2c/HWOXJGsvVg+RA/k2MC/wN6I2YA2Pt8GkAAAAASUVORK5CYII=\") !important; }\n  .toast-container > .toast-success {\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADsSURBVEhLY2AYBfQMgf///3P8+/evAIgvA/FsIF+BavYDDWMBGroaSMMBiE8VC7AZDrIFaMFnii3AZTjUgsUUWUDA8OdAH6iQbQEhw4HyGsPEcKBXBIC4ARhex4G4BsjmweU1soIFaGg/WtoFZRIZdEvIMhxkCCjXIVsATV6gFGACs4Rsw0EGgIIH3QJYJgHSARQZDrWAB+jawzgs+Q2UO49D7jnRSRGoEFRILcdmEMWGI0cm0JJ2QpYA1RDvcmzJEWhABhD/pqrL0S0CWuABKgnRki9lLseS7g2AlqwHWQSKH4oKLrILpRGhEQCw2LiRUIa4lwAAAABJRU5ErkJggg==\") !important; }\n  .toast-container > .toast-warning {\n    background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGYSURBVEhL5ZSvTsNQFMbXZGICMYGYmJhAQIJAICYQPAACiSDB8AiICQQJT4CqQEwgJvYASAQCiZiYmJhAIBATCARJy+9rTsldd8sKu1M0+dLb057v6/lbq/2rK0mS/TRNj9cWNAKPYIJII7gIxCcQ51cvqID+GIEX8ASG4B1bK5gIZFeQfoJdEXOfgX4QAQg7kH2A65yQ87lyxb27sggkAzAuFhbbg1K2kgCkB1bVwyIR9m2L7PRPIhDUIXgGtyKw575yz3lTNs6X4JXnjV+LKM/m3MydnTbtOKIjtz6VhCBq4vSm3ncdrD2lk0VgUXSVKjVDJXJzijW1RQdsU7F77He8u68koNZTz8Oz5yGa6J3H3lZ0xYgXBK2QymlWWA+RWnYhskLBv2vmE+hBMCtbA7KX5drWyRT/2JsqZ2IvfB9Y4bWDNMFbJRFmC9E74SoS0CqulwjkC0+5bpcV1CZ8NMej4pjy0U+doDQsGyo1hzVJttIjhQ7GnBtRFN1UarUlH8F3xict+HY07rEzoUGPlWcjRFRr4/gChZgc3ZL2d8oAAAAASUVORK5CYII=\") !important; }\n  .toast-container.toast-top-center > div,\n  .toast-container.toast-bottom-center > div {\n    width: 300px;\n    margin-left: auto;\n    margin-right: auto; }\n  .toast-container.toast-top-full-width > div,\n  .toast-container.toast-bottom-full-width > div {\n    width: 96%;\n    margin-left: auto;\n    margin-right: auto; }\n\n.toast {\n  background-color: #030303; }\n\n.toast-success {\n  background-color: #51A351; }\n\n.toast-error {\n  background-color: #BD362F; }\n\n.toast-info {\n  background-color: #2F96B4; }\n\n.toast-warning {\n  background-color: #F89406; }\n\n.toast-progress {\n  position: absolute;\n  left: 0;\n  bottom: 0;\n  height: 4px;\n  background-color: #000000;\n  opacity: 0.4; }\n\n/*Responsive Design*/\n@media all and (max-width: 240px) {\n  .toast-container > div {\n    padding: 8px 8px 8px 50px;\n    width: 11em; }\n  .toast-container .toast-close-button {\n    right: -0.2em;\n    top: -0.2em; } }\n\n@media all and (min-width: 241px) and (max-width: 480px) {\n  .toast-container > div {\n    padding: 8px 8px 8px 50px;\n    width: 18em; }\n  .toast-container .toast-close-button {\n    right: -0.2em;\n    top: -0.2em; } }\n\n@media all and (min-width: 481px) and (max-width: 768px) {\n  .toast-container > div {\n    padding: 15px 15px 15px 50px;\n    width: 25em; } }\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/lib/css-base.js":
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/is-buffer/index.js":
 /***/ (function(module, exports) {
 
@@ -2046,6 +2144,462 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/lib/addStyles.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__("./node_modules/style-loader/lib/urls.js");
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/lib/urls.js":
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/timers-browserify/main.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2114,6 +2668,1294 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (this && this.clearImmediate);
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__("./node_modules/webpack/buildin/global.js")))
+
+/***/ }),
+
+/***/ "./node_modules/vue-toastr/dist/vue-toastr.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(true)
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["vueToastr"] = factory();
+	else
+		root["vueToastr"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/dist/";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _vueToastr = __webpack_require__(17);
+	
+	var _vueToastr2 = _interopRequireDefault(_vueToastr);
+	
+	__webpack_require__(41);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// Add Plugin capability.
+	_vueToastr2.default.install = function (Vue, options) {
+	  // console.log("install vuetoastr")
+	  // Create component instance
+	  var MyComponent = Vue.extend({
+	    template: '<vue-toastr :options="options" ref="vueToastr"></vue-toastr>',
+	    components: {
+	      'vue-toastr': _vueToastr2.default
+	    },
+	    data: function data() {
+	      return {
+	        options: options || {}
+	      };
+	    }
+	  });
+	  // or, render off-document and append afterwards:
+	  var component = new MyComponent().$mount();
+	  // console.log(document.body, component.$el)
+	  document.body.appendChild(component.$el);
+	  // 4. add an instance method
+	  Vue.prototype.$toastr = component.$refs.vueToastr;
+	};
+	// Install by default if using the script tag
+	// equal to Vue.use(window.vueToastr)
+	
+	// import './vue-toastr.less'
+	
+	// Change less to sass
+	if (typeof window !== 'undefined' && window.Vue) {
+	  // console.log(window.Vue)
+	  window.Vue.use(_vueToastr2.default);
+	}
+	exports.default = _vueToastr2.default;
+	module.exports = exports['default'];
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+	var $Object = Object;
+	module.exports = {
+	  create:     $Object.create,
+	  getProto:   $Object.getPrototypeOf,
+	  isEnum:     {}.propertyIsEnumerable,
+	  getDesc:    $Object.getOwnPropertyDescriptor,
+	  setDesc:    $Object.defineProperty,
+	  setDescs:   $Object.defineProperties,
+	  getKeys:    $Object.keys,
+	  getNames:   $Object.getOwnPropertyNames,
+	  getSymbols: $Object.getOwnPropertySymbols,
+	  each:       [].forEach
+	};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+	var core = module.exports = {version: '1.2.6'};
+	if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+	// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+	var global = module.exports = typeof window != 'undefined' && window.Math == Math
+	  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
+	if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+	module.exports = function(exec){
+	  try {
+	    return !!exec();
+	  } catch(e){
+	    return true;
+	  }
+	};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// to indexed object, toObject with fallback for non-array-like ES3 strings
+	var IObject = __webpack_require__(29)
+	  , defined = __webpack_require__(7);
+	module.exports = function(it){
+	  return IObject(defined(it));
+	};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+	var toString = {}.toString;
+	
+	module.exports = function(it){
+	  return toString.call(it).slice(8, -1);
+	};
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+	// 7.2.1 RequireObjectCoercible(argument)
+	module.exports = function(it){
+	  if(it == undefined)throw TypeError("Can't call method on  " + it);
+	  return it;
+	};
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// Thank's IE8 for his funny defineProperty
+	module.exports = !__webpack_require__(4)(function(){
+	  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
+	});
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var global    = __webpack_require__(3)
+	  , core      = __webpack_require__(2)
+	  , ctx       = __webpack_require__(25)
+	  , PROTOTYPE = 'prototype';
+	
+	var $export = function(type, name, source){
+	  var IS_FORCED = type & $export.F
+	    , IS_GLOBAL = type & $export.G
+	    , IS_STATIC = type & $export.S
+	    , IS_PROTO  = type & $export.P
+	    , IS_BIND   = type & $export.B
+	    , IS_WRAP   = type & $export.W
+	    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
+	    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
+	    , key, own, out;
+	  if(IS_GLOBAL)source = name;
+	  for(key in source){
+	    // contains in native
+	    own = !IS_FORCED && target && key in target;
+	    if(own && key in exports)continue;
+	    // export native or passed
+	    out = own ? target[key] : source[key];
+	    // prevent global pollution for namespaces
+	    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
+	    // bind timers to global for call from export context
+	    : IS_BIND && own ? ctx(out, global)
+	    // wrap global constructors for prevent change them in library
+	    : IS_WRAP && target[key] == out ? (function(C){
+	      var F = function(param){
+	        return this instanceof C ? new C(param) : C(param);
+	      };
+	      F[PROTOTYPE] = C[PROTOTYPE];
+	      return F;
+	    // make static versions for prototype methods
+	    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
+	    if(IS_PROTO)(exports[PROTOTYPE] || (exports[PROTOTYPE] = {}))[key] = out;
+	  }
+	};
+	// type bitmap
+	$export.F = 1;  // forced
+	$export.G = 2;  // global
+	$export.S = 4;  // static
+	$export.P = 8;  // proto
+	$export.B = 16; // bind
+	$export.W = 32; // wrap
+	module.exports = $export;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+	var hasOwnProperty = {}.hasOwnProperty;
+	module.exports = function(it, key){
+	  return hasOwnProperty.call(it, key);
+	};
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+	module.exports = function(bitmap, value){
+	  return {
+	    enumerable  : !(bitmap & 1),
+	    configurable: !(bitmap & 2),
+	    writable    : !(bitmap & 4),
+	    value       : value
+	  };
+	};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var global = __webpack_require__(3)
+	  , SHARED = '__core-js_shared__'
+	  , store  = global[SHARED] || (global[SHARED] = {});
+	module.exports = function(key){
+	  return store[key] || (store[key] = {});
+	};
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+	var id = 0
+	  , px = Math.random();
+	module.exports = function(key){
+	  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
+	};
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var store  = __webpack_require__(12)('wks')
+	  , uid    = __webpack_require__(13)
+	  , Symbol = __webpack_require__(3).Symbol;
+	module.exports = function(name){
+	  return store[name] || (store[name] =
+	    Symbol && Symbol[name] || (Symbol || uid)('Symbol.' + name));
+	};
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {
+	  template: '<div class="toast-progress" v-bind:style="style"></div>',
+	  props: ['data'],
+	  data: function data() {
+	    return {
+	      intervalId: false,
+	      hideEta: false,
+	      progressBarValue: this.data.progressBarValue,
+	      style: {
+	        width: '100%'
+	      }
+	    };
+	  },
+	  mounted: function mounted() {
+	    if (this.progressBarValue === null) {
+	      this.hideEta = new Date().getTime() + this.data.timeout;
+	      this.setTimer();
+	    } else {
+	      this.updateProgress();
+	    }
+	  },
+	  destroyed: function destroyed() {
+	    clearInterval(this.intervalId);
+	  },
+	
+	  methods: {
+	    setTimer: function setTimer() {
+	      var _this = this;
+	
+	      // console.log(this.hideEta)
+	      this.intervalId = setInterval(function () {
+	        _this.updateProgress();
+	      }, 10);
+	      // console.log(this.data.intervalId)
+	    },
+	    setValue: function setValue(newValue) {
+	      this.progressBarValue = newValue;
+	      this.updateProgress();
+	    },
+	    updateProgress: function updateProgress() {
+	      var percentage;
+	      if (this.progressBarValue === null) {
+	        var diff = this.hideEta - new Date().getTime();
+	        percentage = diff / this.data.timeout * 100;
+	        percentage = Math.floor(percentage);
+	        // console.log(diff, this.data.timeout, percentage)
+	        this.style.width = percentage + '%';
+	      } else {
+	        percentage = Math.floor(this.progressBarValue);
+	        this.style.width = percentage + '%';
+	      }
+	    }
+	  }
+	
+	};
+	module.exports = exports['default'];
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _toast = __webpack_require__(42);
+	
+	var _toast2 = _interopRequireDefault(_toast);
+	
+	var _toastProgress = __webpack_require__(15);
+	
+	var _toastProgress2 = _interopRequireDefault(_toastProgress);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = {
+	  components: {
+	    toastProgress: _toastProgress2.default
+	  },
+	  template: _toast2.default,
+	  props: ['data'],
+	  data: function data() {
+	    return { progressbar: false, intervalId: false };
+	  },
+	  mounted: function mounted() {
+	    // console.log("ready", this.data);
+	  },
+	  created: function created() {
+	    // console.log("created", this.data);
+	    if (typeof this.data.timeout !== 'undefined' && this.data.timeout !== 0) {
+	      if (this.data.progressbar !== false) {
+	        this.progressbar = true;
+	      }
+	      this.setTimeout();
+	    } else if (this.data.progressBarValue !== null && this.data.progressbar !== false) {
+	      this.progressbar = true;
+	    }
+	  },
+	
+	  watch: {
+	    data: {
+	      handler: function handler(val, oldVal) {
+	        this.setProgressBarValue(val.progressBarValue);
+	      },
+	      deep: true
+	    }
+	  },
+	  beforeDestroy: function beforeDestroy() {
+	    this.clearIntervalID();
+	  },
+	
+	  methods: {
+	    clearIntervalID: function clearIntervalID() {
+	      // console.log(this.intervalId)
+	      if (this.intervalId !== false) {
+	        clearInterval(this.intervalId);
+	      }
+	      this.intervalId = false;
+	    },
+	
+	    // Enter Hover
+	    onMouseOver: function onMouseOver() {
+	      // console.log("onMouseOver")
+	      if (typeof this.data.onMouseOver !== 'undefined') {
+	        this.data.onMouseOver();
+	      }
+	      if (!this.data.closeOnHover) {
+	        this.clearIntervalID();
+	      }
+	    },
+	
+	    // Leave Hover
+	    onMouseOut: function onMouseOut() {
+	      // console.log("onMouseOut")
+	      if (typeof this.data.onMouseOut !== 'undefined') {
+	        this.data.onMouseOut();
+	      }
+	      if (!this.data.closeOnHover) {
+	        this.setTimeout();
+	      }
+	    },
+	
+	    // Set timeout to close
+	    setTimeout: function (_setTimeout) {
+	      function setTimeout() {
+	        return _setTimeout.apply(this, arguments);
+	      }
+	
+	      setTimeout.toString = function () {
+	        return _setTimeout.toString();
+	      };
+	
+	      return setTimeout;
+	    }(function () {
+	      var _this = this;
+	
+	      // console.log("setTimeout")
+	      this.intervalId = setTimeout(function () {
+	        _this.close();
+	      }, this.data.timeout);
+	      // console.log(this.data.intervalId)
+	    }),
+	
+	    // Set progress bar value if manually managed
+	    setProgressBarValue: function setProgressBarValue(newValue) {
+	      if (this.data.progressBarValue !== null) {
+	        this.$refs.progressBar.setValue(newValue);
+	      }
+	    },
+	
+	    // Clicked Toast
+	    clicked: function clicked() {
+	      if (typeof this.data.onClicked !== 'undefined') {
+	        this.data.onClicked();
+	      }
+	      this.cclose();
+	    },
+	
+	    // Click Close?
+	    cclose: function cclose() {
+	      if (typeof this.data.clickClose !== 'undefined' && this.data.clickClose === false) {
+	        return;
+	      }
+	      this.close();
+	    },
+	
+	    // Close Toast
+	    close: function close() {
+	      // console.log(typeof this.$parent, this);
+	      // if toast not manuel closed.
+	      if (this.$parent != null) {
+	        this.$parent.Close(this.data);
+	      }
+	    }
+	  }
+	};
+	module.exports = exports['default'];
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _keys = __webpack_require__(18);
+	
+	var _keys2 = _interopRequireDefault(_keys);
+	
+	var _typeof2 = __webpack_require__(20);
+	
+	var _typeof3 = _interopRequireDefault(_typeof2);
+	
+	var _vueToastr = __webpack_require__(43);
+	
+	var _vueToastr2 = _interopRequireDefault(_vueToastr);
+	
+	var _toast = __webpack_require__(16);
+	
+	var _toast2 = _interopRequireDefault(_toast);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = {
+	  template: _vueToastr2.default,
+	  name: 'vueToastr',
+	  props: ['options'],
+	  data: function data() {
+	    var positions = ['toast-top-right', 'toast-bottom-right', 'toast-bottom-left', 'toast-top-left', 'toast-top-full-width', 'toast-bottom-full-width', 'toast-top-center', 'toast-bottom-center'];
+	    var list = {};
+	    for (var i = 0; i <= positions.length - 1; i++) {
+	      list[positions[i]] = {};
+	    }
+	    return {
+	      positions: positions,
+	      defaultPosition: this.processOption('defaultPosition', 'toast-top-right'),
+	      defaultType: this.processOption('defaultType', 'success'),
+	      defaultCloseOnHover: this.processOption('defaultCloseOnHover', true),
+	      defaultTimeout: this.processOption('defaultTimeout', 5000),
+	      defaultProgressBar: this.processOption('defaultProgressBar', true),
+	      defaultProgressBarValue: this.processOption('defaultProgressBarValue', null),
+	      defaultPreventDuplicates: this.processOption('defaultPreventDuplicates', false),
+	      defaultStyle: this.processOption('defaultStyle', {}),
+	      list: list,
+	      index: 0,
+	      savedNames: {}
+	    };
+	  },
+	  created: function created() {
+	    // console.log("Created");
+	  },
+	  mounted: function mounted() {
+	    // console.log("ready", this.list);
+	  },
+	
+	  components: {
+	    toast: _toast2.default
+	  },
+	  methods: {
+	    addToast: function addToast(data) {
+	      this.index++;
+	      data['index'] = this.index;
+	      this.$set(this.list[data.position], this.index, data);
+	      if (typeof data['name'] !== 'undefined') {
+	        this.$set(this.savedNames, data['name'], data);
+	      }
+	      // if have onCreated
+	      if (typeof data.onCreated !== 'undefined') {
+	        // wait doom update after call cb
+	        this.$nextTick(function () {
+	          data.onCreated();
+	        });
+	      }
+	    },
+	    removeByName: function removeByName(name) {
+	      if (typeof this.savedNames[name] !== 'undefined') {
+	        this.Close(this.savedNames[name]);
+	        this.$delete(this.savedNames, name);
+	      }
+	    },
+	    removeToast: function removeToast(data) {
+	      var item = this.list[data.position][data.index];
+	      // console.log("remove toast", data, item);
+	      if (typeof item !== 'undefined') {
+	        this.$delete(this.list[data.position], data.index);
+	        // if have onClosed
+	        if (typeof data.onClosed !== 'undefined') {
+	          // wait doom update after call cb
+	          this.$nextTick(function () {
+	            data.onClosed();
+	          });
+	        }
+	      }
+	    },
+	    setProgress: function setProgress(data, newValue) {
+	      var item = this.list[data.position][data.index];
+	      if (typeof item !== 'undefined') {
+	        this.$set(item, 'progressBarValue', newValue);
+	      }
+	    },
+	    Add: function Add(d) {
+	      return this.AddData(this.processObjectData(d));
+	    },
+	    AddData: function AddData(data) {
+	      if ((typeof data === 'undefined' ? 'undefined' : (0, _typeof3.default)(data)) !== 'object') {
+	        console.log('AddData accept only Object', data);
+	        return false;
+	      }
+	      if (data.preventDuplicates) {
+	        var listKeys = (0, _keys2.default)(this.list[data.position]);
+	        for (var i = 0; i < listKeys.length; i++) {
+	          if (this.list[data.position][listKeys[i]].title === data.title && this.list[data.position][listKeys[i]].msg === data.msg) {
+	            console.log('Prevent Duplicates', data);
+	            return false;
+	          }
+	        }
+	      }
+	      this.addToast(data);
+	      return data;
+	    },
+	    processOption: function processOption(optionValue, defaultValue) {
+	      if (!this.options) {
+	        return defaultValue;
+	      }
+	      return typeof this.options[optionValue] !== 'undefined' ? this.options[optionValue] : defaultValue;
+	    },
+	    processObjectData: function processObjectData(data) {
+	      // if Object
+	      if ((typeof data === 'undefined' ? 'undefined' : (0, _typeof3.default)(data)) === 'object' && typeof data.msg !== 'undefined') {
+	        if (typeof data.position === 'undefined') {
+	          data.position = this.defaultPosition;
+	        }
+	        if (typeof data.type === 'undefined') {
+	          data.type = this.defaultType;
+	        }
+	        if (typeof data.timeout === 'undefined') {
+	          data.timeout = this.defaultTimeout;
+	        }
+	        // have progressBar ?
+	        if (typeof data.progressbar === 'undefined') {
+	          data.progressbar = this.defaultProgressBar;
+	        }
+	        // should progressBar be bound to timer or is set manually ?
+	        if (typeof data.progressBarValue === 'undefined') {
+	          data.progressBarValue = this.defaultProgressBarValue;
+	        }
+	
+	        if (typeof data.closeOnHover === 'undefined') {
+	          data.closeOnHover = this.defaultCloseOnHover;
+	        }
+	
+	        if (typeof data.preventDuplicates === 'undefined') {
+	          data.preventDuplicates = this.defaultPreventDuplicates;
+	        }
+	
+	        if (typeof data.style === 'undefined') {
+	          data.style = this.defaultStyle;
+	        }
+	        return data;
+	      }
+	      // if String
+	      return {
+	        msg: data.toString(),
+	        position: this.defaultPosition,
+	        type: this.defaultType,
+	        timeout: this.defaultTimeout,
+	        closeOnHover: this.defaultCloseOnHover,
+	        progressbar: this.defaultProgressBar,
+	        progressBarValue: this.defaultProgressBarValue,
+	        preventDuplicates: this.defaultPreventDuplicates,
+	        style: this.defaultStyle
+	      };
+	    },
+	    e: function e(msg, title) {
+	      var data = this.processObjectData(msg);
+	      data['type'] = 'error';
+	      if (typeof title !== 'undefined') {
+	        data['title'] = title;
+	      }
+	      return this.AddData(data);
+	    },
+	    s: function s(msg, title) {
+	      var data = this.processObjectData(msg);
+	      data['type'] = 'success';
+	      if (typeof title !== 'undefined') {
+	        data['title'] = title;
+	      }
+	      return this.AddData(data);
+	    },
+	    w: function w(msg, title) {
+	      var data = this.processObjectData(msg);
+	      data['type'] = 'warning';
+	      if (typeof title !== 'undefined') {
+	        data['title'] = title;
+	      }
+	      return this.AddData(data);
+	    },
+	    i: function i(msg, title) {
+	      var data = this.processObjectData(msg);
+	      data['type'] = 'info';
+	      if (typeof title !== 'undefined') {
+	        data['title'] = title;
+	      }
+	      return this.AddData(data);
+	    },
+	    Close: function Close(data) {
+	      // console.log(data)
+	      this.removeToast(data);
+	    },
+	    removeByType: function removeByType(toastType) {
+	      for (var i = 0; i < this.positions.length; i++) {
+	        var listKeys = (0, _keys2.default)(this.list[this.positions[i]]);
+	        for (var j = 0; j < listKeys.length; j++) {
+	          if (this.list[this.positions[i]][listKeys[j]]['type'] === toastType) {
+	            this.Close(this.list[this.positions[i]][listKeys[j]]);
+	          }
+	        }
+	      }
+	    },
+	    clearAll: function clearAll() {
+	      for (var i = 0; i < this.positions.length; i++) {
+	        var listKeys = (0, _keys2.default)(this.list[this.positions[i]]);
+	        for (var j = 0; j < listKeys.length; j++) {
+	          this.Close(this.list[this.positions[i]][listKeys[j]]);
+	        }
+	      }
+	    }
+	  }
+	};
+	module.exports = exports['default'];
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(21), __esModule: true };
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = { "default": __webpack_require__(22), __esModule: true };
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _Symbol = __webpack_require__(19)["default"];
+	
+	exports["default"] = function (obj) {
+	  return obj && obj.constructor === _Symbol ? "symbol" : typeof obj;
+	};
+	
+	exports.__esModule = true;
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	__webpack_require__(38);
+	module.exports = __webpack_require__(2).Object.keys;
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	__webpack_require__(40);
+	__webpack_require__(39);
+	module.exports = __webpack_require__(2).Symbol;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports) {
+
+	module.exports = function(it){
+	  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
+	  return it;
+	};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var isObject = __webpack_require__(31);
+	module.exports = function(it){
+	  if(!isObject(it))throw TypeError(it + ' is not an object!');
+	  return it;
+	};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// optional / simple context binding
+	var aFunction = __webpack_require__(23);
+	module.exports = function(fn, that, length){
+	  aFunction(fn);
+	  if(that === undefined)return fn;
+	  switch(length){
+	    case 1: return function(a){
+	      return fn.call(that, a);
+	    };
+	    case 2: return function(a, b){
+	      return fn.call(that, a, b);
+	    };
+	    case 3: return function(a, b, c){
+	      return fn.call(that, a, b, c);
+	    };
+	  }
+	  return function(/* ...args */){
+	    return fn.apply(that, arguments);
+	  };
+	};
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// all enumerable object keys, includes symbols
+	var $ = __webpack_require__(1);
+	module.exports = function(it){
+	  var keys       = $.getKeys(it)
+	    , getSymbols = $.getSymbols;
+	  if(getSymbols){
+	    var symbols = getSymbols(it)
+	      , isEnum  = $.isEnum
+	      , i       = 0
+	      , key;
+	    while(symbols.length > i)if(isEnum.call(it, key = symbols[i++]))keys.push(key);
+	  }
+	  return keys;
+	};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+	var toIObject = __webpack_require__(5)
+	  , getNames  = __webpack_require__(1).getNames
+	  , toString  = {}.toString;
+	
+	var windowNames = typeof window == 'object' && Object.getOwnPropertyNames
+	  ? Object.getOwnPropertyNames(window) : [];
+	
+	var getWindowNames = function(it){
+	  try {
+	    return getNames(it);
+	  } catch(e){
+	    return windowNames.slice();
+	  }
+	};
+	
+	module.exports.get = function getOwnPropertyNames(it){
+	  if(windowNames && toString.call(it) == '[object Window]')return getWindowNames(it);
+	  return getNames(toIObject(it));
+	};
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var $          = __webpack_require__(1)
+	  , createDesc = __webpack_require__(11);
+	module.exports = __webpack_require__(8) ? function(object, key, value){
+	  return $.setDesc(object, key, createDesc(1, value));
+	} : function(object, key, value){
+	  object[key] = value;
+	  return object;
+	};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// fallback for non-array-like ES3 and non-enumerable old V8 strings
+	var cof = __webpack_require__(6);
+	module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
+	  return cof(it) == 'String' ? it.split('') : Object(it);
+	};
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// 7.2.2 IsArray(argument)
+	var cof = __webpack_require__(6);
+	module.exports = Array.isArray || function(arg){
+	  return cof(arg) == 'Array';
+	};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+	module.exports = function(it){
+	  return typeof it === 'object' ? it !== null : typeof it === 'function';
+	};
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var $         = __webpack_require__(1)
+	  , toIObject = __webpack_require__(5);
+	module.exports = function(object, el){
+	  var O      = toIObject(object)
+	    , keys   = $.getKeys(O)
+	    , length = keys.length
+	    , index  = 0
+	    , key;
+	  while(length > index)if(O[key = keys[index++]] === el)return key;
+	};
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+	module.exports = true;
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// most Object methods by ES6 should accept primitives
+	var $export = __webpack_require__(9)
+	  , core    = __webpack_require__(2)
+	  , fails   = __webpack_require__(4);
+	module.exports = function(KEY, exec){
+	  var fn  = (core.Object || {})[KEY] || Object[KEY]
+	    , exp = {};
+	  exp[KEY] = exec(fn);
+	  $export($export.S + $export.F * fails(function(){ fn(1); }), 'Object', exp);
+	};
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(28);
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var def = __webpack_require__(1).setDesc
+	  , has = __webpack_require__(10)
+	  , TAG = __webpack_require__(14)('toStringTag');
+	
+	module.exports = function(it, tag, stat){
+	  if(it && !has(it = stat ? it : it.prototype, TAG))def(it, TAG, {configurable: true, value: tag});
+	};
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// 7.1.13 ToObject(argument)
+	var defined = __webpack_require__(7);
+	module.exports = function(it){
+	  return Object(defined(it));
+	};
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// 19.1.2.14 Object.keys(O)
+	var toObject = __webpack_require__(37);
+	
+	__webpack_require__(34)('keys', function($keys){
+	  return function keys(it){
+	    return $keys(toObject(it));
+	  };
+	});
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	// ECMAScript 6 symbols shim
+	var $              = __webpack_require__(1)
+	  , global         = __webpack_require__(3)
+	  , has            = __webpack_require__(10)
+	  , DESCRIPTORS    = __webpack_require__(8)
+	  , $export        = __webpack_require__(9)
+	  , redefine       = __webpack_require__(35)
+	  , $fails         = __webpack_require__(4)
+	  , shared         = __webpack_require__(12)
+	  , setToStringTag = __webpack_require__(36)
+	  , uid            = __webpack_require__(13)
+	  , wks            = __webpack_require__(14)
+	  , keyOf          = __webpack_require__(32)
+	  , $names         = __webpack_require__(27)
+	  , enumKeys       = __webpack_require__(26)
+	  , isArray        = __webpack_require__(30)
+	  , anObject       = __webpack_require__(24)
+	  , toIObject      = __webpack_require__(5)
+	  , createDesc     = __webpack_require__(11)
+	  , getDesc        = $.getDesc
+	  , setDesc        = $.setDesc
+	  , _create        = $.create
+	  , getNames       = $names.get
+	  , $Symbol        = global.Symbol
+	  , $JSON          = global.JSON
+	  , _stringify     = $JSON && $JSON.stringify
+	  , setter         = false
+	  , HIDDEN         = wks('_hidden')
+	  , isEnum         = $.isEnum
+	  , SymbolRegistry = shared('symbol-registry')
+	  , AllSymbols     = shared('symbols')
+	  , useNative      = typeof $Symbol == 'function'
+	  , ObjectProto    = Object.prototype;
+	
+	// fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
+	var setSymbolDesc = DESCRIPTORS && $fails(function(){
+	  return _create(setDesc({}, 'a', {
+	    get: function(){ return setDesc(this, 'a', {value: 7}).a; }
+	  })).a != 7;
+	}) ? function(it, key, D){
+	  var protoDesc = getDesc(ObjectProto, key);
+	  if(protoDesc)delete ObjectProto[key];
+	  setDesc(it, key, D);
+	  if(protoDesc && it !== ObjectProto)setDesc(ObjectProto, key, protoDesc);
+	} : setDesc;
+	
+	var wrap = function(tag){
+	  var sym = AllSymbols[tag] = _create($Symbol.prototype);
+	  sym._k = tag;
+	  DESCRIPTORS && setter && setSymbolDesc(ObjectProto, tag, {
+	    configurable: true,
+	    set: function(value){
+	      if(has(this, HIDDEN) && has(this[HIDDEN], tag))this[HIDDEN][tag] = false;
+	      setSymbolDesc(this, tag, createDesc(1, value));
+	    }
+	  });
+	  return sym;
+	};
+	
+	var isSymbol = function(it){
+	  return typeof it == 'symbol';
+	};
+	
+	var $defineProperty = function defineProperty(it, key, D){
+	  if(D && has(AllSymbols, key)){
+	    if(!D.enumerable){
+	      if(!has(it, HIDDEN))setDesc(it, HIDDEN, createDesc(1, {}));
+	      it[HIDDEN][key] = true;
+	    } else {
+	      if(has(it, HIDDEN) && it[HIDDEN][key])it[HIDDEN][key] = false;
+	      D = _create(D, {enumerable: createDesc(0, false)});
+	    } return setSymbolDesc(it, key, D);
+	  } return setDesc(it, key, D);
+	};
+	var $defineProperties = function defineProperties(it, P){
+	  anObject(it);
+	  var keys = enumKeys(P = toIObject(P))
+	    , i    = 0
+	    , l = keys.length
+	    , key;
+	  while(l > i)$defineProperty(it, key = keys[i++], P[key]);
+	  return it;
+	};
+	var $create = function create(it, P){
+	  return P === undefined ? _create(it) : $defineProperties(_create(it), P);
+	};
+	var $propertyIsEnumerable = function propertyIsEnumerable(key){
+	  var E = isEnum.call(this, key);
+	  return E || !has(this, key) || !has(AllSymbols, key) || has(this, HIDDEN) && this[HIDDEN][key]
+	    ? E : true;
+	};
+	var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(it, key){
+	  var D = getDesc(it = toIObject(it), key);
+	  if(D && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key]))D.enumerable = true;
+	  return D;
+	};
+	var $getOwnPropertyNames = function getOwnPropertyNames(it){
+	  var names  = getNames(toIObject(it))
+	    , result = []
+	    , i      = 0
+	    , key;
+	  while(names.length > i)if(!has(AllSymbols, key = names[i++]) && key != HIDDEN)result.push(key);
+	  return result;
+	};
+	var $getOwnPropertySymbols = function getOwnPropertySymbols(it){
+	  var names  = getNames(toIObject(it))
+	    , result = []
+	    , i      = 0
+	    , key;
+	  while(names.length > i)if(has(AllSymbols, key = names[i++]))result.push(AllSymbols[key]);
+	  return result;
+	};
+	var $stringify = function stringify(it){
+	  if(it === undefined || isSymbol(it))return; // IE8 returns string on undefined
+	  var args = [it]
+	    , i    = 1
+	    , $$   = arguments
+	    , replacer, $replacer;
+	  while($$.length > i)args.push($$[i++]);
+	  replacer = args[1];
+	  if(typeof replacer == 'function')$replacer = replacer;
+	  if($replacer || !isArray(replacer))replacer = function(key, value){
+	    if($replacer)value = $replacer.call(this, key, value);
+	    if(!isSymbol(value))return value;
+	  };
+	  args[1] = replacer;
+	  return _stringify.apply($JSON, args);
+	};
+	var buggyJSON = $fails(function(){
+	  var S = $Symbol();
+	  // MS Edge converts symbol values to JSON as {}
+	  // WebKit converts symbol values to JSON as null
+	  // V8 throws on boxed symbols
+	  return _stringify([S]) != '[null]' || _stringify({a: S}) != '{}' || _stringify(Object(S)) != '{}';
+	});
+	
+	// 19.4.1.1 Symbol([description])
+	if(!useNative){
+	  $Symbol = function Symbol(){
+	    if(isSymbol(this))throw TypeError('Symbol is not a constructor');
+	    return wrap(uid(arguments.length > 0 ? arguments[0] : undefined));
+	  };
+	  redefine($Symbol.prototype, 'toString', function toString(){
+	    return this._k;
+	  });
+	
+	  isSymbol = function(it){
+	    return it instanceof $Symbol;
+	  };
+	
+	  $.create     = $create;
+	  $.isEnum     = $propertyIsEnumerable;
+	  $.getDesc    = $getOwnPropertyDescriptor;
+	  $.setDesc    = $defineProperty;
+	  $.setDescs   = $defineProperties;
+	  $.getNames   = $names.get = $getOwnPropertyNames;
+	  $.getSymbols = $getOwnPropertySymbols;
+	
+	  if(DESCRIPTORS && !__webpack_require__(33)){
+	    redefine(ObjectProto, 'propertyIsEnumerable', $propertyIsEnumerable, true);
+	  }
+	}
+	
+	var symbolStatics = {
+	  // 19.4.2.1 Symbol.for(key)
+	  'for': function(key){
+	    return has(SymbolRegistry, key += '')
+	      ? SymbolRegistry[key]
+	      : SymbolRegistry[key] = $Symbol(key);
+	  },
+	  // 19.4.2.5 Symbol.keyFor(sym)
+	  keyFor: function keyFor(key){
+	    return keyOf(SymbolRegistry, key);
+	  },
+	  useSetter: function(){ setter = true; },
+	  useSimple: function(){ setter = false; }
+	};
+	// 19.4.2.2 Symbol.hasInstance
+	// 19.4.2.3 Symbol.isConcatSpreadable
+	// 19.4.2.4 Symbol.iterator
+	// 19.4.2.6 Symbol.match
+	// 19.4.2.8 Symbol.replace
+	// 19.4.2.9 Symbol.search
+	// 19.4.2.10 Symbol.species
+	// 19.4.2.11 Symbol.split
+	// 19.4.2.12 Symbol.toPrimitive
+	// 19.4.2.13 Symbol.toStringTag
+	// 19.4.2.14 Symbol.unscopables
+	$.each.call((
+	  'hasInstance,isConcatSpreadable,iterator,match,replace,search,' +
+	  'species,split,toPrimitive,toStringTag,unscopables'
+	).split(','), function(it){
+	  var sym = wks(it);
+	  symbolStatics[it] = useNative ? sym : wrap(sym);
+	});
+	
+	setter = true;
+	
+	$export($export.G + $export.W, {Symbol: $Symbol});
+	
+	$export($export.S, 'Symbol', symbolStatics);
+	
+	$export($export.S + $export.F * !useNative, 'Object', {
+	  // 19.1.2.2 Object.create(O [, Properties])
+	  create: $create,
+	  // 19.1.2.4 Object.defineProperty(O, P, Attributes)
+	  defineProperty: $defineProperty,
+	  // 19.1.2.3 Object.defineProperties(O, Properties)
+	  defineProperties: $defineProperties,
+	  // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
+	  getOwnPropertyDescriptor: $getOwnPropertyDescriptor,
+	  // 19.1.2.7 Object.getOwnPropertyNames(O)
+	  getOwnPropertyNames: $getOwnPropertyNames,
+	  // 19.1.2.8 Object.getOwnPropertySymbols(O)
+	  getOwnPropertySymbols: $getOwnPropertySymbols
+	});
+	
+	// 24.3.2 JSON.stringify(value [, replacer [, space]])
+	$JSON && $export($export.S + $export.F * (!useNative || buggyJSON), 'JSON', {stringify: $stringify});
+	
+	// 19.4.3.5 Symbol.prototype[@@toStringTag]
+	setToStringTag($Symbol, 'Symbol');
+	// 20.2.1.9 Math[@@toStringTag]
+	setToStringTag(Math, 'Math', true);
+	// 24.3.3 JSON[@@toStringTag]
+	setToStringTag(global.JSON, 'JSON', true);
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports) {
+
+	module.exports = "<div v-bind:style=\"data.style\" v-bind:class=\"'toast toast-' + data.type\" style=\"display: block;\" @click=\"clicked()\" v-on:mouseover=\"onMouseOver\" v-on:mouseout=\"onMouseOut\">\n    <toast-progress v-if=\"progressbar\" :data=\"data\" ref=\"progressBar\"></toast-progress>\n    <div class=\"toast-title\" v-html=\"data.title\">\n    </div>\n    <div class=\"toast-message\" v-html=\"data.msg\">\n    </div>\n</div>\n";
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports) {
+
+	module.exports = "<div>\n    <div v-bind:class=\"'toast-container ' + position\" v-for=\"(toasts, position) in list\" :key=\"position\">\n        <toast :data=\"toast\" v-for=\"(toast, index) in toasts\" :key=\"index\">\n        </toast>\n    </div>\n</div>\n";
+
+/***/ })
+/******/ ])
+});
+;
+//# sourceMappingURL=vue-toastr.js.map
+
+/***/ }),
+
+/***/ "./node_modules/vue-toastr/src/vue-toastr.scss":
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__("./node_modules/css-loader/index.js!./node_modules/sass-loader/lib/loader.js!./node_modules/vue-toastr/src/vue-toastr.scss");
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__("./node_modules/style-loader/lib/addStyles.js")(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../css-loader/index.js!../../sass-loader/lib/loader.js!./vue-toastr.scss", function() {
+			var newContent = require("!!../../css-loader/index.js!../../sass-loader/lib/loader.js!./vue-toastr.scss");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
 
 /***/ }),
 
@@ -13123,21 +14965,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 //import * as Vue from 'vue';
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
-var axios_1 = __importDefault(__webpack_require__("./node_modules/axios/index.js"));
+var form_1 = __importDefault(__webpack_require__("./resources/js/src/utils/form.ts"));
+// import Toastr
+var vue_toastr_1 = __importDefault(__webpack_require__("./node_modules/vue-toastr/dist/vue-toastr.js"));
+// import toastr scss file: need webpack sass-loader
+__webpack_require__("./node_modules/vue-toastr/src/vue-toastr.scss");
+// Register vue component
+vue_1.default.component('vue-toastr', vue_toastr_1.default);
 //declare var axios: any;
 //declare var Vue: any;
 new vue_1.default({
     el: '#client_edit',
     data: function () {
         return {
-            'client': [],
-            'errors': [],
+            form: new form_1.default(client_object)
         };
     },
     mounted: function () {
-        //this.client = {!! $client !!};
-        this.client = client_object;
-        console.dir(this.client);
+        console.log('mounted');
     },
     beforeMount: function () {
         console.log('before mount');
@@ -13150,55 +14995,239 @@ new vue_1.default({
     },
     methods: {
         remove: function (contact) {
-            var index = this.client.contacts.indexOf(contact);
-            this.client.contacts.splice(index, 1);
+            var index = this.form.contacts.indexOf(contact);
+            this.form.contacts.splice(index, 1);
         },
         add: function () {
             var _this = this;
             console.dir('i will add a contact here');
-            this.client.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
+            this.form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
             this.$nextTick(function () {
-                var index = _this.client.contacts.length - 1;
+                var index = _this.form.contacts.length - 1;
                 var input = _this.$refs.first_name[index];
                 input.focus();
             });
         },
-        submit: function () {
+        onSubmit: function () {
             var _this = this;
-            this.errors = {};
-            axios_1.default.put('/clients/' + hashed_id, this.client).then(function (response) {
-                //                axios.put('/clients/' + {{ $client->present()->id }}, this.client).then(response => {
-                _this.client = response.data;
-            }).catch(function (error) {
-                if (error.response.status === 422) {
-                    _this.errors = error.response.data.errors || {};
-                }
-                else if (error.response.status === 419) {
-                    //csrf token has expired, we'll need to force a page reload
-                }
+            this.form.put('/clients/' + hashed_id)
+                .then(function (response) { return _this.$root.$refs.toastr.s("Saved client"); })
+                .catch(function (error) {
+                _this.$root.$refs.toastr.e("Error saving client");
             });
         },
         copy: function (type) {
             if (type.includes('copy_billing')) {
-                this.client.shipping_address1 = this.client.address1;
-                this.client.shipping_address2 = this.client.address2;
-                this.client.shipping_city = this.client.city;
-                this.client.shipping_state = this.client.state;
-                this.client.shipping_postal_code = this.client.postal_code;
-                this.client.shipping_country_id = this.client.country_id;
+                this.form.shipping_address1 = this.form.address1;
+                this.form.shipping_address2 = this.form.address2;
+                this.form.shipping_city = this.form.city;
+                this.form.shipping_state = this.form.state;
+                this.form.shipping_postal_code = this.form.postal_code;
+                this.form.shipping_country_id = this.form.country_id;
             }
             else {
-                this.client.address1 = this.client.shipping_address1;
-                this.client.address2 = this.client.shipping_address2;
-                this.client.city = this.client.shipping_city;
-                this.client.state = this.client.shipping_state;
-                this.client.postal_code = this.client.shipping_postal_code;
-                this.client.country_id = this.client.shipping_country_id;
+                this.form.address1 = this.form.shipping_address1;
+                this.form.address2 = this.form.shipping_address2;
+                this.form.city = this.form.shipping_city;
+                this.form.state = this.form.shipping_state;
+                this.form.postal_code = this.form.shipping_postal_code;
+                this.form.country_id = this.form.shipping_country_id;
             }
         }
     }
 });
+
+
+/***/ }),
+
+/***/ "./resources/js/src/utils/form-errors.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var FormErrors = /** @class */ (function () {
+    /**
+     * Create a new Errors instance.
+     */
+    function FormErrors() {
+        this.errors = {};
+    }
+    /**
+     * Determine if an errors exists for the given field.
+     *
+     * @param {string} field
+     */
+    FormErrors.prototype.has = function (field) {
+        return this.errors.hasOwnProperty(field);
+    };
+    /**
+     * Determine if we have any errors.
+     */
+    FormErrors.prototype.any = function () {
+        return Object.keys(this.errors).length > 0;
+    };
+    /**
+     * Retrieve the error message for a field.
+     *
+     * @param {string} field
+     */
+    FormErrors.prototype.get = function (field) {
+        if (this.errors[field]) {
+            return this.errors[field][0];
+        }
+    };
+    /**
+     * Record the new errors.
+     *
+     * @param {object} errors
+     */
+    FormErrors.prototype.record = function (errors) {
+        this.errors = errors;
+    };
+    /**
+     * Clear one or all error fields.
+     *
+     * @param {string|null} field
+     */
+    FormErrors.prototype.clear = function (field) {
+        if (field) {
+            delete this.errors[field];
+            return;
+        }
+        this.errors = {};
+    };
+    return FormErrors;
+}());
+exports.default = FormErrors;
+//@keydown="errors.clear($event.target.name)"
+//
+//
+//
+
+
+/***/ }),
+
+/***/ "./resources/js/src/utils/form.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var axios_1 = __importDefault(__webpack_require__("./node_modules/axios/index.js"));
+var form_errors_1 = __importDefault(__webpack_require__("./resources/js/src/utils/form-errors.ts"));
+var Form = /** @class */ (function () {
+    /**
+     * Create a new Form instance.
+     *
+     * @param {object} data
+     */
+    function Form(data) {
+        this.originalData = data;
+        for (var field in data) {
+            this[field] = data[field];
+        }
+        this.errors = new form_errors_1.default();
+    }
+    /**
+     * Fetch all relevant data for the form.
+     */
+    Form.prototype.data = function () {
+        var data = {};
+        for (var property in this.originalData) {
+            data[property] = this[property];
+        }
+        return data;
+    };
+    /**
+     * Reset the form fields.
+     */
+    Form.prototype.reset = function () {
+        for (var field in this.originalData) {
+            this[field] = '';
+        }
+        this.errors.clear();
+    };
+    /**
+     * Send a POST request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.post = function (url) {
+        return this.submit('post', url);
+    };
+    /**
+     * Send a PUT request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.put = function (url) {
+        return this.submit('put', url);
+    };
+    /**
+     * Send a PATCH request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.patch = function (url) {
+        return this.submit('patch', url);
+    };
+    /**
+     * Send a DELETE request to the given URL.
+     * .
+     * @param {string} url
+     */
+    Form.prototype.delete = function (url) {
+        return this.submit('delete', url);
+    };
+    /**
+     * Submit the form.
+     *
+     * @param {string} requestType
+     * @param {string} url
+     */
+    Form.prototype.submit = function (requestType, url) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            axios_1.default[requestType](url, _this.data())
+                .then(function (response) {
+                _this.onSuccess(response.data);
+                resolve(response.data);
+            })
+                .catch(function (error) {
+                if (error.response.status === 422) {
+                    _this.onFail(error.response.data.errors);
+                }
+                else if (error.response.status === 419) {
+                    //csrf token has expired, we'll need to force a page reload
+                }
+                reject(error.response.data);
+            });
+        });
+    };
+    /**
+     * Handle a successful form submission.
+     *
+     * @param {object} data
+     */
+    Form.prototype.onSuccess = function (data) {
+        this.errors.clear();
+    };
+    /**
+     * Handle a failed form submission.
+     *
+     * @param {object} errors
+     */
+    Form.prototype.onFail = function (errors) {
+        this.errors.record(errors);
+    };
+    return Form;
+}());
+exports.default = Form;
 
 
 /***/ }),

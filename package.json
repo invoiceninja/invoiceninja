@@ -14,6 +14,8 @@
         "@coreui/coreui": "^2.0.12",
         "@coreui/coreui-plugin-chartjs-custom-tooltips": "1.2.0",
         "@coreui/icons": "^0.3.0",
+        "@types/bluebird": "^3.5.24",
+        "@types/core-js": "^0.9.36",
         "@types/jest": "^23.3.9",
         "axios": "^0.18",
         "bootstrap": "^4.0.0",
@@ -40,6 +42,7 @@
         "socket.io-client": "^2.1.1",
         "ts-loader": "3.5.0",
         "typescript": "^3.1.6",
-        "vue-i18n": "^8.3.0"
+        "vue-i18n": "^8.3.0",
+        "vue-toastr": "^2.0.16"
     }
 }
