@@ -13346,21 +13346,17 @@ var Form = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             axios_1.default[requestType](url, _this.data())
                 .then(function (response) {
-                console.log('in the then');
                 _this.onSuccess(response.data);
                 resolve(response.data);
             })
                 .catch(function (error) {
-                console.log('in the catch');
-                reject(error.response.data);
                 if (error.response.status === 422) {
-                    //this.errors = error.response.data.errors || {};
                     _this.onFail(error.response.data.errors);
-                    console.log(error.response.data.errors);
                 }
                 else if (error.response.status === 419) {
                     //csrf token has expired, we'll need to force a page reload
                 }
+                reject(error.response.data);
             });
         });
     };
@@ -13370,7 +13366,6 @@ var Form = /** @class */ (function () {
      * @param {object} data
      */
     Form.prototype.onSuccess = function (data) {
-        // alert(data.message); // temporary
         this.errors.clear();
     };
     /**

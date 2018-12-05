@@ -4,7 +4,7 @@ namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
 
-class UpdateClientRequest extends Request
+class StoreClientRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

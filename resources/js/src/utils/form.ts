@@ -13,6 +13,7 @@ export default class Form {
      * @param {object} data
      */
     constructor(data) {
+
         this.originalData = data;
 
         for (let field in data) {
@@ -20,13 +21,14 @@ export default class Form {
         }
 
         this.errors = new FormErrors();
-    }
 
+    }
 
     /**
      * Fetch all relevant data for the form.
      */
     data() {
+
         let data = {};
 
         for (let property in this.originalData) {
@@ -34,13 +36,14 @@ export default class Form {
         }
 
         return data;
-    }
 
+    }
 
     /**
      * Reset the form fields.
      */
     reset() {
+
         for (let field in this.originalData) {
             this[field] = '';
         }
@@ -55,9 +58,10 @@ export default class Form {
      * @param {string} url
      */
     post(url) {
-        return this.submit('post', url);
-    }
 
+        return this.submit('post', url);
+
+    }
 
     /**
      * Send a PUT request to the given URL.
@@ -65,9 +69,10 @@ export default class Form {
      * @param {string} url
      */
     put(url:string) {
-        return this.submit('put', url);
-    }
 
+        return this.submit('put', url);
+
+    }
 
     /**
      * Send a PATCH request to the given URL.
@@ -75,9 +80,10 @@ export default class Form {
      * @param {string} url
      */
     patch(url:string) {
-        return this.submit('patch', url);
-    }
 
+        return this.submit('patch', url);
+
+    }
 
     /**
      * Send a DELETE request to the given URL.
@@ -85,9 +91,10 @@ export default class Form {
      * @param {string} url
      */
     delete(url:string) {
-        return this.submit('delete', url);
-    }
 
+        return this.submit('delete', url);
+
+    }
 
     /**
      * Submit the form.
@@ -96,31 +103,38 @@ export default class Form {
      * @param {string} url
      */
     submit(requestType:string, url:string) {
+
         return new Promise((resolve, reject) => {
+
             axios[requestType](url, this.data())
                 .then(response => {
-                    console.log('in the then');
+
                     this.onSuccess(response.data);
 
                     resolve(response.data);
+
                 })
                 .catch(error => {
-                      console.log('in the catch');
 
-                     reject(error.response.data);
+
                     if (error.response.status === 422) {
-                        //this.errors = error.response.data.errors || {};
+
                         this.onFail(error.response.data.errors);
-                        console.log(error.response.data.errors);
+
                     }
                     else if(error.response.status === 419) {
+
                         //csrf token has expired, we'll need to force a page reload
+
                     }
+
+                    reject(error.response.data);
+
                                       
                 });
         });
-    }
 
+    }
 
     /**
      * Handle a successful form submission.
@@ -128,11 +142,10 @@ export default class Form {
      * @param {object} data
      */
     onSuccess(data) {
-       // alert(data.message); // temporary
 
         this.errors.clear();
-    }
 
+    }
 
     /**
      * Handle a failed form submission.
@@ -140,6 +153,9 @@ export default class Form {
      * @param {object} errors
      */
     onFail(errors) {
+
         this.errors.record(errors);
+
     }
+    
 }

@@ -29,7 +29,7 @@
                         </span>
                     </div>
                     
-                    <template v-for="contact in form.contacts">
+                    <template v-for="(contact, key, index) in form.contacts">
 	                    @include('client.partial.contact_details')
                     </template>
 	            
