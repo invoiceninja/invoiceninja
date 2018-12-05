@@ -42,6 +42,7 @@
         "socket.io-client": "^2.1.1",
         "ts-loader": "3.5.0",
         "typescript": "^3.1.6",
-        "vue-i18n": "^8.3.0"
+        "vue-i18n": "^8.3.0",
+        "vue-toastr": "^2.0.16"
     }
 }

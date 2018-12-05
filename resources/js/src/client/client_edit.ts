@@ -2,6 +2,12 @@
 import Vue from 'vue';
 import axios from 'axios';
 import Form from '../utils/form';
+// import Toastr
+import Toastr from 'vue-toastr';
+// import toastr scss file: need webpack sass-loader
+require('vue-toastr/src/vue-toastr.scss');
+// Register vue component
+Vue.component('vue-toastr',Toastr);
 
 declare var client_object: any;
 declare var hashed_id: string;
@@ -44,9 +50,11 @@ declare var hashed_id: string;
         },
         onSubmit() {
             this.form.put('/clients/' + hashed_id)
-                .then(response => alert('Wahoo!'))
+                .then(response => this.$root.$refs.toastr.s("Saved client"))
                 .catch(error => {
-                    console.log(error.response)
+
+                    this.$root.$refs.toastr.e("Error saving client");
+
                 });
         },
     	copy(type: any) {
