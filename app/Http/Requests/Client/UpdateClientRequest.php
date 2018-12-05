@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class UpdateClientRequest extends Request
 {
@@ -19,20 +21,29 @@ class UpdateClientRequest extends Request
     }
 
     public function rules()
-
     {
-        $rules = [
-            'name' => 'required',
-            'contacts.*.email' => 'email|unique:client_contacts,email'
-            ];
 
-        $custom_messages = [
-            'unique' => 'The email is already in use.'
+        /* Ensure we have a client name, and that all emails are unique!!!!!*/
+        $rules['name'] = 'required';
+
+        $contacts = request('contacts');
+
+            for ($i = 0; $i < count($contacts); $i++) {
+                $rules['contacts.' . $i . '.email'] = 'required|email|unique:client_contacts,email,' . $contacts[$i]['id'];
+            }
+
+            return $rules;
+            
+
+    }
+
+    public function messages()
+    {
+        return [
+            'unique' => trans('validation.unique', ['attribute' => 'email']),
+            'required' => trans('validation.required', ['attribute' => 'email']),
+            'email' => trans('validation.email', ['attribute' => 'email'])
         ];
-
-        $this->validate($rules, $custom_messages);
-
-
     }
 
 
