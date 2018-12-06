@@ -22,8 +22,7 @@ class UpdateClientRequest extends Request
 
     public function rules()
     {
-
-        /* Ensure we have a client name, and that all emails are unique!!!!!*/
+        /* Ensure we have a client name, and that all emails are unique*/
         $rules['name'] = 'required';
 
         $contacts = request('contacts');

@@ -14982,16 +14982,16 @@ new vue_1.default({
         };
     },
     mounted: function () {
-        console.log('mounted');
+        //console.log('mounted')
     },
     beforeMount: function () {
-        console.log('before mount');
+        //console.log('before mount')
     },
     created: function () {
-        console.dir('created');
+        //console.dir('created')
     },
     updated: function () {
-        console.dir('updated');
+        //console.dir('updated')
     },
     methods: {
         remove: function (contact) {
@@ -15000,8 +15000,7 @@ new vue_1.default({
         },
         add: function () {
             var _this = this;
-            console.dir('i will add a contact here');
-            this.form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
+            this.form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: 0 });
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
             this.$nextTick(function () {
                 var index = _this.form.contacts.length - 1;
