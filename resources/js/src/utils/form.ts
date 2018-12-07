@@ -137,7 +137,7 @@ export default class Form {
     }
 
     /**
-    * Update form data  on success
+    * Update form data on success
     *
     * @param {object} data
     */

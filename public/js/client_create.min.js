@@ -15010,7 +15010,7 @@ new vue_1.default({
             var _this = this;
             this.form.post('/clients/')
                 .then(function (response) {
-                _this.$root.$refs.toastr.s("Created client");
+                _this.$root.$refs.toastr.s("Created client"); //how are we going to handle translations here?
                 window.location.href = '/clients/' + _this.form.hashed_id + '/edit';
             })
                 .catch(function (error) {
@@ -15210,7 +15210,7 @@ var Form = /** @class */ (function () {
         });
     };
     /**
-    * Update form data  on success
+    * Update form data on success
     *
     * @param {object} data
     */

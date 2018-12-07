@@ -50,7 +50,7 @@ declare var hashed_id: string;
         onSubmit() {
             this.form.post('/clients/')
                 .then(response => {
-                    this.$root.$refs.toastr.s("Created client");
+                    this.$root.$refs.toastr.s("Created client"); //how are we going to handle translations here?
                         
                     window.location.href = '/clients/' + this.form.hashed_id + '/edit';
 

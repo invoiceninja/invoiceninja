@@ -15207,7 +15207,7 @@ var Form = /** @class */ (function () {
         });
     };
     /**
-    * Update form data  on success
+    * Update form data on success
     *
     * @param {object} data
     */
