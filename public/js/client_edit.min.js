@@ -14972,8 +14972,6 @@ var vue_toastr_1 = __importDefault(__webpack_require__("./node_modules/vue-toast
 __webpack_require__("./node_modules/vue-toastr/src/vue-toastr.scss");
 // Register vue component
 vue_1.default.component('vue-toastr', vue_toastr_1.default);
-//declare var axios: any;
-//declare var Vue: any;
 new vue_1.default({
     el: '#client_edit',
     data: function () {

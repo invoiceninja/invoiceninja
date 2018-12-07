@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
@@ -101,8 +102,11 @@ class ClientController extends Controller
     public function create()
     {
         $client = new Client;
+        $client->name = '';
+        $client->company_id = $this->getCurrentCompanyId();
         $client_contact = new ClientContact;
         $client_contact->first_name = "";
+        $client_contact->id = 0;
 
         $client->contacts->add($client_contact);
 
@@ -120,7 +124,7 @@ class ClientController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreClientRequest $request)
     {
         $client = StoreClient::dispatchNow($request, new Client);
 
@@ -129,7 +133,9 @@ class ClientController extends Controller
         'hashed_id' => $this->encodePrimarykey($client->id)
         ];
 
-        return view('client.edit', $data);
+        //return view('client.edit', $data);
+        return response()->json($data, 200);
+
     }
 
     /**

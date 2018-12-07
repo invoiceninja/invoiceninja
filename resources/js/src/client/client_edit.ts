@@ -2,6 +2,8 @@
 import Vue from 'vue';
 import axios from 'axios';
 import Form from '../utils/form';
+import Client from '../models/client-model';
+
 // import Toastr
 import Toastr from 'vue-toastr';
 // import toastr scss file: need webpack sass-loader
@@ -11,14 +13,13 @@ Vue.component('vue-toastr',Toastr);
 
 declare var client_object: any;
 declare var hashed_id: string;
-//declare var axios: any;
-//declare var Vue: any;
+
 
  new Vue({
     el : '#client_edit',
     data: function () {
         return {
-            form: new Form(client_object)
+            form: new Form(<Client>client_object)
         }
     },
     mounted(this: any) {
