@@ -19,7 +19,7 @@ class ClientContactRepository extends BaseRepository
 		$contacts = collect($contacts);
 
 		/* Get array of IDs which have been removed from the contacts array and soft delete each contact */
-		collect($client->contacts->pluck('id'))->diffKeys($contacts->pluck('id'))->each(function($contact){
+		collect($client->contacts->pluck('id'))->diff($contacts->pluck('id'))->each(function($contact){
 			ClientContact::destroy($contact);
 		});
 

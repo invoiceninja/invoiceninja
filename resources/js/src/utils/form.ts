@@ -137,12 +137,26 @@ export default class Form {
     }
 
     /**
+    * Update form data on success
+    *
+    * @param {object} data
+    */
+    update(data)
+    {
+        this.originalData = data;
+
+        for (let field in data) {
+            this[field] = data[field];
+        }
+    }
+
+    /**
      * Handle a successful form submission.
      *
      * @param {object} data
      */
     onSuccess(data) {
-
+        this.update(data);
         this.errors.clear();
 
     }

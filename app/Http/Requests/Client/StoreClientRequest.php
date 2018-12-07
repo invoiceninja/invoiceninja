@@ -19,12 +19,27 @@ class StoreClientRequest extends Request
     }
 
     public function rules()
+    {
+        /* Ensure we have a client name, and that all emails are unique*/
+        $rules['name'] = 'required';
 
+        $contacts = request('contacts');
+
+            for ($i = 0; $i < count($contacts); $i++) {
+                $rules['contacts.' . $i . '.email'] = 'required|email|unique:client_contacts,email,' . isset($contacts[$i]['id']);
+            }
+
+            return $rules;
+            
+
+    }
+
+    public function messages()
     {
         return [
-            'name' => 'required',
-            'contacts.*.email' => 'email|unique:client_contacts,email'
-
+            'unique' => trans('validation.unique', ['attribute' => 'email']),
+            //'required' => trans('validation.required', ['attribute' => 'email']),
+            'contacts.*.email.required' => trans('validation.email', ['attribute' => 'email']),
         ];
     }
 

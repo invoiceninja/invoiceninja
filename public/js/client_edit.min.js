@@ -14972,8 +14972,6 @@ var vue_toastr_1 = __importDefault(__webpack_require__("./node_modules/vue-toast
 __webpack_require__("./node_modules/vue-toastr/src/vue-toastr.scss");
 // Register vue component
 vue_1.default.component('vue-toastr', vue_toastr_1.default);
-//declare var axios: any;
-//declare var Vue: any;
 new vue_1.default({
     el: '#client_edit',
     data: function () {
@@ -14982,16 +14980,16 @@ new vue_1.default({
         };
     },
     mounted: function () {
-        console.log('mounted');
+        //console.log('mounted')
     },
     beforeMount: function () {
-        console.log('before mount');
+        //console.log('before mount')
     },
     created: function () {
-        console.dir('created');
+        //console.dir('created')
     },
     updated: function () {
-        console.dir('updated');
+        //console.dir('updated')
     },
     methods: {
         remove: function (contact) {
@@ -15000,8 +14998,7 @@ new vue_1.default({
         },
         add: function () {
             var _this = this;
-            console.dir('i will add a contact here');
-            this.form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: -1 });
+            this.form.contacts.push({ first_name: '', last_name: '', email: '', phone: '', id: 0 });
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
             this.$nextTick(function () {
                 var index = _this.form.contacts.length - 1;
@@ -15210,11 +15207,23 @@ var Form = /** @class */ (function () {
         });
     };
     /**
+    * Update form data on success
+    *
+    * @param {object} data
+    */
+    Form.prototype.update = function (data) {
+        this.originalData = data;
+        for (var field in data) {
+            this[field] = data[field];
+        }
+    };
+    /**
      * Handle a successful form submission.
      *
      * @param {object} data
      */
     Form.prototype.onSuccess = function (data) {
+        this.update(data);
         this.errors.clear();
     };
     /**

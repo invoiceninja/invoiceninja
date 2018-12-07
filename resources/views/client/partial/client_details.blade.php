@@ -4,7 +4,7 @@
         <div class="form-group row">
             <label for="name" class="col-sm-3 col-form-label text-right">@lang('texts.client_name')</label>
             <div class="col-sm-9">
-                <input name="name" placeholder="@lang('texts.name')" class="form-control" v-model="form.name" value="{{ $client->name }}">
+                <input name="name" placeholder="@lang('texts.name')" class="form-control" v-model="form.name">
                 <div v-if="form.errors.has('name')" class="text-danger" v-text="form.errors.get('name')"></div>
             </div>
         </div>
