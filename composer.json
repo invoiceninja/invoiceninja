@@ -19,7 +19,7 @@
         "anahkiasen/former": "4.*",
         "asgrim/ofxparser": "^1.1",
         "bacon/bacon-qr-code": "^1.0",
-        "barracudanetworks/archivestream-php": "^1.0",
+        "barracudanetworks/archivestream-php": "1.0.5",
         "barryvdh/laravel-cors": "^0.9.1",
         "barryvdh/laravel-debugbar": "~2.2",
         "barryvdh/laravel-ide-helper": "~2.2",
