@@ -9,6 +9,8 @@
 <form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
     <div class="container-fluid">
         
+                <vue-toastr ref="toastr"></vue-toastr>
+
         <div class="row">
             <!-- Client Details and Address Column -->
             <div class="col-md-6">

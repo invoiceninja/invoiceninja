@@ -14,7 +14,6 @@ Vue.component('vue-toastr',Toastr);
 declare var client_object: any;
 declare var hashed_id: string;
 
-
  new Vue({
     el : '#client_create',
     data: function () {
@@ -51,8 +50,9 @@ declare var hashed_id: string;
         onSubmit() {
             this.form.post('/clients/')
                 .then(response => {
-
-                    this.window.location.href = '/clients/' + response.data.hashed_id + 'edit';
+                    this.$root.$refs.toastr.s("Created client");
+                        
+                    window.location.href = '/clients/' + this.form.hashed_id + '/edit';
 
                 })
                 .catch(error => {

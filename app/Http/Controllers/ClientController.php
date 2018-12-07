@@ -13,6 +13,7 @@ use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
@@ -127,14 +128,18 @@ class ClientController extends Controller
     public function store(StoreClientRequest $request)
     {
         $client = StoreClient::dispatchNow($request, new Client);
+        $client->load('contacts', 'primary_contact');
 
+        $client->hashed_id = $this->encodePrimarykey($client->id);
+
+/*
         $data = [
         'client' => $client,
         'hashed_id' => $this->encodePrimarykey($client->id)
         ];
-
-        //return view('client.edit', $data);
-        return response()->json($data, 200);
+*/
+        Log::error(print_r($client,1));
+        return response()->json($client, 200);
 
     }
 

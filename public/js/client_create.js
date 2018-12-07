@@ -15010,7 +15010,8 @@ new vue_1.default({
             var _this = this;
             this.form.post('/clients/')
                 .then(function (response) {
-                _this.window.location.href = '/clients/' + response.data.hashed_id + 'edit';
+                _this.$root.$refs.toastr.s("Created client");
+                window.location.href = '/clients/' + _this.form.hashed_id + '/edit';
             })
                 .catch(function (error) {
                 _this.$root.$refs.toastr.e("Error saving client");
@@ -15209,11 +15210,23 @@ var Form = /** @class */ (function () {
         });
     };
     /**
+    * Update form data  on success
+    *
+    * @param {object} data
+    */
+    Form.prototype.update = function (data) {
+        this.originalData = data;
+        for (var field in data) {
+            this[field] = data[field];
+        }
+    };
+    /**
      * Handle a successful form submission.
      *
      * @param {object} data
      */
     Form.prototype.onSuccess = function (data) {
+        this.update(data);
         this.errors.clear();
     };
     /**

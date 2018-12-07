@@ -15207,11 +15207,23 @@ var Form = /** @class */ (function () {
         });
     };
     /**
+    * Update form data  on success
+    *
+    * @param {object} data
+    */
+    Form.prototype.update = function (data) {
+        this.originalData = data;
+        for (var field in data) {
+            this[field] = data[field];
+        }
+    };
+    /**
      * Handle a successful form submission.
      *
      * @param {object} data
      */
     Form.prototype.onSuccess = function (data) {
+        this.update(data);
         this.errors.clear();
     };
     /**
