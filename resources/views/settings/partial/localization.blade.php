@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card" id="localization">
     <div class="card-header bg-primary2">@lang('texts.localization')</div>
     <div class="card-body">
         <div class="form-group row">

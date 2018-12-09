@@ -168,6 +168,7 @@ class ClientController extends Controller
 
         $data = [
         'client' => $client,
+        'settings' => [],
         'hashed_id' => $this->encodePrimarykey($client->id)
         ];
 
