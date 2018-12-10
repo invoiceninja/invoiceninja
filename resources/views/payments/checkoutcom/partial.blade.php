@@ -1,5 +1,5 @@
 @if ($accountGateway->getConfigField('testMode'))
-    <script src="https://sandbox.checkout.com/js/v1/checkout.js"></script>
+    <script src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
 @else
     <script src="https://cdn.checkout.com/js/checkout.js"></script>
 @endif
