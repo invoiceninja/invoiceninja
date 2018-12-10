@@ -192,6 +192,10 @@ class InvoiceController extends BaseController
             }
         }
 
+        if (Auth::user()->registered && ! Auth::user()->confirmed) {
+            session()->flash('warning', trans('texts.confirmation_required', ['link' => link_to('/resend_confirmation', trans('texts.click_here'))]));
+        }
+
         return View::make('invoices.edit', $data);
     }
 
