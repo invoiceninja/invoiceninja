@@ -36,7 +36,7 @@
         "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "dev-master",
-        "invoiceninja/omnipay-collection": "^0.9.0",
+        "invoiceninja/omnipay-collection": "^0.10.0",
         "jaybizzle/laravel-crawler-detect": "1.*",
         "jlapp/swaggervel": "master-dev",
         "jonnyw/php-phantomjs": "dev-fixes",

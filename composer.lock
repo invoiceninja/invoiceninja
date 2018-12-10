@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49e5c7937df60eb898cc0283388e6dd0",
+    "content-hash": "df131c7b0f0c87b81bbc2d1fcaa82c59",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -2271,63 +2271,6 @@
             "time": "2014-09-09T13:34:57+00:00"
         },
         {
-            "name": "dwolla/omnipay-dwolla",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Dwolla/omnipay-dwolla.git",
-                "reference": "f58af834d62a938834d96b435c644b69c3c1ecf8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Dwolla/omnipay-dwolla/zipball/f58af834d62a938834d96b435c644b69c3c1ecf8",
-                "reference": "f58af834d62a938834d96b435c644b69c3c1ecf8",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Omnipay\\Dwolla\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Adrian Macneil",
-                    "email": "adrian@adrianmacneil.com"
-                },
-                {
-                    "name": "David Stancu",
-                    "homepage": "https://github.com/mach-kernel"
-                }
-            ],
-            "description": "Dwolla support for the Omnipay payment library",
-            "homepage": "https://github.com/mach-kernel/omnipay-dwolla",
-            "keywords": [
-                "dwolla",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2015-06-05T13:57:26+00:00"
-        },
-        {
             "name": "erusev/parsedown",
             "version": "1.7.1",
             "source": {
@@ -3538,16 +3481,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.9",
+            "version": "v0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "97ad152922664ff2ca8b5fcb6171ed053f865808"
+                "reference": "fc0418708eed85a596616b1f94b04cfdbf1e554c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/97ad152922664ff2ca8b5fcb6171ed053f865808",
-                "reference": "97ad152922664ff2ca8b5fcb6171ed053f865808",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/fc0418708eed85a596616b1f94b04cfdbf1e554c",
+                "reference": "fc0418708eed85a596616b1f94b04cfdbf1e554c",
                 "shasum": ""
             },
             "require": {
@@ -3565,7 +3508,6 @@
                 "digitickets/omnipay-datacash": "~3.0",
                 "digitickets/omnipay-realex": "~5.0",
                 "dioscouri/omnipay-cybersource": "dev-master",
-                "dwolla/omnipay-dwolla": "dev-master",
                 "fotografde/omnipay-checkoutcom": "~2.0",
                 "fruitcakestudio/omnipay-sisow": "~2.0",
                 "justinbusschau/omnipay-secpay": "~2.0",
@@ -3579,7 +3521,7 @@
                 "omnipay/gocardless": "dev-master",
                 "omnipay/mollie": "3.*",
                 "omnipay/omnipay": "~2.3",
-                "omnipay/stripe": "dev-master",
+                "omnipay/stripe": "~2.0",
                 "softcommerce/omnipay-paytrace": "~1.0",
                 "vink/omnipay-komoju": "~1.0"
             },
@@ -3595,7 +3537,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2018-03-25T11:44:45+00:00"
+            "time": "2018-12-10T13:58:42+00:00"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -11696,6 +11638,63 @@
                 "instantiate"
             ],
             "time": "2015-06-14T21:17:01+00:00"
+        },
+        {
+            "name": "dwolla/omnipay-dwolla",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Dwolla/omnipay-dwolla.git",
+                "reference": "f58af834d62a938834d96b435c644b69c3c1ecf8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Dwolla/omnipay-dwolla/zipball/f58af834d62a938834d96b435c644b69c3c1ecf8",
+                "reference": "f58af834d62a938834d96b435c644b69c3c1ecf8",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Dwolla\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Macneil",
+                    "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "David Stancu",
+                    "homepage": "https://github.com/mach-kernel"
+                }
+            ],
+            "description": "Dwolla support for the Omnipay payment library",
+            "homepage": "https://github.com/mach-kernel/omnipay-dwolla",
+            "keywords": [
+                "dwolla",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-06-05T13:57:26+00:00"
         },
         {
             "name": "facebook/webdriver",
