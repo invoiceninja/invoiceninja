@@ -684,6 +684,10 @@ if (! defined('APP_NAME')) {
     // Fix for mPDF: https://github.com/kartik-v/yii2-mpdf/issues/9
     define('_MPDF_TTFONTDATAPATH', storage_path('framework/cache/'));
 
+    /** STD constatns */
+    if(!defined('STDIN')) define('STDIN', fopen('php://stdin', 'r'));
+    if(!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'w'));
+    if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'w'));
 
     /** Tickets constants */
     define('TICKET_PRIORITY_LOW', 10);
