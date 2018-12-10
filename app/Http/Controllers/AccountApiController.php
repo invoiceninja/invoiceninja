@@ -261,6 +261,17 @@ class AccountApiController extends BaseAPIController
         $oAuth = new OAuth();
         $user = $oAuth->getProvider($provider)->getTokenResponse($token);
 
+        /*
+        if ($user->google_2fa_secret && strpos($request->token_name, 'invoice-ninja-') !== false) {
+            $secret = \Crypt::decrypt($user->google_2fa_secret);
+            if (! $request->one_time_password) {
+                return $this->errorResponse(['message' => 'OTP_REQUIRED'], 401);
+            } elseif (! \Google2FA::verifyKey($secret, $request->one_time_password)) {
+                return $this->errorResponse(['message' => 'Invalid one time password'], 401);
+            }
+        }
+        */
+
         if ($user) {
             Auth::login($user);
             return $this->processLogin($request);
