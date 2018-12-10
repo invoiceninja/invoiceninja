@@ -29,7 +29,7 @@ class TranslationController extends Controller
         });
 
         header('Content-Type: text/javascript');
-        echo('window.i18n = ' . json_encode($strings) . ';');
+        echo('i18n = ' . json_encode($strings) . ';');
         exit();
     }
 

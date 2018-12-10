@@ -26,6 +26,7 @@ mix.webpackConfig({
     });
 
 mix.js('resources/js/src/client/client_edit.ts', 'public/js');
+mix.js('resources/js/src/c/client-edit.ts', 'public/js');
 mix.js('resources/js/src/client/client_create.ts', 'public/js');
 mix.js('resources/js/src/settings/localization.ts', 'public/js');
 mix.js('resources/js/app.js', 'public/js/vendor');

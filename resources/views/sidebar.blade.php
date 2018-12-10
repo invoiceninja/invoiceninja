@@ -14,8 +14,8 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-present"></i> @lang('texts.products')</a>
+                <a class="nav-link" href="/c">
+                    <i class="nav-icon icon-present"></i> Vue Clients</a>
             </li>
 
             <li class="nav-item">

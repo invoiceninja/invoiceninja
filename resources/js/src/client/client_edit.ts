@@ -14,7 +14,6 @@ Vue.component('vue-toastr',Toastr);
 declare var client_object: any;
 declare var hashed_id: string;
 
-
  new Vue({
     el : '#client_edit',
     data: function () {

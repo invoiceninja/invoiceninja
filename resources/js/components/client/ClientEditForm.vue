@@ -30,7 +30,7 @@
 
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
-                            <client-primary-address v-bind:client="client" @copy="copy"></client-primary-address>
+                            <client-address v-bind:client="client" @copy="copy"></client-address>
                     </div>
                 </div>
                 <!-- End Client Details and Address Column -->

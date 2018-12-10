@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -13124,30 +13124,6 @@ module.exports = g;
 
 __webpack_require__("./resources/js/bootstrap.js");
 
-/* Allows us to use our native translation easily using {{ trans() }} syntax */
-//const _ = require('lodash');
-//Vue.prototype.trans = string => _.get(window.i18n, string);
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
-
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
-Vue.component('client-edit', require('./components/client/ClientEdit.vue'));
-Vue.component('client-primary-address', require('./components/client/ClientPrimaryAddress.vue'));
-Vue.component('generic-address', require('./components/generic/Address.vue'));
-Vue.component('client-edit-form', require('./components/client/ClientEditForm.vue'));
-Vue.component('contact-edit', require('./components/client/ClientContactEdit.vue'));
-*/
-
-window.onload = function () {
-
-  var app = new Vue({
-    el: '#app'
-  });
-};
-
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -13204,7 +13180,7 @@ if (token) {
 
 /***/ }),
 
-/***/ 3:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__("./resources/js/app.js");

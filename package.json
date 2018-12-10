@@ -35,6 +35,7 @@
         "vue": "^2.5.17"
     },
     "dependencies": {
+        "@types/lodash": "^4.14.118",
         "@types/node": "^10.12.10",
         "hashids": "^1.2.2",
         "laravel-echo": "^1.4.0",

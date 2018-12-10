@@ -19,3 +19,4 @@ Breadcrumbs::for('clients.edit', function($trail, $client) {
 Breadcrumbs::for('clients.create', function($trail) {
     $trail->parent('clients');
 });
+
