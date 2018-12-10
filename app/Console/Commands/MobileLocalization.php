@@ -79,7 +79,7 @@ class MobileLocalization extends Command
             echo "'{$language->locale}': {\n";
 
             foreach ($resources as $key => $val) {
-                $text = addslashes(trans("texts.{$key}", [], $language->locale));
+                $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
                 echo "'$key': '$text',\n";
             }
 
