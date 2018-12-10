@@ -234,8 +234,12 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)
             || $this->isGatewayType(GATEWAY_TYPE_APPLE_PAY)
             || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
-            $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
-            $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
+                if (isset($source['exp_year']) && isset($source['exp_month'])) {
+                    $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
+                }
+                if (isset($source['brand'])) {
+                    $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
+                }
         } elseif ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
             $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
