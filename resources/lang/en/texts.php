@@ -2443,6 +2443,8 @@ $LANG = array(
     'currency_moroccan_dirham' => 'Moroccan Dirham',
     'currency_jamaican_dollar' => 'Jamaican Dollar',
     'currency_angolan_kwanza' => 'Angolan Kwanza',
+    'currency_haitian_gourde' => 'Haitian Gourde',
+    'currency_zambian_kwacha' => 'Zambian Kwacha',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
