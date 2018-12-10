@@ -18,15 +18,23 @@ class InvoiceRequest extends EntityRequest
     {
 
         $invoice = parent::entity();
+        $entity  = $invoice ? $invoice->subEntityType() : ENTITY_INVOICE;
 
-        if ($invoice && $invoice->isQuote())
-            $standardOrRecurringInvoice = ENTITY_QUOTE;
-        elseif($invoice && $invoice->is_recurring)
-            $standardOrRecurringInvoice = ENTITY_RECURRING_INVOICE;
-        else
-            $standardOrRecurringInvoice = ENTITY_INVOICE;
-
-
+        switch($entity)
+        {
+            case ENTITY_INVOICE:
+                $crossCloneEntity = ENTITY_QUOTE;
+                break;
+            case ENTITY_QUOTE:
+                $crossCloneEntity = ENTITY_INVOICE;
+                break;
+            case ENTITY_RECURRING_INVOICE:
+                $crossCloneEntity = ENTITY_RECURRING_QUOTE;
+                break;
+            case ENTITY_RECURRING_QUOTE:
+                $crossCloneEntity = ENTITY_RECURRING_INVOICE;
+                break;
+        }
 
         if(request()->is('invoices/create*') && $this->user()->can('createEntity', ENTITY_INVOICE))
             return true;
@@ -37,16 +45,27 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('quotes/create*') && $this->user()->can('createEntity', ENTITY_QUOTE))
             return true;
 
+        if(request()->is('recurring_quotes/create*') && $this->user()->can('createEntity', ENTITY_QUOTE))
+            return true;
+
         if($invoice && !$invoice->isQuote() && request()->is('*invoices/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice))
             return true;
 
         if($invoice && $invoice->isQuote() && request()->is('*quotes/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice))
             return true;
 
-        if($invoice && !$invoice->isQuote() && request()->is('*invoices/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $standardOrRecurringInvoice))
+        // allow cross clone quote to invoice
+        if($invoice && $invoice->isQuote() && request()->is('*invoices/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity))
             return true;
 
-        if($invoice && $invoice->isQuote() && request()->is('*quotes/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, ENTITY_QUOTE))
+        // allow cross clone invoice to quote
+        if($invoice && !$invoice->isQuote() && request()->is('*quotes/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity))
+            return true;
+
+        if($invoice && !$invoice->isQuote() && request()->is('*invoices/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity))
+            return true;
+
+        if($invoice && $invoice->isQuote() && request()->is('*quotes/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity))
             return true;
 
         if ($invoice) {
