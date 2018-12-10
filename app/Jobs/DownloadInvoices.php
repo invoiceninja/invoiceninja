@@ -2,9 +2,7 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use Barracuda\ArchiveStream\Archive;
@@ -15,15 +13,13 @@ use Barracuda\ArchiveStream\Archive;
 //class DownloadInvoices extends Job implements ShouldQueue
 class DownloadInvoices extends Job
 {
-    //use InteractsWithQueue, SerializesModels;
-
     /**
      * @var User
      */
     protected $user;
 
     /**
-     * @var array
+     * @var Invoice[]
      */
     protected $invoices;
 
@@ -42,7 +38,7 @@ class DownloadInvoices extends Job
     /**
      * Execute the job.
      *
-     * @param ContactMailer $mailer
+     * @param UserMailer $mailer
      */
     public function handle(UserMailer $userMailer)
     {
