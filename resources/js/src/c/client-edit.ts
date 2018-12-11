@@ -5,8 +5,6 @@ declare var i18n;
 
 import Vue from 'vue';
 import axios from 'axios';
-import Form from '../utils/form';
-import Client from '../models/client-model';
 
 // import Toastr
 import Toastr from 'vue-toastr';

@@ -5,8 +5,9 @@
     
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
+    <vue-toastr ref="toastr"></vue-toastr>
 
-    <client-edit-form v-bind:clientdata="{{ $client }}"></client-edit-form>
+    <client-edit-form :clientdata="{{ $client }}" :hashed_id="'{{ $hashed_id }}'"></client-edit-form>
 
 </main>
 

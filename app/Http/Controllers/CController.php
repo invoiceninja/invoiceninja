@@ -138,7 +138,6 @@ class CController extends Controller
         'hashed_id' => $this->encodePrimarykey($client->id)
         ];
 */
-        Log::error(print_r($client,1));
         return response()->json($client, 200);
 
     }

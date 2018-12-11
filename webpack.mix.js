@@ -19,7 +19,9 @@ mix.webpackConfig({
             rules: [
                 {
                     test: /\.ts$/,
-                    loader: 'ts-loader'
+                    loader: 'ts-loader',
+                    options: { appendTsSuffixTo: [/\.vue$/] },
+                    exclude: /node_modules/,
                 }
             ]
         }
