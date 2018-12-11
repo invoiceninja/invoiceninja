@@ -45,8 +45,6 @@ https://download.invoiceninja.com
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
 
-- Roadmap: `trello.com/b/63BbiVVe/invoice-ninja <https://trello.com/b/63BbiVVe/invoice-ninja>`_
-
 Step 2: Upload the code to your server
 """"""""""""""""""""""""""""""""""""""
 

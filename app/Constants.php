@@ -393,7 +393,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
     define('NINJA_IOS_APP_URL', 'https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8');
     define('NINJA_ANDROID_APP_URL', 'https://play.google.com/store/apps/details?id=com.invoiceninja.flutter');
-    define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
+    define('RELEASES_URL', env('RELEASES_URL', 'https://github.com/invoiceninja/invoiceninja/releases'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
     define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
     define('PDFMAKE_DOCS', env('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html'));
