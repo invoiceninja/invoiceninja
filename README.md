@@ -19,7 +19,6 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Videos](https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos)
 * [User Guide](https://invoice-ninja.readthedocs.io/en/latest/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
-* [Roadmap](https://trello.com/b/63BbiVVe/)
 
 ## Affiliates Programs
 * Referral Program (we pay you)
