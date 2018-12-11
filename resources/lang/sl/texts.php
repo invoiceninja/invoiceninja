@@ -1768,6 +1768,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'lang_Thai' => 'Tajščina',
     'lang_Macedonian' => 'Macedonian',
     'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
+    'lang_Serbian' => 'Serbian',
 
     // Industries
     'industry_Accounting & Legal' => 'Računovodstvo in Pravosodje',
@@ -2440,6 +2441,8 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'currency_moroccan_dirham' => 'Moroccan Dirham',
     'currency_jamaican_dollar' => 'Jamaican Dollar',
     'currency_angolan_kwanza' => 'Angolan Kwanza',
+    'currency_haitian_gourde' => 'Haitian Gourde',
+    'currency_zambian_kwacha' => 'Zambian Kwacha',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -3101,7 +3104,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'clone_to_quote' => 'Clone to Quote',
     'convert' => 'Convert',
     'last7_days' => 'Last 7 Days',
-    'last30_days' => 'Last 30 days',
+    'last30_days' => 'Last 30 Days',
     'custom_js' => 'Custom JS',
     'adjust_fee_percent_help' => 'Adjust percent to account for fee',
     'show_product_notes' => 'Show product details',
