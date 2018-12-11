@@ -3,9 +3,8 @@
         <div class="form-group row">
             <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.first_name') }}</label>
             <div class="col-sm-9">
-                <input type="text" :placeholder="trans('texts.first_name')" v-model="contact.first_name" class="form-control">
+                <input ref="first_name" name="first_name" type="text" :placeholder="trans('texts.first_name')" v-model="contact.first_name" class="form-control">
                 <div v-if="form.errors.has('contacts.'+error_index+'.first_name')" class="text-danger" v-text="form.errors.get('contacts.'+error_index+'.first_name')"></div>
-                <span>{{ error_index }}</span>
             </div>
         </div>
 

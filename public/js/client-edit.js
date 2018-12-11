@@ -1855,7 +1855,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['contact', 'form', 'error_index']
@@ -20163,8 +20162,6 @@ exports.default = {
     },
     props: ['hashed_id', 'clientdata'],
     beforeMount: function () {
-        //this.client = this.clientdata;
-        console.log(this.hashed_id);
     },
     methods: {
         remove: function (contact) {
@@ -20177,8 +20174,8 @@ exports.default = {
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
             this.$nextTick(function () {
                 var index = _this.form.contacts.length - 1;
-                var input = _this.$refs.first_name[index];
-                input.focus();
+                //this.$refs.first_name[index].$el.focus();
+                //this.$refs.first_name[index].focus();
             });
         },
         onSubmit: function () {
@@ -20209,10 +20206,8 @@ exports.default = {
         }
     },
     created: function () {
-        //console.dir('created');
     },
     updated: function () {
-        //console.dir('updated');
     }
 };
 
@@ -21383,8 +21378,13 @@ var render = function() {
               expression: "contact.first_name"
             }
           ],
+          ref: "first_name",
           staticClass: "form-control",
-          attrs: { type: "text", placeholder: _vm.trans("texts.first_name") },
+          attrs: {
+            name: "first_name",
+            type: "text",
+            placeholder: _vm.trans("texts.first_name")
+          },
           domProps: { value: _vm.contact.first_name },
           on: {
             input: function($event) {
@@ -21407,9 +21407,7 @@ var render = function() {
                 )
               }
             })
-          : _vm._e(),
-        _vm._v(" "),
-        _c("span", [_vm._v(_vm._s(_vm.error_index))])
+          : _vm._e()
       ])
     ]),
     _vm._v(" "),
@@ -21809,7 +21807,8 @@ var render = function() {
                       "button",
                       {
                         staticClass: "btn btn-primary btn-sm",
-                        attrs: { type: "button" }
+                        attrs: { type: "button" },
+                        on: { click: _vm.add }
                       },
                       [
                         _c("i", { staticClass: "fa fa-plus-circle" }),

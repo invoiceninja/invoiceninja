@@ -40,7 +40,7 @@
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.contact_information') }}
                             <span class="float-right">
-                                <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
+                                <button type="button" class="btn btn-primary btn-sm" @click="add"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</button>
                             </span>
                         </div>
                             <contact-edit   v-for="(contact, key, index) in form.contacts" 
@@ -73,8 +73,6 @@ export default {
     },
     props: ['hashed_id', 'clientdata'],
     beforeMount: function () {
-        //this.client = this.clientdata;
-        console.log(this.hashed_id);
     },
     methods:{
         remove(this:any, contact:any){
@@ -86,8 +84,8 @@ export default {
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
             this.$nextTick(() => {
                      let index = this.form.contacts.length - 1;
-                     let input = this.$refs.first_name[index];
-                     input.focus();
+                     //this.$refs.first_name[index].$el.focus();
+                     //this.$refs.first_name[index].focus();
                   });
         },
         onSubmit() {
@@ -118,11 +116,11 @@ export default {
         }
     },
     created:function() {
-        //console.dir('created');
+        
         
     },
     updated:function() {
-        //console.dir('updated');
+        
     }
     
 }
