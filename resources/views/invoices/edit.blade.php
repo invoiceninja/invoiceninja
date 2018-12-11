@@ -664,6 +664,7 @@
                             ->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
+                            ->autocomplete('off')
                             ->addOption('','')->addGroupClass('country_select')
                             ->fromQuery($countries, 'name', 'id')
 							->data_bind("dropdown: country_id") !!}
