@@ -1769,6 +1769,7 @@ $LANG = array(
     'lang_Thai' => '泰文',
     'lang_Macedonian' => 'Macedonian',
     'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
+    'lang_Serbian' => 'Serbian',
 
     // Industries
     'industry_Accounting & Legal' => '會計與法務',
@@ -2441,6 +2442,8 @@ $LANG = array(
     'currency_moroccan_dirham' => 'Moroccan Dirham',
     'currency_jamaican_dollar' => 'Jamaican Dollar',
     'currency_angolan_kwanza' => 'Angolan Kwanza',
+    'currency_haitian_gourde' => 'Haitian Gourde',
+    'currency_zambian_kwacha' => 'Zambian Kwacha',
 
     'review_app_help' => '我們希望您喜歡使用這個程式。<br/>若您考慮 :link，我們會非常感謝！',
     'writing_a_review' => '撰寫評語',
@@ -3103,7 +3106,7 @@ $LANG = array(
     'clone_to_quote' => 'Clone to Quote',
     'convert' => 'Convert',
     'last7_days' => 'Last 7 Days',
-    'last30_days' => 'Last 30 days',
+    'last30_days' => 'Last 30 Days',
     'custom_js' => 'Custom JS',
     'adjust_fee_percent_help' => 'Adjust percent to account for fee',
     'show_product_notes' => 'Show product details',

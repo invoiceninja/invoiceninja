@@ -1762,6 +1762,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Thai' => 'Baht thaïlandais',
     'lang_Macedonian' => 'Macédonien',
     'lang_Chinese - Taiwan' => 'Chinois - Taiwan',
+    'lang_Serbian' => 'Serbian',
 
     // Industries
     'industry_Accounting & Legal' => 'Administration',
@@ -2435,6 +2436,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_moroccan_dirham' => 'Dirham marocain',
     'currency_jamaican_dollar' => 'Dollar jamaicain',
     'currency_angolan_kwanza' => 'Kwanza angolais',
+    'currency_haitian_gourde' => 'Gourde haïtienne',
+    'currency_zambian_kwacha' => 'Kwacha zambien',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'rédiger un commentaire',
@@ -3102,16 +3105,16 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'show_product_notes' => 'Afficher le détail des produits',
     'show_product_notes_help' => 'Inclure la <b>description et le coût</b> dans le menu déroulant du produit',
     'important' => 'Important',
-    'thank_you_for_using_our_app' => 'Thank you for using our app!',
-    'if_you_like_it' => 'If you like it please',
-    'to_rate_it' => 'to rate it.',
-    'average' => 'Average',
-    'unapproved' => 'Unapproved',
-    'authenticate_to_change_setting' => 'Please authenticate to change this setting',
-    'locked' => 'Locked',
-    'authenticate' => 'Authenticate',
-    'please_authenticate' => 'Please authenticate',
-    'biometric_authentication' => 'Biometric Authentication',
+    'thank_you_for_using_our_app' => 'Merci d\'utiliser notre app!',
+    'if_you_like_it' => 'Si vous appréciez, merci',
+    'to_rate_it' => 'd\'évaluer notre app.',
+    'average' => 'Moyenne',
+    'unapproved' => 'Non approuvé',
+    'authenticate_to_change_setting' => 'Veuillez vous connecter pour changer ce paramètre',
+    'locked' => 'Verrouillé',
+    'authenticate' => 'Connexion',
+    'please_authenticate' => 'Veuillez vous connecter',
+    'biometric_authentication' => 'Connexion biométrique',
 
 );
 

@@ -1765,6 +1765,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Thai' => 'Thaïlandais',
     'lang_Macedonian' => 'Macedoine',
     'lang_Chinese - Taiwan' => 'Chine -Taiwan',
+    'lang_Serbian' => 'Serbian',
 
     // Industries
     'industry_Accounting & Legal' => 'Comptabilité & Légal',
@@ -2435,8 +2436,10 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_venezuelan_bolivars' => 'Bolivar fort',
     'currency_south_korean_won' => 'Won sud-coréen',
     'currency_moroccan_dirham' => 'Dirham marocain',
-    'currency_jamaican_dollar' => 'Jamaican Dollar',
-    'currency_angolan_kwanza' => 'Angolan Kwanza',
+    'currency_jamaican_dollar' => 'Dollar jamaicain',
+    'currency_angolan_kwanza' => 'Kwanza angolais',
+    'currency_haitian_gourde' => 'Haitian Gourde',
+    'currency_zambian_kwacha' => 'Zambian Kwacha',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'écrire un commentaire',
@@ -3104,16 +3107,16 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'show_product_notes' => 'Afficher les détails des produits',
     'show_product_notes_help' => 'Afficher la <b>description et le prix</b> dans le sélecteur de produits',
     'important' => 'Important',
-    'thank_you_for_using_our_app' => 'Thank you for using our app!',
-    'if_you_like_it' => 'If you like it please',
-    'to_rate_it' => 'to rate it.',
-    'average' => 'Average',
-    'unapproved' => 'Unapproved',
-    'authenticate_to_change_setting' => 'Please authenticate to change this setting',
-    'locked' => 'Locked',
-    'authenticate' => 'Authenticate',
-    'please_authenticate' => 'Please authenticate',
-    'biometric_authentication' => 'Biometric Authentication',
+    'thank_you_for_using_our_app' => 'Merci d\'utiliser notre app !',
+    'if_you_like_it' => 'Si vous appréciez, merci',
+    'to_rate_it' => 'd\'évaluer notre app.',
+    'average' => 'Moyenne',
+    'unapproved' => 'Non approuvé',
+    'authenticate_to_change_setting' => 'Veuillez vous connecter pour changer ce paramètre',
+    'locked' => 'Verrouillé',
+    'authenticate' => 'Connexion',
+    'please_authenticate' => 'Veuillez vous connecter',
+    'biometric_authentication' => 'Connexion biométrique',
 
 );
 
