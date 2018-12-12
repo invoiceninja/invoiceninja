@@ -70,7 +70,7 @@ class CheckMenuModulesTest extends TestCase
 			}
 		}
 
-        $this->assertGreaterThan(0, count($tabs));
+        $this->assertEquals(1, count($tabs));
     }
   
 }
