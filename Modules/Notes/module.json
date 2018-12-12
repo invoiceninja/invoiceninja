@@ -1,0 +1,14 @@
+{
+    "name": "Notes",
+    "alias": "notes",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Notes\\Providers\\NotesServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
