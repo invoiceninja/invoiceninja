@@ -11,6 +11,6 @@
 |
 */
 
-Route::prefix('notes')->group(function() {
-    Route::get('/', 'NotesController@index');
+Route::group(['middleware' => ['auth:user', 'db'], 'prefix' => 'notes'], function() {
+    Route::get('/', 'NotesController@index')->name('notes.index');
 });

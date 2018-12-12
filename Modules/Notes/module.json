@@ -1,14 +1,19 @@
 {
     "name": "Notes",
     "alias": "notes",
-    "description": "",
+    "description": "Generic Notes Module",
     "keywords": [],
     "active": 1,
     "order": 0,
     "providers": [
         "Modules\\Notes\\Providers\\NotesServiceProvider"
     ],
-    "aliases": {},
-    "files": [],
-    "requires": []
+    "aliases": [],
+    "icon": "file",
+    "plural": "notes",
+    "base-route": "notes",
+    "has_settings": 1,
+    "no-sidebar": 1,
+    "requires": [],
+    "views": ["clients","invoices"]
 }
