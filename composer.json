@@ -50,7 +50,8 @@
             "database/factories"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Modules\\": "Modules/"
         },
         "files": [
             "app/Libraries/OFX.php",

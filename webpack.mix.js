@@ -19,14 +19,18 @@ mix.webpackConfig({
             rules: [
                 {
                     test: /\.ts$/,
-                    loader: 'ts-loader'
+                    loader: 'ts-loader',
+                    options: { appendTsSuffixTo: [/\.vue$/] },
+                    exclude: /node_modules/,
                 }
             ]
         }
     });
 
 mix.js('resources/js/src/client/client_edit.ts', 'public/js');
+mix.js('resources/js/src/c/client-edit.ts', 'public/js');
 mix.js('resources/js/src/client/client_create.ts', 'public/js');
+mix.js('resources/js/src/settings/localization.ts', 'public/js');
 mix.js('resources/js/app.js', 'public/js/vendor');
 mix.js('node_modules/@coreui/coreui/dist/js/coreui.js', 'public/js');
 
@@ -38,6 +42,7 @@ mix.minify('public/js/ninja.js');
 mix.minify('public/js/coreui.js');
 mix.minify('public/js/client_edit.js');
 mix.minify('public/js/client_create.js');
+mix.minify('public/js/localization.js');
 
 mix.styles([
     'node_modules/@coreui/coreui/dist/css/coreui.css',

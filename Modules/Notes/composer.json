@@ -1,0 +1,30 @@
+{
+    "name": "invoiceninja/notes",
+    "description": "",
+    "authors": [
+        {
+            "name": "David Bomba",
+            "email": "david@invoiceninja.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Notes\\Providers\\NotesServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Notes\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "Tests/"
+        }
+    },
+}

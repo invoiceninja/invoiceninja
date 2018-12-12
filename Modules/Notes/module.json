@@ -1,0 +1,19 @@
+{
+    "name": "Notes",
+    "alias": "notes",
+    "description": "Generic Notes Module",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Notes\\Providers\\NotesServiceProvider"
+    ],
+    "aliases": [],
+    "icon": "bell",
+    "plural": "notes",
+    "base-route": "notes",
+    "settings": false,
+    "sidebar": false,
+    "requires": [],
+    "views": ["client","invoice"]
+}
