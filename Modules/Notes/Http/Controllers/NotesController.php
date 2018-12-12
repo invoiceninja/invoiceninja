@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Notes\Entities\Note;
+use Nwidart\Modules\Facades\Module;
 use Yajra\DataTables\Html\Builder;
 
 class NotesController extends Controller
@@ -31,10 +32,10 @@ class NotesController extends Controller
                 ->addColumn('description', function ($note) {
                     return $note->description;
                 })
-                ->addColumn('action', function ($client) {
+                ->addColumn('action', function ($note) {
                     return '<a href="/notes/'. $this->encodePrimaryKey($note->id) .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
                 })
-                ->addColumn('checkbox', function ($client){
+                ->addColumn('checkbox', function ($note){
                     return '<input type="checkbox" name="bulk" value="'. $note->id .'"/>';
                 })
                 ->rawColumns(['checkbox', 'action'])
@@ -57,7 +58,7 @@ class NotesController extends Controller
         ]);
 
         $data['html'] = $html;
-
+        
         return view('notes::index', $data);
     }
 

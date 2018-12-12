@@ -1,10 +1,10 @@
 {
-    "name": "nwidart/notes",
+    "name": "invoiceninja/notes",
     "description": "",
     "authors": [
         {
-            "name": "Nicolas Widart",
-            "email": "n.widart@gmail.com"
+            "name": "David Bomba",
+            "email": "david@invoiceninja.com"
         }
     ],
     "extra": {
@@ -21,5 +21,10 @@
         "psr-4": {
             "Modules\\Notes\\": ""
         }
-    }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "Tests/"
+        }
+    },
 }
