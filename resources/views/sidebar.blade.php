@@ -14,11 +14,6 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="/c">
-                    <i class="nav-icon icon-present"></i> Vue Clients</a>
-            </li>
-
-            <li class="nav-item">
                 <a class="nav-link" href="{{ route('invoices.index') }}">
                     <i class="nav-icon icon-notebook"></i> @lang('texts.invoices')</a>
             </li>

@@ -11,6 +11,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ class ClientController extends Controller
 {
     use UserSessionAttributes;
     use MakesHash;
+    use MakesMenu;
 
     protected $clientRepo;
 
@@ -169,6 +171,7 @@ class ClientController extends Controller
         $data = [
         'client' => $client,
         'settings' => [],
+        'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id)
         ];
 

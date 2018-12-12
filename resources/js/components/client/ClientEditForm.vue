@@ -1,6 +1,6 @@
 <template>
     <form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
-        <div class="container-fluid">
+        
             
             <div class="row">
                 <!-- Client Details and Address Column -->
@@ -46,10 +46,10 @@
 
             </div>   
 
-        </div>
+        
 
     </form>
-    
+
 </template>
 
 <script lang="ts">

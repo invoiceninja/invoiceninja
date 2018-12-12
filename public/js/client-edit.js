@@ -21711,97 +21711,91 @@ var render = function() {
       }
     },
     [
-      _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-md-6" }, [
-            _c(
-              "div",
-              { staticClass: "card" },
-              [
-                _c("div", { staticClass: "card-header bg-primary2" }, [
-                  _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-                ]),
-                _vm._v(" "),
-                _c("client-edit", { attrs: { client: _vm.form } })
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "card" },
-              [
-                _c("div", { staticClass: "card-header bg-primary2" }, [
-                  _vm._v(_vm._s(_vm.trans("texts.address")))
-                ]),
-                _vm._v(" "),
-                _c("client-address", {
-                  attrs: { client: _vm.form },
-                  on: { copy: _vm.copy }
-                })
-              ],
-              1
-            )
-          ]),
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col-md-6" }, [
+          _c(
+            "div",
+            { staticClass: "card" },
+            [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+              ]),
+              _vm._v(" "),
+              _c("client-edit", { attrs: { client: _vm.form } })
+            ],
+            1
+          ),
           _vm._v(" "),
-          _c("div", { staticClass: "col-md-6" }, [
-            _c(
-              "div",
-              { staticClass: "card" },
-              [
-                _c("div", { staticClass: "card-header bg-primary2" }, [
-                  _vm._v(
-                    _vm._s(_vm.trans("texts.contact_information")) +
-                      "\n                        "
-                  ),
-                  _c("span", { staticClass: "float-right" }, [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary btn-sm",
-                        attrs: { type: "button" },
-                        on: { click: _vm.add }
-                      },
-                      [
-                        _c("i", { staticClass: "fa fa-plus-circle" }),
-                        _vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))
-                      ]
-                    )
-                  ])
-                ]),
-                _vm._v(" "),
-                _vm._l(_vm.form.contacts, function(contact, key, index) {
-                  return _c("contact-edit", {
-                    key: contact.id,
-                    attrs: {
-                      contact: contact,
-                      form: _vm.form,
-                      error_index: key
-                    },
-                    on: { remove: _vm.remove }
-                  })
-                })
-              ],
-              2
-            )
-          ])
+          _c(
+            "div",
+            { staticClass: "card" },
+            [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("texts.address")))
+              ]),
+              _vm._v(" "),
+              _c("client-address", {
+                attrs: { client: _vm.form },
+                on: { copy: _vm.copy }
+              })
+            ],
+            1
+          )
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-md-12 text-center" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-lg btn-success",
-                attrs: { type: "button" },
-                on: { click: _vm.onSubmit }
-              },
-              [
-                _c("i", { staticClass: "fa fa-save" }),
-                _vm._v(" " + _vm._s(_vm.trans("texts.save")))
-              ]
-            )
-          ])
+        _c("div", { staticClass: "col-md-6" }, [
+          _c(
+            "div",
+            { staticClass: "card" },
+            [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(
+                  _vm._s(_vm.trans("texts.contact_information")) +
+                    "\n                        "
+                ),
+                _c("span", { staticClass: "float-right" }, [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary btn-sm",
+                      attrs: { type: "button" },
+                      on: { click: _vm.add }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-plus-circle" }),
+                      _vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))
+                    ]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _vm._l(_vm.form.contacts, function(contact, key, index) {
+                return _c("contact-edit", {
+                  key: contact.id,
+                  attrs: { contact: contact, form: _vm.form, error_index: key },
+                  on: { remove: _vm.remove }
+                })
+              })
+            ],
+            2
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col-md-12 text-center" }, [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-lg btn-success",
+              attrs: { type: "button" },
+              on: { click: _vm.onSubmit }
+            },
+            [
+              _c("i", { staticClass: "fa fa-save" }),
+              _vm._v(" " + _vm._s(_vm.trans("texts.save")))
+            ]
+          )
         ])
       ])
     ]

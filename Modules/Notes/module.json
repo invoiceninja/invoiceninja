@@ -9,11 +9,11 @@
         "Modules\\Notes\\Providers\\NotesServiceProvider"
     ],
     "aliases": [],
-    "icon": "file",
+    "icon": "bell",
     "plural": "notes",
     "base-route": "notes",
     "settings": false,
     "sidebar": false,
     "requires": [],
-    "views": ["clients","invoices"]
+    "views": ["client","invoice"]
 }
