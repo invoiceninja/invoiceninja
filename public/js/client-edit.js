@@ -21712,54 +21712,6 @@ var render = function() {
     },
     [
       _c("div", { staticClass: "container-fluid" }, [
-        _c("div", { staticClass: "row form-group" }, [
-          _c("div", { staticClass: "col-md-12" }, [
-            _c("span", { staticClass: "float-right" }, [
-              _c("div", { staticClass: "btn-group ml-2" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-lg btn-success",
-                    attrs: { type: "button" },
-                    on: { click: _vm.onSubmit }
-                  },
-                  [
-                    _c("i", { staticClass: "fa fa-save" }),
-                    _vm._v(" " + _vm._s(_vm.trans("texts.save")))
-                  ]
-                ),
-                _vm._v(" "),
-                _vm._m(0),
-                _vm._v(" "),
-                _c("div", { staticClass: "dropdown-menu" }, [
-                  _c(
-                    "a",
-                    { staticClass: "dropdown-item", attrs: { href: "#" } },
-                    [
-                      _c("i", { staticClass: "fa fa-plus-circle" }),
-                      _vm._v(" " + _vm._s(_vm.trans("texts.add_contact")))
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "dropdown-divider" }),
-                  _vm._v(" "),
-                  _c(
-                    "a",
-                    { staticClass: "dropdown-item", attrs: { href: "#" } },
-                    [_vm._v(_vm._s(_vm.trans("texts.archive_client")))]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "a",
-                    { staticClass: "dropdown-item", attrs: { href: "#" } },
-                    [_vm._v(_vm._s(_vm.trans("texts.delete_client")))]
-                  )
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
         _c("div", { staticClass: "row" }, [
           _c("div", { staticClass: "col-md-6" }, [
             _c(
@@ -21833,32 +21785,29 @@ var render = function() {
               2
             )
           ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-md-12 text-center" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-lg btn-success",
+                attrs: { type: "button" },
+                on: { click: _vm.onSubmit }
+              },
+              [
+                _c("i", { staticClass: "fa fa-save" }),
+                _vm._v(" " + _vm._s(_vm.trans("texts.save")))
+              ]
+            )
+          ])
         ])
       ])
     ]
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass:
-          "btn btn-lg btn-success dropdown-toggle dropdown-toggle-split",
-        attrs: {
-          type: "button",
-          "data-toggle": "dropdown",
-          "aria-haspopup": "true",
-          "aria-expanded": "false"
-        }
-      },
-      [_c("span", { staticClass: "sr-only" }, [_vm._v("Toggle Dropdown")])]
-    )
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {

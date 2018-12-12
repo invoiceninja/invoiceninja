@@ -16,10 +16,11 @@ class NotesTable extends Migration
        Schema::create('notes', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('client_id')->index();
+            $table->unsignedInteger('user_id')->index();
             $table->string('description');
             $table->timestamps();            
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

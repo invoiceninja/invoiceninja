@@ -12,8 +12,8 @@
     "icon": "file",
     "plural": "notes",
     "base-route": "notes",
-    "has_settings": 1,
-    "no-sidebar": 1,
+    "settings": false,
+    "sidebar": false,
     "requires": [],
     "views": ["clients","invoices"]
 }

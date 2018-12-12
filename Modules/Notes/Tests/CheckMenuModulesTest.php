@@ -32,7 +32,7 @@ class CheckMenuModulesTest extends TestCase
     public function testNoSideBarVariableExists()
     {
         $module = Module::find('Notes');
-        $this->assertNotNull($module->get('no-sidebar'));
+        $this->assertNotNull($module->get('sidebar'));
     }
 
     public function testViewsVariableExistsAndIsArray()
@@ -62,14 +62,16 @@ class CheckMenuModulesTest extends TestCase
 
     	foreach (Module::getCached() as $module)
 		{
-			if($module['no-sidebar'] == 1 
-                && $module['active']
+			if(!$module['sidebar']
+                && $module['active'] == 1
                 && in_array($entity, $module['views']))
 			{
                 $tabs[] = $module;
 			}
 		}
-
+        $this->assertFalse($module['sidebar']);
+        $this->assertEquals(1,$module['active']);
+        $this->assertTrue(in_array($entity, $module['views']));
         $this->assertEquals(1, count($tabs));
     }
   

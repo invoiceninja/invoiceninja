@@ -1,24 +1,6 @@
 <template>
     <form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
         <div class="container-fluid">
-            <div class="row form-group">
-                <div class="col-md-12">
-                    <span class="float-right">
-                        <div class="btn-group ml-2">
-                            <button class="btn btn-lg btn-success" type="button" @click="onSubmit"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
-                            <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#"><i class="fa fa-plus-circle"></i> {{ trans('texts.add_contact') }}</a>
-                                    <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">{{ trans('texts.archive_client') }}</a>
-                                        <a class="dropdown-item" href="#">{{ trans('texts.delete_client') }}</a>
-                            </div>
-                        </div>            
-                    </span>
-                </div>
-            </div>
             
             <div class="row">
                 <!-- Client Details and Address Column -->
@@ -52,9 +34,22 @@
                     </div>    
                 </div>     
                 <!-- End Contact Details Column --> 
-            </div>            
+            </div>     
+
+            <div class="row"> 
+
+                <div class="col-md-12 text-center">
+
+                    <button class="btn btn-lg btn-success" type="button" @click="onSubmit"><i class="fa fa-save"></i> {{ trans('texts.save') }}</button>
+
+                </div>
+
+            </div>   
+
         </div>
+
     </form>
+    
 </template>
 
 <script lang="ts">
