@@ -1,7 +1,7 @@
 @extends('layouts.master', ['header' => $header])
 
 @section('body')
-<main class="main" id="client_e">
+<main class="main" id="client_edit">
     
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
@@ -56,6 +56,6 @@
 
 </main>
 
-<script defer src=" {{ mix('/js/client-edit.js') }}"></script>
+<script defer src=" {{ mix('/js/client_edit.min.js') }}"></script>
 
 @endsection
