@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Modules\Notes\Entities\Note;
-use Nwidart\Modules\Facades\Module;
+use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 class NotesController extends Controller
@@ -58,7 +58,7 @@ class NotesController extends Controller
         ]);
 
         $data['html'] = $html;
-        
+
         return view('notes::index', $data);
     }
 

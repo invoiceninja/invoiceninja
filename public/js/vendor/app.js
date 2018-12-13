@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -68,11 +68,11 @@
 /***/ "./resources/js/app.js":
 /***/ (function(module, exports) {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/davidbomba/Development/invoiceninja/resources/js/app.js'");
+throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/davidbomba/Development/invoice-ninja/resources/js/app.js'");
 
 /***/ }),
 
-/***/ 3:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__("./resources/js/app.js");

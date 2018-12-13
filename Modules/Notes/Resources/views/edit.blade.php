@@ -1,32 +1,13 @@
 
-@section('head')
-    @parent
-    <link rel="stylesheet" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
-    <script src="//cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
-    <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
-@endsection
-
-@section('body')
-    @parent
-    <main class="main" >
-        <!-- Breadcrumb-->
-        {{ Breadcrumbs::render('clients') }}
 
         <div class="container-fluid">
-            <div id="ui-view">
-                <div class="animated fadeIn">
-                    <div class="row col-lg-12 card">
+                @if($client)
+                    <span>{{ $client->name }}  </span>
+                @endif
 
-                        {!! $html->table() !!}
-
-                    </div>
-                </div>
-            </div>
+                <ul>
+                @foreach($client->notes()->get() as $note)
+                   <li> {{ $note->description }} </li>
+                @endforeach
+                </ul>
         </div>
-    </main>
-@endsection
-
-@section('footer')
-    @parent
-    {!! $html->scripts() !!}
-@endsection

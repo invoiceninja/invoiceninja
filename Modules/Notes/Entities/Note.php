@@ -6,13 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
+	/*
     protected $guarded = [
     		'id',
     ];
+*/
+    protected $fillable = ["description"];
+
+
+    protected $table = 'notes';
 
     public function client()
     {
-        $this->hasOne(App\Models\Client::class);
+        return $this->hasOne(App\Models\Client::class);
+    }
+
+    public function notes()
+    {
+    	return $this->hasMany(Note::class);
     }
     
 }
