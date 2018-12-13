@@ -14,9 +14,15 @@
         {{ Breadcrumbs::render('clients') }}
 
         <div class="container-fluid">
+             <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-primary btn-lg pull-right">{{ trans('texts.new_client') }}</button>
+                </div>
+            </div>
+
             <div id="ui-view">
                 <div class="animated fadeIn">
-                    <div class="row col-lg-12 card">
+                    <div class="row col-md-12 card">
 
                         {!! $html->table() !!}
 

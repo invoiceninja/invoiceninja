@@ -46,8 +46,11 @@ class NotesServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('notes.php'),
+            __DIR__.'/../Config/config.php' => config_path('modules.notes' . '.php'),
         ], 'config');
+
+        $this->mergeConfigFrom(__DIR__.'/../Config/relations.php', 'modules.relations');
+
         $this->mergeConfigFrom(
             __DIR__.'/../Config/config.php', 'notes'
         );

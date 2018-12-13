@@ -57,8 +57,8 @@
 
 import Vue from 'vue';
 import axios from 'axios';
-import Form from '../../src/utils/form';
-import Client from '../../src/models/client-model';
+import Form from '../../utils/form';
+import Client from '../../models/client-model';
 
 export default {
     data: function () {

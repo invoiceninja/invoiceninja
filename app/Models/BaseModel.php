@@ -7,13 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseModel extends Model
 {
-    /*
-    public function setIdAttribute($value)
+    public function __call($method, $params)
     {
-        $hashids = new Hashids(); //decoded output is _always_ an array.
-        $hashed_id_array = $hashids->decode($value);
+        $entity = strtolower(class_basename($this));
 
-        $this->attributes['id'] = strtolower($hashed_id_array[0]);
+        if ($entity) {
+            $configPath = "modules.relations.$entity.$method";
+
+            if (config()->has($configPath)) {
+                $function = config()->get($configPath);
+
+                return $function($this);
+            }
+        }
+
+        return parent::__call($method, $params);
     }
-    */
 }

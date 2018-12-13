@@ -1,3 +1,4 @@
+@extends('layouts.master', ['header' => $header])
 
 @section('head')
     @parent
@@ -13,15 +14,23 @@
         {{ Breadcrumbs::render('clients') }}
 
         <div class="container-fluid">
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-primary btn-lg pull-right">{{ trans('notes::texts.new_note') }}</button>
+                </div>
+            </div>
+
             <div id="ui-view">
-                <div class="animated fadeIn">
-                    <div class="row col-lg-12 card">
+                <div class="animated fadeIn" style="padding-top:20px;">
+                    <div class="row col-md-12 card">
 
                         {!! $html->table() !!}
 
                     </div>
                 </div>
             </div>
+
         </div>
     </main>
 @endsection

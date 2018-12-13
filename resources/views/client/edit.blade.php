@@ -1,7 +1,7 @@
 @extends('layouts.master', ['header' => $header])
 
 @section('body')
-<main class="main" id="client_e">
+<main class="main" id="client_edit">
     
     <!-- Breadcrumb-->
     {{ Breadcrumbs::render('clients.edit', $client) }}
@@ -16,10 +16,6 @@
                     <a class="nav-link active show" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true"><i class="icon-user"></i> {{ trans('texts.client') }}</a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false"><i class="icon-settings"></i> {{ trans('texts.settings') }}</a>
-                </li>
-
                 @foreach($pills as $pill)
                     
                     <li class="nav-item">
@@ -27,6 +23,11 @@
                     </li>
 
                 @endforeach
+
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false"><i class="icon-settings"></i> {{ trans('texts.settings') }}</a>
+                </li>
+
             </ul>
 
         <div class="tab-content" id="pills-tabContent">
@@ -40,7 +41,9 @@
             @foreach($pills as $pill)
 
                 <div class="tab-pane fade" id="pills-{{ $pill['alias'] }}" role="tabpanel" aria-labelledby="pills-{{ $pill['alias'] }}-tab">
-                    {{$pill['name']}}
+
+                    @include($pill['alias'] . '::.edit')
+
                 </div>
             
             @endforeach
@@ -56,6 +59,6 @@
 
 </main>
 
-<script defer src=" {{ mix('/js/client-edit.js') }}"></script>
+<script defer src=" {{ mix('/js/client_edit.min.js') }}"></script>
 
 @endsection
