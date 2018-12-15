@@ -26,6 +26,7 @@ class NotesServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->registerFactories();
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+    
     }
 
     /**

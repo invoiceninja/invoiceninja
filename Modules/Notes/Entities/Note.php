@@ -25,5 +25,5 @@ class Note extends Model
     {
     	return $this->hasMany(Note::class);
     }
-    
+
 }
