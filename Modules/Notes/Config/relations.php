@@ -1,9 +1,8 @@
 <?php
 
 	return [
-    'client' => [
-        'notes' => function ($self) {
-	            return $self->hasMany('Modules\Notes\Entities\Note');
-       }
-    ],
-];
+	    'client' => [
+	        'notes' => ["hasMany", ['Modules\Notes\Entities\Note']]
+	    ],
+	];
+

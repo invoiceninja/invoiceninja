@@ -49,7 +49,7 @@
         </div>
 
         <div class="float-right">
-            <button type="button" class="btn btn-danger" v-on:click="$emit('remove',contact.id)"> {{ trans('texts.remove_contact') }}</button>
+            <button type="button" class="btn btn-danger" v-on:click="$emit('remove',contact)"> {{ trans('texts.remove_contact') }}</button>
         </div>
     </div>
 </template>

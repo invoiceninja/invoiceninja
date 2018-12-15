@@ -17,7 +17,7 @@ class BaseModel extends Model
             if (config()->has($configPath)) {
                 $function = config()->get($configPath);
 
-                return $function($this);
+				return call_user_func_array(array($this, $function[0]), $function[1]);
             }
         }
 
