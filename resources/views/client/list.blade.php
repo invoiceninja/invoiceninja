@@ -20,9 +20,9 @@
                 </div>
             </div>
 
-            <div id="ui-view">
-                <div class="animated fadeIn">
-                    <div class="row col-md-12 card">
+            <div id="">
+                <div class="">
+                    <div class="col-md-12 card">
 
                         {!! $html->table() !!}
 
