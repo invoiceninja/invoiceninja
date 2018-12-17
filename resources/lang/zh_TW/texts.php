@@ -2875,6 +2875,7 @@ $LANG = array(
     'guide' => '指南 ',
     'gateway_fee_item' => '閘道費用項目',
     'gateway_fee_description' => '閘道的額外費用',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => '顯示支付資料',
     'show_aging' => '顯示帳齡',
     'reference' => '參照',

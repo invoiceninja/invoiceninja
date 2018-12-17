@@ -2868,6 +2868,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'guide' => 'Gids',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Toon betalingen',
     'show_aging' => 'Toon veroudering',
     'reference' => 'Referentie',

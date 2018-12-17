@@ -2869,6 +2869,7 @@ $LANG = array(
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Mostra i pagamenti',
     'show_aging' => 'Show Aging',
     'reference' => 'Riferimento',

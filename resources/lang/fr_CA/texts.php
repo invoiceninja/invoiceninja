@@ -2868,6 +2868,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'guide' => 'Guide',
     'gateway_fee_item' => 'Article de frais de passerelle',
     'gateway_fee_description' => 'Surcharge de frais de passerelle',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Afficher les paiements',
     'show_aging' => 'Afficher les impayés',
     'reference' => 'Référence',

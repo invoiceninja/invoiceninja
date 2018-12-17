@@ -2876,6 +2876,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'guide' => 'Οδηγός',
     'gateway_fee_item' => 'Προμήθεια Πύλης Πληρωμής για το προϊόν',
     'gateway_fee_description' => 'Επιβάρυνση Προμήθειας Πύλης Πληρωμής',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Εμφάνιση Πληρωμών',
     'show_aging' => 'Εμφάνιση Γήρανσης',
     'reference' => 'Αναφορά',
