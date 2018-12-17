@@ -32,7 +32,8 @@
         "popper.js": "^1.12",
         "simple-line-icons": "2.4.1",
         "ts-jest": "^23.10.5",
-        "vue": "^2.5.17"
+        "vue": "^2.5.17",
+        "vuetable-2": "^1.7.5"
     },
     "dependencies": {
         "@types/lodash": "^4.14.118",
