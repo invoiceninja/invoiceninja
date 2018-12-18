@@ -1,7 +1,6 @@
 <template>
     <form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
         
-            
             <div class="row">
                 <!-- Client Details and Address Column -->
                 <div class="col-md-6">
@@ -46,17 +45,12 @@
 
             </div>   
 
-        
-
     </form>
 
 </template>
 
 <script lang="ts">
 
-
-import Vue from 'vue';
-import axios from 'axios';
 import Form from '../../utils/form';
 import Client from '../../models/client-model';
 

@@ -18,6 +18,7 @@
         "@types/core-js": "^0.9.36",
         "@types/jest": "^23.3.9",
         "axios": "^0.18",
+        "babel-preset-stage-2": "^6.24.1",
         "bootstrap": "^4.0.0",
         "chart.js": "^2.7.2",
         "cross-env": "^5.1",

@@ -36,8 +36,17 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Builder $builder)
+    
+    public function data()
     {
+        return response()->json(Client::where('company_id', '=', $this->getCurrentCompanyId())->paginate(), 200);
+    }
+
+    public function index()
+    {
+
+        return view('client.vue_list');
+        /*
         if (request()->ajax()) {
 
             /*
@@ -49,7 +58,8 @@ class ClientController extends Controller
                 });
             */
 
-            $clients = Client::query()->where('company_id', '=', $this->getCurrentCompanyId());
+/*
+            $clients = Client::query();
 
             return DataTables::of($clients->get())
                 ->addColumn('full_name', function ($clients) {
@@ -95,6 +105,7 @@ class ClientController extends Controller
         $data['html'] = $html;
 
         return view('client.list', $data);
+  */
     }
 
     /**

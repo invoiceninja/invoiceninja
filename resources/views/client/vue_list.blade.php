@@ -1,10 +1,7 @@
 @extends('layouts.master', ['header' => $header])
 
 @section('head')
-    @parent
-    <link rel="stylesheet" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
-    <script src="//cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
-    <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+
 @endsection
 
 @section('body')
@@ -20,20 +17,22 @@
                 </div>
             </div>
 
-            <div id="ui-view" style="padding-top:20px;">
+            <div id="client_list" style="padding-top:20px;">
                 <div class="animated fadeIn">
                     <div class="col-md-12 card">
 
-                        {!! $html->table() !!}
+                       <client-list></client-list>
 
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <script defer src=" {{ mix('/js/client_list.min.js') }}"></script>
+
 @endsection
 
 @section('footer')
-    @parent
-    {!! $html->scripts() !!}
+    
 @endsection

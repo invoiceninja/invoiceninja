@@ -31,20 +31,8 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('client', function ($value) {
             $client = \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
             $client->load('contacts', 'primary_contact');
-
             return $client;
-
         });
-
-
-        Route::bind('c', function ($value) {
-            $client = \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
-            $client->load('contacts', 'primary_contact');
-
-            return $client;
-
-        });
-
 
         Route::bind('invoice', function ($value) {
                 return \App\Models\Invoice::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
