@@ -2,20 +2,24 @@
 	<div>
 
       <vuetable ref="vuetable"
-	    api-url="/clients/data"
+	    api-url="/clients"
 	    :fields="fields"
   		pagination-path=""
       	@vuetable:pagination-data="onPaginationData"
     	></vuetable>
 			
-		<div class="vuetable-pagination ui basic segment grid">
-		    <vuetable-pagination ref="pagination"
-        :css="css.pagination"
-        @vuetable-pagination:change-page="onChangePage"
-      ></vuetable-pagination>
-		</div>
 
-	</div>
+
+      <div class="vuetable-pagination ui basic segment grid">
+
+         <vuetable-pagination-info ref="paginationInfo"></vuetable-pagination-info>
+
+        <vuetable-pagination ref="pagination"
+        :css="css.pagination"
+        @vuetable-pagination:change-page="onChangePage"></vuetable-pagination>
+    </div>
+
+  </div>
 </template>
 
 <script lang="ts">
@@ -67,7 +71,7 @@ export default {
     methods: {
 	    onPaginationData (paginationData : any) {
 	      this.$refs.pagination.setPaginationData(paginationData)
-	      //this.$refs.paginationInfo.setPaginationData(paginationData) 
+	      this.$refs.paginationInfo.setPaginationData(paginationData) 
 	    },
 	    onChangePage (page : any) {
 	      this.$refs.vuetable.changePage(page)

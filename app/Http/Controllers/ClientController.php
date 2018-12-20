@@ -31,19 +31,11 @@ class ClientController extends Controller
         $this->clientRepo = $clientRepo;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    
-    public function data()
-    {
-        return response()->json(Client::where('company_id', '=', $this->getCurrentCompanyId())->paginate(), 200);
-    }
-
     public function index()
     {
+
+        if(request('page'))
+            return response()->json(Client::where('company_id', '=', $this->getCurrentCompanyId())->paginate(), 200);
 
         return view('client.vue_list');
         /*

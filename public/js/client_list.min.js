@@ -3274,7 +3274,7 @@ exports.default = {
     methods: {
         onPaginationData: function (paginationData) {
             this.$refs.pagination.setPaginationData(paginationData);
-            //this.$refs.paginationInfo.setPaginationData(paginationData) 
+            this.$refs.paginationInfo.setPaginationData(paginationData);
         },
         onChangePage: function (page) {
             this.$refs.vuetable.changePage(page);
@@ -4438,7 +4438,7 @@ var render = function() {
       _c("vuetable", {
         ref: "vuetable",
         attrs: {
-          "api-url": "/clients/data",
+          "api-url": "/clients",
           fields: _vm.fields,
           "pagination-path": ""
         },
@@ -4449,6 +4449,8 @@ var render = function() {
         "div",
         { staticClass: "vuetable-pagination ui basic segment grid" },
         [
+          _c("vuetable-pagination-info", { ref: "paginationInfo" }),
+          _vm._v(" "),
           _c("vuetable-pagination", {
             ref: "pagination",
             attrs: { css: _vm.css.pagination },

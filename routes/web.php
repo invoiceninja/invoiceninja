@@ -42,7 +42,6 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
 	Route::resource('dashboard', 'DashboardController'); // name = (dashboard. index / create / show / update / destroy / edit
 	Route::get('logout', 'Auth\LoginController@logout')->name('user.logout');
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
-    Route::get('clients/data', 'ClientController@data');
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
     Route::resource('user', 'UserProfileController'); // name = (clients. index / create / show / update / destroy / edit
     Route::get('settings', 'SettingsController@index')->name('user.settings');
