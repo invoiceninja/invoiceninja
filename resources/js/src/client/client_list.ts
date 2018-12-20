@@ -1,9 +1,6 @@
 //import * as Vue from 'vue';
 import Vue from 'vue';
 import axios from 'axios';
-import Vuetable from 'vuetable-2'
-
-Vue.use(Vuetable)
 
 Vue.component('client-list', require('../components/client/ClientList.vue'));
 Vue.component('vuetable', require('vuetable-2/src/components/Vuetable'));
