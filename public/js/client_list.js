@@ -3240,8 +3240,24 @@ exports.default = {
     },
     data: function () {
         return {
+            sortOrder: [
+                {
+                    field: 'name',
+                    sortField: 'name',
+                    direction: 'asc'
+                }
+            ],
             fields: [
-                'name', 'balance'
+                {
+                    name: 'name',
+                    sortField: 'name',
+                    dataClass: 'center aligned'
+                },
+                {
+                    name: 'balance',
+                    sortField: 'balance',
+                    dataClass: 'center aligned'
+                }
             ],
             css: {
                 table: {
@@ -3268,7 +3284,7 @@ exports.default = {
             }
         };
     },
-    props: ['list'],
+    //props: ['list'],
     beforeMount: function () {
     },
     methods: {
@@ -4440,6 +4456,8 @@ var render = function() {
         attrs: {
           "api-url": "/clients",
           fields: _vm.fields,
+          "per-page": 20,
+          "sort-order": _vm.sortOrder,
           "pagination-path": ""
         },
         on: { "vuetable:pagination-data": _vm.onPaginationData }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Datatables\ClientDatatable;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
@@ -35,7 +36,7 @@ class ClientController extends Controller
     {
 
         if(request('page'))
-            return response()->json(Client::where('company_id', '=', $this->getCurrentCompanyId())->paginate(), 200);
+            return ClientDatatable::query(request(), $this->getCurrentCompanyId());
 
         return view('client.vue_list');
         /*
