@@ -1,12 +1,14 @@
 <template>
 
 	<div>
+      <vuetable-filter-bar></vuetable-filter-bar>
 
       <vuetable ref="vuetable"
 	    api-url="/clients"
 	    :fields="fields"
       :per-page="20"
       :sort-order="sortOrder"
+      :append-params="moreParams"
   		pagination-path=""
       	@vuetable:pagination-data="onPaginationData"
     	></vuetable>
@@ -31,6 +33,9 @@ import Vuetable from 'vuetable-2/src/components/Vuetable.vue'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
 import Vue from 'vue'
+import VueEvents from 'vue-events'
+
+Vue.use(VueEvents)
 
 export default {
 	components: {
@@ -47,7 +52,14 @@ export default {
               direction: 'asc'
             }
           ],
+            moreParams: {},
             fields: [
+            {
+              name: '__checkbox',   // <----
+              title: '',
+              titleClass: 'center aligned',
+              dataClass: 'center aligned'
+            },
             {
               name: 'name',
               sortField: 'name',
@@ -85,6 +97,10 @@ export default {
         }
     },
     //props: ['list'],
+    mounted() {
+      this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
+      this.$events.$on('filter-reset', e => this.onFilterReset())
+    },
     beforeMount: function () {
 
     },
@@ -100,7 +116,17 @@ export default {
 
 	      this.$refs.vuetable.changePage(page)
 
-	    }
+	    },
+      onFilterSet (filterText) {
+        this.moreParams = {
+            'filter': filterText
+        }
+        Vue.nextTick( () => this.$refs.vuetable.refresh())
+      },
+      onFilterReset () {
+          this.moreParams = {}
+          Vue.nextTick( () => this.$refs.vuetable.refresh())
+      }
 	  },
     created:function() {
         

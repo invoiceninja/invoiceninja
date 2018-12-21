@@ -1190,7 +1190,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/VuetablePaginationBootstrap.vue":
+/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/util/VuetablePaginationBootstrap.vue":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3232,6 +3232,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Vuetable_vue_1 = __importDefault(__webpack_require__("./node_modules/vuetable-2/src/components/Vuetable.vue"));
 var VuetablePagination_vue_1 = __importDefault(__webpack_require__("./node_modules/vuetable-2/src/components/VuetablePagination.vue"));
 var VuetablePaginationInfo_vue_1 = __importDefault(__webpack_require__("./node_modules/vuetable-2/src/components/VuetablePaginationInfo.vue"));
+var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
+var vue_events_1 = __importDefault(__webpack_require__("./node_modules/vue-events/dist/index.js"));
+vue_1.default.use(vue_events_1.default);
 exports.default = {
     components: {
         Vuetable: Vuetable_vue_1.default,
@@ -3247,7 +3250,14 @@ exports.default = {
                     direction: 'asc'
                 }
             ],
+            moreParams: {},
             fields: [
+                {
+                    name: '__checkbox',
+                    title: '',
+                    titleClass: 'center aligned',
+                    dataClass: 'center aligned'
+                },
                 {
                     name: 'name',
                     sortField: 'name',
@@ -3285,6 +3295,11 @@ exports.default = {
         };
     },
     //props: ['list'],
+    mounted: function () {
+        var _this = this;
+        this.$events.$on('filter-set', function (eventData) { return _this.onFilterSet(eventData); });
+        this.$events.$on('filter-reset', function (e) { return _this.onFilterReset(); });
+    },
     beforeMount: function () {
     },
     methods: {
@@ -3294,6 +3309,18 @@ exports.default = {
         },
         onChangePage: function (page) {
             this.$refs.vuetable.changePage(page);
+        },
+        onFilterSet: function (filterText) {
+            var _this = this;
+            this.moreParams = {
+                'filter': filterText
+            };
+            vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
+        },
+        onFilterReset: function () {
+            var _this = this;
+            this.moreParams = {};
+            vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
         }
     },
     created: function () {
@@ -3302,6 +3329,190 @@ exports.default = {
     },
 };
 
+
+/***/ }),
+
+/***/ "./node_modules/ts-loader/index.js!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/util/VuetableFilterBar.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    data: function () {
+        return {
+            filterText: ''
+        };
+    },
+    methods: {
+        doFilter: function () {
+            this.$events.fire('filter-set', this.filterText);
+        },
+        resetFilter: function () {
+            this.filterText = ''; // clear the text in text input
+            this.$events.fire('filter-reset');
+        }
+    }
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-events/dist/index.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+function plugin(Vue) {
+
+  // Exit if the plugin has already been installed.
+  if (plugin.installed) return;
+
+  // Create a `vm` to serve as our global event bus.
+  var events = new Vue({
+    methods: {
+      /**
+       * Emit the given event.
+       *
+       * @param {string|object} event
+       * @param {...*} args
+       */
+      emit: function emit(event) {
+        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+
+        this.$emit.apply(this, [event].concat(args));
+      },
+
+
+      /**
+       * Emit the given event.
+       *
+       * @param {string|object} event
+       * @param {...*} args
+       */
+      fire: function fire(event) {
+        for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+          args[_key2 - 1] = arguments[_key2];
+        }
+
+        this.emit.apply(this, [event].concat(args));
+      },
+
+
+      /**
+       * Listen for the given event.
+       *
+       * @param {string} event
+       * @param {function} callback
+       */
+      on: function on(event, callback) {
+        this.$on(event, callback);
+      },
+
+
+      /**
+       * Listen for the given event.
+       *
+       * @param {string} event
+       * @param {function} callback
+       */
+      listen: function listen(event, callback) {
+        this.on(event, callback);
+      },
+
+
+      /**
+       * Listen for the given event once.
+       *
+       * @param {string} event
+       * @param {function} callback
+       */
+      once: function once(event, callback) {
+        this.$once(event, callback);
+      },
+
+
+      /**
+       * Remove one or more event listeners.
+       *
+       * @param {string} event
+       * @param {function} callback
+       */
+      off: function off(event, callback) {
+        this.$off(event, callback);
+      },
+
+
+      /**
+       * Remove one or more event listeners.
+       *
+       * @param {string} event
+       * @param {function} callback
+       */
+      remove: function remove(event, callback) {
+        this.off(event, callback);
+      }
+    }
+  });
+
+  // Extend `Vue.prototype` to include our global event bus.
+  Object.defineProperty(Vue.prototype, '$events', {
+    get: function get() {
+      return events;
+    }
+  });
+
+  // Register a mixin that adds an `events` option to Vue 2.0 components.
+  Vue.mixin({
+    // Hook into the Vue 2.0 `beforeCreate` life-cycle event.
+    beforeCreate: function beforeCreate() {
+      // Exit if there's no `events` option.
+      if (_typeof(this.$options.events) !== 'object') return;
+      // Cache of events to bound functions for automatic unsubscriptions
+      var eventMap = {};
+      // Loop through each event.
+      for (var key in this.$options.events) {
+        // Assign event type and bound function to map
+        eventMap[key] = this.$options.events[key].bind(this);
+      }
+      // Listen for the `hook:beforeMount` Vue 2.0 life-cycle event.
+      this.$once('hook:beforeMount', function () {
+        // Loop through each event.
+        for (var key in eventMap) {
+          // Register a listener for the event.
+          events.$on(key, eventMap[key]);
+        }
+      });
+      // Listen for the `hook:beforeDestroy` Vue 2.0 life-cycle event.
+      this.$once('hook:beforeDestroy', function () {
+        // Loop through each event.
+        for (var key in eventMap) {
+          // Register a listener for the event.
+          events.$off(key, eventMap[key]);
+        }
+        // Release cache
+        eventMap = null;
+      });
+    }
+  });
+}
+
+// Check for `window.Vue`
+if (typeof window !== 'undefined' && window.Vue) {
+  // Install plugin automatically.
+  window.Vue.use(plugin);
+}
+
+exports.default = plugin;
 
 /***/ }),
 
@@ -3412,6 +3623,96 @@ module.exports = function normalizeComponent (
   }
 }
 
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-03f135bf\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/util/VuetablePaginationBootstrap.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "ul",
+    { staticClass: "pagination" },
+    [
+      _c("li", { class: { disabled: _vm.isOnFirstPage } }, [
+        _c(
+          "a",
+          {
+            attrs: { href: "" },
+            on: {
+              click: function($event) {
+                $event.preventDefault()
+                _vm.loadPage("prev")
+              }
+            }
+          },
+          [_c("span", [_vm._v("«")])]
+        )
+      ]),
+      _vm._v(" "),
+      _vm.notEnoughPages
+        ? _vm._l(_vm.totalPage, function(n) {
+            return _c("li", { class: { active: _vm.isCurrentPage(n) } }, [
+              _c("a", {
+                domProps: { innerHTML: _vm._s(n) },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                    _vm.loadPage(n)
+                  }
+                }
+              })
+            ])
+          })
+        : _vm._l(_vm.windowSize, function(n) {
+            return _c(
+              "li",
+              { class: { active: _vm.isCurrentPage(_vm.windowStart + n - 1) } },
+              [
+                _c("a", {
+                  domProps: { innerHTML: _vm._s(_vm.windowStart + n - 1) },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      _vm.loadPage(_vm.windowStart + n - 1)
+                    }
+                  }
+                })
+              ]
+            )
+          }),
+      _vm._v(" "),
+      _c("li", { class: { disabled: _vm.isOnLastPage } }, [
+        _c(
+          "a",
+          {
+            attrs: { href: "" },
+            on: {
+              click: function($event) {
+                $event.preventDefault()
+                _vm.loadPage("next")
+              }
+            }
+          },
+          [_c("span", [_vm._v("»")])]
+        )
+      ])
+    ],
+    2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-03f135bf", module.exports)
+  }
+}
 
 /***/ }),
 
@@ -4451,6 +4752,8 @@ var render = function() {
   return _c(
     "div",
     [
+      _c("vuetable-filter-bar"),
+      _vm._v(" "),
       _c("vuetable", {
         ref: "vuetable",
         attrs: {
@@ -4458,6 +4761,7 @@ var render = function() {
           fields: _vm.fields,
           "per-page": 20,
           "sort-order": _vm.sortOrder,
+          "append-params": _vm.moreParams,
           "pagination-path": ""
         },
         on: { "vuetable:pagination-data": _vm.onPaginationData }
@@ -4653,83 +4957,63 @@ if (false) {
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-716cdc88\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/VuetablePaginationBootstrap.vue":
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-be66a0f4\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/util/VuetableFilterBar.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "ul",
-    { staticClass: "pagination" },
-    [
-      _c("li", { class: { disabled: _vm.isOnFirstPage } }, [
-        _c(
-          "a",
-          {
-            attrs: { href: "" },
-            on: {
-              click: function($event) {
-                $event.preventDefault()
-                _vm.loadPage("prev")
-              }
+  return _c("div", { staticClass: "filter-bar ui basic segment grid" }, [
+    _c("div", { staticClass: "ui form" }, [
+      _c("div", { staticClass: "inline field" }, [
+        _c("label", [_vm._v("Search for:")]),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.filterText,
+              expression: "filterText"
             }
-          },
-          [_c("span", [_vm._v("«")])]
-        )
-      ]),
-      _vm._v(" "),
-      _vm.notEnoughPages
-        ? _vm._l(_vm.totalPage, function(n) {
-            return _c("li", { class: { active: _vm.isCurrentPage(n) } }, [
-              _c("a", {
-                domProps: { innerHTML: _vm._s(n) },
-                on: {
-                  click: function($event) {
-                    $event.preventDefault()
-                    _vm.loadPage(n)
-                  }
-                }
-              })
-            ])
-          })
-        : _vm._l(_vm.windowSize, function(n) {
-            return _c(
-              "li",
-              { class: { active: _vm.isCurrentPage(_vm.windowStart + n - 1) } },
-              [
-                _c("a", {
-                  domProps: { innerHTML: _vm._s(_vm.windowStart + n - 1) },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      _vm.loadPage(_vm.windowStart + n - 1)
-                    }
-                  }
-                })
-              ]
-            )
-          }),
-      _vm._v(" "),
-      _c("li", { class: { disabled: _vm.isOnLastPage } }, [
-        _c(
-          "a",
-          {
-            attrs: { href: "" },
-            on: {
-              click: function($event) {
-                $event.preventDefault()
-                _vm.loadPage("next")
+          ],
+          staticClass: "three wide column",
+          attrs: { type: "text", placeholder: "search" },
+          domProps: { value: _vm.filterText },
+          on: {
+            keyup: function($event) {
+              if (
+                !("button" in $event) &&
+                _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+              ) {
+                return null
               }
+              return _vm.doFilter($event)
+            },
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.filterText = $event.target.value
             }
-          },
-          [_c("span", [_vm._v("»")])]
+          }
+        }),
+        _vm._v(" "),
+        _c(
+          "button",
+          { staticClass: "ui primary button", on: { click: _vm.doFilter } },
+          [_vm._v("Go")]
+        ),
+        _vm._v(" "),
+        _c(
+          "button",
+          { staticClass: "ui button", on: { click: _vm.resetFilter } },
+          [_vm._v("Reset")]
         )
       ])
-    ],
-    2
-  )
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -4737,7 +5021,7 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-716cdc88", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-be66a0f4", module.exports)
   }
 }
 
@@ -17850,60 +18134,13 @@ var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.com
 vue_1.default.component('client-list', __webpack_require__("./resources/js/src/components/client/ClientList.vue"));
 vue_1.default.component('vuetable', __webpack_require__("./node_modules/vuetable-2/src/components/Vuetable.vue"));
 vue_1.default.component('vuetable-pagination', __webpack_require__("./node_modules/vuetable-2/src/components/VuetablePagination.vue"));
-vue_1.default.component('vuetable-pagination-bootstrap', __webpack_require__("./resources/js/src/components/VuetablePaginationBootstrap.vue"));
+vue_1.default.component('vuetable-pagination-bootstrap', __webpack_require__("./resources/js/src/components/util/VuetablePaginationBootstrap.vue"));
+vue_1.default.component('vuetable-filter-bar', __webpack_require__("./resources/js/src/components/util/VuetableFilterBar.vue"));
 window.onload = function () {
     var app = new vue_1.default({
         el: '#client_list'
     });
 };
-
-
-/***/ }),
-
-/***/ "./resources/js/src/components/VuetablePaginationBootstrap.vue":
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
-/* script */
-var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/VuetablePaginationBootstrap.vue")
-/* template */
-var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-716cdc88\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/VuetablePaginationBootstrap.vue")
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/js/src/components/VuetablePaginationBootstrap.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-716cdc88", Component.options)
-  } else {
-    hotAPI.reload("data-v-716cdc88", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
 
 
 /***/ }),
@@ -17949,6 +18186,102 @@ if (false) {(function () {
     hotAPI.createRecord("data-v-3cd1b306", Component.options)
   } else {
     hotAPI.reload("data-v-3cd1b306", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ "./resources/js/src/components/util/VuetableFilterBar.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/ts-loader/index.js!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/util/VuetableFilterBar.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-be66a0f4\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/util/VuetableFilterBar.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/src/components/util/VuetableFilterBar.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-be66a0f4", Component.options)
+  } else {
+    hotAPI.reload("data-v-be66a0f4", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ "./resources/js/src/components/util/VuetablePaginationBootstrap.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/util/VuetablePaginationBootstrap.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-03f135bf\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/util/VuetablePaginationBootstrap.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/src/components/util/VuetablePaginationBootstrap.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-03f135bf", Component.options)
+  } else {
+    hotAPI.reload("data-v-03f135bf", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
