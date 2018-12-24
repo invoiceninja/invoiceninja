@@ -6,24 +6,23 @@
       <vuetable ref="vuetable"
 	    api-url="/clients"
 	    :fields="fields"
-      :per-page="20"
-      :sort-order="sortOrder"
-      :append-params="moreParams"
+      	:per-page="20"
+      	:sort-order="sortOrder"
+      	:append-params="moreParams"
   		pagination-path=""
-      	@vuetable:pagination-data="onPaginationData"
-    	></vuetable>
+      	@vuetable:pagination-data="onPaginationData"></vuetable>
 
-      <div class="vuetable-pagination ui basic segment grid">
+  		<div class="vuetable-pagination ui basic segment grid">
 
-        <vuetable-pagination-info ref="paginationInfo"></vuetable-pagination-info>
+        	<vuetable-pagination-info ref="paginationInfo"></vuetable-pagination-info>
 
-        <vuetable-pagination ref="pagination"
-        :css="css.pagination"
-        @vuetable-pagination:change-page="onChangePage"></vuetable-pagination>
+        	<vuetable-pagination ref="pagination"
+        	:css="css.pagination"
+        	@vuetable-pagination:change-page="onChangePage"></vuetable-pagination>
 
-    </div>
+    	</div>
 
-  </div>
+  	</div>
 
 </template>
 
@@ -39,9 +38,9 @@ Vue.use(VueEvents)
 
 export default {
 	components: {
-        Vuetable,
-	      VuetablePagination,
-	      VuetablePaginationInfo
+        	Vuetable,
+	      	VuetablePagination,
+	      	VuetablePaginationInfo
 	    },
     data () {
         return {
@@ -120,8 +119,10 @@ export default {
     },
     //props: ['list'],
     mounted() {
+
       this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
       this.$events.$on('filter-reset', e => this.onFilterReset())
+
     },
     beforeMount: function () {
 
@@ -136,27 +137,23 @@ export default {
 	    },
 	    onChangePage (page : any) {
 
-	      this.$refs.vuetable.changePage(page)
+			this.$refs.vuetable.changePage(page)
 
 	    },
-      onFilterSet (filterText) {
-        this.moreParams = {
-            'filter': filterText
-        }
-        Vue.nextTick( () => this.$refs.vuetable.refresh())
-      },
-      onFilterReset () {
-          this.moreParams = {}
-          Vue.nextTick( () => this.$refs.vuetable.refresh())
-      }
-	  },
-    created:function() {
-        
-        
-    },
-    updated:function() {
-        
-    },
+		onFilterSet (filterText) {
+
+			this.moreParams = {
+			    'filter': filterText
+			}
+			Vue.nextTick( () => this.$refs.vuetable.refresh())
+
+		},
+		onFilterReset () {
+		  	this.moreParams = {}
+		  	Vue.nextTick( () => this.$refs.vuetable.refresh())
+		}
+
+	}
 
 }
 </script>

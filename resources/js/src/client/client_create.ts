@@ -21,18 +21,6 @@ declare var hashed_id: string;
             form: new Form(<Client>client_object)
         }
     },
-    mounted(this: any) {
-        //console.log('mounted')
-    },
-    beforeMount: function () {
-        //console.log('before mount')
-    },
-    created:function() {
-        //console.dir('created')
-    },
-    updated:function() {
-        //console.dir('updated')
-    },
     methods:{
         remove(this:any, contact:any){
             let index = this.form.contacts.indexOf(contact);

@@ -3359,11 +3359,7 @@ exports.default = {
             this.moreParams = {};
             vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
         }
-    },
-    created: function () {
-    },
-    updated: function () {
-    },
+    }
 };
 
 
@@ -5003,59 +4999,52 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
     _c("div", { staticClass: "row" }, [
-      _c(
-        "div",
-        {
-          staticClass: "col-md-9 pull-right",
-          staticStyle: { padding: "10px" }
-        },
-        [
-          _c("div", { staticClass: "input-group" }, [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.filterText,
-                  expression: "filterText"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text", placeholder: "search" },
-              domProps: { value: _vm.filterText },
-              on: {
-                keyup: function($event) {
-                  if (
-                    !("button" in $event) &&
-                    _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
-                  ) {
-                    return null
-                  }
-                  return _vm.doFilter($event)
-                },
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.filterText = $event.target.value
-                }
+      _c("div", { staticClass: "col-md-9", staticStyle: { padding: "10px" } }, [
+        _c("div", { staticClass: "input-group" }, [
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.filterText,
+                expression: "filterText"
               }
-            }),
-            _vm._v(" "),
-            _c(
-              "button",
-              { staticClass: "btn btn-primary", on: { click: _vm.doFilter } },
-              [_vm._v("Go")]
-            ),
-            _vm._v(" "),
-            _c(
-              "button",
-              { staticClass: "btn btn-light", on: { click: _vm.resetFilter } },
-              [_vm._v("Reset")]
-            )
-          ])
-        ]
-      )
+            ],
+            staticClass: "form-control",
+            attrs: { type: "text", placeholder: "search" },
+            domProps: { value: _vm.filterText },
+            on: {
+              keyup: function($event) {
+                if (
+                  !("button" in $event) &&
+                  _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+                ) {
+                  return null
+                }
+                return _vm.doFilter($event)
+              },
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.filterText = $event.target.value
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c(
+            "button",
+            { staticClass: "btn btn-primary", on: { click: _vm.doFilter } },
+            [_vm._v("Go")]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            { staticClass: "btn btn-light", on: { click: _vm.resetFilter } },
+            [_vm._v("Reset")]
+          )
+        ])
+      ])
     ])
   ])
 }
