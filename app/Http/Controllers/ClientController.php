@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Datatables\ClientDatatable;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
@@ -31,13 +32,14 @@ class ClientController extends Controller
         $this->clientRepo = $clientRepo;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Builder $builder)
+    public function index()
     {
+
+        if(request('page'))
+            return ClientDatatable::query(request(), $this->getCurrentCompanyId());
+
+        return view('client.vue_list');
+        /*
         if (request()->ajax()) {
 
             /*
@@ -49,7 +51,8 @@ class ClientController extends Controller
                 });
             */
 
-            $clients = Client::query()->where('company_id', '=', $this->getCurrentCompanyId());
+/*
+            $clients = Client::query();
 
             return DataTables::of($clients->get())
                 ->addColumn('full_name', function ($clients) {
@@ -95,6 +98,7 @@ class ClientController extends Controller
         $data['html'] = $html;
 
         return view('client.list', $data);
+  */
     }
 
     /**

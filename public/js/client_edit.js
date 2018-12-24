@@ -34365,33 +34365,91 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./resources/js/src/bootstrap.js":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__("./node_modules/lodash/lodash.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_toastr__ = __webpack_require__("./node_modules/vue-toastr/dist/vue-toastr.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_toastr___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_toastr__);
+// lodash handles our translations 
+
+
+// import Toastr
+
+
+// Import toastr scss file: need webpack sass-loader
+__webpack_require__("./node_modules/vue-toastr/src/vue-toastr.scss");
+
+// Register vue component
+Vue.component('vue-toastr', __WEBPACK_IMPORTED_MODULE_1_vue_toastr___default.a);
+
+// Global translation helper
+Vue.prototype.trans = function (string) {
+    return __WEBPACK_IMPORTED_MODULE_0_lodash__["get"](i18n, string);
+};
+
+window.axios = __webpack_require__("./node_modules/axios/index.js");
+window.Vue = __webpack_require__("./node_modules/vue/dist/vue.common.js");
+
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+/* Development only*/
+Vue.config.devtools = true;
+
+window.axios.defaults.headers.common = {
+    'X-Requested-With': 'XMLHttpRequest',
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+};
+
+/**
+ * Next we will register the CSRF Token as a common header with Axios so that
+ * all outgoing HTTP requests automatically have it attached. This is just
+ * a simple convenience so we don't have to attach every token manually.
+ */
+
+var token = document.head.querySelector('meta[name="csrf-token"]');
+
+if (token) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+} else {
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allows your team to easily build robust real-time web applications.
+ */
+
+// import Echo from 'laravel-echo'
+
+// window.Pusher = require('pusher-js');
+
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: process.env.MIX_PUSHER_APP_KEY,
+//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//     encrypted: true
+// });
+
+/***/ }),
+
 /***/ "./resources/js/src/client/client_edit.ts":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
+/* Allows us to use our native translation easily using {{ trans() }} syntax */
+//const _ = require('lodash');
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/* Allows us to use our native translation easily using {{ trans() }} syntax */
-//const _ = require('lodash');
-var _ = __importStar(__webpack_require__("./node_modules/lodash/lodash.js"));
+__webpack_require__("./resources/js/src/bootstrap.js");
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
-// import Toastr
-var vue_toastr_1 = __importDefault(__webpack_require__("./node_modules/vue-toastr/dist/vue-toastr.js"));
-// import toastr scss file: need webpack sass-loader
-__webpack_require__("./node_modules/vue-toastr/src/vue-toastr.scss");
-// Register vue component
-vue_1.default.component('vue-toastr', vue_toastr_1.default);
-vue_1.default.prototype.trans = function (string) { return _.get(i18n, string); };
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

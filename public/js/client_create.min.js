@@ -14979,18 +14979,6 @@ new vue_1.default({
             form: new form_1.default(client_object)
         };
     },
-    mounted: function () {
-        //console.log('mounted')
-    },
-    beforeMount: function () {
-        //console.log('before mount')
-    },
-    created: function () {
-        //console.dir('created')
-    },
-    updated: function () {
-        //console.dir('updated')
-    },
     methods: {
         remove: function (contact) {
             var index = this.form.contacts.indexOf(contact);
