@@ -66,6 +66,28 @@ export default {
               dataClass: 'center aligned'
             },
             {
+              name: 'contact',
+              sortField: 'contact',
+              dataClass: 'center aligned'
+            },
+            {
+              name: 'email',
+              sortField: 'email',
+              dataClass: 'center aligned'
+            },
+            {
+              name: 'client_created_at',
+              title: 'Date created',
+              sortField: 'client_created_at',
+              dataClass: 'center aligned'
+            },
+            {
+              name: 'last_login',
+              title: 'Last login',
+              sortField: 'last_login',
+              dataClass: 'center aligned'
+            },
+            {
               name: 'balance',
               sortField: 'balance',
               dataClass: 'center aligned'             

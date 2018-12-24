@@ -1,11 +1,12 @@
 <template>
-    <div class="filter-bar ui basic segment grid">
-      <div class="ui form">
-        <div class="inline field">
-          <label>Search for:</label>
-          <input type="text" v-model="filterText" class="three wide column" @keyup.enter="doFilter" placeholder="search">
-          <button class="ui primary button" @click="doFilter">Go</button>
-          <button class="ui button" @click="resetFilter">Reset</button>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9 pull-right" style="padding:10px;">
+          <div class="input-group">
+            <input type="text" v-model="filterText" class="form-control" @keyup.enter="doFilter" placeholder="search">
+            <button class="btn btn-primary" @click="doFilter">Go</button>
+            <button class="btn btn-light" @click="resetFilter">Reset</button>
+          </div>
         </div>
       </div>
     </div>
@@ -32,3 +33,8 @@
     }
   }
 </script>
+<style>
+  .form-inline > * {
+     margin:5px 10px;
+  }
+</style>
