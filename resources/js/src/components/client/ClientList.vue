@@ -95,7 +95,9 @@ export default {
               dataClass: 'center aligned'             
             },
             {
-              name: '__actions',
+              name: '__component:client-actions',   // <----
+              title: '',
+              titleClass: 'center aligned',
               dataClass: 'center aligned'
             }
 		      ]
