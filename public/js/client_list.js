@@ -3306,6 +3306,10 @@ exports.default = {
                     name: 'balance',
                     sortField: 'balance',
                     dataClass: 'center aligned'
+                },
+                {
+                    name: '__actions',
+                    dataClass: 'center aligned'
                 }
             ]
         };

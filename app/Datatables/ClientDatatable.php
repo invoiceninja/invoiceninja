@@ -24,7 +24,13 @@ class ClientDatatable
 		*/
 		$sort_col = explode("|", $request->input('sort'));
 
-		return response()->json(self::find($company_id, $request->input('filter'))->orderBy($sort_col[0], $sort_col[1])->paginate($request->input('per_page')), 200);
+		$data = self::find($company_id, $request->input('filter'))
+						->orderBy($sort_col[0], $sort_col[1])
+						->paginate($request->input('per_page'));
+
+		return response()
+					->json(self::buildActionColumn($data), 200);
+
 	}
 
 
@@ -93,4 +99,22 @@ class ClientDatatable
 
 	        return $query;
 	    }
+
+    private static function buildActionColumn($data)
+    {
+
+    	
+
+    	$data->map(function ($row) {
+
+    		$btn = '<div id="ddown-lg" class="m-2 btn-group b-dropdown dropdown"><!----><button id="ddown-lg__BV_toggle_" aria-haspopup="true" aria-expanded="false" type="button" class="btn btn-secondary btn-lg dropdown-toggle">Large</button><div role="menu" aria-labelledby="ddown-lg__BV_toggle_" class="dropdown-menu" style=""><button role="menuitem" type="button" class="dropdown-item">Action</button><button role="menuitem" type="button" class="dropdown-item">Another action</button><button role="menuitem" type="button" class="dropdown-item">Something else here</button></div></div>';
+
+		    $row->action = $btn;
+		    
+		    return $row;
+		});
+
+		return $data;
+    	
+    }
 }
