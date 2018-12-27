@@ -3249,6 +3249,7 @@ var VuetablePagination_vue_1 = __importDefault(__webpack_require__("./node_modul
 var VuetablePaginationInfo_vue_1 = __importDefault(__webpack_require__("./node_modules/vuetable-2/src/components/VuetablePaginationInfo.vue"));
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
 var vue_events_1 = __importDefault(__webpack_require__("./node_modules/vue-events/dist/index.js"));
+var VuetableCss_1 = __importDefault(__webpack_require__("./resources/js/src/components/util/VuetableCss.ts"));
 vue_1.default.use(vue_events_1.default);
 exports.default = {
     components: {
@@ -3258,6 +3259,7 @@ exports.default = {
     },
     data: function () {
         return {
+            css: VuetableCss_1.default,
             sortOrder: [
                 {
                     field: 'name',
@@ -3305,30 +3307,7 @@ exports.default = {
                     sortField: 'balance',
                     dataClass: 'center aligned'
                 }
-            ],
-            css: {
-                table: {
-                    tableClass: 'table table-striped table-bordered table-hovered',
-                    loadingClass: 'loading',
-                    ascendingIcon: 'glyphicon glyphicon-chevron-up',
-                    descendingIcon: 'glyphicon glyphicon-chevron-down',
-                    handleIcon: 'glyphicon glyphicon-menu-hamburger',
-                },
-                pagination: {
-                    infoClass: 'pull-left',
-                    wrapperClass: 'vuetable-pagination pull-right',
-                    activeClass: 'btn-primary',
-                    disabledClass: 'disabled',
-                    pageClass: 'btn btn-border',
-                    linkClass: 'btn btn-border',
-                    icons: {
-                        first: '',
-                        prev: '',
-                        next: '',
-                        last: '',
-                    },
-                }
-            }
+            ]
         };
     },
     //props: ['list'],
@@ -4795,6 +4774,7 @@ var render = function() {
           "per-page": 20,
           "sort-order": _vm.sortOrder,
           "append-params": _vm.moreParams,
+          css: _vm.css.table,
           "pagination-path": ""
         },
         on: { "vuetable:pagination-data": _vm.onPaginationData }
@@ -18253,6 +18233,39 @@ if (false) {(function () {
 })()}
 
 module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ "./resources/js/src/components/util/VuetableCss.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    table: {
+        tableClass: 'table table-bordered table-hover',
+        loadingClass: 'loading',
+        ascendingIcon: 'fa fa-angle-double-up',
+        descendingIcon: 'fa fa-angle-double-down',
+        handleIcon: 'glyphicon glyphicon-menu-hamburger',
+    },
+    pagination: {
+        infoClass: 'pull-left',
+        wrapperClass: 'vuetable-pagination pull-right',
+        activeClass: 'btn-primary',
+        disabledClass: 'disabled',
+        pageClass: 'btn btn-border',
+        linkClass: 'btn btn-border',
+        icons: {
+            first: '',
+            prev: '',
+            next: '',
+            last: '',
+        },
+    }
+};
 
 
 /***/ }),

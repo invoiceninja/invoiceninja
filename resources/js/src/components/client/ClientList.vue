@@ -9,6 +9,7 @@
       	:per-page="20"
       	:sort-order="sortOrder"
       	:append-params="moreParams"
+        :css="css.table"
   		pagination-path=""
       	@vuetable:pagination-data="onPaginationData"></vuetable>
 
@@ -33,6 +34,7 @@ import VuetablePagination from 'vuetable-2/src/components/VuetablePagination.vue
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo.vue'
 import Vue from 'vue'
 import VueEvents from 'vue-events'
+import VuetableCss from '../util/VuetableCss'
 
 Vue.use(VueEvents)
 
@@ -44,6 +46,7 @@ export default {
 	    },
     data () {
         return {
+            css: VuetableCss,
             sortOrder: [
             {
               field: 'name',
@@ -91,30 +94,7 @@ export default {
               sortField: 'balance',
               dataClass: 'center aligned'             
             }
-		      ],
-          css: {
-            table: {
-              tableClass: 'table table-striped table-bordered table-hovered',
-              loadingClass: 'loading',
-              ascendingIcon: 'glyphicon glyphicon-chevron-up',
-              descendingIcon: 'glyphicon glyphicon-chevron-down',
-              handleIcon: 'glyphicon glyphicon-menu-hamburger',
-            },
-            pagination: {
-              infoClass: 'pull-left',
-              wrapperClass: 'vuetable-pagination pull-right',
-              activeClass: 'btn-primary',
-              disabledClass: 'disabled',
-              pageClass: 'btn btn-border',
-              linkClass: 'btn btn-border',
-              icons: {
-                first: '',
-                prev: '',
-                next: '',
-                last: '',
-              },
-            }
-          }
+		      ]
         }
     },
     //props: ['list'],
