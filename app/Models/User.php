@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Models\Traits\SetsUserSessionAttributes;
 use App\Models\Traits\UserTrait;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,7 +17,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use SoftDeletes;
     use PresentableTrait;
     use MakesHash;
-    
+    use UserSessionAttributes;
+
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];
@@ -54,11 +55,19 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
-
-
     public function companies()
     {
-        return $this->belongsToMany(Company::class);
+        return $this->belongsToMany(Company::class)->withPivot('permissions');
+    }
+
+    public function company()
+    {
+        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
+    }
+
+    public function permissions()
+    {
+        return $this->company()->pivot->permissions;
     }
 
     public function contacts()
@@ -67,7 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    public function owns($entity)
+    public function owns($entity) : bool
     {
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }

@@ -3,6 +3,7 @@
 namespace App\Datatables;
 
 use App\Models\Client;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,11 +11,12 @@ use Illuminate\Support\Facades\Log;
 
 class ClientDatatable
 {
+	use MakesHash;
 
 	/**
 	* ?sort=&page=1&per_page=20
 	*/
-	public static function query(Request $request, int $company_id)
+	public function query(Request $request, int $company_id)
 	{
 		/**
 		*
@@ -24,17 +26,17 @@ class ClientDatatable
 		*/
 		$sort_col = explode("|", $request->input('sort'));
 
-		$data = self::find($company_id, $request->input('filter'))
+		$data = $this->find($company_id, $request->input('filter'))
 						->orderBy($sort_col[0], $sort_col[1])
 						->paginate($request->input('per_page'));
 
 		return response()
-					->json(self::buildActionColumn($data), 200);
+					->json($this->buildActionColumn($data), 200);
 
 	}
 
 
-	private static function find(int $company_id, $filter, $userId = false)
+	private function find(int $company_id, $filter, $userId = false)
 	    {
 	        $query = DB::table('clients')
 	                    ->join('companies', 'companies.id', '=', 'clients.company_id')
@@ -100,17 +102,37 @@ class ClientDatatable
 	        return $query;
 	    }
 
-    private static function buildActionColumn($data)
+    private function buildActionColumn($data)
     {
 
+    	/* build json list of actions per row based on the row status and user permissions */
     	
+    	/* View Only 
+			- view
+			$url = route('clients.show', ['id' => 1]);
+
+
+		   Edit Only
+		    - view
+		    - edit
+		    - New Task
+		    - New Invoiec
+		    - New Quote
+		    - Enter Payment
+		    - Enter Credit
+		    - Enter Expense
+		    - Archive
+		    - Delete (If client has outstanding debts, need to resolve this prior to deleting)
+    	*/
+
+
 
     	$data->map(function ($row) {
 
-    		$btn = '<div id="ddown-lg" class="m-2 btn-group b-dropdown dropdown"><!----><button id="ddown-lg__BV_toggle_" aria-haspopup="true" aria-expanded="false" type="button" class="btn btn-secondary btn-lg dropdown-toggle">Large</button><div role="menu" aria-labelledby="ddown-lg__BV_toggle_" class="dropdown-menu" style=""><button role="menuitem" type="button" class="dropdown-item">Action</button><button role="menuitem" type="button" class="dropdown-item">Another action</button><button role="menuitem" type="button" class="dropdown-item">Something else here</button></div></div>';
+    		$url = route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]);
 
-		    $row->action = $btn;
-		    
+		    $row->action = $url;
+
 		    return $row;
 		});
 

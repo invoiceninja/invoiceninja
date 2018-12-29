@@ -5131,9 +5131,11 @@ var render = function() {
         attrs: { "aria-labelledby": "dropdownMenu" }
       },
       [
-        _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-          _vm._v("Item")
-        ]),
+        _c(
+          "a",
+          { staticClass: "dropdown-item", attrs: { href: _vm.rowData.action } },
+          [_vm._v("Show")]
+        ),
         _vm._v(" "),
         _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
           _vm._v("Another item")

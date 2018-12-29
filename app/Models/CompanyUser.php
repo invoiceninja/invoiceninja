@@ -13,6 +13,11 @@ class CompanyUser extends BaseModel
 
     public function user()
     {
-        return $this->hasOne(User::class);
+        return $this->hasOne(User::class)->withPivot('permissions');
+    }
+
+    public function company()
+    {
+    	return $this->hasOne(Company::class)->withPivot('permissions');
     }
 }
