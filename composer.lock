@@ -336,16 +336,16 @@
         },
         {
             "name": "asgrim/ofxparser",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/asgrim/ofxparser.git",
-                "reference": "8ba143295be666ae2cac05674f7d526d8e0ebed7"
+                "reference": "a7cc813eed19df612fc58bbe9fc89837ed98b3bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/asgrim/ofxparser/zipball/8ba143295be666ae2cac05674f7d526d8e0ebed7",
-                "reference": "8ba143295be666ae2cac05674f7d526d8e0ebed7",
+                "url": "https://api.github.com/repos/asgrim/ofxparser/zipball/a7cc813eed19df612fc58bbe9fc89837ed98b3bf",
+                "reference": "a7cc813eed19df612fc58bbe9fc89837ed98b3bf",
                 "shasum": ""
             },
             "require": {
@@ -388,7 +388,7 @@
                 "open financial exchange",
                 "parser"
             ],
-            "time": "2016-09-26T11:36:23+00:00"
+            "time": "2018-10-29T10:10:13+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
