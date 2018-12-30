@@ -864,7 +864,7 @@ class Utils
             return '';
         }
 
-        $variables = ['MONTH', 'QUARTER', 'YEAR'];
+        $variables = ['MONTH', 'QUARTER', 'YEAR', 'DATE_MONTH', 'DATE_YEAR'];
         for ($i = 0; $i < count($variables); $i++) {
             $variable = $variables[$i];
             $regExp = '/:'.$variable.'[+-]?[\d]*/';
@@ -904,7 +904,38 @@ class Utils
             return self::getQuarter($offset);
         } elseif ($part == 'YEAR') {
             return self::getYear($offset);
+        } elseif ($part == 'DATE_MONTH') {
+            return self::getDateMonth($offset, $locale);
+        } elseif ($part == 'DATE_YEAR') {
+            return self::getDateYear($offset);
         }
+    }
+
+    public static function getDateMonth($offset, $locale) 
+    {
+        $timestamp = time();
+        $res = $timestamp + ($offset * 24 * 60 * 60);
+
+        $months = static::$months;
+        $month = intval(date('n', $res)) - 1;
+
+        $month = $month % 12;
+
+        if ($month < 0) {
+            $month += 12;
+        }
+
+        return trans('texts.' . $months[$month], [], $locale);
+    }
+
+    public static function getDateYear($offset) 
+    {
+        $timestamp = time();
+        $res = $timestamp + ($offset * 24 * 60 * 60);
+
+        $year = intval(date('Y', $res));
+
+        return $year;
     }
 
     public static function getMonthOptions()
