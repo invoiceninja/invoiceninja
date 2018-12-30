@@ -63,9 +63,7 @@ class UserAccountTransformer extends EntityTransformer
         'expense_categories',
         'account_email_settings',
         'custom_payment_terms',
-        'tax_rates',
-        'expense_categories',
-        'account_email_settings',
+		'task_statuses',
     ];
 
     protected $tokenName;
@@ -108,6 +106,17 @@ class UserAccountTransformer extends EntityTransformer
         return $this->includeCollection($this->account->users, $transformer, 'users');
     }
 
+	/**
+     * @param Account $account
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeTaskStatuses(User $user)
+    {
+        $transformer = new TaskStatusTransformer($this->account, $this->serializer);
+
+        return $this->includeCollection($this->account->task_statuses, $transformer, 'task_statuses');
+    }
 
     /**
      * @param Account $account
