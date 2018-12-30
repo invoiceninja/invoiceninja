@@ -371,6 +371,14 @@ class Account extends Eloquent
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function task_statuses()
+    {
+        return $this->hasMany('App\Models\TaskStatus')->orderBy('sort_order');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function products()
     {
         return $this->hasMany('App\Models\Product');
