@@ -75,9 +75,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Contact::class);
     }
 
-
     public function owns($entity) : bool
     {
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
+    }
+
+    public function permissionsMap()
+    {
+        $data = [];
+        $permissions = json_decode($this->permissions());
+
+        if (! $permissions) 
+            return $data;
+
+        $keys = array_values((array) $permissions);
+        $values = array_fill(0, count($keys), true);
+
+        return array_combine($keys, $values);
     }
 }

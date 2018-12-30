@@ -23,6 +23,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
+       // dd(json_decode(auth()->user()->permissions(),true));
         return view('dashboard.index');
     }
 

@@ -37,10 +37,21 @@ class UsersTableSeeder extends Seeder
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 
+
+        $userPermissions = collect([
+                                    'view_invoice',
+                                    'view_client',
+                                    'edit_client',
+                                    'edit_invoice',
+                                    'create_invoice',
+                                    'create_client'
+                                ]);
+
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,
             'is_admin' => 1,
+            'permissions' => $userPermissions->toJson(),
             'is_locked' => 0,
         ]);
 
