@@ -49,7 +49,7 @@ class SaveClientPortalSettings extends Request
             } else {
                 $iframeURL = substr(strtolower($input['iframe_url']), 0, MAX_IFRAME_URL_LENGTH);
                 $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', $iframeURL);
-                $input['iframe_url'] = rtrim($iframeURL, '/');
+                $input['iframe_url'] = $iframeURL;
                 $input['subdomain'] = null;
             }
         }
