@@ -350,9 +350,9 @@
     </div>
 
     @include("payments.stripe.credit_card_stripe_css")
-        
+
         <script type="text/javascript">
-            
+
             // Create a Stripe client.
             var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
 
@@ -451,9 +451,11 @@
             form.addEventListener('submit', function(event) {
               event.preventDefault();
 
-            var options = {
-                address_zip: document.getElementById('postal_code').value,
-            };
+
+            var options = {};
+            if (document.getElementById('postal_code')) {
+                options.address_zip = document.getElementById('postal_code').value;
+            }
 
             stripe.createToken(cardNumber, options).then(function(result) {
                 if (result.error) {
