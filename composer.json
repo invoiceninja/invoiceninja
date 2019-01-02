@@ -30,6 +30,7 @@
         "collizo4sky/omnipay-wepay": "dev-address-fix",
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",
         "doctrine/dbal": "2.5.x",
+        "dompdf/dompdf": "0.6.2",
         "ezyang/htmlpurifier": "~v4.7",
         "fzaninotto/faker": "^1.5",
         "gatepay/FedACHdir": "dev-master@dev",
