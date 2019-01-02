@@ -33,7 +33,6 @@
         "dompdf/dompdf": "0.6.2",
         "ezyang/htmlpurifier": "~v4.7",
         "fzaninotto/faker": "^1.5",
-        "gatepay/FedACHdir": "dev-master@dev",
         "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "dev-master",
@@ -125,22 +124,6 @@
         "optimize-autoloader": true
     },
     "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "gatepay/FedACHdir",
-                "version": "dev-master",
-                "dist": {
-                    "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/gatepay/FedACHdir.git",
-                    "type": "git",
-                    "reference": "origin/master"
-                }
-            }
-        },
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
