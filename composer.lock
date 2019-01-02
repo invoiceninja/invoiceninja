@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "711ec52ea9108226608b8e642ecdc204",
+    "content-hash": "e8f8d2721c82b85af6d3d5c1c64a3de4",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -2663,23 +2663,6 @@
                 "fixtures"
             ],
             "time": "2017-08-15T16:48:10+00:00"
-        },
-        {
-            "name": "gatepay/FedACHdir",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/gatepay/FedACHdir.git",
-                "reference": "origin/master"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
-                "reference": "origin/master",
-                "shasum": null
-            },
-            "type": "library",
-            "time": "2017-12-08T12:01:09+00:00"
         },
         {
             "name": "gocardless/gocardless-pro",
@@ -13495,7 +13478,6 @@
         "codedge/laravel-selfupdater": 20,
         "collizo4sky/omnipay-wepay": 20,
         "digitickets/omnipay-gocardlessv2": 20,
-        "gatepay/fedachdir": 20,
         "intervention/image": 20,
         "jlapp/swaggervel": 20,
         "jonnyw/php-phantomjs": 20,
