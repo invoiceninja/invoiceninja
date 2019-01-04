@@ -5,7 +5,7 @@
 		Select
 		</button>
 			<div class="dropdown-menu" aria-labelledby="dropdownMenu">
-				<a class="dropdown-item" :href="rowData.action">Show</a>
+				<a class="dropdown-item" :href="rowData.action.url">{{ rowData.action.name }}</a>
 				<a class="dropdown-item" href="#">Another item</a>
 				<a class="dropdown-item" href="#" @click="itemAction('view-item', rowData, rowIndex)">One more item</a>
 			</div>

@@ -37,99 +37,109 @@ class ClientDatatable
 
 
 	private function find(int $company_id, $filter, $userId = false)
-	    {
-	        $query = DB::table('clients')
-	                    ->join('companies', 'companies.id', '=', 'clients.company_id')
-	                    ->join('client_contacts', 'client_contacts.client_id', '=', 'clients.id')
-	                    ->where('clients.company_id', '=', $company_id)
-	                    ->where('client_contacts.is_primary', '=', true)
-	                    ->where('client_contacts.deleted_at', '=', null)
-	                    //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
-	                    ->select(
-	                        DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
-	                        DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
-	                        DB::raw("CONCAT(COALESCE(client_contacts.first_name, ''), ' ', COALESCE(client_contacts.last_name, '')) contact"),
-	                        'clients.id',
-	                        'clients.name',
-	                        'clients.private_notes',
-	                        'client_contacts.first_name',
-	                        'client_contacts.last_name',
-	                        'clients.balance',
-	                        'clients.last_login',
-	                        'clients.created_at',
-	                        'clients.created_at as client_created_at',
-	                        'client_contacts.phone',
-	                        'client_contacts.email',
-	                        'clients.deleted_at',
-	                        'clients.is_deleted',
-	                        'clients.user_id',
-	                        'clients.id_number'
-	                    );
+    {
+        $query = DB::table('clients')
+                    ->join('companies', 'companies.id', '=', 'clients.company_id')
+                    ->join('client_contacts', 'client_contacts.client_id', '=', 'clients.id')
+                    ->where('clients.company_id', '=', $company_id)
+                    ->where('client_contacts.is_primary', '=', true)
+                    ->where('client_contacts.deleted_at', '=', null)
+                    //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
+                        DB::raw("CONCAT(COALESCE(client_contacts.first_name, ''), ' ', COALESCE(client_contacts.last_name, '')) contact"),
+                        'clients.id',
+                        'clients.name',
+                        'clients.private_notes',
+                        'client_contacts.first_name',
+                        'client_contacts.last_name',
+                        'clients.balance',
+                        'clients.last_login',
+                        'clients.created_at',
+                        'clients.created_at as client_created_at',
+                        'client_contacts.phone',
+                        'client_contacts.email',
+                        'clients.deleted_at',
+                        'clients.is_deleted',
+                        'clients.user_id',
+                        'clients.id_number'
+                    );
 /*
-	         if(Auth::user()->account->customFieldsOption('client1_filter')) {
-	            $query->addSelect('clients.custom_value1');
-	        }
+         if(Auth::user()->account->customFieldsOption('client1_filter')) {
+            $query->addSelect('clients.custom_value1');
+        }
 
-	        if(Auth::user()->account->customFieldsOption('client2_filter')) {
-	            $query->addSelect('clients.custom_value2');
-	        }
+        if(Auth::user()->account->customFieldsOption('client2_filter')) {
+            $query->addSelect('clients.custom_value2');
+        }
 
-	        $this->applyFilters($query, ENTITY_CLIENT);
+        $this->applyFilters($query, ENTITY_CLIENT);
 */
-	        if ($filter) {
-	            $query->where(function ($query) use ($filter) {
-	                $query->where('clients.name', 'like', '%'.$filter.'%')
-	                      ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
-	                      ->orWhere('client_contacts.first_name', 'like', '%'.$filter.'%')
-	                      ->orWhere('client_contacts.last_name', 'like', '%'.$filter.'%')
-	                      ->orWhere('client_contacts.email', 'like', '%'.$filter.'%');
-	            });
+        if ($filter) {
+            $query->where(function ($query) use ($filter) {
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
+                      ->orWhere('client_contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('client_contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('client_contacts.email', 'like', '%'.$filter.'%');
+            });
 /*
-	            if(Auth::user()->account->customFieldsOption('client1_filter')) {
-	                $query->orWhere('clients.custom_value1', 'like' , '%'.$filter.'%');
-	            }
+            if(Auth::user()->account->customFieldsOption('client1_filter')) {
+                $query->orWhere('clients.custom_value1', 'like' , '%'.$filter.'%');
+            }
 
-	            if(Auth::user()->account->customFieldsOption('client2_filter')) {
-	                $query->orWhere('clients.custom_value2', 'like' , '%'.$filter.'%');
-	            }
+            if(Auth::user()->account->customFieldsOption('client2_filter')) {
+                $query->orWhere('clients.custom_value2', 'like' , '%'.$filter.'%');
+            }
 */
-	        }
+        }
 
-	        if ($userId) {
-	            $query->where('clients.user_id', '=', $userId);
-	        }
+        if ($userId) {
+            $query->where('clients.user_id', '=', $userId);
+        }
 
-	        return $query;
-	    }
+        return $query;
+    }
 
     private function buildActionColumn($data)
     {
+    	//if(auth()->user()->is_admin())
 
     	/* build json list of actions per row based on the row status and user permissions */
     	
     	/* View Only 
 			- view
-			$url = route('clients.show', ['id' => 1]);
-
+			$url = collect(['route' => 'clients.show', 'key' => 'client_id', 'name' => trans('texts.view')]);
+			
 
 		   Edit Only
 		    - view
 		    - edit
 		    - New Task
-		    - New Invoiec
+		    - New Invoice
 		    - New Quote
 		    - Enter Payment
 		    - Enter Credit
 		    - Enter Expense
 		    - Archive
 		    - Delete (If client has outstanding debts, need to resolve this prior to deleting)
+
+			$url = collect(['route' => 'clients.edit', 'key' => 'client_id', 'name' => trans('texts.edit')]);
+			
+			$url = collect(['route' => 'task.create', 'key' => 'client_id', 'name' => trans('texts.new_task')]);
+			$url = collect(['route' => 'invoice.create', 'key' => 'client_id', 'name' => trans('texts.new_invoice')]);
+			$url = collect(['route' => 'payment.create', 'key' => 'client_id', 'name' => trans('texts.enter_payment')]); 
+			$url = collect(['route' => 'credit.create', 'key' => 'client_id', 'name' => trans('texts.enter_credit')]); 
+			$url = collect(['route' => 'expense.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')]); 
     	*/
 
 
 
     	$data->map(function ($row) {
 
-    		$url = route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]);
+    		$url = collect(['url' => route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]),
+    						'name' => trans('texts.view')]);
 
 		    $row->action = $url;
 
@@ -138,5 +148,16 @@ class ClientDatatable
 
 		return $data;
     	
+    }
+
+    private function actions()
+    {
+    	return
+    		collect([
+    			'view_client' => collect(	['url' => route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]),
+    										'name' => trans('texts.view')]),
+    			'edit_client' => collect(	['url' => route('clients.edit', ['id' => $this->encodePrimaryKey($row->id)]),
+    										'name' => trans('texts.edit')])
+    		]);
     }
 }

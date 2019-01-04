@@ -5133,8 +5133,11 @@ var render = function() {
       [
         _c(
           "a",
-          { staticClass: "dropdown-item", attrs: { href: _vm.rowData.action } },
-          [_vm._v("Show")]
+          {
+            staticClass: "dropdown-item",
+            attrs: { href: _vm.rowData.action.url }
+          },
+          [_vm._v(_vm._s(_vm.rowData.action.name))]
         ),
         _vm._v(" "),
         _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [

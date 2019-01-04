@@ -70,6 +70,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->company()->pivot->permissions;
     }
 
+    public function is_admin()
+    {
+        return $this->company()->pivot->is_admin;
+    }
+
     public function contacts()
     {
         return $this->hasMany(Contact::class);
