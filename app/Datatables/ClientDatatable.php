@@ -110,7 +110,7 @@ class ClientDatatable
     	
     	/* View Only 
 			- view
-			$url = collect(['route' => 'clients.show', 'key' => 'client_id', 'name' => trans('texts.view')]);
+			$url = collect(['permission' => 'view_client', route' => 'clients.show', 'key' => 'client_id', 'name' => trans('texts.view')]);
 			
 
 		   Edit Only
@@ -125,13 +125,13 @@ class ClientDatatable
 		    - Archive
 		    - Delete (If client has outstanding debts, need to resolve this prior to deleting)
 
-			$url = collect(['route' => 'clients.edit', 'key' => 'client_id', 'name' => trans('texts.edit')]);
+			$url = collect(['permission' => 'edit_client', 'route' => 'clients.edit', 'key' => 'client_id', 'name' => trans('texts.edit')]);
 			
-			$url = collect(['route' => 'task.create', 'key' => 'client_id', 'name' => trans('texts.new_task')]);
-			$url = collect(['route' => 'invoice.create', 'key' => 'client_id', 'name' => trans('texts.new_invoice')]);
-			$url = collect(['route' => 'payment.create', 'key' => 'client_id', 'name' => trans('texts.enter_payment')]); 
-			$url = collect(['route' => 'credit.create', 'key' => 'client_id', 'name' => trans('texts.enter_credit')]); 
-			$url = collect(['route' => 'expense.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')]); 
+			$url = collect(['permission' => 'create_task', 'route' => 'task.create', 'key' => 'client_id', 'name' => trans('texts.new_task')]);
+			$url = collect(['permission' => 'create_invoice', 'route' => 'invoice.create', 'key' => 'client_id', 'name' => trans('texts.new_invoice')]);
+			$url = collect(['permission' => 'create_payment', 'route' => 'payment.create', 'key' => 'client_id', 'name' => trans('texts.enter_payment')]); 
+			$url = collect(['permission' => 'create_credit', 'route' => 'credit.create', 'key' => 'client_id', 'name' => trans('texts.enter_credit')]); 
+			$url = collect(['permission' => 'create_expense', 'route' => 'expense.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')]); 
     	*/
 
 
