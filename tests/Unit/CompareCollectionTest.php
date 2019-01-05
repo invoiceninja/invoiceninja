@@ -29,6 +29,10 @@ public function setUp()
         $this->view_permission = ['view_client'];
 
         $this->edit_permission = ['view_client', 'edit_client'];
+
+        $this->is_admin = true;
+
+        $this->is_not_admin = false;
     }
 
     public function testCompareResultOfComparison()
@@ -38,16 +42,24 @@ public function setUp()
 
     public function testViewPermission()
     {
-        $this->assertEquals(1, $this->checkPermissions($this->view_permission)->count());
+        $this->assertEquals(1, $this->checkPermissions($this->view_permission, $this->is_not_admin)->count());
     }
 
     public function testViewAndEditPermission()
     {
-        $this->assertEquals(2, $this->checkPermissions($this->edit_permission)->count());
+        $this->assertEquals(2, $this->checkPermissions($this->edit_permission, $this->is_not_admin)->count());
     }
 
-    public function checkPermissions($permission)
+    public function testAdminPermissions()
     {
+        $this->assertEquals(7, $this->checkPermissions($this->view_permission, $this->is_admin)->count());
+    }
+
+    public function checkPermissions($permission, $is_admin)
+    {
+        if($is_admin === TRUE)
+            return $this->map;
+
         return $this->map->whereIn('permission', $permission);
     }
 
