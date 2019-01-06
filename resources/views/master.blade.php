@@ -62,6 +62,24 @@
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
         NINJA.loggedErrorCount = 0;
 
+        NINJA.parseFloat = function(str) {
+            if (! str) {
+                return '';
+            } else {
+                str = str + '';
+            }
+
+            // check for comma as decimal separator
+            if (str.match(/,[\d]{1,2}$/)) {
+                str = str.replace(',', '.');
+                str = str.replace('.', ',');
+            }
+
+            str = str.replace(/[^0-9\.\-]/g, '');
+
+            return window.parseFloat(str);
+        }
+
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
             if (NINJA.loggedErrorCount > 5) {
                 return;
@@ -312,24 +330,6 @@
 
 <script type="text/javascript">
     NINJA.formIsChanged = {{ isset($formIsChanged) && $formIsChanged ? 'true' : 'false' }};
-
-    NINJA.parseFloat = function(str) {
-        if (! str) {
-            return '';
-        } else {
-            str = str + '';
-        }
-
-        // check for comma as decimal separator
-        if (str.match(/,[\d]{1,2}$/)) {
-            str = str.replace(',', '.');
-            str = str.replace('.', ',');
-        }
-
-        str = str.replace(/[^0-9\.\-]/g, '');
-
-        return window.parseFloat(str);
-    }
 
     $(function () {
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function () {
