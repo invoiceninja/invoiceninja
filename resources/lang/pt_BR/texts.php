@@ -240,7 +240,7 @@ $LANG = array(
     'confirmation_subject' => 'Confirmação de Conta do Invoice Ninja',
     'confirmation_header' => 'Confirmação de Conta',
     'confirmation_message' => 'Favor acessar o link abaixo para confirmar a sua conta.',
-    'invoice_subject' => 'Nova fatura :number de :account',
+    'invoice_subject' => 'Nova fatura :numer de :account',
     'invoice_message' => 'Para visualizar a sua fatura de :amount, clique no link abaixo.',
     'payment_subject' => 'Recebimento de pagamento de',
     'payment_message' => 'Obrigado, pagamento de :amount confirmado',
@@ -2437,6 +2437,7 @@ Quando tiver os valores dos depósitos, volte a esta pagina e complete a verific
     'currency_angolan_kwanza' => 'Angolan Kwanza',
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',

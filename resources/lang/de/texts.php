@@ -1421,7 +1421,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'freq_four_months' => 'Vier Monate',
     'freq_six_months' => 'Halbjährlich',
     'freq_annually' => 'Jährlich',
-    'freq_two_years' => 'zwei Jahre',
+    'freq_two_years' => 'Zwei Jahre',
 
     // Payment types
     'payment_type_Apply Credit' => 'Guthaben anwenden',
@@ -2446,6 +2446,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'currency_angolan_kwanza' => 'Angolan Kwanza',
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',

@@ -2436,6 +2436,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'currency_angolan_kwanza' => 'Kwanza Angoleño',
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'Esperamos que estés disfrutando con la app. <br/>Si consideras :link ¡te lo agraderemos enormemente!',
     'writing_a_review' => 'escribir una reseña',

@@ -2444,6 +2444,7 @@ $LANG = array(
     'currency_angolan_kwanza' => 'Angolan Kwanza',
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => '我們希望您喜歡使用這個程式。<br/>若您考慮 :link，我們會非常感謝！',
     'writing_a_review' => '撰寫評語',
