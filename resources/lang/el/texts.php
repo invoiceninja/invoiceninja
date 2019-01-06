@@ -1771,7 +1771,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'lang_Thai' => 'Ταϊλανδέζικα',
     'lang_Macedonian' => 'Μακεδονικά',
     'lang_Chinese - Taiwan' => 'Κινέζικα Ταϊβάν',
-    'lang_Serbian' => 'Serbian',
+    'lang_Serbian' => 'Σέρβικα',
 
     // Industries
     'industry_Accounting & Legal' => 'Λογιστικά & Νομικά',
@@ -2444,8 +2444,9 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'currency_moroccan_dirham' => 'Ντιρχάμ Μαρόκου',
     'currency_jamaican_dollar' => 'Δολλάριο Τζαμάικας',
     'currency_angolan_kwanza' => 'Κουάνζα Αγκόλας',
-    'currency_haitian_gourde' => 'Haitian Gourde',
-    'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_haitian_gourde' => 'Γκούρντε Αϊτής',
+    'currency_zambian_kwacha' => 'Κβάτσα Ζάμπιας',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'Ελπίζουμε να απολαμβάνετε τη χρήση της εφαρμογής.<br/> Εάν θα θέλατε να γράψετε μια κριτική :link θα το εκτιμούσαμε ιδιαίτερα!',
     'writing_a_review' => 'συγγραφή κριτικής',

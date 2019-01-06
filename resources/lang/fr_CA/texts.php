@@ -1762,7 +1762,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Thai' => 'Baht thaïlandais',
     'lang_Macedonian' => 'Macédonien',
     'lang_Chinese - Taiwan' => 'Chinois - Taiwan',
-    'lang_Serbian' => 'Serbian',
+    'lang_Serbian' => 'Serbe',
 
     // Industries
     'industry_Accounting & Legal' => 'Administration',
@@ -2438,6 +2438,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_angolan_kwanza' => 'Kwanza angolais',
     'currency_haitian_gourde' => 'Gourde haïtienne',
     'currency_zambian_kwacha' => 'Kwacha zambien',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'rédiger un commentaire',
@@ -2775,7 +2776,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'amount_variable_help' => 'Note: le champ $amount de la facture utilisera le champ partiel/dépôt. Il utilisera le solde de la facture, si spécifié autrement.',
     'taxes_are_included_help' => 'Note : Les taxes inclusives ont été activées.',
     'taxes_are_not_included_help' => 'Note : Les taxes inclusives n\'ont pas été activées.',
-    'change_requires_purge' => 'Pour modifier ce paramètre, il faut accéder aux données du compte :link',
+    'change_requires_purge' => 'Modifier ce paramètre requière de :link les données du compte.',
     'purging' => 'Purge en cours',
     'warning_local_refund' => 'Le remboursement sera enregistré dans l\'application, mais NE SERA PAS traité par la passerelle de paiement.',
     'email_address_changed' => 'L\'adresse courriel a été modifiée',

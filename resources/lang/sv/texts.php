@@ -2453,6 +2453,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'currency_angolan_kwanza' => 'Angolan Kwanza',
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
