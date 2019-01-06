@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8f8d2721c82b85af6d3d5c1c64a3de4",
+    "content-hash": "45343218beb8e2c2b486aca2c58fd497",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -6549,16 +6549,16 @@
         },
         {
             "name": "omnipay/firstdata",
-            "version": "v2.4.0",
+            "version": "v2.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-firstdata.git",
-                "reference": "c0123a03bec861e0c00fa19772582dc3639fbb6e"
+                "url": "https://github.com/davidbankes/omnipay-firstdata.git",
+                "reference": "9ede42b44fea36f8a181684c9ac28bb121865258"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-firstdata/zipball/c0123a03bec861e0c00fa19772582dc3639fbb6e",
-                "reference": "c0123a03bec861e0c00fa19772582dc3639fbb6e",
+                "url": "https://api.github.com/repos/davidbankes/omnipay-firstdata/zipball/9ede42b44fea36f8a181684c9ac28bb121865258",
+                "reference": "9ede42b44fea36f8a181684c9ac28bb121865258",
                 "shasum": ""
             },
             "require": {
@@ -6578,7 +6578,6 @@
                     "Omnipay\\FirstData\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6603,7 +6602,10 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-07-14T09:26:59+00:00"
+            "support": {
+                "source": "https://github.com/davidbankes/omnipay-firstdata/tree/v2.4.1"
+            },
+            "time": "2018-09-13T01:24:34+00:00"
         },
         {
             "name": "omnipay/gocardless",
