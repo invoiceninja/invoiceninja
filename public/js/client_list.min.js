@@ -1209,7 +1209,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
@@ -5121,7 +5120,7 @@ var render = function() {
           "aria-expanded": "false"
         }
       },
-      [_vm._v("\n\tSelect\n\t")]
+      [_vm._v("\n\t\tSelect\n\t\t")]
     ),
     _vm._v(" "),
     _c(
@@ -5131,18 +5130,14 @@ var render = function() {
         attrs: { "aria-labelledby": "dropdownMenu" }
       },
       [
-        _c(
-          "a",
-          {
-            staticClass: "dropdown-item",
-            attrs: { href: _vm.rowData.action.url }
-          },
-          [_vm._v(_vm._s(_vm.rowData.action.name))]
-        ),
-        _vm._v(" "),
-        _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-          _vm._v("Another item")
-        ]),
+        _vm._v("\n//\t\t\t\t"),
+        _vm._l(_vm.rowData.actions, function(action) {
+          return _c(
+            "a",
+            { staticClass: "dropdown-item", attrs: { href: action.url } },
+            [_vm._v(_vm._s(action.name))]
+          )
+        }),
         _vm._v(" "),
         _c(
           "a",
@@ -5157,7 +5152,8 @@ var render = function() {
           },
           [_vm._v("One more item")]
         )
-      ]
+      ],
+      2
     )
   ])
 }

@@ -11,32 +11,33 @@ use Illuminate\Support\Facades\Log;
 
 class ClientDatatable extends EntityDatatable
 {
-	use MakesHash;
+    use MakesHash;
+    use MakesActionMenu;
 
-	/**
-	* ?sort=&page=1&per_page=20
-	*/
-	public function query(Request $request, int $company_id)
-	{
-		/**
-		*
-		* $sort_col is returned col|asc
-		* needs to be exploded
-		*
-		*/
-		$sort_col = explode("|", $request->input('sort'));
+    /**
+    * ?sort=&page=1&per_page=20
+    */
+    public function query(Request $request, int $company_id)
+    {
+        /**
+        *
+        * $sort_col is returned col|asc
+        * needs to be exploded
+        *
+        */
+        $sort_col = explode("|", $request->input('sort'));
 
-		$data = $this->find($company_id, $request->input('filter'))
-						->orderBy($sort_col[0], $sort_col[1])
-						->paginate($request->input('per_page'));
+        $data = $this->find($company_id, $request->input('filter'))
+                        ->orderBy($sort_col[0], $sort_col[1])
+                        ->paginate($request->input('per_page'));
 
-		return response()
-					->json($this->buildActionColumn($data), 200);
+        return response()
+                    ->json($this->buildActionColumn($data), 200);
 
-	}
+    }
 
 
-	private function find(int $company_id, $filter, $userId = false)
+    private function find(int $company_id, $filter, $userId = false)
     {
         $query = DB::table('clients')
                     ->join('companies', 'companies.id', '=', 'clients.company_id')
@@ -102,11 +103,19 @@ class ClientDatatable extends EntityDatatable
         return $query;
     }
 
-    private function buildActionColumn($data)
+    /**
+     * Returns the action dropdown menu 
+     * 
+     * @param   $data   Std Class of client datatable rows
+     * @return  object  Rendered action column items
+     */
+    private function buildActionColumn($data) : object
     {
-    	//if(auth()->user()->is_admin())
+
+        //if(auth()->user()->is_admin())
+        //todo permissions are only mocked here, when user permissions have been implemented this needs to be refactored.
         
-		$permission = [
+        $permissions = [
             'view_client', 
             'edit_client', 
             'create_task', 
@@ -116,7 +125,7 @@ class ClientDatatable extends EntityDatatable
             'create_expense'
             ];
 
-        $actions = [
+        $requested_actions = [
             'view_client_client_id', 
             'edit_client_client_id', 
             'create_task_client_id', 
@@ -126,28 +135,26 @@ class ClientDatatable extends EntityDatatable
             'create_expense_client_id'
         ];
 
-    	$data->map(function ($row) {
+        $is_admin = false;
 
-    		$url = collect(['url' => route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]),
-    						'name' => trans('texts.view')]);
+        $actions = $this->filterActions($requested_actions, $permissions, $is_admin);
 
-		    $row->action = $url;
+        $data->map(function ($row) use ($actions) {
 
-		    return $row;
-		});
+            $updated_actions = $actions->map(function ($action) use($row){
 
-		return $data;
-    	
+                $action['url'] = route($action['route'], [$action['key'] => $this->encodePrimaryKey($row->id)]);
+                return $action;
+
+            });
+
+            $row->actions = $updated_actions;
+
+            return $row;
+        });
+
+        return $data;
+        
     }
 
-    private function actions()
-    {
-    	return
-    		collect([
-    			'view_client' => collect(	['url' => route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]),
-    										'name' => trans('texts.view')]),
-    			'edit_client' => collect(	['url' => route('clients.edit', ['id' => $this->encodePrimaryKey($row->id)]),
-    										'name' => trans('texts.edit')])
-    		]);
-    }
 }

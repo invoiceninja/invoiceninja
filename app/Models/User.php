@@ -67,7 +67,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function permissions()
     {
-        return $this->company()->pivot->permissions;
+        
+        $permissions = json_decode($this->company()->pivot->permissions);
+        
+        if (! $permissions) 
+            return [];
+
+        return $permissions;
     }
 
     public function is_admin()
@@ -87,19 +93,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function permissionsFlat()
     {
-        $permissions = json_decode($this->permissions());
-        return collect($permissions)->flatten();
+        return collect($this->permissions())->flatten();
     }
 
     public function permissionsMap()
     {
-        $data = [];
-        $permissions = json_decode($this->permissions());
-
-        if (! $permissions) 
-            return $data;
-
-        $keys = array_values((array) $permissions);
+        
+        $keys = array_values((array) $this->permissions());
         $values = array_fill(0, count($keys), true);
 
         return array_combine($keys, $values);
