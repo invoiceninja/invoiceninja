@@ -41,10 +41,14 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
 
 	Route::resource('dashboard', 'DashboardController'); // name = (dashboard. index / create / show / update / destroy / edit
 	Route::get('logout', 'Auth\LoginController@logout')->name('user.logout');
-    Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
-    Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
-    Route::resource('user', 'UserProfileController'); // name = (clients. index / create / show / update / destroy / edit
-    Route::get('settings', 'SettingsController@index')->name('user.settings');
+  Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
+  Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
+  Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
+  Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
+  Route::resource('credits', 'CreditController'); // name = (credits. index / create / show / update / destroy / edit
+  Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
+  Route::resource('user', 'UserProfileController'); // name = (clients. index / create / show / update / destroy / edit
+  Route::get('settings', 'SettingsController@index')->name('user.settings');
 
 
 

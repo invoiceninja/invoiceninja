@@ -3,6 +3,7 @@ import Vue from 'vue';
 import axios from 'axios';
 
 Vue.component('client-list', require('../components/client/ClientList.vue'));
+Vue.component('client-actions', require('../components/client/ClientActions.vue'));
 Vue.component('vuetable', require('vuetable-2/src/components/Vuetable'));
 Vue.component('vuetable-pagination', require('vuetable-2/src/components/VuetablePagination'));
 Vue.component('vuetable-pagination-bootstrap', require('../components/util/VuetablePaginationBootstrap'));

@@ -27,16 +27,19 @@ class ClientController extends Controller
 
     protected $clientRepo;
 
-    public function __construct(ClientRepository $clientRepo)
+    protected $clientDatatable;
+
+    public function __construct(ClientRepository $clientRepo, ClientDatatable $clientDatatable)
     {
         $this->clientRepo = $clientRepo;
+        $this->clientDatatable = $clientDatatable;
     }
 
     public function index()
     {
 
         if(request('page'))
-            return ClientDatatable::query(request(), $this->getCurrentCompanyId());
+            return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
 
         return view('client.vue_list');
         /*
