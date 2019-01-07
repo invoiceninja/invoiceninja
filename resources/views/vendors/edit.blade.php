@@ -67,6 +67,7 @@
 			{!! Former::text('postal_code')
 					->oninput(config('ninja.google_maps_api_key') ? 'lookupPostalCode()' : '') !!}
 			{!! Former::select('country_id')->addOption('','')
+				->autocomplete('off')
 				->fromQuery($countries, 'name', 'id') !!}
 
         </div>

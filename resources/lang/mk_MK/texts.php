@@ -1771,6 +1771,7 @@ $LANG = array(
     'lang_Thai' => 'Тајландски',
     'lang_Macedonian' => 'Macedonian',
     'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
+    'lang_Serbian' => 'Serbian',
 
     // Industries
     'industry_Accounting & Legal' => 'Сметководство и право',
@@ -2443,6 +2444,9 @@ $LANG = array(
     'currency_moroccan_dirham' => 'Moroccan Dirham',
     'currency_jamaican_dollar' => 'Jamaican Dollar',
     'currency_angolan_kwanza' => 'Angolan Kwanza',
+    'currency_haitian_gourde' => 'Haitian Gourde',
+    'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
 
     'review_app_help' => 'Се надеваме дека уживате во користењето на апликацијата. <br/> Ако го земете во предвид :link многу би ни значело!',
     'writing_a_review' => 'пишување рецензија',
@@ -3105,7 +3109,7 @@ $LANG = array(
     'clone_to_quote' => 'Clone to Quote',
     'convert' => 'Convert',
     'last7_days' => 'Last 7 Days',
-    'last30_days' => 'Last 30 days',
+    'last30_days' => 'Last 30 Days',
     'custom_js' => 'Custom JS',
     'adjust_fee_percent_help' => 'Adjust percent to account for fee',
     'show_product_notes' => 'Show product details',

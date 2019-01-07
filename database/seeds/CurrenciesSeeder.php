@@ -94,6 +94,7 @@ class CurrenciesSeeder extends Seeder
             ['name' => 'Angolan Kwanza', 'code' => 'AOA', 'symbol' => 'Kz', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['name' => 'Haitian Gourde', 'code' => 'HTG', 'symbol' => 'G', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Zambian Kwacha', 'code' => 'ZMW', 'symbol' => 'ZK', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Nepalese Rupee', 'code' => 'NPR', 'symbol' => 'Rs. ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {

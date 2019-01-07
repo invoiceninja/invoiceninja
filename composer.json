@@ -30,9 +30,9 @@
         "collizo4sky/omnipay-wepay": "dev-address-fix",
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",
         "doctrine/dbal": "2.5.x",
+        "dompdf/dompdf": "0.6.2",
         "ezyang/htmlpurifier": "~v4.7",
         "fzaninotto/faker": "^1.5",
-        "gatepay/FedACHdir": "dev-master@dev",
         "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "dev-master",
@@ -55,6 +55,7 @@
         "nesbot/carbon": "^1.25",
         "nwidart/laravel-modules": "1.*",
         "omnipay/authorizenet": "dev-solution-id as 2.5.0",
+        "omnipay/firstdata": "^2.4",
         "patricktalmadge/bootstrapper": "5.5.x",
         "pragmarx/google2fa-laravel": "^0.1.2",
         "predis/predis": "^1.1",
@@ -126,22 +127,6 @@
     },
     "repositories": [
         {
-            "type": "package",
-            "package": {
-                "name": "gatepay/FedACHdir",
-                "version": "dev-master",
-                "dist": {
-                    "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/gatepay/FedACHdir.git",
-                    "type": "git",
-                    "reference": "origin/master"
-                }
-            }
-        },
-        {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
         },
@@ -160,6 +145,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/php-phantomjs"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/davidbankes/omnipay-firstdata.git"
         }
     ]
 }
