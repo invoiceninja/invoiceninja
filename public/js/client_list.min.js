@@ -5120,7 +5120,7 @@ var render = function() {
           "aria-expanded": "false"
         }
       },
-      [_vm._v("\n\t\tSelect\n\t\t")]
+      [_vm._v("\n\tSelect\n\t")]
     ),
     _vm._v(" "),
     _c(
@@ -5130,7 +5130,6 @@ var render = function() {
         attrs: { "aria-labelledby": "dropdownMenu" }
       },
       [
-        _vm._v("\n//\t\t\t\t"),
         _vm._l(_vm.rowData.actions, function(action) {
           return _c(
             "a",

@@ -4,14 +4,29 @@ namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class QueryFilters extends QueryFilters
+class ClientFilters extends QueryFilters
 {
+
+    /**
+     * Filters by due_date
+     *     
+     * @param  string $due_date 
+     * @return Builder 
+     */
+    public function balance($balance)
+    {
+        $parts = $this->split($balance);
+
+        return $this->builder->where('balance', $parts->operator, $parts->value);
+    }
+
+
     /**
      * Filter by popularity.
      *
-     * @param  string $order
-     * @return Builder
-     */
+     //* @param  string $order
+     //* @return Builder
+    
     public function popular($order = 'desc')
     {
         return $this->builder->orderBy('views', $order);
@@ -22,7 +37,7 @@ class QueryFilters extends QueryFilters
      *
      * @param  string $level
      * @return Builder
-     */
+     
     public function difficulty($level)
     {
         return $this->builder->where('difficulty', $level);
@@ -33,9 +48,11 @@ class QueryFilters extends QueryFilters
      *
      * @param  string $order
      * @return Builder
-     */
+    
     public function length($order = 'asc')
     {
         return $this->builder->orderBy('length', $order);
     }
+
+    */
 }

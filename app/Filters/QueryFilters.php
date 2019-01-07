@@ -65,4 +65,46 @@ abstract class QueryFilters
     {
         return $this->request->all();
     }
+
+    /**
+     * Explodes the value by delimiter
+     * 
+     * @param  string $value
+     * @return array 
+     */
+    public function split($value) : stdClass
+    {
+        $exploded_array = explode(":", $value);
+
+        $parts = new stdClass;
+
+        $parts->value = $exploded_array[0];
+        $parts->operator = $this->operatorConvertor($exploded_array[1]);
+
+        return $parts;
+    }
+
+    private function operatorConvertor(string $operator) : string
+    {
+        switch ($operator) {
+            case 'lt':
+                return '<';
+                break;
+            case 'gt':
+                return '>';
+                break;
+            case 'lte':
+                return '<=';
+                break;
+            case 'gte':
+                return '>=';
+                break;
+            case 'eq':
+                return '=';
+                break;
+            default:
+                return '=';
+                break;
+        }
+    }
 }
