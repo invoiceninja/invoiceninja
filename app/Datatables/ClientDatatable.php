@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ClientDatatable
+class ClientDatatable extends EntityDatatable
 {
 	use MakesHash;
 
@@ -105,35 +105,16 @@ class ClientDatatable
     private function buildActionColumn($data)
     {
     	//if(auth()->user()->is_admin())
-
-    	/* build json list of actions per row based on the row status and user permissions */
-    	
-    	/* View Only 
-			- view
-			$url = collect(['permission' => 'view_client', route' => 'clients.show', 'key' => 'client_id', 'name' => trans('texts.view')]);
-			
-
-		   Edit Only
-		    - view
-		    - edit
-		    - New Task
-		    - New Invoice
-		    - New Quote
-		    - Enter Payment
-		    - Enter Credit
-		    - Enter Expense
-		    - Archive
-		    - Delete (If client has outstanding debts, need to resolve this prior to deleting)
-
-			$url = collect(['permission' => 'edit_client', 'route' => 'clients.edit', 'key' => 'client_id', 'name' => trans('texts.edit')]);
-			
-			$url = collect(['permission' => 'create_task', 'route' => 'task.create', 'key' => 'client_id', 'name' => trans('texts.new_task')]);
-			$url = collect(['permission' => 'create_invoice', 'route' => 'invoice.create', 'key' => 'client_id', 'name' => trans('texts.new_invoice')]);
-			$url = collect(['permission' => 'create_payment', 'route' => 'payment.create', 'key' => 'client_id', 'name' => trans('texts.enter_payment')]); 
-			$url = collect(['permission' => 'create_credit', 'route' => 'credit.create', 'key' => 'client_id', 'name' => trans('texts.enter_credit')]); 
-			$url = collect(['permission' => 'create_expense', 'route' => 'expense.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')]); 
-    	*/
-
+        
+		$permission = [
+            'view_client', 
+            'edit_client', 
+            'create_task', 
+            'create_invoice', 
+            'create_payment', 
+            'create_credit', 
+            'create_expense'
+            ];
 
 
     	$data->map(function ($row) {
