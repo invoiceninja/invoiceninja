@@ -85,6 +85,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
+    public function permissionsFlat()
+    {
+        $permissions = json_decode($this->permissions());
+        return collect($permissions)->flatten();
+    }
+
     public function permissionsMap()
     {
         $data = [];

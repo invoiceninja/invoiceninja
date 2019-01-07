@@ -116,6 +116,15 @@ class ClientDatatable extends EntityDatatable
             'create_expense'
             ];
 
+        $actions = [
+            'view_client_client_id', 
+            'edit_client_client_id', 
+            'create_task_client_id', 
+            'create_invoice_client_id', 
+            'create_payment_client_id', 
+            'create_credit_client_id', 
+            'create_expense_client_id'
+        ];
 
     	$data->map(function ($row) {
 
