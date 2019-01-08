@@ -20,6 +20,13 @@ class ClientFilters extends QueryFilters
         return $this->builder->where('balance', $parts->operator, $parts->value);
     }
 
+    public function between_balance($balance)
+    {
+        $parts = explode(":", $balance);
+
+        return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
+    }
+
 
     /**
      * Filter by popularity.

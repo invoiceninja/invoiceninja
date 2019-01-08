@@ -34374,6 +34374,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_toastr__ = __webpack_require__("./node_modules/vue-toastr/dist/vue-toastr.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_toastr___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_toastr__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue__ = __webpack_require__("./node_modules/vue/dist/vue.common.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vue__);
 // lodash handles our translations 
 
 
@@ -34383,11 +34385,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // Import toastr scss file: need webpack sass-loader
 __webpack_require__("./node_modules/vue-toastr/src/vue-toastr.scss");
 
+
+
 // Register vue component
-Vue.component('vue-toastr', __WEBPACK_IMPORTED_MODULE_1_vue_toastr___default.a);
+__WEBPACK_IMPORTED_MODULE_2_vue___default.a.component('vue-toastr', __WEBPACK_IMPORTED_MODULE_1_vue_toastr___default.a);
 
 // Global translation helper
-Vue.prototype.trans = function (string) {
+__WEBPACK_IMPORTED_MODULE_2_vue___default.a.prototype.trans = function (string) {
     return __WEBPACK_IMPORTED_MODULE_0_lodash__["get"](i18n, string);
 };
 
@@ -34397,7 +34401,7 @@ window.Vue = __webpack_require__("./node_modules/vue/dist/vue.common.js");
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /* Development only*/
-Vue.config.devtools = true;
+__WEBPACK_IMPORTED_MODULE_2_vue___default.a.config.devtools = true;
 
 window.axios.defaults.headers.common = {
     'X-Requested-With': 'XMLHttpRequest',
