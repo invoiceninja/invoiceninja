@@ -67,9 +67,6 @@ class ClientPortalController extends BaseController
         $client = $invoice->client;
         $account = $invoice->account;
 
-        //Clear the previous Gateway Fee
-        $this->invoiceRepo->clearGatewayFee($invoice);
-
         if (request()->silent) {
             session(['silent:' . $client->id => true]);
             return redirect(request()->url() . (request()->borderless ? '?borderless=true' : ''));
