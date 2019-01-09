@@ -3124,6 +3124,10 @@ $LANG = array(
     'authenticate' => 'Authenticate',
     'please_authenticate' => 'Please authenticate',
     'biometric_authentication' => 'Biometric Authentication',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 
