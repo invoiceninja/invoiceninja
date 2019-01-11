@@ -1,7 +1,6 @@
 <template>
 
 	<div>
-      <vuetable-filter-bar></vuetable-filter-bar>
 
       <vuetable ref="vuetable"
 	    api-url="/clients"
@@ -144,7 +143,8 @@ export default {
 }
 </script>
 
-<style>
+<style type="text/css">
+
   .pagination {
     margin: 0;
     float: right;
