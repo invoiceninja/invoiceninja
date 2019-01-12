@@ -1,4 +1,3 @@
-
 require('../bootstrap');
 
 /* Must be declare in every child view*/
@@ -16,6 +15,7 @@ Vue.component('vuetable-pagination-bootstrap', require('../components/util/Vueta
 Vue.component('vuetable-filter-bar', require('../components/util/VuetableFilterBar'));
 Vue.component('vuetable-query-filter', require('../components/client/ClientFilters.vue'));
 Vue.component('vuetable-multi-select', require('../components/util/VuetableMultiSelect.vue'));
+Vue.component('list-actions', require('../components/util/VueListActions.vue'));
 
 
 window.onload = function () {

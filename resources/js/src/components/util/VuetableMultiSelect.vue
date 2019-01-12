@@ -1,6 +1,6 @@
 <!-- Vue component -->
 <template>
-  <div>
+  <div style="width:300px;">
     <multiselect v-model="value" 
     :options="options" 
     :multiple="true"
@@ -37,3 +37,6 @@
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
+<style>
+</style>
