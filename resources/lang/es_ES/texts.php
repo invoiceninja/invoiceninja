@@ -2870,6 +2870,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'guide' => 'Guía',
     'gateway_fee_item' => 'Concepto de Comisión de Pasarela de Pago',
     'gateway_fee_description' => 'Sobrecoste de Comisión de Pasarela de Pago',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Mostrar Pagos',
     'show_aging' => 'Mostrar Envejecimiento',
     'reference' => 'Referencia',

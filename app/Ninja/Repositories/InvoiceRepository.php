@@ -1336,14 +1336,19 @@ class InvoiceRepository extends BaseRepository
         $date = $account->getDateTime()->format($account->getCustomDateFormat());
         $feeItemLabel = $account->getLabel('gateway_fee_item') ?: ($fee >= 0 ? trans('texts.surcharge') : trans('texts.discount'));
 
-        if ($feeDescriptionLabel = $account->getLabel('gateway_fee_description')) {
-            if (strpos($feeDescriptionLabel, '$date') !== false) {
-                $feeDescriptionLabel = str_replace('$date', $date, $feeDescriptionLabel);
-            } else {
-                $feeDescriptionLabel .= ' • ' . $date;
-            }
+        if($fee == 0){
+            return;
+        }
+
+        if($fee > 0){
+            $feeDescriptionLabel = $account->getLabel('gateway_fee_description') ? $account->getLabel('gateway_fee_description') : trans('texts.online_payment_surcharge');
+        }else{
+            $feeDescriptionLabel = $account->getLabel('gateway_fee_discount_description') ? $account->getLabel('gateway_fee_discount_description') : trans('texts.online_payment_discount');
+        }
+
+        if (strpos($feeDescriptionLabel, '$date') !== false) {
+            $feeDescriptionLabel = str_replace('$date', $date, $feeDescriptionLabel);
         } else {
-            $feeDescriptionLabel = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
             $feeDescriptionLabel .= ' • ' . $date;
         }
 
