@@ -4311,7 +4311,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -4326,7 +4326,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n.pagination {\n  margin: 0;\n  float: right;\n}\n.pagination a.page {\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 10px;\n  margin-right: 2px;\n}\n.pagination a.page.active {\n  color: white;\n  background-color: #337ab7;\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 10px;\n  margin-right: 2px;\n}\n.pagination a.btn-nav {\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 7px;\n  margin-right: 2px;\n}\n.pagination a.btn-nav.disabled {\n  color: lightgray;\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 7px;\n  margin-right: 2px;\n  cursor: not-allowed;\n}\n.pagination-info {\n  float: left;\n}\n", ""]);
+exports.push([module.i, "\n.pagination {\n  margin: 0;\n  float: right;\n}\n.pagination a.page {\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 10px;\n  margin-right: 2px;\n}\n.pagination a.page.active {\n  color: white;\n  background-color: #337ab7;\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 10px;\n  margin-right: 2px;\n}\n.pagination a.btn-nav {\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 7px;\n  margin-right: 2px;\n}\n.pagination a.btn-nav.disabled {\n  color: lightgray;\n  border: 1px solid lightgray;\n  border-radius: 3px;\n  padding: 5px 7px;\n  margin-right: 2px;\n  cursor: not-allowed;\n}\n.pagination-info {\n  float: left;\n}\nth {\n  background: #777777;\n  color: #fff;\n}\n.sortable th i:hover {\n  color: #fff;\n}\n\n", ""]);
 
 // exports
 
@@ -24146,7 +24146,7 @@ var render = function() {
   return _c("div", { staticClass: "d-flex justify-content-start" }, [
     _vm._m(0),
     _vm._v(" "),
-    _c("div", { staticClass: "p-2" }, [_c("vuetable-multi-select")], 1),
+    _c("div", { staticClass: "mr-auto p-2" }, [_c("vuetable-multi-select")], 1),
     _vm._v(" "),
     _c("div", { staticClass: "ml-auto p-2" }, [_c("vuetable-query-filter")], 1),
     _vm._v(" "),
@@ -24162,7 +24162,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "mr-auto p-2" }, [
+    return _c("div", { staticClass: "p-2" }, [
       _c("div", { staticClass: "btn-group" }, [
         _c(
           "button",
@@ -39511,7 +39511,7 @@ module.exports = Component.exports
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     table: {
-        tableClass: 'table table-bordered table-hover',
+        tableClass: 'table table-striped table-hover',
         loadingClass: 'loading',
         ascendingIcon: 'fa fa-angle-double-up',
         descendingIcon: 'fa fa-angle-double-down',

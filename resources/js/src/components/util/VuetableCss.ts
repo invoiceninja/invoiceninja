@@ -1,6 +1,6 @@
 export default {
   table: {
-    tableClass: 'table table-bordered table-hover',
+    tableClass: 'table table-striped table-hover',
     loadingClass: 'loading',
     ascendingIcon: 'fa fa-angle-double-up',
     descendingIcon: 'fa fa-angle-double-down',

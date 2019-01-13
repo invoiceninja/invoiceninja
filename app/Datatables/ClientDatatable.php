@@ -109,7 +109,7 @@ class ClientDatatable extends EntityDatatable
      * @param   $data   Std Class of client datatable rows
      * @return  object  Rendered action column items
      */
-    private function buildActionColumn($data) : object
+    private function buildActionColumn($data)
     {
 
         //if(auth()->user()->is_admin())

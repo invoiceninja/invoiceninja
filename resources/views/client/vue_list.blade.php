@@ -14,16 +14,14 @@
 
             <list-actions></list-actions>
 
-            <div style="padding-top:20px;">
-                <div class="animated fadeIn">
-                    <div class="col-md-12 card">
+            <div style="background: #fff;">
+                
+                <client-list></client-list>
 
-                       <client-list></client-list>
-
-                    </div>
-                </div>
             </div>
+
         </div>
+        
     </main>
 
     <script defer src=" {{ mix('/js/client_list.min.js') }}"></script>

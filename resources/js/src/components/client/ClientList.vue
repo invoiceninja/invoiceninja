@@ -180,4 +180,12 @@ export default {
   .pagination-info {
     float: left;
   }
+  th {
+    background: #777777;
+    color: #fff;
+  }
+  .sortable th i:hover {
+    color: #fff;
+  }
+
 </style>
