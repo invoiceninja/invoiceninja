@@ -22572,67 +22572,18 @@ exports.default = {
     data: function () {
         return {
             css: VuetableCss_1.default,
-            sortOrder: [
-                {
-                    field: 'name',
-                    sortField: 'name',
-                    direction: 'asc'
-                }
-            ],
+            perPage: this.datatable.per_page,
+            sortOrder: this.datatable.sort_order,
             moreParams: {},
-            fields: [
-                {
-                    name: '__checkbox',
-                    title: '',
-                    titleClass: 'center aligned',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: 'name',
-                    sortField: 'name',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: 'contact',
-                    sortField: 'contact',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: 'email',
-                    sortField: 'email',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: 'client_created_at',
-                    title: 'Date created',
-                    sortField: 'client_created_at',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: 'last_login',
-                    title: 'Last login',
-                    sortField: 'last_login',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: 'balance',
-                    sortField: 'balance',
-                    dataClass: 'center aligned'
-                },
-                {
-                    name: '__component:client-actions',
-                    title: '',
-                    titleClass: 'center aligned',
-                    dataClass: 'center aligned'
-                }
-            ]
+            fields: this.datatable.fields
         };
     },
-    //props: ['list'],
+    props: ['datatable'],
     mounted: function () {
         var _this = this;
         this.$events.$on('filter-set', function (eventData) { return _this.onFilterSet(eventData); });
         this.$events.$on('filter-reset', function (e) { return _this.onFilterReset(); });
+        console.dir(this.datatable);
     },
     beforeMount: function () {
     },
@@ -24238,7 +24189,7 @@ var render = function() {
         attrs: {
           "api-url": "/clients",
           fields: _vm.fields,
-          "per-page": 20,
+          "per-page": _vm.perPage,
           "sort-order": _vm.sortOrder,
           "append-params": _vm.moreParams,
           css: _vm.css.table,

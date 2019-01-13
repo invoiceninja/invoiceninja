@@ -5,7 +5,7 @@
       <vuetable ref="vuetable"
 	    api-url="/clients"
 	    :fields="fields"
-      	:per-page="20"
+      	:per-page="perPage"
       	:sort-order="sortOrder"
       	:append-params="moreParams"
         :css="css.table"
@@ -38,76 +38,27 @@ import VuetableCss from '../util/VuetableCss'
 Vue.use(VueEvents)
 
 export default {
+
 	components: {
         	Vuetable,
 	      	VuetablePagination,
 	      	VuetablePaginationInfo
 	    },
-    data () {
+    data: function () {
         return {
             css: VuetableCss,
-            sortOrder: [
-            {
-              field: 'name',
-              sortField: 'name',
-              direction: 'asc'
-            }
-          ],
+            perPage: this.datatable.per_page,
+            sortOrder: this.datatable.sort_order,
             moreParams: {},
-            fields: [
-            {
-              name: '__checkbox',   // <----
-              title: '',
-              titleClass: 'center aligned',
-              dataClass: 'center aligned'
-            },
-            {
-              name: 'name',
-              sortField: 'name',
-              dataClass: 'center aligned'
-            },
-            {
-              name: 'contact',
-              sortField: 'contact',
-              dataClass: 'center aligned'
-            },
-            {
-              name: 'email',
-              sortField: 'email',
-              dataClass: 'center aligned'
-            },
-            {
-              name: 'client_created_at',
-              title: 'Date created',
-              sortField: 'client_created_at',
-              dataClass: 'center aligned'
-            },
-            {
-              name: 'last_login',
-              title: 'Last login',
-              sortField: 'last_login',
-              dataClass: 'center aligned'
-            },
-            {
-              name: 'balance',
-              sortField: 'balance',
-              dataClass: 'center aligned'             
-            },
-            {
-              name: '__component:client-actions',   // <----
-              title: '',
-              titleClass: 'center aligned',
-              dataClass: 'center aligned'
-            }
-		      ]
+            fields: this.datatable.fields
         }
     },
-    //props: ['list'],
+    props: ['datatable'],
     mounted() {
 
       this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
       this.$events.$on('filter-reset', e => this.onFilterReset())
-
+      console.dir(this.datatable)
     },
     beforeMount: function () {
 

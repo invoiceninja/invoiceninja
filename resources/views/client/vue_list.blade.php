@@ -16,12 +16,12 @@
 
             <div style="background: #fff;">
                 
-                <client-list></client-list>
-
+                <client-list :datatable="{{ $datatable }}"></client-list>
+                
             </div>
 
         </div>
-        
+
     </main>
 
     <script defer src=" {{ mix('/js/client_list.min.js') }}"></script>

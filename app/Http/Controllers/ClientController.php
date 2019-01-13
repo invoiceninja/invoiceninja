@@ -41,7 +41,11 @@ class ClientController extends Controller
         if(request('page'))
             return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
 
-        return view('client.vue_list');
+        $data = [
+            'datatable' => $this->clientDatatable->buildOptions()
+        ];
+
+        return view('client.vue_list', $data);
         /*
         if (request()->ajax()) {
 
