@@ -175,11 +175,9 @@ class LoginController extends Controller
      */
     public function getLogoutWrapper(Request $request)
     {
-        $contactKey = session('contact_key');
-
         self::logout($request);
 
-        return redirect('/client/dashboard/' . $contactKey);
+        return redirect('/client/login?account_key=' . $request->account_key);
     }
 
 }

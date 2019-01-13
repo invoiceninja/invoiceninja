@@ -121,7 +121,7 @@
                     @endif
                     @if ($account->enable_portal_password && request()->contact->password)
                         <li>
-                            {!! link_to('/client/logout', trans('texts.logout')) !!}
+                            {!! link_to('/client/logout?account_key=' . $account->account_key, trans('texts.logout')) !!}
                         </li>
                     @endif
                 @elseif (! empty($account))
