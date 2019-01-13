@@ -109,7 +109,7 @@ class ClientDatatable extends EntityDatatable
      * @param   $data   Std Class of client datatable rows
      * @return  object  Rendered action column items
      */
-    private function buildActionColumn($data) : object
+    private function buildActionColumn($data)
     {
 
         //if(auth()->user()->is_admin())
@@ -155,6 +155,72 @@ class ClientDatatable extends EntityDatatable
 
         return $data;
         
+    }
+
+    public function buildOptions()
+    {
+        return collect([
+            'per_page' => 20,
+            'sort_order' => [
+                [
+                  'field' => 'name',
+                  'sortField' => 'name',
+                  'direction' => 'asc',
+                ]
+            ],
+            'fields' => [
+                [
+                  'name' => '__checkbox',   // <----
+                  'title' => '',
+                  'titleClass' => 'center aligned',
+                  'dataClass' => 'center aligned'
+                ],
+                [
+                  'name' => 'name',
+                  'title' => trans('texts.name'),
+                  'sortField' => 'name',
+                  'visible' => false,
+                  'dataClass' => 'center aligned'
+                ],
+                [
+                  'name' => 'contact',
+                  'title' => trans('texts.contact'),
+                  'sortField' => 'contact',
+                  'visible' => false,
+                  'dataClass' => 'center aligned'
+                ],
+                [
+                  'name' => 'email',
+                  'title' => trans('texts.email'),
+                  'sortField' => 'email',
+                  'dataClass' => 'center aligned'
+                ],
+                [
+                  'name' => 'client_created_at',
+                  'title' => trans('texts.date_created'),
+                  'sortField' => 'client_created_at',
+                  'dataClass' => 'center aligned'
+                ],
+                [
+                  'name' => 'last_login',
+                  'title' => trans('texts.last_login'),
+                  'sortField' => 'last_login',
+                  'dataClass' => 'center aligned'
+                ],
+                [
+                  'name' => 'balance',
+                  'title' => trans('texts.balance'),
+                  'sortField' => 'balance',
+                  'dataClass' => 'center aligned'             
+                ],
+                [
+                  'name' => '__component:client-actions',   
+                  'title' => '',
+                  'titleClass' => 'center aligned',
+                  'dataClass' => 'center aligned'
+                ]
+            ]
+        ]);
     }
 
 }

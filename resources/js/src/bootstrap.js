@@ -7,6 +7,8 @@ import Toastr from 'vue-toastr';
 // Import toastr scss file: need webpack sass-loader
 require('vue-toastr/src/vue-toastr.scss');
 
+import Vue from 'vue';
+
 // Register vue component
 Vue.component('vue-toastr',Toastr);
 

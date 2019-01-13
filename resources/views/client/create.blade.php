@@ -1,4 +1,4 @@
-@extends('layouts.master', ['header' => $header])
+    @extends('layouts.master', ['header' => $header])
 
 @section('body')
 <main class="main" id="client_create">
@@ -9,7 +9,7 @@
 <form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
     <div class="container-fluid">
         
-                <vue-toastr ref="toastr"></vue-toastr>
+        <vue-toastr ref="toastr"></vue-toastr>
 
         <div class="row">
             <!-- Client Details and Address Column -->
