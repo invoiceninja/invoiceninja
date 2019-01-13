@@ -2872,6 +2872,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'guide' => 'Guide',
     'gateway_fee_item' => 'Gateway Fee Item',
     'gateway_fee_description' => 'Gateway Fee Surcharge',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Show Payments',
     'show_aging' => 'Show Aging',
     'reference' => 'Reference',

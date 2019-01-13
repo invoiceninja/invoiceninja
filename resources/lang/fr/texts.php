@@ -2874,6 +2874,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'guide' => 'Guide',
     'gateway_fee_item' => 'Article de frais de passerelle',
     'gateway_fee_description' => 'Majoration de frais de passerelle',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Montrer les paiements',
     'show_aging' => 'Montrer le vieillissement',
     'reference' => 'Référence',

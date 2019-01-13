@@ -2880,6 +2880,7 @@ $LANG = array(
     'guide' => 'Водич',
     'gateway_fee_item' => 'Ставка на провизија на платниот портал.',
     'gateway_fee_description' => 'Провизија за надоместок на платниот портал.',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Прикажи плаќања',
     'show_aging' => 'Прикажи застарени',
     'reference' => 'Референца',
