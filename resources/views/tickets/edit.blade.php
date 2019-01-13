@@ -9,6 +9,7 @@
 
     <script src="{{ asset('js/tinymce.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('js/tinymce-mentions-plugin.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/tinymce-textcolor-plugin.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/tinymce-mentions-autocomplete.css') }}" rel="stylesheet" type="text/css"/>
 
 
