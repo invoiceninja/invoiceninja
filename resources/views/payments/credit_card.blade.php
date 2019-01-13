@@ -452,7 +452,10 @@
               event.preventDefault();
 
 
-            var options = {};
+            var options = {
+                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value
+            };
+
             if (document.getElementById('postal_code')) {
                 options.address_zip = document.getElementById('postal_code').value;
             }
