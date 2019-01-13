@@ -1,6 +1,9 @@
 <template>
 
-	<div class="row">
+	<div class="d-flex justify-content-start">
+
+
+<div class="mr-auto p-2">
 
 		<div class="btn-group">
             <button type="button" class="btn btn-primary btn-lg">Archive</button>
@@ -12,13 +15,19 @@
               <a class="dropdown-item" href="#">Delete</a>
             </div>
         </div>	
+</div>
 
+<div class="p-2">
         <vuetable-multi-select></vuetable-multi-select>
+</div>
 
+<div class="ml-auto p-2">
 		<vuetable-query-filter></vuetable-query-filter>
-            
-        <button class="btn btn-primary btn-lg ">{{ trans('texts.new_client') }}</button>
+</div>
 
+<div class="p-2">
+        <button class="btn btn-primary btn-lg ">{{ trans('texts.new_client') }}</button>
+</div>
 	</div>
 
 </template>

@@ -4311,7 +4311,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -24143,72 +24143,72 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "row" },
-    [
-      _vm._m(0),
-      _vm._v(" "),
-      _c("vuetable-multi-select"),
-      _vm._v(" "),
-      _c("vuetable-query-filter"),
-      _vm._v(" "),
+  return _c("div", { staticClass: "d-flex justify-content-start" }, [
+    _vm._m(0),
+    _vm._v(" "),
+    _c("div", { staticClass: "p-2" }, [_c("vuetable-multi-select")], 1),
+    _vm._v(" "),
+    _c("div", { staticClass: "ml-auto p-2" }, [_c("vuetable-query-filter")], 1),
+    _vm._v(" "),
+    _c("div", { staticClass: "p-2" }, [
       _c("button", { staticClass: "btn btn-primary btn-lg " }, [
         _vm._v(_vm._s(_vm.trans("texts.new_client")))
       ])
-    ],
-    1
-  )
+    ])
+  ])
 }
 var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "btn-group" }, [
-      _c(
-        "button",
-        { staticClass: "btn btn-primary btn-lg", attrs: { type: "button" } },
-        [_vm._v("Archive")]
-      ),
-      _vm._v(" "),
-      _c(
-        "button",
-        {
-          staticClass: "btn btn-primary dropdown-toggle dropdown-toggle-split",
-          attrs: {
-            type: "button",
-            "data-toggle": "dropdown",
-            "aria-haspopup": "true",
-            "aria-expanded": "false"
-          }
-        },
-        [_c("span", { staticClass: "sr-only" }, [_vm._v("Toggle Dropdown")])]
-      ),
-      _vm._v(" "),
-      _c(
-        "div",
-        {
-          staticClass: "dropdown-menu",
-          staticStyle: {
-            position: "absolute",
-            "will-change": "transform",
-            top: "0px",
-            left: "0px",
-            transform: "translate3d(81px, 38px, 0px)"
+    return _c("div", { staticClass: "mr-auto p-2" }, [
+      _c("div", { staticClass: "btn-group" }, [
+        _c(
+          "button",
+          { staticClass: "btn btn-primary btn-lg", attrs: { type: "button" } },
+          [_vm._v("Archive")]
+        ),
+        _vm._v(" "),
+        _c(
+          "button",
+          {
+            staticClass:
+              "btn btn-primary dropdown-toggle dropdown-toggle-split",
+            attrs: {
+              type: "button",
+              "data-toggle": "dropdown",
+              "aria-haspopup": "true",
+              "aria-expanded": "false"
+            }
           },
-          attrs: { "x-placement": "bottom-start" }
-        },
-        [
-          _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-            _vm._v("Archive")
-          ]),
-          _vm._v(" "),
-          _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-            _vm._v("Delete")
-          ])
-        ]
-      )
+          [_c("span", { staticClass: "sr-only" }, [_vm._v("Toggle Dropdown")])]
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass: "dropdown-menu",
+            staticStyle: {
+              position: "absolute",
+              "will-change": "transform",
+              top: "0px",
+              left: "0px",
+              transform: "translate3d(81px, 38px, 0px)"
+            },
+            attrs: { "x-placement": "bottom-start" }
+          },
+          [
+            _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
+              _vm._v("Archive")
+            ]),
+            _vm._v(" "),
+            _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
+              _vm._v("Delete")
+            ])
+          ]
+        )
+      ])
     ])
   }
 ]
