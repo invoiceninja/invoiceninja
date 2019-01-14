@@ -55,9 +55,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
+
     public function companies()
     {
-        return $this->belongsToMany(Company::class)->withPivot('permissions');
+        return $this->belongsToMany(Company::class)->withPivot('permissions','settings');
     }
 
     public function company()
@@ -74,6 +75,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return [];
 
         return $permissions;
+    }
+
+    public function settings()
+    {
+        return $this->company()->pivot->settings;
     }
 
     public function is_admin()
