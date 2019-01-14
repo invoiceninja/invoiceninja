@@ -157,7 +157,7 @@ class ClientDatatable extends EntityDatatable
         
     }
 
-    public function buildOptions($settings)
+    public function buildOptions()
     {
         return collect([
             'per_page' => 20,
