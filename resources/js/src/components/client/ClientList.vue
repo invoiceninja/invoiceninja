@@ -135,8 +135,5 @@ export default {
     background: #777777;
     color: #fff;
   }
-  .sortable th i:hover {
-    color: #fff;
-  }
 
 </style>

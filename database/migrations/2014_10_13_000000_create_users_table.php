@@ -151,6 +151,12 @@ class CreateUsersTable extends Migration
             $table->string('custom_label2')->nullable();
             $table->string('custom_value2')->nullable();
 
+            $table->string('custom_label3')->nullable();
+            $table->string('custom_value3')->nullable();
+
+            $table->string('custom_label4')->nullable();
+            $table->string('custom_value4')->nullable();
+
             $table->string('custom_client_label1')->nullable();
             $table->string('custom_client_label2')->nullable();
 
@@ -191,6 +197,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id')->index();
             $table->text('permissions');
+            $table->text('settings');
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin');
             $table->boolean('is_locked')->default(false); // locks user out of account

@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -47,11 +48,14 @@ class UsersTableSeeder extends Seeder
                                     'create_client'
                                 ]);
 
+        $userSettings = DefaultSettings::userSettings();
+
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,
             'is_admin' => 1,
             'permissions' => $userPermissions->toJson(),
+            'settings' => json_encode($userSettings),
             'is_locked' => 0,
         ]);
 

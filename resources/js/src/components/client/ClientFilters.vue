@@ -12,7 +12,7 @@ import Vue from 'vue'
 export default {
 
 mounted() {
-	console.dir('loaded');
+	
 	}
 }
 
