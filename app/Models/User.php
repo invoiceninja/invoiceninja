@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\UserTrait;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
+use App\Utils\Traits\UserSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -18,7 +19,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use PresentableTrait;
     use MakesHash;
     use UserSessionAttributes;
-
+    use UserSettings;
+    
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];
@@ -55,17 +57,31 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
-
+    /**
+     * Returns all companies a user has access to.
+     * 
+     * @return Collection
+     */
     public function companies()
     {
         return $this->belongsToMany(Company::class)->withPivot('permissions','settings');
     }
 
+    /**
+     * Returns the current company
+     * 
+     * @return Collection
+     */
     public function company()
     {
         return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
     }
 
+    /**
+     * Returns a object of user permissions
+     * 
+     * @return stdClass
+     */
     public function permissions()
     {
         
@@ -77,31 +93,63 @@ class User extends Authenticatable implements MustVerifyEmail
         return $permissions;
     }
 
+    /**
+     * Returns a object of User Settings
+     * 
+     * @return stdClass
+     */
     public function settings()
     {
-        return $this->company()->pivot->settings;
+        return json_decode($this->company()->pivot->settings);
     }
 
+    /**
+     * Returns a boolean of the administrator status of the user
+     * 
+     * @return bool
+     */
     public function is_admin()
     {
         return $this->company()->pivot->is_admin;
     }
 
+    /**
+     * Returns all user created contacts
+     * 
+     * @return Collection
+     */
     public function contacts()
     {
         return $this->hasMany(Contact::class);
     }
 
+    /**
+     * Returns a boolean value if the user owns the current Entity
+     * 
+     * @param  string Entity
+     * @return bool
+     */
     public function owns($entity) : bool
     {
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
+    /**
+     * Flattens a stdClass representation of the User Permissions
+     * into a Collection
+     * 
+     * @return Collection
+     */
     public function permissionsFlat()
     {
         return collect($this->permissions())->flatten();
     }
 
+    /**
+     * Returns a array of permission for the mobile application
+     * 
+     * @return array
+     */
     public function permissionsMap()
     {
         
@@ -110,4 +158,5 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return array_combine($keys, $values);
     }
+
 }

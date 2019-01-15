@@ -2,19 +2,21 @@
 
 namespace App\DataMapper;
 
+use App\Models\Client;
+
 class DefaultSettings
 {
 
 	public static $per_page = 20;
 
-	public static function userSettings()
+	public static function userSettings() : \stdClass
 	{
 		return (object)[
-	        'client' => self::clientSettings(),
+	        class_basename(Client::class) => self::clientSettings(),
 	    ];
 	}
 
-	private static function clientSettings()
+	private static function clientSettings() : \stdClass
 	{
 		
 		return (object)[

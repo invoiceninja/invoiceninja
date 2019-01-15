@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -157,8 +158,11 @@ class ClientDatatable extends EntityDatatable
         
     }
 
-    public function buildOptions()
+    public function buildOptions() : Collection
     {
+
+      $visible = auth()->user()->getColumnVisibility(Client::class);
+
         return collect([
             'per_page' => 20,
             'sort_order' => [
@@ -173,49 +177,49 @@ class ClientDatatable extends EntityDatatable
                   'name' => '__checkbox',   
                   'title' => '',
                   'titleClass' => 'center aligned',
-                  'visible' => true,
+                  'visible' => $visible->__checkbox,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'name',
                   'title' => trans('texts.name'),
                   'sortField' => 'name',
-                  'visible' => true,
+                  'visible' => $visible->name,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'contact',
                   'title' => trans('texts.contact'),
                   'sortField' => 'contact',
-                  'visible' => true,
+                  'visible' => $visible->contact,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'email',
                   'title' => trans('texts.email'),
                   'sortField' => 'email',
-                  'visible' => true,
+                  'visible' => $visible->email,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'client_created_at',
                   'title' => trans('texts.date_created'),
                   'sortField' => 'client_created_at',
-                  'visible' => true,
+                  'visible' => $visible->client_created_at,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'last_login',
                   'title' => trans('texts.last_login'),
                   'sortField' => 'last_login',
-                  'visible' => true,
+                  'visible' => $visible->last_login,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'balance',
                   'title' => trans('texts.balance'),
                   'sortField' => 'balance',
-                  'visible' => true,
+                  'visible' => $visible->balance,
                   'dataClass' => 'center aligned'             
                 ],
                 [
