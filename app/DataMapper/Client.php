@@ -21,6 +21,6 @@ class Client
 
 	public function getFieldVisibility()
 	{
-		$mapper = new JsonMapper();
+
 	}
 }
