@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Utils;
+namespace App\DataMapper;
 
-class Default
+class DefaultSettings
 {
 
-	const PER_PAGE = 20;
+	public static $per_page = 20;
 
 	public static function userSettings()
 	{
 		return (object)[
-	        'client' => self::clientSettings,
+	        'client' => self::clientSettings(),
 	    ];
 	}
 
@@ -18,8 +18,8 @@ class Default
 	{
 		
 		return (object)[
-			'datatable' (object) [
-				'per_page' => PER_PAGE,
+			'datatable' => (object) [
+				'per_page' => self::$per_page,
 				'column_visibility' => (object)[
 					'__checkbox' => true,
 	    			'name' => true,
@@ -28,10 +28,11 @@ class Default
 	    			'client_created_at' => true,
 	    			'last_login' => true,
 	    			'balance' => true,
-	    			'__component:client-actions' => true,
+	    			'__component:client-actions' => true
 				]
 			]
 		];
 
 	}
+
 }
