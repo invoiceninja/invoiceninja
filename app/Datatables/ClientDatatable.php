@@ -113,7 +113,7 @@ class ClientDatatable extends EntityDatatable
     private function buildActionColumn($data)
     {
 
-        //if(auth()->user()->is_admin())
+        //if(auth()->user()->isAdmin())
         //todo permissions are only mocked here, when user permissions have been implemented this needs to be refactored.
         
         $permissions = [
