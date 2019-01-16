@@ -108,7 +108,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * 
      * @return bool
      */
-    public function is_admin()
+    public function isAdmin()
     {
         return $this->company()->pivot->is_admin;
     }
@@ -143,6 +143,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissionsFlat()
     {
         return collect($this->permissions())->flatten();
+    }
+
+    public function hasPermission($permission)
+    {
+        return $this->permissionsFlat()->contains($permission);
     }
 
     /**

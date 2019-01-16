@@ -31,7 +31,7 @@ trait MakesActionMenu
      * a Collection of available actions\.
      * 
      * @param  Collection $actions  collection of possible actions
-     * @param  bool       $is_admin boolean defining if user is an administrator
+     * @param  bool       $isAdmin boolean defining if user is an administrator
      * @return Collection collection of filtered actions
      */
 	private function checkPermissions(Collection $actions, array $permissions, bool $is_admin) :Collection
@@ -50,12 +50,12 @@ trait MakesActionMenu
      * 
      * @param  array  $actions     Array of actions requested
      * @param  array  $permissions Array of user permissions
-     * @param  bool   $is_admin    Boolean is_admin
+     * @param  bool   $isAdmin    Boolean isAdmin
      * @return Collection collection of filtered actions available to the user
      */
-    public function filterActions(array $actions, array $permissions, bool $is_admin) :Collection
+    public function filterActions(array $actions, array $permissions, bool $isAdmin) :Collection
     {
 
-    	return $this->checkPermissions($this->actions()->whereIn('action', $actions), $permissions, $is_admin);
+    	return $this->checkPermissions($this->actions()->whereIn('action', $actions), $permissions, $isAdmin);
     }
 }
