@@ -9,7 +9,9 @@
       	:sort-order="sortOrder"
       	:append-params="moreParams"
         :css="css.table"
-  		pagination-path=""
+  		  pagination-path=""
+        @vuetable:checkbox-toggled="toggledCheckBox()"
+        @vuetable:checkbox-toggled-all="toggledCheckBox()"
       	@vuetable:pagination-data="onPaginationData"></vuetable>
 
   		<div class="vuetable-pagination ui basic segment grid">
@@ -37,6 +39,8 @@ import VuetableCss from '../util/VuetableCss'
 
 Vue.use(VueEvents)
 
+declare var bulk_count : number;
+
 export default {
 
 	components: {
@@ -58,7 +62,9 @@ export default {
 
       this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
       this.$events.$on('filter-reset', e => this.onFilterReset())
-      console.dir(this.datatable)
+      this.$events.$on('bulkAction', eventData => this.bulk(eventData))
+      //this.$events.$on('vuetable:checkbox-toggled-all', eventData => this.checkboxToggled(eventData))
+
     },
     beforeMount: function () {
 
@@ -76,21 +82,28 @@ export default {
 			this.$refs.vuetable.changePage(page)
 
 	    },
-		onFilterSet (filterText) {
+		  onFilterSet (filterText) {
 
-			this.moreParams = {
-			    'filter': filterText
-			}
-			Vue.nextTick( () => this.$refs.vuetable.refresh())
+  			this.moreParams = {
+  			    'filter': filterText
+  			}
+  			Vue.nextTick( () => this.$refs.vuetable.refresh())
 
-		},
-		onFilterReset () {
-		  	this.moreParams = {}
-		  	Vue.nextTick( () => this.$refs.vuetable.refresh())
-		}
+		  },
+  		onFilterReset () {
+  		  	this.moreParams = {}
+  		  	Vue.nextTick( () => this.$refs.vuetable.refresh())
+  		},
+      bulk (eventData){
+        //console.log(eventData)
+        //console.dir(this.$refs.vuetable.selectedTo)
+      },
+      toggledCheckBox(){
+        console.log(this.$refs.vuetable.selectedTo.length +' Checkboxes checked')
+        this.$events.fire('bulk-count', this.$refs.vuetable.selectedTo.length)
+      }
 
-	}
-
+	 }
 }
 </script>
 

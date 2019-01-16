@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\User;
+use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
@@ -14,12 +17,12 @@ class LoginTest extends TestCase
 {
 
     use DatabaseTransactions;
+    use UserSessionAttributes;
 
     public function setUp()
     {
         parent::setUp();
         Session::start();
-
     }
 
     public function testLoginFormDisplayed()
@@ -120,4 +123,5 @@ class LoginTest extends TestCase
         $response->assertStatus(302);
         $this->assertGuest();
     }
+
 }

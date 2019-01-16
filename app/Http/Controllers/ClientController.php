@@ -216,7 +216,7 @@ class ClientController extends Controller
         //
     }
 
-    public function builk()
+    public function bulk()
     {
         
     }
