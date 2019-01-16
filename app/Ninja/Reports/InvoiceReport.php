@@ -36,7 +36,7 @@ class InvoiceReport extends AbstractReport
         if ($account->customLabel('invoice_text1')) {
             $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-        if ($account->customLabel('invoice_text2')) {
+        if ($account->customLabel('invoice_text2')) {:
             $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
 
@@ -91,6 +91,7 @@ class InvoiceReport extends AbstractReport
             if (! extension_loaded('GMP')) {
                 die(trans('texts.gmp_required'));
             }
+
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
             foreach ($clients->get() as $client) {
                 foreach ($client->invoices as $invoice) {
