@@ -28,6 +28,15 @@ class ClientDatatable extends EntityDatatable
         */
         $sort_col = explode("|", $request->input('sort'));
 
+        if(count($sort_col) == 0) {
+         
+          $sort_col = [
+           0 => 'name',
+           1 => 'asc'
+         ];
+
+        }
+
         $data = $this->find($company_id, $request->input('filter'))
                         ->orderBy($sort_col[0], $sort_col[1])
                         ->paginate($request->input('per_page'));
@@ -177,7 +186,7 @@ class ClientDatatable extends EntityDatatable
                   'name' => '__checkbox',   
                   'title' => '',
                   'titleClass' => 'center aligned',
-                  'visible' => $visible->__checkbox,
+                  'visible' => true,
                   'dataClass' => 'center aligned'
                 ],
                 [

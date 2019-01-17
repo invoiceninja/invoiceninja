@@ -42,7 +42,6 @@
       }
     },
     mounted() {
-        console.dir('the number of counts = ' + this.bulk_count)
         this.$events.$on('bulk-count', eventData => this.bulkCountUpdated(eventData))
     },    
     methods: {

@@ -36,6 +36,7 @@ import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePagination
 import Vue from 'vue'
 import VueEvents from 'vue-events'
 import VuetableCss from '../util/VuetableCss'
+import axios from 'axios'
 
 Vue.use(VueEvents)
 
@@ -63,7 +64,6 @@ export default {
       this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
       this.$events.$on('filter-reset', e => this.onFilterReset())
       this.$events.$on('bulkAction', eventData => this.bulk(eventData))
-      //this.$events.$on('vuetable:checkbox-toggled-all', eventData => this.checkboxToggled(eventData))
 
     },
     beforeMount: function () {
@@ -94,12 +94,21 @@ export default {
   		  	this.moreParams = {}
   		  	Vue.nextTick( () => this.$refs.vuetable.refresh())
   		},
-      bulk (eventData){
-        //console.log(eventData)
-        //console.dir(this.$refs.vuetable.selectedTo)
+      bulk (action){
+
+          axios.post('/clients/bulk', {
+            'action' : action,
+            'ids' : this.$refs.vuetable.selectedTo
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          
       },
       toggledCheckBox(){
-        console.log(this.$refs.vuetable.selectedTo.length +' Checkboxes checked')
         this.$events.fire('bulk-count', this.$refs.vuetable.selectedTo.length)
       }
 

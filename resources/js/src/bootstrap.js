@@ -1,5 +1,5 @@
 // lodash handles our translations 
-import * as _ from "lodash"
+import * as get from "lodash.get"
 
 // import Toastr
 import Toastr from 'vue-toastr';
@@ -13,7 +13,8 @@ import Vue from 'vue';
 Vue.component('vue-toastr',Toastr);
 
 // Global translation helper
-Vue.prototype.trans = string => _.get(i18n, string);
+Vue.prototype.trans = string => get(i18n, string);
+
 
 window.axios = require('axios');
 window.Vue = require('vue');

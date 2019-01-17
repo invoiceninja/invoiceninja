@@ -8,6 +8,7 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
+use App\Jobs\Entity\ActionEntity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Repositories\ClientRepository;
@@ -46,66 +47,7 @@ class ClientController extends Controller
         ];
 
         return view('client.vue_list', $data);
-        /*
-        if (request()->ajax()) {
 
-            /*
-            $clients = Client::query('clients.*', DB::raw("CONCAT(client_contacts.first_name,' ',client_contacts.last_name) as full_name"), 'client_contacts.email')
-                ->leftJoin('client_contacts', function($leftJoin)
-                {
-                    $leftJoin->on('clients.id', '=', 'client_contacts.client_id')
-                        ->where('client_contacts.is_primary', '=', true);
-                });
-            */
-
-/*
-            $clients = Client::query();
-
-            return DataTables::of($clients->get())
-                ->addColumn('full_name', function ($clients) {
-                    return $clients->contacts->where('is_primary', true)->map(function ($contact){
-                        return $contact->first_name . ' ' . $contact->last_name;
-                    })->all();
-                })
-                ->addColumn('email', function ($clients) {
-                    return $clients->contacts->where('is_primary', true)->map(function ($contact){
-                        return $contact->email;
-                    })->all();
-                })
-                ->addColumn('action', function ($client) {
-                    return '<a href="/clients/'. $client->present()->id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
-                })
-                ->addColumn('checkbox', function ($client){
-                    return '<input type="checkbox" name="bulk" value="'. $client->id .'"/>';
-                })
-                ->rawColumns(['checkbox', 'action'])
-                ->make(true);
-        }
-
-        $builder->addAction();
-        $builder->addCheckbox();
-        
-        $html = $builder->columns([
-            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
-            ['data' => 'name', 'name' => 'name', 'title' => trans('texts.name'), 'visible'=> true],
-            ['data' => 'full_name', 'name' => 'full_name', 'title' => trans('texts.contact'), 'visible'=> true],
-            ['data' => 'email', 'name' => 'email', 'title' => trans('texts.email'), 'visible'=> true],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => trans('texts.date_created'), 'visible'=> true],
-            ['data' => 'last_login', 'name' => 'last_login', 'title' => trans('texts.last_login'), 'visible'=> true],
-            ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
-            ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
-        ]);
-
-        $builder->ajax([
-            'url' => route('clients.index'),
-            'type' => 'GET',
-            'data' => 'function(d) { d.key = "value"; }',
-        ]);
-
-        $data['html'] = $html;
-
-        return view('client.list', $data);
-  */
     }
 
     /**
@@ -125,8 +67,8 @@ class ClientController extends Controller
         $client->contacts->add($client_contact);
 
         $data = [
-        'client' => $client,
-        'hashed_id' => ''
+            'client' => $client,
+            'hashed_id' => ''
         ];
 
         return view('client.create', $data);
@@ -216,9 +158,24 @@ class ClientController extends Controller
         //
     }
 
+    /**
+     * Perform bulk actions on the list view
+     * 
+     * @return Collection
+     */
     public function bulk()
     {
-        
+        $action = request()->input('action');
+        $ids = array_values(request()->input('ids'));
+
+        $clients = Client::find($ids);
+//Log::error(dd($clients));
+
+        $clients->each(function ($client, $key) use($action){
+            ActionEntity::dispatchNow($client, $action);
+        });
+
+            return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
     }
 
 }
