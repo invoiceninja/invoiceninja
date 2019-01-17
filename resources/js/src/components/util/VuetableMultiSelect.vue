@@ -5,6 +5,7 @@
     :options="options" 
     :multiple="true"
     :placeholder="trans('texts.status')"
+    :preselect-first="true"
     @input="onChange"
     ></multiselect>
   </div>
@@ -19,14 +20,20 @@
     components: { Multiselect },
     data () {
       return {
-        value: 'active',
+        value : [],
         options: ['active', 'archived', 'deleted']
       }
     },
+    mounted(){
+     console.dir('mounted')
+      this.$events.fire('multi-select', this.value)
+    },
     methods: {
       onChange (value) {
-        console.dir(this.value)
         this.value = value
+        console.dir(this.value)
+        this.$events.fire('multi-select', this.value)
+
         if (value.indexOf('Reset me!') !== -1) this.value = []
       },
       onSelect (option) {

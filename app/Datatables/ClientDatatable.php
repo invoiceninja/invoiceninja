@@ -2,6 +2,7 @@
 
 namespace App\Datatables;
 
+use App\Filters\ClientFilters;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
@@ -15,6 +16,12 @@ class ClientDatatable extends EntityDatatable
     use MakesHash;
     use MakesActionMenu;
 
+    protected $filter;
+
+    public function __construct(ClientFilters $filter)
+    {
+        $this->filter = $filter;
+    }
     /**
     * ?sort=&page=1&per_page=20
     */
@@ -28,26 +35,20 @@ class ClientDatatable extends EntityDatatable
         */
         $sort_col = explode("|", $request->input('sort'));
 
-        if(count($sort_col) == 0) {
-         
-          $sort_col = [
-           0 => 'name',
-           1 => 'asc'
-         ];
 
-        }
+        $data = $this->find($company_id);
 
-        $data = $this->find($company_id, $request->input('filter'))
-                        ->orderBy($sort_col[0], $sort_col[1])
-                        ->paginate($request->input('per_page'));
+        $data = $this->filter->apply($data)
+            ->orderBy($sort_col[0], $sort_col[1])
+            ->paginate($request->input('per_page'));
 
         return response()
-                    ->json($this->buildActionColumn($data), 200);
+                  ->json($this->buildActionColumn($data), 200);
 
     }
 
 
-    private function find(int $company_id, $filter, $userId = false)
+    private function find(int $company_id, $userId = false)
     {
         $query = DB::table('clients')
                     ->join('companies', 'companies.id', '=', 'clients.company_id')
@@ -86,7 +87,7 @@ class ClientDatatable extends EntityDatatable
         }
 
         $this->applyFilters($query, ENTITY_CLIENT);
-*/
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%'.$filter.'%')
@@ -95,7 +96,7 @@ class ClientDatatable extends EntityDatatable
                       ->orWhere('client_contacts.last_name', 'like', '%'.$filter.'%')
                       ->orWhere('client_contacts.email', 'like', '%'.$filter.'%');
             });
-/*
+
             if(Auth::user()->account->customFieldsOption('client1_filter')) {
                 $query->orWhere('clients.custom_value1', 'like' , '%'.$filter.'%');
             }
@@ -103,9 +104,9 @@ class ClientDatatable extends EntityDatatable
             if(Auth::user()->account->customFieldsOption('client2_filter')) {
                 $query->orWhere('clients.custom_value2', 'like' , '%'.$filter.'%');
             }
-*/
-        }
 
+        }
+*/
         if ($userId) {
             $query->where('clients.user_id', '=', $userId);
         }

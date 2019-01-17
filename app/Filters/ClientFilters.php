@@ -27,6 +27,36 @@ class ClientFilters extends QueryFilters
         return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
     }
 
+    public function filter($filter)
+    {
+        return  $this->builder->where(function ($query) use ($filter) {
+                    $this->builder->where('clients.name', 'like', '%'.$filter.'%')
+                          ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
+                          ->orWhere('client_contacts.first_name', 'like', '%'.$filter.'%')
+                          ->orWhere('client_contacts.last_name', 'like', '%'.$filter.'%')
+                          ->orWhere('client_contacts.email', 'like', '%'.$filter.'%');
+                });
+    }
+
+    public function active()
+    {
+        return $this->builder->orWhereNull('clients.deleted_at');
+    }
+
+    public function archived()
+    {
+        return $this->builder->orWhere(function ($query) {
+                        $query->whereNotNull('clients.deleted_at');
+                    });
+    }
+
+    public function deleted()
+    {
+         $this->builder->orWhere(function ($query) {
+                $query->whereNotNull('clients.deleted_at')
+                      ->where('clients.is_deleted', '=', 1);
+            });
+    }
 
     /**
      * Filter by popularity.

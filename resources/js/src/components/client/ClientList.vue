@@ -63,7 +63,7 @@ export default {
 
       this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
       this.$events.$on('filter-reset', e => this.onFilterReset())
-      this.$events.$on('bulkAction', eventData => this.bulk(eventData))
+      this.$events.$on('bulkAction', eventData => this.bulk(eventData, this))
 
     },
     beforeMount: function () {
@@ -82,7 +82,7 @@ export default {
 			this.$refs.vuetable.changePage(page)
 
 	    },
-		  onFilterSet (filterText) {
+		  onFilterSet (filterText : string) {
 
   			this.moreParams = {
   			    'filter': filterText
@@ -100,9 +100,7 @@ export default {
             'action' : action,
             'ids' : this.$refs.vuetable.selectedTo
           })
-          .then(function (response) {
-            console.log(response);
-          })
+          .then((response) => this.$refs.vuetable.refresh())
           .catch(function (error) {
             console.log(error);
           });

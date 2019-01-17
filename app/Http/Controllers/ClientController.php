@@ -166,16 +166,15 @@ class ClientController extends Controller
     public function bulk()
     {
         $action = request()->input('action');
-        $ids = array_values(request()->input('ids'));
+        $ids = request()->input('ids');
 
         $clients = Client::find($ids);
-//Log::error(dd($clients));
 
         $clients->each(function ($client, $key) use($action){
             ActionEntity::dispatchNow($client, $action);
         });
-
-            return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
+            //todo need to return the updated dataset
+            return response()->json('success', 200);
     }
 
 }
