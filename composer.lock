@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "136db97d6cc7a1dab3fd2022446b5f06",
+    "content-hash": "a7cf7307a3be07f3619d7a274952c03d",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -6944,16 +6944,16 @@
         },
         {
             "name": "omnipay/payfast",
-            "version": "v2.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-payfast.git",
-                "reference": "c3ff0de9d02c5ac1b502eefb29e6aa6f12a374d2"
+                "reference": "7b6537c7730cebfea31881a9d7a3af96e6f6274a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-payfast/zipball/c3ff0de9d02c5ac1b502eefb29e6aa6f12a374d2",
-                "reference": "c3ff0de9d02c5ac1b502eefb29e6aa6f12a374d2",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-payfast/zipball/7b6537c7730cebfea31881a9d7a3af96e6f6274a",
+                "reference": "7b6537c7730cebfea31881a9d7a3af96e6f6274a",
                 "shasum": ""
             },
             "require": {
@@ -6997,7 +6997,7 @@
                 "payfast",
                 "payment"
             ],
-            "time": "2018-02-02T17:02:45+00:00"
+            "time": "2018-08-29T17:48:12+00:00"
         },
         {
             "name": "omnipay/payflow",
@@ -13168,6 +13168,7 @@
         "jonnyw/php-phantomjs": 20,
         "laracasts/presenter": 20,
         "omnipay/authorizenet": 20,
+        "omnipay/payfast": 20,
         "roave/security-advisories": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,
