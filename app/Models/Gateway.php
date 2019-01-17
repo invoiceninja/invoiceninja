@@ -95,6 +95,7 @@ class Gateway extends Eloquent
         'sandbox',
         // Payfast
         'pdtKey',
+        'passphrase',
         // Realex
         '3dSecure',
         // WorldPay
