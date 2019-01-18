@@ -64,7 +64,8 @@ export default {
       this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
       this.$events.$on('filter-reset', e => this.onFilterReset())
       this.$events.$on('bulkAction', eventData => this.bulk(eventData, this))
-
+      this.$events.$on('multi-select', eventData => this.multiSelect(eventData))
+        console.dir(this.value)
     },
     beforeMount: function () {
 
@@ -108,6 +109,10 @@ export default {
       },
       toggledCheckBox(){
         this.$events.fire('bulk-count', this.$refs.vuetable.selectedTo.length)
+      },
+      multiSelect(value)
+      {
+        console.dir('multi pass')
       }
 
 	 }
