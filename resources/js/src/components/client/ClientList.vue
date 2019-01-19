@@ -3,8 +3,8 @@
 	<div>
 
       <vuetable ref="vuetable"
-	    api-url="/clients"
-	    :fields="fields"
+	      api-url="/clients"
+	      :fields="fields"
       	:per-page="perPage"
       	:sort-order="sortOrder"
       	:append-params="moreParams"

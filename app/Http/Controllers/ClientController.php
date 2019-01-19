@@ -43,7 +43,8 @@ class ClientController extends Controller
             return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
 
         $data = [
-            'datatable' => $this->clientDatatable->buildOptions()
+            'datatable' => $this->clientDatatable->buildOptions(),
+            'listaction' => $this->clientDatatable->listActions()
         ];
 
         return view('client.vue_list', $data);

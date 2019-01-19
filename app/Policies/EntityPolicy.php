@@ -12,31 +12,18 @@ class EntityPolicy
 {
 	/**
 	 * Fires before any of the custom policy methods
+	 *
+	 * Only fires if true, if false we continue.....
 	 * 
 	 * @param  User $user
 	 * @param  $ability
-	 * @return bool
+	 * @return bool/void
 	 */
-	public function before($user, $ability) : bool
+	public function before($user, $ability)
 	{
-	    if ($user->isAdmin()) {
-	        return true;
-	    }
+	     if($user->isAdmin())
+	     	return true;
 	}
-
-	/**
-	 *  Checks if the user has create permissions
-	 * @param  User $user
-	 * @param  $entity
-	 * @return bool
-	 */
-	public function create(User $user, $entity) : bool
-	{
-		$entity = strtolower(class_basename($entity));
-
-			return $user->hasPermission('create_' . $entity);
-	}
-
 
 	/**
 	 *  Checks if the user has edit permissions

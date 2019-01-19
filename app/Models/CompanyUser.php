@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-class CompanyUser extends BaseModel
+use Illuminate\Database\Eloquent\Relations\Pivot;
+
+class CompanyUser extends Pivot
 {
     protected $guarded = ['id'];
 
@@ -23,11 +25,11 @@ class CompanyUser extends BaseModel
 
     public function user()
     {
-        return $this->hasOne(User::class)->withPivot('permissions', 'settings');
+        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 
     public function company()
     {
-    	return $this->hasOne(Company::class)->withPivot('permissions', 'settings');
+    	return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 }

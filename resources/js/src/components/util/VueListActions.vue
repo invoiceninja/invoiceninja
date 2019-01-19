@@ -26,7 +26,7 @@
     </div>
 
     <div class="p-2">
-      <button class="btn btn-primary btn-lg " v-on:click="$emit('bulk','poota')">{{ trans('texts.new_client') }}</button>
+      <button class="btn btn-primary btn-lg " v-on:click="$emit('bulk','poota')" :disabled="isDisabled">{{ trans('texts.new_client') }}</button>
     </div>
 
 	</div>
@@ -36,6 +36,7 @@
 <script lang="ts">
 
   export default {
+  props:['listaction'],
     methods: {
       archive () {
         this.$events.fire('bulk-action', 'archive') 
@@ -46,7 +47,13 @@
       getBulkCount() {
         return this.$store.getters['client_list/getBulkCount']
       }
-    }
+    },
+   computed: {
+      isDisabled() :any
+      {
+        return !this.listaction.create_entity.create_permission;
+      }
+   }
 
   }
 </script>

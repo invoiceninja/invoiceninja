@@ -15,7 +15,6 @@
   import Multiselect from 'vue-multiselect'
 
   export default {
-    // OR register locally
     components: { Multiselect },
     data () {
       return {
@@ -30,9 +29,12 @@
         this.$events.fire('multi-select', '')
 
         if (value.indexOf('Reset me!') !== -1) this.value = []
+
       },
       onSelect (option) {
+
         if (option === 'Disable me!') this.isDisabled = true
+          
       }
     }
   }

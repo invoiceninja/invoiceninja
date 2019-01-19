@@ -12,7 +12,7 @@
 
         <div class="container-fluid" id="client_list">
 
-            <list-actions></list-actions>
+            <list-actions :listaction="{{ $listaction }}"></list-actions>
 
             <div style="background: #fff;">
                 

@@ -87,6 +87,8 @@ class ClientDatatable extends EntityDatatable
             'create_expense'
             ];
 
+        $permissions = auth()->user()->permissions();
+
         $requested_actions = [
             'view_client_client_id', 
             'edit_client_client_id', 
@@ -117,6 +119,22 @@ class ClientDatatable extends EntityDatatable
 
         return $data;
         
+    }
+
+    public function listActions() : Collection
+    {
+      return collect([
+        'multi_select' => [
+            ['name' => trans('texts.active'), 'value' => 'active'],
+            ['name' => trans('texts.archived'), 'value' => 'archived'],
+            ['name' => trans('texts.deleted'), 'value' => 'deleted']
+          ],
+        'create_entity' => [
+          'create_permission' => auth()->user()->can('create', Client::class),
+          'url' => route('clients.create'),
+          'name' => trans('texts.new_client')
+        ]
+      ]);
     }
 
     public function buildOptions() : Collection
