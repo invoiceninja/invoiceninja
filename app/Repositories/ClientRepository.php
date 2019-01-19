@@ -18,11 +18,6 @@ class ClientRepository extends BaseRepository
         $this->clientContactRepo = $clientContactRepo;
     }
 
-    public function getClassName()
-    {
-        return Client::class;
-    }
-    
 	public function save(Request $request, Client $client) : ?Client
 	{
         $client->fill($request->input());
