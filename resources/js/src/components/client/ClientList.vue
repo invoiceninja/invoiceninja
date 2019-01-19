@@ -66,9 +66,6 @@ export default {
     this.$events.$on('multi-select', eventData => this.multiSelect(eventData))
 
   },
-  beforeMount: function () {
-
-  },
   methods: {
 
     onPaginationData (paginationData : any) {
@@ -95,7 +92,6 @@ export default {
           'ids' : this.$refs.vuetable.selectedTo
         })
         .then((response) => {
-          console.dir('back in the hizzle')
           this.$store.commit('client_list/setBulkCount', 0)
           this.$refs.vuetable.selectedTo = []
           this.$refs.vuetable.refresh()

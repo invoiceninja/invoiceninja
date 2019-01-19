@@ -6408,8 +6408,6 @@ exports.default = {
         this.$events.$on('bulk-action', function (eventData) { return _this.bulk(eventData, _this); });
         this.$events.$on('multi-select', function (eventData) { return _this.multiSelect(eventData); });
     },
-    beforeMount: function () {
-    },
     methods: {
         onPaginationData: function (paginationData) {
             this.$refs.pagination.setPaginationData(paginationData);
@@ -6430,7 +6428,6 @@ exports.default = {
                 'ids': this.$refs.vuetable.selectedTo
             })
                 .then(function (response) {
-                console.dir('back in the hizzle');
                 _this.$store.commit('client_list/setBulkCount', 0);
                 _this.$refs.vuetable.selectedTo = [];
                 _this.$refs.vuetable.refresh();
