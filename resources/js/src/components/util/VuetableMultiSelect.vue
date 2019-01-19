@@ -1,4 +1,3 @@
-<!-- Vue component -->
 <template>
   <div style="width:300px;">
     <multiselect v-model="value" 
@@ -24,15 +23,11 @@
         options: ['active', 'archived', 'deleted']
       }
     },
-    mounted(){
-     console.dir('mounted')
-      this.$events.fire('multi-select', this.value)
-    },
     methods: {
       onChange (value) {
-        this.value = value
-        console.dir(this.value)
-        this.$events.fire('multi-select', this.value)
+
+        this.$store.commit('client_list/setStatusArray', value)
+        this.$events.fire('multi-select', '')
 
         if (value.indexOf('Reset me!') !== -1) this.value = []
       },
