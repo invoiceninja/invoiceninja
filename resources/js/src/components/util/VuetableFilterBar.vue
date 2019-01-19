@@ -20,11 +20,12 @@
     },
     methods: {
       doFilter () {
-        this.$events.fire('filter-set', this.filterText)
+        this.$store.commit('client_list/setFilterText', this.filterText)
+        this.$events.fire('filter-set','')
       },
       resetFilter () {
-        this.filterText = ''  // clear the text in text input
-        this.$events.fire('filter-reset')
+        this.$store.commit('client_list/setFilterText', '')
+        this.$events.fire('filter-set','')
       }
     }
   }
