@@ -3,8 +3,8 @@
 	<div>
 
       <vuetable ref="vuetable"
-	    api-url="/clients"
-	    :fields="fields"
+	      api-url="/clients"
+	      :fields="fields"
       	:per-page="perPage"
       	:sort-order="sortOrder"
       	:append-params="moreParams"
@@ -24,7 +24,7 @@
 
     	</div>
 
-  	</div>
+  </div>
 
 </template>
 
@@ -36,6 +36,7 @@ import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePagination
 import Vue from 'vue'
 import VueEvents from 'vue-events'
 import VuetableCss from '../util/VuetableCss'
+import axios from 'axios'
 
 Vue.use(VueEvents)
 
@@ -47,63 +48,70 @@ export default {
         	Vuetable,
 	      	VuetablePagination,
 	      	VuetablePaginationInfo
-	    },
-    data: function () {
-        return {
-            css: VuetableCss,
-            perPage: this.datatable.per_page,
-            sortOrder: this.datatable.sort_order,
-            moreParams: {},
-            fields: this.datatable.fields
-        }
-    },
-    props: ['datatable'],
-    mounted() {
-
-      this.$events.$on('filter-set', eventData => this.onFilterSet(eventData))
-      this.$events.$on('filter-reset', e => this.onFilterReset())
-      this.$events.$on('bulkAction', eventData => this.bulk(eventData))
-      //this.$events.$on('vuetable:checkbox-toggled-all', eventData => this.checkboxToggled(eventData))
-
-    },
-    beforeMount: function () {
-
-    },
-    methods: {
-
-	    onPaginationData (paginationData : any) {
-
-	      this.$refs.pagination.setPaginationData(paginationData)
-	      this.$refs.paginationInfo.setPaginationData(paginationData) 
-
-	    },
-	    onChangePage (page : any) {
-
-			this.$refs.vuetable.changePage(page)
-
-	    },
-		  onFilterSet (filterText) {
-
-  			this.moreParams = {
-  			    'filter': filterText
-  			}
-  			Vue.nextTick( () => this.$refs.vuetable.refresh())
-
-		  },
-  		onFilterReset () {
-  		  	this.moreParams = {}
-  		  	Vue.nextTick( () => this.$refs.vuetable.refresh())
-  		},
-      bulk (eventData){
-        //console.log(eventData)
-        //console.dir(this.$refs.vuetable.selectedTo)
-      },
-      toggledCheckBox(){
-        console.log(this.$refs.vuetable.selectedTo.length +' Checkboxes checked')
-        this.$events.fire('bulk-count', this.$refs.vuetable.selectedTo.length)
+	},
+  data: function () {
+      return {
+          css: VuetableCss,
+          perPage: this.datatable.per_page,
+          sortOrder: this.datatable.sort_order,
+          moreParams: this.$store.getters['client_list/getQueryStringObject'],
+          fields: this.datatable.fields
       }
+  },
+  props: ['datatable'],
+  mounted() {
 
-	 }
+    this.$events.$on('filter-set', eventData => this.onFilterSet())
+    this.$events.$on('bulk-action', eventData => this.bulk(eventData, this))
+    this.$events.$on('multi-select', eventData => this.multiSelect(eventData))
+
+  },
+  methods: {
+
+    onPaginationData (paginationData : any) {
+
+      this.$refs.pagination.setPaginationData(paginationData)
+      this.$refs.paginationInfo.setPaginationData(paginationData) 
+
+    },
+    onChangePage (page : any) {
+
+		this.$refs.vuetable.changePage(page)
+
+    },
+	  onFilterSet () {
+
+      this.moreParams = this.$store.getters['client_list/getQueryStringObject']
+			Vue.nextTick( () => this.$refs.vuetable.refresh())
+
+	  },
+    bulk (action){
+
+        axios.post('/clients/bulk', {
+          'action' : action,
+          'ids' : this.$refs.vuetable.selectedTo
+        })
+        .then((response) => {
+          this.$store.commit('client_list/setBulkCount', 0)
+          this.$refs.vuetable.selectedTo = []
+          this.$refs.vuetable.refresh()
+          
+        })
+        .catch(function (error) {
+
+        });
+        
+    },
+    toggledCheckBox(){
+      this.$store.commit('client_list/setBulkCount', this.$refs.vuetable.selectedTo.length)
+    },
+    multiSelect(value)
+    {
+      this.moreParams = this.$store.getters['client_list/getQueryStringObject']
+      Vue.nextTick( () => this.$refs.vuetable.refresh())
+    }
+
+ }
 }
 </script>
 

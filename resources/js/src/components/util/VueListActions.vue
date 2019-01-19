@@ -5,8 +5,8 @@
     <div class="p-2">
 
     		<div class="btn-group">
-          <button type="button" class="btn btn-primary btn-lg" @click="archive" :disabled="bulk_count == 0">{{ trans('texts.archive') }} <span v-if="bulk_count > 0">({{ bulk_count }})</span></button>
-          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" :disabled="bulk_count == 0">
+          <button type="button" class="btn btn-primary btn-lg" @click="archive" :disabled="getBulkCount() == 0">{{ trans('texts.archive') }} <span v-if="getBulkCount() > 0">({{ getBulkCount() }})</span></button>
+          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" :disabled="getBulkCount() == 0">
             <span class="sr-only">Toggle Dropdown</span>
           </button>
           <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(81px, 38px, 0px);">
@@ -26,7 +26,7 @@
     </div>
 
     <div class="p-2">
-      <button class="btn btn-primary btn-lg " v-on:click="$emit('bulk','poota')">{{ trans('texts.new_client') }}</button>
+      <button class="btn btn-primary btn-lg " v-on:click="$emit('bulk','poota')" :disabled="isDisabled">{{ trans('texts.new_client') }}</button>
     </div>
 
 	</div>
@@ -36,26 +36,24 @@
 <script lang="ts">
 
   export default {
-    data() { 
-      return {
-        bulk_count : 0
-      }
-    },
-    mounted() {
-        console.dir('the number of counts = ' + this.bulk_count)
-        this.$events.$on('bulk-count', eventData => this.bulkCountUpdated(eventData))
-    },    
+  props:['listaction'],
     methods: {
       archive () {
-        this.$events.fire('bulkAction', 'archive') 
+        this.$events.fire('bulk-action', 'archive') 
       },
       del () {
-        this.$events.fire('bulkAction', 'delete')
+        this.$events.fire('bulk-action', 'delete')
       },
-      bulkCountUpdated(count) {
-        this.bulk_count = count
+      getBulkCount() {
+        return this.$store.getters['client_list/getBulkCount']
       }
-    }
+    },
+   computed: {
+      isDisabled() :any
+      {
+        return !this.listaction.create_entity.create_permission;
+      }
+   }
 
   }
 </script>

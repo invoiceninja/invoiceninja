@@ -11,6 +11,7 @@
         <a @click.prevent="loadPage(n)" v-html="n"></a>
       </li>
     </template>
+
     <template v-else>
       <li v-for="n in windowSize" :class="{'active': isCurrentPage(windowStart+n-1)}">
         <a @click.prevent="loadPage(windowStart+n-1)" v-html="windowStart+n-1"></a>
@@ -26,8 +27,11 @@
 </template>
 
 <script>
+
 import VuetablePaginationMixin from 'vuetable-2/src/components/VuetablePaginationMixin'
+
 export default {
   mixins: [VuetablePaginationMixin]
 }
+
 </script>

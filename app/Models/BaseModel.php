@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filters\QueryFilters;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,4 +24,5 @@ class BaseModel extends Model
 
         return parent::__call($method, $params);
     }
+
 }

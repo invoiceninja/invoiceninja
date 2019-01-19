@@ -10,6 +10,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -64,7 +65,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function companies()
     {
-        return $this->belongsToMany(Company::class)->withPivot('permissions','settings');
+        return $this->belongsToMany(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 
     /**
@@ -108,9 +109,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * 
      * @return bool
      */
-    public function isAdmin()
+    public function isAdmin() : bool
     {
-        return $this->company()->pivot->is_admin;
+        return (bool) $this->company()->pivot->is_admin;
     }
 
     /**
@@ -140,13 +141,13 @@ class User extends Authenticatable implements MustVerifyEmail
      * 
      * @return Collection
      */
-    public function permissionsFlat()
+    public function permissionsFlat() :Collection
     {
         return collect($this->permissions())->flatten();
     }
 
-    public function hasPermission($permission)
-    {
+    public function hasPermission($permission) : bool
+    { 
         return $this->permissionsFlat()->contains($permission);
     }
 
