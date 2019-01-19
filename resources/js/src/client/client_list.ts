@@ -5,9 +5,7 @@ declare var i18n;
 
 import Vue from 'vue';
 import axios from 'axios';
-import store from '../store'
 
-export default store
 
 Vue.component('client-list', require('../components/client/ClientList.vue'));
 Vue.component('client-actions', require('../components/client/ClientActions.vue'));
@@ -23,8 +21,7 @@ Vue.component('list-actions', require('../components/util/VueListActions.vue'));
 window.onload = function () {
 
     const app = new Vue({
-        el: '#client_list',
-        store 
+        el: '#client_list'
     });
 
 }

@@ -1,10 +1,10 @@
+<!-- Vue component -->
 <template>
   <div style="width:300px;">
     <multiselect v-model="value" 
     :options="options" 
     :multiple="true"
     :placeholder="trans('texts.status')"
-    :preselect-first="true"
     @input="onChange"
     ></multiselect>
   </div>
@@ -19,16 +19,14 @@
     components: { Multiselect },
     data () {
       return {
-        value : [],
+        value: 'active',
         options: ['active', 'archived', 'deleted']
       }
     },
     methods: {
       onChange (value) {
-
-        this.$store.commit('client_list/setStatusArray', value)
-        this.$events.fire('multi-select', '')
-
+        console.dir(this.value)
+        this.value = value
         if (value.indexOf('Reset me!') !== -1) this.value = []
       },
       onSelect (option) {

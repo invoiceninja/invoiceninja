@@ -2,17 +2,11 @@
 
 namespace App\Filters;
 
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 abstract class QueryFilters
 {
-    const STATUS_ACTIVE = 'active';
-    const STATUS_ARCHIVED = 'archived';
-    const STATUS_DELETED = 'deleted';
-
     /**
      * The request object.
      *
@@ -32,10 +26,9 @@ abstract class QueryFilters
      *
      * @param Request $request
      */
-    public function __construct(Request $request, Builder $builder)
+    public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->builder = $builder;
     }
 
     /**
@@ -44,9 +37,9 @@ abstract class QueryFilters
      * @param  Builder $builder
      * @return Builder
      */
-    public function apply(int $company_id)
+    public function apply(Builder $builder)
     {
-        $this->builder = $this->baseQuery($company_id);
+        $this->builder = $builder;
 
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {
@@ -77,7 +70,7 @@ abstract class QueryFilters
      * Explodes the value by delimiter
      * 
      * @param  string $value
-     * @return stdClass 
+     * @return array 
      */
     public function split($value) : stdClass
     {
@@ -91,12 +84,6 @@ abstract class QueryFilters
         return $parts;
     }
 
-    /**
-     * String to operator convertor
-     * 
-     * @param  string $value
-     * @return string
-     */
     private function operatorConvertor(string $operator) : string
     {
         switch ($operator) {
