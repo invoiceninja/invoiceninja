@@ -25,6 +25,11 @@
         options: this.select_options
       }
     },
+    mounted() {
+
+      this.$events.fire('multi-select', '')
+    
+    },
     methods: {
       onChange (value) {
 

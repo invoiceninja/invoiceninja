@@ -2777,6 +2777,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
@@ -2790,7 +2793,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   methods: {
     itemAction: function itemAction(action, data, index) {
-      console.log('custom-actions: ' + action, data.name, index);
+      console.log('custom-actions: ' + action, data.name, data.id, data);
     }
   }
 });
@@ -4344,7 +4347,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -6530,6 +6533,9 @@ exports.default = {
             options: this.select_options
         };
     },
+    mounted: function () {
+        this.$events.fire('multi-select', '');
+    },
     methods: {
         onChange: function (value) {
             this.$store.commit('client_list/setStatusArray', value);
@@ -8418,7 +8424,7 @@ var render = function() {
           "aria-expanded": "false"
         }
       },
-      [_vm._v("\n\tSelect\n\t")]
+      [_vm._v("\n\t\t" + _vm._s(_vm.trans("texts.select")) + "\n\t\t")]
     ),
     _vm._v(" "),
     _c(
@@ -8436,19 +8442,55 @@ var render = function() {
           )
         }),
         _vm._v(" "),
-        _c(
-          "a",
-          {
-            staticClass: "dropdown-item",
-            attrs: { href: "#" },
-            on: {
-              click: function($event) {
-                _vm.itemAction("view-item", _vm.rowData, _vm.rowIndex)
-              }
-            }
-          },
-          [_vm._v("One more item")]
-        )
+        _c("div", { staticClass: "dropdown-divider" }),
+        _vm._v(" "),
+        _vm.rowData.deleted_at == null
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("archive", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.archive")))]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.rowData.is_deleted == 0
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("delete", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.delete")))]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.rowData.is_deleted == 1
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("restore", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.restore")))]
+            )
+          : _vm._e()
       ],
       2
     )
@@ -24563,9 +24605,12 @@ exports.default = store;
 
 "use strict";
 
+/**
+ * State managment for the Client List View
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 var state = {
-    statuses: ['active'],
+    statuses: [{ value: 'active' }],
     filter_text: '',
     bulk_count: 0
 };

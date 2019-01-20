@@ -1,5 +1,9 @@
+/**
+ * State managment for the Client List View
+ */
+
 const state = {
-  statuses: ['active'],
+  statuses: [{value: 'active'}],
   filter_text: '',
   bulk_count : 0
 }
@@ -44,7 +48,7 @@ const mutations = {
 
 	},
   setStatusArray(state, statuses) {
-    
+
     state.statuses = statuses
 
   },
