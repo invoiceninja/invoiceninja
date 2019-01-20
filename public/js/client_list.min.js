@@ -2793,7 +2793,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   methods: {
     itemAction: function itemAction(action, data, index) {
-      console.log('custom-actions: ' + action, data.name, data.id, data);
+
+      this.$events.fire('single-action', { 'action': action, 'ids': [data.id] });
     }
   }
 });
@@ -6411,8 +6412,9 @@ exports.default = {
     mounted: function () {
         var _this = this;
         this.$events.$on('filter-set', function (eventData) { return _this.onFilterSet(); });
-        this.$events.$on('bulk-action', function (eventData) { return _this.bulk(eventData, _this); });
+        this.$events.$on('bulk-action', function (eventData) { return _this.bulkAction(eventData); });
         this.$events.$on('multi-select', function (eventData) { return _this.multiSelect(eventData); });
+        this.$events.$on('single-action', function (eventData) { return _this.singleAction(eventData); });
     },
     methods: {
         onPaginationData: function (paginationData) {
@@ -6427,18 +6429,28 @@ exports.default = {
             this.moreParams = this.$store.getters['client_list/getQueryStringObject'];
             vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
         },
-        bulk: function (action) {
-            var _this = this;
-            axios_1.default.post('/clients/bulk', {
+        bulkAction: function (action) {
+            var dataObj = {
                 'action': action,
                 'ids': this.$refs.vuetable.selectedTo
-            })
+            };
+            this.postBulkAction(dataObj);
+        },
+        singleAction: function (dataObj) {
+            console.dir(dataObj);
+            this.postBulkAction(dataObj);
+        },
+        postBulkAction: function (dataObj) {
+            var _this = this;
+            axios_1.default.post('/clients/bulk', dataObj)
                 .then(function (response) {
                 _this.$store.commit('client_list/setBulkCount', 0);
                 _this.$refs.vuetable.selectedTo = [];
                 _this.$refs.vuetable.refresh();
+                //        console.dir(response)
             })
                 .catch(function (error) {
+                //         console.dir(error)
             });
         },
         toggledCheckBox: function () {
@@ -8460,6 +8472,22 @@ var render = function() {
             )
           : _vm._e(),
         _vm._v(" "),
+        _vm.rowData.is_deleted == 1 || _vm.rowData.deleted_at != null
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("restore", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.restore")))]
+            )
+          : _vm._e(),
+        _vm._v(" "),
         _vm.rowData.is_deleted == 0
           ? _c(
               "a",
@@ -8473,22 +8501,6 @@ var render = function() {
                 }
               },
               [_vm._v(_vm._s(_vm.trans("texts.delete")))]
-            )
-          : _vm._e(),
-        _vm._v(" "),
-        _vm.rowData.is_deleted == 1
-          ? _c(
-              "a",
-              {
-                staticClass: "dropdown-item",
-                attrs: { href: "#" },
-                on: {
-                  click: function($event) {
-                    _vm.itemAction("restore", _vm.rowData, _vm.rowIndex)
-                  }
-                }
-              },
-              [_vm._v(_vm._s(_vm.trans("texts.restore")))]
             )
           : _vm._e()
       ],

@@ -16,6 +16,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
@@ -169,7 +170,7 @@ class ClientController extends Controller
         $action = request()->input('action');
         $ids = request()->input('ids');
 
-        $clients = Client::find($ids);
+        $clients = Client::withTrashed()->find($ids);
 
         $clients->each(function ($client, $key) use($action){
             ActionEntity::dispatchNow($client, $action);

@@ -8,8 +8,8 @@
 				<a class="dropdown-item" :href="action.url" v-for="action in rowData.actions">{{ action.name }}</a>
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="#" @click="itemAction('archive', rowData, rowIndex)" v-if="rowData.deleted_at == null">{{ trans('texts.archive') }}</a>
+        <a class="dropdown-item" href="#" @click="itemAction('restore', rowData, rowIndex)" v-if="rowData.is_deleted == 1 || rowData.deleted_at != null">{{ trans('texts.restore') }}</a>
         <a class="dropdown-item" href="#" @click="itemAction('delete', rowData, rowIndex)" v-if="rowData.is_deleted == 0">{{ trans('texts.delete') }}</a>
-        <a class="dropdown-item" href="#" @click="itemAction('restore', rowData, rowIndex)" v-if="rowData.is_deleted == 1">{{ trans('texts.restore') }}</a>
 			</div>
 	</div>
 
@@ -28,7 +28,9 @@
     },
     methods: {
       itemAction (action, data, index) {
-        console.log('custom-actions: ' + action, data.name, data.id, data)
+
+        this.$events.fire('single-action', {'action': action, 'ids': [data.id]})
+      
       }
     }
   }

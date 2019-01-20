@@ -8,8 +8,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ClientDatatable extends EntityDatatable
 {
