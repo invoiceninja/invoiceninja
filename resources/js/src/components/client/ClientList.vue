@@ -106,13 +106,14 @@ export default {
 
       axios.post('/clients/bulk', dataObj)
       .then((response) => {
+        this.$root.$refs.toastr.s( Vue.prototype.trans('texts.'+dataObj.action+'d_client') )
         this.$store.commit('client_list/setBulkCount', 0)
         this.$refs.vuetable.selectedTo = []
         this.$refs.vuetable.refresh()
 //        console.dir(response)
       })
       .catch(function (error) {
-//         console.dir(error)
+        this.$root.$refs.toastr.e( "A error occurred" )
       });
 
     },

@@ -3946,6 +3946,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var form_1 = __importDefault(__webpack_require__("./resources/js/src/utils/form.ts"));
+var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
 exports.default = {
     data: function () {
         return {
@@ -3973,7 +3974,7 @@ exports.default = {
         onSubmit: function () {
             var _this = this;
             this.form.put('/clients/' + this.hashed_id)
-                .then(function (response) { return _this.$root.$refs.toastr.s("Saved client"); })
+                .then(function (response) { return _this.$root.$refs.toastr.s(vue_1.default.prototype.trans('texts.updated_client')); })
                 .catch(function (error) {
                 _this.$root.$refs.toastr.e("Error saving client");
             });

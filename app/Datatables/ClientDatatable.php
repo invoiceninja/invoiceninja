@@ -26,7 +26,7 @@ class ClientDatatable extends EntityDatatable
      */
     public function query(Request $request, int $company_id)
     {
-        $data = $this->filter->apply($company_id)->paginate($request->input('per_page'));
+        $data = $this->filter->apply($company_id, auth()->user())->paginate($request->input('per_page'));
 
         return response()->json($this->buildActionColumn($data), 200);
 
@@ -56,9 +56,7 @@ class ClientDatatable extends EntityDatatable
 
         }
 */
-        if ($userId) {
-            $query->where('clients.user_id', '=', $userId);
-        }
+
 
         return $query;
     }

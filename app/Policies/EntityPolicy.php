@@ -62,4 +62,6 @@ class EntityPolicy
 			|| ($user->hasPermission('view_' . $entity) && $entity->company_id == $user->company()->pivot->company_id) 
 			|| $user->owns($entity);
 	}
+
+
 }

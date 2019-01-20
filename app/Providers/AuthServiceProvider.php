@@ -37,6 +37,15 @@ class AuthServiceProvider extends ServiceProvider
             return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
 
         });
+
+        Gate::define('view-list', function ($user, $entity) {
+
+            $entity = strtolower(class_basename($entity));
+
+                return $user->hasPermission('view_' . $entity) || $user->isAdmin();
+
+        });
+
     }
 
 }

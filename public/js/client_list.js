@@ -6444,13 +6444,14 @@ exports.default = {
             var _this = this;
             axios_1.default.post('/clients/bulk', dataObj)
                 .then(function (response) {
+                _this.$root.$refs.toastr.s(vue_1.default.prototype.trans('texts.' + dataObj.action + 'd_client'));
                 _this.$store.commit('client_list/setBulkCount', 0);
                 _this.$refs.vuetable.selectedTo = [];
                 _this.$refs.vuetable.refresh();
                 //        console.dir(response)
             })
                 .catch(function (error) {
-                //         console.dir(error)
+                this.$root.$refs.toastr.e("A error occurred");
             });
         },
         toggledCheckBox: function () {
