@@ -2437,6 +2437,9 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
     'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
 
     'review_app_help' => 'Esperamos que estés disfrutando con la app. <br/>Si consideras :link ¡te lo agraderemos enormemente!',
     'writing_a_review' => 'escribir una reseña',
@@ -3115,6 +3118,10 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'authenticate' => 'Autenticación',
     'please_authenticate' => 'Por favor, autenticarse',
     'biometric_authentication' => 'Autenticación biométrica',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 

@@ -2448,6 +2448,9 @@ $LANG = array(
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
     'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
 
     'review_app_help' => 'Nadamo se da uživate u korišćenju aplikacije. <br/> Bili bismo veoma zahvalni ako biste razmotrili :link.',
     'writing_a_review' => 'napišite ocenu',
@@ -2881,6 +2884,7 @@ $LANG = array(
     'guide' => 'Vodič',
     'gateway_fee_item' => 'Nakndada za posrednika',
     'gateway_fee_description' => 'Dodatni trošak za posrednika',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => 'Prikaži uplate',
     'show_aging' => 'Prikaži Starenje',
     'reference' => 'Referenca',
@@ -3125,6 +3129,10 @@ $LANG = array(
     'authenticate' => 'Authenticate',
     'please_authenticate' => 'Please authenticate',
     'biometric_authentication' => 'Biometric Authentication',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 

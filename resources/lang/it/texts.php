@@ -104,7 +104,7 @@ $LANG = array(
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
           <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
         </ul>',
-    'recurring_quotes' => 'Recurring Quotes',
+    'recurring_quotes' => 'Preventivi Ricorrenti',
     'in_total_revenue' => 'di fatturato',
     'billed_client' => 'Cliente fatturato',
     'billed_clients' => 'Clienti fatturati',
@@ -650,8 +650,8 @@ $LANG = array(
     'current_user' => 'Current User',
     'new_recurring_invoice' => 'Nuova Fattura Ricorrente',
     'recurring_invoice' => 'Fattura ricorrente',
-    'new_recurring_quote' => 'New Recurring Quote',
-    'recurring_quote' => 'Recurring Quote',
+    'new_recurring_quote' => 'Nuovo Preventivo Ricorrente',
+    'recurring_quote' => 'Preventivo Ricorrente',
     'recurring_too_soon' => 'È troppo presto per creare la prossima fattura ricorrente, è prevista per :date',
     'created_by_invoice' => 'Creato da :invoice',
     'primary_user' => 'Utente principale',
@@ -1115,8 +1115,8 @@ $LANG = array(
     'december' => 'Dicembre',
 
     // Documents
-    'documents_header' => 'Documents:',
-    'email_documents_header' => 'Documents:',
+    'documents_header' => 'Documenti:',
+    'email_documents_header' => 'Documenti:',
     'email_documents_example_1' => 'Widgets Receipt.pdf',
     'email_documents_example_2' => 'Final Deliverable.zip',
     'quote_documents' => 'Quote Documents',
@@ -2440,6 +2440,9 @@ $LANG = array(
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
     'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -3118,6 +3121,10 @@ $LANG = array(
     'authenticate' => 'Authenticate',
     'please_authenticate' => 'Please authenticate',
     'biometric_authentication' => 'Biometric Authentication',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 

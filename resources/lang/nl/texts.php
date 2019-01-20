@@ -2439,6 +2439,9 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
     'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
 
     'review_app_help' => 'We hopen dat je het leuk vindt om de app te gebruiken.<br/> Als je zou overwegen :link, zouden we dat zeer op prijs stellen!',
     'writing_a_review' => 'een recensie schrijven',
@@ -3117,6 +3120,10 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'authenticate' => 'Authenticeer',
     'please_authenticate' => 'Gelieve te authenticeren',
     'biometric_authentication' => 'Biometrische authenticatie',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 

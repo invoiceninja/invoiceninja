@@ -2438,7 +2438,10 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_angolan_kwanza' => 'Kwanza angolais',
     'currency_haitian_gourde' => 'Gourde haïtienne',
     'currency_zambian_kwacha' => 'Kwacha zambien',
-    'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_nepalese_rupee' => 'Roupie népalaise',
+    'currency_cfp_franc' => 'Franc Pacifique',
+    'currency_mauritian_rupee' => 'Roupie mauricienne',
+    'currency_cape_verdean_escudo' => 'Escudo cap-verdien',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'rédiger un commentaire',
@@ -2872,7 +2875,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'guide' => 'Guide',
     'gateway_fee_item' => 'Article de frais de passerelle',
     'gateway_fee_description' => 'Surcharge de frais de passerelle',
-    'gateway_fee_discount_description' => 'Gateway Fee Discount',
+    'gateway_fee_discount_description' => 'Remise de frais de passerelle',
     'show_payments' => 'Afficher les paiements',
     'show_aging' => 'Afficher les impayés',
     'reference' => 'Référence',
@@ -3117,6 +3120,10 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'authenticate' => 'Connexion',
     'please_authenticate' => 'Veuillez vous connecter',
     'biometric_authentication' => 'Connexion biométrique',
+    'auto_start_tasks' => 'Démarrage de tâches automatique',
+    'budgeted' => 'Budgété',
+    'please_enter_a_name' => 'Veuillez entrer un nom',
+    'click_plus_to_add_time' => 'Cliquez sur + pour ajouter du temps',
 
 );
 

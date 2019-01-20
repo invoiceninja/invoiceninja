@@ -2441,6 +2441,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_haitian_gourde' => 'Gourde haïtienne',
     'currency_zambian_kwacha' => 'Kwacha zambien',
     'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'écrire un commentaire',
@@ -3119,6 +3122,10 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'authenticate' => 'Connexion',
     'please_authenticate' => 'Veuillez vous connecter',
     'biometric_authentication' => 'Connexion biométrique',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 
