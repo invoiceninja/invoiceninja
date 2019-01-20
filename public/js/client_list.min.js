@@ -4392,7 +4392,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n.custom-actions button.ui.button {\n  padding: 8px 8px;\n}\n.custom-actions button.ui.button > i.icon {\n  margin: auto !important;\n}\n", ""]);
+exports.push([module.i, "\n.custom-actions button.ui.button {\n\t  padding: 8px 8px;\n}\n.custom-actions button.ui.button > i.icon {\n\t  margin: auto !important;\n}\n.dropdown-item {\n    outline:0px; \n    border:0px; \n    font-weight: bold;\n}\n\n", ""]);
 
 // exports
 

@@ -41,4 +41,10 @@
 	.custom-actions button.ui.button > i.icon {
 	  margin: auto !important;
 	}
+  .dropdown-item {
+    outline:0px; 
+    border:0px; 
+    font-weight: bold;
+  }
+
 </style>
