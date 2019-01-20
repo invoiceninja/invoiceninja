@@ -13,7 +13,7 @@
         <div class="container-fluid" id="client_list">
             <vue-toastr ref="toastr"></vue-toastr>
             
-            <list-actions :listaction="{{ $listaction }}"></list-actions>
+            <list-actions :listaction="{{ $listaction }}" :per_page_prop="{{ $datatable['per_page'] }}"></list-actions>
 
             <div style="background: #fff;">
                 

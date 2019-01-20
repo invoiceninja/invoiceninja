@@ -7,7 +7,7 @@ use App\Models\Client;
 class DefaultSettings
 {
 
-	public static $per_page = 20;
+	public static $per_page = 25;
 
 	public static function userSettings() : \stdClass
 	{

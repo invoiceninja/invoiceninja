@@ -4318,7 +4318,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\nselect.custom-select {\n    height: 42px;\n}\n", ""]);
 
 // exports
 
@@ -6415,6 +6415,7 @@ exports.default = {
         this.$events.$on('bulk-action', function (eventData) { return _this.bulkAction(eventData); });
         this.$events.$on('multi-select', function (eventData) { return _this.multiSelect(eventData); });
         this.$events.$on('single-action', function (eventData) { return _this.singleAction(eventData); });
+        this.$events.$on('perpage_action', function (eventData) { return _this.onPerPageUpdate(eventData); });
     },
     methods: {
         onPaginationData: function (paginationData) {
@@ -6429,6 +6430,11 @@ exports.default = {
             this.moreParams = this.$store.getters['client_list/getQueryStringObject'];
             vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
         },
+        onPerPageUpdate: function (per_page) {
+            var _this = this;
+            this.perPage = Number(per_page);
+            vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
+        },
         bulkAction: function (action) {
             var dataObj = {
                 'action': action,
@@ -6437,7 +6443,6 @@ exports.default = {
             this.postBulkAction(dataObj);
         },
         singleAction: function (dataObj) {
-            console.dir(dataObj);
             this.postBulkAction(dataObj);
         },
         postBulkAction: function (dataObj) {
@@ -6475,7 +6480,21 @@ exports.default = {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    props: ['listaction'],
+    props: {
+        listaction: {
+            type: Object,
+            required: true
+        },
+        per_page_prop: {
+            type: Number,
+            required: true
+        }
+    },
+    data: function () {
+        return {
+            per_page: this.per_page_prop
+        };
+    },
     methods: {
         archive: function () {
             this.$events.fire('bulk-action', 'archive');
@@ -6488,6 +6507,9 @@ exports.default = {
         },
         goToUrl: function (url) {
             location.href = url;
+        },
+        updatePerPage: function () {
+            this.$events.fire('perpage_action', this.per_page);
         }
     },
     computed: {
@@ -8052,7 +8074,7 @@ var render = function() {
     _vm._v(" "),
     _c(
       "div",
-      { staticClass: "mr-auto p-2" },
+      { staticClass: "p-2" },
       [
         _c("vuetable-multi-select", {
           attrs: { select_options: _vm.listaction.multi_select }
@@ -8060,6 +8082,63 @@ var render = function() {
       ],
       1
     ),
+    _vm._v(" "),
+    _c("div", { staticClass: "mr-auto p-2" }, [
+      _c("div", { staticClass: "input-group mb-3" }, [
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.per_page,
+                expression: "per_page"
+              }
+            ],
+            staticClass: "custom-select",
+            attrs: { id: "per_page" },
+            on: {
+              change: [
+                function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.per_page = $event.target.multiple
+                    ? $$selectedVal
+                    : $$selectedVal[0]
+                },
+                function($event) {
+                  _vm.updatePerPage()
+                }
+              ]
+            }
+          },
+          [
+            _c("option", { attrs: { value: "10" } }, [_vm._v("10")]),
+            _vm._v(" "),
+            _c("option", { attrs: { value: "25" } }, [_vm._v("25")]),
+            _vm._v(" "),
+            _c("option", { attrs: { value: "50" } }, [_vm._v("50")]),
+            _vm._v(" "),
+            _c("option", { attrs: { value: "100" } }, [_vm._v("100")])
+          ]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "input-group-append" }, [
+          _c(
+            "label",
+            { staticClass: "input-group-text", attrs: { for: "per_page" } },
+            [_vm._v(_vm._s(_vm.trans("texts.rows")))]
+          )
+        ])
+      ])
+    ]),
     _vm._v(" "),
     _c("div", { staticClass: "ml-auto p-2" }, [_c("vuetable-query-filter")], 1),
     _vm._v(" "),
@@ -8400,7 +8479,11 @@ var render = function() {
     _vm._v(" "),
     _c(
       "button",
-      { staticClass: "btn btn-primary", on: { click: _vm.doFilter } },
+      {
+        staticClass: "btn btn-primary",
+        staticStyle: { "margin-left": "15px" },
+        on: { click: _vm.doFilter }
+      },
       [_vm._v("Go")]
     )
   ])
