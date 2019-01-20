@@ -19,7 +19,7 @@ class ClientPolicy extends EntityPolicy
 	 */
 	public function create(User $user) : bool
 	{
-		return $user->hasPermission('create_client');
+		return $user->isAdmin() || $user->hasPermission('create_client');
 	}
-	
+
 }

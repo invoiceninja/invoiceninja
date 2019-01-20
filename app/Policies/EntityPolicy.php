@@ -14,6 +14,8 @@ class EntityPolicy
 	 * Fires before any of the custom policy methods
 	 *
 	 * Only fires if true, if false we continue.....
+	 *
+	 * Do not use this function!!!! We MUST also check company_id,
 	 * 
 	 * @param  User $user
 	 * @param  $ability
@@ -21,12 +23,15 @@ class EntityPolicy
 	 */
 	public function before($user, $ability)
 	{
-	     if($user->isAdmin())
-	     	return true;
+	     //if($user->isAdmin())
+	     //	return true;
 	}
 
 	/**
-	 *  Checks if the user has edit permissions
+	 * Checks if the user has edit permissions
+	 *
+	 * We MUST also check that the user can both edit a entity and also check the entity belongs to the users company!!!!!!
+	 * 
 	 * @param  User $user
 	 * @param  $entity
 	 * @return bool
@@ -35,12 +40,16 @@ class EntityPolicy
 	{
 		$entity = strtolower(class_basename($entity));
 
-			return $user->hasPermission('edit_' . $entity) || $user->owns($entity);
+			return ($user->isAdmin() && $entity->company_id == $user->company()->pivot->company_id) 
+			|| ($user->hasPermission('edit_' . $entity) && $entity->company_id == $user->company()->pivot->company_id)
+			|| $user->owns($entity);
 	}
 
 
 	/**
 	 *  Checks if the user has view permissions
+	 *
+	 * We MUST also check that the user can both view a entity and also check the entity belongs to the users company!!!!!!
 	 * @param  User $user
 	 * @param  $entity
 	 * @return bool
@@ -49,6 +58,8 @@ class EntityPolicy
 	{
 		$entity = strtolower(class_basename($entity));
 
-			return $user->hasPermission('view_' . $entity) || $user->owns($entity);		
+			return ($user->isAdmin() && $entity->company_id == $user->company()->pivot->company_id) 
+			|| ($user->hasPermission('view_' . $entity) && $entity->company_id == $user->company()->pivot->company_id) 
+			|| $user->owns($entity);
 	}
 }
