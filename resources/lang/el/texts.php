@@ -2446,7 +2446,10 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'currency_angolan_kwanza' => 'Κουάνζα Αγκόλας',
     'currency_haitian_gourde' => 'Γκούρντε Αϊτής',
     'currency_zambian_kwacha' => 'Κβάτσα Ζάμπιας',
-    'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_nepalese_rupee' => 'Ρουπία Νεπάλ',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Ρουπία Μαυρίκιου',
+    'currency_cape_verdean_escudo' => 'Εσκούδο Πράσινου Ακρωτηρίου',
 
     'review_app_help' => 'Ελπίζουμε να απολαμβάνετε τη χρήση της εφαρμογής.<br/> Εάν θα θέλατε να γράψετε μια κριτική :link θα το εκτιμούσαμε ιδιαίτερα!',
     'writing_a_review' => 'συγγραφή κριτικής',
@@ -2880,6 +2883,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'guide' => 'Οδηγός',
     'gateway_fee_item' => 'Προμήθεια Πύλης Πληρωμής για το προϊόν',
     'gateway_fee_description' => 'Επιβάρυνση Προμήθειας Πύλης Πληρωμής',
+    'gateway_fee_discount_description' => 'Έκπτωση Προμήθειας Πύλης Πληρωμής',
     'show_payments' => 'Εμφάνιση Πληρωμών',
     'show_aging' => 'Εμφάνιση Γήρανσης',
     'reference' => 'Αναφορά',
@@ -3124,6 +3128,10 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'authenticate' => 'Αυθεντικοποιήστε',
     'please_authenticate' => 'Παρακαλούμε αυθεντικοποιήστε',
     'biometric_authentication' => 'Βιομετρικη αυθεντικοποίηση',
+    'auto_start_tasks' => 'Αυτόματη Έναρξη Εργασιών',
+    'budgeted' => 'Προϋπολογισμένο',
+    'please_enter_a_name' => 'Παρακαλούμε εισάγετε ένα όνομα',
+    'click_plus_to_add_time' => 'Πιέστε το + για να προσθέσετε χρόνο',
 
 );
 

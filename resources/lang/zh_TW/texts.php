@@ -2445,6 +2445,9 @@ $LANG = array(
     'currency_haitian_gourde' => 'Haitian Gourde',
     'currency_zambian_kwacha' => 'Zambian Kwacha',
     'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
 
     'review_app_help' => '我們希望您喜歡使用這個程式。<br/>若您考慮 :link，我們會非常感謝！',
     'writing_a_review' => '撰寫評語',
@@ -2879,6 +2882,7 @@ $LANG = array(
     'guide' => '指南 ',
     'gateway_fee_item' => '閘道費用項目',
     'gateway_fee_description' => '閘道的額外費用',
+    'gateway_fee_discount_description' => 'Gateway Fee Discount',
     'show_payments' => '顯示支付資料',
     'show_aging' => '顯示帳齡',
     'reference' => '參照',
@@ -3123,6 +3127,10 @@ $LANG = array(
     'authenticate' => 'Authenticate',
     'please_authenticate' => 'Please authenticate',
     'biometric_authentication' => 'Biometric Authentication',
+    'auto_start_tasks' => 'Auto Start Tasks',
+    'budgeted' => 'Budgeted',
+    'please_enter_a_name' => 'Please enter a name',
+    'click_plus_to_add_time' => 'Click + to add time',
 
 );
 
