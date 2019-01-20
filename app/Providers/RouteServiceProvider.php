@@ -29,53 +29,49 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('client', function ($value) {
-            $client = \App\Models\Client::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            $client = \App\Models\Client::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
             $client->load('contacts', 'primary_contact');
             return $client;
         });
 
         Route::bind('invoice', function ($value) {
-                return \App\Models\Invoice::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Invoice::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('payment', function ($value) {
-            return \App\Models\Payment::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Payment::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('product', function ($value) {
-            return \App\Models\Product::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Product::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('company', function ($value) {
-            return \App\Models\Company::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Company::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('account', function ($value) {
-            return \App\Models\Account::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Account::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('client_contact', function ($value) {
-            return \App\Models\ClientContact::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
-        });
-
-        Route::bind('client_location', function ($value) {
-            return \App\Models\ClientLocation::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\ClientContact::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('expense', function ($value) {
-            return \App\Models\Expense::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Expense::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('invitation', function ($value) {
-            return \App\Models\Invitation::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Invitation::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('task', function ($value) {
-            return \App\Models\Task::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\Task::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('tax_rate', function ($value) {
-            return \App\Models\TaxRate::where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            return \App\Models\TaxRate::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
         });
 
         Route::bind('proposal', function ($value) {

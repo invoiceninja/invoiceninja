@@ -3,7 +3,7 @@
         <div class="input-group">
 
           <input type="text" v-model="filterText" class="form-control" @keyup.enter="doFilter" placeholder="search">
-          <button class="btn btn-primary" @click="doFilter">Go</button>
+          <button class="btn btn-primary" style="margin-left:15px;" @click="doFilter">Go</button>
           <!--<button class="btn btn-light" @click="resetFilter">Reset</button>-->
 
         </div>

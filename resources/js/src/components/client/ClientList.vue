@@ -65,6 +65,7 @@ export default {
     this.$events.$on('bulk-action', eventData => this.bulkAction(eventData))
     this.$events.$on('multi-select', eventData => this.multiSelect(eventData))
     this.$events.$on('single-action', eventData => this.singleAction(eventData))
+    this.$events.$on('perpage_action', eventData => this.onPerPageUpdate(eventData))
 
   },
   methods: {
@@ -86,18 +87,23 @@ export default {
 			Vue.nextTick( () => this.$refs.vuetable.refresh())
 
 	  },
+    onPerPageUpdate(per_page){
+
+      this.perPage = Number(per_page)
+      Vue.nextTick( () => this.$refs.vuetable.refresh())
+
+    },
     bulkAction (action){
 
       var dataObj = {
         'action' : action,
         'ids' : this.$refs.vuetable.selectedTo
       }
+
       this.postBulkAction(dataObj)
 
     },
     singleAction(dataObj) {
-
-       console.dir(dataObj)
 
       this.postBulkAction(dataObj)
 

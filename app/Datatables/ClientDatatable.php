@@ -70,21 +70,6 @@ class ClientDatatable extends EntityDatatable
     private function buildActionColumn($data)
     {
 
-        //if(auth()->user()->isAdmin())
-        //todo permissions are only mocked here, when user permissions have been implemented this needs to be refactored.
-        
-        $permissions = [
-            'view_client', 
-            'edit_client', 
-            'create_task', 
-            'create_invoice', 
-            'create_payment', 
-            'create_credit', 
-            'create_expense'
-            ];
-
-        $permissions = auth()->user()->permissions();
-
         $requested_actions = [
             'view_client_client_id', 
             'edit_client_client_id', 
@@ -95,9 +80,7 @@ class ClientDatatable extends EntityDatatable
             'create_expense_client_id'
         ];
 
-        $is_admin = false;
-
-        $actions = $this->filterActions($requested_actions, $permissions, $is_admin);
+        $actions = $this->filterActions($requested_actions, auth()->user()->permissions(), auth()->user()->isAdmin());
 
         $data->map(function ($row) use ($actions) {
 
@@ -139,7 +122,7 @@ class ClientDatatable extends EntityDatatable
       $visible = auth()->user()->getColumnVisibility(Client::class);
 
         return collect([
-            'per_page' => 20,
+            'per_page' => 25,
             'sort_order' => [
                 [
                   'field' => 'name',
