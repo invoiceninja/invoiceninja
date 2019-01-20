@@ -18,7 +18,7 @@
     </div>
 
     <div class="mr-auto p-2">
-      <vuetable-multi-select></vuetable-multi-select>
+      <vuetable-multi-select :select_options="listaction.multi_select"></vuetable-multi-select>
     </div>
 
     <div class="ml-auto p-2">

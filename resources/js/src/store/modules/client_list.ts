@@ -18,9 +18,13 @@ const getters = {
 	},
   getQueryStringObject: state => {
 
+    var values = state.statuses.map(function (state, index, array) {
+         return state.value; 
+    });
+
     var queryObj = {
       filter: state.filter_text,
-      status: [].concat.apply([], state.statuses).join(",")
+      status: [].concat.apply([], values).join(",")
     }
 
     return queryObj
@@ -40,14 +44,14 @@ const mutations = {
 
 	},
   setStatusArray(state, statuses) {
-
+    
     state.statuses = statuses
 
   },
   setBulkCount(state, count) {
 
     state.bulk_count = count
-    
+
   }
 }
 

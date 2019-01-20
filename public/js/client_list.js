@@ -4344,7 +4344,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -6523,10 +6523,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var vue_multiselect_1 = __importDefault(__webpack_require__("./node_modules/vue-multiselect/dist/vue-multiselect.min.js"));
 exports.default = {
     components: { Multiselect: vue_multiselect_1.default },
+    props: ['select_options'],
     data: function () {
         return {
             value: [],
-            options: ['active', 'archived', 'deleted']
+            options: this.select_options
         };
     },
     methods: {
@@ -8030,7 +8031,16 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _c("div", { staticClass: "mr-auto p-2" }, [_c("vuetable-multi-select")], 1),
+    _c(
+      "div",
+      { staticClass: "mr-auto p-2" },
+      [
+        _c("vuetable-multi-select", {
+          attrs: { select_options: _vm.listaction.multi_select }
+        })
+      ],
+      1
+    ),
     _vm._v(" "),
     _c("div", { staticClass: "ml-auto p-2" }, [_c("vuetable-query-filter")], 1),
     _vm._v(" "),
@@ -8301,7 +8311,9 @@ var render = function() {
           options: _vm.options,
           multiple: true,
           placeholder: _vm.trans("texts.status"),
-          "preselect-first": true
+          "preselect-first": true,
+          label: "name",
+          "track-by": "name"
         },
         on: { input: _vm.onChange },
         model: {
@@ -24566,9 +24578,12 @@ var getters = {
         return state.filter_text;
     },
     getQueryStringObject: function (state) {
+        var values = state.statuses.map(function (state, index, array) {
+            return state.value;
+        });
         var queryObj = {
             filter: state.filter_text,
-            status: [].concat.apply([], state.statuses).join(",")
+            status: [].concat.apply([], values).join(",")
         };
         return queryObj;
     }
