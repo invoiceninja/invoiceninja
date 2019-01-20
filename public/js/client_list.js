@@ -4314,7 +4314,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -6469,6 +6469,9 @@ exports.default = {
         },
         getBulkCount: function () {
             return this.$store.getters['client_list/getBulkCount'];
+        },
+        goToUrl: function (url) {
+            location.href = url;
         }
     },
     computed: {
@@ -8039,7 +8042,7 @@ var render = function() {
           attrs: { disabled: _vm.isDisabled },
           on: {
             click: function($event) {
-              _vm.$emit("bulk", "poota")
+              _vm.goToUrl(_vm.listaction.create_entity.url)
             }
           }
         },

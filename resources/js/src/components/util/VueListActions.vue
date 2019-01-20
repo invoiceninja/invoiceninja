@@ -26,7 +26,7 @@
     </div>
 
     <div class="p-2">
-      <button class="btn btn-primary btn-lg " v-on:click="$emit('bulk','poota')" :disabled="isDisabled">{{ trans('texts.new_client') }}</button>
+      <button class="btn btn-primary btn-lg " @click="goToUrl(listaction.create_entity.url)" :disabled="isDisabled">{{ trans('texts.new_client') }}</button>
     </div>
 
 	</div>
@@ -46,6 +46,9 @@
       },
       getBulkCount() {
         return this.$store.getters['client_list/getBulkCount']
+      },
+      goToUrl: function (url) {
+        location.href=url
       }
     },
    computed: {
