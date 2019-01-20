@@ -2,10 +2,9 @@
 
 namespace App\Filters;
 
+use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 abstract class QueryFilters
 {
@@ -44,9 +43,9 @@ abstract class QueryFilters
      * @param  Builder $builder
      * @return Builder
      */
-    public function apply(int $company_id)
+    public function apply(int $company_id, User $user)
     {
-        $this->builder = $this->baseQuery($company_id);
+        $this->builder = $this->baseQuery($company_id, $user);
 
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {

@@ -62,8 +62,9 @@ export default {
   mounted() {
 
     this.$events.$on('filter-set', eventData => this.onFilterSet())
-    this.$events.$on('bulk-action', eventData => this.bulk(eventData, this))
+    this.$events.$on('bulk-action', eventData => this.bulkAction(eventData))
     this.$events.$on('multi-select', eventData => this.multiSelect(eventData))
+    this.$events.$on('single-action', eventData => this.singleAction(eventData))
 
   },
   methods: {
@@ -85,22 +86,36 @@ export default {
 			Vue.nextTick( () => this.$refs.vuetable.refresh())
 
 	  },
-    bulk (action){
+    bulkAction (action){
 
-        axios.post('/clients/bulk', {
-          'action' : action,
-          'ids' : this.$refs.vuetable.selectedTo
-        })
-        .then((response) => {
-          this.$store.commit('client_list/setBulkCount', 0)
-          this.$refs.vuetable.selectedTo = []
-          this.$refs.vuetable.refresh()
-          
-        })
-        .catch(function (error) {
+      var dataObj = {
+        'action' : action,
+        'ids' : this.$refs.vuetable.selectedTo
+      }
+      this.postBulkAction(dataObj)
 
-        });
-        
+    },
+    singleAction(dataObj) {
+
+       console.dir(dataObj)
+
+      this.postBulkAction(dataObj)
+
+    },
+    postBulkAction(dataObj) {
+
+      axios.post('/clients/bulk', dataObj)
+      .then((response) => {
+        this.$root.$refs.toastr.s( Vue.prototype.trans('texts.'+dataObj.action+'d_client') )
+        this.$store.commit('client_list/setBulkCount', 0)
+        this.$refs.vuetable.selectedTo = []
+        this.$refs.vuetable.refresh()
+//        console.dir(response)
+      })
+      .catch(function (error) {
+        this.$root.$refs.toastr.e( "A error occurred" )
+      });
+
     },
     toggledCheckBox(){
       this.$store.commit('client_list/setBulkCount', this.$refs.vuetable.selectedTo.length)

@@ -7,7 +7,9 @@ use Illuminate\Support\Collection;
 trait MakesActionMenu
 {
     /**
-     * Returns all possible datatable actions
+     * Returns all possible datatable actions 
+     * this list will be the single source of truth
+     * for all Select Actions
      * 
      * @return Collection collection instance of action items
      */
@@ -26,24 +28,6 @@ trait MakesActionMenu
 
 	}
 
-	/**
-     * Checks the user permissions against the collection and returns
-     * a Collection of available actions\.
-     * 
-     * @param  Collection $actions  collection of possible actions
-     * @param  bool       $isAdmin boolean defining if user is an administrator
-     * @return Collection collection of filtered actions
-     */
-	private function checkPermissions(Collection $actions, array $permissions, bool $is_admin) :Collection
-    {
-
-        if($is_admin === TRUE)
-            return $actions;
-
-        return $actions->whereIn('permission', $permissions);
-        
-    }
-
     /**
      * Filters the main actions collection down to the requested
      * actions for this menu
@@ -57,5 +41,24 @@ trait MakesActionMenu
     {
 
     	return $this->checkPermissions($this->actions()->whereIn('action', $actions), $permissions, $isAdmin);
+
+    }
+
+    /**
+     * Checks the user permissions against the collection and returns
+     * a Collection of available actions\.
+     * 
+     * @param  Collection $actions  collection of possible actions
+     * @param  bool       $isAdmin boolean defining if user is an administrator
+     * @return Collection collection of filtered actions
+     */
+    private function checkPermissions(Collection $actions, array $permissions, bool $is_admin) :Collection
+    {
+
+        if($is_admin === TRUE)
+            return $actions;
+
+        return $actions->whereIn('permission', $permissions);
+        
     }
 }

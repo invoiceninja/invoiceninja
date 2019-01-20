@@ -8,8 +8,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ClientDatatable extends EntityDatatable
 {
@@ -28,7 +26,7 @@ class ClientDatatable extends EntityDatatable
      */
     public function query(Request $request, int $company_id)
     {
-        $data = $this->filter->apply($company_id)->paginate($request->input('per_page'));
+        $data = $this->filter->apply($company_id, auth()->user())->paginate($request->input('per_page'));
 
         return response()->json($this->buildActionColumn($data), 200);
 
@@ -58,9 +56,7 @@ class ClientDatatable extends EntityDatatable
 
         }
 */
-        if ($userId) {
-            $query->where('clients.user_id', '=', $userId);
-        }
+
 
         return $query;
     }

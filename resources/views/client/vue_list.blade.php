@@ -11,7 +11,8 @@
         {{ Breadcrumbs::render('clients') }}
 
         <div class="container-fluid" id="client_list">
-
+            <vue-toastr ref="toastr"></vue-toastr>
+            
             <list-actions :listaction="{{ $listaction }}"></list-actions>
 
             <div style="background: #fff;">

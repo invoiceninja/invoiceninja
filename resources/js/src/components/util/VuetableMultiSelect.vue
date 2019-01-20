@@ -5,6 +5,8 @@
     :multiple="true"
     :placeholder="trans('texts.status')"
     :preselect-first="true"
+    label="name"
+    track-by="name"
     @input="onChange"
     ></multiselect>
   </div>
@@ -16,11 +18,17 @@
 
   export default {
     components: { Multiselect },
+    props:['select_options'],
     data () {
       return {
         value : [],
-        options: ['active', 'archived', 'deleted']
+        options: this.select_options
       }
+    },
+    mounted() {
+
+      this.$events.fire('multi-select', '')
+    
     },
     methods: {
       onChange (value) {
@@ -34,7 +42,7 @@
       onSelect (option) {
 
         if (option === 'Disable me!') this.isDisabled = true
-          
+
       }
     }
   }

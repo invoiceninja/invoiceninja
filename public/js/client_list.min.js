@@ -2777,6 +2777,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
@@ -2790,7 +2793,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
   methods: {
     itemAction: function itemAction(action, data, index) {
-      console.log('custom-actions: ' + action, data.name, index);
+
+      this.$events.fire('single-action', { 'action': action, 'ids': [data.id] });
     }
   }
 });
@@ -4314,7 +4318,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -4344,7 +4348,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -4389,7 +4393,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n.custom-actions button.ui.button {\n  padding: 8px 8px;\n}\n.custom-actions button.ui.button > i.icon {\n  margin: auto !important;\n}\n", ""]);
+exports.push([module.i, "\n.custom-actions button.ui.button {\n\t  padding: 8px 8px;\n}\n.custom-actions button.ui.button > i.icon {\n\t  margin: auto !important;\n}\n.dropdown-item {\n    outline:0px; \n    border:0px; \n    font-weight: bold;\n}\n\n", ""]);
 
 // exports
 
@@ -6408,8 +6412,9 @@ exports.default = {
     mounted: function () {
         var _this = this;
         this.$events.$on('filter-set', function (eventData) { return _this.onFilterSet(); });
-        this.$events.$on('bulk-action', function (eventData) { return _this.bulk(eventData, _this); });
+        this.$events.$on('bulk-action', function (eventData) { return _this.bulkAction(eventData); });
         this.$events.$on('multi-select', function (eventData) { return _this.multiSelect(eventData); });
+        this.$events.$on('single-action', function (eventData) { return _this.singleAction(eventData); });
     },
     methods: {
         onPaginationData: function (paginationData) {
@@ -6424,18 +6429,29 @@ exports.default = {
             this.moreParams = this.$store.getters['client_list/getQueryStringObject'];
             vue_1.default.nextTick(function () { return _this.$refs.vuetable.refresh(); });
         },
-        bulk: function (action) {
-            var _this = this;
-            axios_1.default.post('/clients/bulk', {
+        bulkAction: function (action) {
+            var dataObj = {
                 'action': action,
                 'ids': this.$refs.vuetable.selectedTo
-            })
+            };
+            this.postBulkAction(dataObj);
+        },
+        singleAction: function (dataObj) {
+            console.dir(dataObj);
+            this.postBulkAction(dataObj);
+        },
+        postBulkAction: function (dataObj) {
+            var _this = this;
+            axios_1.default.post('/clients/bulk', dataObj)
                 .then(function (response) {
+                _this.$root.$refs.toastr.s(vue_1.default.prototype.trans('texts.' + dataObj.action + 'd_client'));
                 _this.$store.commit('client_list/setBulkCount', 0);
                 _this.$refs.vuetable.selectedTo = [];
                 _this.$refs.vuetable.refresh();
+                //        console.dir(response)
             })
                 .catch(function (error) {
+                this.$root.$refs.toastr.e("A error occurred");
             });
         },
         toggledCheckBox: function () {
@@ -6469,6 +6485,9 @@ exports.default = {
         },
         getBulkCount: function () {
             return this.$store.getters['client_list/getBulkCount'];
+        },
+        goToUrl: function (url) {
+            location.href = url;
         }
     },
     computed: {
@@ -6520,11 +6539,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var vue_multiselect_1 = __importDefault(__webpack_require__("./node_modules/vue-multiselect/dist/vue-multiselect.min.js"));
 exports.default = {
     components: { Multiselect: vue_multiselect_1.default },
+    props: ['select_options'],
     data: function () {
         return {
             value: [],
-            options: ['active', 'archived', 'deleted']
+            options: this.select_options
         };
+    },
+    mounted: function () {
+        this.$events.fire('multi-select', '');
     },
     methods: {
         onChange: function (value) {
@@ -8027,7 +8050,16 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _c("div", { staticClass: "mr-auto p-2" }, [_c("vuetable-multi-select")], 1),
+    _c(
+      "div",
+      { staticClass: "mr-auto p-2" },
+      [
+        _c("vuetable-multi-select", {
+          attrs: { select_options: _vm.listaction.multi_select }
+        })
+      ],
+      1
+    ),
     _vm._v(" "),
     _c("div", { staticClass: "ml-auto p-2" }, [_c("vuetable-query-filter")], 1),
     _vm._v(" "),
@@ -8039,7 +8071,7 @@ var render = function() {
           attrs: { disabled: _vm.isDisabled },
           on: {
             click: function($event) {
-              _vm.$emit("bulk", "poota")
+              _vm.goToUrl(_vm.listaction.create_entity.url)
             }
           }
         },
@@ -8298,7 +8330,9 @@ var render = function() {
           options: _vm.options,
           multiple: true,
           placeholder: _vm.trans("texts.status"),
-          "preselect-first": true
+          "preselect-first": true,
+          label: "name",
+          "track-by": "name"
         },
         on: { input: _vm.onChange },
         model: {
@@ -8403,7 +8437,7 @@ var render = function() {
           "aria-expanded": "false"
         }
       },
-      [_vm._v("\n\tSelect\n\t")]
+      [_vm._v("\n\t\t" + _vm._s(_vm.trans("texts.select")) + "\n\t\t")]
     ),
     _vm._v(" "),
     _c(
@@ -8421,19 +8455,55 @@ var render = function() {
           )
         }),
         _vm._v(" "),
-        _c(
-          "a",
-          {
-            staticClass: "dropdown-item",
-            attrs: { href: "#" },
-            on: {
-              click: function($event) {
-                _vm.itemAction("view-item", _vm.rowData, _vm.rowIndex)
-              }
-            }
-          },
-          [_vm._v("One more item")]
-        )
+        _c("div", { staticClass: "dropdown-divider" }),
+        _vm._v(" "),
+        _vm.rowData.deleted_at == null
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("archive", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.archive")))]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.rowData.is_deleted == 1 || _vm.rowData.deleted_at != null
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("restore", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.restore")))]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.rowData.is_deleted == 0
+          ? _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: {
+                  click: function($event) {
+                    _vm.itemAction("delete", _vm.rowData, _vm.rowIndex)
+                  }
+                }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.delete")))]
+            )
+          : _vm._e()
       ],
       2
     )
@@ -24548,9 +24618,12 @@ exports.default = store;
 
 "use strict";
 
+/**
+ * State managment for the Client List View
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 var state = {
-    statuses: ['active'],
+    statuses: [{ value: 'active' }],
     filter_text: '',
     bulk_count: 0
 };
@@ -24563,9 +24636,12 @@ var getters = {
         return state.filter_text;
     },
     getQueryStringObject: function (state) {
+        var values = state.statuses.map(function (state, index, array) {
+            return state.value;
+        });
         var queryObj = {
             filter: state.filter_text,
-            status: [].concat.apply([], state.statuses).join(",")
+            status: [].concat.apply([], values).join(",")
         };
         return queryObj;
     }

@@ -2,9 +2,11 @@
 
 namespace App\Filters;
 
+use App\Models\Client;
+use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * ClientFilters
@@ -114,7 +116,7 @@ class ClientFilters extends QueryFilters
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
      */
-    public function baseQuery(int $company_id) : Builder
+    public function baseQuery(int $company_id, User $user) : Builder
     {
         $query = DB::table('clients')
             ->join('companies', 'companies.id', '=', 'clients.company_id')
@@ -143,6 +145,15 @@ class ClientFilters extends QueryFilters
                 'clients.user_id',
                 'clients.id_number'
             );
+
+            /**
+             * If the user does not have permissions to view all invoices
+             * limit the user to only the invoices they have created
+             */
+            if (Gate::denies('view-list', Client::class)) {
+                $query->where('clients.user_id', '=', $user->id);
+            }
+
 
             return $query;
     }

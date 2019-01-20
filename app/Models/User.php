@@ -146,6 +146,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return collect($this->permissions())->flatten();
     }
 
+    /**
+     * Returns true if permissions exist in the map
+     * 
+     * @param  string permission
+     * @return boolean
+     */
     public function hasPermission($permission) : bool
     { 
         return $this->permissionsFlat()->contains($permission);

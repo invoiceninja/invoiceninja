@@ -53,6 +53,7 @@
 
 import Form from '../../utils/form';
 import Client from '../../models/client-model';
+import Vue from 'vue'
 
 export default {
     data: function () {
@@ -79,7 +80,7 @@ export default {
         },
         onSubmit() {
             this.form.put('/clients/' + this.hashed_id)
-                .then(response => this.$root.$refs.toastr.s("Saved client"))
+                .then(response => this.$root.$refs.toastr.s( Vue.prototype.trans('texts.updated_client') ))
                 .catch(error => {
 
                     this.$root.$refs.toastr.e("Error saving client");
