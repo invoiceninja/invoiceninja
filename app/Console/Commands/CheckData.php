@@ -91,7 +91,7 @@ class CheckData extends Command
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
-            $this->checkInvitations();
+            //$this->checkInvitations();
             $this->checkAccountData();
             $this->checkLookupData();
             $this->checkFailedJobs();
