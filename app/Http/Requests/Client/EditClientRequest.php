@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
 
 class EditClientRequest extends Request
 {
@@ -14,7 +15,8 @@ class EditClientRequest extends Request
 
     public function authorize()
     {
-        return true;
+        return $this->user()->can('edit', $this->client);
+        //return true;
        // return ! auth()->user(); //todo permissions
     }
 

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Datatables\ClientDatatable;
+use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\ShowClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Jobs\Client\StoreClient;
@@ -57,13 +59,15 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CreateClientRequest $request)
     {
         $client = new Client;
         $client->name = '';
         $client->company_id = $this->getCurrentCompanyId();
         $client_contact = new ClientContact;
         $client_contact->first_name = "";
+        $client_contact->user_id = auth()->user()->id;
+        $client_contact->company_id = $this->getCurrentCompanyId();
         $client_contact->id = 0;
 
         $client->contacts->add($client_contact);
@@ -106,10 +110,8 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ShowClientRequest $request, Client $client)
     {
-        $client = Client::find(2);
-        $client->load('contacts', 'primary_contact');
 
         return response()->json($client, 200);
     }
