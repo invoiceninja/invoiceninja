@@ -96,10 +96,24 @@ class ClientDatatable extends EntityDatatable
             return $row;
         });
 
+
+        $data->map(function($row){
+
+          $row->name = '<a href="' . route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]) . '">' . $row->name . '</a>';
+          return $row;
+
+        });
+
         return $data;
         
     }
 
+    /**
+     * Returns a collection of helper fields
+     * for the Client List Datatable
+     * 
+     * @return Collection collection
+     */
     public function listActions() : Collection
     {
       return collect([
@@ -116,6 +130,11 @@ class ClientDatatable extends EntityDatatable
       ]);
     }
 
+    /**
+     * Returns the Datatable settings including column visibility
+     *     
+     * @return Collection collection
+     */
     public function buildOptions() : Collection
     {
 
