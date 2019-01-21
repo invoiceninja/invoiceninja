@@ -21,7 +21,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 
 ## Referral Program
-* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 
 ## Mobile Apps
 * Current: [github.com/invoiceninja/flutter-mobile](https://github.com/invoiceninja/flutter-mobile)
