@@ -3,17 +3,15 @@
 	<div class="d-flex justify-content-start">
 
     <div class="p-2">
-
-    		<div class="btn-group">
-          <button type="button" class="btn btn-primary btn-lg" @click="archive" :disabled="getBulkCount() == 0">{{ trans('texts.archive') }} <span v-if="getBulkCount() > 0">({{ getBulkCount() }})</span></button>
-          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" :disabled="getBulkCount() == 0">
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(81px, 38px, 0px);">
+      
+      <div class="btn-group">
+        <button class="btn btn-primary btn-lg dropdown-toggle" type="button" :disabled="getBulkCount() == 0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ trans('texts.action') }} <span v-if="getBulkCount() > 0">({{ getBulkCount() }})</span></button>
+          <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 44px, 0px);">
             <a class="dropdown-item" @click="archive" href="#">{{ trans('texts.archive') }}</a>
+            <a class="dropdown-item" @click="restore" href="#">{{ trans('texts.restore') }}</a>
             <a class="dropdown-item" @click="del" href="#">{{ trans('texts.delete') }}</a>
           </div>
-        </div>	
+      </div>
             
     </div>
 
@@ -81,6 +79,11 @@
         this.$events.fire('bulk-action', 'delete')
 
       },
+      restore() {
+
+        this.$events.fire('bulk-action', 'restore')
+
+      }
       getBulkCount() {
 
         return this.$store.getters['client_list/getBulkCount']

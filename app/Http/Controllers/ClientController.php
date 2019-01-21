@@ -175,7 +175,10 @@ class ClientController extends Controller
         $clients = Client::withTrashed()->find($ids);
 
         $clients->each(function ($client, $key) use($action){
-            ActionEntity::dispatchNow($client, $action);
+
+            if(auth()->user()->can('edit', $client))
+                ActionEntity::dispatchNow($client, $action);
+
         });
             //todo need to return the updated dataset
             return response()->json('success', 200);
