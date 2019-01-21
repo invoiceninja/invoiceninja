@@ -23,7 +23,7 @@ class DefaultTest extends TestCase
 	{
 		$user_settings = DefaultSettings::userSettings();
 		
-		$this->assertEquals($user_settings->Client->datatable->per_page, 20);
+		$this->assertEquals($user_settings->Client->datatable->per_page, 25);
 	}
 
 	public function testIsObject()

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
 
 class StoreClientRequest extends Request
 {
@@ -12,10 +13,9 @@ class StoreClientRequest extends Request
      * @return bool
      */
 
-    public function authorize()
+    public function authorize() : bool
     {
-        return true;
-       // return ! auth()->user(); //todo permissions
+        return $this->user()->can('create', Client::class);
     }
 
     public function rules()

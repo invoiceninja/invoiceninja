@@ -64,42 +64,47 @@ class ClientDatatable extends EntityDatatable
     /**
      * Returns the action dropdown menu 
      * 
-     * @param   $data   Std Class of client datatable rows
+     * @param   $rows   Std Class of client datatable rows
      * @return  object  Rendered action column items
      */
-    private function buildActionColumn($data)
+    private function buildActionColumn($rows)
     {
 
-        $requested_actions = [
-            'view_client_client_id', 
-            'edit_client_client_id', 
-            'create_task_client_id', 
-            'create_invoice_client_id', 
-            'create_payment_client_id', 
-            'create_credit_client_id', 
-            'create_expense_client_id'
-        ];
+      $requested_actions = [
+          'view_client_client_id', 
+          'edit_client_client_id', 
+          'create_task_client_id', 
+          'create_invoice_client_id', 
+          'create_payment_client_id', 
+          'create_credit_client_id', 
+          'create_expense_client_id'
+      ];
 
-        $actions = $this->filterActions($requested_actions, auth()->user()->permissions(), auth()->user()->isAdmin());
+      /*
+       * Build a collection of action
+       */
+      $rows = $this->processActions($requested_actions, $rows, Client::class);
 
-        $data->map(function ($row) use ($actions) {
+      /*
+       * Add a _view_ link directly to the client
+       */
+      $rows->map(function($row){
 
-            $updated_actions = $actions->map(function ($action) use($row){
+        $row->name = '<a href="' . route('clients.show', ['id' => $this->encodePrimaryKey($row->id)]) . '">' . $row->name . '</a>';
+        return $row;
 
-                $action['url'] = route($action['route'], [$action['key'] => $this->encodePrimaryKey($row->id)]);
-                return $action;
+      });
 
-            });
-
-            $row->actions = $updated_actions;
-
-            return $row;
-        });
-
-        return $data;
+      return $rows;
         
     }
 
+    /**
+     * Returns a collection of helper fields
+     * for the Client List Datatable
+     * 
+     * @return Collection collection
+     */
     public function listActions() : Collection
     {
       return collect([
@@ -116,6 +121,11 @@ class ClientDatatable extends EntityDatatable
       ]);
     }
 
+    /**
+     * Returns the Datatable settings including column visibility
+     *     
+     * @return Collection collection
+     */
     public function buildOptions() : Collection
     {
 

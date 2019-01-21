@@ -6502,6 +6502,9 @@ exports.default = {
         del: function () {
             this.$events.fire('bulk-action', 'delete');
         },
+        restore: function () {
+            this.$events.fire('bulk-action', 'restore');
+        },
         getBulkCount: function () {
             return this.$store.getters['client_list/getBulkCount'];
         },
@@ -8006,32 +8009,21 @@ var render = function() {
         _c(
           "button",
           {
-            staticClass: "btn btn-primary btn-lg",
-            attrs: { type: "button", disabled: _vm.getBulkCount() == 0 },
-            on: { click: _vm.archive }
+            staticClass: "btn btn-primary btn-lg dropdown-toggle",
+            attrs: {
+              type: "button",
+              disabled: _vm.getBulkCount() == 0,
+              "data-toggle": "dropdown",
+              "aria-haspopup": "true",
+              "aria-expanded": "false"
+            }
           },
           [
-            _vm._v(_vm._s(_vm.trans("texts.archive")) + " "),
+            _vm._v(_vm._s(_vm.trans("texts.action")) + " "),
             _vm.getBulkCount() > 0
               ? _c("span", [_vm._v("(" + _vm._s(_vm.getBulkCount()) + ")")])
               : _vm._e()
           ]
-        ),
-        _vm._v(" "),
-        _c(
-          "button",
-          {
-            staticClass:
-              "btn btn-primary dropdown-toggle dropdown-toggle-split",
-            attrs: {
-              type: "button",
-              "data-toggle": "dropdown",
-              "aria-haspopup": "true",
-              "aria-expanded": "false",
-              disabled: _vm.getBulkCount() == 0
-            }
-          },
-          [_c("span", { staticClass: "sr-only" }, [_vm._v("Toggle Dropdown")])]
         ),
         _vm._v(" "),
         _c(
@@ -8043,7 +8035,7 @@ var render = function() {
               "will-change": "transform",
               top: "0px",
               left: "0px",
-              transform: "translate3d(81px, 38px, 0px)"
+              transform: "translate3d(0px, 44px, 0px)"
             },
             attrs: { "x-placement": "bottom-start" }
           },
@@ -8056,6 +8048,16 @@ var render = function() {
                 on: { click: _vm.archive }
               },
               [_vm._v(_vm._s(_vm.trans("texts.archive")))]
+            ),
+            _vm._v(" "),
+            _c(
+              "a",
+              {
+                staticClass: "dropdown-item",
+                attrs: { href: "#" },
+                on: { click: _vm.restore }
+              },
+              [_vm._v(_vm._s(_vm.trans("texts.restore")))]
             ),
             _vm._v(" "),
             _c(
