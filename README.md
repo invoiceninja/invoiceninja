@@ -20,12 +20,8 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [User Guide](https://invoice-ninja.readthedocs.io/en/latest/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 
-## Affiliates Programs
-* Referral Program (we pay you)
-	* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-Label Reseller (you pay us)
-	* Hosted: $500 annually and either 10% of revenue or $1/user/month
-	* Self-Hosted: Contact us for volume license pricing
+## Referral Program
+* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 
 ## Mobile Apps
 * Current: [github.com/invoiceninja/flutter-mobile](https://github.com/invoiceninja/flutter-mobile)
