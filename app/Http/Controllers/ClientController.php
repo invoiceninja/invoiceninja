@@ -169,6 +169,7 @@ class ClientController extends Controller
      */
     public function bulk()
     {
+
         $action = request()->input('action');
         $ids = request()->input('ids');
 
@@ -180,8 +181,12 @@ class ClientController extends Controller
                 ActionEntity::dispatchNow($client, $action);
 
         });
-            //todo need to return the updated dataset
-            return response()->json('success', 200);
+
+        //todo need to return the updated dataset
+        return response()->json('success', 200);
+        
     }
+
+
 
 }

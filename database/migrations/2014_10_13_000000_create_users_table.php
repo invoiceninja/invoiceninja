@@ -159,6 +159,8 @@ class CreateUsersTable extends Migration
 
             $table->string('custom_client_label1')->nullable();
             $table->string('custom_client_label2')->nullable();
+            $table->string('custom_client_label3')->nullable();
+            $table->string('custom_client_label4')->nullable();
 
             $table->string('custom_invoice_label1')->nullable();
             $table->string('custom_invoice_label2')->nullable();
@@ -269,6 +271,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('country_id')->nullable();
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
 
             $table->string('shipping_address1')->nullable();
             $table->string('shipping_address2')->nullable();
