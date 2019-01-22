@@ -13,13 +13,8 @@ use Illuminate\Support\Facades\Cache;
  */
 function ctrans(string $string) : string
 {
-
-	$custom_company_translated_string = session('current_company_id') . '-' . $string;
-
-	if (Cache::has($custom_company_translated_string)) 
-    	return Cache::get($custom_company_translated_string);
+	//todo pass through the cached version of the custom strings here else return trans();
 	
-
     return trans($string);
 
 }
