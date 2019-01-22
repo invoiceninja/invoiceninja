@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\CompanyUser;
 use App\Models\Traits\UserTrait;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
@@ -28,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
 
+    protected $with = ['companies', 'user_companies'];
     /**
      * The attributes that are mass assignable.
      *
@@ -69,13 +71,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns the current company
+     * Returns the pivot tables for Company / User
+     * 
+     * @return Collection
+     */
+    public function user_companies()
+    {
+        return $this->hasMany(CompanyUser::class);
+    }
+
+    /**
+     * Returns the current company by
+     * querying directly on the pivot table relationship
      * 
      * @return Collection
      */
     public function company()
     {
-        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
+        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
     }
 
     /**
@@ -86,7 +99,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         
-        $permissions = json_decode($this->company()->pivot->permissions);
+        $permissions = json_decode($this->company()->permissions);
         
         if (! $permissions) 
             return [];
@@ -101,7 +114,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function settings()
     {
-        return json_decode($this->company()->pivot->settings);
+
+        return json_decode($this->company()->settings);
+
     }
 
     /**
@@ -111,7 +126,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isAdmin() : bool
     {
-        return (bool) $this->company()->pivot->is_admin;
+
+        return (bool) $this->company()->is_admin;
+
     }
 
     /**
@@ -121,7 +138,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function contacts()
     {
+
         return $this->hasMany(Contact::class);
+
     }
 
     /**
@@ -132,7 +151,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function owns($entity) : bool
     {
+
         return ! empty($entity->user_id) && $entity->user_id == $this->id;
+
     }
 
     /**
@@ -143,7 +164,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function permissionsFlat() :Collection
     {
+
         return collect($this->permissions())->flatten();
+
     }
 
     /**
@@ -154,7 +177,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasPermission($permission) : bool
     { 
+
         return $this->permissionsFlat()->contains($permission);
+
     }
 
     /**
@@ -162,13 +187,14 @@ class User extends Authenticatable implements MustVerifyEmail
      * 
      * @return array
      */
-    public function permissionsMap()
+    public function permissionsMap() : array
     {
         
         $keys = array_values((array) $this->permissions());
         $values = array_fill(0, count($keys), true);
 
         return array_combine($keys, $values);
+
     }
 
 }

@@ -83,7 +83,7 @@
 
         this.$events.fire('bulk-action', 'restore')
 
-      }
+      },
       getBulkCount() {
 
         return this.$store.getters['client_list/getBulkCount']
