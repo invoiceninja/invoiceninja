@@ -41,7 +41,8 @@ class ClientController extends Controller
 
     public function index()
     {
-
+        //dd(ctrans('texts.country_id'));
+        //dd(auth()->user());
         if(request('page'))
             return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
 
@@ -124,7 +125,6 @@ class ClientController extends Controller
      */
     public function edit(EditClientRequest $request, Client $client)
     {
-
         $data = [
         'client' => $client,
         'settings' => [],

@@ -27,6 +27,8 @@ class Client extends BaseModel
         'q'
     ];
     
+    protected $with = ['contacts', 'primary_contact'];
+
     //protected $dates = ['deleted_at'];
 
     public function getHashedIdAttribute()

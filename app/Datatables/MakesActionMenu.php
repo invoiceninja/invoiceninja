@@ -95,10 +95,10 @@ trait MakesActionMenu
      * @param  bool   $isAdmin    Boolean isAdmin
      * @return Collection collection of filtered actions available to the user
      */
-    public function filterActions(array $actions, array $permissions, bool $isAdmin) :Collection
+    public function filterActions(array $actions, array $permissions, bool $is_admin) :Collection
     {
 
-    	return $this->checkPermissions($this->actions()->whereIn('action', $actions), $permissions, $isAdmin);
+    	return $this->checkPermissions($this->actions()->whereIn('action', $actions), $permissions, $is_admin);
 
     }
 
