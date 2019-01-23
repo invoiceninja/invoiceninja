@@ -13,6 +13,7 @@ use App\Jobs\Client\UpdateClient;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Country;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
@@ -75,7 +76,8 @@ class ClientController extends Controller
 
         $data = [
             'client' => $client,
-            'hashed_id' => ''
+            'hashed_id' => '',
+            'countries' => Country::all()
         ];
 
         return view('client.create', $data);
@@ -129,7 +131,8 @@ class ClientController extends Controller
         'client' => $client,
         'settings' => [],
         'pills' => $this->makeEntityTabMenu(Client::class),
-        'hashed_id' => $this->encodePrimarykey($client->id)
+        'hashed_id' => $this->encodePrimarykey($client->id),
+        'countries' => Country::all()
         ];
 
         return view('client.edit', $data);
@@ -145,7 +148,7 @@ class ClientController extends Controller
     public function update(UpdateClientRequest $request, Client $client)
     {
         $client = UpdateClient::dispatchNow($request, $client);
-        $client->load('contacts', 'primary_contact');
+        //$client->load('contacts', 'primary_contact');
 
         return response()->json($client, 200);
 

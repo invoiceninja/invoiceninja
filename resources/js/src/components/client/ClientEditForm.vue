@@ -11,7 +11,7 @@
 
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
-                            <client-address v-bind:client="form" @copy="copy"></client-address>
+                            <client-address v-bind:client="form" @copy="copy" :countries="countries"></client-address>
                     </div>
                 </div>
                 <!-- End Client Details and Address Column -->
@@ -61,7 +61,7 @@ export default {
             form: new Form(<Client>this.clientdata)
         }
     },
-    props: ['hashed_id', 'clientdata'],
+    props: ['hashed_id', 'clientdata', 'countries'],
     beforeMount: function () {
     },
     methods:{
