@@ -32,7 +32,7 @@ class VerifyUser extends Mailable implements ShouldQueue
     {
 
         return $this->from('turbo124@gmail.com') //todo
-            ->subject(trans('texts.confirmation_subject'))
+            ->subject(ctrans('texts.confirmation_subject'))
             ->markdown('email.auth.verify', ['user' => $this->user])
             ->text('email.auth.verify_text');
     }

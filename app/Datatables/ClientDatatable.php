@@ -109,14 +109,14 @@ class ClientDatatable extends EntityDatatable
     {
       return collect([
         'multi_select' => [
-            ['name' => trans('texts.active'), 'value' => 'active'],
-            ['name' => trans('texts.archived'), 'value' => 'archived'],
-            ['name' => trans('texts.deleted'), 'value' => 'deleted']
+            ['name' => ctrans('texts.active'), 'value' => 'active'],
+            ['name' => ctrans('texts.archived'), 'value' => 'archived'],
+            ['name' => ctrans('texts.deleted'), 'value' => 'deleted']
           ],
         'create_entity' => [
           'create_permission' => auth()->user()->can('create', Client::class),
           'url' => route('clients.create'),
-          'name' => trans('texts.new_client')
+          'name' => ctrans('texts.new_client')
         ]
       ]);
     }
@@ -150,42 +150,42 @@ class ClientDatatable extends EntityDatatable
                 ],
                 [
                   'name' => 'name',
-                  'title' => trans('texts.name'),
+                  'title' => ctrans('texts.name'),
                   'sortField' => 'name',
                   'visible' => $visible->name,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'contact',
-                  'title' => trans('texts.contact'),
+                  'title' => ctrans('texts.contact'),
                   'sortField' => 'contact',
                   'visible' => $visible->contact,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'email',
-                  'title' => trans('texts.email'),
+                  'title' => ctrans('texts.email'),
                   'sortField' => 'email',
                   'visible' => $visible->email,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'client_created_at',
-                  'title' => trans('texts.date_created'),
+                  'title' => ctrans('texts.date_created'),
                   'sortField' => 'client_created_at',
                   'visible' => $visible->client_created_at,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'last_login',
-                  'title' => trans('texts.last_login'),
+                  'title' => ctrans('texts.last_login'),
                   'sortField' => 'last_login',
                   'visible' => $visible->last_login,
                   'dataClass' => 'center aligned'
                 ],
                 [
                   'name' => 'balance',
-                  'title' => trans('texts.balance'),
+                  'title' => ctrans('texts.balance'),
                   'sortField' => 'balance',
                   'visible' => $visible->balance,
                   'dataClass' => 'center aligned'             

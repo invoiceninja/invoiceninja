@@ -39,10 +39,10 @@ class UpdateClientRequest extends Request
     public function messages()
     {
         return [
-            'unique' => trans('validation.unique', ['attribute' => 'email']),
-            'email' => trans('validation.email', ['attribute' => 'email']),
-            'name.required' =>trans('validation.required', ['attribute' => 'name']),
-            'required' => trans('validation.required', ['attribute' => 'email']),
+            'unique' => ctrans('validation.unique', ['attribute' => 'email']),
+            'email' => ctrans('validation.email', ['attribute' => 'email']),
+            'name.required' => ctrans('validation.required', ['attribute' => 'name']),
+            'required' => ctrans('validation.required', ['attribute' => 'email']),
         ];
     }
 

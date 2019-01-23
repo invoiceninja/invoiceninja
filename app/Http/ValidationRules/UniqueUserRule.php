@@ -16,7 +16,7 @@ class UniqueUserRule implements Rule
 
     public function message()
     {
-        return trans('texts.email_already_register');
+        return ctrans('texts.email_already_register');
     }
 
     private function checkIfEmailExists($email) : bool
