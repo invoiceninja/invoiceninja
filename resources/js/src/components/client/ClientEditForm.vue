@@ -29,6 +29,7 @@
                                             :form="form"
                                             :key="contact.id"
                                             :error_index="key"
+                                            :company="company"
                                             @remove="remove"></contact-edit>
                     </div>    
                 </div>     
@@ -61,7 +62,7 @@ export default {
             form: new Form(<Client>this.clientdata)
         }
     },
-    props: ['hashed_id', 'clientdata', 'countries'],
+    props: ['hashed_id', 'clientdata', 'countries', 'company'],
     beforeMount: function () {
     },
     methods:{

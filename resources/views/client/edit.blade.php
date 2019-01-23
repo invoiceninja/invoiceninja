@@ -34,7 +34,7 @@
 
             <div class="tab-pane fade active show" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" style="background-color: #e4e5e6; padding: 0px;">
 
-                <client-edit-form :clientdata="{{ $client }}" :hashed_id="'{{ $hashed_id }}'" :countries="{{ $countries }}"></client-edit-form>
+                <client-edit-form  :company="{{ $company }}" :clientdata="{{ $client }}" :hashed_id="'{{ $hashed_id }}'" :countries="{{ $countries }}"></client-edit-form>
 
             </div>
 

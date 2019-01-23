@@ -2,7 +2,22 @@
 
 namespace App\Models;
 
+use App\Models\Account;
+use App\Models\AccountGateway;
+use App\Models\Client;
+use App\Models\Country;
+use App\Models\Currency;
+use App\Models\Expense;
+use App\Models\Industry;
+use App\Models\Invoice;
+use App\Models\Language;
+use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Models\Product;
+use App\Models\TaxRate;
+use App\Models\Timezone;
 use App\Models\Traits\AccountTrait;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Laracasts\Presenter\PresentableTrait;

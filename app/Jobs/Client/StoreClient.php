@@ -4,6 +4,7 @@ namespace App\Jobs\Client;
 
 
 use App\Models\Client;
+use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
@@ -34,8 +35,10 @@ class StoreClient
      *
      * @return void
      */
-    public function handle(ClientRepository $clientRepo) : ?Client
+    public function handle(ClientRepository $clientRepo, ClientContactRepository $clientContactRepo) : ?Client
     {
-        return $clientRepo->save($this->request, $this->client);
+        $client =  $clientRepo->save($this->request, $this->client);
+
+        $contacts = $clientContactRepo->save($this->request->input('contacts'), $client);
     }
 }

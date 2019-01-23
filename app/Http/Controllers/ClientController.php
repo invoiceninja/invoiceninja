@@ -42,8 +42,7 @@ class ClientController extends Controller
 
     public function index()
     {
-        //dd(ctrans('texts.country_id'));
-        //dd(auth()->user());
+;
         if(request('page'))
             return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
 
@@ -101,8 +100,9 @@ class ClientController extends Controller
         'client' => $client,
         'hashed_id' => $this->encodePrimarykey($client->id)
         ];
-*/
+
         Log::error(print_r($client,1));
+*/
         return response()->json($client, 200);
 
     }
@@ -132,7 +132,8 @@ class ClientController extends Controller
         'settings' => [],
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
-        'countries' => Country::all()
+        'countries' => Country::all(),
+        'company' => $client->company
         ];
 
         return view('client.edit', $data);
