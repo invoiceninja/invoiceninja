@@ -37,7 +37,8 @@ class ClientContactRepository extends BaseRepository
 				['id' => $contact['id']],
 				[
 					'client_id' => $client->id, 
-					'company_id' => $client->company_id
+					'company_id' => $client->company_id,
+					'user_id' => auth()->user()->id
 				]
 			);
 

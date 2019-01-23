@@ -344,7 +344,6 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
-            $table->string('db', 100);
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

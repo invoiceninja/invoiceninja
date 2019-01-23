@@ -150,7 +150,7 @@ class ClientController extends Controller
         $client = UpdateClient::dispatchNow($request, $client);
         //$client->load('contacts', 'primary_contact');
 
-        return response()->json($client, 200);
+        return response()->json($client->fresh(), 200);
 
     }
 

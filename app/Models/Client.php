@@ -38,7 +38,7 @@ class Client extends BaseModel
 
     public function contacts()
     {
-        return $this->hasMany(ClientContact::class);
+        return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');
     }
 
     public function primary_contact()
