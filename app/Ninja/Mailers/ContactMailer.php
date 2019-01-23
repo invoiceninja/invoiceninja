@@ -408,7 +408,7 @@ class ContactMailer extends Mailer
         if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');
             if ($errorEmail && ! Cache::get("throttle_notified:{$key}")) {
-                Mail::raw('Account Throttle', function ($message) use ($errorEmail, $account) {
+                Mail::raw('Account Throttle: ' . $account->account_key, function ($message) use ($errorEmail, $account) {
                     $message->to($errorEmail)
                             ->from(CONTACT_EMAIL)
                             ->subject("Email throttle triggered for account " . $account->id);
