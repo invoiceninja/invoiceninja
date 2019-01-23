@@ -162,19 +162,35 @@ class CreateUsersTable extends Migration
             $table->string('custom_client_label3')->nullable();
             $table->string('custom_client_label4')->nullable();
 
+            $table->string('custom_client_contact_label1')->nullable();
+            $table->string('custom_client_contact_label2')->nullable();
+            $table->string('custom_client_contact_label3')->nullable();
+            $table->string('custom_client_contact_label4')->nullable();
+
             $table->string('custom_invoice_label1')->nullable();
             $table->string('custom_invoice_label2')->nullable();
+            $table->string('custom_invoice_label3')->nullable();
+            $table->string('custom_invoice_label4')->nullable();
 
             $table->string('custom_product_label1')->nullable();
             $table->string('custom_product_label2')->nullable();
+            $table->string('custom_product_label3')->nullable();
+            $table->string('custom_product_label4')->nullable();
 
             $table->string('custom_task_label1')->nullable();
             $table->string('custom_task_label2')->nullable();
+            $table->string('custom_task_label3')->nullable();
+            $table->string('custom_task_label4')->nullable();
 
             $table->string('custom_expense_label1')->nullable();
             $table->string('custom_expense_label2')->nullable();    
+            $table->string('custom_expense_label3')->nullable();    
+            $table->string('custom_expense_label4')->nullable();  
+
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
+            
+            $table->text('translations')->nullable();
 
             $table->unsignedInteger('language_id')->default(1);
 
@@ -330,6 +346,8 @@ class CreateUsersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
             $table->string('email',100);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();

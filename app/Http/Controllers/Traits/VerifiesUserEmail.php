@@ -24,11 +24,11 @@ trait VerifiesUserEmail
 
             Auth::loginUsingId($user->id, true);
 
-            return redirect()->route('dashboard.index')->with('message', trans('texts.security_confirmation'));
+            return redirect()->route('dashboard.index')->with('message', ctrans('texts.security_confirmation'));
 
         }
 
-        return redirect()->route('login')->with('message', trans('texts.wrong_confirmation'));
+        return redirect()->route('login')->with('message', ctrans('texts.wrong_confirmation'));
 
     }
 }

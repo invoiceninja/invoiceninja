@@ -13,7 +13,7 @@
         <div class="col" style="padding: 0px;">
             <ul class="nav nav-pills mb-1" id="pills-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active show" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true"><i class="icon-user"></i> {{ trans('texts.client') }}</a>
+                    <a class="nav-link active show" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true"><i class="icon-user"></i> {{ ctrans('texts.client') }}</a>
                 </li>
 
                 @foreach($pills as $pill)
@@ -25,7 +25,7 @@
                 @endforeach
 
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false"><i class="icon-settings"></i> {{ trans('texts.settings') }}</a>
+                    <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab" aria-controls="pills-settings" aria-selected="false"><i class="icon-settings"></i> {{ ctrans('texts.settings') }}</a>
                 </li>
 
             </ul>
