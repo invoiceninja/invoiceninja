@@ -29,6 +29,10 @@ class DefaultSettings
 	    			'client_created_at' => true,
 	    			'last_login' => true,
 	    			'balance' => true,
+	    			'custom_value1' => false,
+	    			'custom_value2' => true,
+	    			'custom_value3' => false,
+	    			'custom_value4' => false,
 				]
 			]
 		];
