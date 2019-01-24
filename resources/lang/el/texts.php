@@ -2450,6 +2450,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'currency_cfp_franc' => 'CFP Franc',
     'currency_mauritian_rupee' => 'Ρουπία Μαυρίκιου',
     'currency_cape_verdean_escudo' => 'Εσκούδο Πράσινου Ακρωτηρίου',
+    'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
 
     'review_app_help' => 'Ελπίζουμε να απολαμβάνετε τη χρήση της εφαρμογής.<br/> Εάν θα θέλατε να γράψετε μια κριτική :link θα το εκτιμούσαμε ιδιαίτερα!',
     'writing_a_review' => 'συγγραφή κριτικής',

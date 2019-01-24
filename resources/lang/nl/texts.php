@@ -2442,6 +2442,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'currency_cfp_franc' => 'CFP Franc',
     'currency_mauritian_rupee' => 'Mauritian Rupee',
     'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
+    'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
 
     'review_app_help' => 'We hopen dat je het leuk vindt om de app te gebruiken.<br/> Als je zou overwegen :link, zouden we dat zeer op prijs stellen!',
     'writing_a_review' => 'een recensie schrijven',
