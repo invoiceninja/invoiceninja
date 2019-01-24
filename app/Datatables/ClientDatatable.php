@@ -110,7 +110,7 @@ class ClientDatatable extends EntityDatatable
     {
 
       $visible = auth()->user()->getColumnVisibility(Client::class);
-      $company = auth()->user()->company;
+      $company = auth()->user()->company();
 
         return collect([
             'per_page' => 25,
@@ -173,28 +173,28 @@ class ClientDatatable extends EntityDatatable
                 ],
                 [
                   'name' => 'custom_value1',
-                  'title' => $company->custom_client_label1,
+                  'title' => $company->custom_client_label1 ?: '',
                   'sortField' => 'custom_value1',
                   'visible' => $visible->custom_value1,
                   'dataClass' => 'center aligned'             
                 ],
                 [
                   'name' => 'custom_value2',
-                  'title' => $company->custom_client_label2,
+                  'title' => $company->custom_client_label2 ?: '',
                   'sortField' => 'custom_value2',
                   'visible' => $visible->custom_value2,
                   'dataClass' => 'center aligned'             
                 ],
                                 [
                   'name' => 'custom_value3',
-                  'title' => $company->custom_client_label3,
+                  'title' => $company->custom_client_label3 ?: '',
                   'sortField' => 'custom_value3',
                   'visible' => $visible->custom_value3,
                   'dataClass' => 'center aligned'             
                 ],
                                 [
                   'name' => 'custom_value4',
-                  'title' => $company->custom_client_label4,
+                  'title' => $company->custom_client_label4 ?: '',
                   'sortField' => 'custom_value4',
                   'visible' => $visible->custom_value4,
                   'dataClass' => 'center aligned'             

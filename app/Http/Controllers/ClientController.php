@@ -133,7 +133,7 @@ class ClientController extends Controller
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
         'countries' => Country::all(),
-        'company' => $client->company
+        'company' => auth()->user()->company()
         ];
 
         return view('client.edit', $data);

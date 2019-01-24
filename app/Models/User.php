@@ -77,7 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function company()
     {
-        return $this->companies->where('company_id', $this->getCurrentCompanyId())->first();
+        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
     }
 
     /**
@@ -99,7 +99,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function user_company()
     {
 
-        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
+        return $this->user_companies()->where('company_id', $this->getCurrentCompanyId())->first();
 
     }
 
