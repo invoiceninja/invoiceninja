@@ -6,12 +6,12 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
-                            <client-edit :client="form"></client-edit>
+                            <client-edit :client="form" :company="company"></client-edit>
                     </div>
 
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.address') }}</div>
-                            <client-address v-bind:client="form" @copy="copy"></client-address>
+                            <client-address v-bind:client="form" @copy="copy" :countries="countries"></client-address>
                     </div>
                 </div>
                 <!-- End Client Details and Address Column -->
@@ -29,6 +29,7 @@
                                             :form="form"
                                             :key="contact.id"
                                             :error_index="key"
+                                            :company="company"
                                             @remove="remove"></contact-edit>
                     </div>    
                 </div>     
@@ -61,7 +62,7 @@ export default {
             form: new Form(<Client>this.clientdata)
         }
     },
-    props: ['hashed_id', 'clientdata'],
+    props: ['hashed_id', 'clientdata', 'countries', 'company'],
     beforeMount: function () {
     },
     methods:{

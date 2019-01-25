@@ -11,6 +11,11 @@ Breadcrumbs::for('clients', function ($trail) {
     $trail->push(trans('texts.clients'), route('clients.index'));
 });
 
+Breadcrumbs::for('clients.show', function($trail, $client) {
+    $trail->parent('clients');
+    $trail->push($client->name, route('clients.show', $client));
+});
+
 Breadcrumbs::for('clients.edit', function($trail, $client) {
     $trail->parent('clients');
     $trail->push($client->name, route('clients.edit', $client));

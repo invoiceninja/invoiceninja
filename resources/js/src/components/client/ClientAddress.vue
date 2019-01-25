@@ -55,8 +55,8 @@
 				    <div class="form-group row">
 				        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.country') }}</label>
 				        <div class="col-sm-9">
-				            <input type="text" :placeholder="trans('texts.country')" v-model="client.country" class="form-control">
-                 			<div v-if="client.errors.has('country')" class="text-danger" v-text="client.errors.get('country')"></div>
+			            	<multiselect v-model="billingCountry" :options="options" :placeholder="trans('texts.country')" label="name" track-by="id" @input="onChangeBilling"></multiselect>
+                 			<div v-if="client.errors.has('country_id')" class="text-danger" v-text="client.errors.get('country_id')"></div>
 				        </div>
 				    </div>
 				</div>	
@@ -106,8 +106,8 @@
 				    <div class="form-group row">
 				        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.country') }}</label>
 				        <div class="col-sm-9">
-				            <input type="text" :placeholder="trans('texts.country')" v-model="client.shipping_country" class="form-control">
-                 			<div v-if="client.errors.has('shipping_country')" class="text-danger" v-text="client.errors.get('shipping_country')"></div>
+			            	<multiselect v-model="shippingCountry" :options="options" :placeholder="trans('texts.country')" label="name" track-by="id" @input="onChangeShipping"></multiselect>
+             				<div v-if="client.errors.has('shipping_country_id')" class="text-danger" v-text="client.errors.get('shipping_country_id')"></div>
 				        </div>
 				    </div>
 				</div>	
@@ -117,7 +117,60 @@
 </template>
 
 <script>
-export default {
-        props: ['client']
-    }
+
+	import Multiselect from 'vue-multiselect'
+
+	export default {
+		components: {
+		    Multiselect
+		  },
+        props: ['client', 'countries'],
+        data () {
+		    return {
+		      options: this.countries
+		    }
+		  },
+		computed: {
+	        shippingCountry: {
+	            set: function() {
+	            
+	                return this.client.shipping_country_id
+	            
+	            },
+	            get: function(value) {
+
+	            	return this.countries.filter(obj => {
+					  return obj.id === this.client.shipping_country_id
+					})
+
+	            }
+	        },
+	        billingCountry: {
+	            set: function() {
+	            
+	                return this.client.country_id
+	            
+	            },
+	            get: function(value) {
+
+	            	return this.countries.filter(obj => {
+					  return obj.id === this.client.country_id
+					})
+
+	            }
+	        }
+
+	    },
+	  	methods: {
+	  		onChangeShipping(value) {
+	  			this.client.shipping_country_id = value.id
+	  		},
+	  		onChangeBilling(value) {
+	  			this.client.country_id = value.id
+	  		}
+	  	}
+	}
+
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>

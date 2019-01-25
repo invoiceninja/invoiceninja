@@ -56,7 +56,11 @@ class ClientFilters extends QueryFilters
                           ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
                           ->orWhere('client_contacts.first_name', 'like', '%'.$filter.'%')
                           ->orWhere('client_contacts.last_name', 'like', '%'.$filter.'%')
-                          ->orWhere('client_contacts.email', 'like', '%'.$filter.'%');
+                          ->orWhere('client_contacts.email', 'like', '%'.$filter.'%')
+                          ->orWhere('clients.custom_value1', 'like' , '%'.$filter.'%')
+                          ->orWhere('clients.custom_value2', 'like' , '%'.$filter.'%')
+                          ->orWhere('clients.custom_value3', 'like' , '%'.$filter.'%')
+                          ->orWhere('clients.custom_value4', 'like' , '%'.$filter.'%');
                 });
     }
 
@@ -134,6 +138,10 @@ class ClientFilters extends QueryFilters
                 'clients.private_notes',
                 'client_contacts.first_name',
                 'client_contacts.last_name',
+                'clients.custom_value1',
+                'clients.custom_value2',
+                'clients.custom_value3',
+                'clients.custom_value4',
                 'clients.balance',
                 'clients.last_login',
                 'clients.created_at',
@@ -146,16 +154,16 @@ class ClientFilters extends QueryFilters
                 'clients.id_number'
             );
 
-            /**
-             * If the user does not have permissions to view all invoices
-             * limit the user to only the invoices they have created
-             */
-            if (Gate::denies('view-list', Client::class)) {
-                $query->where('clients.user_id', '=', $user->id);
-            }
+        /**
+         * If the user does not have permissions to view all invoices
+         * limit the user to only the invoices they have created
+         */
+        if (Gate::denies('view-list', Client::class)) {
+            $query->where('clients.user_id', '=', $user->id);
+        }
 
 
-            return $query;
+        return $query;
     }
 
 }

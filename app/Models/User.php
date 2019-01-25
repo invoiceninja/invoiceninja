@@ -29,7 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
 
-    protected $with = ['companies', 'user_companies'];
+    protected $with = ['companies'];
     /**
      * The attributes that are mass assignable.
      *
@@ -71,6 +71,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Returns the current Company
+     * 
+     * @return Collection
+     */
+    public function company()
+    {
+        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
+    }
+
+    /**
      * Returns the pivot tables for Company / User
      * 
      * @return Collection
@@ -86,9 +96,23 @@ class User extends Authenticatable implements MustVerifyEmail
      * 
      * @return Collection
      */
-    public function company()
+    public function user_company()
     {
-        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
+
+        return $this->user_companies()->where('company_id', $this->getCurrentCompanyId())->first();
+
+    }
+
+    /**
+     * Returns the currently set company id for the user
+     * 
+     * @return int
+     */
+    public function companyId() :int
+    {
+
+        return $this->getCurrentCompanyId();
+        
     }
 
     /**
@@ -99,7 +123,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         
-        $permissions = json_decode($this->company()->permissions);
+        $permissions = json_decode($this->user_company()->permissions);
         
         if (! $permissions) 
             return [];
@@ -115,7 +139,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function settings()
     {
 
-        return json_decode($this->company()->settings);
+        return json_decode($this->user_company()->settings);
 
     }
 
@@ -127,7 +151,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin() : bool
     {
 
-        return (bool) $this->company()->is_admin;
+        return (bool) $this->user_company()->is_admin;
 
     }
 

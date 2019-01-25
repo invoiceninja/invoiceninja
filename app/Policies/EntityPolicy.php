@@ -39,8 +39,8 @@ class EntityPolicy
 	public function edit(User $user, $entity) : bool
 	{
     
-			return ($user->isAdmin() && $entity->company_id == $user->company()->company_id) 
-			|| ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->company_id == $user->company()->company_id)
+			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
+			|| ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId())
 			|| $user->owns($entity);
     
 	}
@@ -57,8 +57,8 @@ class EntityPolicy
 	public function view(User $user, $entity) : bool
 	{
 
-			return ($user->isAdmin() && $entity->company_id == $user->company()->company_id) 
-			|| ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->company_id == $user->company()->company_id) 
+			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
+			|| ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId()) 
 			|| $user->owns($entity);
 	}
 

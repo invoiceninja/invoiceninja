@@ -7,7 +7,7 @@ class CompanyPresenter extends EntityPresenter
 
     public function name()
     {
-        return $this->entity->name ?: trans('texts.untitled_account');
+        return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
 }

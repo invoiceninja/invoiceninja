@@ -28,8 +28,6 @@ class ClientRepository extends BaseRepository
         $client->fill($request->input());
         $client->save();
 
-        $this->clientContactRepo->save($request->input('contacts'), $client);
-
         return $client;
 	}
 

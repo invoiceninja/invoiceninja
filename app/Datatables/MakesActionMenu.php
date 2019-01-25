@@ -17,13 +17,13 @@ trait MakesActionMenu
 	{
 
     return collect([
-		['action' => 'view_client_client_id', 'permission' => 'view_client', 'route' => 'clients.show', 'key' => 'client_id', 'name' => trans('texts.view')],
-        ['action' => 'edit_client_client_id', 'permission' => 'edit_client', 'route' => 'clients.edit', 'key' => 'client_id', 'name' => trans('texts.edit')],
-        ['action' => 'create_task_client_id', 'permission' => 'create_task', 'route' => 'tasks.create', 'key' => 'client_id', 'name' => trans('texts.new_task')],
-        ['action' => 'create_invoice_client_id', 'permission' => 'create_invoice', 'route' => 'invoices.create', 'key' => 'client_id', 'name' => trans('texts.new_invoice')],
-        ['action' => 'enter_payment_client_id', 'permission' => 'create_payment', 'route' => 'payments.create', 'key' => 'client_id', 'name' => trans('texts.enter_payment')], 
-        ['action' => 'enter_credit_client_id', 'permission' => 'create_credit', 'route' => 'credits.create', 'key' => 'client_id', 'name' => trans('texts.enter_credit')],
-        ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expenses.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')]
+		['action' => 'view_client_client_id', 'permission' => 'view_client', 'route' => 'clients.show', 'key' => 'client_id', 'name' => ctrans('texts.view')],
+        ['action' => 'edit_client_client_id', 'permission' => 'edit_client', 'route' => 'clients.edit', 'key' => 'client_id', 'name' => ctrans('texts.edit')],
+        ['action' => 'create_task_client_id', 'permission' => 'create_task', 'route' => 'tasks.create', 'key' => 'client_id', 'name' => ctrans('texts.new_task')],
+        ['action' => 'create_invoice_client_id', 'permission' => 'create_invoice', 'route' => 'invoices.create', 'key' => 'client_id', 'name' => ctrans('texts.new_invoice')],
+        ['action' => 'enter_payment_client_id', 'permission' => 'create_payment', 'route' => 'payments.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_payment')], 
+        ['action' => 'enter_credit_client_id', 'permission' => 'create_credit', 'route' => 'credits.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_credit')],
+        ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expenses.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_expense')]
     ]);
 
 	}
