@@ -36,7 +36,7 @@ class OAuth
             'oauth_provider_id'=>$provider
         ];
 
-        if($user = MultiDB::hasUser($query)
+        if($user = MultiDB::hasUser($query))
         {
             return $user;
         }
