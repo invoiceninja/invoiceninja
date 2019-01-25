@@ -10,10 +10,10 @@
 
     <div class="container-fluid">
 
-        <div class="col" style="padding: 0px;">
-        </div>  
 
-        
+            <client-show :client="{{ $client }}" :company="{{ $company }}"></client-show>
+
+
 
     </div>
 

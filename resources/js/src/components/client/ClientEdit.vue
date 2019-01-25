@@ -32,25 +32,41 @@
         </div>
     </div>
 
-    <div class="form-group row" v-if="client.custom_value1">
-        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.custom_value1') }}</label>
+    <div class="form-group row" v-if="company.custom_client_label1.length >= 1">
+        <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label1 }}</label>
         <div class="col-sm-9">
             <input type="text" name="custom_value1" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value1" class="form-control" id="custom_value1">
             <div v-if="client.errors.has('custom_value1')" class="text-danger" v-text="client.errors.get('custom_value1')"></div>
         </div>
     </div>
 
-    <div class="form-group row">
-        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.custom_value2') }}</label>
+    <div class="form-group row" v-if="company.custom_client_label2.length >= 1">
+        <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label2 }}</label>
         <div class="col-sm-9">
-            <input type="text" name="custom_value2" :placeholder="trans('texts.custom_value2')" v-model="client.custom_value2" class="form-control" id="custom_value2">
+            <input type="text" name="custom_value2" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value2" class="form-control" id="custom_value2">
             <div v-if="client.errors.has('custom_value2')" class="text-danger" v-text="client.errors.get('custom_value2')"></div>
+        </div>
+    </div>
+
+    <div class="form-group row" v-if="company.custom_client_label3.length >= 1">
+        <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label3 }}</label>
+        <div class="col-sm-9">
+            <input type="text" name="custom_value3" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value3" class="form-control" id="custom_value3">
+            <div v-if="client.errors.has('custom_value3')" class="text-danger" v-text="client.errors.get('custom_value2')"></div>
+        </div>
+    </div>
+
+    <div class="form-group row" v-if="company.custom_client_label4.length >= 1">
+        <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label2 }}</label>
+        <div class="col-sm-9">
+            <input type="text" name="custom_value4" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value4" class="form-control" id="custom_value4">
+            <div v-if="client.errors.has('custom_value4')" class="text-danger" v-text="client.errors.get('custom_value4')"></div>
         </div>
     </div>
 </div>
 </template>
 <script>
     export default {
-        props: ['client','errors']
+        props: ['client','errors', 'company']
     }
 </script>	

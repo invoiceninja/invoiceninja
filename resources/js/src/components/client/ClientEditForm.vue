@@ -6,7 +6,7 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
-                            <client-edit :client="form"></client-edit>
+                            <client-edit :client="form" :company="company"></client-edit>
                     </div>
 
                     <div class="card">

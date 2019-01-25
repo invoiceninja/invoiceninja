@@ -117,7 +117,8 @@ class ClientController extends Controller
     {
 
        $data = [
-            'client' => $client
+            'client' => $client,
+            'company' => auth()->user()->company()
         ];
 
         return view('client.show', $data);
