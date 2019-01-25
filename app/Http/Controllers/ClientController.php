@@ -116,7 +116,12 @@ class ClientController extends Controller
     public function show(ShowClientRequest $request, Client $client)
     {
 
-        return response()->json($client, 200);
+       $data = [
+            'client' => $client
+        ];
+
+        return view('client.show', $data);
+
     }
 
     /**

@@ -27,6 +27,7 @@ mix.webpackConfig({
         }
     });
 
+mix.js('resources/js/src/client/client_show.ts', 'public/js');
 mix.js('resources/js/src/client/client_edit.ts', 'public/js');
 mix.js('resources/js/src/client/client_create.ts', 'public/js');
 mix.js('resources/js/src/client/client_list.ts', 'public/js');
@@ -39,6 +40,7 @@ mix.scripts([
 
 mix.minify('public/js/ninja.js');
 mix.minify('public/js/coreui.js');
+mix.minify('public/js/client_show.js');
 mix.minify('public/js/client_edit.js');
 mix.minify('public/js/client_create.js');
 mix.minify('public/js/client_list.js');
