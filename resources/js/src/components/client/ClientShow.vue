@@ -52,11 +52,27 @@
 						<p v-if="client.custom_value2 && client.custom_value2.length >= 1"><b>{{ company.custom_client_label2 }}:</b> {{ client.custom_value2 }}</p>
 						<p v-if="client.custom_value3 && client.custom_value3.length >= 1"><b>{{ company.custom_client_label3 }}:</b> {{ client.custom_value3 }}</p>
 						<p v-if="client.custom_value4 && client.custom_value4.length >= 1"><b>{{ company.custom_client_label4 }}:</b> {{ client.custom_value4 }}</p>
-
 					</div>
 
 					<div class="col-sm">
-						<h3> {{ trans('texts.address') }} </h3>
+						<ul>
+							<li><h3> {{ trans('texts.address') }} </h3></li>
+							<li><b> {{ trans('texts.billing_address') }}</b></li>
+							<li v-if="client.address1 && client.address1.length >=1">{{ client.address1 }} <br></li>
+							<li v-if="client.address2 && client.address2.length >=1">{{ client.address2 }} <br></li>
+							<li v-if="client.city && client.city.length >=1">{{ client.city }} <br></li>
+							<li v-if="client.state && client.state.length >=1" >{{ client.state}} {{client.postal_code}}<br></li>
+							<li v-if="client.country && client.country.name.length >=1">{{ client.country.name }}<br></li>
+						</ul>
+
+						<ul v-if="client.shipping_address1 && client.shipping_address1.length >=1">
+							<li><b> {{ trans('texts.shipping_address') }}</b></li>
+							<li v-if="client.shipping_address1 && client.shipping_address1.length >=1">{{ client.shipping_address1 }} <br></li>
+							<li v-if="client.shipping_address2 && client.shipping_address2.length >=1">{{ client.shipping_address2 }} <br></li>
+							<li v-if="client.shipping_city && client.shipping_city.length >=1">{{ client.shipping_city }} <br></li>
+							<li v-if="client.shipping_state && client.shipping_state.length >=1" >{{ client.shipping_state}} {{client.shipping_postal_code}}<br></li>
+							<li v-if="client.shipping_country && client.shipping_country.name.length >=1">{{ client.shipping_country.name }}<br></li>
+						</ul>
 					</div>
 
 					<div class="col-sm">
@@ -89,4 +105,6 @@ export default {
 
 <style>
 .card { margin-top:50px; }
+
+li { list-style: none }
 </style>

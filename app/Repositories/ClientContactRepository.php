@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Client;
 use App\Models\ClientContact;
-use Illuminate\Support\Facades\Log;
 
 /**
  * 

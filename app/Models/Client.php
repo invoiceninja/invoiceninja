@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Company;
+use App\Models\Country;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,10 +27,13 @@ class Client extends BaseModel
         'contacts',
         'primary_contact',
         'q',
-        'company'
+        'company',
+        'country',
+        'shipping_country'
     ];
+
     
-    protected $with = ['contacts', 'primary_contact'];
+    protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country'];
 
     //protected $dates = ['deleted_at'];
 
@@ -51,6 +55,16 @@ class Client extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    public function shipping_country()
+    {
+        return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }
 
 }

@@ -5,18 +5,13 @@ namespace App\Repositories;
 use App\Models\Client;
 use App\Repositories\ClientContactRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 
  */
 class ClientRepository extends BaseRepository
 {
-	protected $clientContactRepo;
-	
-    public function __construct(ClientContactRepository $clientContactRepo)
-    {
-        $this->clientContactRepo = $clientContactRepo;
-    }
 
     public function getClassName()
     {
@@ -28,7 +23,7 @@ class ClientRepository extends BaseRepository
         $client->fill($request->input());
         $client->save();
 
-        return $client;
+        return $client->fresh();
 	}
 
 }

@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <div class="form-group row" v-if="company.custom_client_label1.length >= 1">
+    <div class="form-group row" v-if="company.custom_client_label1 && company.custom_client_label1.length >= 1">
         <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label1 }}</label>
         <div class="col-sm-9">
             <input type="text" name="custom_value1" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value1" class="form-control" id="custom_value1">
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <div class="form-group row" v-if="company.custom_client_label2.length >= 1">
+    <div class="form-group row" v-if="company.custom_client_label2 && company.custom_client_label2.length >= 1">
         <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label2 }}</label>
         <div class="col-sm-9">
             <input type="text" name="custom_value2" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value2" class="form-control" id="custom_value2">
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <div class="form-group row" v-if="company.custom_client_label3.length >= 1">
+    <div class="form-group row" v-if="company.custom_client_label3 && company.custom_client_label3.length >= 1">
         <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label3 }}</label>
         <div class="col-sm-9">
             <input type="text" name="custom_value3" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value3" class="form-control" id="custom_value3">
@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    <div class="form-group row" v-if="company.custom_client_label4.length >= 1">
+    <div class="form-group row" v-if="company.custom_client_label4 && company.custom_client_label4.length >= 1">
         <label for="name" class="col-sm-3 col-form-label text-right">{{ company.custom_client_label2 }}</label>
         <div class="col-sm-9">
             <input type="text" name="custom_value4" :placeholder="trans('texts.custom_value1')" v-model="client.custom_value4" class="form-control" id="custom_value4">
