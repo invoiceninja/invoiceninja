@@ -40,8 +40,8 @@ class UpdateClient
     {
         $client = $clientRepo->save($this->request, $this->client);
         
-        $clientContactRepo->save($this->request->input('contacts'), $client);
+        $contacts = $clientContactRepo->save($this->request->input('contacts'), $client);
         
-        return $client;
+        return $client->fresh();
     }
 }

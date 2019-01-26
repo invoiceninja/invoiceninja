@@ -23,7 +23,7 @@ class ClientRepository extends BaseRepository
         $client->fill($request->input());
         $client->save();
 
-        return $client->fresh();
+        return $client;
 	}
 
 }

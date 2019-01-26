@@ -3955,12 +3955,113 @@ var render = function() {
               : _vm._e()
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "col-sm" }, [
-            _c("h3", [_vm._v(" " + _vm._s(_vm.trans("texts.contacts")) + " ")])
-          ]),
+          _c(
+            "div",
+            { staticClass: "col-sm" },
+            [
+              _c("h3", [
+                _vm._v(" " + _vm._s(_vm.trans("texts.contacts")) + " ")
+              ]),
+              _vm._v(" "),
+              _vm._l(_vm.client.contacts, function(contact) {
+                return _c("ul", [
+                  contact.first_name
+                    ? _c("li", [
+                        _vm._v(
+                          _vm._s(contact.first_name) +
+                            " " +
+                            _vm._s(contact.last_name)
+                        )
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  contact.email
+                    ? _c("li", [_vm._v(_vm._s(contact.email))])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  contact.phone
+                    ? _c("li", [_vm._v(_vm._s(contact.phone))])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.company.custom_client_contact_label1 &&
+                  _vm.company.custom_client_contact_label1.length >= 1
+                    ? _c("li", [
+                        _c("b", [
+                          _vm._v(
+                            _vm._s(_vm.company.custom_client_contact_label1) +
+                              ":"
+                          )
+                        ]),
+                        _vm._v(" " + _vm._s(contact.custom_value1))
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.company.custom_client_contact_label2 &&
+                  _vm.company.custom_client_contact_label2.length >= 1
+                    ? _c("li", [
+                        _c("b", [
+                          _vm._v(
+                            _vm._s(_vm.company.custom_client_contact_label2) +
+                              ":"
+                          )
+                        ]),
+                        _vm._v(" " + _vm._s(contact.custom_value2))
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.company.custom_client_contact_label3 &&
+                  _vm.company.custom_client_contact_label3.length >= 1
+                    ? _c("li", [
+                        _c("b", [
+                          _vm._v(
+                            _vm._s(_vm.company.custom_client_contact_label3) +
+                              ":"
+                          )
+                        ]),
+                        _vm._v(" " + _vm._s(contact.custom_value3))
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.company.custom_client_contact_label4 &&
+                  _vm.company.custom_client_contact_label4.length >= 1
+                    ? _c("li", [
+                        _c("b", [
+                          _vm._v(
+                            _vm._s(_vm.company.custom_client_contact_label4) +
+                              ":"
+                          )
+                        ]),
+                        _vm._v(" " + _vm._s(contact.custom_value4))
+                      ])
+                    : _vm._e()
+                ])
+              })
+            ],
+            2
+          ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm" }, [
-            _c("h3", [_vm._v(" " + _vm._s(_vm.trans("texts.standing")) + " ")])
+            _c("h3", [_vm._v(" " + _vm._s(_vm.trans("texts.standing")) + " ")]),
+            _vm._v(" "),
+            _c("p", [
+              _c("b", [
+                _vm._v(
+                  _vm._s(_vm.trans("texts.paid_to_date")) +
+                    " " +
+                    _vm._s(_vm.client.paid_to_date)
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("p", [
+              _c("b", [
+                _vm._v(
+                  _vm._s(_vm.trans("texts.balance")) +
+                    " " +
+                    _vm._s(_vm.client.balance)
+                )
+              ])
+            ])
           ])
         ])
       ])

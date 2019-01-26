@@ -77,10 +77,24 @@
 
 					<div class="col-sm">
 						<h3> {{ trans('texts.contacts') }} </h3>
+
+						<ul v-for="contact in client.contacts"> 
+                        	<li v-if="contact.first_name">{{ contact.first_name }} {{ contact.last_name }}</li>
+                        	<li v-if="contact.email">{{ contact.email }}</li>
+                        	<li v-if="contact.phone">{{ contact.phone }}</li>
+                        	<li v-if="company.custom_client_contact_label1 && company.custom_client_contact_label1.length >= 1"><b>{{ company.custom_client_contact_label1 }}:</b> {{ contact.custom_value1 }}</li>
+							<li v-if="company.custom_client_contact_label2 && company.custom_client_contact_label2.length >= 1"><b>{{ company.custom_client_contact_label2 }}:</b> {{ contact.custom_value2 }}</li>
+							<li v-if="company.custom_client_contact_label3 && company.custom_client_contact_label3.length >= 1"><b>{{ company.custom_client_contact_label3 }}:</b> {{ contact.custom_value3 }}</li>
+							<li v-if="company.custom_client_contact_label4 && company.custom_client_contact_label4.length >= 1"><b>{{ company.custom_client_contact_label4 }}:</b> {{ contact.custom_value4 }}</li>
+                        </ul>
+
+
 					</div>
 
 					<div class="col-sm">
 						<h3> {{ trans('texts.standing') }} </h3>
+						<p><b>{{ trans('texts.paid_to_date') }} {{client.paid_to_date}}</b></p>
+						<p><b>{{ trans('texts.balance') }} {{client.balance }}</b></p>
 					</div>
 
 				</div>
