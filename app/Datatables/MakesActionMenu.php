@@ -4,6 +4,10 @@ namespace App\Datatables;
 
 use Illuminate\Support\Collection;
 
+/**
+ * Class MakesActionMenu
+ * @package App\Datatables
+ */
 trait MakesActionMenu
 {
     /**

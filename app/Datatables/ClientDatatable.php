@@ -9,13 +9,24 @@ use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+/**
+ * Class ClientDatatable
+ * @package App\Datatables
+ */
 class ClientDatatable extends EntityDatatable
 {
     use MakesHash;
     use MakesActionMenu;
 
+    /**
+     * @var ClientFilters
+     */
     protected $filter;
 
+    /**
+     * ClientDatatable constructor.
+     * @param ClientFilters $filter
+     */
     public function __construct(ClientFilters $filter)
     {
         $this->filter = $filter;
@@ -32,7 +43,12 @@ class ClientDatatable extends EntityDatatable
 
     }
 
-    
+
+    /**
+     * @param int $company_id
+     * @param bool $userId
+     * @return mixed
+     */
     private function find(int $company_id, $userId = false)
     {
 

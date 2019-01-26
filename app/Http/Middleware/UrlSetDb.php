@@ -6,6 +6,10 @@ use App\Libraries\MultiDB;
 use Closure;
 use Hashids\Hashids;
 
+/**
+ * Class UrlSetDb
+ * @package App\Http\Middleware
+ */
 class UrlSetDb
 {
     /**

@@ -24,22 +24,40 @@ use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
+/**
+ * Class ClientController
+ * @package App\Http\Controllers
+ */
 class ClientController extends Controller
 {
     use UserSessionAttributes;
     use MakesHash;
     use MakesMenu;
 
+    /**
+     * @var ClientRepository
+     */
     protected $clientRepo;
 
+    /**
+     * @var ClientDatatable
+     */
     protected $clientDatatable;
 
+    /**
+     * ClientController constructor.
+     * @param ClientRepository $clientRepo
+     * @param ClientDatatable $clientDatatable
+     */
     public function __construct(ClientRepository $clientRepo, ClientDatatable $clientDatatable)
     {
         $this->clientRepo = $clientRepo;
         $this->clientDatatable = $clientDatatable;
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+     */
     public function index()
     {
 ;

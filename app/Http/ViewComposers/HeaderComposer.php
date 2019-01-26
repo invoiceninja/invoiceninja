@@ -5,6 +5,10 @@ namespace App\Http\ViewComposers;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\View\View;
 
+/**
+ * Class HeaderComposer
+ * @package App\Http\ViewComposers
+ */
 class HeaderComposer
 {
     use UserSessionAttributes;
@@ -20,6 +24,9 @@ class HeaderComposer
         $view->with('header', $this->headerData());
     }
 
+    /**
+     * @return array
+     */
     private function headerData()
     {
         if(!auth()->user())

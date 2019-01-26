@@ -6,10 +6,23 @@ use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 
+/**
+ * Class QueryFilters
+ * @package App\Filters
+ */
 abstract class QueryFilters
 {
+    /**
+     *
+     */
     const STATUS_ACTIVE = 'active';
+    /**
+     *
+     */
     const STATUS_ARCHIVED = 'archived';
+    /**
+     *
+     */
     const STATUS_DELETED = 'deleted';
 
     /**

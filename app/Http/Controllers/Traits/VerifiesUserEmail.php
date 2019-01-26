@@ -6,10 +6,18 @@ use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Class VerifiesUserEmail
+ * @package App\Http\Controllers\Traits
+ */
 trait VerifiesUserEmail
 {
     use UserSessionAttributes;
 
+    /**
+     * @param $code
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function confirm($code)
     {
         $user = User::where('confirmation_code', $code)->first();

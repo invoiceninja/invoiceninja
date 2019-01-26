@@ -4,7 +4,7 @@ namespace App\Utils\Traits;
 
 
 /**
- * Class MakesHash
+ * Class MakesHeaderData
  * @package App\Utils\Traits
  */
 trait MakesHeaderData
@@ -12,6 +12,9 @@ trait MakesHeaderData
 
     use UserSessionAttributes;
 
+    /**
+     * @return array
+     */
     public function headerData() : array
     {
         //companies

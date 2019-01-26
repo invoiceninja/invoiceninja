@@ -11,10 +11,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Class CompanyController
+ * @package App\Http\Controllers
+ */
 class CompanyController extends Controller
 {
     use DispatchesJobs;
 
+    /**
+     * CompanyController constructor.
+     */
     public function __construct()
     {
         $this->middleware('guest');
