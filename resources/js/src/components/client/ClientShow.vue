@@ -111,8 +111,13 @@
 
 <script lang="ts">
 
+import Geocoder from "@pderas/vue2-geocoder";
+//import Vue from "vue"
+
+
 export default {
-    props: ['client', 'company']
+    props: ['client', 'company', 'meta'],
+
 }
 
 </script>

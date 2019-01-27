@@ -3631,8 +3631,9 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+//import Vue from "vue"
 exports.default = {
-    props: ['client', 'company']
+    props: ['client', 'company', 'meta'],
 };
 
 

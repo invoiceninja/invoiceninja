@@ -36,6 +36,7 @@
         "vuetable-2": "^1.7.5"
     },
     "dependencies": {
+        "@pderas/vue2-geocoder": "^1.0.2",
         "@types/lodash": "^4.14.118",
         "@types/node": "^10.12.10",
         "axios-progress-bar": "^1.2.0",

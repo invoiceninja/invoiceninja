@@ -11,7 +11,7 @@
     <div class="container-fluid">
 
 
-            <client-show :client="{{ $client }}" :company="{{ $company }}"></client-show>
+            <client-show :client="{{ $client }}" :company="{{ $company }}" :meta="{{ $meta }}"></client-show>
 
 
 
