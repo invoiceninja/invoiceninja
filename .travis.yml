@@ -38,7 +38,7 @@ install:
   # these providers require referencing git commit's which cause Travis to fail
   #  - sed -i '/mollie/d' composer.json
   #  - sed -i '/2checkout/d' composer.json
-  - travis_retry composer install --no-interaction --no-dev
+  - travis_retry composer install --no-interaction 
 
 before_script:
   # copy configuration files
