@@ -19,10 +19,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Facades\DataTables;
-use Yajra\DataTables\Html\Builder;
+use App\Factory\ClientFactory;
 
 /**
  * Class ClientController
@@ -80,16 +77,7 @@ class ClientController extends Controller
      */
     public function create(CreateClientRequest $request)
     {
-        $client = new Client;
-        $client->name = '';
-        $client->company_id = $this->getCurrentCompanyId();
-        $client_contact = new ClientContact;
-        $client_contact->first_name = "";
-        $client_contact->user_id = auth()->user()->id;
-        $client_contact->company_id = $this->getCurrentCompanyId();
-        $client_contact->id = 0;
-
-        $client->contacts->add($client_contact);
+        $client = ClientFactory::create($this->getCurrentCompanyId(), auth()->user()->id);
 
         $data = [
             'client' => $client,
