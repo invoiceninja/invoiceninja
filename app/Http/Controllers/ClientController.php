@@ -125,9 +125,9 @@ class ClientController extends Controller
        $data = [
             'client' => $client,
             'company' => auth()->user()->company(),
-            'meta' => [
+            'meta' => collect([
                 'google_maps_api_key' => config('ninja.google_maps_api_key')
-            ]
+            ])
         ];
 
         return view('client.show', $data);
