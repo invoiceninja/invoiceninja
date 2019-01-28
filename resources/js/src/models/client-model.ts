@@ -18,6 +18,10 @@ export default class Client {
 	state: string 
 	postal_code: string 
 	country_id: number 
+	latitude: number
+	longitude: number
+	shipping_latitude: number
+	shipping_longitude: number
 	custom_value1: string 
 	custom_value2: string 
 	shipping_address1: string 

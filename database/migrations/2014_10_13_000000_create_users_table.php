@@ -296,6 +296,11 @@ class CreateUsersTable extends Migration
             $table->string('shipping_state')->nullable();
             $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
+            $table->decimal('latitude', 11, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+
+            $table->decimal('shipping_latitude', 11, 8)->nullable();
+            $table->decimal('shipping_longitude', 11, 8)->nullable();
 
             $table->boolean('is_deleted')->default(false);
             $table->string('payment_terms')->nullable();  //todo type? depends how we are storing this
@@ -309,30 +314,6 @@ class CreateUsersTable extends Migration
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
             $table->foreign('currency_id')->references('id')->on('currencies');
-
-        });
-
-        Schema::create('client_locations', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('client_id')->index();
-            $table->string('address1')->nullable();
-            $table->string('address2')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->unsignedInteger('country_id')->nullable();
-            $table->string('phone')->nullable();
-            $table->decimal('latitude', 11, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
-            $table->boolean('is_primary_billing')->default(false);
-            $table->boolean('is_primary_shipping')->default(false);
-            $table->enum('type', ['billing', 'shipping'])->nullable();
-            $table->text('description')->nullable();
-            $table->text('private_notes')->nullable();
-
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $table->foreign('country_id')->references('id')->on('countries');
-
 
         });
 
