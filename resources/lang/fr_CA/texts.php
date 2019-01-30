@@ -2442,6 +2442,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_cfp_franc' => 'Franc Pacifique',
     'currency_mauritian_rupee' => 'Roupie mauricienne',
     'currency_cape_verdean_escudo' => 'Escudo cap-verdien',
+    'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'rédiger un commentaire',

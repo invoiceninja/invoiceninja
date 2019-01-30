@@ -2451,6 +2451,7 @@ $LANG = array(
     'currency_cfp_franc' => 'CFP Franc',
     'currency_mauritian_rupee' => 'Mauritian Rupee',
     'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
+    'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
 
     'review_app_help' => 'Nadamo se da uživate u korišćenju aplikacije. <br/> Bili bismo veoma zahvalni ako biste razmotrili :link.',
     'writing_a_review' => 'napišite ocenu',

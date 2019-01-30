@@ -2440,6 +2440,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'currency_cfp_franc' => 'CFP Franc',
     'currency_mauritian_rupee' => 'Mauritian Rupee',
     'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
+    'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
 
     'review_app_help' => 'Esperamos que estés disfrutando con la app. <br/>Si consideras :link ¡te lo agraderemos enormemente!',
     'writing_a_review' => 'escribir una reseña',
