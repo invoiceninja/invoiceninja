@@ -11,6 +11,7 @@ class ProductDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PRODUCT;
     public $sortCol = 4;
+    public $fieldToSum = 'cost';
 
     public function columns()
     {
@@ -38,7 +39,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'tax_rate',
                 function ($model) {
-                    return $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : '';
+                    return $model->tax_rate ? ($model->tax_name . ' ' . ($model->tax_rate + 0) . '%') : '';
                 },
                 $account->invoice_item_taxes,
             ],
@@ -74,7 +75,7 @@ class ProductDatatable extends EntityDatatable
                     return URL::to("products/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Auth::user()->can('create', ENTITY_PRODUCT);
+                    return Auth::user()->can('createEntity', ENTITY_PRODUCT);
                 },
             ],
             [
@@ -83,7 +84,7 @@ class ProductDatatable extends EntityDatatable
                     return "javascript:submitForm_product('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('createEntity', ENTITY_INVOICE);
                 },
             ],
         ];

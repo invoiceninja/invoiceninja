@@ -10,6 +10,7 @@ class CreateDocumentRequest extends DocumentRequest
     protected $autoload = [
         ENTITY_INVOICE,
         ENTITY_EXPENSE,
+        ENTITY_TICKET,
     ];
 
     /**
@@ -19,8 +20,27 @@ class CreateDocumentRequest extends DocumentRequest
      */
     public function authorize()
     {
-        if($this->user()->hasFeature(FEATURE_DOCUMENTS))
+        if(session('contact_key'))
             return true;
+
+        if (! $this->user()->hasFeature(FEATURE_DOCUMENTS))
+            return false;
+
+        
+        if ($this->invoice && $this->user()->cannot('edit', $this->invoice))
+            return false;
+
+
+        if ($this->expense && $this->user()->cannot('edit', $this->expense))
+            return false;
+
+
+        if($this->ticket && $this->user()->cannot('edit', $this->ticket))
+            return false;
+
+
+        return true;
+        //return $this->user()->can('create');
     }
 
     /**

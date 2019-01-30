@@ -4,7 +4,7 @@
 
 # Invoice Ninja
 
-[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
+[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Docs](https://readthedocs.org/projects/invoice-ninja/badge/?version=latest)](https://invoice-ninja.readthedocs.io/en/latest/?badge=latest)
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
@@ -19,7 +19,6 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Videos](https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos)
 * [User Guide](https://invoice-ninja.readthedocs.io/en/latest/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
-* [Roadmap](https://trello.com/b/63BbiVVe/)
 
 ## Affiliates Programs
 * Referral Program (we pay you)
@@ -65,10 +64,10 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
 
 ## Third Party Developers
-* [Some Techie](https://www.sometechie.com/customize-invoice-ninja/)
+* [Bold Compass](https://boldcompass.com/customize-invoice-ninja/)
 
 ## Contributing
-All contributors are welcome!  
+All contributors are welcome!
 For information on how contribute to Invoice Ninja, please see our [contributing guide](CONTRIBUTING.md).
 
 ## Credits
@@ -80,13 +79,15 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
 * [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 * [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
-* [Joshua Dwire](https://github.com/joshuadwire) - [Some Techie](https://www.sometechie.com)
+* [Joshua Dwire](https://github.com/joshuadwire) - [Bold Compass](https://boldcompass.com/)
 * [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Zamponi](https://github.com/alexz707)
 * [Matthieu Calie](https://github.com/Matth--)
+* [Christopher Di Carlo](https://github.com/dicarlosystems) - [Di Carlo Systems Inc.](https://www.dicarlosystems.ca)
+* [Kristian Feldsam](https://github.com/feldsam) - [FeldHost™](https://www.feldhost.net)
 * [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad) - (Security)
 
 ## License
-Invoice Ninja is released under the Attribution Assurance License.  
+Invoice Ninja is released under the Attribution Assurance License.
 See [LICENSE](LICENSE) for details.

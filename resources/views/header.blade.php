@@ -6,7 +6,9 @@
     @if (Utils::isNinjaDev())
         <style type="text/css">
             .nav-footer {
-                @if (config('mail.driver') == 'log' && ! config('services.postmark'))
+                @if (env('TRAVIS'))
+                    background-color: #FF0000 !important;
+                @elseif (config('mail.driver') == 'log' && ! config('services.postmark'))
                     background-color: #50C878 !important;
                 @else
                     background-color: #FD6A02 !important;
@@ -392,7 +394,13 @@
             'reports' => false,
             'settings' => false,
         ] as $key => $value)
-            {!! Form::nav_link($key, $value ?: $key) !!}
+              @if(!Auth::user()->account->isModuleEnabled(substr($key, 0, -1)))
+                  {{ '' }}
+              @elseif (in_array($key, ['dashboard', 'settings'])
+                || Auth::user()->can('view', substr($key, 0, -1))
+                || Auth::user()->can('create', substr($key, 0, -1)))
+                  {!! Form::nav_link($key, $value ?: $key) !!}
+              @endif
         @endforeach
       </ul>
     </div><!-- /.navbar-collapse -->
@@ -418,6 +426,7 @@
                 'tasks',
                 'expenses',
                 'vendors',
+                'tickets',
             ] as $option)
                 @if(!Auth::user()->account->isModuleEnabled(substr($option, 0, -1)))
                     {{ '' }}
@@ -428,8 +437,9 @@
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::collections() as $module)
                     @includeWhen(empty($module->get('no-sidebar')) || $module->get('no-sidebar') != '1', 'partials.navigation_option', [
-                        'option' => $module->getAlias(),
+                        'option' => $module->get('base-route', $module->getAlias()),
                         'icon' => $module->get('icon', 'th-large'),
+                        'moduleName' => $module->getLowerName(),
                     ])
                 @endforeach
             @endif
@@ -528,6 +538,10 @@
             </div>
         </div>
     </div>
+
+    @if(Utils::isSelfHost())
+        @stack('component_scripts')
+    @endif
     <!-- /#page-content-wrapper -->
 </div>
 
@@ -535,7 +549,7 @@
 @include('partials.sign_up')
 @include('partials.keyboard_shortcuts')
 
-@if (auth()->check() && ! auth()->user()->hasAcceptedLatestTerms())
+@if (auth()->check() && auth()->user()->registered && ! auth()->user()->hasAcceptedLatestTerms())
     @include('partials.accept_terms')
 @endif
 

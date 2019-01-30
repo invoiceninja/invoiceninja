@@ -335,12 +335,13 @@ class Vendor extends EntityModel
     /**
      * @return float|int
      */
-    public function getTotalExpenses()
+    public function getUnpaidExpenses()
     {
         return DB::table('expenses')
-                ->select('expense_currency_id', DB::raw('SUM(amount) as amount'))
+                ->select('expense_currency_id', DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as amount'))
                 ->whereVendorId($this->id)
                 ->whereIsDeleted(false)
+                ->whereNull('payment_date')
                 ->groupBy('expense_currency_id')
                 ->get();
     }

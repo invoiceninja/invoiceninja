@@ -20,6 +20,7 @@ class DuplicateSubmissionCheck
     {
         if ($request->is('api/v1/*')
             || $request->is('save_sidebar_state')
+            || $request->is('tickets/search')
             || $request->is('documents')) {
             return $next($request);
         }

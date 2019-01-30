@@ -8,13 +8,15 @@ Thanks for taking the time to setup Invoice Ninja.
 Detailed Guides
 ^^^^^^^^^^^^^^^
 
-- Ubuntu and Nginx: `websiteforstudents.com <https://websiteforstudents.com/install-invoiceninja-on-ubuntu-17-04-17-10-with-nginx-mariadb-and-php-support/>`_
+- Ubuntu and Nginx: `websiteforstudents.com <https://websiteforstudents.com/install-invoice-ninja-on-ubuntu-16-04-18-04-lts-with-nginx-mariadb-and-php-7-2-fpm/>`_
 
-- Ubuntu and Apache: `technerdservices.com <http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/>`_
+- Ubuntu and Apache: `websiteforstudents.com <https://websiteforstudents.com/install-invoiceninja-on-ubuntu-16-04-18-04-with-apache2-mariadb-and-php-7-2//>`_
 
-- Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/>`_
+- Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-debian-9/>`_
 
-- CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
+- CentOS and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-centos-7/>`_
+
+- HostGator: `catsinja.com <http://blog.catsinja.com/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
 
 Automatic Install/Update
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,8 +44,6 @@ https://download.invoiceninja.com
 .. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $20 per year white-label license to remove our branding.
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
-
-- Roadmap: `trello.com/b/63BbiVVe/invoice-ninja <https://trello.com/b/63BbiVVe/invoice-ninja>`_
 
 Step 2: Upload the code to your server
 """"""""""""""""""""""""""""""""""""""
@@ -99,3 +99,11 @@ Troubleshooting
 - If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to public/.htaccess otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
 - PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php. If the file doesn't exist the steps `here <https://stackoverflow.com/a/37266353/497368>`_ may help.
+- Some webservers run filtering software which can cause errors, you can test adding this code to your .htaccess file to test if it's related.
+
+.. code-block:: shell
+
+   <IfModule mod_security.c>
+     SecFilterEngine Off
+     SecFilterScanPOST Off
+   </IfModule>

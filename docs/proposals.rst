@@ -92,7 +92,7 @@ When you've finished designing the proposal, you can choose from three options:
 Templates
 """""""""
 
-The Proposals feature includes 10 templates (coming soon) to choose from. Templates enable you to quickly apply standard layout and design features, saving time and making the proposal creation process more efficient.
+Templates enable you to quickly apply standard layout and design features, saving time and making the proposal creation process more efficient.
 
 You can also custom design your own templates, from scratch or based on an existing template.
 

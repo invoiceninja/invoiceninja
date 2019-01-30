@@ -56,6 +56,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\TaskListener@deletedInvoice',
             'App\Listeners\ExpenseListener@deletedInvoice',
             'App\Listeners\HistoryListener@deletedInvoice',
+            'App\Listeners\SubscriptionListener@deletedInvoice',
         ],
         'App\Events\InvoiceWasRestored' => [
             'App\Listeners\ActivityListener@restoredInvoice',
@@ -92,6 +93,7 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\QuoteWasDeleted' => [
             'App\Listeners\ActivityListener@deletedQuote',
             'App\Listeners\HistoryListener@deletedQuote',
+            'App\Listeners\SubscriptionListener@deletedQuote',
         ],
         'App\Events\QuoteWasRestored' => [
             'App\Listeners\ActivityListener@restoredQuote',
@@ -248,7 +250,10 @@ class EventServiceProvider extends ServiceProvider
         //DNS Remove A record from Cloudflare
         'App\Events\SubdomainWasRemoved' => [
             'App\Listeners\DNSListener@removeDNSRecord'
-        ]
+        ],
+        'App\Events\TicketUserViewed' => [
+            'App\Listeners\ActivityListener@userViewedTicket'
+        ],
 
         /*
         // Update events

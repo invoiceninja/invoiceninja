@@ -2,11 +2,16 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Ticket;
+use App\Models\TicketCategory;
+use App\Models\TicketComment;
+use App\Models\TicketTemplate;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
+use App\Ninja\Repositories\TicketRepository;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\ProjectRepository;
@@ -15,6 +20,7 @@ use App\Models\TaxRate;
 use App\Models\Project;
 use App\Models\ExpenseCategory;
 use Auth;
+use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Utils;
@@ -48,8 +54,12 @@ class CreateTestData extends Command
      * @param ExpenseRepository $expenseRepo
      * @param TaskRepository $taskRepo
      * @param AccountRepository $accountRepo
+     * @param TicketRepository $ticketRepo
+     * @param ProjectRepository $projectRepo
      */
+
     public function __construct(
+        TicketRepository $ticketRepo,
         ClientRepository $clientRepo,
         InvoiceRepository $invoiceRepo,
         PaymentRepository $paymentRepo,
@@ -71,6 +81,7 @@ class CreateTestData extends Command
         $this->taskRepo = $taskRepo;
         $this->projectRepo = $projectRepo;
         $this->accountRepo = $accountRepo;
+        $this->ticketRepo = $ticketRepo;
     }
 
     /**
@@ -103,6 +114,8 @@ class CreateTestData extends Command
             Auth::loginUsingId(1);
         }
 
+        //$this->createTicketStubs();
+        //$this->createTicketTemplates();
         $this->createClients();
         $this->createVendors();
         $this->createOtherObjects();
@@ -134,6 +147,84 @@ class CreateTestData extends Command
             $this->createInvoices($client);
             $this->createInvoices($client, true);
             $this->createTasks($client);
+            $this->createTickets($client);
+
+        }
+    }
+
+    private function createTicketTemplates()
+    {
+        $ticketTemplate = TicketTemplate::createNew();
+        $ticketTemplate->name = 'Default response';
+        $ticketTemplate->description = $this->faker->realText(50);
+        $ticketTemplate->save();
+
+        $ticketTemplate = TicketTemplate::createNew();
+        $ticketTemplate->name = 'Updated ticket';
+        $ticketTemplate->description = $this->faker->realText(50);
+        $ticketTemplate->save();
+
+
+        $ticketTemplate = TicketTemplate::createNew();
+        $ticketTemplate->name = 'Ticket closed';
+        $ticketTemplate->description = $this->faker->realText(50);
+        $ticketTemplate->save();
+
+
+        $ticketTemplate = TicketTemplate::createNew();
+        $ticketTemplate->name = 'Generic response';
+        $ticketTemplate->description = $this->faker->realText(50);
+        $ticketTemplate->save();
+
+
+    }
+
+
+    /**
+     * @param $client
+     */
+    private function createTickets($client)
+    {
+        $this->info('creating tickets');
+        
+        for ($i = 0; $i < $this->count; $i++)
+        {
+            $maxTicketNumber = Ticket::getNextTicketNumber(Auth::user()->account->id);
+
+            $this->info('next ticket number = '.$maxTicketNumber);
+
+            $data = [
+                'priority_id'=> TICKET_PRIORITY_LOW,
+                'category_id'=> 1,
+                'client_id' => $client->id,
+                'is_deleted'=> 0,
+                'is_internal'=> (bool)random_int(0, 1),
+                'status_id'=> random_int(1,3),
+                'category_id'=> 1,
+                'subject'=> $this->faker->realText(10),
+                'description'=> $this->faker->realText(50),
+                'tags'=> json_encode($this->faker->words($nb = 5, $asText = false)),
+                'private_notes'=> $this->faker->realText(50),
+                'ccs'=> json_encode([]),
+                'contact_key'=> $client->getPrimaryContact()->contact_key,
+                'due_date'=> Carbon::now(),
+                'ticket_number' => $maxTicketNumber ? $maxTicketNumber : 1,
+                'action' => TICKET_SAVE_ONLY,
+            ];
+
+            $ticket = $this->ticketRepo->save($data);
+
+            $ticketComment = TicketComment::createNew($ticket);
+            $ticketComment->description = $this->faker->realText(70);
+            $ticketComment->contact_key = $client->getPrimaryContact()->contact_key;
+            $ticket->comments()->save($ticketComment);
+
+            $ticketComment = TicketComment::createNew($ticket);
+            $ticketComment->description = $this->faker->realText(40);
+            $ticketComment->user_id = 1;
+            $ticket->comments()->save($ticketComment);
+
+            $this->info("Ticket: - {$ticket->ticket_number} - {$client->account->account_ticket_settings->ticket_number_start} - {$maxTicketNumber}");
         }
     }
 

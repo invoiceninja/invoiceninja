@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
+use App\Models\AccountTicketSettings;
 use App\Models\AccountToken;
 use App\Models\Client;
 use App\Models\Company;
@@ -47,10 +48,10 @@ class AccountRepository
             if (Input::get('utm_campaign')) {
                 if (env('PROMO_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                     $company->applyDiscount(.75);
-                }
-
-                if (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
+                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
+                    $company->applyFreeYear(2);
                 }
             } else {
                 //$company->applyDiscount(.5);
@@ -126,6 +127,11 @@ class AccountRepository
         $emailSettings = new AccountEmailSettings();
         $account->account_email_settings()->save($emailSettings);
 
+        $accountTicketSettings = new AccountTicketSettings();
+        $accountTicketSettings->ticket_master_id = $user->id;
+        $accountTicketSettings->ticket_number_start = 1;
+
+        $account->account_ticket_settings()->save($accountTicketSettings);
         return $account;
     }
 
@@ -278,6 +284,7 @@ class AccountRepository
             ENTITY_EXPENSE_CATEGORY,
             ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
+            ENTITY_RECURRING_QUOTE,
             ENTITY_PAYMENT,
             ENTITY_CREDIT,
             ENTITY_PROJECT,
@@ -463,6 +470,11 @@ class AccountRepository
             $user->notify_sent = true;
             $user->notify_paid = true;
             $account->users()->save($user);
+
+
+            $account_ticket_settings = new AccountTicketSettings();
+            $account_ticket_settings->ticket_master_id = $user->id;
+            $account->account_ticket_settings()->save($account_ticket_settings);
 
             if ($config = env(NINJA_GATEWAY_CONFIG)) {
                 $accountGateway = new AccountGateway();
@@ -754,7 +766,9 @@ class AccountRepository
 
     public function findWithReminders()
     {
-        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1')->get();
+        return Account::whereHas('account_email_settings', function($query) {
+            $query->whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1');
+        })->get();
     }
 
     public function findWithFees()

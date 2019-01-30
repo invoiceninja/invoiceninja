@@ -8,9 +8,11 @@ use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Http\Requests\SaveClientPortalSettings;
 use App\Http\Requests\SaveEmailSettings;
+use App\Http\Requests\SaveTicketSettings;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
 use App\Models\AccountGateway;
+use App\Models\AccountTicketSettings;
 use App\Models\Affiliate;
 use App\Models\Document;
 use App\Models\Gateway;
@@ -21,6 +23,7 @@ use App\Models\License;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\TaxRate;
+use App\Models\TicketTemplate;
 use App\Models\User;
 use App\Models\AccountEmailSettings;
 use App\Ninja\Mailers\ContactMailer;
@@ -30,6 +33,7 @@ use App\Ninja\Repositories\ReferralRepository;
 use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Services\TemplateService;
+use Monolog\Handler\Curl\Util;
 use Nwidart\Modules\Facades\Module;
 use Auth;
 use Cache;
@@ -289,7 +293,9 @@ class AccountController extends BaseController
         } elseif ($section == ACCOUNT_INVOICE_SETTINGS) {
             return self::showInvoiceSettings();
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
-            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
+            return View::make('accounts.import_export', [
+                'title' => trans('texts.import_export'),
+            ]);
         } elseif ($section == ACCOUNT_MANAGEMENT) {
             return self::showAccountManagement();
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
@@ -302,6 +308,8 @@ class AccountController extends BaseController
             return self::showProducts();
         } elseif ($section === ACCOUNT_TAX_RATES) {
             return self::showTaxRates();
+        } elseif ($section === ACCOUNT_TICKETS) {
+            return self::showTickets();
         } elseif ($section === ACCOUNT_PAYMENT_TERMS) {
             return self::showPaymentTerms();
         } elseif ($section === ACCOUNT_SYSTEM_SETTINGS) {
@@ -510,9 +518,27 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.product_library'),
+
         ];
 
         return View::make('accounts.products', $data);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function showTickets()
+    {
+
+        $data = [
+            'account' => Auth::user()->account,
+            'account_ticket_settings' => Auth::user()->account->account_ticket_settings,
+            'templates' => TicketTemplate::scope()->get(),
+            'title' => trans('texts.ticket_settings'),
+            'section' => ACCOUNT_TICKETS,
+        ];
+
+        return View::make('accounts.tickets', $data);
     }
 
     /**
@@ -633,6 +659,7 @@ class AccountController extends BaseController
         $data['invoiceFonts'] = Cache::get('fonts');
         $data['section'] = $section;
         $data['pageSizes'] = array_combine(InvoiceDesign::$pageSizes, InvoiceDesign::$pageSizes);
+        $data['showModuleSettings'] = Utils::hasModuleSettings();
 
         $design = false;
         foreach ($data['invoiceDesigns'] as $item) {
@@ -694,7 +721,13 @@ class AccountController extends BaseController
             'account' => $account,
             'products' => Product::scope()->orderBy('product_key')->get(),
             'gateway_types' => $options,
+
         ];
+
+        if (Utils::isSelfHost()) {
+            $js = $account->client_view_js ? $account->client_view_js : '';
+            $data['client_view_js'] = $js;
+        }
 
         return View::make('accounts.client_portal', $data);
     }
@@ -719,6 +752,7 @@ class AccountController extends BaseController
             ];
         }
         $data['title'] = trans('texts.email_templates');
+        $data['showModuleSettings'] = Utils::hasModuleSettings();
 
         return View::make('accounts.templates_and_reminders', $data);
     }
@@ -856,6 +890,7 @@ class AccountController extends BaseController
 
         $account->fill($request->all());
         $account->client_view_css = $request->client_view_css;
+        $account->client_view_js = $request->client_view_js;
         $account->subdomain = $request->subdomain;
         $account->iframe_url = $request->iframe_url;
         $account->is_custom_domain = $request->is_custom_domain;
@@ -907,17 +942,17 @@ class AccountController extends BaseController
 
             foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
-                $account->$enableField = Input::get($enableField) ? true : false;
-                $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
-                $account->{"field_{$type}"} = Input::get("field_{$type}");
-                $account->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
+                $account->account_email_settings->$enableField = Input::get($enableField) ? true : false;
+                $account->account_email_settings->{"num_days_{$type}"} = Input::get("num_days_{$type}");
+                $account->account_email_settings->{"field_{$type}"} = Input::get("field_{$type}");
+                $account->account_email_settings->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
 
                 $number = preg_replace('/[^0-9]/', '', $type);
                 $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
                 $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
             }
 
-            $account->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
+            $account->account_email_settings->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
             $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
 
             $account->save();
@@ -927,6 +962,29 @@ class AccountController extends BaseController
         }
 
         return Redirect::to('settings/'.ACCOUNT_TEMPLATES_AND_REMINDERS);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
+    public function saveTickets(SaveTicketSettings $request)
+    {
+        $account_ticket_settings = Auth::user()->account->account_ticket_settings;
+        $account_ticket_settings->fill($request->all());
+        $account_ticket_settings->save();
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_TICKETS);
+    }
+
+    public function checkUniqueLocalPart()
+    {
+        if(AccountTicketSettings::checkUniqueLocalPart(Input::get('support_email_local_part'), Auth::user()->account))
+            return RESULT_SUCCESS;
+        else
+            return RESULT_FAILURE;
     }
 
     /**
@@ -950,6 +1008,7 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
 
+        $account->show_product_notes = Input::get('show_product_notes') ? true : false;
         $account->fill_products = Input::get('fill_products') ? true : false;
         $account->update_products = Input::get('update_products') ? true : false;
         $account->convert_products = Input::get('convert_products') ? true : false;
@@ -998,6 +1057,7 @@ class AccountController extends BaseController
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
                 $account->auto_archive_quote = Input::get('auto_archive_quote');
+                $account->allow_approve_expired_quote = Input::get('allow_approve_expired_quote');
                 $account->auto_archive_invoice = Input::get('auto_archive_invoice');
                 $account->auto_email_invoice = Input::get('auto_email_invoice');
                 $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
@@ -1010,6 +1070,7 @@ class AccountController extends BaseController
                 $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
                 $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
                 $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
+                $account->custom_fields_options = request()->custom_fields_options;
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
@@ -1201,6 +1262,7 @@ class AccountController extends BaseController
      */
     public function saveUserDetails()
     {
+
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $email = trim(strtolower(Input::get('email')));
@@ -1230,6 +1292,7 @@ class AccountController extends BaseController
             $user->email = $email;
             $user->phone = trim(Input::get('phone'));
             $user->dark_mode = Input::get('dark_mode');
+            $user->signature = Input::get('signature');
 
             if (! Auth::user()->is_admin) {
                 $user->notify_sent = Input::get('notify_sent');
@@ -1249,6 +1312,8 @@ class AccountController extends BaseController
                 }
             }
 
+            $this->saveUserAvatar(Input::file('avatar'), $user);
+
             $user->save();
 
             event(new UserSettingsChanged());
@@ -1256,6 +1321,89 @@ class AccountController extends BaseController
 
             return Redirect::to('settings/'.ACCOUNT_USER_DETAILS);
         }
+    }
+
+    /**
+     * @param $avatar
+     * @param $user
+     */
+    private function saveUserAvatar($avatar, $user)
+    {
+
+        /* Logo image file */
+        if ($uploaded = $avatar) {
+            $path = $avatar->getRealPath();
+            $disk = $user->getAvatarDisk();
+            $extension = strtolower($uploaded->getClientOriginalExtension());
+
+            if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
+                $documentType = Document::$extraExtensions[$extension];
+            } else {
+                $documentType = $extension;
+            }
+
+            if (! in_array($documentType, ['jpeg', 'png', 'gif'])) {
+                Session::flash('warning', 'Unsupported file type');
+            } else {
+                $documentTypeData = Document::$types[$documentType];
+
+                $filePath = $uploaded->path();
+                $size = filesize($filePath);
+
+                if ($size / 1000 > MAX_DOCUMENT_SIZE) {
+                    Session::flash('error', trans('texts.logo_warning_too_large'));
+                } else {
+                    if ($documentType != 'gif') {
+                        $user->avatar = str_random(21).'.'.$documentType;
+
+                        try {
+                            $imageSize = getimagesize($filePath);
+                            $user->avatar_width = $imageSize[0];
+                            $user->avatar_height = $imageSize[1];
+                            $user->avatar_size = $size;
+
+                            // make sure image isn't interlaced
+                            if (extension_loaded('fileinfo')) {
+                                $image = Image::make($path);
+                                $image->interlace(false);
+                                $imageStr = (string) $image->encode($documentType);
+                                $disk->put($user->avatar, $imageStr);
+                                $user->avatar_size = strlen($imageStr);
+                            } else {
+                                if (Utils::isInterlaced($filePath)) {
+                                    $user->clearAvatar();
+                                    Session::flash('error', trans('texts.logo_warning_invalid'));
+                                } else {
+                                    $stream = fopen($filePath, 'r');
+                                    $disk->getDriver()->putStream($user->avatar, $stream, ['mimetype' => $documentTypeData['mime']]);
+                                    fclose($stream);
+                                }
+                            }
+                        } catch (Exception $exception) {
+                            $user->clearAvatar();
+                            Session::flash('error', trans('texts.logo_warning_invalid'));
+                        }
+                    } else {
+                        if (extension_loaded('fileinfo')) {
+                            $user->avatar = str_random(32).'.png';
+                            $image = Image::make($path);
+                            $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
+                            $imageStr = (string) $image->encode('png');
+                            $disk->put($user->avatar, $imageStr);
+
+                            $user->avatar_size = strlen($imageStr);
+                            $user->avatar_width = $image->width();
+                            $user->avatar_height = $image->height();
+                        } else {
+                            Session::flash('error', trans('texts.logo_warning_fileinfo'));
+                        }
+                    }
+                }
+            }
+
+            $user->save();
+        }
+
     }
 
     /**
@@ -1324,6 +1472,28 @@ class AccountController extends BaseController
         Session::flash('message', trans('texts.removed_logo'));
 
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function removeAvatar()
+    {
+        $user = Auth::user();
+
+        if (! Utils::isNinjaProd() && $user->hasAvatar()) {
+            $user->getAvatarDisk()->delete($user->avatar);
+        }
+
+        $user->avatar = null;
+        $user->avatar_size = null;
+        $user->avatar_width = null;
+        $user->avatar_height = null;
+        $user->save();
+
+        Session::flash('message', trans('texts.removed_logo'));
+
+        return Redirect::to('settings/'.ACCOUNT_USER_DETAILS);
     }
 
     /**

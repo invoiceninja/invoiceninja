@@ -2,6 +2,7 @@
 
 use App\Models\Account;
 use App\Models\AccountEmailSettings;
+use App\Models\AccountTicketSettings;
 use App\Models\Affiliate;
 use App\Models\Client;
 use App\Models\Company;
@@ -63,6 +64,11 @@ class UserTableSeeder extends Seeder
             'notify_paid' => false,
             'is_admin' => 1,
             'accepted_terms_version' => NINJA_TERMS_VERSION,
+        ]);
+
+        $ticketSettings = AccountTicketSettings::create([
+            'account_id' => $account->id,
+            'ticket_master_id' =>$user->id,
         ]);
 
         $permissionsUser = User::create([

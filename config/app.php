@@ -137,11 +137,11 @@ return [
         'Illuminate\Redis\RedisServiceProvider',
         'Illuminate\Auth\Passwords\PasswordResetServiceProvider',
         'Illuminate\Session\SessionServiceProvider',
-        'Illuminate\Translation\TranslationServiceProvider',
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
+        'App\Ninja\Translation\TranslationServiceProvider',
 
         /*
          * Additional Providers
@@ -164,6 +164,7 @@ return [
         'Chumper\Datatable\DatatableServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
 
+
         /*
          * Application Service Providers...
          */
@@ -176,6 +177,8 @@ return [
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        Laravel\Scout\ScoutServiceProvider::class,
+        ScoutEngines\Elasticsearch\ElasticsearchProvider::class,
 
     ],
 

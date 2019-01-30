@@ -105,7 +105,7 @@ class GenerateStatementData
         $payments = Payment::with('invoice', 'payment_type')
             ->withArchived()
             ->whereClientId($this->client->id)
-            //->excludeFailed()
+            ->excludeFailed()
             ->where('payment_date', '>=', $this->options['start_date'])
             ->where('payment_date', '<=', $this->options['end_date']);
 

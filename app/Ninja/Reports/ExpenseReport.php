@@ -13,6 +13,7 @@ class ExpenseReport extends AbstractReport
     public function getColumns()
     {
         $columns = [
+            'id_number' => [],
             'vendor' => [],
             'client' => [],
             'date' => [],
@@ -40,6 +41,8 @@ class ExpenseReport extends AbstractReport
         if ($this->isExport) {
             $columns['currency'] = ['columnSelector-false'];
         }
+
+        $columns['documents'] = ['columnSelector-false'];
 
         return $columns;
     }
@@ -85,9 +88,10 @@ class ExpenseReport extends AbstractReport
             $amount = $expense->amountWithTax();
 
             $row = [
+                str_pad($expense->public_id, $account->invoice_number_padding, '0', STR_PAD_LEFT),
                 $expense->vendor ? ($this->isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($this->isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
-                $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
+                $this->isExport ? $expense->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
                 Utils::formatMoney($amount, $expense->expense_currency_id),
                 $expense->public_notes,
@@ -109,6 +113,15 @@ class ExpenseReport extends AbstractReport
             if ($this->isExport) {
                 $row[] = $expense->present()->currencyCode;
             }
+
+            $documents = '';
+            foreach ($expense->documents as $document) {
+                $expenseId = $row[0];
+                $name = sprintf('%s_%s_%s_%s', $expense->expense_date ?: date('Y-m-d'), trans('texts.expense'), $expenseId, $document->name);
+                $name = str_replace(' ', '_', $name);
+                $documents[] = $name;
+            }
+            $row[] = join(', ', $documents);
 
             $this->data[] = $row;
 

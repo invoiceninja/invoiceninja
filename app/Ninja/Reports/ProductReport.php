@@ -67,7 +67,7 @@ class ProductReport extends AbstractReport
                     $row = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
-                        $invoice->present()->invoice_date,
+                        $this->isExport ? $invoice->invoice_date : $invoice->present()->invoice_date,
                         $item->product_key,
                         $item->notes,
                         $item->qty + 0,
@@ -95,11 +95,8 @@ class ProductReport extends AbstractReport
                     }
 
                     $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
+                    $this->addToTotals($client->currency_id, 'total', $item->qty * $item->cost);
                 }
-
-                //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
-                //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);
-                //$this->addToTotals($client->currency_id, 'balance', $invoice->balance);
             }
         }
     }

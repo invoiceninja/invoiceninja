@@ -134,7 +134,7 @@
     }
 
     #left-sidebar-wrapper ul {
-        min-height: 760px;
+        min-height: 820px;
     }
 
     @media (max-height: 744px) {

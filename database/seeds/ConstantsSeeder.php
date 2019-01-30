@@ -69,7 +69,7 @@ class ConstantsSeeder extends Seeder
             'US/East-Indiana' => '(GMT-05:00) Indiana (East)',
             'America/Bogota' => '(GMT-05:00) Bogota',
             'America/Lima' => '(GMT-05:00) Lima',
-            'America/Caracas' => '(GMT-04:30) Caracas',
+            'America/Caracas' => '(GMT-04:00) Caracas',
             'Canada/Atlantic' => '(GMT-04:00) Atlantic Time (Canada)',
             'America/La_Paz' => '(GMT-04:00) La Paz',
             'America/Santiago' => '(GMT-04:00) Santiago',

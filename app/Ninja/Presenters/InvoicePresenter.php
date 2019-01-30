@@ -245,7 +245,7 @@ class InvoicePresenter extends EntityPresenter
             ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
         ];
 
-        if (Auth::user()->can('create', ENTITY_QUOTE)) {
+        if (Auth::user()->can('createEntity', ENTITY_QUOTE)) {
             $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
         }
 
@@ -318,21 +318,21 @@ class InvoicePresenter extends EntityPresenter
             return '';
         }
 
-        if ($invoice->getGatewayFeeItem()) {
-            $label = ' + ' . trans('texts.fee');
+        if ($gatewayFeeItem = $invoice->getGatewayFeeItem()) {
+            $fee = $invoice->calcGatewayFee($gatewayTypeId, true, $gatewayFeeItem->cost);
         } else {
             $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
-            $fee = $account->formatMoney($fee, $invoice->client);
-
-            if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
-                $label = trans('texts.discount');
-            } else {
-                $label = trans('texts.fee');
-            }
-
-            $label = ' - ' . $fee . ' ' . $label;
         }
 
+        $fee = $account->formatMoney($fee, $invoice->client);
+
+        if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
+            $label = trans('texts.discount');
+        } else {
+            $label = trans('texts.fee');
+        }
+
+        $label = ' - ' . $fee . ' ' . $label;
         $label .= '&nbsp;&nbsp; <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.fee_help') . '"></i>';
 
         return $label;
@@ -368,5 +368,17 @@ class InvoicePresenter extends EntityPresenter
         }
 
         return $data;
+    }
+
+    public function days_since_last_email()
+    {
+        $invoice = $this->entity;
+        $lastSentDate = $invoice->last_sent_date;
+
+        if(! $lastSentDate) {
+            return 0;
+        }
+
+        return Carbon::parse($lastSentDate)->diffInDays();
     }
 }

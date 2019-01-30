@@ -12,7 +12,6 @@ class TaxRateTransformer extends EntityTransformer
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="name", type="string", example="GST")
-     * @SWG\Property(property="account_key", type="string", example="asimplestring", readOnly=true)
      * @SWG\Property(property="rate", type="number", format="float", example=17.5)
      * @SWG\Property(property="is_inclusive", type="boolean", example=false)
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)

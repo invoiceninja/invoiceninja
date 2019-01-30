@@ -40,6 +40,9 @@
             'quote': invoice ? invoice.invoice_number : '0001',
             'number': invoice ? invoice.invoice_number : '0001',
             'password': passwordHtml,
+            'poNumber': invoice ? invoice.po_number : '123456',
+            'terms': invoice ? invoice.terms : "{{ trans('texts.terms') }}",
+            'notes': invoice ? invoice.public_notes: "{{ trans('texts.notes') }}",
             'documents': documentsHtml,
             'viewLink': '{{ link_to('#', auth()->user()->account->getBaseUrl() . '/...') }}$password',
             'viewButton': viewButton,
@@ -120,6 +123,9 @@
                                 'partial',
                                 'invoiceDate',
                                 'dueDate',
+                                'poNumber',
+                                'terms',
+                                'notes',
                                 'documents',
                             ] as $field)
                                 <li>${{ $field }}</li>

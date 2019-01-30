@@ -36,6 +36,101 @@ class PermissionsCest
 
     }
 
+    public function setViewPermissionsNothing(FunctionalTester $I)
+    {
+        $I->wantTo('create a view nothing permission user');
+
+        $permissions = [];
+
+        $I->updateInDatabase('users',
+            ['is_admin' => 0,
+                'permissions' => json_encode(array_diff(array_values($permissions),[0]))
+            ],
+            ['email' => Fixtures::get('permissions_username')]
+        );
+    }
+
+    /*
+     * Test View Permissions
+     *
+     *  See 403 response for an individual ENTITY record
+     *
+     */
+
+
+    public function dontViewInvoice(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewClient(FunctionalTester $I)
+    {
+        $I->amOnPage('/clients/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewProduct(FunctionalTester $I)
+    {
+        $I->amOnPage('/products/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewPayment(FunctionalTester $I)
+    {
+        $I->amOnPage('/payments/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewQuote(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewRecurringInvoice(FunctionalTester $I)
+    {
+        $I->amOnPage('/recurring_invoices/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewCredit(FunctionalTester $I)
+    {
+        $I->amOnPage('/credits/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewProposal(FunctionalTester $I)
+    {
+        $I->amOnPage('/proposals/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewProject(FunctionalTester $I)
+    {
+        $I->amOnPage('/projects/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewTask(FunctionalTester $I)
+    {
+        $I->amOnPage('/tasks/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewExpense(FunctionalTester $I)
+    {
+        $I->amOnPage('/expenses/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+    public function dontViewVendor(FunctionalTester $I)
+    {
+        $I->amOnPage('/vendors/1');
+        $I->canSeeInCurrentUrl('dashboard');
+    }
+
+
     public function setViewPermissions(FunctionalTester $I)
     {
         $I->wantTo('create a view only permission user');
@@ -53,14 +148,13 @@ class PermissionsCest
         );
     }
 
+
     /*
      * Test View Permissions
      *
      *  See 200 response for an individual ENTITY record
      *
      */
-
-
 
 
     public function viewInvoice(FunctionalTester $I)
@@ -216,15 +310,16 @@ class PermissionsCest
      * Test Create permissions when only VIEW enabled
      */
 
-    public function createInvoice(FunctionalTester $I)
-    {
-        $I->amOnPage('/invoices/create');
-        $I->seeResponseCodeIs(403);
-    }
 
     public function createClient(FunctionalTester $I)
     {
         $I->amOnPage('/clients/create');
+        $I->seeResponseCodeIs(403);
+    }
+
+    public function createInvoice(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/create');
         $I->seeResponseCodeIs(403);
     }
 
@@ -317,23 +412,19 @@ class PermissionsCest
         $I->seeResponseCodeIs(403);
     }
 
-
-    /*
-     * 
-
     public function testViewInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/1');
-        $I->seeResponseCodeIs(403);
+        $I->canSeeInCurrentUrl('dashboard');
     }
 
     public function testEditInvoice(FunctionalTester $I)
     {
         $I->amOnPage('/invoices/11/edit');
-        $I->seeResponseCodeIs(403);
+        $I->canSeeInCurrentUrl('dashboard');
     }
 
-    */
+
 
     public function testCreateQuote(FunctionalTester $I)
     {
@@ -399,7 +490,7 @@ class PermissionsCest
     public function testEditQuoteOnly(FunctionalTester $I)
     {
         $I->amOnPage('/quotes/1/edit');
-        $I->seeResponseCodeIs(200);
+        $I->seeResponseCodeIs(403);
     }
 
     public function testViewQuoteOnly(FunctionalTester $I)
@@ -407,4 +498,102 @@ class PermissionsCest
         $I->amOnPage('/quotes/1');
         $I->seeResponseCodeIs(403);
     }
+
+
+    public function setCreatePermissions(FunctionalTester $I)
+    {
+        $I->wantTo('make a create only permission user');
+
+        $permissions = [];
+
+        foreach($this->entityArray as $item)
+            array_push($permissions, 'create_' . $item);
+
+        $I->updateInDatabase('users',
+            ['is_admin' => 0,
+                'permissions' => json_encode(array_diff(array_values($permissions),[0]))
+            ],
+            ['email' => Fixtures::get('permissions_username')]
+        );
+    }
+
+    public function testCreateInvoiceCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/invoices/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProposalCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/proposals/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProposalSnippetCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/proposals/snippets/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProposalTemplateCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/proposals/templates/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateExpenseCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/expenses/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProjectCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/projects/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateVendorCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/vendors/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateProductCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/products/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateTasksCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/tasks/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateQuotesCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/quotes/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateCreditsCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/credits/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreatePaymentsCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/payments/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function testCreateClientsCreateOnlyPermissions(FunctionalTester $I)
+    {
+        $I->amOnPage('/clients/create');
+        $I->seeResponseCodeIs(200);
+    }
+
+
 }

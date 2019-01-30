@@ -106,6 +106,9 @@ class ClientController extends BaseController
         if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/'.$client->public_id)];
         }
+        if ($user->can('create', ENTITY_RECURRING_QUOTE)) {
+            $actionLinks[] = ['label' => trans('texts.new_recurring_quote'), 'url' => URL::to('/recurring_quotes/create/'.$client->public_id)];
+        }
 
         if (! empty($actionLinks)) {
             $actionLinks[] = \DropdownButton::DIVIDER;
@@ -133,6 +136,7 @@ class ClientController extends BaseController
             'credit' => $client->getTotalCredit(),
             'title' => trans('texts.view_client'),
             'hasRecurringInvoices' => $account->isModuleEnabled(ENTITY_RECURRING_INVOICE) && Invoice::scope()->recurring()->withArchived()->whereClientId($client->id)->count() > 0,
+            'hasRecurringQuotes' => $account->isModuleEnabled(ENTITY_RECURRING_INVOICE) && Invoice::scope()->recurringQuote()->withArchived()->whereClientId($client->id)->count() > 0,
             'hasQuotes' => $account->isModuleEnabled(ENTITY_QUOTE) && Invoice::scope()->quotes()->withArchived()->whereClientId($client->id)->count() > 0,
             'hasTasks' => $account->isModuleEnabled(ENTITY_TASK) && Task::scope()->withArchived()->whereClientId($client->id)->count() > 0,
             'hasExpenses' => $account->isModuleEnabled(ENTITY_EXPENSE) && Expense::scope()->withArchived()->whereClientId($client->id)->count() > 0,

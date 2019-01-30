@@ -321,7 +321,7 @@ class ClientPortalController extends BaseController
             ->make();
     }
 
-    public function recurringInvoiceIndex()
+    public function recurringInvoiceIndex($quotes = false)
     {
         if (! $contact = $this->getContact()) {
             return $this->returnError();
@@ -341,17 +341,29 @@ class ClientPortalController extends BaseController
             $columns[] = 'auto_bill';
         }
 
+        $title = trans('texts.recurring_invoices');
+        $entityType = ENTITY_RECURRING_INVOICE;
+        if ($quotes) {
+            $title = trans('texts.recurring_quotes');
+            $entityType = ENTITY_RECURRING_QUOTE;
+        }
+
         $data = [
             'color' => $color,
             'account' => $account,
             'client' => $client,
-            'title' => trans('texts.recurring_invoices'),
-            'entityType' => ENTITY_RECURRING_INVOICE,
+            'title' => $title,
+            'entityType' => $entityType,
             'columns' => Utils::trans($columns),
             'sortColumn' => 1,
         ];
 
         return response()->view('public_list', $data);
+    }
+
+    public function recurringQuoteIndex()
+    {
+        return self::recurringInvoiceIndex(true);
     }
 
     public function invoiceIndex()
@@ -397,6 +409,15 @@ class ClientPortalController extends BaseController
         }
 
         return $this->invoiceRepo->getClientRecurringDatatable($contact->id);
+    }
+
+    public function recurringQuoteDatatable()
+    {
+        if (! $contact = $this->getContact()) {
+            return '';
+        }
+
+        return $this->invoiceRepo->getClientRecurringDatatable($contact->id, ENTITY_RECURRING_QUOTE);
     }
 
     public function paymentIndex()
@@ -500,6 +521,7 @@ class ClientPortalController extends BaseController
         $data = [
           'color' => $color,
           'account' => $account,
+          'client' => $contact->client,
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date', 'status']),
@@ -627,7 +649,7 @@ class ClientPortalController extends BaseController
         return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, Input::get('sSearch'));
     }
 
-    private function returnError($error = false)
+    public function returnError($error = false)
     {
         if (request()->phantomjs) {
             abort(404);
@@ -640,7 +662,7 @@ class ClientPortalController extends BaseController
         ]);
     }
 
-    private function getContact()
+    public function getContact()
     {
         $contactKey = session('contact_key');
 
@@ -1047,4 +1069,6 @@ class ClientPortalController extends BaseController
         return view('clients.statement', $data);
 
     }
+
+
 }

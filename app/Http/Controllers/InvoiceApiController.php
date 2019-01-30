@@ -54,14 +54,14 @@ class InvoiceApiController extends BaseAPIController
      *     response="default",
      *     description="an ""unexpected"" error"
      *   )
-     * )
+     * );
      */
     public function index()
     {
         $invoices = Invoice::scope()
                         ->withTrashed()
                         ->with('invoice_items', 'client')
-                        ->orderBy('created_at', 'desc');
+                        ->orderBy('updated_at', 'desc');
 
         // Filter by invoice number
         if ($invoiceNumber = Input::get('invoice_number')) {
@@ -104,7 +104,7 @@ class InvoiceApiController extends BaseAPIController
      *     response="default",
      *     description="an ""unexpected"" error"
      *   )
-     * )
+     * );
      */
     public function show(InvoiceRequest $request)
     {
@@ -130,7 +130,7 @@ class InvoiceApiController extends BaseAPIController
      *     response="default",
      *     description="an ""unexpected"" error"
      *   )
-     * )
+     * );
      */
     public function store(CreateInvoiceAPIRequest $request)
     {
@@ -455,7 +455,7 @@ class InvoiceApiController extends BaseAPIController
      *     response="default",
      *     description="an ""unexpected"" error"
      *   )
-     * )
+     * );
      */
     public function destroy(UpdateInvoiceAPIRequest $request)
     {

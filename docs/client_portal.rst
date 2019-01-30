@@ -33,6 +33,12 @@ Custom CSS
 
 Do you have some experience in web design? Want to put your individual fingerprint on your client portal? You can control the look and feel of your client portal by entering custom CSS in your portal layout. Enter the CSS in the Custom CSS field.
 
+Custom JavaScript
+^^^^^^^^^^^^^^^^^
+Want to include some custom JavaScript on the client portal, e.g. for a chat client, etc?  Enter the JavaScript in the Custom JS field.
+
+.. NOTE:: This feature is only available for self-hosted installations.
+
 Authorization
 """""""""""""
 

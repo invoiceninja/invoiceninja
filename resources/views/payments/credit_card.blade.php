@@ -322,7 +322,172 @@
     @endif
 
     @if ($accountGateway->isGateway(GATEWAY_WEPAY) && $account->token_billing_type_id == TOKEN_BILLING_DISABLED)
-        {{--- do nothing ---}}
+        {{--- do nothing --}}
+    @elseif($accountGateway->isGateway(GATEWAY_STRIPE))
+
+    <div class="ninja stripe">
+        <div class="row">
+            <div class="field">
+              <div id="card-number" class="input empty"></div>
+              <label for="card-number" data-tid="card_number_label">Card number</label>
+              <div class="baseline"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field half-width">
+              <div id="card-expiry" class="input empty"></div>
+              <label for="card-expiry" data-tid="card_expiry_label">Expiration</label>
+              <div class="baseline"></div>
+            </div>
+            <div class="field half-width">
+              <div id="card-cvc" class="input empty"></div>
+              <label for="card-cvc" data-tid="card_cvc_label">CVC</label>
+              <div class="baseline"></div>
+            </div>
+          </div>
+
+          <div id="card-errors" role="alert"></div>
+    </div>
+
+    @include("payments.stripe.credit_card_stripe_css")
+
+        <script type="text/javascript">
+
+            // Create a Stripe client.
+            var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
+
+            // Create an instance of Elements.
+            var elements = stripe.elements();
+
+            // Custom styling can be passed to options when creating an Element.
+            // (Note that this demo uses a wider set of styles than the guide below.)
+            var elementStyles = {
+                base: {
+                  color: '#32325D',
+                  fontWeight: 500,
+                  fontFamily: 'Source Code Pro, Consolas, Menlo, monospace',
+                  fontSize: '16px',
+                  fontSmoothing: 'antialiased',
+
+                  '::placeholder': {
+                    color: '#CFD7DF',
+                  },
+                  ':-webkit-autofill': {
+                    color: '#e39f48',
+                  },
+                },
+                invalid: {
+                  color: '#E25950',
+
+                  '::placeholder': {
+                    color: '#FFCCA5',
+                  },
+                },
+              };
+
+              var elementClasses = {
+                focus: 'focused',
+                empty: 'empty',
+                invalid: 'invalid',
+              };
+
+              var cardNumber = elements.create('cardNumber', {
+                style: elementStyles,
+                classes: elementClasses,
+              });
+              cardNumber.mount('#card-number');
+
+              var cardExpiry = elements.create('cardExpiry', {
+                style: elementStyles,
+                classes: elementClasses,
+              });
+              cardExpiry.mount('#card-expiry');
+
+              var cardCvc = elements.create('cardCvc', {
+                style: elementStyles,
+                classes: elementClasses,
+              });
+              cardCvc.mount('#card-cvc');
+
+
+            cardNumber.addEventListener('change', function(event){
+                var displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                    displayError.textContent = event.error.message;
+                    } else {
+                    displayError.textContent = '';
+                    }
+
+            });
+
+            cardExpiry.addEventListener('change', function(event){
+                var displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                    displayError.textContent = event.error.message;
+                    } else {
+                    displayError.textContent = '';
+                    }
+
+            });
+
+            cardCvc.addEventListener('change', function(event){
+                var displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                    displayError.textContent = event.error.message;
+                    } else {
+                    displayError.textContent = '';
+                    }
+
+            });
+
+            function releaseSubmitButton(){
+                $('.payment-form').find('button').prop('disabled', false);
+
+            }
+
+
+            // Handle form submission.
+            var form = document.getElementById('payment-form');
+            form.addEventListener('submit', function(event) {
+              event.preventDefault();
+
+
+            var options = {
+                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value
+            };
+
+            if (document.getElementById('postal_code')) {
+                options.address_zip = document.getElementById('postal_code').value;
+            }
+
+            stripe.createToken(cardNumber, options).then(function(result) {
+                if (result.error) {
+                  // Inform the user if there was an error.
+                  var errorElement = document.getElementById('card-errors');
+                  errorElement.textContent = result.error.message;
+                    releaseSubmitButton();
+                } else {
+                  // Send the token to your server.
+                  stripeTokenHandler(result.token);
+                }
+              });
+            });
+
+
+            function stripeTokenHandler(token) {
+              // Insert the token ID into the form so it gets submitted to the server
+              var form = document.getElementById('payment-form');
+              var hiddenInput = document.createElement('input');
+              hiddenInput.setAttribute('type', 'hidden');
+              hiddenInput.setAttribute('name', 'sourceToken');
+              hiddenInput.setAttribute('value', token.id);
+              form.appendChild(hiddenInput);
+
+              // Submit the form
+              form.submit();
+            }
+
+        </script>
     @else
         <div class="row">
             <div class="col-lg-12">
@@ -414,22 +579,6 @@
                         </div>
                     </div>
 
-                    <div class="row" style="padding-top:18px">
-
-                        <div class="col-md-12">
-                            @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
-                                <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
-                                <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
-                                <span class="help-block" style="font-size:15px">
-                                    @if ($storageGateway == GATEWAY_STRIPE)
-                                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
-                                    @elseif ($storageGateway == GATEWAY_BRAINTREE)
-                                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
-                                    @endif
-                                </span>
-                            @endif
-                        </div>
-                    </div>
                 </div>
                 <div class="col-lg-4" style="padding-top: 12px; padding-left: 0px;">
                     <div class='card-wrapper'></div>
@@ -437,6 +586,23 @@
             @endif
         </div>
     @endif
+
+    <div class="row" style="padding-top:18px">
+        <div class="col-md-12">
+            @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
+                <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
+                <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
+                <span class="help-block" style="font-size:15px">
+                    @if ($storageGateway == GATEWAY_STRIPE)
+                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
+                    @elseif ($storageGateway == GATEWAY_BRAINTREE)
+                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
+                    @endif
+                </span>
+            @endif
+        </div>
+    </div>
+
 
     <div class="col-md-12">
         <div id="js-error-message" style="display:none" class="alert alert-danger"></div>

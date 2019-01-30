@@ -74,7 +74,7 @@ class ProjectApiController extends BaseAPIController
     {
         $projects = Project::scope()
             ->withTrashed()
-            ->orderBy('created_at', 'desc');
+            ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($projects);
     }

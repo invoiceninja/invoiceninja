@@ -245,11 +245,14 @@
         @if ($hasExpenses)
             {!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
         @endif
+        @if ($hasRecurringQuotes)
+            {!! Form::tab_link('#recurring_quotes', trans('texts.recurring_quotes')) !!}
+        @endif
 		@if ($hasQuotes)
 			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
         @if ($hasRecurringInvoices)
-            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring')) !!}
+            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring_invoices')) !!}
         @endif
 		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
 		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
@@ -317,6 +320,16 @@
                 'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
                 'clientId' => $client->public_id,
                 'url' => url('api/recurring_invoices/' . $client->public_id),
+            ])
+        </div>
+    @endif
+    @if ($hasRecurringQuotes)
+        <div class="tab-pane" id="recurring_quotes">
+            @include('list', [
+                'entityType' => ENTITY_RECURRING_QUOTE,
+                'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
+                'clientId' => $client->public_id,
+                'url' => url('api/recurring_quotes/' . $client->public_id),
             ])
         </div>
     @endif

@@ -33,7 +33,7 @@ class GenericEntityPolicy
 
     /**
      * @param User $user
-     * @param $entityTypee
+     * @param $entityType
      * @param $ownerUserId
      * @param mixed $entityType
      *
@@ -57,18 +57,12 @@ class GenericEntityPolicy
      */
     public static function create(User $user, $entityType)
     {
-        /*
         $className = static::className($entityType);
         if (method_exists($className, 'create')) {
             return call_user_func([$className, 'create'], $user, $entityType);
         }
 
         return false;
-        */
-        if($user->hasPermission('create_'.$entityType))
-            return true;
-        else
-            return false;
     }
 
     /**
@@ -79,18 +73,12 @@ class GenericEntityPolicy
      */
     public static function view(User $user, $entityType)
     {
-        /*
         $className = static::className($entityType);
         if (method_exists($className, 'view')) {
             return call_user_func([$className, 'view'], $user, $entityType);
         }
 
-        return false;*/
-
-        if($user->hasPermission('view_'.$entityType))
-            return true;
-        else
-            return false;
+        return false;
     }
 
     /**

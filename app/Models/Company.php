@@ -126,11 +126,6 @@ class Company extends Eloquent
             return false;
         }
 
-        // if they've already been pro return false
-        if ($this->plan_expires && $this->plan_expires != '0000-00-00') {
-            return false;
-        }
-
         // if they've already had a discount or a promotion is active return false
         if ($this->discount_expires || $this->hasActivePromo()) {
             return false;
@@ -202,7 +197,7 @@ class Company extends Eloquent
         $this->promo_expires = date_create()->modify('3 days')->format('Y-m-d');
     }
 
-    public function applyFreeYear()
+    public function applyFreeYear($numYears = 1)
     {
         if ($this->plan_started && $this->plan_started != '0000-00-00') {
             return;
@@ -213,7 +208,7 @@ class Company extends Eloquent
         $this->plan_price = PLAN_PRICE_PRO_MONTHLY;
         $this->plan_started = date_create()->format('Y-m-d');
         $this->plan_paid = date_create()->format('Y-m-d');
-        $this->plan_expires = date_create()->modify('1 year')->format('Y-m-d');
+        $this->plan_expires = date_create()->modify($numYears . ' year')->format('Y-m-d');
     }
 }
 

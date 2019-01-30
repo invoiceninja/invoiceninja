@@ -69,7 +69,7 @@ class ReportController extends BaseController
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
-            $startDate = Utils::today(false)->modify('-3 month');
+            $startDate = Utils::today(false)->modify('-1 month');
             $endDate = Utils::today(false);
         }
 
@@ -85,6 +85,7 @@ class ReportController extends BaseController
             'product',
             'profit_and_loss',
             'task',
+            'task_details',
             'tax_rate',
             'quote',
         ];

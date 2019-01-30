@@ -11,8 +11,7 @@
             <i class="fa fa-calendar" style="width:20px"></i>
         </a>
     @elseif ($option == 'dashboard')
-
-    @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))
+    @elseif (Auth::user()->can('createEntity', $option) || Auth::user()->can('createEntity', substr($option, 0, -1)))
         <a type="button" class="btn btn-primary btn-sm pull-right"
             href="{{ url("/{$option}/create") }}">
             <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
@@ -23,7 +22,7 @@
         style="padding-top:6px; padding-bottom:6px"
         class="nav-link {{ Request::is("{$option}*") ? 'active' : '' }}">
         <i class="fa fa-{{ empty($icon) ? \App\Models\EntityModel::getIcon($option) : $icon }}" style="width:46px; padding-right:10px"></i>
-        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : mtrans($option) }}
+        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : (!empty($moduleName) ? mtrans($moduleName) : mtrans($option)) }}
         {!! Utils::isTrial() && in_array($option, ['reports']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
     </a>
 

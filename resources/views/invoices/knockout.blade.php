@@ -1038,13 +1038,21 @@ ko.bindingHandlers.productTypeahead = {
             name: 'data',
             display: allBindings.key,
             limit: 50,
-            templates: {
-                suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
-                    + _.escape(item.product_key) + ': '
-                    + roundToTwo(item.cost, true) + "<br/>"
-                    + _.escape(item.notes.substring(0, 100)) + '</div>' }
-            },
-            source: searchData(allBindings.items, allBindings.key, false, 'notes')
+            @if (Auth::user()->account->show_product_notes)
+                templates: {
+                    suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
+                        + _.escape(item.product_key) + "<br/>"
+                        + roundSignificant(item.cost, true) + ' • '
+                        + _.escape(item.notes.substring(0, 100)) + '</div>' }
+                },
+                source: searchData(allBindings.items, allBindings.key, false, 'notes'),
+            @else
+                templates: {
+                    suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
+                        + _.escape(item.product_key) + '</div>' }
+                },
+                source: searchData(allBindings.items, allBindings.key),
+            @endif
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
                 var model = ko.dataFor(this);
@@ -1063,8 +1071,8 @@ ko.bindingHandlers.productTypeahead = {
                             var rate = false;
                             if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                 rate = window.model.invoice().custom_text_value1();
-                            } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
-                                rate = window.model.invoice().custom_text_value1();
+                            } else if ((account.custom_fields.invoice_text2 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                rate = window.model.invoice().custom_text_value2();
                             }
                             if (rate) {
                                 cost = cost * rate;
@@ -1084,7 +1092,7 @@ ko.bindingHandlers.productTypeahead = {
                                         });
                                         if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                             window.model.invoice().custom_text_value1(roundToFour(rate, true));
-                                        } else if ((account.custom_fields.invoice_text1 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
+                                        } else if ((account.custom_fields.invoice_text2 || '').toLowerCase() == "{{ strtolower(trans('texts.exchange_rate')) }}") {
                                             window.model.invoice().custom_text_value2(roundToFour(rate, true));
                                         }
                                     }
@@ -1092,7 +1100,7 @@ ko.bindingHandlers.productTypeahead = {
                             }
                         @endif
 
-                        model.cost(roundToTwo(cost, true));
+                        model.cost(roundSignificant(cost));
                     }
                 }
                 if (! model.qty() && ! model.isTask()) {

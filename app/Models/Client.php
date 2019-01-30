@@ -175,6 +175,22 @@ class Client extends EntityModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function tasks()
+    {
+        return $this->hasMany('App\Models\Task');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function projects()
+    {
+        return $this->hasMany('App\Models\Project');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function contacts()
     {
         return $this->hasMany('App\Models\Contact');
@@ -581,11 +597,19 @@ class Client extends EntityModel
     }
 
     /**
-     * @return bool
-     */
+ * @return bool
+ */
     public function hasRecurringInvoices()
     {
-        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->where('invoice_type_id', INVOICE_TYPE_STANDARD)->count() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRecurringQuotes()
+    {
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->where('invoice_type_id', INVOICE_TYPE_QUOTE)->count() > 0;
     }
 
     public function defaultDaysDue()

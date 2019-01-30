@@ -31,4 +31,9 @@ class ProposalSnippetRequest extends EntityRequest
 
         return $this->all();
     }
+
+    public function authorize()
+    {
+        return $this->user()->can('view', ENTITY_PROPOSAL) || $this->user()->can('createEntity', ENTITY_PROPOSAL);
+    }
 }

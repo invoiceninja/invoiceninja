@@ -1,3 +1,11 @@
+@if (Utils::isSelfHost())
+	@foreach(Module::getOrdered() as $module)
+	    @if(View::exists($module->getLowerName() . '::extend.list'))
+	        @includeIf($module->getLowerName() . '::extend.list')
+	    @endif
+	@endforeach
+@endif
+
 {!! Former::open(\App\Models\EntityModel::getFormUrl($entityType) . '/bulk')
 		->addClass('listForm_' . $entityType) !!}
 
@@ -9,7 +17,7 @@
 
 <div class="pull-left">
 	@if (in_array($entityType, [ENTITY_TASK, ENTITY_EXPENSE, ENTITY_PRODUCT, ENTITY_PROJECT]))
-		@can('create', 'invoice')
+		@can('createEntity', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endcan
 	@endif
@@ -40,11 +48,17 @@
 			@endif
 		</select>
 	</span>
+	&nbsp;
+	<span class="well well-sm" id="sum_column_{{ $entityType }}" style="display:none;padding-left:12px;padding-right:12px;"></span>
 </div>
 
 <div id="top_right_buttons" class="pull-right">
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
+
+    @if (Utils::isSelfHost())
+        @stack('top_right_buttons')
+    @endif
 
 	@if ($entityType == ENTITY_PROPOSAL)
 		{!! DropdownButton::normal(trans('texts.proposal_templates'))
@@ -90,7 +104,7 @@
 			  ['label' => trans('texts.new_recurring_expense'), 'url' => url('/recurring_expenses/create')],
 			]
 		  )->split() !!}
-		@if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+		@if (Auth::user()->can('createEntity', ENTITY_EXPENSE_CATEGORY))
 			{!! DropdownButton::normal(trans('texts.categories'))
                 ->withAttributes(['class'=>'categoriesDropdown'])
                 ->withContents([
@@ -112,12 +126,33 @@
 		  		});
 			});
 		</script>
+	@elseif (($entityType == ENTITY_RECURRING_INVOICE || $entityType == ENTITY_QUOTE) && ! isset($clientId))
+
+        @if (Auth::user()->can('createEntity', ENTITY_RECURRING_QUOTE))
+            {!! DropdownButton::normal(trans('texts.recurring_quotes'))
+                ->withAttributes(['class'=>'recurringDropdown'])
+                ->withContents([
+                  ['label' => trans('texts.new_recurring_quote'), 'url' => url('/recurring_quotes/create')],
+                ]
+              )->split() !!}
+        @else
+            {!! DropdownButton::normal(trans('texts.recurring_quotes'))
+                ->withAttributes(['class'=>'recurringDropdown'])
+                ->split() !!}
+        @endif
+		<script type="text/javascript">
+            $(function() {
+                $('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+                    openUrlOnClick('{{ url('/recurring_quotes') }}', event)
+                });
+            });
+		</script>
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.kanban'))->asLinkTo(url('/tasks/kanban' . (! empty($clientId) ? ('/' . $clientId . (! empty($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('th')) !!}
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
     @endif
 
-	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
+	@if (Auth::user()->can('createEntity', $entityType) && empty($vendorId))
     	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))
 			->asLinkTo(url(
 				(in_array($entityType, [ENTITY_PROPOSAL_SNIPPET, ENTITY_PROPOSAL_CATEGORY, ENTITY_PROPOSAL_TEMPLATE]) ? str_replace('_', 's/', Utils::pluralizeEntityType($entityType)) : Utils::pluralizeEntityType($entityType)) .
@@ -225,6 +260,7 @@
 	    window.onDatatableReady_{{ Utils::pluralizeEntityType($entityType) }} = function() {
 	        $(':checkbox').click(function() {
 	            setBulkActionsEnabled_{{ $entityType }}();
+							changeSumLabel();
 	        });
 
 	        $('.listForm_{{ $entityType }} tbody tr').unbind('click').click(function(event) {
@@ -233,6 +269,7 @@
 	                var checked = $checkbox.prop('checked');
 	                $checkbox.prop('checked', !checked);
 	                setBulkActionsEnabled_{{ $entityType }}();
+									changeSumLabel();
 	            }
 	        });
 
@@ -259,6 +296,54 @@
 	        $('.listForm_{{ $entityType }} button.archive').not('.dropdown-toggle').text(buttonLabel);
 	    }
 
+			function sumColumnVars(currentSum, add) {
+				switch ("{{ $entityType }}") {
+					case "task":
+						if(currentSum == "") {
+							currentSum = "00:00:00";
+						}
+						currentSumMoment = moment.duration(currentSum);
+						addMoment = moment.duration(add);
+						return secondsToTime(currentSumMoment.add(addMoment).asSeconds(), true);
+						break;
+
+						default:
+						if(currentSum == "") { currentSum = "0"}
+						return (convertStringToNumber(currentSum) + convertStringToNumber(add)).toFixed(2);
+				}
+			}
+
+			function changeSumLabel() {
+				var dTable = $('.listForm_{{ $entityType }} .data-table').DataTable();
+				 @if ($datatable->sumColumn() != null)
+				 	@if(in_array($entityType, [ENTITY_TASK]))
+						var sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).nodes();
+					@else
+						sumColumnNodes = dTable.column( {{ $datatable->sumColumn() }} ).data().toArray();
+					@endif
+					var sum = 0;
+					var cboxArray = dTable.column(0).nodes();
+
+					for (i = 0 ; i < sumColumnNodes.length ; i++) {
+						if(cboxArray[i].firstChild.checked) {
+							var value;
+							@if(in_array($entityType, [ENTITY_TASK]))
+								value = sumColumnNodes[i].firstChild.innerHTML;
+							@else
+								value = sumColumnNodes[i];
+							@endif
+							sum = sumColumnVars(sum, value);
+						}
+					}
+
+					if (sum) {
+						$('#sum_column_{{ $entityType }}').show().text("{{ trans('texts.total') }}: " + sum)
+					} else {
+						$('#sum_column_{{ $entityType }}').hide();
+					}
+
+				 @endif
+			}
 
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({

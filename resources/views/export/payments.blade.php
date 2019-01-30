@@ -21,7 +21,7 @@
             @endif
             <td>{{ $payment->invoice->invoice_number }}</td>
             <td>{{ $account->formatMoney($payment->amount, $payment->client) }}</td>
-            <td>{{ $payment->present()->payment_date }}</td>
+            <td>{{ $payment->payment_date }}</td>
             <td>{{ $payment->present()->method }}</td>
             <td>{{ $payment->transaction_reference }}</td>
             <td>{{ $payment->private_notes }}</td>
