@@ -288,6 +288,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'signature': NINJA.signature(invoice),
         'signatureBase64': NINJA.signatureImage(invoice),
         'signatureDate': NINJA.signatureDate(invoice),
+        'invoiceTotal': formatMoneyInvoice(invoice.amount, invoice),
     }
 
     for (var key in json) {
