@@ -3,41 +3,41 @@
 	<div class="container-fluid">
 
 		<div class="row">
-	    <div class="col" style="padding: 0px;">
-	    
-		    <div class="float-right">
+		    <div class="col" style="padding: 0px;">
+		    
+			    <div class="float-right">
 
-				<div class="btn-group ml-2">
-			      <button type="button" class="btn btn-lg btn-secondary">{{ trans('texts.edit_client') }}</button>
-			      <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			        <span class="sr-only">Toggle Dropdown</span>
-			      </button>
-			      <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(189px, -2px, 0px); top: 0px; left: 0px; will-change: transform;">
-			        <a class="dropdown-item" href="#">Action</a>
-			        <a class="dropdown-item" href="#">Another action</a>
-			        <a class="dropdown-item" href="#">Something else here</a>
-			        <div class="dropdown-divider"></div>
-			        <a class="dropdown-item" href="#">Separated link</a>
-			      </div>
+					<div class="btn-group ml-2">
+				      <button type="button" class="btn btn-lg btn-secondary">{{ trans('texts.edit_client') }}</button>
+				      <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        <span class="sr-only">Toggle Dropdown</span>
+				      </button>
+				      <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(189px, -2px, 0px); top: 0px; left: 0px; will-change: transform;">
+				        <a class="dropdown-item" href="#">Action</a>
+				        <a class="dropdown-item" href="#">Another action</a>
+				        <a class="dropdown-item" href="#">Something else here</a>
+				        <div class="dropdown-divider"></div>
+				        <a class="dropdown-item" href="#">Separated link</a>
+				      </div>
+				    </div>
+
+					<div class="btn-group ml-2">
+				      <button type="button" class="btn btn-lg btn-primary">{{ trans('texts.view_statement') }}</button>
+				      <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				        <span class="sr-only">Toggle Dropdown</span>
+				      </button>
+				      <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(189px, -2px, 0px); top: 0px; left: 0px; will-change: transform;">
+				        <a class="dropdown-item" href="#">Action</a>
+				        <a class="dropdown-item" href="#">Another action</a>
+				        <a class="dropdown-item" href="#">Something else here</a>
+				        <div class="dropdown-divider"></div>
+				        <a class="dropdown-item" href="#">Separated link</a>
+				      </div>
+				    </div>
+
 			    </div>
 
-				<div class="btn-group ml-2">
-			      <button type="button" class="btn btn-lg btn-primary">{{ trans('texts.view_statement') }}</button>
-			      <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			        <span class="sr-only">Toggle Dropdown</span>
-			      </button>
-			      <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(189px, -2px, 0px); top: 0px; left: 0px; will-change: transform;">
-			        <a class="dropdown-item" href="#">Action</a>
-			        <a class="dropdown-item" href="#">Another action</a>
-			        <a class="dropdown-item" href="#">Something else here</a>
-			        <div class="dropdown-divider"></div>
-			        <a class="dropdown-item" href="#">Separated link</a>
-			      </div>
-			    </div>
-
-		    </div>
-
-		</div>
+			</div>
 		</div>
 
 		<div class="card">
@@ -102,6 +102,14 @@
 		</div>
 		
 
+		<div v-if="">
+
+		<iframe
+		  width="100%"
+		  height="200px"
+		  frameborder="0" style="border:0"
+		  :src="mapUrl" allowfullscreen>
+		</iframe>
 
 		</div>
 
@@ -109,15 +117,49 @@
 
 </template>
 
+
 <script lang="ts">
-
-import Geocoder from "@pderas/vue2-geocoder";
-//import Vue from "vue"
-
 
 export default {
     props: ['client', 'company', 'meta'],
+    mounted() {
+    	console.dir(this.meta.google_maps_api_key)
+   		console.dir(this.clientAddress)
 
+    },
+    computed: {
+    	mapUrl: {
+    		get: function() {
+        	  return `https://www.google.com/maps/embed/v1/place?key=${this.meta.google_maps_api_key}&q=${this.clientAddress}`
+		    }
+    	},
+    	clientAddress: {
+    		get: function() {
+
+    			var addressArray = []
+
+    			if(this.client.address1)
+    				addressArray.push(this.client.address1.split(' ').join('+'))
+
+    			if(this.client.address2)
+    				addressArray.push(this.client.address2.split(' ').join('+'))
+
+    			if(this.client.city)
+    				addressArray.push(this.client.city.split(' ').join('+'))
+
+    			if(this.client.state)
+    				addressArray.push(this.client.state.split(' ').join('+'))
+
+    			if(this.client.postal_code)
+    				addressArray.push(this.client.postal_code.split(' ').join('+'))
+
+    			if(this.client.country.name)
+    				addressArray.push(this.client.country.name.split(' ').join('+'))
+
+    			return encodeURIComponent(addressArray.join(",")) 
+    		}
+    	}
+    }
 }
 
 </script>
