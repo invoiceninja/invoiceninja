@@ -232,7 +232,7 @@
 					->raw() !!} &nbsp;
 
 		{!! Button::normal(trans('texts.export'))
-				->withAttributes(['onclick' => 'onExportClick()'])
+				->withAttributes(['style' => 'display:none', 'onclick' => 'onExportClick()', 'data-bind' => 'visible: showExportButton'])
 				->appendIcon(Icon::create('download-alt')) !!}
 
 		{!! Button::normal(trans('texts.cancel_schedule'))
@@ -568,7 +568,7 @@
 					options.push(new SubgroupModel('method', "{{ trans('texts.method') }}"));
 				} else if (reportType == 'profit_and_loss') {
 					options.push(new SubgroupModel('type', "{{ trans('texts.type') }}"));
-				} else if (reportType == 'task') {
+				} else if (reportType == 'task' || reportType == 'task_details') {
 					options.push(new SubgroupModel('project', "{{ trans('texts.project') }}"));
 				} else if (reportType == 'client') {
 					options.push(new SubgroupModel('country', "{{ trans('texts.country') }}"));
@@ -590,6 +590,10 @@
 
 				if (['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_EXPENSE }}', '{{ ENTITY_DOCUMENT }}'].indexOf(self.report_type()) >= 0) {
 					options.push(new ExportFormatModel('zip', 'ZIP - {{ trans('texts.documents') }}'));
+				}
+
+				if (['{{ ENTITY_INVOICE }}'].indexOf(self.report_type()) >= 0) {
+					options.push(new ExportFormatModel('zip-invoices', 'ZIP - {{ trans('texts.invoices') }}'));
 				}
 
 				return options;
@@ -635,7 +639,7 @@
 			});
 
 			self.enableScheduleButton = ko.computed(function() {
-				return self.export_format() == 'zip' ? 'disabled' : 'enabled';
+				return ['zip', 'zip-invoices'].indexOf(self.export_format()) >= 0 ? 'disabled' : 'enabled';
 			});
 
 			self.showScheduleButton = ko.computed(function() {
@@ -645,6 +649,10 @@
 			self.showCancelScheduleButton = ko.computed(function() {
 				return !! scheduledReportMap[self.report_type()];
 			});
+
+            self.showExportButton = ko.computed(function() {
+                return self.export_format() != '';
+            });
 		}
 
 		$(function(){

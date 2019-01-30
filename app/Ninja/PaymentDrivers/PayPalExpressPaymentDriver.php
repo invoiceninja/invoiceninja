@@ -58,7 +58,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client->shipping_address2 = '';
         $client->shipping_city = trim($data['SHIPTOCITY']);
         $client->shipping_state = isset($data['SHIPTOSTATE']) ? trim($data['SHIPTOSTATE']) : '';
-        $client->shipping_postal_code = trim($data['SHIPTOZIP']);
+        $client->shipping_postal_code = isset($data['SHIPTOZIP']) ? trim($data['SHIPTOZIP']) : '';
 
         if ($country = cache('countries')->filter(function ($item) use ($data) {
             return strtolower($item->iso_3166_2) == strtolower(trim($data['SHIPTOCOUNTRYCODE']));

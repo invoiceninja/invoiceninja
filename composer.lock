@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2172e546d6290b209356879fcd4b0ecf",
+    "content-hash": "a7cf7307a3be07f3619d7a274952c03d",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -336,16 +336,16 @@
         },
         {
             "name": "asgrim/ofxparser",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/asgrim/ofxparser.git",
-                "reference": "8ba143295be666ae2cac05674f7d526d8e0ebed7"
+                "reference": "a7cc813eed19df612fc58bbe9fc89837ed98b3bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/asgrim/ofxparser/zipball/8ba143295be666ae2cac05674f7d526d8e0ebed7",
-                "reference": "8ba143295be666ae2cac05674f7d526d8e0ebed7",
+                "url": "https://api.github.com/repos/asgrim/ofxparser/zipball/a7cc813eed19df612fc58bbe9fc89837ed98b3bf",
+                "reference": "a7cc813eed19df612fc58bbe9fc89837ed98b3bf",
                 "shasum": ""
             },
             "require": {
@@ -388,7 +388,7 @@
                 "open financial exchange",
                 "parser"
             ],
-            "time": "2016-09-26T11:36:23+00:00"
+            "time": "2018-10-29T10:10:13+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -2271,61 +2271,45 @@
             "time": "2014-09-09T13:34:57+00:00"
         },
         {
-            "name": "dwolla/omnipay-dwolla",
-            "version": "dev-master",
+            "name": "dompdf/dompdf",
+            "version": "v0.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Dwolla/omnipay-dwolla.git",
-                "reference": "f58af834d62a938834d96b435c644b69c3c1ecf8"
+                "url": "https://github.com/dompdf/dompdf.git",
+                "reference": "cc06008f75262510ee135b8cbb14e333a309f651"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dwolla/omnipay-dwolla/zipball/f58af834d62a938834d96b435c644b69c3c1ecf8",
-                "reference": "f58af834d62a938834d96b435c644b69c3c1ecf8",
+                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/cc06008f75262510ee135b8cbb14e333a309f651",
+                "reference": "cc06008f75262510ee135b8cbb14e333a309f651",
                 "shasum": ""
             },
             "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0"
+                "phenx/php-font-lib": "0.2.*"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1.x-dev"
-                }
-            },
             "autoload": {
-                "psr-4": {
-                    "Omnipay\\Dwolla\\": "src/"
-                }
+                "classmap": [
+                    "include/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "LGPL"
             ],
             "authors": [
                 {
-                    "name": "Adrian Macneil",
-                    "email": "adrian@adrianmacneil.com"
+                    "name": "Fabien Ménager",
+                    "email": "fabien.menager@gmail.com"
                 },
                 {
-                    "name": "David Stancu",
-                    "homepage": "https://github.com/mach-kernel"
+                    "name": "Brian Sweeney",
+                    "email": "eclecticgeek@gmail.com"
                 }
             ],
-            "description": "Dwolla support for the Omnipay payment library",
-            "homepage": "https://github.com/mach-kernel/omnipay-dwolla",
-            "keywords": [
-                "dwolla",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2015-06-05T13:57:26+00:00"
+            "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
+            "homepage": "https://github.com/dompdf/dompdf",
+            "time": "2015-12-07T04:07:13+00:00"
         },
         {
             "name": "erusev/parsedown",
@@ -2626,22 +2610,6 @@
             "time": "2017-08-15T16:48:10+00:00"
         },
         {
-            "name": "gatepay/FedACHdir",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/gatepay/FedACHdir.git",
-                "reference": "origin/master"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
-                "reference": "origin/master",
-                "shasum": null
-            },
-            "type": "library"
-        },
-        {
             "name": "gocardless/gocardless-pro",
             "version": "1.5.0",
             "source": {
@@ -2698,12 +2666,12 @@
             "version": "v2.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/google/google-api-php-client.git",
+                "url": "https://github.com/googleapis/google-api-php-client.git",
                 "reference": "b69b8ac4bf6501793c389d4e013a79d09c85c5f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/b69b8ac4bf6501793c389d4e013a79d09c85c5f2",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client/zipball/b69b8ac4bf6501793c389d4e013a79d09c85c5f2",
                 "reference": "b69b8ac4bf6501793c389d4e013a79d09c85c5f2",
                 "shasum": ""
             },
@@ -2757,12 +2725,12 @@
             "version": "v0.49",
             "source": {
                 "type": "git",
-                "url": "https://github.com/google/google-api-php-client-services.git",
+                "url": "https://github.com/googleapis/google-api-php-client-services.git",
                 "reference": "7552d7d1bb92e933fc93088014c8c2555c0feab6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/7552d7d1bb92e933fc93088014c8c2555c0feab6",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/7552d7d1bb92e933fc93088014c8c2555c0feab6",
                 "reference": "7552d7d1bb92e933fc93088014c8c2555c0feab6",
                 "shasum": ""
             },
@@ -2794,12 +2762,12 @@
             "version": "v1.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/google/google-auth-library-php.git",
+                "url": "https://github.com/googleapis/google-auth-library-php.git",
                 "reference": "da0062d279c9459350808a4fb63dbc08b90d6b90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/da0062d279c9459350808a4fb63dbc08b90d6b90",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/da0062d279c9459350808a4fb63dbc08b90d6b90",
                 "reference": "da0062d279c9459350808a4fb63dbc08b90d6b90",
                 "shasum": ""
             },
@@ -2841,12 +2809,12 @@
             "version": "v0.56.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/GoogleCloudPlatform/google-cloud-php.git",
+                "url": "https://github.com/googleapis/google-cloud-php.git",
                 "reference": "7136c7e12596a3461840cac916937e24462b2ad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GoogleCloudPlatform/google-cloud-php/zipball/7136c7e12596a3461840cac916937e24462b2ad1",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php/zipball/7136c7e12596a3461840cac916937e24462b2ad1",
                 "reference": "7136c7e12596a3461840cac916937e24462b2ad1",
                 "shasum": ""
             },
@@ -3537,16 +3505,16 @@
         },
         {
             "name": "invoiceninja/omnipay-collection",
-            "version": "v0.9",
+            "version": "v0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/omnipay-collection.git",
-                "reference": "97ad152922664ff2ca8b5fcb6171ed053f865808"
+                "reference": "fc0418708eed85a596616b1f94b04cfdbf1e554c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/97ad152922664ff2ca8b5fcb6171ed053f865808",
-                "reference": "97ad152922664ff2ca8b5fcb6171ed053f865808",
+                "url": "https://api.github.com/repos/invoiceninja/omnipay-collection/zipball/fc0418708eed85a596616b1f94b04cfdbf1e554c",
+                "reference": "fc0418708eed85a596616b1f94b04cfdbf1e554c",
                 "shasum": ""
             },
             "require": {
@@ -3564,7 +3532,6 @@
                 "digitickets/omnipay-datacash": "~3.0",
                 "digitickets/omnipay-realex": "~5.0",
                 "dioscouri/omnipay-cybersource": "dev-master",
-                "dwolla/omnipay-dwolla": "dev-master",
                 "fotografde/omnipay-checkoutcom": "~2.0",
                 "fruitcakestudio/omnipay-sisow": "~2.0",
                 "justinbusschau/omnipay-secpay": "~2.0",
@@ -3578,7 +3545,7 @@
                 "omnipay/gocardless": "dev-master",
                 "omnipay/mollie": "3.*",
                 "omnipay/omnipay": "~2.3",
-                "omnipay/stripe": "dev-master",
+                "omnipay/stripe": "~2.0",
                 "softcommerce/omnipay-paytrace": "~1.0",
                 "vink/omnipay-komoju": "~1.0"
             },
@@ -3594,7 +3561,7 @@
                 }
             ],
             "description": "Collection of Omnipay drivers",
-            "time": "2018-03-25T11:44:45+00:00"
+            "time": "2018-12-10T13:58:42+00:00"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -5354,54 +5321,71 @@
         },
         {
             "name": "mpdf/mpdf",
-            "version": "v6.1.3",
+            "version": "v7.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mpdf/mpdf.git",
-                "reference": "7f138bf7508eac895ac2c13d2509b056ac7e7e97"
+                "reference": "8e3d0d7bf74f71d04904215fb487d01e924c469a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/7f138bf7508eac895ac2c13d2509b056ac7e7e97",
-                "reference": "7f138bf7508eac895ac2c13d2509b056ac7e7e97",
+                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/8e3d0d7bf74f71d04904215fb487d01e924c469a",
+                "reference": "8e3d0d7bf74f71d04904215fb487d01e924c469a",
                 "shasum": ""
             },
             "require": {
+                "ext-gd": "*",
                 "ext-mbstring": "*",
-                "php": ">=5.4.0",
+                "myclabs/deep-copy": "^1.7",
+                "paragonie/random_compat": "^1.4|^2.0",
+                "php": "^5.6 || ~7.0.0 || ~7.1.0 || ~7.2.0",
+                "psr/log": "^1.0",
                 "setasign/fpdi": "1.6.*"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.7"
+                "mockery/mockery": "^0.9.5",
+                "phpunit/phpunit": "^5.0",
+                "squizlabs/php_codesniffer": "^2.7.0",
+                "tracy/tracy": "^2.4"
             },
             "suggest": {
+                "ext-bcmath": "Needed for generation of some types of barcodes",
+                "ext-xml": "Needed mainly for SVG manipulation",
                 "ext-zlib": "Needed for compression of embedded resources, such as fonts"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-development": "7.0-dev"
+                }
+            },
             "autoload": {
-                "classmap": [
-                    "mpdf.php",
-                    "classes"
-                ]
+                "psr-4": {
+                    "Mpdf\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0"
+                "GPL-2.0-only"
             ],
             "authors": [
                 {
+                    "name": "Matěj Humpál",
+                    "role": "Developer, maintainer"
+                },
+                {
                     "name": "Ian Back",
-                    "role": "Developer"
+                    "role": "Developer (retired)"
                 }
             ],
             "description": "A PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support",
-            "homepage": "http://mpdf.github.io",
+            "homepage": "https://mpdf.github.io",
             "keywords": [
                 "pdf",
                 "php",
                 "utf-8"
             ],
-            "time": "2016-12-12T10:42:18+00:00"
+            "time": "2018-05-18T05:41:37+00:00"
         },
         {
             "name": "mtdowling/cron-expression",
@@ -5501,6 +5485,51 @@
                 "jsonpath"
             ],
             "time": "2016-12-03T22:08:25+00:00"
+        },
+        {
+            "name": "myclabs/deep-copy",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/DeepCopy.git",
+                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 || ^7.0"
+            },
+            "require-dev": {
+                "doctrine/collections": "^1.0",
+                "doctrine/common": "^2.6",
+                "phpunit/phpunit": "^4.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DeepCopy\\": "src/DeepCopy/"
+                },
+                "files": [
+                    "src/DeepCopy/deep_copy.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Create deep copies (clones) of your objects",
+            "keywords": [
+                "clone",
+                "copy",
+                "duplicate",
+                "object",
+                "object graph"
+            ],
+            "time": "2017-10-19T19:58:43+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -6299,16 +6328,16 @@
         },
         {
             "name": "omnipay/firstdata",
-            "version": "v2.4.0",
+            "version": "v2.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-firstdata.git",
-                "reference": "c0123a03bec861e0c00fa19772582dc3639fbb6e"
+                "url": "https://github.com/davidbankes/omnipay-firstdata.git",
+                "reference": "9ede42b44fea36f8a181684c9ac28bb121865258"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-firstdata/zipball/c0123a03bec861e0c00fa19772582dc3639fbb6e",
-                "reference": "c0123a03bec861e0c00fa19772582dc3639fbb6e",
+                "url": "https://api.github.com/repos/davidbankes/omnipay-firstdata/zipball/9ede42b44fea36f8a181684c9ac28bb121865258",
+                "reference": "9ede42b44fea36f8a181684c9ac28bb121865258",
                 "shasum": ""
             },
             "require": {
@@ -6328,7 +6357,6 @@
                     "Omnipay\\FirstData\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6353,7 +6381,10 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-07-14T09:26:59+00:00"
+            "support": {
+                "source": "https://github.com/davidbankes/omnipay-firstdata/tree/v2.4.1"
+            },
+            "time": "2018-09-13T01:24:34+00:00"
         },
         {
             "name": "omnipay/gocardless",
@@ -6908,20 +6939,21 @@
                 "twocheckout",
                 "worldpay"
             ],
+            "abandoned": "league/omnipay",
             "time": "2017-03-21T09:24:49+00:00"
         },
         {
             "name": "omnipay/payfast",
-            "version": "v2.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-payfast.git",
-                "reference": "c3ff0de9d02c5ac1b502eefb29e6aa6f12a374d2"
+                "reference": "7b6537c7730cebfea31881a9d7a3af96e6f6274a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-payfast/zipball/c3ff0de9d02c5ac1b502eefb29e6aa6f12a374d2",
-                "reference": "c3ff0de9d02c5ac1b502eefb29e6aa6f12a374d2",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-payfast/zipball/7b6537c7730cebfea31881a9d7a3af96e6f6274a",
+                "reference": "7b6537c7730cebfea31881a9d7a3af96e6f6274a",
                 "shasum": ""
             },
             "require": {
@@ -6965,7 +6997,7 @@
                 "payfast",
                 "payment"
             ],
-            "time": "2018-02-02T17:02:45+00:00"
+            "time": "2018-08-29T17:48:12+00:00"
         },
         {
             "name": "omnipay/payflow",
@@ -7554,16 +7586,16 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v2.0.11",
+            "version": "v2.0.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8"
+                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/5da4d3c796c275c55f057af5a643ae297d96b4d8",
-                "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/29af24f25bab834fcbb38ad2a69fa93b867e070d",
+                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d",
                 "shasum": ""
             },
             "require": {
@@ -7595,10 +7627,11 @@
             "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
             "keywords": [
                 "csprng",
+                "polyfill",
                 "pseudorandom",
                 "random"
             ],
-            "time": "2017-09-27T21:40:39+00:00"
+            "time": "2018-07-04T16:31:37+00:00"
         },
         {
             "name": "patricktalmadge/bootstrapper",
@@ -7658,6 +7691,40 @@
                 "laravel"
             ],
             "time": "2015-02-28T17:09:35+00:00"
+        },
+        {
+            "name": "phenx/php-font-lib",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PhenX/php-font-lib.git",
+                "reference": "c30c7fc00a6b0d863e9bb4c5d5dd015298b2dc82"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PhenX/php-font-lib/zipball/c30c7fc00a6b0d863e9bb4c5d5dd015298b2dc82",
+                "reference": "c30c7fc00a6b0d863e9bb4c5d5dd015298b2dc82",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "classes/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Ménager",
+                    "email": "fabien.menager@gmail.com"
+                }
+            ],
+            "description": "A library to read, parse, export and make subsets of different types of font files.",
+            "homepage": "https://github.com/PhenX/php-font-lib",
+            "time": "2014-02-01T15:22:28+00:00"
         },
         {
             "name": "phpoffice/phpexcel",
@@ -9355,16 +9422,16 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.36",
+            "version": "v2.8.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "f5d2d7dcc33b89e20c2696ea9afcbddf6540081c"
+                "reference": "a77e974a5fecb4398833b0709210e3d5e334ffb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/f5d2d7dcc33b89e20c2696ea9afcbddf6540081c",
-                "reference": "f5d2d7dcc33b89e20c2696ea9afcbddf6540081c",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/a77e974a5fecb4398833b0709210e3d5e334ffb0",
+                "reference": "a77e974a5fecb4398833b0709210e3d5e334ffb0",
                 "shasum": ""
             },
             "require": {
@@ -9411,7 +9478,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2018-02-11T16:53:59+00:00"
+            "time": "2018-11-21T14:20:20+00:00"
         },
         {
             "name": "symfony/filesystem",
@@ -9513,16 +9580,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v3.4.6",
+            "version": "v3.4.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "6f5935723c11b4125fc9927db6ad2feaa196e175"
+                "reference": "ea61dd57c4399b0b2a4162e1820cd9d0783acd38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/6f5935723c11b4125fc9927db6ad2feaa196e175",
-                "reference": "6f5935723c11b4125fc9927db6ad2feaa196e175",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/ea61dd57c4399b0b2a4162e1820cd9d0783acd38",
+                "reference": "ea61dd57c4399b0b2a4162e1820cd9d0783acd38",
                 "shasum": ""
             },
             "require": {
@@ -9563,7 +9630,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2018-02-22T10:48:49+00:00"
+            "time": "2018-11-26T10:17:44+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -9709,16 +9776,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.7.0",
+            "version": "v1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "78be803ce01e55d3491c1397cf1c64beb9c1b63b"
+                "reference": "c79c051f5b3a46be09205c73b80b346e4153e494"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/78be803ce01e55d3491c1397cf1c64beb9c1b63b",
-                "reference": "78be803ce01e55d3491c1397cf1c64beb9c1b63b",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/c79c051f5b3a46be09205c73b80b346e4153e494",
+                "reference": "c79c051f5b3a46be09205c73b80b346e4153e494",
                 "shasum": ""
             },
             "require": {
@@ -9730,7 +9797,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -9764,7 +9831,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-01-30T19:27:44+00:00"
+            "time": "2018-09-21T13:07:52+00:00"
         },
         {
             "name": "symfony/polyfill-php56",
@@ -9824,26 +9891,26 @@
         },
         {
             "name": "symfony/polyfill-php70",
-            "version": "v1.7.0",
+            "version": "v1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php70.git",
-                "reference": "3532bfcd8f933a7816f3a0a59682fc404776600f"
+                "reference": "6b88000cdd431cd2e940caa2cb569201f3f84224"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php70/zipball/3532bfcd8f933a7816f3a0a59682fc404776600f",
-                "reference": "3532bfcd8f933a7816f3a0a59682fc404776600f",
+                "url": "https://api.github.com/repos/symfony/polyfill-php70/zipball/6b88000cdd431cd2e940caa2cb569201f3f84224",
+                "reference": "6b88000cdd431cd2e940caa2cb569201f3f84224",
                 "shasum": ""
             },
             "require": {
-                "paragonie/random_compat": "~1.0|~2.0",
+                "paragonie/random_compat": "~1.0|~2.0|~9.99",
                 "php": ">=5.3.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -9879,7 +9946,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-01-30T19:27:44+00:00"
+            "time": "2018-09-21T06:26:08+00:00"
         },
         {
             "name": "symfony/polyfill-util",
@@ -11689,51 +11756,6 @@
             "time": "2017-11-15T11:08:09+00:00"
         },
         {
-            "name": "myclabs/deep-copy",
-            "version": "1.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.6 || ^7.0"
-            },
-            "require-dev": {
-                "doctrine/collections": "^1.0",
-                "doctrine/common": "^2.6",
-                "phpunit/phpunit": "^4.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                },
-                "files": [
-                    "src/DeepCopy/deep_copy.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Create deep copies (clones) of your objects",
-            "keywords": [
-                "clone",
-                "copy",
-                "duplicate",
-                "object",
-                "object graph"
-            ],
-            "time": "2017-10-19T19:58:43+00:00"
-        },
-        {
             "name": "phpdocumentor/reflection-common",
             "version": "1.0.1",
             "source": {
@@ -13141,12 +13163,12 @@
         "codedge/laravel-selfupdater": 20,
         "collizo4sky/omnipay-wepay": 20,
         "digitickets/omnipay-gocardlessv2": 20,
-        "gatepay/fedachdir": 20,
         "intervention/image": 20,
         "jlapp/swaggervel": 20,
         "jonnyw/php-phantomjs": 20,
         "laracasts/presenter": 20,
         "omnipay/authorizenet": 20,
+        "omnipay/payfast": 20,
         "roave/security-advisories": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,

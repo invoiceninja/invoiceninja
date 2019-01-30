@@ -16,6 +16,8 @@ Detailed Guides
 
 - CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
+- HostGator: `catsinja.com <http://blog.catsinja.com/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
+
 Automatic Install/Update
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -42,8 +44,6 @@ https://download.invoiceninja.com
 .. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $20 per year white-label license to remove our branding.
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
-
-- Roadmap: `trello.com/b/63BbiVVe/invoice-ninja <https://trello.com/b/63BbiVVe/invoice-ninja>`_
 
 Step 2: Upload the code to your server
 """"""""""""""""""""""""""""""""""""""

@@ -62,6 +62,24 @@
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
         NINJA.loggedErrorCount = 0;
 
+        NINJA.parseFloat = function(str) {
+            if (! str) {
+                return '';
+            } else {
+                str = str + '';
+            }
+
+            // check for comma as decimal separator
+            if (str.match(/,[\d]{1,2}$/)) {
+                str = str.replace(',', '.');
+                str = str.replace('.', ',');
+            }
+
+            str = str.replace(/[^0-9\.\-]/g, '');
+
+            return window.parseFloat(str);
+        }
+
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
             if (NINJA.loggedErrorCount > 5) {
                 return;
@@ -222,31 +240,33 @@
 
     </script>
 
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
-    <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
-    <script>
-    window.addEventListener("load", function(){
-        if (! window.cookieconsent) {
-            return;
-        }
-        window.cookieconsent.initialise({
-            "palette": {
-                "popup": {
-                    "background": "#000"
-                },
-                "button": {
-                    "background": "#f1d600"
-                },
-            },
-            "content": {
-                "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url.hosted') : 'https://cookiesandyou.com/' }}",
-                "message": {!! json_encode(trans('texts.cookie_message')) !!},
-                "dismiss": {!! json_encode(trans('texts.got_it')) !!},
-                "link": {!! json_encode(trans('texts.learn_more')) !!},
+    @if (! request()->borderless)
+        <link rel="stylesheet" type="text/css" href="{{ asset('css/cookieconsent.min.css') }}"/>
+        <script src="{{ asset('js/cookieconsent.min.js') }}"></script>
+        <script>
+        window.addEventListener("load", function(){
+            if (! window.cookieconsent) {
+                return;
             }
-        })}
-    );
-    </script>
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#000"
+                    },
+                    "button": {
+                        "background": "#f1d600"
+                    },
+                },
+                "content": {
+                    "href": "{{ Utils::isNinja() ? config('ninja.privacy_policy_url.hosted') : 'https://cookiesandyou.com/' }}",
+                    "message": {!! json_encode(trans('texts.cookie_message')) !!},
+                    "dismiss": {!! json_encode(trans('texts.got_it')) !!},
+                    "link": {!! json_encode(trans('texts.learn_more')) !!},
+                }
+            })}
+        );
+        </script>
+    @endif
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>

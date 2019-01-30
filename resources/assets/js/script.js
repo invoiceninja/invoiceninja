@@ -599,6 +599,7 @@ function calculateAmounts(invoice) {
     lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;
+      total = roundToTwo(total);
     }
     if (!item.notes && !item.product_key && !item.cost) {
         continue;

@@ -235,12 +235,35 @@
 
             if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
                 $('#saveButton').attr('disabled', true);
-                return true;
+                submitAjax();
+                return false;
             } else {
                 return false;
             }
         @endif
     }
+
+    function submitAjax() {
+        $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
+            if (data && data.toLowerCase().indexOf('http') === 0) {
+                NINJA.formIsChanged = false;
+                location.href = data;
+            } else {
+                handleSaveFailed();
+            }
+        }).fail(function(data) {
+            handleSaveFailed(data);
+        });
+    }
+
+    function handleSaveFailed(data) {
+		$('#saveButton').attr('disabled', false);
+		var error = '';
+		if (data) {
+			var error = firstJSONError(data.responseJSON) || data.statusText;
+		}
+		swal({!! json_encode(trans('texts.error_refresh_page')) !!}, error);
+	}
 
     function submitAction(action) {
         $('#action').val(action);

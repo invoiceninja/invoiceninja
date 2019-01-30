@@ -950,6 +950,7 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
 
+        $account->show_product_notes = Input::get('show_product_notes') ? true : false;
         $account->fill_products = Input::get('fill_products') ? true : false;
         $account->update_products = Input::get('update_products') ? true : false;
         $account->convert_products = Input::get('convert_products') ? true : false;

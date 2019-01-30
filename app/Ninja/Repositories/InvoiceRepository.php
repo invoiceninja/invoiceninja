@@ -737,7 +737,7 @@ class InvoiceRepository extends BaseRepository
                     if ($account->update_products
                         && ! $invoice->has_tasks
                         && ! $invoice->has_expenses
-                        && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee']))
+                        && ! in_array($productKey, Utils::trans(['surcharge', 'discount', 'fee', 'gateway_fee_item']))
                     ) {
                         $product = Product::findProductByKey($productKey);
                         if (! $product) {
@@ -829,16 +829,24 @@ class InvoiceRepository extends BaseRepository
         }
 
         foreach ($client->contacts as $contact) {
-            $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
+            $invitations = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->orderBy('id')->get();
 
-            if (in_array($contact->id, $sendInvoiceIds) && ! $invitation) {
-                $invitation = Invitation::createNew($invoice);
-                $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = $contact->id;
-                $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
-                $invitation->save();
-            } elseif (! in_array($contact->id, $sendInvoiceIds) && $invitation) {
-                $invitation->delete();
+            if ($invitations->count() == 0) {
+                if (in_array($contact->id, $sendInvoiceIds)) {
+                    $invitation = Invitation::createNew($invoice);
+                    $invitation->invoice_id = $invoice->id;
+                    $invitation->contact_id = $contact->id;
+                    $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                    $invitation->save();
+                }
+            } else {
+                $isFirst = true;
+                foreach ($invitations as $invitation) {
+                    if (! in_array($contact->id, $sendInvoiceIds) || !$isFirst) {
+                        $invitation->delete();
+                    }
+                    $isFirst = false;
+                }
             }
         }
 
@@ -932,6 +940,7 @@ class InvoiceRepository extends BaseRepository
 
         if ($quoteId) {
             $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
+            $clone->invoice_design_id = $account->invoice_design_id;
             $clone->quote_id = $quoteId;
             if ($account->invoice_terms) {
                 $clone->terms = $account->invoice_terms;
@@ -1322,6 +1331,11 @@ class InvoiceRepository extends BaseRepository
 
         $data = $invoice->toArray();
         $fee = $invoice->calcGatewayFee($gatewayTypeId);
+
+        if ($fee == 0) {
+            return;
+        }
+
         $date = $account->getDateTime()->format($account->getCustomDateFormat());
         $feeItemLabel = $account->getLabel('gateway_fee_item') ?: ($fee >= 0 ? trans('texts.surcharge') : trans('texts.discount'));
 

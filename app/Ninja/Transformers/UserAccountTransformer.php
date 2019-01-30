@@ -30,6 +30,7 @@ class UserAccountTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_labels", type="string", example="Labels")
      * @SWG\Property(property="show_item_taxes", type="boolean", example=false)
      * @SWG\Property(property="military_time", type="boolean", example=false)
+     * @SWG\Property(property="fill_products", type="boolean", example=false)
      * @SWG\Property(property="tax_name1", type="string", example="VAT")
      * @SWG\Property(property="tax_name2", type="string", example="Upkeep")
      * @SWG\Property(property="tax_rate1", type="number", format="float", example="17.5")
@@ -62,6 +63,7 @@ class UserAccountTransformer extends EntityTransformer
         'expense_categories',
         'account_email_settings',
         'custom_payment_terms',
+		'task_statuses',
     ];
 
     protected $tokenName;
@@ -102,6 +104,18 @@ class UserAccountTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->account, $this->serializer);
 
         return $this->includeCollection($this->account->users, $transformer, 'users');
+    }
+
+	/**
+     * @param Account $account
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeTaskStatuses(User $user)
+    {
+        $transformer = new TaskStatusTransformer($this->account, $this->serializer);
+
+        return $this->includeCollection($this->account->task_statuses, $transformer, 'task_statuses');
     }
 
     /**
@@ -168,6 +182,7 @@ class UserAccountTransformer extends EntityTransformer
             'invoice_labels' => $account->invoice_labels ?: '',
             'show_item_taxes' => (bool) $account->show_item_taxes,
             'military_time' => (bool) $account->military_time,
+            'fill_products' => (bool) $account->fill_products,
             'tax_name1' => $account->tax_name1 ?: '',
             'tax_rate1' => (float) $account->tax_rate1,
             'tax_name2' => $account->tax_name2 ?: '',

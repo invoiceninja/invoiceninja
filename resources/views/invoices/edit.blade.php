@@ -664,6 +664,7 @@
                             ->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
+                            ->autocomplete('off')
                             ->addOption('','')->addGroupClass('country_select')
                             ->fromQuery($countries, 'name', 'id')
 							->data_bind("dropdown: country_id") !!}
@@ -1036,7 +1037,7 @@
 		}
 		@endcan
 
-		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #partial_due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
+		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #partial_due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2, #taxRateSelect1, #taxRateSelect2').change(function() {
             $('#downloadPdfButton').attr('disabled', true);
 			setTimeout(function() {
 				refreshPDF(true);

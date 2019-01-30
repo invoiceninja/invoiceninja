@@ -28,6 +28,9 @@ class ActivityDatatable extends EntityDatatable
                         && ! in_array($model->ip, ['127.0.0.1', '192.168.255.33'])) {
                         $ipLookUpLink = IP_LOOKUP_URL . $model->ip;
                         $str .= sprintf(' &nbsp; <i class="fa fa-globe" style="cursor:pointer" title="%s" onclick="openUrl(\'%s\', \'IP Lookup\')"></i>', $model->ip, $ipLookUpLink);
+                    } elseif ($model->token_id) {
+                        $str .= ' &nbsp; <i class="fa fa-server" title="API"><i>';
+
                     }
 
                     return $str;

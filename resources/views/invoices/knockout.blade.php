@@ -1038,13 +1038,21 @@ ko.bindingHandlers.productTypeahead = {
             name: 'data',
             display: allBindings.key,
             limit: 50,
-            templates: {
-                suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
-                    + _.escape(item.product_key) + ': '
-                    + roundToTwo(item.cost, true) + "<br/>"
-                    + _.escape(item.notes.substring(0, 100)) + '</div>' }
-            },
-            source: searchData(allBindings.items, allBindings.key, false, 'notes')
+            @if (Auth::user()->account->show_product_notes)
+                templates: {
+                    suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
+                        + _.escape(item.product_key) + "<br/>"
+                        + roundSignificant(item.cost, true) + ' • '
+                        + _.escape(item.notes.substring(0, 100)) + '</div>' }
+                },
+                source: searchData(allBindings.items, allBindings.key, false, 'notes'),
+            @else
+                templates: {
+                    suggestion: function(item) { return '<div title="' + _.escape(item.notes) + '" style="border-bottom: solid 1px #CCC">'
+                        + _.escape(item.product_key) + '</div>' }
+                },
+                source: searchData(allBindings.items, allBindings.key),
+            @endif
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
                 var model = ko.dataFor(this);
@@ -1092,7 +1100,7 @@ ko.bindingHandlers.productTypeahead = {
                             }
                         @endif
 
-                        model.cost(roundToTwo(cost, true));
+                        model.cost(roundSignificant(cost));
                     }
                 }
                 if (! model.qty() && ! model.isTask()) {
