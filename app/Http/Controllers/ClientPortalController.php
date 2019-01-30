@@ -136,12 +136,14 @@ class ClientPortalController extends BaseController
             }
         }
 
-        if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
-            $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
-        }
-        if ($stripeGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
-            //$data['enableStripeSources'] = $stripeGateway->getAlipayEnabled();
-            $data['enableStripeSources'] = true;
+        if (! Input::has('phantomjs')) {
+            if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
+                $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
+            }
+            if ($stripeGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
+                //$data['enableStripeSources'] = $stripeGateway->getAlipayEnabled();
+                $data['enableStripeSources'] = true;
+            }
         }
 
         $showApprove = $invoice->quote_invoice_id ? false : true;
