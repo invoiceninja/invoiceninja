@@ -102,7 +102,7 @@
 		</div>
 		
 
-		<div v-if="">
+		<div v-if="this.meta.google_maps_api_key">
 
 		<iframe
 		  width="100%"
@@ -123,8 +123,6 @@
 export default {
     props: ['client', 'company', 'meta'],
     mounted() {
-    	console.dir(this.meta.google_maps_api_key)
-   		console.dir(this.clientAddress)
 
     },
     computed: {
