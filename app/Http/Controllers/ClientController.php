@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Datatables\ClientDatatable;
+use App\Datatables\MakesActionMenu;
+use App\Factory\ClientFactory;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
@@ -19,7 +21,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
-use App\Factory\ClientFactory;
 
 /**
  * Class ClientController
@@ -30,6 +31,7 @@ class ClientController extends Controller
     use UserSessionAttributes;
     use MakesHash;
     use MakesMenu;
+    use MakesActionMenu;
 
     /**
      * @var ClientRepository
@@ -122,11 +124,24 @@ class ClientController extends Controller
     public function show(ShowClientRequest $request, Client $client)
     {
 
+        $requested_view_statement_actions = [
+            'create_invoice_client_id', 
+            'create_task_client_id', 
+            'create_quote_client_id', 
+            'create_recurring_invoice_client_id', 
+            'create_payment_client_id', 
+            'create_expense_client_id'
+        ];
+
+
        $data = [
             'client' => $client,
             'company' => auth()->user()->company(),
             'meta' => collect([
-                'google_maps_api_key' => config('ninja.google_maps_api_key')
+                'google_maps_api_key' => config('ninja.google_maps_api_key'),
+                'edit_client_permission' => auth()->user()->can('edit', $client),
+                'view_statement_permission' => auth()->user()->can('view', $client),
+                'view_statement_actions' => $this->processActionsForButton($requested_view_statement_actions, Client::class)
             ])
         ];
 

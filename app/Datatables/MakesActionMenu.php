@@ -25,10 +25,15 @@ trait MakesActionMenu
         ['action' => 'edit_client_client_id', 'permission' => 'edit_client', 'route' => 'clients.edit', 'key' => 'client_id', 'name' => ctrans('texts.edit')],
         ['action' => 'create_task_client_id', 'permission' => 'create_task', 'route' => 'tasks.create', 'key' => 'client_id', 'name' => ctrans('texts.new_task')],
         ['action' => 'create_invoice_client_id', 'permission' => 'create_invoice', 'route' => 'invoices.create', 'key' => 'client_id', 'name' => ctrans('texts.new_invoice')],
+        ['action' => 'create_quote_client_id', 'permission' => 'create_quote', 'route' => 'quotes.create', 'key' => 'client_id', 'name' => ctrans('texts.new_quote')],
+        ['action' => 'create_recurring_invoice_client_id', 'permission' => 'create_recurring_invoice', 'route' => 'recurring_invoices.create', 'key' => 'client_id', 'name' => ctrans('texts.new_recurring_invoice')],
         ['action' => 'enter_payment_client_id', 'permission' => 'create_payment', 'route' => 'payments.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_payment')], 
         ['action' => 'enter_credit_client_id', 'permission' => 'create_credit', 'route' => 'credits.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_credit')],
-        ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expenses.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_expense')]
+        ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expenses.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_expense')],
+
+        ['action' => 'view_statement_client_id', 'permission' => 'view_client', 'route' => 'clients.statement', 'key' => 'client_id', 'name' => ctrans('texts.view_statement')],
     ]);
+
 
 	}
 
@@ -49,7 +54,7 @@ trait MakesActionMenu
      * @param  Class::class - need so we can harvest entity string
      * @return stdClass
      */
-    public function processActions(array $requested_actions, $rows, $entity)
+    public function processActionsForDatatable(array $requested_actions, $rows, $entity)
     {
 
         $rows->map(function ($row) use ($requested_actions, $entity){
@@ -62,6 +67,20 @@ trait MakesActionMenu
 
         return $rows;
 
+    }
+
+    /**
+     * Method which allows the generation of a collection of action links
+     * for use when populating a Button.
+     * 
+     * @param  array $requested_actions - array of requested actions for menu
+     * @param  Class::class - need so we can harvest entity string
+     * @return stdClass
+     */
+
+    public function processActionsForButton(array $requested_actions, $entity)
+    {
+        return $this->filterActions($requested_actions, auth()->user()->permissions(), auth()->user()->isAdmin());
     }
 
     /**

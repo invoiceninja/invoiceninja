@@ -3658,6 +3658,12 @@ exports.default = {
                     addressArray.push(this.client.country.name.split(' ').join('+'));
                 return encodeURIComponent(addressArray.join(","));
             }
+        },
+        viewStatementIsDisabled: function () {
+            return !this.meta.view_statement_permission;
+        },
+        editClientIsDisabled: function () {
+            return !this.meta.edit_client_permission;
         }
     }
 };
@@ -3791,14 +3797,110 @@ var render = function() {
               "button",
               {
                 staticClass: "btn btn-lg btn-secondary",
-                attrs: { type: "button" }
+                attrs: { type: "button", disabled: _vm.editClientIsDisabled },
+                on: { click: function($event) {} }
               },
               [_vm._v(_vm._s(_vm.trans("texts.edit_client")))]
             ),
             _vm._v(" "),
-            _vm._m(0),
+            _c(
+              "button",
+              {
+                staticClass:
+                  "btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split",
+                attrs: {
+                  type: "button",
+                  "data-toggle": "dropdown",
+                  "aria-haspopup": "true",
+                  "aria-expanded": "false",
+                  disabled: _vm.editClientIsDisabled
+                }
+              },
+              [
+                _c("span", { staticClass: "sr-only" }, [
+                  _vm._v("Toggle Dropdown")
+                ])
+              ]
+            ),
             _vm._v(" "),
-            _vm._m(1)
+            _c(
+              "div",
+              {
+                staticClass: "dropdown-menu",
+                staticStyle: {
+                  position: "absolute",
+                  transform: "translate3d(189px, -2px, 0px)",
+                  top: "0px",
+                  left: "0px",
+                  "will-change": "transform"
+                },
+                attrs: { "x-placement": "top-start" }
+              },
+              [
+                _vm.client.deleted_at == null
+                  ? _c(
+                      "a",
+                      {
+                        staticClass: "dropdown-item",
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            _vm.itemAction("archive", _vm.client, _vm.rowIndex)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(_vm.trans("texts.archive")))]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.client.is_deleted == 1 || _vm.client.deleted_at != null
+                  ? _c(
+                      "a",
+                      {
+                        staticClass: "dropdown-item",
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            _vm.itemAction("restore", _vm.client, _vm.rowIndex)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(_vm.trans("texts.restore")))]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.client.is_deleted == 0
+                  ? _c(
+                      "a",
+                      {
+                        staticClass: "dropdown-item",
+                        attrs: { href: "#" },
+                        on: {
+                          click: function($event) {
+                            _vm.itemAction("delete", _vm.client, _vm.rowIndex)
+                          }
+                        }
+                      },
+                      [_vm._v(_vm._s(_vm.trans("texts.delete")))]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", { staticClass: "dropdown-divider" }),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "dropdown-item",
+                    on: {
+                      click: function($event) {
+                        _vm.itemAction("purge", _vm.client, _vm.rowIndex)
+                      }
+                    }
+                  },
+                  [_vm._v("trans('texts.purge_client')")]
+                )
+              ]
+            )
           ]),
           _vm._v(" "),
           _c("div", { staticClass: "btn-group ml-2" }, [
@@ -3806,14 +3908,32 @@ var render = function() {
               "button",
               {
                 staticClass: "btn btn-lg btn-primary",
-                attrs: { type: "button" }
+                attrs: { type: "button", disabled: _vm.viewStatementIsDisabled }
               },
               [_vm._v(_vm._s(_vm.trans("texts.view_statement")))]
             ),
             _vm._v(" "),
-            _vm._m(2),
+            _c(
+              "button",
+              {
+                staticClass:
+                  "btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split",
+                attrs: {
+                  type: "button",
+                  "data-toggle": "dropdown",
+                  "aria-haspopup": "true",
+                  "aria-expanded": "false",
+                  disabled: _vm.viewStatementIsDisabled
+                }
+              },
+              [
+                _c("span", { staticClass: "sr-only" }, [
+                  _vm._v("Toggle Dropdown")
+                ])
+              ]
+            ),
             _vm._v(" "),
-            _vm._m(3)
+            _vm._m(0)
           ])
         ])
       ])
@@ -4111,82 +4231,6 @@ var render = function() {
   ])
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass:
-          "btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split",
-        attrs: {
-          type: "button",
-          "data-toggle": "dropdown",
-          "aria-haspopup": "true",
-          "aria-expanded": "false"
-        }
-      },
-      [_c("span", { staticClass: "sr-only" }, [_vm._v("Toggle Dropdown")])]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass: "dropdown-menu",
-        staticStyle: {
-          position: "absolute",
-          transform: "translate3d(189px, -2px, 0px)",
-          top: "0px",
-          left: "0px",
-          "will-change": "transform"
-        },
-        attrs: { "x-placement": "top-start" }
-      },
-      [
-        _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-          _vm._v("Action")
-        ]),
-        _vm._v(" "),
-        _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-          _vm._v("Another action")
-        ]),
-        _vm._v(" "),
-        _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-          _vm._v("Something else here")
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "dropdown-divider" }),
-        _vm._v(" "),
-        _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-          _vm._v("Separated link")
-        ])
-      ]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass:
-          "btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split",
-        attrs: {
-          type: "button",
-          "data-toggle": "dropdown",
-          "aria-haspopup": "true",
-          "aria-expanded": "false"
-        }
-      },
-      [_c("span", { staticClass: "sr-only" }, [_vm._v("Toggle Dropdown")])]
-    )
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
