@@ -50,8 +50,11 @@ class ClientController extends Controller
      */
     public function __construct(ClientRepository $clientRepo, ClientDatatable $clientDatatable)
     {
+
         $this->clientRepo = $clientRepo;
+
         $this->clientDatatable = $clientDatatable;
+
     }
 
     /**
@@ -98,19 +101,13 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
+
         $client = StoreClient::dispatchNow($request, new Client);
+
         $client->load('contacts', 'primary_contact');
 
         $client->hashed_id = $this->encodePrimarykey($client->id);
 
-/*
-        $data = [
-        'client' => $client,
-        'hashed_id' => $this->encodePrimarykey($client->id)
-        ];
-
-        Log::error(print_r($client,1));
-*/
         return response()->json($client, 200);
 
     }
@@ -157,6 +154,7 @@ class ClientController extends Controller
      */
     public function edit(EditClientRequest $request, Client $client)
     {
+
         $data = [
         'client' => $client,
         'settings' => [],
@@ -167,6 +165,7 @@ class ClientController extends Controller
         ];
 
         return view('client.edit', $data);
+
     }
 
     /**
@@ -178,6 +177,7 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
+
         $client = UpdateClient::dispatchNow($request, $client);
 
         return response()->json($client, 200);
@@ -204,6 +204,7 @@ class ClientController extends Controller
     {
 
         $action = request()->input('action');
+        
         $ids = request()->input('ids');
 
         $clients = Client::withTrashed()->find($ids);

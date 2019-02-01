@@ -2,6 +2,7 @@
 
 namespace App\Datatables;
 
+use App\Datatables\MakesActionMenu;
 use App\Filters\ClientFilters;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
@@ -31,6 +32,7 @@ class ClientDatatable extends EntityDatatable
     {
         $this->filter = $filter;
     }
+
     /**
      * Returns paginated results for the datatable
      *
@@ -41,20 +43,6 @@ class ClientDatatable extends EntityDatatable
 
         return response()->json($this->buildActionColumn($data), 200);
 
-    }
-
-
-    /**
-     * @param int $company_id
-     * @param bool $userId
-     * @return mixed
-     */
-    private function find(int $company_id, $userId = false)
-    {
-
-
-
-        return $query;
     }
 
     /**
@@ -79,7 +67,7 @@ class ClientDatatable extends EntityDatatable
       /*
        * Build a collection of action
        */
-      $rows = $this->processActions($requested_actions, $rows, Client::class);
+      $rows = $this->processActionsForDatatable($requested_actions, $rows, Client::class);
 
       /*
        * Add a _view_ link directly to the client
