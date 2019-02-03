@@ -31,7 +31,7 @@ trait MakesActionMenu
         ['action' => 'enter_credit_client_id', 'permission' => 'create_credit', 'route' => 'credits.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_credit')],
         ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expenses.create', 'key' => 'client_id', 'name' => ctrans('texts.enter_expense')],
 
-        ['action' => 'view_statement_client_id', 'permission' => 'view_client', 'route' => 'clients.statement', 'key' => 'client_id', 'name' => ctrans('texts.view_statement')],
+        ['action' => 'view_statement_client_id', 'permission' => 'edit_client', 'route' => 'client_statement.show', 'key' => 'client_id', 'name' => ctrans('texts.view_statement')],
     ]);
 
 
@@ -80,7 +80,17 @@ trait MakesActionMenu
 
     public function processActionsForButton(array $requested_actions, $entity)
     {
-        return $this->filterActions($requested_actions, auth()->user()->permissions(), auth()->user()->isAdmin());
+        $rows = $this->filterActions($requested_actions, auth()->user()->permissions(), auth()->user()->isAdmin());
+        
+        $updated_actions = $rows->map(function($row) use ($entity){
+
+            $row['url'] = route($row['route'], [$row['key'] => $this->encodePrimaryKey($entity->id)]);
+
+            return $row;
+        });
+
+        return $updated_actions;    
+
     }
 
     /**

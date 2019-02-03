@@ -76,43 +76,6 @@ class ClientController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create(CreateClientRequest $request)
-    {
-        $client = ClientFactory::create($this->getCurrentCompanyId(), auth()->user()->id);
-
-        $data = [
-            'client' => $client,
-            'hashed_id' => '',
-            'countries' => Country::all()
-        ];
-
-        return view('client.create', $data);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreClientRequest $request)
-    {
-
-        $client = StoreClient::dispatchNow($request, new Client);
-
-        $client->load('contacts', 'primary_contact');
-
-        $client->hashed_id = $this->encodePrimarykey($client->id);
-
-        return response()->json($client, 200);
-
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -130,15 +93,16 @@ class ClientController extends Controller
             'create_expense_client_id'
         ];
 
-
        $data = [
             'client' => $client,
             'company' => auth()->user()->company(),
             'meta' => collect([
                 'google_maps_api_key' => config('ninja.google_maps_api_key'),
                 'edit_client_permission' => auth()->user()->can('edit', $client),
+                'edit_client_route' => $this->processActionsForButton(['edit_client_client_id'], $client),
                 'view_statement_permission' => auth()->user()->can('view', $client),
-                'view_statement_actions' => $this->processActionsForButton($requested_view_statement_actions, Client::class)
+                'view_statement_route' => $this->processActionsForButton(['view_statement_client_id'], $client),
+                'view_statement_actions' => $this->processActionsForButton($requested_view_statement_actions, $client)
             ])
         ];
 
@@ -185,6 +149,43 @@ class ClientController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create(CreateClientRequest $request)
+    {
+        $client = ClientFactory::create($this->getCurrentCompanyId(), auth()->user()->id);
+
+        $data = [
+            'client' => $client,
+            'hashed_id' => '',
+            'countries' => Country::all()
+        ];
+
+        return view('client.create', $data);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(StoreClientRequest $request)
+    {
+
+        $client = StoreClient::dispatchNow($request, new Client);
+
+        $client->load('contacts', 'primary_contact');
+
+        $client->hashed_id = $this->encodePrimarykey($client->id);
+
+        return response()->json($client, 200);
+
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -219,6 +220,16 @@ class ClientController extends Controller
         //todo need to return the updated dataset
         return response()->json('success', 200);
         
+    }
+
+    /**
+     * Returns a client statement
+     * 
+     * @return [type] [description]
+     */
+    public function statement()
+    {
+        //todo
     }
 
 
