@@ -29,7 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
 
-    protected $with = ['companies'];
+    protected $with = ['companies','user_companies'];
     /**
      * The attributes that are mass assignable.
      *
@@ -99,7 +99,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function user_company()
     {
 
-        return $this->user_companies()->where('company_id', $this->getCurrentCompanyId())->first();
+        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
 
     }
 

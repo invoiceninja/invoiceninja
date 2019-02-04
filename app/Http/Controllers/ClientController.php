@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Datatables\ClientDatatable;
+use App\Datatables\MakesActionMenu;
+use App\Factory\ClientFactory;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
@@ -19,7 +21,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
-use App\Factory\ClientFactory;
 
 /**
  * Class ClientController
@@ -30,6 +31,7 @@ class ClientController extends Controller
     use UserSessionAttributes;
     use MakesHash;
     use MakesMenu;
+    use MakesActionMenu;
 
     /**
      * @var ClientRepository
@@ -48,8 +50,11 @@ class ClientController extends Controller
      */
     public function __construct(ClientRepository $clientRepo, ClientDatatable $clientDatatable)
     {
+
         $this->clientRepo = $clientRepo;
+
         $this->clientDatatable = $clientDatatable;
+
     }
 
     /**
@@ -67,6 +72,79 @@ class ClientController extends Controller
         ];
 
         return view('client.vue_list', $data);
+
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(ShowClientRequest $request, Client $client)
+    {
+
+        $requested_view_statement_actions = [
+            'create_invoice_client_id', 
+            'create_task_client_id', 
+            'create_quote_client_id', 
+            'create_recurring_invoice_client_id', 
+            'create_payment_client_id', 
+            'create_expense_client_id'
+        ];
+
+       $data = [
+            'client' => $client,
+            'company' => auth()->user()->company(),
+            'meta' => collect([
+                'google_maps_api_key' => config('ninja.google_maps_api_key'),
+                'edit_client_permission' => auth()->user()->can('edit', $client),
+                'edit_client_route' => $this->processActionsForButton(['edit_client_client_id'], $client),
+                'view_statement_permission' => auth()->user()->can('view', $client),
+                'view_statement_route' => $this->processActionsForButton(['view_statement_client_id'], $client),
+                'view_statement_actions' => $this->processActionsForButton($requested_view_statement_actions, $client)
+            ])
+        ];
+
+        return view('client.show', $data);
+
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(EditClientRequest $request, Client $client)
+    {
+
+        $data = [
+        'client' => $client,
+        'settings' => $client,
+        'pills' => $this->makeEntityTabMenu(Client::class),
+        'hashed_id' => $this->encodePrimarykey($client->id),
+        'countries' => Country::all(),
+        'company' => auth()->user()->company()
+        ];
+
+        return view('client.edit', $data);
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Models\Client $client
+     * @return \Illuminate\Http\Response
+     */
+    public function update(UpdateClientRequest $request, Client $client)
+    {
+
+        $client = UpdateClient::dispatchNow($request, $client);
+
+        return response()->json($client, 200);
 
     }
 
@@ -96,74 +174,12 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
+
         $client = StoreClient::dispatchNow($request, new Client);
+
         $client->load('contacts', 'primary_contact');
 
         $client->hashed_id = $this->encodePrimarykey($client->id);
-
-/*
-        $data = [
-        'client' => $client,
-        'hashed_id' => $this->encodePrimarykey($client->id)
-        ];
-
-        Log::error(print_r($client,1));
-*/
-        return response()->json($client, 200);
-
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ShowClientRequest $request, Client $client)
-    {
-
-       $data = [
-            'client' => $client,
-            'company' => auth()->user()->company(),
-            'meta' => collect([
-                'google_maps_api_key' => config('ninja.google_maps_api_key')
-            ])
-        ];
-
-        return view('client.show', $data);
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(EditClientRequest $request, Client $client)
-    {
-        $data = [
-        'client' => $client,
-        'settings' => [],
-        'pills' => $this->makeEntityTabMenu(Client::class),
-        'hashed_id' => $this->encodePrimarykey($client->id),
-        'countries' => Country::all(),
-        'company' => auth()->user()->company()
-        ];
-
-        return view('client.edit', $data);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Client $client
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateClientRequest $request, Client $client)
-    {
-        $client = UpdateClient::dispatchNow($request, $client);
 
         return response()->json($client, 200);
 
@@ -189,6 +205,7 @@ class ClientController extends Controller
     {
 
         $action = request()->input('action');
+        
         $ids = request()->input('ids');
 
         $clients = Client::withTrashed()->find($ids);
@@ -203,6 +220,16 @@ class ClientController extends Controller
         //todo need to return the updated dataset
         return response()->json('success', 200);
         
+    }
+
+    /**
+     * Returns a client statement
+     * 
+     * @return [type] [description]
+     */
+    public function statement()
+    {
+        //todo
     }
 
 

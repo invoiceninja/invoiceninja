@@ -8,30 +8,26 @@
 			    <div class="float-right">
 
 					<div class="btn-group ml-2">
-				      <button type="button" class="btn btn-lg btn-secondary">{{ trans('texts.edit_client') }}</button>
-				      <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				      <button type="button" class="btn btn-lg btn-secondary" :disabled="editClientIsDisabled" v-for="link in this.meta.edit_client_route" @click="goToUrl(link.url)">{{ trans('texts.edit_client') }}</button>
+				      <button type="button" class="btn btn-lg btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" :disabled="editClientIsDisabled">
 				        <span class="sr-only">Toggle Dropdown</span>
 				      </button>
 				      <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(189px, -2px, 0px); top: 0px; left: 0px; will-change: transform;">
-				        <a class="dropdown-item" href="#">Action</a>
-				        <a class="dropdown-item" href="#">Another action</a>
-				        <a class="dropdown-item" href="#">Something else here</a>
+							<a class="dropdown-item" href="#" @click="itemAction('archive', client, rowIndex)" v-if="client.deleted_at == null">{{ trans('texts.archive') }}</a>
+							<a class="dropdown-item" href="#" @click="itemAction('restore', client, rowIndex)" v-if="client.is_deleted == 1 || client.deleted_at != null">{{ trans('texts.restore') }}</a>
+							<a class="dropdown-item" href="#" @click="itemAction('delete', client, rowIndex)" v-if="client.is_deleted == 0">{{ trans('texts.delete') }}</a>
 				        <div class="dropdown-divider"></div>
-				        <a class="dropdown-item" href="#">Separated link</a>
+				        <a class="dropdown-item" @click="itemAction('purge', client, rowIndex)">{{ trans('texts.purge_client') }}</a>
 				      </div>
 				    </div>
 
 					<div class="btn-group ml-2">
-				      <button type="button" class="btn btn-lg btn-primary">{{ trans('texts.view_statement') }}</button>
-				      <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				      <button type="button" class="btn btn-lg btn-primary" :disabled="viewStatementIsDisabled" v-for="link in this.meta.view_statement_route" @click="goToUrl(link.url)">{{ trans('texts.view_statement') }}</button>
+				      <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" :disabled="viewStatementIsDisabled">
 				        <span class="sr-only">Toggle Dropdown</span>
 				      </button>
 				      <div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(189px, -2px, 0px); top: 0px; left: 0px; will-change: transform;">
-				        <a class="dropdown-item" href="#">Action</a>
-				        <a class="dropdown-item" href="#">Another action</a>
-				        <a class="dropdown-item" href="#">Something else here</a>
-				        <div class="dropdown-divider"></div>
-				        <a class="dropdown-item" href="#">Separated link</a>
+				        <a class="dropdown-item" v-for="link in this.meta.view_statement_actions" :href="link.url">{{ link.name }}</a>
 				      </div>
 				    </div>
 
@@ -102,7 +98,7 @@
 		</div>
 		
 
-		<div v-if="">
+		<div v-if="this.meta.google_maps_api_key">
 
 		<iframe
 		  width="100%"
@@ -123,10 +119,14 @@
 export default {
     props: ['client', 'company', 'meta'],
     mounted() {
-    	console.dir(this.meta.google_maps_api_key)
-   		console.dir(this.clientAddress)
 
     },
+	methods: {
+		goToUrl(url) {
+			 location.href=url
+
+		}
+	},
     computed: {
     	mapUrl: {
     		get: function() {
@@ -158,7 +158,17 @@ export default {
 
     			return encodeURIComponent(addressArray.join(",")) 
     		}
-    	}
+    	},
+		viewStatementIsDisabled() :any
+		{
+			return ! this.meta.view_statement_permission
+		},
+		editClientIsDisabled() :any
+		{
+			return ! this.meta.edit_client_permission
+		}
+
+
     }
 }
 
