@@ -121,7 +121,7 @@ class ClientController extends Controller
 
         $data = [
         'client' => $client,
-        'settings' => [],
+        'settings' => $client,
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
         'countries' => Country::all(),

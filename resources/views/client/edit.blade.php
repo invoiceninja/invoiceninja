@@ -48,8 +48,9 @@
             
             @endforeach
 
-            <div class="tab-pane fade" id="pills-settings" role="tabpanel" aria-labelledby="pills-settings-tab">
+            <div class="tab-pane fade" id="pills-settings" role="tabpanel" aria-labelledby="pills-settings-tab" style="background-color: #e4e5e6; padding: 0px;">
 
+                <client-settings :settings="{{ $settings }}"></client-settings>
 
             </div>
 

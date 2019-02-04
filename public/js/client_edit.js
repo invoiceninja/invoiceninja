@@ -2071,6 +2071,21 @@ exports.push([module.i, "\nfieldset[disabled] .multiselect{pointer-events:none\n
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-65b36c02\",\"scoped\":false,\"hasInlineConfig\":true}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./resources/js/src/components/client/ClientSettings.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\na.scrollactive-item.is-active  {\n  color: #42b983;\n  font-family: helvetica;\n  text-decoration: none;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #42b983;\n}\na.scrollactive-item.is-active:active {\n  color: #42b983;\n}\n.menu-list a {\n  color: black;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #42b983;\n}\n.menu-list a:active {\n  color: #42b983;\n  text-decoration: none;\n}\n\n\n", ""]);
+
+// exports
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/lib/css-base.js":
 /***/ (function(module, exports) {
 
@@ -4104,6 +4119,43 @@ exports.default = {
 
 /***/ }),
 
+/***/ "./node_modules/ts-loader/index.js!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/client/ClientSettings.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
+var vue_affix_1 = __webpack_require__("./node_modules/vue-affix/dist/vue-affix.min.js");
+var VueScrollactive = __webpack_require__("./node_modules/vue-scrollactive/dist/vue-scrollactive.min.js");
+vue_1.default.use(VueScrollactive);
+exports.default = {
+    components: {
+        Affix: vue_affix_1.Affix,
+    },
+    props: ['settings'],
+    mounted: function () {
+    },
+    methods: {
+        onItemChanged: function (event, currentItem, lastActiveItem) {
+            // your logic
+        },
+    },
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-affix/dist/vue-affix.min.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+!function(t,e){ true?module.exports=e():"function"==typeof define&&define.amd?define([],e):"object"==typeof exports?exports["vue-affix"]=e():t.vueAffix=e()}(window,function(){return function(t){var e={};function i(o){if(e[o])return e[o].exports;var s=e[o]={i:o,l:!1,exports:{}};return t[o].call(s.exports,s,s.exports,i),s.l=!0,s.exports}return i.m=t,i.c=e,i.d=function(t,e,o){i.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:o})},i.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var o=Object.create(null);if(i.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var s in t)i.d(o,s,function(e){return t[e]}.bind(null,s));return o},i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,"a",e),e},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},i.p="/dist/",i(i.s=1)}([function(t,e,i){var o=i(3);"string"==typeof o&&(o=[[t.i,o,""]]),o.locals&&(t.exports=o.locals);(0,i(6).default)("da410cd4",o,!1,{})},function(t,e,i){t.exports=i(5)},function(t,e,i){"use strict";var o=i(0);i.n(o).a},function(t,e,i){(t.exports=i(4)(!1)).push([t.i,"\n.vue-affix {\n  position: relative;\n}\n.affix {\n  position: fixed;\n}\n.affix-bottom {\n  position: relative;\n}\n",""])},function(t,e){t.exports=function(t){var e=[];return e.toString=function(){return this.map(function(e){var i=function(t,e){var i=t[1]||"",o=t[3];if(!o)return i;if(e&&"function"==typeof btoa){var s=function(t){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(t))))+" */"}(o),n=o.sources.map(function(t){return"/*# sourceURL="+o.sourceRoot+t+" */"});return[i].concat(n).concat([s]).join("\n")}return[i].join("\n")}(e,t);return e[2]?"@media "+e[2]+"{"+i+"}":i}).join("")},e.i=function(t,i){"string"==typeof t&&(t=[[null,t,""]]);for(var o={},s=0;s<this.length;s++){var n=this[s][0];"number"==typeof n&&(o[n]=!0)}for(s=0;s<t.length;s++){var r=t[s];"number"==typeof r[0]&&o[r[0]]||(i&&!r[2]?r[2]=i:i&&(r[2]="("+r[2]+") and ("+i+")"),e.push(r))}},e}},function(t,e,i){"use strict";i.r(e);var o=function(){var t=this.$createElement;return(this._self._c||t)("div",[this._t("default")],2)};function s(t){return(s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}o._withStripped=!0;var n={props:{relativeElementSelector:{type:String,required:!0},offset:{type:Object,default:function(){return{top:40,bottom:40}},validator:function(t){if("object"!==s(t))return!1;var e=Object.keys(t);return e.includes("top")&&e.includes("bottom")}},enabled:{type:Boolean,default:!0},scrollAffix:{type:Boolean,default:!1},scrollContainerSelector:{type:String,default:null}},computed:{relativeElement:function(){return document.querySelector(this.relativeElementSelector)},scrollContainer:function(){return this.scrollContainerSelector?document.querySelector(this.scrollContainerSelector):window},affixTopPos:function(){return this.affixRect.top+this.topOfScreen-this.offset.top-this.topPadding},affixBottomPos:function(){return this.affixRect.bottom+this.topOfScreen+this.offset.bottom},bottomOfScreen:function(){return this.topOfScreen+this.scrollContainer.innerHeight},relativeElmTopPos:function(){return this.topOfScreen+this.relativeElement.getBoundingClientRect().top},relativeElmBottomPos:function(){return this.topOfScreen+this.relativeElement.getBoundingClientRect().bottom},screenIsPastAffix:function(){return this.bottomOfScreen>=this.affixBottomPos},screenIsBeforeAffix:function(){return this.topOfScreen<=this.affixTopPos},screenIsBeforeRelativeElm:function(){return this.topOfScreen<=this.relativeElmTopPos-this.offset.top},screenIsPastRelativeElm:function(){return this.bottomOfScreen>=this.relativeElmBottomPos+this.offset.bottom},screenIsInsideRelativeElm:function(){return!this.screenIsBeforeRelativeElm&&!this.screenIsPastRelativeElm}},data:function(){return{affixHeight:null,affixRect:null,affixInitialTop:null,relativeElmOffsetTop:null,topPadding:null,lastState:null,currentState:null,currentScrollAffix:null,topOfScreen:null,lastDistanceFromTop:null,scrollingUp:null,scrollingDown:null}},watch:{offset:function(t,e){t.top===e.top&&t.bottom===e.bottom||this.onScroll()}},methods:{updateData:function(){this.topOfScreen=this.scrollContainer.scrollTop||window.pageYOffset,this.affixRect=this.$el.getBoundingClientRect(),this.affixHeight=this.$el.offsetHeight,this.relativeElmOffsetTop=this.getOffsetTop(this.relativeElement)},onScroll:function(){if(this.enabled)if(this.updateData(),this.affixHeight+this.offset.top>=this.relativeElement.offsetHeight)this.scrollAffix&&"scrollaffix-top"!==this.currentScrollAffix?this.setScrollAffixTop():"affix-top"!==this.currentState&&this.setAffixTop();else{var t=this.affixHeight+this.offset.bottom+this.offset.top;this.scrollAffix&&t>this.scrollContainer.innerHeight?this.handleScrollAffix():this.handleAffix()}else this.removeClasses()},handleAffix:function(){this.topOfScreen<this.relativeElmOffsetTop-this.offset.top&&this.setAffixTop(),this.topOfScreen>=this.relativeElmOffsetTop-this.offset.top&&this.relativeElmBottomPos-this.offset.bottom>=this.topOfScreen+this.topPadding+this.affixHeight+this.offset.top&&this.setAffix(),this.relativeElmBottomPos-this.offset.bottom<this.topOfScreen+this.topPadding+this.affixHeight+this.offset.top&&this.setAffixBottom(),this.lastState=this.currentState},handleScrollAffix:function(){if(this.setScrollingDirection(),this.screenIsBeforeRelativeElm)this.setScrollAffixTop();else if(this.screenIsPastRelativeElm)this.setScrollAffixBottom();else if(this.screenIsInsideRelativeElm){var t="scrollaffix-top"===this.currentScrollAffix||"scrollaffix-bottom"===this.currentScrollAffix||"scrollaffix-up"===this.currentScrollAffix&&this.scrollingDown||"scrollaffix-down"===this.currentScrollAffix&&this.scrollingUp;this.screenIsBeforeAffix&&this.scrollingUp?this.setScrollAffixUp():this.screenIsPastAffix&&this.scrollingDown?this.setScrollAffixDown():t&&this.setScrollAffixScrolling()}this.lastScrollAffixState=this.currentScrollAffix,this.lastDistanceFromTop=this.topOfScreen},initScrollAffix:function(){this.bottomOfScreen<this.affixBottomPos?this.setScrollAffixTop():this.screenIsInsideRelativeElm?this.setScrollAffixDown():this.screenIsPastRelativeElm?this.setScrollAffixBottom():this.setScrollAffixScrolling()},setScrollAffixScrolling:function(){this.currentScrollAffix="scrollaffix-scrolling",this.$el.style.top="".concat(Math.floor(this.affixRect.top)+this.topOfScreen-this.affixInitialTop,"px"),this.$el.style.bottom="auto",this.removeClasses(),this.emitEvent()},setScrollAffixUp:function(){this.currentScrollAffix="scrollaffix-up",this.currentScrollAffix!==this.lastScrollAffixState&&(this.$el.style.top="".concat(this.topPadding+this.offset.top,"px"),this.$el.style.bottom="auto",this.removeClasses(),this.emitEvent(),this.$el.classList.add("affix"))},setScrollAffixDown:function(){this.currentScrollAffix="scrollaffix-down",this.currentScrollAffix!==this.lastScrollAffixState&&(this.$el.style.bottom="".concat(this.offset.bottom,"px"),this.$el.style.top="auto",this.removeClasses(),this.emitEvent(),this.$el.classList.add("affix"))},setScrollAffixTop:function(){this.currentScrollAffix="scrollaffix-top",this.$el.style.top=0,this.$el.style.bottom="auto",this.removeClasses(),this.emitEvent()},setScrollAffixBottom:function(){this.currentScrollAffix="scrollaffix-bottom",this.$el.style.top="".concat(this.relativeElmBottomPos-this.affixInitialTop-this.affixHeight,"px"),this.$el.style.bottom="auto",this.removeClasses(),this.emitEvent()},setScrollingDirection:function(){this.topOfScreen>this.lastDistanceFromTop?(this.scrollingDown=!0,this.scrollingUp=!1):(this.scrollingUp=!0,this.scrollingDown=!1)},setAffixTop:function(){this.currentState="affix-top",this.currentState!==this.lastState&&(this.emitEvent(),this.removeClasses(),this.$el.classList.remove("affix"),this.$el.classList.add("affix-top"),this.$el.style.top=null)},setAffix:function(){this.currentState="affix",this.$el.style.top="".concat(this.topPadding+this.offset.top,"px"),this.currentState!==this.lastState&&(this.emitEvent(),this.removeClasses(),this.$el.classList.add("affix"))},setAffixBottom:function(){this.currentState="affix-bottom",this.$el.style.top="".concat(this.relativeElement.offsetHeight-this.affixHeight-this.offset.bottom-this.topPadding,"px"),this.currentState!==this.lastState&&(this.emitEvent(),this.removeClasses(),this.$el.classList.add("affix-bottom"))},removeClasses:function(){this.$el.classList.remove("affix-top"),this.$el.classList.remove("affix"),this.$el.classList.remove("affix-bottom")},emitEvent:function(){this.scrollAffix&&this.lastScrollAffixState&&this.currentScrollAffix!==this.lastScrollAffixState&&this.$emit(this.currentScrollAffix.replace("-","")),this.lastState&&this.$emit(this.currentState.replace("-",""))},getOffsetTop:function(t){for(var e=0,i=t;i;)e+=i.offsetTop,i=i.offsetParent;return e}},mounted:function(){this.$el.classList.add("vue-affix"),this.affixInitialTop=this.getOffsetTop(this.$el),this.topPadding=this.affixInitialTop-this.getOffsetTop(this.relativeElement),this.updateData(),this.scrollAffix&&this.initScrollAffix(),this.onScroll(),this.scrollContainer.addEventListener("scroll",this.onScroll)},beforeDestroy:function(){this.scrollContainer.removeEventListener("scroll",this.onScroll)}};i(2);var r=function(t,e,i,o,s,n,r,f){var l,a="function"==typeof t?t.options:t;if(e&&(a.render=e,a.staticRenderFns=i,a._compiled=!0),o&&(a.functional=!0),n&&(a._scopeId="data-v-"+n),r?(l=function(t){(t=t||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(t=__VUE_SSR_CONTEXT__),s&&s.call(this,t),t&&t._registeredComponents&&t._registeredComponents.add(r)},a._ssrRegister=l):s&&(l=f?function(){s.call(this,this.$root.$options.shadowRoot)}:s),l)if(a.functional){a._injectStyles=l;var c=a.render;a.render=function(t,e){return l.call(e),c(t,e)}}else{var u=a.beforeCreate;a.beforeCreate=u?[].concat(u,l):[l]}return{exports:t,options:a}}(n,o,[],!1,null,null,null);r.options.__file="src/affix.vue";var f=r.exports;i.d(e,"Affix",function(){return f});var l={install:function(t){l.install.installed||t.component("affix",f)}};"undefined"!=typeof window&&window.Vue&&l.install(window.Vue);e.default=l},function(t,e,i){"use strict";function o(t,e){for(var i=[],o={},s=0;s<e.length;s++){var n=e[s],r=n[0],f={id:t+":"+s,css:n[1],media:n[2],sourceMap:n[3]};o[r]?o[r].parts.push(f):i.push(o[r]={id:r,parts:[f]})}return i}i.r(e),i.d(e,"default",function(){return d});var s="undefined"!=typeof document;if("undefined"!=typeof DEBUG&&DEBUG&&!s)throw new Error("vue-style-loader cannot be used in a non-browser environment. Use { target: 'node' } in your Webpack config to indicate a server-rendering environment.");var n={},r=s&&(document.head||document.getElementsByTagName("head")[0]),f=null,l=0,a=!1,c=function(){},u=null,h="data-vue-ssr-id",p="undefined"!=typeof navigator&&/msie [6-9]\b/.test(navigator.userAgent.toLowerCase());function d(t,e,i,s){a=i,u=s||{};var r=o(t,e);return m(r),function(e){for(var i=[],s=0;s<r.length;s++){var f=r[s];(l=n[f.id]).refs--,i.push(l)}e?m(r=o(t,e)):r=[];for(s=0;s<i.length;s++){var l;if(0===(l=i[s]).refs){for(var a=0;a<l.parts.length;a++)l.parts[a]();delete n[l.id]}}}}function m(t){for(var e=0;e<t.length;e++){var i=t[e],o=n[i.id];if(o){o.refs++;for(var s=0;s<o.parts.length;s++)o.parts[s](i.parts[s]);for(;s<i.parts.length;s++)o.parts.push(v(i.parts[s]));o.parts.length>i.parts.length&&(o.parts.length=i.parts.length)}else{var r=[];for(s=0;s<i.parts.length;s++)r.push(v(i.parts[s]));n[i.id]={id:i.id,refs:1,parts:r}}}}function x(){var t=document.createElement("style");return t.type="text/css",r.appendChild(t),t}function v(t){var e,i,o=document.querySelector("style["+h+'~="'+t.id+'"]');if(o){if(a)return c;o.parentNode.removeChild(o)}if(p){var s=l++;o=f||(f=x()),e=g.bind(null,o,s,!1),i=g.bind(null,o,s,!0)}else o=x(),e=function(t,e){var i=e.css,o=e.media,s=e.sourceMap;o&&t.setAttribute("media",o);u.ssrId&&t.setAttribute(h,e.id);s&&(i+="\n/*# sourceURL="+s.sources[0]+" */",i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(s))))+" */");if(t.styleSheet)t.styleSheet.cssText=i;else{for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(i))}}.bind(null,o),i=function(){o.parentNode.removeChild(o)};return e(t),function(o){if(o){if(o.css===t.css&&o.media===t.media&&o.sourceMap===t.sourceMap)return;e(t=o)}else i()}}var S=function(){var t=[];return function(e,i){return t[e]=i,t.filter(Boolean).join("\n")}}();function g(t,e,i,o){var s=i?"":o.css;if(t.styleSheet)t.styleSheet.cssText=S(e,s);else{var n=document.createTextNode(s),r=t.childNodes;r[e]&&t.removeChild(r[e]),r.length?t.insertBefore(n,r[e]):t.appendChild(n)}}}])});
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/component-normalizer.js":
 /***/ (function(module, exports) {
 
@@ -5741,6 +5793,1017 @@ if (false) {
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-65b36c02\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/client/ClientSettings.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "row" }, [
+    _c(
+      "div",
+      { staticClass: "col-2" },
+      [
+        _c(
+          "affix",
+          {
+            staticClass: "menu sidebar-menu",
+            staticStyle: { width: "200px" },
+            attrs: {
+              "relative-element-selector": "#example-content",
+              offset: { top: 50, bottom: 100 },
+              "scroll-affix": false
+            }
+          },
+          [
+            _c("div", { staticClass: "menu-label" }, [_c("h2")]),
+            _vm._v(" "),
+            _c(
+              "scrollactive",
+              {
+                staticClass: "menu-list",
+                attrs: {
+                  "active-class": "is-active",
+                  offset: 50,
+                  duration: 800,
+                  exact: true
+                }
+              },
+              [
+                _c(
+                  "a",
+                  {
+                    staticClass: "scrollactive-item",
+                    attrs: { href: "#intro", title: "Intro" }
+                  },
+                  [_vm._v("Intro")]
+                ),
+                _c("br"),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "scrollactive-item",
+                    attrs: { href: "#standard-affix", title: "Standard Affix" }
+                  },
+                  [_vm._v("Standard Affix")]
+                ),
+                _c("br"),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "scrollactive-item",
+                    attrs: { href: "#scroll-affix", title: "Scroll Affix" }
+                  },
+                  [_vm._v("Scroll Affix")]
+                ),
+                _c("br"),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "scrollactive-item",
+                    attrs: { href: "#markup-1", title: "Markup 1" }
+                  },
+                  [_vm._v("Markup 1")]
+                ),
+                _c("br"),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "scrollactive-item",
+                    attrs: { href: "#markup-2", title: "Markup 2" }
+                  },
+                  [_vm._v("Markup 2")]
+                ),
+                _c("br"),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "scrollactive-item",
+                    attrs: { href: "#markup-3", title: "Markup 3" }
+                  },
+                  [_vm._v("Markup 3")]
+                ),
+                _c("br")
+              ]
+            )
+          ],
+          1
+        )
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "col-10" }, [
+      _c("div", { attrs: { id: "example-content" } }, [
+        _c("section", { attrs: { id: "intro" } }, [
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header bg-primary2" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("section", { attrs: { id: "standard-affix" } }, [
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header bg-primary2" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("section", { attrs: { id: "scroll-affix" } }, [
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header bg-primary2" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("section", { attrs: { id: "markup-1" } }, [
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header bg-primary2" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("section", { attrs: { id: "markup-2" } }, [
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header bg-primary2" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("section", { attrs: { id: "markup-3" } }, [
+          _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card-header bg-primary2" }, [
+              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.client_name")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ])
+            ])
+          ])
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-65b36c02", module.exports)
+  }
+}
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-715963bb\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/client/ClientContactEdit.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6198,6 +7261,13 @@ if (false) {
 
 /***/ }),
 
+/***/ "./node_modules/vue-scrollactive/dist/vue-scrollactive.min.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+!function(t,e){ true?module.exports=e():"function"==typeof define&&define.amd?define([],e):"object"==typeof exports?exports["vue-scrollactive"]=e():t.vueScrollactive=e()}("undefined"!=typeof self?self:this,function(){return function(t){var e={};function n(r){if(e[r])return e[r].exports;var o=e[r]={i:r,l:!1,exports:{}};return t[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}return n.m=t,n.c=e,n.d=function(t,e,r){n.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:r})},n.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},n.t=function(t,e){if(1&e&&(t=n(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var o in t)n.d(r,o,function(e){return t[e]}.bind(null,o));return r},n.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return n.d(e,"a",e),e},n.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},n.p="/dist/",n(n.s=1)}([function(t,e){var n=4,r=.001,o=1e-7,i=10,s=11,l=1/(s-1),a="function"==typeof Float32Array;function c(t,e){return 1-3*e+3*t}function u(t,e){return 3*e-6*t}function f(t){return 3*t}function d(t,e,n){return((c(e,n)*t+u(e,n))*t+f(e))*t}function h(t,e,n){return 3*c(e,n)*t*t+2*u(e,n)*t+f(e)}t.exports=function(t,e,c,u){if(!(0<=t&&t<=1&&0<=c&&c<=1))throw new Error("bezier x values must be in [0, 1] range");var f=a?new Float32Array(s):new Array(s);if(t!==e||c!==u)for(var v=0;v<s;++v)f[v]=d(v*l,t,c);function m(e){for(var a=0,u=1,v=s-1;u!==v&&f[u]<=e;++u)a+=l;var m=a+(e-f[--u])/(f[u+1]-f[u])*l,p=h(m,t,c);return p>=r?function(t,e,r,o){for(var i=0;i<n;++i){var s=h(e,r,o);if(0===s)return e;e-=(d(e,r,o)-t)/s}return e}(e,m,t,c):0===p?m:function(t,e,n,r,s){var l,a,c=0;do{(l=d(a=e+(n-e)/2,r,s)-t)>0?n=a:e=a}while(Math.abs(l)>o&&++c<i);return a}(e,a,a+l,t,c)}return function(n){return t===e&&c===u?n:0===n?0:1===n?1:d(m(n),e,u)}}},function(t,e,n){t.exports=n(2)},function(t,e,n){"use strict";n.r(e);var r=function(){var t=this.$createElement;return(this._self._c||t)(this.tag,{ref:"scrollactive-nav-wrapper",tag:"component",staticClass:"scrollactive-nav"},[this._t("default")],2)};r._withStripped=!0;var o=n(0),i=n.n(o);function s(t){return function(t){if(Array.isArray(t)){for(var e=0,n=new Array(t.length);e<t.length;e++)n[e]=t[e];return n}}(t)||function(t){if(Symbol.iterator in Object(t)||"[object Arguments]"===Object.prototype.toString.call(t))return Array.from(t)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance")}()}var l=function(t,e,n,r,o,i,s,l){var a,c="function"==typeof t?t.options:t;if(e&&(c.render=e,c.staticRenderFns=n,c._compiled=!0),r&&(c.functional=!0),i&&(c._scopeId="data-v-"+i),s?(a=function(t){(t=t||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(t=__VUE_SSR_CONTEXT__),o&&o.call(this,t),t&&t._registeredComponents&&t._registeredComponents.add(s)},c._ssrRegister=a):o&&(a=l?function(){o.call(this,this.$root.$options.shadowRoot)}:o),a)if(c.functional){c._injectStyles=a;var u=c.render;c.render=function(t,e){return a.call(e),u(t,e)}}else{var f=c.beforeCreate;c.beforeCreate=f?[].concat(f,a):[a]}return{exports:t,options:c}}({props:{activeClass:{type:String,default:"is-active"},offset:{type:Number,default:20},scrollOffset:{type:Number,default:null},scrollContainerSelector:{type:String,default:""},clickToScroll:{type:Boolean,default:!0},duration:{type:Number,default:600},alwaysTrack:{type:Boolean,default:!1},bezierEasingValue:{type:String,default:".5,0,.35,1"},modifyUrl:{type:Boolean,default:!0},exact:{type:Boolean,default:!1},highlightFirstItem:{type:Boolean,default:!1},tag:{type:String,default:"nav"}},data:function(){return{observer:null,items:[],currentItem:null,lastActiveItem:null,scrollAnimationFrame:null,bezierEasing:i.a}},computed:{cubicBezierArray:function(){return this.bezierEasingValue.split(",")},scrollContainer:function(){var t=window;return this.scrollContainerSelector&&(t=document.querySelector(this.scrollContainerSelector)||window),t}},mounted:function(){var t=window.MutationObserver||window.WebKitMutationObserver;this.observer||(this.observer=new t(this.initScrollactiveItems),this.observer.observe(this.$refs["scrollactive-nav-wrapper"],{childList:!0,subtree:!0})),this.initScrollactiveItems(),this.removeActiveClass(),this.currentItem=this.getItemInsideWindow(),this.currentItem&&this.currentItem.classList.add(this.activeClass),this.scrollToHashElement(),this.scrollContainer.addEventListener("scroll",this.onScroll)},updated:function(){this.initScrollactiveItems()},beforeDestroy:function(){this.scrollContainer.removeEventListener("scroll",this.onScroll),window.cancelAnimationFrame(this.scrollAnimationFrame)},methods:{onScroll:function(t){this.currentItem=this.getItemInsideWindow(),this.currentItem!==this.lastActiveItem&&(this.removeActiveClass(),this.$emit("itemchanged",t,this.currentItem,this.lastActiveItem),this.lastActiveItem=this.currentItem),this.currentItem&&this.currentItem.classList.add(this.activeClass)},getItemInsideWindow:function(){var t,e=this;return[].forEach.call(this.items,function(n){var r=n===e.items[0],o=document.getElementById(decodeURI(n.hash.substr(1)));if(o){var i=e.scrollContainer.scrollTop||window.pageYOffset,s=i>=e.getOffsetTop(o)-e.offset,l=i<e.getOffsetTop(o)-e.offset+o.offsetHeight;r&&e.highlightFirstItem&&l&&(t=n),e.exact&&s&&l&&(t=n),!e.exact&&s&&(t=n)}}),t},initScrollactiveItems:function(){var t=this;this.items=this.$el.querySelectorAll(".scrollactive-item"),this.clickToScroll?[].forEach.call(this.items,function(e){e.addEventListener("click",t.handleClick)}):[].forEach.call(this.items,function(e){e.removeEventListener("click",t.handleClick)})},setScrollactiveItems:function(){this.initScrollactiveItems()},handleClick:function(t){var e=this;t.preventDefault();var n=t.currentTarget.hash,r=document.getElementById(decodeURI(n.substr(1)));r?(this.alwaysTrack||(this.scrollContainer.removeEventListener("scroll",this.onScroll),window.cancelAnimationFrame(this.scrollAnimationFrame),this.removeActiveClass(),t.currentTarget.classList.add(this.activeClass)),this.scrollTo(r).then(function(){if(!e.alwaysTrack){e.scrollContainer.addEventListener("scroll",e.onScroll);e.currentItem=[].find.call(e.items,function(t){return decodeURI(t.hash.substr(1))===r.id}),e.currentItem!==e.lastActiveItem&&(e.$emit("itemchanged",null,e.currentItem,e.lastActiveItem),e.lastActiveItem=e.currentItem)}e.modifyUrl&&e.pushHashToUrl(n)})):console.warn("[vue-scrollactive] Element '".concat(n,"' was not found. Make sure it is set in the DOM."))},scrollTo:function(t){var e=this;return new Promise(function(n){var r=e.getOffsetTop(t),o=e.scrollContainer.scrollTop||window.pageYOffset,i=r-o,l=e.bezierEasing.apply(e,s(e.cubicBezierArray)),a=null;window.requestAnimationFrame(function t(r){a||(a=r);var s=r-a,c=s/e.duration;s>=e.duration&&(s=e.duration),c>=1&&(c=1);var u=e.scrollOffset||e.offset,f=o+l(c)*(i-u);e.scrollContainer.scrollTo(0,f),s<e.duration?e.scrollAnimationFrame=window.requestAnimationFrame(t):n()})})},getOffsetTop:function(t){for(var e=0,n=t;n;)e+=n.offsetTop,n=n.offsetParent;return this.scrollContainer.offsetTop&&(e-=this.scrollContainer.offsetTop),e},removeActiveClass:function(){var t=this;[].forEach.call(this.items,function(e){e.classList.remove(t.activeClass)})},scrollToHashElement:function(){var t=this,e=window.location.hash;if(e){var n=document.querySelector(decodeURI(e));n&&(window.location.hash="",setTimeout(function(){var r=n.offsetTop-t.offset;t.scrollContainer.scrollTo(0,r),t.pushHashToUrl(e)},0))}},pushHashToUrl:function(t){window.history.pushState?window.history.pushState(null,null,t):window.location.hash=t}}},r,[],!1,null,null,null);l.options.__file="src/scrollactive.vue";var a=l.exports,c={install:function(t){c.install.installed||t.component("scrollactive",a)}};"undefined"!=typeof window&&window.Vue&&c.install(window.Vue);e.default=c}])});
+
+/***/ }),
+
 /***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3cb60e36\",\"scoped\":false,\"hasInlineConfig\":true}!./node_modules/vue-multiselect/dist/vue-multiselect.min.css":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6215,6 +7285,33 @@ if(false) {
  if(!content.locals) {
    module.hot.accept("!!../../css-loader/index.js!../../vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3cb60e36\",\"scoped\":false,\"hasInlineConfig\":true}!./vue-multiselect.min.css", function() {
      var newContent = require("!!../../css-loader/index.js!../../vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3cb60e36\",\"scoped\":false,\"hasInlineConfig\":true}!./vue-multiselect.min.css");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ "./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-65b36c02\",\"scoped\":false,\"hasInlineConfig\":true}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./resources/js/src/components/client/ClientSettings.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__("./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-65b36c02\",\"scoped\":false,\"hasInlineConfig\":true}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./resources/js/src/components/client/ClientSettings.vue");
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("5fa05aa0", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-65b36c02\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./ClientSettings.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-65b36c02\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./ClientSettings.vue");
      if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
      update(newContent);
    });
@@ -18865,6 +19962,7 @@ vue_1.default.component('client-address', __webpack_require__("./resources/js/sr
 vue_1.default.component('generic-address', __webpack_require__("./resources/js/src/components/generic/Address.vue"));
 vue_1.default.component('client-edit-form', __webpack_require__("./resources/js/src/components/client/ClientEditForm.vue"));
 vue_1.default.component('contact-edit', __webpack_require__("./resources/js/src/components/client/ClientContactEdit.vue"));
+vue_1.default.component('client-settings', __webpack_require__("./resources/js/src/components/client/ClientSettings.vue"));
 window.onload = function () {
     var app = new vue_1.default({
         el: '#client_edit'
@@ -19059,6 +20157,58 @@ if (false) {(function () {
     hotAPI.createRecord("data-v-0d04a766", Component.options)
   } else {
     hotAPI.reload("data-v-0d04a766", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ "./resources/js/src/components/client/ClientSettings.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__("./node_modules/vue-style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-65b36c02\",\"scoped\":false,\"hasInlineConfig\":true}!./node_modules/vue-loader/lib/selector.js?type=styles&index=0!./resources/js/src/components/client/ClientSettings.vue")
+}
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/ts-loader/index.js!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/js/src/components/client/ClientSettings.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-65b36c02\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/js/src/components/client/ClientSettings.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/js/src/components/client/ClientSettings.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-65b36c02", Component.options)
+  } else {
+    hotAPI.reload("data-v-65b36c02", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

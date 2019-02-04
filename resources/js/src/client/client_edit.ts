@@ -13,7 +13,8 @@ Vue.component('client-address', require('../components/client/ClientAddress.vue'
 Vue.component('generic-address', require('../components/generic/Address.vue'));
 Vue.component('client-edit-form', require('../components/client/ClientEditForm.vue'));
 Vue.component('contact-edit', require('../components/client/ClientContactEdit.vue'));
- 
+Vue.component('client-settings', require('../components/client/ClientSettings.vue'));
+
 window.onload = function () {
 
     const app = new Vue({
