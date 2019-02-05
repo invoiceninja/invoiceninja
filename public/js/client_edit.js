@@ -2079,7 +2079,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\na.scrollactive-item.is-active  {\n  color: #42b983;\n  font-family: helvetica;\n  text-decoration: none;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #42b983;\n}\na.scrollactive-item.is-active:active {\n  color: #42b983;\n}\n.menu-list a {\n  color: black;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #42b983;\n}\n.menu-list a:active {\n  color: #42b983;\n  text-decoration: none;\n}\n\n\n", ""]);
+exports.push([module.i, "\n.menu-li {\n\tlist-style: none;\n  padding-left:5px;\n}\na.scrollactive-item.is-active  {\n  color: #42b983;\n  font-family: helvetica;\n  text-decoration: none;\n  border-left-style: solid;\n  border-left-color: #42b983;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #42b983;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:active {\n  color: #42b983;\n  padding-left:10px;\n}\n.menu-list a {\n  color: black;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #42b983;\n      padding-left:5px;\n}\n.menu-list a:active {\n  color: #42b983;\n  text-decoration: none;\n      padding-left:5px;\n}\n\n\n", ""]);
 
 // exports
 
@@ -5831,65 +5831,76 @@ var render = function() {
                 }
               },
               [
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#intro", title: "Intro" }
-                  },
-                  [_vm._v("Intro")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#standard-affix", title: "Standard Affix" }
-                  },
-                  [_vm._v("Standard Affix")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#scroll-affix", title: "Scroll Affix" }
-                  },
-                  [_vm._v("Scroll Affix")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#markup-1", title: "Markup 1" }
-                  },
-                  [_vm._v("Markup 1")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#markup-2", title: "Markup 2" }
-                  },
-                  [_vm._v("Markup 2")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#markup-3", title: "Markup 3" }
-                  },
-                  [_vm._v("Markup 3")]
-                ),
-                _c("br")
+                _c("ul", [
+                  _c("li", { staticClass: "menu-li" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "scrollactive-item",
+                        attrs: { href: "#intro", title: "Intro" }
+                      },
+                      [_vm._v("Intro")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("li", { staticClass: "menu-li" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "scrollactive-item",
+                        attrs: {
+                          href: "#standard-affix",
+                          title: "Standard Affix"
+                        }
+                      },
+                      [_vm._v("Standard Affix")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("li", { staticClass: "menu-li" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "scrollactive-item",
+                        attrs: { href: "#scroll-affix", title: "Scroll Affix" }
+                      },
+                      [_vm._v("Scroll Affix")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("li", { staticClass: "menu-li" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "scrollactive-item",
+                        attrs: { href: "#markup-1", title: "Markup 1" }
+                      },
+                      [_vm._v("Markup 1")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("li", { staticClass: "menu-li" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "scrollactive-item",
+                        attrs: { href: "#markup-2", title: "Markup 2" }
+                      },
+                      [_vm._v("Markup 2")]
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("li", { staticClass: "menu-li" }, [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "scrollactive-item",
+                        attrs: { href: "#markup-3", title: "Markup 3" }
+                      },
+                      [_vm._v("Markup 3")]
+                    )
+                  ])
+                ])
               ]
             )
           ],

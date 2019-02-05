@@ -16,12 +16,14 @@
 			  	:duration="800"
               	:exact="true"
               	>
-                <a href="#intro" class="scrollactive-item" title="Intro">Intro</a><br>
-                <a href="#standard-affix" class="scrollactive-item" title="Standard Affix">Standard Affix</a><br>
-                <a href="#scroll-affix" class="scrollactive-item" title="Scroll Affix">Scroll Affix</a><br>
-                <a href="#markup-1" class="scrollactive-item" title="Markup 1">Markup 1</a><br>
-                <a href="#markup-2" class="scrollactive-item" title="Markup 2">Markup 2</a><br>
-                <a href="#markup-3" class="scrollactive-item" title="Markup 3">Markup 3</a><br>
+              	<ul>
+	                <li class="menu-li"><a href="#intro" class="scrollactive-item" title="Intro">Intro</a></li>
+	                <li class="menu-li"><a href="#standard-affix" class="scrollactive-item" title="Standard Affix">Standard Affix</a></li>
+	                <li class="menu-li"><a href="#scroll-affix" class="scrollactive-item" title="Scroll Affix">Scroll Affix</a></li>
+	                <li class="menu-li"><a href="#markup-1" class="scrollactive-item" title="Markup 1">Markup 1</a></li>
+	                <li class="menu-li"><a href="#markup-2" class="scrollactive-item" title="Markup 2">Markup 2</a></li>
+	                <li class="menu-li"><a href="#markup-3" class="scrollactive-item" title="Markup 3">Markup 3</a></li>
+            	</ul>
               </scrollactive>
             </affix>
 
@@ -384,19 +386,32 @@ Vue.use(VueScrollactive);
 
 <style>
 
+.menu-li {
+	list-style: none;
+  padding-left:5px;
+
+}
+
 a.scrollactive-item.is-active  {
   color: #42b983;
   font-family: helvetica;
   text-decoration: none;
+  border-left-style: solid;
+  border-left-color: #42b983;
+  padding-left:10px;
 }
 
 a.scrollactive-item.is-active:hover {
   text-decoration: none;
   color: #42b983;
+  padding-left:10px;
+
 }
 
 a.scrollactive-item.is-active:active {
   color: #42b983;
+  padding-left:10px;
+
 }
 
 
@@ -410,11 +425,15 @@ a.scrollactive-item.is-active:active {
 .menu-list a:hover {
   text-decoration: none;
   color: #42b983;
+      padding-left:5px;
+
 }
 
 .menu-list a:active {
   color: #42b983;
   text-decoration: none;
+      padding-left:5px;
+
 }
 
 
