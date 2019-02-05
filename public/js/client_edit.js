@@ -5839,7 +5839,7 @@ var render = function() {
                         staticClass: "scrollactive-item",
                         attrs: { href: "#intro", title: "Intro" }
                       },
-                      [_vm._v("Intro")]
+                      [_vm._v(_vm._s(_vm.trans("texts.settings")))]
                     )
                   ]),
                   _vm._v(" "),
@@ -5853,7 +5853,7 @@ var render = function() {
                           title: "Standard Affix"
                         }
                       },
-                      [_vm._v("Standard Affix")]
+                      [_vm._v(_vm._s(_vm.trans("texts.messages")))]
                     )
                   ]),
                   _vm._v(" "),
@@ -5864,40 +5864,7 @@ var render = function() {
                         staticClass: "scrollactive-item",
                         attrs: { href: "#scroll-affix", title: "Scroll Affix" }
                       },
-                      [_vm._v("Scroll Affix")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("li", { staticClass: "menu-li" }, [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "scrollactive-item",
-                        attrs: { href: "#markup-1", title: "Markup 1" }
-                      },
-                      [_vm._v("Markup 1")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("li", { staticClass: "menu-li" }, [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "scrollactive-item",
-                        attrs: { href: "#markup-2", title: "Markup 2" }
-                      },
-                      [_vm._v("Markup 2")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("li", { staticClass: "menu-li" }, [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "scrollactive-item",
-                        attrs: { href: "#markup-3", title: "Markup 3" }
-                      },
-                      [_vm._v("Markup 3")]
+                      [_vm._v(_vm._s(_vm.trans("texts.classify")))]
                     )
                   ])
                 ])
@@ -5915,7 +5882,7 @@ var render = function() {
         _c("section", { attrs: { id: "intro" } }, [
           _c("div", { staticClass: "card" }, [
             _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+              _vm._v(_vm._s(_vm.trans("t.client_settings")))
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "card-body" }, [
@@ -5926,7 +5893,7 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.currency")))]
                 ),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-9" }, [
@@ -5934,7 +5901,87 @@ var render = function() {
                     staticClass: "form-control",
                     attrs: {
                       type: "text",
-                      placeholder: _vm.trans("texts.client_name")
+                      placeholder: _vm.trans("texts.currency")
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-danger" })
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c("label", {
+                  staticClass: "col-sm-3 col-form-label text-right",
+                  attrs: { for: "name" }
+                }),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "form-check form-check-inline mr-1" },
+                  [
+                    _c("input", {
+                      staticClass: "form-check-input",
+                      attrs: {
+                        id: "inline-radio1",
+                        type: "radio",
+                        value: "option1",
+                        name: "inline-radios"
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "label",
+                      {
+                        staticClass: "form-check-label",
+                        attrs: { for: "inline-radio1" }
+                      },
+                      [_vm._v(_vm._s(_vm.trans("texts.currency_symbol")))]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "form-check form-check-inline mr-1" },
+                  [
+                    _c("input", {
+                      staticClass: "form-check-input",
+                      attrs: {
+                        id: "inline-radio2",
+                        type: "radio",
+                        value: "option2",
+                        name: "inline-radios"
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "label",
+                      {
+                        staticClass: "form-check-label",
+                        attrs: { for: "inline-radio2" }
+                      },
+                      [_vm._v(_vm._s(_vm.trans("texts.currency_code")))]
+                    )
+                  ]
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "col-sm-3 col-form-label text-right",
+                    attrs: { for: "name" }
+                  },
+                  [_vm._v(_vm._s(_vm.trans("texts.payment_terms")))]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-9" }, [
+                  _c("input", {
+                    staticClass: "form-control",
+                    attrs: {
+                      type: "text",
+                      placeholder: _vm.trans("texts.payment_terms")
                     }
                   }),
                   _vm._v(" "),
@@ -5949,7 +5996,7 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.task_rate")))]
                 ),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-9" }, [
@@ -5957,7 +6004,7 @@ var render = function() {
                     staticClass: "form-control",
                     attrs: {
                       type: "text",
-                      placeholder: _vm.trans("texts.client_name")
+                      placeholder: _vm.trans("texts.task_rate")
                     }
                   }),
                   _vm._v(" "),
@@ -5972,20 +6019,10 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.send_client_reminders")))]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+                _vm._m(0)
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "form-group row" }, [
@@ -5995,66 +6032,10 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.show_tasks_in_portal")))]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+                _vm._m(1)
               ])
             ])
           ])
@@ -6063,7 +6044,7 @@ var render = function() {
         _c("section", { attrs: { id: "standard-affix" } }, [
           _c("div", { staticClass: "card" }, [
             _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+              _vm._v(_vm._s(_vm.trans("texts.messages")))
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "card-body" }, [
@@ -6074,20 +6055,10 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.dashboard")))]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+                _vm._m(2)
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "form-group row" }, [
@@ -6097,20 +6068,10 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.unpaid_invoice")))]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+                _vm._m(3)
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "form-group row" }, [
@@ -6120,20 +6081,10 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.paid_invoice")))]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+                _vm._m(4)
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "form-group row" }, [
@@ -6141,68 +6092,12 @@ var render = function() {
                   "label",
                   {
                     staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
+                    attrs: { for: "unapproved_quote" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.unapproved_quote")))]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+                _vm._m(5)
               ])
             ])
           ])
@@ -6211,7 +6106,7 @@ var render = function() {
         _c("section", { attrs: { id: "scroll-affix" } }, [
           _c("div", { staticClass: "card" }, [
             _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
+              _vm._v(_vm._s(_vm.trans("texts.classify")))
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "card-body" }, [
@@ -6222,7 +6117,7 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.industry")))]
                 ),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-9" }, [
@@ -6245,543 +6140,7 @@ var render = function() {
                     staticClass: "col-sm-3 col-form-label text-right",
                     attrs: { for: "name" }
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "markup-1" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "markup-2" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "markup-3" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [_vm._v(_vm._s(_vm.trans("texts.size_id")))]
                 ),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-sm-9" }, [
@@ -6803,7 +6162,116 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-9" }, [
+      _c(
+        "label",
+        { staticClass: "switch switch-label switch-pill switch-info" },
+        [
+          _c("input", {
+            staticClass: "switch-input",
+            attrs: { type: "checkbox", checked: "" }
+          }),
+          _vm._v(" "),
+          _c("span", {
+            staticClass: "switch-slider",
+            attrs: { "data-checked": "✓", "data-unchecked": "✕" }
+          })
+        ]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-9" }, [
+      _c(
+        "label",
+        { staticClass: "switch switch-label switch-pill switch-info" },
+        [
+          _c("input", {
+            staticClass: "switch-input",
+            attrs: { type: "checkbox", checked: "" }
+          }),
+          _vm._v(" "),
+          _c("span", {
+            staticClass: "switch-slider",
+            attrs: { "data-checked": "✓", "data-unchecked": "✕" }
+          })
+        ]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-9" }, [
+      _c("textarea", {
+        staticClass: "form-control",
+        attrs: {
+          id: "textarea-input",
+          name: "dashboard",
+          rows: "9",
+          placeholder: ""
+        }
+      })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-9" }, [
+      _c("textarea", {
+        staticClass: "form-control",
+        attrs: {
+          id: "textarea-input",
+          name: "unpaid_invoice",
+          rows: "9",
+          placeholder: ""
+        }
+      })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-sm-9" }, [
+      _c("textarea", {
+        staticClass: "form-control",
+        attrs: {
+          id: "textarea-input",
+          name: "paid_invoice",
+          rows: "9",
+          placeholder: ""
+        }
+      })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-md-9" }, [
+      _c("textarea", {
+        staticClass: "form-control",
+        attrs: {
+          id: "textarea-input",
+          name: "unapproved_quote",
+          rows: "9",
+          placeholder: ""
+        }
+      })
+    ])
+  }
+]
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {

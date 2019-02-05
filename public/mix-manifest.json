@@ -1,6 +1,6 @@
 {
     "/js/client_list.js": "/js/client_list.js?id=497dadf330d671d77df2",
-    "/js/client_edit.js": "/js/client_edit.js?id=b291fc6fbddbb831c058",
+    "/js/client_edit.js": "/js/client_edit.js?id=ea11b12cd19752d4a2db",
     "/js/client_show.js": "/js/client_show.js?id=d1fa3c09614c73dc4b7e",
     "/js/client_create.js": "/js/client_create.js?id=d5acb9e9a827386a517c",
     "/js/localization.js": "/js/localization.js?id=054592ec61c720b458de",
@@ -9,7 +9,7 @@
     "/js/ninja.min.js": "/js/ninja.min.js?id=d41d8cd98f00b204e980",
     "/js/coreui.min.js": "/js/coreui.min.js?id=3c7e911851224f97523e",
     "/js/client_show.min.js": "/js/client_show.min.js?id=d1fa3c09614c73dc4b7e",
-    "/js/client_edit.min.js": "/js/client_edit.min.js?id=b291fc6fbddbb831c058",
+    "/js/client_edit.min.js": "/js/client_edit.min.js?id=ea11b12cd19752d4a2db",
     "/js/client_create.min.js": "/js/client_create.min.js?id=d5acb9e9a827386a517c",
     "/js/client_list.min.js": "/js/client_list.min.js?id=497dadf330d671d77df2",
     "/js/localization.min.js": "/js/localization.min.js?id=054592ec61c720b458de",

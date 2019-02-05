@@ -17,12 +17,10 @@
               	:exact="true"
               	>
               	<ul>
-	                <li class="menu-li"><a href="#intro" class="scrollactive-item" title="Intro">Intro</a></li>
-	                <li class="menu-li"><a href="#standard-affix" class="scrollactive-item" title="Standard Affix">Standard Affix</a></li>
-	                <li class="menu-li"><a href="#scroll-affix" class="scrollactive-item" title="Scroll Affix">Scroll Affix</a></li>
-	                <li class="menu-li"><a href="#markup-1" class="scrollactive-item" title="Markup 1">Markup 1</a></li>
-	                <li class="menu-li"><a href="#markup-2" class="scrollactive-item" title="Markup 2">Markup 2</a></li>
-	                <li class="menu-li"><a href="#markup-3" class="scrollactive-item" title="Markup 3">Markup 3</a></li>
+	                <li class="menu-li"><a href="#intro" class="scrollactive-item" title="Intro">{{trans('texts.settings')}}</a></li>
+	                <li class="menu-li"><a href="#standard-affix" class="scrollactive-item" title="Standard Affix">{{trans('texts.messages')}}</a></li>
+	                <li class="menu-li"><a href="#scroll-affix" class="scrollactive-item" title="Scroll Affix">{{trans('texts.classify')}}</a></li>
+	                
             	</ul>
               </scrollactive>
             </affix>
@@ -35,48 +33,57 @@
 
               <section id="intro">
                     <div class="card">
-                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
+                        <div class="card-header bg-primary2">{{ trans('t.client_settings') }}</div>
                             <div class="card-body">
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.currency') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
+							            <input type="text" :placeholder="trans('texts.currency')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right"></label>
+
+									<div class="form-check form-check-inline mr-1">
+										<input class="form-check-input" id="inline-radio1" type="radio" value="option1" name="inline-radios">
+										<label class="form-check-label" for="inline-radio1">{{ trans('texts.currency_symbol') }}</label>
+									</div>
+									<div class="form-check form-check-inline mr-1">
+										<input class="form-check-input" id="inline-radio2" type="radio" value="option2" name="inline-radios">
+										<label class="form-check-label" for="inline-radio2">{{ trans('texts.currency_code') }}</label>
+									</div>
+								</div>
+							    <div class="form-group row">
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.payment_terms') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
+							            <input type="text" :placeholder="trans('texts.payment_terms')" class="form-control">
+						                 <div v-if="" class="text-danger" v-text=""></div>
+							        </div>
+							    </div>
+							    <div class="form-group row">
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.task_rate') }}</label>
+							        <div class="col-sm-9">
+							            <input type="text" :placeholder="trans('texts.task_rate')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.send_client_reminders') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
+							            <label class="switch switch-label switch-pill switch-info">
+										<input class="switch-input" type="checkbox" checked="">
+										<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+										</label>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.show_tasks_in_portal') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
+							            <label class="switch switch-label switch-pill switch-info">
+										<input class="switch-input" type="checkbox" checked="">
+										<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
+										</label>
 							        </div>
 							    </div>
 
@@ -87,50 +94,32 @@
 
               <section id="standard-affix">
                 <div class="card">
-                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
+                        <div class="card-header bg-primary2">{{ trans('texts.messages') }}</div>
                             <div class="card-body">
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.dashboard') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
+							            <textarea class="form-control" id="textarea-input" name="dashboard" rows="9" placeholder=""></textarea>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.unpaid_invoice') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
+							            <textarea class="form-control" id="textarea-input" name="unpaid_invoice" rows="9" placeholder=""></textarea>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.paid_invoice') }}</label>
 							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
+							            <textarea class="form-control" id="textarea-input" name="paid_invoice" rows="9" placeholder=""></textarea>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
+									<label class="col-sm-3 col-form-label text-right" for="unapproved_quote">{{ trans('texts.unapproved_quote') }}</label>
+									<div class="col-md-9">
+										<textarea class="form-control" id="textarea-input" name="unapproved_quote" rows="9" placeholder=""></textarea>
+									</div>
+								</div>
 
 							</div>
 						
@@ -139,45 +128,17 @@
 
               <section id="scroll-affix">
                 <div class="card">
-                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
+                        <div class="card-header bg-primary2">{{ trans('texts.classify') }}</div>
                             <div class="card-body">
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.industry') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
 							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
+							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.size_id') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
@@ -189,161 +150,6 @@
                     </div>
               </section>
 
-              <section id="markup-1">
-                <div class="card">
-                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
-                            <div class="card-body">
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-
-							</div>
-						
-                    </div>
-                </section>
-
-              <section id="markup-2">
-                <div class="card">
-                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
-                            <div class="card-body">
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-
-							</div>
-						
-                    </div>
-              </section>
-
-              <section id="markup-3">
-                <div class="card">
-                        <div class="card-header bg-primary2">{{ trans('texts.edit_client') }}</div>
-                            <div class="card-body">
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.client_name') }}</label>
-							        <div class="col-sm-9">
-							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-							                 <div v-if="" class="text-danger" v-text=""></div>
-							        </div>
-							    </div>
-
-							</div>
-						
-                    </div>
-              </section>
             </div>
             		
 		</div>

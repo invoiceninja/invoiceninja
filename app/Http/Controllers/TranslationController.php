@@ -33,8 +33,12 @@ class TranslationController extends Controller
         });
 
         header('Content-Type: text/javascript');
-        echo('i18n = ' . json_encode($strings) . ';');
+        echo('i18n = ' . $this->easyMinify(json_encode($strings)) . ';');
         exit();
+    }
+
+    private function easyMinify($javascript){
+        return preg_replace(array("/\s+\n/", "/\n\s+/", "/ +/"), array("\n", "\n ", " "), $javascript);
     }
 
     /**
