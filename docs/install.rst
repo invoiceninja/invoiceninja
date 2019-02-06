@@ -88,6 +88,8 @@ Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update 
 
 You can run it as a daily cron to automatically keep your app up to date.
 
+Important thing to remember before you run an update. Keep a copy of all the ".dotfiles", since the update will overwrite them. If you are running in a subdomain you have to reenable the `` RewriteRule ^(.*)$ public/$1 [L]`` Also if your installation have custom configuration in ".htacess" you have to reapply it.
+
 Troubleshooting
 ^^^^^^^^^^^^^^^
 
