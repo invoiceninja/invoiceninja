@@ -32,44 +32,44 @@
 			<div id="example-content">
 
               <section id="intro">
-                    <div class="card">
+                    <div class="card border-info">
                         <div class="card-header bg-primary2">{{ trans('t.client_settings') }}</div>
-                            <div class="card-body">
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.currency') }}</label>
+                            <div class="card-body px-3">
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.currency') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.currency')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right"></label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left"></label>
 
-									<div class="form-check form-check-inline mr-1">
+									<div class="form-check form-check-inline">
 										<input class="form-check-input" id="inline-radio1" type="radio" value="option1" name="inline-radios">
 										<label class="form-check-label" for="inline-radio1">{{ trans('texts.currency_symbol') }}</label>
 									</div>
-									<div class="form-check form-check-inline mr-1">
+									<div class="form-check form-check-inline">
 										<input class="form-check-input" id="inline-radio2" type="radio" value="option2" name="inline-radios">
 										<label class="form-check-label" for="inline-radio2">{{ trans('texts.currency_code') }}</label>
 									</div>
 								</div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.payment_terms') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.payment_terms') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.payment_terms')" class="form-control">
 						                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.task_rate') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.task_rate') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.task_rate')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.send_client_reminders') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
 							        <div class="col-sm-9">
 							            <label class="switch switch-label switch-pill switch-info">
 										<input class="switch-input" type="checkbox" checked="">
@@ -77,8 +77,8 @@
 										</label>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.show_tasks_in_portal') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.show_tasks_in_portal') }}</label>
 							        <div class="col-sm-9">
 							            <label class="switch switch-label switch-pill switch-info">
 										<input class="switch-input" type="checkbox" checked="">
@@ -96,26 +96,26 @@
                 <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.messages') }}</div>
                             <div class="card-body">
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.dashboard') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.dashboard') }}</label>
 							        <div class="col-sm-9">
 							            <textarea class="form-control" id="textarea-input" name="dashboard" rows="9" placeholder=""></textarea>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.unpaid_invoice') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.unpaid_invoice') }}</label>
 							        <div class="col-sm-9">
 							            <textarea class="form-control" id="textarea-input" name="unpaid_invoice" rows="9" placeholder=""></textarea>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.paid_invoice') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.paid_invoice') }}</label>
 							        <div class="col-sm-9">
 							            <textarea class="form-control" id="textarea-input" name="paid_invoice" rows="9" placeholder=""></textarea>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-									<label class="col-sm-3 col-form-label text-right" for="unapproved_quote">{{ trans('texts.unapproved_quote') }}</label>
+							    <div class="form-group row client_form">
+									<label class="col-sm-3 col-form-label text-left" for="unapproved_quote">{{ trans('texts.unapproved_quote') }}</label>
 									<div class="col-md-9">
 										<textarea class="form-control" id="textarea-input" name="unapproved_quote" rows="9" placeholder=""></textarea>
 									</div>
@@ -130,15 +130,15 @@
                 <div class="card">
                         <div class="card-header bg-primary2">{{ trans('texts.classify') }}</div>
                             <div class="card-body">
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.industry') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.industry') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
 							        </div>
 							    </div>
-							    <div class="form-group row">
-							        <label for="name" class="col-sm-3 col-form-label text-right">{{ trans('texts.size_id') }}</label>
+							    <div class="form-group row client_form">
+							        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.size_id') }}</label>
 							        <div class="col-sm-9">
 							            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
 							                 <div v-if="" class="text-danger" v-text=""></div>
@@ -191,6 +191,12 @@ Vue.use(VueScrollactive);
 
 
 <style>
+
+.client_form {
+	border-bottom: 1px;
+	border-bottom-style: solid;
+    border-bottom-color: #42b983;
+}
 
 .menu-li {
 	list-style: none;
