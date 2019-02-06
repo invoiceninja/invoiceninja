@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class ComposerServiceProvider extends ServiceProvider
@@ -14,7 +13,14 @@ class ComposerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer('*', 'App\Http\ViewComposers\HeaderComposer');
+        view()->composer('*', 'App\Http\ViewComposers\HeaderComposer');
+
+        view()->composer(
+            [
+                'client.edit',
+            ],
+            'App\Http\ViewComposers\TranslationComposer'
+        );
     }
 
     /**

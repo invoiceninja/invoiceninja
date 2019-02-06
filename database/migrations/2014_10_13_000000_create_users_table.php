@@ -44,6 +44,8 @@ class CreateUsersTable extends Migration
         Schema::create('payment_types', function ($table) {
             $table->increments('id');
             $table->string('name');
+            $table->integer('gateway_type_id');
+            $table->timestamps();
         });
 
         Schema::create('timezones', function ($table) {
@@ -73,6 +75,7 @@ class CreateUsersTable extends Migration
         Schema::create('industries', function ($table) {
             $table->increments('id');
             $table->string('name');
+            $table->timestamps();
         });
 
         Schema::create('gateways', function ($table) {

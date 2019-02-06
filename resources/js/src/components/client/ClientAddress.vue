@@ -138,7 +138,7 @@
 	            
 	            },
 	            get: function(value) {
-
+console.dir(this.countries)
 	            	return this.countries.filter(obj => {
 					  return obj.id === this.client.shipping_country_id
 					})

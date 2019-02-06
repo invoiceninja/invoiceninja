@@ -21,6 +21,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ClientController
@@ -118,7 +119,7 @@ class ClientController extends Controller
      */
     public function edit(EditClientRequest $request, Client $client)
     {
-
+dd(Cache::get('currencies'));
         $data = [
         'client' => $client,
         'settings' => $client,
