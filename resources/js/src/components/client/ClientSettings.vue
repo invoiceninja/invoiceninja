@@ -39,8 +39,7 @@
 									<div style="margin-top:1px; line-height:1.4;">The client currency.</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect v-model="currency" :options="options" :placeholder="trans('texts.currency')" label="name" track-by="id" @input="onChangeCurrency"></multiselect>
-             						<div v-if="errors.has('currency')" class="text-danger" v-text="errors.get('currency')"></div>
+						            <multiselect :options="options" :placeholder="trans('texts.currency')" label="name" track-by="id" @input="onChangeCurrency"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -179,7 +178,7 @@ Vue.use(VueScrollactive);
 		},
 		data () {
 		    return {
-		      options: this.currencies
+		      options: Object.keys(this.currencies).map(i => this.currencies[i])
 		    }
 		  },
 	    props: ['settings', 'currencies'],
@@ -189,6 +188,9 @@ Vue.use(VueScrollactive);
 	    methods: {
 		  onItemChanged(event, currentItem, lastActiveItem) {
 		    // your logic
+		  },
+		  onChangeCurrency(){
+
 		  },
 		},
 

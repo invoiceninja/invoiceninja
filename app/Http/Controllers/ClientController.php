@@ -16,6 +16,7 @@ use App\Jobs\Entity\ActionEntity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
+use App\Models\Currency;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
@@ -119,13 +120,12 @@ class ClientController extends Controller
      */
     public function edit(EditClientRequest $request, Client $client)
     {
-dd(Cache::get('currencies'));
+//dd(Country::all());
         $data = [
         'client' => $client,
         'settings' => $client,
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
-        'countries' => Country::all(),
         'company' => auth()->user()->company()
         ];
 

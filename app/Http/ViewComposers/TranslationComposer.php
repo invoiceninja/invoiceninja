@@ -2,15 +2,13 @@
 
 namespace App\Http\ViewComposers;
 
+use App\Models\Country;
+use App\Models\Currency;
 use Cache;
-use Illuminate\View\View;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
-/**
- * TranslationComposer.php.
- *
- * @copyright See LICENSE file that was distributed with this source code.
- */
+
 class TranslationComposer
 {
     /**
@@ -20,7 +18,7 @@ class TranslationComposer
      *
      * @return void
      */
-    public function compose(View $view)
+    public function compose(View $view) :void
     {
         $view->with('industries', Cache::get('industries')->each(function ($industry) {
             $industry->name = trans('texts.industry_'.$industry->name);
@@ -33,6 +31,7 @@ class TranslationComposer
         })->sortBy(function ($country) {
             return $country->name;
         }));
+
 
         $view->with('paymentTypes', Cache::get('paymentTypes')->each(function ($pType) {
             $pType->name = trans('texts.payment_type_'.$pType->name);
@@ -51,5 +50,7 @@ class TranslationComposer
         })->sortBy(function ($currency) {
             return $currency->name;
         }));
+
     }
+
 }

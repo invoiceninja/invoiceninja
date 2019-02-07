@@ -55,7 +55,6 @@ class StartupCheck
         }
 
         $response = $next($request);
-        //$response->headers->set('X-Frame-Options', 'DENY');
 
         return $response;
     }
