@@ -126,7 +126,6 @@
 		  },
         props: ['client', 'countries'],
         mounted() {
-        	console.dir(this.countries)
         },
         data () {
 		    return {

@@ -32,8 +32,7 @@ class TranslationComposer
             return $country->name;
         }));
 
-
-        $view->with('paymentTypes', Cache::get('paymentTypes')->each(function ($pType) {
+        $view->with('payment_types', Cache::get('paymentTypes')->each(function ($pType) {
             $pType->name = trans('texts.payment_type_'.$pType->name);
         })->sortBy(function ($pType) {
             return $pType->name;

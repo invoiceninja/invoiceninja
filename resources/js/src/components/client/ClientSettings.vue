@@ -39,7 +39,25 @@
 									<div style="margin-top:1px; line-height:1.4;">The client currency.</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options" :placeholder="trans('texts.currency')" label="name" track-by="id" @input="onChangeCurrency"></multiselect>
+						            <multiselect :options="options_currency" :placeholder="placeHolderCurrency()" label="name" track-by="id" @input="onChangeCurrency"></multiselect>
+						        </div>
+						    </div>
+						    <div class="form-group row client_form">
+						        <label for="name" class="col-sm-5 text-left">
+						        	<div>{{ trans('texts.language') }}</div>
+									<div style="margin-top:1px; line-height:1.4;">The client language.</div>
+						        </label>
+						        <div class="col-sm-7">
+						            <multiselect :options="options_language" :placeholder="placeHolderLanguage()" label="name" track-by="id" @input="onChangeLanguage"></multiselect>
+						        </div>
+						    </div>
+						    <div class="form-group row client_form">
+						        <label for="name" class="col-sm-5 text-left">
+						        	<div>{{ trans('texts.payment_terms') }}</div>
+									<div style="margin-top:1px; line-height:1.4;">The client payment terms.</div>
+						        </label>
+						        <div class="col-sm-7">
+						            <multiselect :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="name" track-by="id" @input="onChangePaymentTerm"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -54,13 +72,6 @@
 									<label class="form-check-label" for="inline-radio2">{{ trans('texts.currency_code') }}</label>
 								</div>
 							</div>
-						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.payment_terms') }}</label>
-						        <div class="col-sm-9">
-						            <input type="text" :placeholder="trans('texts.payment_terms')" class="form-control">
-					                 <div v-if="" class="text-danger" v-text=""></div>
-						        </div>
-						    </div>
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.task_rate') }}</label>
 						        <div class="col-sm-9">
@@ -171,30 +182,48 @@ import Multiselect from 'vue-multiselect'
 
 Vue.use(VueScrollactive);
 
-	export default {
-		components: {
-			Affix,
-		    Multiselect,
-		},
-		data () {
-		    return {
-		      options: Object.keys(this.currencies).map(i => this.currencies[i])
-		    }
-		  },
-	    props: ['settings', 'currencies'],
-	    mounted() {
+export default {
+	components: {
+		Affix,
+	    Multiselect,
+	},
+	data () {
+	    return {
+	      options_currency: Object.keys(this.currencies).map(i => this.currencies[i])
+	      options_language: Object.keys(this.languages).map(i => this.languages[i])
+	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i])
+	      options_industry: Object.keys(this.industries).map(i => this.industries[i])
+	    }
+	  },
+    props: ['settings', 'currencies', 'languages', 'payment_terms','industries'],
+    mounted() {
 
-	    },
-	    methods: {
-		  onItemChanged(event, currentItem, lastActiveItem) {
-		    // your logic
-		  },
-		  onChangeCurrency(){
+    },
+    methods: {
+	  onItemChanged(event, currentItem, lastActiveItem) {
+	    // your logic
+	  },
+	  onChangeCurrency(){
 
-		  },
-		},
+	  },
+	  onChangeLanguage(){
 
-	}
+	  },
+	  onChangePaymentTerm(){
+
+	  },
+	  placeHolderCurrency(){
+	  	return 'System Default Currency will appear here'
+	  },
+	  placeHolderLanguage(){
+	  	return 'System Default Language will appear here'
+	  },		
+	  placeHolderPaymentTerm(){
+	  	return 'System Default Payment Terms will appear here'	  	
+	  }  
+	},
+
+}
 
 </script>
 

@@ -1767,9 +1767,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 								Multiselect: __WEBPACK_IMPORTED_MODULE_0_vue_multiselect___default.a
 				},
 				props: ['client', 'countries'],
-				mounted: function mounted() {
-								console.dir(this.countries);
-				},
+				mounted: function mounted() {},
 				data: function data() {
 								var _this = this;
 
@@ -4151,10 +4149,13 @@ exports.default = {
     data: function () {
         var _this = this;
         return {
-            options: Object.keys(this.currencies).map(function (i) { return _this.currencies[i]; })
+            options_currency: Object.keys(this.currencies).map(function (i) { return _this.currencies[i]; }),
+            options_language: Object.keys(this.languages).map(function (i) { return _this.languages[i]; }),
+            options_payment_term: Object.keys(this.payment_terms).map(function (i) { return _this.payment_terms[i]; }),
+            options_industry: Object.keys(this.industries).map(function (i) { return _this.industries[i]; })
         };
     },
-    props: ['settings', 'currencies'],
+    props: ['settings', 'currencies', 'languages', 'payment_terms', 'industries'],
     mounted: function () {
     },
     methods: {
@@ -4163,6 +4164,19 @@ exports.default = {
         },
         onChangeCurrency: function () {
         },
+        onChangeLanguage: function () {
+        },
+        onChangePaymentTerm: function () {
+        },
+        placeHolderCurrency: function () {
+            return 'System Default Currency will appear here';
+        },
+        placeHolderLanguage: function () {
+            return 'System Default Language will appear here';
+        },
+        placeHolderPaymentTerm: function () {
+            return 'System Default Payment Terms will appear here';
+        }
     },
 };
 
@@ -5932,12 +5946,90 @@ var render = function() {
                   [
                     _c("multiselect", {
                       attrs: {
-                        options: _vm.options,
-                        placeholder: _vm.trans("texts.currency"),
+                        options: _vm.options_currency,
+                        placeholder: _vm.placeHolderCurrency(),
                         label: "name",
                         "track-by": "id"
                       },
                       on: { input: _vm.onChangeCurrency }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row client_form" }, [
+                _c(
+                  "label",
+                  { staticClass: "col-sm-5 text-left", attrs: { for: "name" } },
+                  [
+                    _c("div", [_vm._v(_vm._s(_vm.trans("texts.language")))]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticStyle: {
+                          "margin-top": "1px",
+                          "line-height": "1.4"
+                        }
+                      },
+                      [_vm._v("The client language.")]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "col-sm-7" },
+                  [
+                    _c("multiselect", {
+                      attrs: {
+                        options: _vm.options_language,
+                        placeholder: _vm.placeHolderLanguage(),
+                        label: "name",
+                        "track-by": "id"
+                      },
+                      on: { input: _vm.onChangeLanguage }
+                    })
+                  ],
+                  1
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group row client_form" }, [
+                _c(
+                  "label",
+                  { staticClass: "col-sm-5 text-left", attrs: { for: "name" } },
+                  [
+                    _c("div", [
+                      _vm._v(_vm._s(_vm.trans("texts.payment_terms")))
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticStyle: {
+                          "margin-top": "1px",
+                          "line-height": "1.4"
+                        }
+                      },
+                      [_vm._v("The client payment terms.")]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "col-sm-7" },
+                  [
+                    _c("multiselect", {
+                      attrs: {
+                        options: _vm.options_payment_term,
+                        placeholder: _vm.placeHolderPaymentTerm(),
+                        label: "name",
+                        "track-by": "id"
+                      },
+                      on: { input: _vm.onChangePaymentTerm }
                     })
                   ],
                   1
@@ -5990,29 +6082,6 @@ var render = function() {
                     },
                     [_vm._v(_vm._s(_vm.trans("texts.currency_code")))]
                   )
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.payment_terms")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.payment_terms")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
                 ])
               ]),
               _vm._v(" "),

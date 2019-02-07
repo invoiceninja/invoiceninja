@@ -50,7 +50,14 @@
 
             <div class="tab-pane fade" id="pills-settings" role="tabpanel" aria-labelledby="pills-settings-tab" style="background-color: #e4e5e6; padding: 0px;">
 
-                <client-settings :settings="{{ $settings }}" :currencies="{{ $currencies }}"></client-settings>
+                <client-settings 
+                    :settings="{{ $settings }}" 
+                    :currencies="{{ $currencies }}"
+                    :languages="{{ $languages }}"
+                    :payment_terms="{{ $payment_terms }}"
+                    :industries="{{ $industries }}"
+                  >  
+                </client-settings>
 
             </div>
 

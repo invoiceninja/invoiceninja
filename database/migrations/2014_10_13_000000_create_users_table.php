@@ -48,6 +48,12 @@ class CreateUsersTable extends Migration
             $table->timestamps();
         });
 
+        Schema::create('payment_terms', function ($t) {
+            $table->increments('id');
+            $table->integer('num_days');
+            $table->string('name');
+        });
+
         Schema::create('timezones', function ($table) {
             $table->increments('id');
             $table->string('name');
