@@ -51,9 +51,9 @@ class TranslationComposer
             return $currency->name;
         }));
 
-        $view->with('payment_terms', PaymentTerm::getCompanyTerms()->each(function ($term){
-            $term['name'] = trans('texts.payment_terms_net') . ' ' . $term;
-            return $term['name'];
+        $view->with('payment_terms', PaymentTerm::getCompanyTerms()->map(function ($term){
+            $term['name'] = trans('texts.payment_terms_net') . ' ' . $term['num_days'];
+            return $term;
         }));
 
     }

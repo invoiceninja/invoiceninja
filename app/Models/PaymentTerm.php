@@ -31,7 +31,7 @@ class PaymentTerm extends BaseModel
 
         $terms = self::scope()->get();
 
-        $terms->each(function($term) {
+        $terms->map(function($term) {
             return $term['num_days'];
         });
 
@@ -39,7 +39,7 @@ class PaymentTerm extends BaseModel
         ->sort()
         ->values()
         ->all();
-
+        
         return $default_terms;
 
     }

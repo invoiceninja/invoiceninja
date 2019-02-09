@@ -34,7 +34,41 @@ $cached_tables = [
 
 define('CACHED_TABLES', serialize($cached_tables));
 
-define('CACHED_PAYMENT_TERMS', serialize([0,7,10,14,15,30,60,90]));
+define('CACHED_PAYMENT_TERMS', serialize(
+	[
+		[
+			'num_days' => 0,
+			'name' => '',
+		],
+		[
+			'num_days' => 7,
+			'name' => '',
+		],
+		[
+			'num_days' => 10,
+			'name' => '',
+		],
+		[
+			'num_days' => 14,
+			'name' => '',
+		],
+		[
+			'num_days' => 15,
+			'name' => '',
+		],
+		[
+			'num_days' => 30,
+			'name' => '',
+		],
+		[
+			'num_days' => 60,
+			'name' => '',
+		],
+		[
+			'num_days' => 90,
+			'name' => '',
+		]
+	]));
 
 define('GATEWAY_TYPE_CREDIT_CARD', 1);
 define('GATEWAY_TYPE_BANK_TRANSFER', 2);
