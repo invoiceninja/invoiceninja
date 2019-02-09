@@ -4,6 +4,7 @@ namespace App\Http\ViewComposers;
 
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\PaymentTerm;
 use Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -48,6 +49,11 @@ class TranslationComposer
             $currency->name = trans('texts.currency_' . Str::slug($currency->name, '_'));
         })->sortBy(function ($currency) {
             return $currency->name;
+        }));
+
+        $view->with('payment_terms', PaymentTerm::getCompanyTerms()->each(function ($term){
+            $term['name'] = trans('texts.payment_terms_net') . ' ' . $term;
+            return $term['name'];
         }));
 
     }

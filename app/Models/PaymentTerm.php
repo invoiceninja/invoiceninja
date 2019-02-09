@@ -25,16 +25,22 @@ class PaymentTerm extends BaseModel
         return $this->num_days == -1 ? 0 : $this->num_days;
     }
 
-    public function getCompanyTerms()
+    public static function getCompanyTerms()
     {
+        $default_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+
         $terms = self::scope()->get();
 
         $terms->each(function($term) {
             return $term['num_days'];
-        })->merge(unserialize(CACHED_PAYMENT_TERMS))
+        });
+
+        $default_terms->merge($terms)
         ->sort()
         ->values()
         ->all();
+
+        return $default_terms;
 
     }
 

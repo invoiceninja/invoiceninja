@@ -33,24 +33,49 @@ class CollectionMergingTest extends TestCase
 
     public function testMergingCollection()
     {
+        $payment_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+
     	$new_terms = $this->terms->each(function($term) {
             return $term['num_days'];
-        })->merge([0,7,10,14,15,30,60,90]);
+        });
 
-        $this->assertEquals($new_terms->count(), 8);
+        $payment_terms->merge($new_terms);
+
+        $this->assertEquals($payment_terms->count(), 8);
     }
 
     public function testSortingCollection()
     {
-    	$new_terms = $this->terms->each(function($term) {
+        $payment_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+
+        $new_terms = $this->terms->each(function($term) {
             return $term['num_days'];
-        })->merge([0,7,10,14,15,30,60,90])
+        });
+
+        $payment_terms->merge($new_terms)
         ->sort()
         ->values()
         ->all();
 
-        $this->assertEquals($new_terms->first(), 0);
+        $this->assertEquals($payment_terms->first(), 0);
     }
+
+    public function testSortingCollectionLast()
+    {
+        $payment_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+
+        $new_terms = $this->terms->each(function($term) {
+            return $term['num_days'];
+        });
+
+        $payment_terms->merge($new_terms)
+        ->sort()
+        ->values()
+        ->all();
+
+        $this->assertEquals($payment_terms->last(), 90);
+    }
+
 
 
 }
