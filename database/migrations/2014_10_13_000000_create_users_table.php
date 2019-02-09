@@ -48,12 +48,6 @@ class CreateUsersTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('payment_terms', function ($t) {
-            $table->increments('id');
-            $table->integer('num_days');
-            $table->string('name');
-        });
-
         Schema::create('timezones', function ($table) {
             $table->increments('id');
             $table->string('name');
@@ -612,6 +606,19 @@ class CreateUsersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('bank_company_id')->references('id')->on('bank_companies')->onDelete('cascade');
 
+        });
+
+        Schema::create('payment_terms', function ($table) {
+            $table->increments('id');
+            $table->integer('num_days');
+            $table->string('name');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id');
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
     }

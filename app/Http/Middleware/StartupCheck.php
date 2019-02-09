@@ -26,13 +26,12 @@ class StartupCheck
     public function handle(Request $request, Closure $next)
     {
       
+        $cached_tables = unserialize(CACHED_TABLES);
 
-        // Check data has been cached
-        $cachedTables = unserialize(CACHED_TABLES);
         if (Input::has('clear_cache')) {
             Session::flash('message', 'Cache cleared');
         }
-        foreach ($cachedTables as $name => $class) {
+        foreach ($cached_tables as $name => $class) {
             if (Input::has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
                 if (! Schema::hasTable((new $class())->getTable())) {

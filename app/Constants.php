@@ -13,16 +13,16 @@ define('BANK_LIBRARY_OFX', 1);
 define('RANDOM_KEY_LENGTH', 32); //63340286662973277706162286946811886609896461828096 combinations
 
 
-$cachedTables = [
-        'currencies' => 'App\Models\Currency',
- //       'sizes' => 'App\Models\Size',
-        'industries' => 'App\Models\Industry',
- //       'timezones' => 'App\Models\Timezone',
- //       'dateFormats' => 'App\Models\DateFormat',
- //       'datetimeFormats' => 'App\Models\DatetimeFormat',
-        'languages' => 'App\Models\Language',
-        'paymentTypes' => 'App\Models\PaymentType',
-        'countries' => 'App\Models\Country',
+$cached_tables = [
+    'currencies' => 'App\Models\Currency',
+//       'sizes' => 'App\Models\Size',
+    'industries' => 'App\Models\Industry',
+//       'timezones' => 'App\Models\Timezone',
+//       'dateFormats' => 'App\Models\DateFormat',
+//       'datetimeFormats' => 'App\Models\DatetimeFormat',
+    'languages' => 'App\Models\Language',
+    'paymentTypes' => 'App\Models\PaymentType',
+    'countries' => 'App\Models\Country',
 //        'invoiceDesigns' => 'App\Models\InvoiceDesign',
 //        'invoiceStatus' => 'App\Models\InvoiceStatus',
 //        'frequencies' => 'App\Models\Frequency',
@@ -32,7 +32,9 @@ $cachedTables = [
 //        'banks' => 'App\Models\Bank',
     ];
 
-define('CACHED_TABLES', serialize($cachedTables));
+define('CACHED_TABLES', serialize($cached_tables));
+
+define('CACHED_PAYMENT_TERMS', serialize([0,7,10,14,15,30,60,90]));
 
 define('GATEWAY_TYPE_CREDIT_CARD', 1);
 define('GATEWAY_TYPE_BANK_TRANSFER', 2);

@@ -189,10 +189,10 @@ export default {
 	},
 	data () {
 	    return {
-	      options_currency: Object.keys(this.currencies).map(i => this.currencies[i])
-	      options_language: Object.keys(this.languages).map(i => this.languages[i])
-	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i])
-	      options_industry: Object.keys(this.industries).map(i => this.industries[i])
+	      options_currency: Object.keys(this.currencies).map(i => this.currencies[i]),
+	      options_language: Object.keys(this.languages).map(i => this.languages[i]),
+	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
+	      options_industry: Object.keys(this.industries).map(i => this.industries[i]),
 	    }
 	  },
     props: ['settings', 'currencies', 'languages', 'payment_terms','industries'],

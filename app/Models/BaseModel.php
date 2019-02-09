@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Filters\QueryFilters;
+use App\Utils\Traits\UserSessionAttributes;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseModel extends Model
 {
+    use UserSessionAttributes;
+
     public function __call($method, $params)
     {
         $entity = strtolower(class_basename($this));
@@ -23,6 +26,13 @@ class BaseModel extends Model
         }
 
         return parent::__call($method, $params);
+    }
+
+    public function scopeScope($query)
+    {
+        $query->where($this->getTable() .'.company_id', '=', $this->getCurrentCompanyId());
+
+        return $query;
     }
 
 }
