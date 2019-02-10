@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\PaymentLibrary;
+use App\Models\Size;
 use App\Models\Timezone;
 use Illuminate\Database\Seeder;
 
@@ -8,15 +10,15 @@ class ConstantsSeeder extends Seeder
     public function run()
     {
 
-        /*
+        
         Size::create(['name' => '1 - 3']);
         Size::create(['name' => '4 - 10']);
         Size::create(['name' => '11 - 50']);
         Size::create(['name' => '51 - 100']);
         Size::create(['name' => '101 - 500']);
         Size::create(['name' => '500+']);
-*/
-        \App\Models\PaymentLibrary::create(['name' => 'Omnipay']);
+
+        PaymentLibrary::create(['name' => 'Omnipay']);
 
         /*
         d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.

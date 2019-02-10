@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\Size;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
@@ -126,7 +127,8 @@ class ClientController extends Controller
         'settings' => $client,
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
-        'company' => auth()->user()->company()
+        'company' => auth()->user()->company(),
+        'sizes' => Size::all(),
         ];
 
         return view('client.edit', $data);

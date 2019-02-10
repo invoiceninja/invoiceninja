@@ -1,12 +1,12 @@
 <template>
 
-<div class="row">
+<div class="row" style="background:#fff; padding:20px;">
 
-	<div class="col-2" style="background:#fff;">
+	<div class="col-2" style="border: 0px; border-style:solid;">
 
 		<affix class="menu sidebar-menu" relative-element-selector="#example-content" :offset="{ top: 50, bottom:100 }" :scroll-affix="false" style="width: 200px">
           <div class="menu-label">
-            <h2></h2>
+            <h3 style="color:#5d5d5d;">{{ trans('texts.settings') }}</h3>
           </div>
           <scrollactive 
           	class="menu-list" 
@@ -15,8 +15,8 @@
 		  	:duration="800"
           	:exact="true"
           	>
-          	<ul>
-                <li class="menu-li"><a href="#intro" class="scrollactive-item" title="Intro">{{trans('texts.settings')}}</a></li>
+          	<ul class="list-inline justify-content-left">
+                <li class="menu-li"><a href="#intro" class="scrollactive-item" title="Intro">{{trans('t.client_settings')}}</a></li>
                 <li class="menu-li"><a href="#standard-affix" class="scrollactive-item" title="Standard Affix">{{trans('texts.messages')}}</a></li>
                 <li class="menu-li"><a href="#scroll-affix" class="scrollactive-item" title="Scroll Affix">{{trans('texts.classify')}}</a></li>
         	</ul>
@@ -36,16 +36,26 @@
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 text-left">
 						        	<div>{{ trans('texts.currency') }}</div>
-									<div style="margin-top:1px; line-height:1.4;">The client currency.</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_currency') }}</div>
 						        </label>
 						        <div class="col-sm-7">
 						            <multiselect :options="options_currency" :placeholder="placeHolderCurrency()" label="name" track-by="id" @input="onChangeCurrency"></multiselect>
 						        </div>
 						    </div>
+						    <div class="form-group row client_form d-flex justify-content-center">
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" id="inline-radio1" type="radio" value="option1" name="inline-radios">
+									<label class="form-check-label" for="inline-radio1">{{ trans('texts.currency_symbol') }}:</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" id="inline-radio2" type="radio" value="option2" name="inline-radios">
+									<label class="form-check-label" for="inline-radio2">{{ trans('texts.currency_code') }}:</label>
+								</div>
+							</div>
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 text-left">
 						        	<div>{{ trans('texts.language') }}</div>
-									<div style="margin-top:1px; line-height:1.4;">The client language.</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_language')}}</div>
 						        </label>
 						        <div class="col-sm-7">
 						            <multiselect :options="options_language" :placeholder="placeHolderLanguage()" label="name" track-by="id" @input="onChangeLanguage"></multiselect>
@@ -54,34 +64,26 @@
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 text-left">
 						        	<div>{{ trans('texts.payment_terms') }}</div>
-									<div style="margin-top:1px; line-height:1.4;">The client payment terms.</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_payment_terms')}}</div>
 						        </label>
 						        <div class="col-sm-7">
 						            <multiselect :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="name" track-by="id" @input="onChangePaymentTerm"></multiselect>
 						        </div>
 						    </div>
+						    
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left"></label>
-
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio1" type="radio" value="option1" name="inline-radios">
-									<label class="form-check-label" for="inline-radio1">{{ trans('texts.currency_symbol') }}</label>
-								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio2" type="radio" value="option2" name="inline-radios">
-									<label class="form-check-label" for="inline-radio2">{{ trans('texts.currency_code') }}</label>
-								</div>
-							</div>
-						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.task_rate') }}</label>
-						        <div class="col-sm-9">
+						        <label for="name" class="col-sm-5 col-form-label text-left">
+						        <div>{{ trans('texts.task_rate') }}</div>
+								<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('texts.task_rate_help')}}</div>
+						    	</label>
+						        <div class="col-sm-7">
 						            <input type="text" :placeholder="trans('texts.task_rate')" class="form-control">
 						                 <div v-if="" class="text-danger" v-text=""></div>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
-						        <div class="col-sm-9">
+						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
+						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
 									<input class="switch-input" type="checkbox" checked="">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
@@ -89,8 +91,8 @@
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.show_tasks_in_portal') }}</label>
-						        <div class="col-sm-9">
+						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.show_tasks_in_portal') }}</label>
+						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
 									<input class="switch-input" type="checkbox" checked="">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
@@ -108,26 +110,38 @@
                     <div class="card-header bg-primary2">{{ trans('texts.messages') }}</div>
                         <div class="card-body">
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.dashboard') }}</label>
-						        <div class="col-sm-9">
+						        <label for="name" class="col-sm-5 col-form-label text-left">
+						        	<div>{{ trans('texts.dashboard') }}</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_dashboard')}}</div>
+						    	</label>
+						        <div class="col-sm-7">
 						            <textarea class="form-control" id="textarea-input" name="dashboard" rows="9" placeholder=""></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.unpaid_invoice') }}</label>
-						        <div class="col-sm-9">
+						        <label for="name" class="col-sm-5 col-form-label text-left">
+						        	<div>{{ trans('texts.unpaid_invoice') }}</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_unpaid_invoice')}}</div>
+								</label>
+						        <div class="col-sm-7">
 						            <textarea class="form-control" id="textarea-input" name="unpaid_invoice" rows="9" placeholder=""></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.paid_invoice') }}</label>
-						        <div class="col-sm-9">
+						        <label for="name" class="col-sm-5 col-form-label text-left">
+						        	<div>{{ trans('texts.paid_invoice') }}</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{trans('help.client_paid_invoice')}}</div>
+								</label>
+						        <div class="col-sm-7">
 						            <textarea class="form-control" id="textarea-input" name="paid_invoice" rows="9" placeholder=""></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-								<label class="col-sm-3 col-form-label text-left" for="unapproved_quote">{{ trans('texts.unapproved_quote') }}</label>
-								<div class="col-md-9">
+								<label class="col-sm-5 col-form-label text-left" for="unapproved_quote">
+									<div>{{ trans('texts.unapproved_quote') }}</div>
+									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{trans('help.client_unapproved_quote')}}</div>
+								</label>
+								<div class="col-md-7">
 									<textarea class="form-control" id="textarea-input" name="unapproved_quote" rows="9" placeholder=""></textarea>
 								</div>
 							</div>
@@ -142,17 +156,15 @@
                     <div class="card-header bg-primary2">{{ trans('texts.classify') }}</div>
                         <div class="card-body">
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.industry') }}</label>
-						        <div class="col-sm-9">
-						            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-						                 <div v-if="" class="text-danger" v-text=""></div>
+						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.industry') }}</label>
+						        <div class="col-sm-7">
+						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" @input="onChangeIndustry"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-3 col-form-label text-left">{{ trans('texts.size_id') }}</label>
-						        <div class="col-sm-9">
-						            <input type="text" :placeholder="trans('texts.client_name')" class="form-control">
-						                 <div v-if="" class="text-danger" v-text=""></div>
+						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.size_id') }}</label>
+						        <div class="col-sm-7">
+						            <multiselect :options="options_size" :placeholder="placeHolderSize()" label="name" track-by="id" @input="onChangeSize"></multiselect>
 						        </div>
 						    </div>
 
@@ -193,9 +205,10 @@ export default {
 	      options_language: Object.keys(this.languages).map(i => this.languages[i]),
 	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
 	      options_industry: Object.keys(this.industries).map(i => this.industries[i]),
+	      options_size: this.sizes
 	    }
 	  },
-    props: ['settings', 'currencies', 'languages', 'payment_terms','industries'],
+    props: ['settings', 'currencies', 'languages', 'payment_terms','industries','sizes'],
     mounted() {
 
     },
@@ -212,6 +225,12 @@ export default {
 	  onChangePaymentTerm(){
 
 	  },
+	  onChangeIndustry(){
+
+	  },
+	  onChangeSize(){
+
+	  },
 	  placeHolderCurrency(){
 	  	return 'System Default Currency will appear here'
 	  },
@@ -220,7 +239,13 @@ export default {
 	  },		
 	  placeHolderPaymentTerm(){
 	  	return 'System Default Payment Terms will appear here'	  	
-	  }  
+	  },
+	  placeHolderIndustry(){
+	  	return 'System Default Industry will appear here'	  	
+	  },
+	  placeHolderSize(){
+	  	return 'System Default Company Size will appear here'	  	
+	  } 
 	},
 
 }
@@ -232,8 +257,11 @@ export default {
 
 <style>
 
+#example-content {
+}
+
 .client_form {
-	border-bottom: 1px;
+	border-bottom: 0px;
 	border-bottom-style: solid;
     border-bottom-color: #167090;
 }
@@ -241,52 +269,53 @@ export default {
 .menu-li {
 	list-style: none;
   	padding-left:5px;
+  	width:200px;
+  	line-height:1.4;
+  	margin-top:10px;
 
 }
 
 a.scrollactive-item.is-active  {
-  color: #42b983;
+  color: #027093;
   font-family: helvetica;
   text-decoration: none;
   border-left-style: solid;
-  border-left-color: #42b983;
+  border-left-color: #027093;
   padding-left:10px;
 }
 
 a.scrollactive-item.is-active:hover {
   text-decoration: none;
-  color: #42b983;
+  color: #027093;
   padding-left:10px;
 
 }
 
 a.scrollactive-item.is-active:active {
-  color: #42b983;
+  color: #027093;
   padding-left:10px;
 
 }
 
 
-
 .menu-list a {
-  color: black;
+  color: #939393;
   font-family: helvetica;
   text-decoration: none;
 }
 
 .menu-list a:hover {
   text-decoration: none;
-  color: #42b983;
-      padding-left:5px;
+  color: #027093;
+  padding-left:5px;
 
 }
 
 .menu-list a:active {
-  color: #42b983;
+  color: #027093;
   text-decoration: none;
       padding-left:5px;
 
 }
-
 
 </style>

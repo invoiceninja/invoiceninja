@@ -2087,7 +2087,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n.client_form {\n\tborder-bottom: 1px;\n\tborder-bottom-style: solid;\n    border-bottom-color: #167090;\n}\n.menu-li {\n\tlist-style: none;\n  \tpadding-left:5px;\n}\na.scrollactive-item.is-active  {\n  color: #42b983;\n  font-family: helvetica;\n  text-decoration: none;\n  border-left-style: solid;\n  border-left-color: #42b983;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #42b983;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:active {\n  color: #42b983;\n  padding-left:10px;\n}\n.menu-list a {\n  color: black;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #42b983;\n      padding-left:5px;\n}\n.menu-list a:active {\n  color: #42b983;\n  text-decoration: none;\n      padding-left:5px;\n}\n\n\n", ""]);
+exports.push([module.i, "\n#example-content {\n}\n.client_form {\n\tborder-bottom: 0px;\n\tborder-bottom-style: solid;\n    border-bottom-color: #167090;\n}\n.menu-li {\n\tlist-style: none;\n  \tpadding-left:5px;\n  \twidth:200px;\n  \tline-height:1.4;\n  \tmargin-top:10px;\n}\na.scrollactive-item.is-active  {\n  color: #027093;\n  font-family: helvetica;\n  text-decoration: none;\n  border-left-style: solid;\n  border-left-color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:active {\n  color: #027093;\n  padding-left:10px;\n}\n.menu-list a {\n  color: #939393;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #027093;\n  padding-left:5px;\n}\n.menu-list a:active {\n  color: #027093;\n  text-decoration: none;\n      padding-left:5px;\n}\n\n", ""]);
 
 // exports
 
@@ -4153,9 +4153,10 @@ exports.default = {
             options_language: Object.keys(this.languages).map(function (i) { return _this.languages[i]; }),
             options_payment_term: Object.keys(this.payment_terms).map(function (i) { return _this.payment_terms[i]; }),
             options_industry: Object.keys(this.industries).map(function (i) { return _this.industries[i]; }),
+            options_size: this.sizes
         };
     },
-    props: ['settings', 'currencies', 'languages', 'payment_terms', 'industries'],
+    props: ['settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes'],
     mounted: function () {
     },
     methods: {
@@ -4168,6 +4169,10 @@ exports.default = {
         },
         onChangePaymentTerm: function () {
         },
+        onChangeIndustry: function () {
+        },
+        onChangeSize: function () {
+        },
         placeHolderCurrency: function () {
             return 'System Default Currency will appear here';
         },
@@ -4176,6 +4181,12 @@ exports.default = {
         },
         placeHolderPaymentTerm: function () {
             return 'System Default Payment Terms will appear here';
+        },
+        placeHolderIndustry: function () {
+            return 'System Default Industry will appear here';
+        },
+        placeHolderSize: function () {
+            return 'System Default Company Size will appear here';
         }
     },
 };
@@ -5834,436 +5845,569 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "row" }, [
-    _c(
-      "div",
-      { staticClass: "col-2", staticStyle: { background: "#fff" } },
-      [
-        _c(
-          "affix",
-          {
-            staticClass: "menu sidebar-menu",
-            staticStyle: { width: "200px" },
-            attrs: {
-              "relative-element-selector": "#example-content",
-              offset: { top: 50, bottom: 100 },
-              "scroll-affix": false
-            }
-          },
-          [
-            _c("div", { staticClass: "menu-label" }, [_c("h2")]),
-            _vm._v(" "),
-            _c(
-              "scrollactive",
-              {
-                staticClass: "menu-list",
-                attrs: {
-                  "active-class": "is-active",
-                  offset: 50,
-                  duration: 800,
-                  exact: true
-                }
-              },
-              [
-                _c("ul", [
-                  _c("li", { staticClass: "menu-li" }, [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "scrollactive-item",
-                        attrs: { href: "#intro", title: "Intro" }
-                      },
-                      [_vm._v(_vm._s(_vm.trans("texts.settings")))]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("li", { staticClass: "menu-li" }, [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "scrollactive-item",
-                        attrs: {
-                          href: "#standard-affix",
-                          title: "Standard Affix"
-                        }
-                      },
-                      [_vm._v(_vm._s(_vm.trans("texts.messages")))]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("li", { staticClass: "menu-li" }, [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "scrollactive-item",
-                        attrs: { href: "#scroll-affix", title: "Scroll Affix" }
-                      },
-                      [_vm._v(_vm._s(_vm.trans("texts.classify")))]
-                    )
-                  ])
+  return _c(
+    "div",
+    {
+      staticClass: "row",
+      staticStyle: { background: "#fff", padding: "20px" }
+    },
+    [
+      _c(
+        "div",
+        {
+          staticClass: "col-2",
+          staticStyle: { border: "0px", "border-style": "solid" }
+        },
+        [
+          _c(
+            "affix",
+            {
+              staticClass: "menu sidebar-menu",
+              staticStyle: { width: "200px" },
+              attrs: {
+                "relative-element-selector": "#example-content",
+                offset: { top: 50, bottom: 100 },
+                "scroll-affix": false
+              }
+            },
+            [
+              _c("div", { staticClass: "menu-label" }, [
+                _c("h3", { staticStyle: { color: "#5d5d5d" } }, [
+                  _vm._v(_vm._s(_vm.trans("texts.settings")))
                 ])
-              ]
-            )
-          ],
-          1
-        )
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "col-10" }, [
-      _c("div", { attrs: { id: "example-content" } }, [
-        _c("section", { attrs: { id: "intro" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("t.client_settings")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body px-3" }, [
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-sm-5 text-left", attrs: { for: "name" } },
-                  [
-                    _c("div", [_vm._v(_vm._s(_vm.trans("texts.currency")))]),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        staticStyle: {
-                          "margin-top": "1px",
-                          "line-height": "1.4"
-                        }
-                      },
-                      [_vm._v("The client currency.")]
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-sm-7" },
-                  [
-                    _c("multiselect", {
-                      attrs: {
-                        options: _vm.options_currency,
-                        placeholder: _vm.placeHolderCurrency(),
-                        label: "name",
-                        "track-by": "id"
-                      },
-                      on: { input: _vm.onChangeCurrency }
-                    })
-                  ],
-                  1
-                )
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-sm-5 text-left", attrs: { for: "name" } },
-                  [
-                    _c("div", [_vm._v(_vm._s(_vm.trans("texts.language")))]),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        staticStyle: {
-                          "margin-top": "1px",
-                          "line-height": "1.4"
-                        }
-                      },
-                      [_vm._v("The client language.")]
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-sm-7" },
-                  [
-                    _c("multiselect", {
-                      attrs: {
-                        options: _vm.options_language,
-                        placeholder: _vm.placeHolderLanguage(),
-                        label: "name",
-                        "track-by": "id"
-                      },
-                      on: { input: _vm.onChangeLanguage }
-                    })
-                  ],
-                  1
-                )
+              _c(
+                "scrollactive",
+                {
+                  staticClass: "menu-list",
+                  attrs: {
+                    "active-class": "is-active",
+                    offset: 50,
+                    duration: 800,
+                    exact: true
+                  }
+                },
+                [
+                  _c(
+                    "ul",
+                    { staticClass: "list-inline justify-content-left" },
+                    [
+                      _c("li", { staticClass: "menu-li" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "scrollactive-item",
+                            attrs: { href: "#intro", title: "Intro" }
+                          },
+                          [_vm._v(_vm._s(_vm.trans("t.client_settings")))]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("li", { staticClass: "menu-li" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "scrollactive-item",
+                            attrs: {
+                              href: "#standard-affix",
+                              title: "Standard Affix"
+                            }
+                          },
+                          [_vm._v(_vm._s(_vm.trans("texts.messages")))]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("li", { staticClass: "menu-li" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "scrollactive-item",
+                            attrs: {
+                              href: "#scroll-affix",
+                              title: "Scroll Affix"
+                            }
+                          },
+                          [_vm._v(_vm._s(_vm.trans("texts.classify")))]
+                        )
+                      ])
+                    ]
+                  )
+                ]
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-10" }, [
+        _c("div", { attrs: { id: "example-content" } }, [
+          _c("section", { attrs: { id: "intro" } }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("t.client_settings")))
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-sm-5 text-left", attrs: { for: "name" } },
-                  [
-                    _c("div", [
-                      _vm._v(_vm._s(_vm.trans("texts.payment_terms")))
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        staticStyle: {
-                          "margin-top": "1px",
-                          "line-height": "1.4"
-                        }
-                      },
-                      [_vm._v("The client payment terms.")]
-                    )
-                  ]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-sm-7" },
-                  [
-                    _c("multiselect", {
-                      attrs: {
-                        options: _vm.options_payment_term,
-                        placeholder: _vm.placeHolderPaymentTerm(),
-                        label: "name",
-                        "track-by": "id"
-                      },
-                      on: { input: _vm.onChangePaymentTerm }
-                    })
-                  ],
-                  1
-                )
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c("label", {
-                  staticClass: "col-sm-3 col-form-label text-left",
-                  attrs: { for: "name" }
-                }),
-                _vm._v(" "),
-                _c("div", { staticClass: "form-check form-check-inline" }, [
-                  _c("input", {
-                    staticClass: "form-check-input",
-                    attrs: {
-                      id: "inline-radio1",
-                      type: "radio",
-                      value: "option1",
-                      name: "inline-radios"
-                    }
-                  }),
-                  _vm._v(" "),
+              _c("div", { staticClass: "card-body px-3" }, [
+                _c("div", { staticClass: "form-group row client_form" }, [
                   _c(
                     "label",
                     {
-                      staticClass: "form-check-label",
-                      attrs: { for: "inline-radio1" }
+                      staticClass: "col-sm-5 text-left",
+                      attrs: { for: "name" }
                     },
-                    [_vm._v(_vm._s(_vm.trans("texts.currency_symbol")))]
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.currency")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_currency")))]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_currency,
+                          placeholder: _vm.placeHolderCurrency(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        on: { input: _vm.onChangeCurrency }
+                      })
+                    ],
+                    1
                   )
                 ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "form-check form-check-inline" }, [
-                  _c("input", {
-                    staticClass: "form-check-input",
-                    attrs: {
-                      id: "inline-radio2",
-                      type: "radio",
-                      value: "option2",
-                      name: "inline-radios"
-                    }
-                  }),
-                  _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    staticClass:
+                      "form-group row client_form d-flex justify-content-center"
+                  },
+                  [
+                    _c("div", { staticClass: "form-check form-check-inline" }, [
+                      _c("input", {
+                        staticClass: "form-check-input",
+                        attrs: {
+                          id: "inline-radio1",
+                          type: "radio",
+                          value: "option1",
+                          name: "inline-radios"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "inline-radio1" }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.trans("texts.currency_symbol")) + ":"
+                          )
+                        ]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-check form-check-inline" }, [
+                      _c("input", {
+                        staticClass: "form-check-input",
+                        attrs: {
+                          id: "inline-radio2",
+                          type: "radio",
+                          value: "option2",
+                          name: "inline-radios"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "inline-radio2" }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("texts.currency_code")) + ":")]
+                      )
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row client_form" }, [
                   _c(
                     "label",
                     {
-                      staticClass: "form-check-label",
-                      attrs: { for: "inline-radio2" }
+                      staticClass: "col-sm-5 text-left",
+                      attrs: { for: "name" }
                     },
-                    [_vm._v(_vm._s(_vm.trans("texts.currency_code")))]
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.language")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_language")))]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_language,
+                          placeholder: _vm.placeHolderLanguage(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        on: { input: _vm.onChangeLanguage }
+                      })
+                    ],
+                    1
                   )
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.task_rate")))]
-                ),
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.task_rate")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.payment_terms")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_payment_terms")))]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_payment_term,
+                          placeholder: _vm.placeHolderPaymentTerm(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        on: { input: _vm.onChangePaymentTerm }
+                      })
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.task_rate")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("texts.task_rate_help")))]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c("input", {
+                      staticClass: "form-control",
+                      attrs: {
+                        type: "text",
+                        placeholder: _vm.trans("texts.task_rate")
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "text-danger" })
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.send_client_reminders")))]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(0)
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.show_tasks_in_portal")))]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(1)
                 ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.send_client_reminders")))]
-                ),
-                _vm._v(" "),
-                _vm._m(0)
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.show_tasks_in_portal")))]
-                ),
-                _vm._v(" "),
-                _vm._m(1)
               ])
             ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "standard-affix" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.messages")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.dashboard")))]
-                ),
-                _vm._v(" "),
-                _vm._m(2)
+          ]),
+          _vm._v(" "),
+          _c("section", { attrs: { id: "standard-affix" } }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("texts.messages")))
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.unpaid_invoice")))]
-                ),
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.dashboard")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_dashboard")))]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(2)
+                ]),
                 _vm._v(" "),
-                _vm._m(3)
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.paid_invoice")))]
-                ),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.unpaid_invoice")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.trans("help.client_unpaid_invoice"))
+                          )
+                        ]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(3)
+                ]),
                 _vm._v(" "),
-                _vm._m(4)
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "unapproved_quote" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.unapproved_quote")))]
-                ),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.paid_invoice")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_paid_invoice")))]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(4)
+                ]),
                 _vm._v(" "),
-                _vm._m(5)
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "unapproved_quote" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.unapproved_quote")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.trans("help.client_unapproved_quote"))
+                          )
+                        ]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm._m(5)
+                ])
               ])
             ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "scroll-affix" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.classify")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.industry")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+          ]),
+          _vm._v(" "),
+          _c("section", { attrs: { id: "scroll-affix" } }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("texts.classify")))
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row client_form" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-left",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.size_id")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.industry")))]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_industry,
+                          placeholder: _vm.placeHolderIndustry(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        on: { input: _vm.onChangeIndustry }
+                      })
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.size_id")))]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_size,
+                          placeholder: _vm.placeHolderSize(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        on: { input: _vm.onChangeSize }
+                      })
+                    ],
+                    1
+                  )
                 ])
               ])
             ])
           ])
         ])
       ])
-    ])
-  ])
+    ]
+  )
 }
 var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-sm-9" }, [
+    return _c("div", { staticClass: "col-sm-7" }, [
       _c(
         "label",
         { staticClass: "switch switch-label switch-pill switch-info" },
@@ -6285,7 +6429,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-sm-9" }, [
+    return _c("div", { staticClass: "col-sm-7" }, [
       _c(
         "label",
         { staticClass: "switch switch-label switch-pill switch-info" },
@@ -6307,7 +6451,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-sm-9" }, [
+    return _c("div", { staticClass: "col-sm-7" }, [
       _c("textarea", {
         staticClass: "form-control",
         attrs: {
@@ -6323,7 +6467,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-sm-9" }, [
+    return _c("div", { staticClass: "col-sm-7" }, [
       _c("textarea", {
         staticClass: "form-control",
         attrs: {
@@ -6339,7 +6483,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-sm-9" }, [
+    return _c("div", { staticClass: "col-sm-7" }, [
       _c("textarea", {
         staticClass: "form-control",
         attrs: {
@@ -6355,7 +6499,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-9" }, [
+    return _c("div", { staticClass: "col-md-7" }, [
       _c("textarea", {
         staticClass: "form-control",
         attrs: {

@@ -1,6 +1,7 @@
 @extends('layouts.master', ['header' => $header])
 
 @section('body')
+
 <main class="main" id="client_edit">
     
     <!-- Breadcrumb-->
@@ -30,9 +31,9 @@
 
             </ul>
 
-        <div class="tab-content" id="pills-tabContent">
+        <div class="tab-content" id="pills-tabContent" style="margin-top:20px; background:#fff;">
 
-            <div class="tab-pane fade active show" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" style="background-color: #e4e5e6; padding: 0px;">
+            <div class="tab-pane fade active show" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" style="background-color: #fff; padding: 0px;">
 
                 <client-edit-form  :company="{{ $company }}" :clientdata="{{ $client }}" :hashed_id="'{{ $hashed_id }}'" :countries="{{ $countries }}"></client-edit-form>
 
@@ -48,7 +49,7 @@
             
             @endforeach
 
-            <div class="tab-pane fade" id="pills-settings" role="tabpanel" aria-labelledby="pills-settings-tab" style="background-color: #e4e5e6; padding: 0px;">
+            <div class="tab-pane fade" id="pills-settings" role="tabpanel" aria-labelledby="pills-settings-tab" style="background-color: #fff; padding: 0px;">
 
                 <client-settings 
                     :settings="{{ $settings }}" 
@@ -56,6 +57,7 @@
                     :languages="{{ $languages }}"
                     :payment_terms="{{ $payment_terms }}"
                     :industries="{{ $industries }}"
+                    :sizes="{{ $sizes }}"
                   >  
                 </client-settings>
 
@@ -67,6 +69,6 @@
 
 </main>
 
-<script defer src=" {{ mix('/js/client_edit.min.js') }}"></script>
+<script src=" {{ mix('/js/client_edit.min.js') }}"></script>
 
 @endsection
