@@ -147,7 +147,8 @@ class CreateUsersTable extends Migration
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
-
+            $table->text('settings');
+            
             $table->timestamps();
             $table->softDeletes();
             

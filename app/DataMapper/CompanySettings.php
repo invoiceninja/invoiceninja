@@ -15,11 +15,9 @@ class CompanySettings
 		$config = json_decode(config('ninja.settings'));
 
 		return (object)[
-			'settings' => (object) [
-				'timezone_id' => $config->timezone_id,
-				'language_id' => $config->language_id,
-				'currency_id' => $config->currency_id,
-			],
+			'timezone_id' => $config->timezone_id,
+			'language_id' => $config->language_id,
+			'currency_id' => $config->currency_id,
 			'custom' => (object) [
 				'label1' => '',
 				'value1' => '',

@@ -24,21 +24,21 @@ class CompanySettingsTest extends TestCase
 	public function testTimezoneId()
 	{
 		
-		$this->assertEquals($this->company_settings->settings->timezone_id, 15);
+		$this->assertEquals($this->company_settings->timezone_id, 15);
 
 	}
 
 	public function testCurrencyId()
 	{
 
-		$this->assertEquals($this->company_settings->settings->currency_id, 1);
+		$this->assertEquals($this->company_settings->currency_id, 1);
 
 	}
 
 	public function testLanguageId()
 	{
 
-		$this->assertEquals($this->company_settings->settings->language_id, 1);
+		$this->assertEquals($this->company_settings->language_id, 1);
 
 	}
 

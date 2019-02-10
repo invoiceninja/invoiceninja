@@ -34,6 +34,11 @@ class Company extends BaseModel
         'company_id'
     ];
 
+    protected $casts = [
+        'settings' => 'json',
+    ];
+
+
     //protected $appends = ['company_id'];
 
     public function getRouteKeyName()
