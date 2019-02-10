@@ -129,9 +129,8 @@ class CreateUsersTable extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
-            $table->unsignedInteger('timezone_id')->nullable();
             $table->unsignedInteger('account_id')->index();
-            $table->unsignedInteger('currency_id')->nullable();
+            $table->unsignedInteger('industry_id')->nullable();
             $table->string('ip');
             $table->string('company_key',100)->unique();
             $table->timestamp('last_login')->nullable();
@@ -143,70 +142,19 @@ class CreateUsersTable extends Migration
             $table->string('work_phone')->nullable();
             $table->string('work_email')->nullable();
             $table->unsignedInteger('country_id')->nullable();
-            $table->unsignedInteger('industry_id')->nullable();
-            $table->unsignedInteger('size_id')->nullable();
             $table->string('subdomain')->nullable();
             $table->string('db')->nullable();
-
-            $table->string('custom_label1')->nullable();
-            $table->string('custom_value1')->nullable();
-
-            $table->string('custom_label2')->nullable();
-            $table->string('custom_value2')->nullable();
-
-            $table->string('custom_label3')->nullable();
-            $table->string('custom_value3')->nullable();
-
-            $table->string('custom_label4')->nullable();
-            $table->string('custom_value4')->nullable();
-
-            $table->string('custom_client_label1')->nullable();
-            $table->string('custom_client_label2')->nullable();
-            $table->string('custom_client_label3')->nullable();
-            $table->string('custom_client_label4')->nullable();
-
-            $table->string('custom_client_contact_label1')->nullable();
-            $table->string('custom_client_contact_label2')->nullable();
-            $table->string('custom_client_contact_label3')->nullable();
-            $table->string('custom_client_contact_label4')->nullable();
-
-            $table->string('custom_invoice_label1')->nullable();
-            $table->string('custom_invoice_label2')->nullable();
-            $table->string('custom_invoice_label3')->nullable();
-            $table->string('custom_invoice_label4')->nullable();
-
-            $table->string('custom_product_label1')->nullable();
-            $table->string('custom_product_label2')->nullable();
-            $table->string('custom_product_label3')->nullable();
-            $table->string('custom_product_label4')->nullable();
-
-            $table->string('custom_task_label1')->nullable();
-            $table->string('custom_task_label2')->nullable();
-            $table->string('custom_task_label3')->nullable();
-            $table->string('custom_task_label4')->nullable();
-
-            $table->string('custom_expense_label1')->nullable();
-            $table->string('custom_expense_label2')->nullable();    
-            $table->string('custom_expense_label3')->nullable();    
-            $table->string('custom_expense_label4')->nullable();  
-
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
-            
-            $table->text('translations')->nullable();
-
-            $table->unsignedInteger('language_id')->default(1);
+            $table->unsignedInteger('size_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
             
-            $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->foreign('country_id')->references('id')->on('countries');
-            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('language_id')->references('id')->on('languages');
 
 
         });

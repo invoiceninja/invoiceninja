@@ -9,7 +9,7 @@ use Tests\TestCase;
  * @test
  * @covers  App\DataMapper\DefaultSettings
  */
-class DefaultTest extends TestCase
+class DefaultSettingsTest extends TestCase
 {
 
     public function setUp()

@@ -121,7 +121,7 @@ class ClientController extends Controller
      */
     public function edit(EditClientRequest $request, Client $client)
     {
-//dd(Country::all());
+
         $data = [
         'client' => $client,
         'settings' => $client,
