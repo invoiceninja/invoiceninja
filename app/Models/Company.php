@@ -35,7 +35,7 @@ class Company extends BaseModel
     ];
 
     protected $casts = [
-        'settings' => 'json',
+        'settings' => 'object',
     ];
 
 
