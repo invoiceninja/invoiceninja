@@ -130,7 +130,7 @@ class ClientFilters extends QueryFilters
             ->where('client_contacts.deleted_at', '=', null)
             //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-                DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
+               // DB::raw('COALESCE(clients.currency_id, companies.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, companies.country_id) country_id'),
                 DB::raw("CONCAT(COALESCE(client_contacts.first_name, ''), ' ', COALESCE(client_contacts.last_name, '')) contact"),
                 'clients.id',
@@ -151,7 +151,8 @@ class ClientFilters extends QueryFilters
                 'clients.deleted_at',
                 'clients.is_deleted',
                 'clients.user_id',
-                'clients.id_number'
+                'clients.id_number',
+                'clients.settings'
             );
 
         /**
