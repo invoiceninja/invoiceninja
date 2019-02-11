@@ -152,7 +152,7 @@ class SendReminders extends Command
     private function sendReminderEmails()
     {
         $accounts = $this->accountRepo->findWithReminders();
-        $this->info(date('r ') . count($accounts) . ' accounts found with reminders');
+        $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
 
         foreach ($accounts as $account) {
             if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
