@@ -125,7 +125,7 @@ class SendReminders extends Command
     private function chargeLateFees()
     {
         $accounts = $this->accountRepo->findWithFees();
-        $this->info(date('r ') . $accounts->count() . ' accounts found with fees');
+        $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
 
         foreach ($accounts as $account) {
             if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
