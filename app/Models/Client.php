@@ -31,7 +31,6 @@ class Client extends BaseModel
         'country',
         'shipping_country'
     ];
-
     
     protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country'];
 

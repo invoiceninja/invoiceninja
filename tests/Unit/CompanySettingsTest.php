@@ -75,4 +75,17 @@ class CompanySettingsTest extends TestCase
 		
 	}
 
+	public function testPropertyIsNotset()
+	{
+
+		$this->assertFalse(isset($this->company_settings->custom->label1));
+
+	}
+
+	public function testPropertyIsSet()
+	{
+
+		$this->assertTrue(isset($this->company_settings->currency_id));
+
+	}
 }

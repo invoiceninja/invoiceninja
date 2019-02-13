@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\CompanySettings;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Company::class, function (Faker $faker) {
@@ -8,5 +9,6 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'company_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         'ip' => $faker->ipv4,
         'db' => config('database.default'),
+        'settings' => CompanySettings::defaults(),
     ];
 });

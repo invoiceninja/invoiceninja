@@ -10,7 +10,7 @@ class CompanySettings
 	/**
 	 * @return \stdClass
      */
-	public static function default() : \stdClass
+	public static function defaults() : \stdClass
 	{
 		$config = json_decode(config('ninja.settings'));
 
@@ -19,50 +19,50 @@ class CompanySettings
 			'language_id' => $config->language_id,
 			'currency_id' => $config->currency_id,
 			'custom' => (object) [
-				'label1' => '',
-				'value1' => '',
-				'label2' => '',
-				'value2' => '',
-				'label3' => '',
-				'value3' => '',
-				'label4' => '',
-				'value5' => '',
+				'label1' => NULL,
+				'value1' => NULL,
+				'label2' => NULL,
+				'value2' => NULL,
+				'label3' => NULL,
+				'value3' => NULL,
+				'label4' => NULL,
+				'value5' => NULL,
 			],
 			'client' => (object) [
-				'label1' => '',
-				'label2' => '',
-				'label3' => '',
-				'label4' => '',				
+				'label1' => NULL,
+				'label2' => NULL,
+				'label3' => NULL,
+				'label4' => NULL,				
 			],
 			'contact' => (object) [
-				'label1' => '',
-				'label2' => '',
-				'label3' => '',
-				'label4' => '',				
+				'label1' => NULL,
+				'label2' => NULL,
+				'label3' => NULL,
+				'label4' => NULL,				
 			],
 			'invoice' => (object) [
-				'label1' => '',
-				'label2' => '',
-				'label3' => '',
-				'label4' => '',				
+				'label1' => NULL,
+				'label2' => NULL,
+				'label3' => NULL,
+				'label4' => NULL,				
 			],
 			'product' => (object) [
-				'label1' => '',
-				'label2' => '',
-				'label3' => '',
-				'label4' => '',				
+				'label1' => NULL,
+				'label2' => NULL,
+				'label3' => NULL,
+				'label4' => NULL,				
 			],
 			'task' => (object) [
-				'label1' => '',
-				'label2' => '',
-				'label3' => '',
-				'label4' => '',				
+				'label1' => NULL,
+				'label2' => NULL,
+				'label3' => NULL,
+				'label4' => NULL,				
 			],
 			'expense' => (object) [
-				'label1' => '',
-				'label2' => '',
-				'label3' => '',
-				'label4' => '',				
+				'label1' => NULL,
+				'label2' => NULL,
+				'label3' => NULL,
+				'label4' => NULL,				
 			],
 			'translations' => (object) [],
 		];
