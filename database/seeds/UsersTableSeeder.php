@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
@@ -29,6 +30,8 @@ class UsersTableSeeder extends Seeder
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
         ]);
+
+        $company->settings = CompanySettings::defaults();
 
         $account->default_company_id = $company->id;
         $account->save();

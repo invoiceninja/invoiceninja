@@ -5898,7 +5898,7 @@ var render = function() {
                           "a",
                           {
                             staticClass: "scrollactive-item",
-                            attrs: { href: "#intro", title: "Intro" }
+                            attrs: { href: "#intro" }
                           },
                           [_vm._v(_vm._s(_vm.trans("t.client_settings")))]
                         )
@@ -5909,10 +5909,7 @@ var render = function() {
                           "a",
                           {
                             staticClass: "scrollactive-item",
-                            attrs: {
-                              href: "#standard-affix",
-                              title: "Standard Affix"
-                            }
+                            attrs: { href: "#standard-affix" }
                           },
                           [_vm._v(_vm._s(_vm.trans("texts.messages")))]
                         )
@@ -5923,10 +5920,7 @@ var render = function() {
                           "a",
                           {
                             staticClass: "scrollactive-item",
-                            attrs: {
-                              href: "#scroll-affix",
-                              title: "Scroll Affix"
-                            }
+                            attrs: { href: "#scroll-affix" }
                           },
                           [_vm._v(_vm._s(_vm.trans("texts.classify")))]
                         )
@@ -6724,7 +6718,7 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label1
+    !!_vm.company.settings.custom_client_contact_label1
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -6732,7 +6726,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label1))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label1))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [
@@ -6779,7 +6773,7 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label2
+    !!_vm.company.settings.custom_client_contact_label2
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -6787,7 +6781,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label2))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label2))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [
@@ -6834,7 +6828,7 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label3
+    !!_vm.company.settings.custom_client_contact_label3
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -6842,7 +6836,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label3))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label3))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [
@@ -6889,7 +6883,7 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label4
+    !!_vm.company.settings.custom_client_contact_label4
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -6897,7 +6891,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label4))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label4))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [

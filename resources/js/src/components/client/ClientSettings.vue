@@ -1,4 +1,4 @@
-<template>
+ <template>
 
 <div class="row" style="background:#fff; padding:20px;">
 
@@ -16,9 +16,9 @@
           	:exact="true"
           	>
           	<ul class="list-inline justify-content-left">
-                <li class="menu-li"><a href="#intro" class="scrollactive-item" title="Intro">{{trans('t.client_settings')}}</a></li>
-                <li class="menu-li"><a href="#standard-affix" class="scrollactive-item" title="Standard Affix">{{trans('texts.messages')}}</a></li>
-                <li class="menu-li"><a href="#scroll-affix" class="scrollactive-item" title="Scroll Affix">{{trans('texts.classify')}}</a></li>
+                <li class="menu-li"><a href="#intro" class="scrollactive-item" >{{trans('t.client_settings')}}</a></li>
+                <li class="menu-li"><a href="#standard-affix" class="scrollactive-item" >{{trans('texts.messages')}}</a></li>
+                <li class="menu-li"><a href="#scroll-affix" class="scrollactive-item" >{{trans('texts.classify')}}</a></li>
         	</ul>
           </scrollactive>
         </affix>
