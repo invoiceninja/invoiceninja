@@ -208,7 +208,7 @@ export default {
 	      options_size: this.sizes
 	    }
 	  },
-    props: ['settings', 'currencies', 'languages', 'payment_terms','industries','sizes'],
+    props: ['settings', 'currencies', 'languages', 'payment_terms','industries','sizes','company'],
     mounted() {
 
     },
@@ -233,9 +233,6 @@ export default {
 	  },
 	  placeHolderCurrency(){
 	  	return 'System Default Currency will appear here'
-	  },
-	  placeHolderLanguage(){
-	  	return 'System Default Language will appear here'
 	  },		
 	  placeHolderPaymentTerm(){
 	  	return 'System Default Payment Terms will appear here'	  	
@@ -245,9 +242,20 @@ export default {
 	  },
 	  placeHolderSize(){
 	  	return 'System Default Company Size will appear here'	  	
-	  } 
-	},
+	  },
+	  placeHolderLanguage(){
 
+
+		var found = this.languages.find(function(element) {
+		  return element.id === this.company.settings.language_id
+		});
+
+		return found.name
+
+	}			 
+	
+	}
+	
 }
 
 </script>

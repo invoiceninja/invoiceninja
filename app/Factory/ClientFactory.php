@@ -2,6 +2,7 @@
 
 namespace App\Factory;
 
+use App\DataMapper\ClientSettings;
 use App\Models\Client;
 
 class ClientFactory
@@ -18,7 +19,8 @@ class ClientFactory
 		$client->paid_to_date = 0;
 		$client->country_id = 4;
 		$client->is_deleted = 0;
-
+		$client->settings = ClientSettings::defaults();
+		
 		$client_contact = ClientContactFactory::create($company_id, $user_id);
         $client->contacts->add($client_contact);
 

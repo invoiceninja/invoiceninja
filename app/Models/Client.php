@@ -34,6 +34,10 @@ class Client extends BaseModel
     
     protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country'];
 
+    protected $casts = [
+        'settings' => 'object'
+    ];
+
     //protected $dates = ['deleted_at'];
 
     public function getHashedIdAttribute()

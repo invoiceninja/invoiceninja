@@ -58,6 +58,7 @@
                     :payment_terms="{{ $payment_terms }}"
                     :industries="{{ $industries }}"
                     :sizes="{{ $sizes }}"
+                    :company="{{ $company }}"
                   >  
                 </client-settings>
 
