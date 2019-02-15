@@ -245,14 +245,16 @@ export default {
 	  },
 	  placeHolderLanguage(){
 
+			var found = this.languages.filter(obj => {
+			  return obj.id == this.company.settings.language_id
+			})
 
-		var found = this.languages.find(function(element) {
-		  return element.id === this.company.settings.language_id
-		});
+				if(found.length >= 1)
+					return found[0].name
+				else
+					return 'No default Language found'
 
-		return found.name
-
-	}			 
+		}			 
 	
 	}
 	
