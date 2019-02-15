@@ -235,24 +235,33 @@ export default {
 	  	return 'System Default Currency will appear here'
 	  },		
 	  placeHolderPaymentTerm(){
-	  	return 'System Default Payment Terms will appear here'	  	
+
+		var payment_term = this.payment_terms.filter(obj => {
+		  return obj.id == this.company.settings.payment_terms
+		})
+
+		if(payment_term.length >= 1)
+			return payment_term[0].name
+		else
+			return  Vue.prototype.trans('texts.payment_terms') 	
+
 	  },
 	  placeHolderIndustry(){
-	  	return 'System Default Industry will appear here'	  	
+	  	return  Vue.prototype.trans('texts.industry_id') 
 	  },
 	  placeHolderSize(){
-	  	return 'System Default Company Size will appear here'	  	
+	  	return  Vue.prototype.trans('texts.size_id') 	
 	  },
 	  placeHolderLanguage(){
 
-			var found = this.languages.filter(obj => {
-			  return obj.id == this.company.settings.language_id
-			})
+		var language = this.languages.filter(obj => {
+		  return obj.id == this.company.settings.language_id
+		})
 
-				if(found.length >= 1)
-					return found[0].name
-				else
-					return 'No default Language found'
+			if(language.length >= 1)
+				return language[0].name
+			else
+				return  Vue.prototype.trans('texts.language_id') 
 
 		}			 
 	

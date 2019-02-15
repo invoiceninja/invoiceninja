@@ -52,6 +52,7 @@ class CompanySettings
 			'timezone_id' => $config->timezone_id,
 			'language_id' => $config->language_id,
 			'currency_id' => $config->currency_id,
+			'payment_terms' => $config->payment_terms,
 			
 			'translations' => (object) [],
 		];

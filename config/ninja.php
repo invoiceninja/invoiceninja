@@ -54,6 +54,6 @@ return [
         'from_name' => env('MAIL_FROM_NAME'),
     ],
 
-    'settings' => env('COMPANY_SETTINGS', '{"timezone_id":"15","currency_id":"1","language_id":"1"}'),
+    'settings' => env('COMPANY_SETTINGS', '{"timezone_id":"15","currency_id":"1","language_id":"1","payment_terms":"7"}'),
 
 ];

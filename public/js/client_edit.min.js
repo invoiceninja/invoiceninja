@@ -4177,23 +4177,30 @@ exports.default = {
             return 'System Default Currency will appear here';
         },
         placeHolderPaymentTerm: function () {
-            return 'System Default Payment Terms will appear here';
+            var _this = this;
+            var payment_term = this.payment_terms.filter(function (obj) {
+                return obj.id == _this.company.settings.payment_terms;
+            });
+            if (payment_term.length >= 1)
+                return payment_term[0].name;
+            else
+                return vue_1.default.prototype.trans('texts.payment_terms');
         },
         placeHolderIndustry: function () {
-            return 'System Default Industry will appear here';
+            return vue_1.default.prototype.trans('texts.industry_id');
         },
         placeHolderSize: function () {
-            return 'System Default Company Size will appear here';
+            return vue_1.default.prototype.trans('texts.size_id');
         },
         placeHolderLanguage: function () {
             var _this = this;
-            var found = this.languages.filter(function (obj) {
+            var language = this.languages.filter(function (obj) {
                 return obj.id == _this.company.settings.language_id;
             });
-            if (found.length >= 1)
-                return found[0].name;
+            if (language.length >= 1)
+                return language[0].name;
             else
-                return 'No default Language found';
+                return vue_1.default.prototype.trans('texts.language_id');
         }
     }
 };
