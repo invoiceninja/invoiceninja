@@ -39,35 +39,35 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_currency') }}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_currency" :placeholder="placeHolderCurrency()" label="name" track-by="id" @input="onChangeCurrency"></multiselect>
+						            <multiselect :options="options_currency" :placeholder="placeHolderCurrency()" label="name" track-by="id" @input="onChangeCurrency" v-model="settings.currency_id"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form d-flex justify-content-center">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio1" type="radio" value="option1" name="inline-radios">
-									<label class="form-check-label" for="inline-radio1">{{ trans('texts.currency_symbol') }}:</label>
+									<input class="form-check-input" id="inline-radio1" type="radio" value="1" name="show_currency_symbol" v-model="settings.show_currency_symbol">
+									<label class="form-check-label" for="show_currency_symbol-radio1">{{ trans('texts.currency_symbol') }}:</label>
 								</div>
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio2" type="radio" value="option2" name="inline-radios">
-									<label class="form-check-label" for="inline-radio2">{{ trans('texts.currency_code') }}:</label>
+									<input class="form-check-input" id="inline-radio2" type="radio" value="1" name="show_currency_code" v-model="settings.show_currency_code">
+									<label class="form-check-label" for="show_currency_code">{{ trans('texts.currency_code') }}:</label>
 								</div>
 							</div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-5 text-left">
+						        <label for="language" class="col-sm-5 text-left">
 						        	<div>{{ trans('texts.language') }}</div>
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_language')}}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_language" :placeholder="placeHolderLanguage()" label="name" track-by="id" @input="onChangeLanguage"></multiselect>
+						            <multiselect :options="options_language" :placeholder="placeHolderLanguage()" label="language" track-by="id" @input="onChangeLanguage" v-model="settings.language_id"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
-						        <label for="name" class="col-sm-5 text-left">
+						        <label for="payment_terms" class="col-sm-5 text-left">
 						        	<div>{{ trans('texts.payment_terms') }}</div>
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_payment_terms')}}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="name" track-by="id" @input="onChangePaymentTerm"></multiselect>
+						            <multiselect :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="payment_terms" track-by="num_days" @input="onChangePaymentTerm" v-model="settings.payment_term"></multiselect>
 						        </div>
 						    </div>
 						    
@@ -77,7 +77,7 @@
 								<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('texts.task_rate_help')}}</div>
 						    	</label>
 						        <div class="col-sm-7">
-						            <input type="text" :placeholder="trans('texts.task_rate')" class="form-control">
+						            <input type="text" :placeholder="trans('texts.task_rate')" class="form-control" v-model="settings.task_rate">
 						                 <div v-if="" class="text-danger" v-text=""></div>
 						        </div>
 						    </div>
@@ -85,7 +85,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings.send_client_reminders">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -94,7 +94,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.show_tasks_in_portal') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings.show_tasks_in_portal">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -115,7 +115,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_dashboard')}}</div>
 						    	</label>
 						        <div class="col-sm-7">
-						            <textarea class="form-control" id="textarea-input" name="dashboard" rows="9" placeholder=""></textarea>
+						            <textarea class="form-control" id="textarea-input" label="dashboard" v-model="settings.dashboard"rows="9" placeholder=""></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -124,7 +124,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_unpaid_invoice')}}</div>
 								</label>
 						        <div class="col-sm-7">
-						            <textarea class="form-control" id="textarea-input" name="unpaid_invoice" rows="9" placeholder=""></textarea>
+						            <textarea class="form-control" id="textarea-input" label="unpaid_invoice" v-model="settings.unpaid_invoice"rows="9" placeholder=""></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -133,7 +133,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{trans('help.client_paid_invoice')}}</div>
 								</label>
 						        <div class="col-sm-7">
-						            <textarea class="form-control" id="textarea-input" name="paid_invoice" rows="9" placeholder=""></textarea>
+						            <textarea class="form-control" id="textarea-input" label="paid_invoice"  v-model="settings.paid_invoice" rows="9" placeholder=""></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -142,7 +142,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{trans('help.client_unapproved_quote')}}</div>
 								</label>
 								<div class="col-md-7">
-									<textarea class="form-control" id="textarea-input" name="unapproved_quote" rows="9" placeholder=""></textarea>
+									<textarea class="form-control" id="textarea-input" label="unapproved_quote" v-model="settings.unapproved_quote" rows="9" placeholder=""></textarea>
 								</div>
 							</div>
 
@@ -158,13 +158,13 @@
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.industry') }}</label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" @input="onChangeIndustry"></multiselect>
+						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" @input="onChangeIndustry" v-model="settings.language_id"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.size_id') }}</label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_size" :placeholder="placeHolderSize()" label="name" track-by="id" @input="onChangeSize"></multiselect>
+						            <multiselect :options="options_size" :placeholder="placeHolderSize()" label="name" track-by="id" @input="onChangeSize" v-model="settings.size_id"></multiselect>
 						        </div>
 						    </div>
 
@@ -205,7 +205,7 @@ export default {
 	      options_language: Object.keys(this.languages).map(i => this.languages[i]),
 	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
 	      options_industry: Object.keys(this.industries).map(i => this.industries[i]),
-	      options_size: this.sizes
+	      options_size: this.sizes,
 	    }
 	  },
     props: ['settings', 'currencies', 'languages', 'payment_terms','industries','sizes','company'],
@@ -216,28 +216,39 @@ export default {
 	  onItemChanged(event, currentItem, lastActiveItem) {
 	    // your logic
 	  },
-	  onChangeCurrency(){
-
+	  onChangeCurrency(value){
+	  	console.dir()
+	  	Vue.set(this.settings, 'currency_id', value.id)
+	  	this.settings.currency_id = value.id
 	  },
-	  onChangeLanguage(){
-
+	  onChangeLanguage(value){
+	  	this.settings.language_id = value.id
 	  },
-	  onChangePaymentTerm(){
-
+	  onChangePaymentTerm(value){
+	  	this.settings.payment_term = value.num_days
 	  },
-	  onChangeIndustry(){
-
+	  onChangeIndustry(value){
+	  	this.settings.industry_id = value.id
 	  },
-	  onChangeSize(){
+	  onChangeSize(value){
+	  	this.settings.size_id = value.id
 
 	  },
 	  placeHolderCurrency(){
-	  	return 'System Default Currency will appear here'
+
+		var currency = this.options_currency.filter(obj => {
+		  return obj.id == this.company.settings.currency_id
+		})
+
+		if(currency.length >= 1)
+			return currency[0].name
+		else
+			return  Vue.prototype.trans('texts.currency_id') 	
 	  },		
 	  placeHolderPaymentTerm(){
 
 		var payment_term = this.payment_terms.filter(obj => {
-		  return obj.id == this.company.settings.payment_terms
+		  return obj.num_days == this.company.settings.payment_terms
 		})
 
 		if(payment_term.length >= 1)
@@ -247,10 +258,14 @@ export default {
 
 	  },
 	  placeHolderIndustry(){
+
 	  	return  Vue.prototype.trans('texts.industry_id') 
+
 	  },
 	  placeHolderSize(){
+
 	  	return  Vue.prototype.trans('texts.size_id') 	
+
 	  },
 	  placeHolderLanguage(){
 

@@ -14,6 +14,7 @@ class ClientSettings
 			timezone_id
 			language_id
 			currency_id
+			payment_term
      */
 	public static function defaults() : \stdClass
 	{
