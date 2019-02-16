@@ -137,7 +137,7 @@
 	        shippingCountry: {
 	            set: function() {
 	            
-	                return this.client.shipping_country_id
+	              //  return this.client.shipping_country_id
 	            
 	            },
 	            get: function(value) {

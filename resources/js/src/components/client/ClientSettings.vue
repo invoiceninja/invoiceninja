@@ -39,7 +39,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_currency') }}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_currency" :placeholder="placeHolderCurrency()" label="name" track-by="id" @input="onChangeCurrency" v-model="settings.currency_id"></multiselect>
+						            <multiselect v-model="settings_currency_id" :options="options_currency" label="name" track-by="id" :placeholder="placeHolderCurrency()" :allow-empty="true"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form d-flex justify-content-center">
@@ -58,7 +58,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_language')}}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_language" :placeholder="placeHolderLanguage()" label="language" track-by="id" @input="onChangeLanguage" v-model="settings.language_id"></multiselect>
+						            <multiselect v-model="settings_language_id" :options="options_language" :placeholder="placeHolderLanguage()" label="name" track-by="id" :allow-empty="true"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -67,7 +67,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_payment_terms')}}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="payment_terms" track-by="num_days" @input="onChangePaymentTerm" v-model="settings.payment_term"></multiselect>
+						            <multiselect v-model="settings_payment_terms" :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="name" track-by="num_days" :allow-empty="true"></multiselect>
 						        </div>
 						    </div>
 						    
@@ -158,13 +158,13 @@
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.industry') }}</label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" @input="onChangeIndustry" v-model="settings.language_id"></multiselect>
+						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" v-model="settings.language_id"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.size_id') }}</label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_size" :placeholder="placeHolderSize()" label="name" track-by="id" @input="onChangeSize" v-model="settings.size_id"></multiselect>
+						            <multiselect :options="options_size" :placeholder="placeHolderSize()" label="name" track-by="id" v-model="settings.size_id"></multiselect>
 						        </div>
 						    </div>
 
@@ -206,33 +206,63 @@ export default {
 	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
 	      options_industry: Object.keys(this.industries).map(i => this.industries[i]),
 	      options_size: this.sizes,
+	      settings: this.client_settings
 	    }
 	  },
-    props: ['settings', 'currencies', 'languages', 'payment_terms','industries','sizes','company'],
+    props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted() {
+    },
+    computed: {
+    	settings_currency_id: {
+    		set: function(value){
 
+    			this.setObjectValue('currency_id', value.id)
+
+    		},
+    		get: function(){
+				return this.options_currency.filter(obj => {
+					return obj.id == this.settings.currency_id
+				})
+    		}
+    	},
+		settings_language_id: {
+			set: function(value) {
+
+    			this.setObjectValue('language_id', value.id)
+
+			},
+			get: function() {
+				return this.options_language.filter(obj => {
+					return obj.id == this.settings.language_id
+				})
+			}
+		},
+		settings_payment_terms: {
+			set: function(value) {
+				
+				if(value === null)
+					this.setObjectValue('payment_terms', null)
+				else
+    				this.setObjectValue('payment_terms', value.num_days)
+
+			},
+			get: function() {
+				return this.options_payment_term.filter(obj => {
+					return obj.num_days == this.settings.payment_terms
+				})
+			}
+		}
     },
     methods: {
 	  onItemChanged(event, currentItem, lastActiveItem) {
 	    // your logic
 	  },
-	  onChangeCurrency(value){
-	  	console.dir()
-	  	Vue.set(this.settings, 'currency_id', value.id)
-	  	this.settings.currency_id = value.id
-	  },
-	  onChangeLanguage(value){
-	  	this.settings.language_id = value.id
-	  },
-	  onChangePaymentTerm(value){
-	  	this.settings.payment_term = value.num_days
-	  },
-	  onChangeIndustry(value){
-	  	this.settings.industry_id = value.id
-	  },
-	  onChangeSize(value){
-	  	this.settings.size_id = value.id
+	  setObjectValue(key, value){
 
+		if(value === null)
+			this.settings[key] = null
+		else
+			this.settings[key] = value
 	  },
 	  placeHolderCurrency(){
 
@@ -244,15 +274,16 @@ export default {
 			return currency[0].name
 		else
 			return  Vue.prototype.trans('texts.currency_id') 	
+
 	  },		
 	  placeHolderPaymentTerm(){
 
-		var payment_term = this.payment_terms.filter(obj => {
+		var payment_terms = this.payment_terms.filter(obj => {
 		  return obj.num_days == this.company.settings.payment_terms
 		})
 
-		if(payment_term.length >= 1)
-			return payment_term[0].name
+		if(payment_terms.length >= 1)
+			return payment_terms[0].name
 		else
 			return  Vue.prototype.trans('texts.payment_terms') 	
 

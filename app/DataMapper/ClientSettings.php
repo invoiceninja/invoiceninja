@@ -5,22 +5,24 @@ namespace App\DataMapper;
 /**
  * ClientSettings
  */
-class ClientSettings 
+class ClientSettings extends BaseSettings
 {
 	/**
 	 * @return \stdClass
 	 *
-	 * 
-			timezone_id
-			language_id
-			currency_id
-			payment_term
      */
 	public static function defaults() : \stdClass
 	{
 
-		return (object)[];
+		return (object)[
+			'timezone_id' => NULL,
+			'language_id' => NULL,
+			'currency_id' => NULL,
+			'payment_terms' => NULL,
+		];
 
 	}
+
+
 }
 

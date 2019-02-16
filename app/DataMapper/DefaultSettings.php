@@ -8,7 +8,7 @@ use App\Models\Client;
  * Class DefaultSettings
  * @package App\DataMapper
  */
-class DefaultSettings
+class DefaultSettings extends BaseSettings
 {
 
 	/**

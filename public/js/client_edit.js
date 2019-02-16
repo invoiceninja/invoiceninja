@@ -1785,7 +1785,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 								shippingCountry: {
 												set: function set() {
 
-																return this.client.shipping_country_id;
+																//  return this.client.shipping_country_id
+
 												},
 												get: function get(value) {
 																var _this2 = this;
@@ -4154,31 +4155,59 @@ exports.default = {
             options_payment_term: Object.keys(this.payment_terms).map(function (i) { return _this.payment_terms[i]; }),
             options_industry: Object.keys(this.industries).map(function (i) { return _this.industries[i]; }),
             options_size: this.sizes,
+            settings: this.client_settings
         };
     },
-    props: ['settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
+    props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted: function () {
+    },
+    computed: {
+        settings_currency_id: {
+            set: function (value) {
+                this.setObjectValue('currency_id', value.id);
+            },
+            get: function () {
+                var _this = this;
+                return this.options_currency.filter(function (obj) {
+                    return obj.id == _this.settings.currency_id;
+                });
+            }
+        },
+        settings_language_id: {
+            set: function (value) {
+                this.setObjectValue('language_id', value.id);
+            },
+            get: function () {
+                var _this = this;
+                return this.options_language.filter(function (obj) {
+                    return obj.id == _this.settings.language_id;
+                });
+            }
+        },
+        settings_payment_terms: {
+            set: function (value) {
+                if (value === null)
+                    this.setObjectValue('payment_terms', null);
+                else
+                    this.setObjectValue('payment_terms', value.num_days);
+            },
+            get: function () {
+                var _this = this;
+                return this.options_payment_term.filter(function (obj) {
+                    return obj.num_days == _this.settings.payment_terms;
+                });
+            }
+        }
     },
     methods: {
         onItemChanged: function (event, currentItem, lastActiveItem) {
             // your logic
         },
-        onChangeCurrency: function (value) {
-            console.dir();
-            vue_1.default.set(this.settings, 'currency_id', value.id);
-            this.settings.currency_id = value.id;
-        },
-        onChangeLanguage: function (value) {
-            this.settings.language_id = value.id;
-        },
-        onChangePaymentTerm: function (value) {
-            this.settings.payment_term = value.num_days;
-        },
-        onChangeIndustry: function (value) {
-            this.settings.industry_id = value.id;
-        },
-        onChangeSize: function (value) {
-            this.settings.size_id = value.id;
+        setObjectValue: function (key, value) {
+            if (value === null)
+                this.settings[key] = null;
+            else
+                this.settings[key] = value;
         },
         placeHolderCurrency: function () {
             var _this = this;
@@ -4192,11 +4221,11 @@ exports.default = {
         },
         placeHolderPaymentTerm: function () {
             var _this = this;
-            var payment_term = this.payment_terms.filter(function (obj) {
+            var payment_terms = this.payment_terms.filter(function (obj) {
                 return obj.num_days == _this.company.settings.payment_terms;
             });
-            if (payment_term.length >= 1)
-                return payment_term[0].name;
+            if (payment_terms.length >= 1)
+                return payment_terms[0].name;
             else
                 return vue_1.default.prototype.trans('texts.payment_terms');
         },
@@ -6004,17 +6033,17 @@ var render = function() {
                       _c("multiselect", {
                         attrs: {
                           options: _vm.options_currency,
-                          placeholder: _vm.placeHolderCurrency(),
                           label: "name",
-                          "track-by": "id"
+                          "track-by": "id",
+                          placeholder: _vm.placeHolderCurrency(),
+                          "allow-empty": true
                         },
-                        on: { input: _vm.onChangeCurrency },
                         model: {
-                          value: _vm.settings.currency_id,
+                          value: _vm.settings_currency_id,
                           callback: function($$v) {
-                            _vm.$set(_vm.settings, "currency_id", $$v)
+                            _vm.settings_currency_id = $$v
                           },
-                          expression: "settings.currency_id"
+                          expression: "settings_currency_id"
                         }
                       })
                     ],
@@ -6144,16 +6173,16 @@ var render = function() {
                         attrs: {
                           options: _vm.options_language,
                           placeholder: _vm.placeHolderLanguage(),
-                          label: "language",
-                          "track-by": "id"
+                          label: "name",
+                          "track-by": "id",
+                          "allow-empty": true
                         },
-                        on: { input: _vm.onChangeLanguage },
                         model: {
-                          value: _vm.settings.language_id,
+                          value: _vm.settings_language_id,
                           callback: function($$v) {
-                            _vm.$set(_vm.settings, "language_id", $$v)
+                            _vm.settings_language_id = $$v
                           },
-                          expression: "settings.language_id"
+                          expression: "settings_language_id"
                         }
                       })
                     ],
@@ -6195,16 +6224,16 @@ var render = function() {
                         attrs: {
                           options: _vm.options_payment_term,
                           placeholder: _vm.placeHolderPaymentTerm(),
-                          label: "payment_terms",
-                          "track-by": "num_days"
+                          label: "name",
+                          "track-by": "num_days",
+                          "allow-empty": true
                         },
-                        on: { input: _vm.onChangePaymentTerm },
                         model: {
-                          value: _vm.settings.payment_term,
+                          value: _vm.settings_payment_terms,
                           callback: function($$v) {
-                            _vm.$set(_vm.settings, "payment_term", $$v)
+                            _vm.settings_payment_terms = $$v
                           },
-                          expression: "settings.payment_term"
+                          expression: "settings_payment_terms"
                         }
                       })
                     ],
@@ -6725,7 +6754,6 @@ var render = function() {
                           label: "name",
                           "track-by": "id"
                         },
-                        on: { input: _vm.onChangeIndustry },
                         model: {
                           value: _vm.settings.language_id,
                           callback: function($$v) {
@@ -6760,7 +6788,6 @@ var render = function() {
                           label: "name",
                           "track-by": "id"
                         },
-                        on: { input: _vm.onChangeSize },
                         model: {
                           value: _vm.settings.size_id,
                           callback: function($$v) {
