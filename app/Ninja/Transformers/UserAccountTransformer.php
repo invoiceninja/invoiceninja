@@ -157,6 +157,7 @@ class UserAccountTransformer extends EntityTransformer
     public function transform(User $user)
     {
         $account = $user->account;
+        $company = $account->company;
 
         return [
             'account_key' => $account->account_key,
