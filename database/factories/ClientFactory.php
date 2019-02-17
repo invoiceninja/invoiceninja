@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\ClientSettings;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Client::class, function (Faker $faker) {
@@ -26,5 +27,6 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'shipping_state' => $faker->state,
         'shipping_postal_code' => $faker->postcode,
         'shipping_country_id' => 4,
+        'settings' => ClientSettings::defaults(),
     ];
 });

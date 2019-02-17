@@ -34,9 +34,11 @@ mix.js('resources/js/src/client/client_list.ts', 'public/js');
 mix.js('resources/js/src/settings/localization.ts', 'public/js');
 mix.js('node_modules/@coreui/coreui/dist/js/coreui.js', 'public/js');
 
+/*
 mix.scripts([
     'js/src/bootstrap.js'
 ], 'public/js/ninja.js');
+*/
 
 mix.minify('public/js/ninja.js');
 mix.minify('public/js/coreui.js');

@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;

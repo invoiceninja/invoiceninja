@@ -16,11 +16,15 @@ use App\Jobs\Entity\ActionEntity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
+use App\Models\Currency;
+use App\Models\Size;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
 
 /**
  * Class ClientController
@@ -121,11 +125,11 @@ class ClientController extends Controller
 
         $data = [
         'client' => $client,
-        'settings' => $client,
+        'settings' => collect($client->settings),
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
-        'countries' => Country::all(),
-        'company' => auth()->user()->company()
+        'company' => auth()->user()->company(),
+        'sizes' => Size::all(),
         ];
 
         return view('client.edit', $data);

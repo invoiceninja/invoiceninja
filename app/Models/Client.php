@@ -31,9 +31,12 @@ class Client extends BaseModel
         'country',
         'shipping_country'
     ];
-
     
     protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country'];
+
+    protected $casts = [
+        'settings' => 'object'
+    ];
 
     //protected $dates = ['deleted_at'];
 

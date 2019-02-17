@@ -1767,9 +1767,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 								Multiselect: __WEBPACK_IMPORTED_MODULE_0_vue_multiselect___default.a
 				},
 				props: ['client', 'countries'],
+				mounted: function mounted() {},
 				data: function data() {
+								var _this = this;
+
 								return {
-												options: this.countries
+												options: Object.keys(this.countries).map(function (i) {
+																return _this.countries[i];
+												}),
+												countryArray: Object.keys(this.countries).map(function (i) {
+																return _this.countries[i];
+												})
 								};
 				},
 
@@ -1777,13 +1785,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 								shippingCountry: {
 												set: function set() {
 
-																return this.client.shipping_country_id;
+																//  return this.client.shipping_country_id
+
 												},
 												get: function get(value) {
-																var _this = this;
+																var _this2 = this;
 
-																return this.countries.filter(function (obj) {
-																				return obj.id === _this.client.shipping_country_id;
+																return this.countryArray.filter(function (obj) {
+																				return obj.id === _this2.client.shipping_country_id;
 																});
 												}
 								},
@@ -1793,10 +1802,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 																return this.client.country_id;
 												},
 												get: function get(value) {
-																var _this2 = this;
 
-																return this.countries.filter(function (obj) {
-																				return obj.id === _this2.client.country_id;
+																var _this3 = this;
+
+																return this.countryArray.filter(function (obj) {
+																				return obj.id === _this3.client.country_id;
+
 																});
 												}
 								}
@@ -2079,7 +2090,9 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\na.scrollactive-item.is-active  {\n  color: #42b983;\n  font-family: helvetica;\n  text-decoration: none;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #42b983;\n}\na.scrollactive-item.is-active:active {\n  color: #42b983;\n}\n.menu-list a {\n  color: black;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #42b983;\n}\n.menu-list a:active {\n  color: #42b983;\n  text-decoration: none;\n}\n\n\n", ""]);
+
+exports.push([module.i, "\n#example-content {\n}\n.client_form {\n\tborder-bottom: 0px;\n\tborder-bottom-style: solid;\n    border-bottom-color: #167090;\n}\n.menu-li {\n\tlist-style: none;\n  \tpadding-left:5px;\n  \twidth:200px;\n  \tline-height:1.4;\n  \tmargin-top:10px;\n}\na.scrollactive-item.is-active  {\n  color: #027093;\n  font-family: helvetica;\n  text-decoration: none;\n  border-left-style: solid;\n  border-left-color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:active {\n  color: #027093;\n  padding-left:10px;\n}\n.menu-list a {\n  color: #939393;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #027093;\n  padding-left:5px;\n}\n.menu-list a:active {\n  color: #027093;\n  text-decoration: none;\n      padding-left:5px;\n}\n\n", ""]);
+
 
 // exports
 
@@ -4131,19 +4144,115 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
 var vue_affix_1 = __webpack_require__("./node_modules/vue-affix/dist/vue-affix.min.js");
 var VueScrollactive = __webpack_require__("./node_modules/vue-scrollactive/dist/vue-scrollactive.min.js");
+
+var vue_multiselect_1 = __importDefault(__webpack_require__("./node_modules/vue-multiselect/dist/vue-multiselect.min.js"));
+
 vue_1.default.use(VueScrollactive);
 exports.default = {
     components: {
         Affix: vue_affix_1.Affix,
+        Multiselect: vue_multiselect_1.default,
     },
-    props: ['settings'],
+    data: function () {
+        var _this = this;
+        return {
+            options_currency: Object.keys(this.currencies).map(function (i) { return _this.currencies[i]; }),
+            options_language: Object.keys(this.languages).map(function (i) { return _this.languages[i]; }),
+            options_payment_term: Object.keys(this.payment_terms).map(function (i) { return _this.payment_terms[i]; }),
+            options_industry: Object.keys(this.industries).map(function (i) { return _this.industries[i]; }),
+            options_size: this.sizes,
+            settings: this.client_settings
+        };
+    },
+    props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted: function () {
+    },
+    computed: {
+        settings_currency_id: {
+            set: function (value) {
+                this.setObjectValue('currency_id', value.id);
+            },
+            get: function () {
+                var _this = this;
+                return this.options_currency.filter(function (obj) {
+                    return obj.id == _this.settings.currency_id;
+                });
+            }
+        },
+        settings_language_id: {
+            set: function (value) {
+                this.setObjectValue('language_id', value.id);
+            },
+            get: function () {
+                var _this = this;
+                return this.options_language.filter(function (obj) {
+                    return obj.id == _this.settings.language_id;
+                });
+            }
+        },
+        settings_payment_terms: {
+            set: function (value) {
+                if (value === null)
+                    this.setObjectValue('payment_terms', null);
+                else
+                    this.setObjectValue('payment_terms', value.num_days);
+            },
+            get: function () {
+                var _this = this;
+                return this.options_payment_term.filter(function (obj) {
+                    return obj.num_days == _this.settings.payment_terms;
+                });
+            }
+        }
     },
     methods: {
         onItemChanged: function (event, currentItem, lastActiveItem) {
             // your logic
         },
-    },
+        setObjectValue: function (key, value) {
+            if (value === null)
+                this.settings[key] = null;
+            else
+                this.settings[key] = value;
+        },
+        placeHolderCurrency: function () {
+            var _this = this;
+            var currency = this.options_currency.filter(function (obj) {
+                return obj.id == _this.company.settings.currency_id;
+            });
+            if (currency.length >= 1)
+                return currency[0].name;
+            else
+                return vue_1.default.prototype.trans('texts.currency_id');
+        },
+        placeHolderPaymentTerm: function () {
+            var _this = this;
+            var payment_terms = this.payment_terms.filter(function (obj) {
+                return obj.num_days == _this.company.settings.payment_terms;
+            });
+            if (payment_terms.length >= 1)
+                return payment_terms[0].name;
+            else
+                return vue_1.default.prototype.trans('texts.payment_terms');
+        },
+        placeHolderIndustry: function () {
+            return vue_1.default.prototype.trans('texts.industry_id');
+        },
+        placeHolderSize: function () {
+            return vue_1.default.prototype.trans('texts.size_id');
+        },
+        placeHolderLanguage: function () {
+            var _this = this;
+            var language = this.languages.filter(function (obj) {
+                return obj.id == _this.company.settings.language_id;
+            });
+            if (language.length >= 1)
+                return language[0].name;
+            else
+                return vue_1.default.prototype.trans('texts.language_id');
+        }
+    }
+
 };
 
 
@@ -5800,997 +5909,913 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "row" }, [
-    _c(
-      "div",
-      { staticClass: "col-2" },
-      [
-        _c(
-          "affix",
-          {
-            staticClass: "menu sidebar-menu",
-            staticStyle: { width: "200px" },
-            attrs: {
-              "relative-element-selector": "#example-content",
-              offset: { top: 50, bottom: 100 },
-              "scroll-affix": false
-            }
-          },
-          [
-            _c("div", { staticClass: "menu-label" }, [_c("h2")]),
-            _vm._v(" "),
-            _c(
-              "scrollactive",
-              {
-                staticClass: "menu-list",
-                attrs: {
-                  "active-class": "is-active",
-                  offset: 50,
-                  duration: 800,
-                  exact: true
-                }
-              },
-              [
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#intro", title: "Intro" }
-                  },
-                  [_vm._v("Intro")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#standard-affix", title: "Standard Affix" }
-                  },
-                  [_vm._v("Standard Affix")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#scroll-affix", title: "Scroll Affix" }
-                  },
-                  [_vm._v("Scroll Affix")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#markup-1", title: "Markup 1" }
-                  },
-                  [_vm._v("Markup 1")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#markup-2", title: "Markup 2" }
-                  },
-                  [_vm._v("Markup 2")]
-                ),
-                _c("br"),
-                _vm._v(" "),
-                _c(
-                  "a",
-                  {
-                    staticClass: "scrollactive-item",
-                    attrs: { href: "#markup-3", title: "Markup 3" }
-                  },
-                  [_vm._v("Markup 3")]
-                ),
-                _c("br")
-              ]
-            )
-          ],
-          1
-        )
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "col-10" }, [
-      _c("div", { attrs: { id: "example-content" } }, [
-        _c("section", { attrs: { id: "intro" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
+  return _c(
+    "div",
+    {
+      staticClass: "row",
+      staticStyle: { background: "#fff", padding: "20px" }
+    },
+    [
+      _c(
+        "div",
+        {
+          staticClass: "col-2",
+          staticStyle: { border: "0px", "border-style": "solid" }
+        },
+        [
+          _c(
+            "affix",
+            {
+              staticClass: "menu sidebar-menu",
+              staticStyle: { width: "200px" },
+              attrs: {
+                "relative-element-selector": "#example-content",
+                offset: { top: 50, bottom: 100 },
+                "scroll-affix": false
+              }
+            },
+            [
+              _c("div", { staticClass: "menu-label" }, [
+                _c("h3", { staticStyle: { color: "#5d5d5d" } }, [
+                  _vm._v(_vm._s(_vm.trans("texts.settings")))
                 ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+              _c(
+                "scrollactive",
+                {
+                  staticClass: "menu-list",
+                  attrs: {
+                    "active-class": "is-active",
+                    offset: 50,
+                    duration: 800,
+                    exact: true
+                  }
+                },
+                [
+                  _c(
+                    "ul",
+                    { staticClass: "list-inline justify-content-left" },
+                    [
+                      _c("li", { staticClass: "menu-li" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "scrollactive-item",
+                            attrs: { href: "#intro" }
+                          },
+                          [_vm._v(_vm._s(_vm.trans("t.client_settings")))]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("li", { staticClass: "menu-li" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "scrollactive-item",
+                            attrs: { href: "#standard-affix" }
+                          },
+                          [_vm._v(_vm._s(_vm.trans("texts.messages")))]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("li", { staticClass: "menu-li" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "scrollactive-item",
+                            attrs: { href: "#scroll-affix" }
+                          },
+                          [_vm._v(_vm._s(_vm.trans("texts.classify")))]
+                        )
+                      ])
+                    ]
+                  )
+                ]
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-10" }, [
+        _c("div", { attrs: { id: "example-content" } }, [
+          _c("section", { attrs: { id: "intro" } }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("t.client_settings")))
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
+              _c("div", { staticClass: "card-body px-3" }, [
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.currency")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_currency")))]
+                      )
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_currency,
+                          label: "name",
+                          "track-by": "id",
+                          placeholder: _vm.placeHolderCurrency(),
+                          "allow-empty": true
+                        },
+                        model: {
+                          value: _vm.settings_currency_id,
+                          callback: function($$v) {
+                            _vm.settings_currency_id = $$v
+                          },
+                          expression: "settings_currency_id"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ]),
+                _vm._v(" "),
                 _c(
-                  "label",
+                  "div",
                   {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
+                    staticClass:
+                      "form-group row client_form d-flex justify-content-center"
                   },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
+                  [
+                    _c("div", { staticClass: "form-check form-check-inline" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.settings.show_currency_symbol,
+                            expression: "settings.show_currency_symbol"
+                          }
+                        ],
+                        staticClass: "form-check-input",
+                        attrs: {
+                          id: "inline-radio1",
+                          type: "radio",
+                          value: "1",
+                          name: "show_currency_symbol"
+                        },
+                        domProps: {
+                          checked: _vm._q(
+                            _vm.settings.show_currency_symbol,
+                            "1"
+                          )
+                        },
+                        on: {
+                          change: function($event) {
+                            _vm.$set(_vm.settings, "show_currency_symbol", "1")
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "show_currency_symbol-radio1" }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.trans("texts.currency_symbol")) + ":"
+                          )
+                        ]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-check form-check-inline" }, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.settings.show_currency_code,
+                            expression: "settings.show_currency_code"
+                          }
+                        ],
+                        staticClass: "form-check-input",
+                        attrs: {
+                          id: "inline-radio2",
+                          type: "radio",
+                          value: "1",
+                          name: "show_currency_code"
+                        },
+                        domProps: {
+                          checked: _vm._q(_vm.settings.show_currency_code, "1")
+                        },
+                        on: {
+                          change: function($event) {
+                            _vm.$set(_vm.settings, "show_currency_code", "1")
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "label",
+                        {
+                          staticClass: "form-check-label",
+                          attrs: { for: "show_currency_code" }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("texts.currency_code")) + ":")]
+                      )
+                    ])
+                  ]
                 ),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 text-left",
+                      attrs: { for: "language" }
+                    },
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.language")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_language")))]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_language,
+                          placeholder: _vm.placeHolderLanguage(),
+                          label: "name",
+                          "track-by": "id",
+                          "allow-empty": true
+                        },
+                        model: {
+                          value: _vm.settings_language_id,
+                          callback: function($$v) {
+                            _vm.settings_language_id = $$v
+                          },
+                          expression: "settings_language_id"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 text-left",
+                      attrs: { for: "payment_terms" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.payment_terms")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_payment_terms")))]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_payment_term,
+                          placeholder: _vm.placeHolderPaymentTerm(),
+                          label: "name",
+                          "track-by": "num_days",
+                          "allow-empty": true
+                        },
+                        model: {
+                          value: _vm.settings_payment_terms,
+                          callback: function($$v) {
+                            _vm.settings_payment_terms = $$v
+                          },
+                          expression: "settings_payment_terms"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.task_rate")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("texts.task_rate_help")))]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.task_rate,
+                          expression: "settings.task_rate"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        type: "text",
+                        placeholder: _vm.trans("texts.task_rate")
+                      },
+                      domProps: { value: _vm.settings.task_rate },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.settings,
+                            "task_rate",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "text-danger" })
+                  ])
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.send_client_reminders")))]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c(
+                      "label",
+                      {
+                        staticClass:
+                          "switch switch-label switch-pill switch-info"
+                      },
+                      [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.send_client_reminders,
+                              expression: "settings.send_client_reminders"
+                            }
+                          ],
+                          staticClass: "switch-input",
+                          attrs: { type: "checkbox", checked: "" },
+                          domProps: {
+                            checked: Array.isArray(
+                              _vm.settings.send_client_reminders
+                            )
+                              ? _vm._i(
+                                  _vm.settings.send_client_reminders,
+                                  null
+                                ) > -1
+                              : _vm.settings.send_client_reminders
+                          },
+                          on: {
+                            change: function($event) {
+                              var $$a = _vm.settings.send_client_reminders,
+                                $$el = $event.target,
+                                $$c = $$el.checked ? true : false
+                              if (Array.isArray($$a)) {
+                                var $$v = null,
+                                  $$i = _vm._i($$a, $$v)
+                                if ($$el.checked) {
+                                  $$i < 0 &&
+                                    _vm.$set(
+                                      _vm.settings,
+                                      "send_client_reminders",
+                                      $$a.concat([$$v])
+                                    )
+                                } else {
+                                  $$i > -1 &&
+                                    _vm.$set(
+                                      _vm.settings,
+                                      "send_client_reminders",
+                                      $$a
+                                        .slice(0, $$i)
+                                        .concat($$a.slice($$i + 1))
+                                    )
+                                }
+                              } else {
+                                _vm.$set(
+                                  _vm.settings,
+                                  "send_client_reminders",
+                                  $$c
+                                )
+                              }
+                            }
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c("span", {
+                          staticClass: "switch-slider",
+                          attrs: { "data-checked": "✓", "data-unchecked": "✕" }
+                        })
+                      ]
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.show_tasks_in_portal")))]
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c(
+                      "label",
+                      {
+                        staticClass:
+                          "switch switch-label switch-pill switch-info"
+                      },
+                      [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.show_tasks_in_portal,
+                              expression: "settings.show_tasks_in_portal"
+                            }
+                          ],
+                          staticClass: "switch-input",
+                          attrs: { type: "checkbox", checked: "" },
+                          domProps: {
+                            checked: Array.isArray(
+                              _vm.settings.show_tasks_in_portal
+                            )
+                              ? _vm._i(
+                                  _vm.settings.show_tasks_in_portal,
+                                  null
+                                ) > -1
+                              : _vm.settings.show_tasks_in_portal
+                          },
+                          on: {
+                            change: function($event) {
+                              var $$a = _vm.settings.show_tasks_in_portal,
+                                $$el = $event.target,
+                                $$c = $$el.checked ? true : false
+                              if (Array.isArray($$a)) {
+                                var $$v = null,
+                                  $$i = _vm._i($$a, $$v)
+                                if ($$el.checked) {
+                                  $$i < 0 &&
+                                    _vm.$set(
+                                      _vm.settings,
+                                      "show_tasks_in_portal",
+                                      $$a.concat([$$v])
+                                    )
+                                } else {
+                                  $$i > -1 &&
+                                    _vm.$set(
+                                      _vm.settings,
+                                      "show_tasks_in_portal",
+                                      $$a
+                                        .slice(0, $$i)
+                                        .concat($$a.slice($$i + 1))
+                                    )
+                                }
+                              } else {
+                                _vm.$set(
+                                  _vm.settings,
+                                  "show_tasks_in_portal",
+                                  $$c
+                                )
+                              }
+                            }
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c("span", {
+                          staticClass: "switch-slider",
+                          attrs: { "data-checked": "✓", "data-unchecked": "✕" }
+                        })
+                      ]
+                    )
+                  ])
                 ])
               ])
             ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "standard-affix" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+          ]),
+          _vm._v(" "),
+          _c("section", { attrs: { id: "standard-affix" } }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("texts.messages")))
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [_vm._v(_vm._s(_vm.trans("texts.dashboard")))]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_dashboard")))]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.dashboard,
+                          expression: "settings.dashboard"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        id: "textarea-input",
+                        label: "dashboard",
+                        rows: "9",
+                        placeholder: ""
+                      },
+                      domProps: { value: _vm.settings.dashboard },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.settings,
+                            "dashboard",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ])
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.unpaid_invoice")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.trans("help.client_unpaid_invoice"))
+                          )
+                        ]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.unpaid_invoice,
+                          expression: "settings.unpaid_invoice"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        id: "textarea-input",
+                        label: "unpaid_invoice",
+                        rows: "9",
+                        placeholder: ""
+                      },
+                      domProps: { value: _vm.settings.unpaid_invoice },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.settings,
+                            "unpaid_invoice",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ])
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.paid_invoice")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [_vm._v(_vm._s(_vm.trans("help.client_paid_invoice")))]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c("div", { staticClass: "col-sm-7" }, [
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.paid_invoice,
+                          expression: "settings.paid_invoice"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        id: "textarea-input",
+                        label: "paid_invoice",
+                        rows: "9",
+                        placeholder: ""
+                      },
+                      domProps: { value: _vm.settings.paid_invoice },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.settings,
+                            "paid_invoice",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ])
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "unapproved_quote" }
+                    },
+                    [
+                      _c("div", [
+                        _vm._v(_vm._s(_vm.trans("texts.unapproved_quote")))
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          staticStyle: {
+                            "margin-top": "1px",
+                            "line-height": "1.4",
+                            color: "#939393"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.trans("help.client_unapproved_quote"))
+                          )
+                        ]
+                      )
+                    ]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
+                  _c("div", { staticClass: "col-md-7" }, [
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.unapproved_quote,
+                          expression: "settings.unapproved_quote"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        id: "textarea-input",
+                        label: "unapproved_quote",
+                        rows: "9",
+                        placeholder: ""
+                      },
+                      domProps: { value: _vm.settings.unapproved_quote },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.settings,
+                            "unapproved_quote",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ])
                 ])
               ])
             ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "scroll-affix" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
+          ]),
+          _vm._v(" "),
+          _c("section", { attrs: { id: "scroll-affix" } }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header bg-primary2" }, [
+                _vm._v(_vm._s(_vm.trans("texts.classify")))
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.industry")))]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_industry,
+                          placeholder: _vm.placeHolderIndustry(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        model: {
+                          value: _vm.settings.language_id,
+                          callback: function($$v) {
+                            _vm.$set(_vm.settings, "language_id", $$v)
+                          },
+                          expression: "settings.language_id"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ]),
                 _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
+                _c("div", { staticClass: "form-group row client_form" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "col-sm-5 col-form-label text-left",
+                      attrs: { for: "name" }
+                    },
+                    [_vm._v(_vm._s(_vm.trans("texts.size_id")))]
+                  ),
                   _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "markup-1" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "markup-2" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ])
-            ])
-          ])
-        ]),
-        _vm._v(" "),
-        _c("section", { attrs: { id: "markup-3" } }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header bg-primary2" }, [
-              _vm._v(_vm._s(_vm.trans("texts.edit_client")))
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group row" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-sm-3 col-form-label text-right",
-                    attrs: { for: "name" }
-                  },
-                  [_vm._v(_vm._s(_vm.trans("texts.client_name")))]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-9" }, [
-                  _c("input", {
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "text",
-                      placeholder: _vm.trans("texts.client_name")
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "text-danger" })
+                  _c(
+                    "div",
+                    { staticClass: "col-sm-7" },
+                    [
+                      _c("multiselect", {
+                        attrs: {
+                          options: _vm.options_size,
+                          placeholder: _vm.placeHolderSize(),
+                          label: "name",
+                          "track-by": "id"
+                        },
+                        model: {
+                          value: _vm.settings.size_id,
+                          callback: function($$v) {
+                            _vm.$set(_vm.settings, "size_id", $$v)
+                          },
+                          expression: "settings.size_id"
+                        }
+                      })
+                    ],
+                    1
+                  )
                 ])
               ])
             ])
           ])
         ])
       ])
-    ])
-  ])
+
+    ]
+  )
+
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -7005,7 +7030,8 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label1
+    !!_vm.company.settings.custom_client_contact_label1
+
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -7013,7 +7039,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label1))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label1))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [
@@ -7060,7 +7086,7 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label2
+    !!_vm.company.settings.custom_client_contact_label2
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -7068,7 +7094,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label2))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label2))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [
@@ -7115,7 +7141,7 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label3
+    !!_vm.company.settings.custom_client_contact_label3
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -7123,7 +7149,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label3))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label3))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [
@@ -7170,7 +7196,7 @@ var render = function() {
         ])
       : _vm._e(),
     _vm._v(" "),
-    _vm.company.custom_client_contact_label4
+    !!_vm.company.settings.custom_client_contact_label4
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",
@@ -7178,7 +7204,7 @@ var render = function() {
               staticClass: "col-sm-3 col-form-label text-right",
               attrs: { for: "name" }
             },
-            [_vm._v(_vm._s(_vm.company.custom_client_contact_label4))]
+            [_vm._v(_vm._s(_vm.company.settings.custom_client_contact_label4))]
           ),
           _vm._v(" "),
           _c("div", { staticClass: "col-sm-9" }, [

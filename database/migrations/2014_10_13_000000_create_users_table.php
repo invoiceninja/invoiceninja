@@ -44,6 +44,8 @@ class CreateUsersTable extends Migration
         Schema::create('payment_types', function ($table) {
             $table->increments('id');
             $table->string('name');
+            $table->integer('gateway_type_id');
+            $table->timestamps();
         });
 
         Schema::create('timezones', function ($table) {
@@ -73,6 +75,7 @@ class CreateUsersTable extends Migration
         Schema::create('industries', function ($table) {
             $table->increments('id');
             $table->string('name');
+            $table->timestamps();
         });
 
         Schema::create('gateways', function ($table) {
@@ -126,9 +129,8 @@ class CreateUsersTable extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
-            $table->unsignedInteger('timezone_id')->nullable();
             $table->unsignedInteger('account_id')->index();
-            $table->unsignedInteger('currency_id')->nullable();
+            $table->unsignedInteger('industry_id')->nullable();
             $table->string('ip');
             $table->string('company_key',100)->unique();
             $table->timestamp('last_login')->nullable();
@@ -140,70 +142,20 @@ class CreateUsersTable extends Migration
             $table->string('work_phone')->nullable();
             $table->string('work_email')->nullable();
             $table->unsignedInteger('country_id')->nullable();
-            $table->unsignedInteger('industry_id')->nullable();
-            $table->unsignedInteger('size_id')->nullable();
             $table->string('subdomain')->nullable();
             $table->string('db')->nullable();
-
-            $table->string('custom_label1')->nullable();
-            $table->string('custom_value1')->nullable();
-
-            $table->string('custom_label2')->nullable();
-            $table->string('custom_value2')->nullable();
-
-            $table->string('custom_label3')->nullable();
-            $table->string('custom_value3')->nullable();
-
-            $table->string('custom_label4')->nullable();
-            $table->string('custom_value4')->nullable();
-
-            $table->string('custom_client_label1')->nullable();
-            $table->string('custom_client_label2')->nullable();
-            $table->string('custom_client_label3')->nullable();
-            $table->string('custom_client_label4')->nullable();
-
-            $table->string('custom_client_contact_label1')->nullable();
-            $table->string('custom_client_contact_label2')->nullable();
-            $table->string('custom_client_contact_label3')->nullable();
-            $table->string('custom_client_contact_label4')->nullable();
-
-            $table->string('custom_invoice_label1')->nullable();
-            $table->string('custom_invoice_label2')->nullable();
-            $table->string('custom_invoice_label3')->nullable();
-            $table->string('custom_invoice_label4')->nullable();
-
-            $table->string('custom_product_label1')->nullable();
-            $table->string('custom_product_label2')->nullable();
-            $table->string('custom_product_label3')->nullable();
-            $table->string('custom_product_label4')->nullable();
-
-            $table->string('custom_task_label1')->nullable();
-            $table->string('custom_task_label2')->nullable();
-            $table->string('custom_task_label3')->nullable();
-            $table->string('custom_task_label4')->nullable();
-
-            $table->string('custom_expense_label1')->nullable();
-            $table->string('custom_expense_label2')->nullable();    
-            $table->string('custom_expense_label3')->nullable();    
-            $table->string('custom_expense_label4')->nullable();  
-
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
+            $table->unsignedInteger('size_id')->nullable();
+            $table->text('settings');
             
-            $table->text('translations')->nullable();
-
-            $table->unsignedInteger('language_id')->default(1);
-
             $table->timestamps();
             $table->softDeletes();
             
-            $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->foreign('country_id')->references('id')->on('countries');
-            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('language_id')->references('id')->on('languages');
 
 
         });
@@ -296,11 +248,8 @@ class CreateUsersTable extends Migration
             $table->string('shipping_state')->nullable();
             $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
-            $table->decimal('latitude', 11, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
+            $table->text('settings');
 
-            $table->decimal('shipping_latitude', 11, 8)->nullable();
-            $table->decimal('shipping_longitude', 11, 8)->nullable();
 
             $table->boolean('is_deleted')->default(false);
             $table->string('payment_terms')->nullable();  //todo type? depends how we are storing this
@@ -603,6 +552,19 @@ class CreateUsersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('bank_company_id')->references('id')->on('bank_companies')->onDelete('cascade');
 
+        });
+
+        Schema::create('payment_terms', function ($table) {
+            $table->increments('id');
+            $table->integer('num_days');
+            $table->string('name');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id');
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
     }

@@ -46,6 +46,9 @@ class UniqueEmailTest extends TestCase
             'account_id' => $account2->id,
         ]);
 
+        $company->setHidden(['settings', 'settings_object']);
+        $company2->setHidden(['settings', 'settings_object']);
+
         Company::on('db-ninja-01')->create($company->toArray());
         Company::on('db-ninja-02')->create($company2->toArray());
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\AccountGateway;
 use App\Models\Client;
@@ -34,7 +35,16 @@ class Company extends BaseModel
         'company_id'
     ];
 
-    //protected $appends = ['company_id'];
+    protected $appends = ['settings_object'];
+
+    protected $casts = [
+        'settings' => 'object'
+    ];
+
+    public function getSettingsObjectAttribute()
+    {
+        return new CompanySettings($this->settings);
+    }
 
     public function getRouteKeyName()
     {

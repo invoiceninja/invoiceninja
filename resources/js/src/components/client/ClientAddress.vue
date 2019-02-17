@@ -125,21 +125,25 @@
 		    Multiselect
 		  },
         props: ['client', 'countries'],
+        mounted() {
+        },
         data () {
 		    return {
-		      options: this.countries
+		      options: Object.keys(this.countries).map(i => this.countries[i]),
+		      countryArray: Object.keys(this.countries).map(i => this.countries[i])
 		    }
 		  },
 		computed: {
 	        shippingCountry: {
 	            set: function() {
 	            
-	                return this.client.shipping_country_id
+	              //  return this.client.shipping_country_id
 	            
 	            },
 	            get: function(value) {
 
-	            	return this.countries.filter(obj => {
+
+	            	return this.countryArray.filter(obj => {
 					  return obj.id === this.client.shipping_country_id
 					})
 
@@ -153,7 +157,7 @@
 	            },
 	            get: function(value) {
 
-	            	return this.countries.filter(obj => {
+	            	return this.countryArray.filter(obj => {
 					  return obj.id === this.client.country_id
 					})
 
