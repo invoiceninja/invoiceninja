@@ -39,3 +39,4 @@ tests/_support/_generated/
 /c3.php
 
 _ide_helper.php
+storage/version.txt
