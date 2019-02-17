@@ -7,6 +7,10 @@ namespace App\DataMapper;
  */
 class ClientSettings extends BaseSettings
 {
+	public $timezone_id;
+	public $language_id;
+	public $currency_id;
+	
 	/**
 	 * @return \stdClass
 	 *

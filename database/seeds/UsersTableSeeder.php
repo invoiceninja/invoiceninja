@@ -31,8 +31,6 @@ class UsersTableSeeder extends Seeder
             'account_id' => $account->id,
         ]);
 
-        $company->settings = CompanySettings::defaults();
-
         $account->default_company_id = $company->id;
         $account->save();
 
