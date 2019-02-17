@@ -25,6 +25,7 @@ use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
+
 /**
  * Class ClientController
  * @package App\Http\Controllers

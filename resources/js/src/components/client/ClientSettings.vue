@@ -1,4 +1,4 @@
- <template>
+<template>
 
 <div class="row" style="background:#fff; padding:20px;">
 
@@ -189,6 +189,7 @@
 import Vue from 'vue';
 import { Affix } from 'vue-affix';
 var VueScrollactive = require('vue-scrollactive');
+
 import Multiselect from 'vue-multiselect'
 
 
@@ -315,6 +316,7 @@ export default {
 	
 }
 
+
 </script>
 
 
@@ -347,10 +349,12 @@ a.scrollactive-item.is-active  {
   border-left-style: solid;
   border-left-color: #027093;
   padding-left:10px;
+
 }
 
 a.scrollactive-item.is-active:hover {
   text-decoration: none;
+
   color: #027093;
   padding-left:10px;
 
@@ -365,12 +369,14 @@ a.scrollactive-item.is-active:active {
 
 .menu-list a {
   color: #939393;
+
   font-family: helvetica;
   text-decoration: none;
 }
 
 .menu-list a:hover {
   text-decoration: none;
+
   color: #027093;
   padding-left:5px;
 
@@ -382,5 +388,6 @@ a.scrollactive-item.is-active:active {
       padding-left:5px;
 
 }
+
 
 </style>
