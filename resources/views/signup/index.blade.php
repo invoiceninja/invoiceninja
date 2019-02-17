@@ -119,6 +119,7 @@
         </div>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js"></script>
 
 <script>
     new Vue({

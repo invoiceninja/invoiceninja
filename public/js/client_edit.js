@@ -1802,12 +1802,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 																return this.client.country_id;
 												},
 												get: function get(value) {
-
 																var _this3 = this;
 
 																return this.countryArray.filter(function (obj) {
 																				return obj.id === _this3.client.country_id;
-
 																});
 												}
 								}
@@ -2090,9 +2088,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-
-exports.push([module.i, "\n#example-content {\n}\n.client_form {\n\tborder-bottom: 0px;\n\tborder-bottom-style: solid;\n    border-bottom-color: #167090;\n}\n.menu-li {\n\tlist-style: none;\n  \tpadding-left:5px;\n  \twidth:200px;\n  \tline-height:1.4;\n  \tmargin-top:10px;\n}\na.scrollactive-item.is-active  {\n  color: #027093;\n  font-family: helvetica;\n  text-decoration: none;\n  border-left-style: solid;\n  border-left-color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n  color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:active {\n  color: #027093;\n  padding-left:10px;\n}\n.menu-list a {\n  color: #939393;\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n  color: #027093;\n  padding-left:5px;\n}\n.menu-list a:active {\n  color: #027093;\n  text-decoration: none;\n      padding-left:5px;\n}\n\n", ""]);
-
+exports.push([module.i, "\n#example-content {\n}\n.client_form {\n\tborder-bottom: 0px;\n\tborder-bottom-style: solid;\n    border-bottom-color: #167090;\n}\n.menu-li {\n\tlist-style: none;\n  \tpadding-left:5px;\n  \twidth:200px;\n  \tline-height:1.4;\n  \tmargin-top:10px;\n}\na.scrollactive-item.is-active  {\n  color: #027093;\n  font-family: helvetica;\n  text-decoration: none;\n  border-left-style: solid;\n  border-left-color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:hover {\n  text-decoration: none;\n\n  color: #027093;\n  padding-left:10px;\n}\na.scrollactive-item.is-active:active {\n  color: #027093;\n  padding-left:10px;\n}\n.menu-list a {\n  color: #939393;\n\n  font-family: helvetica;\n  text-decoration: none;\n}\n.menu-list a:hover {\n  text-decoration: none;\n\n  color: #027093;\n  padding-left:5px;\n}\n.menu-list a:active {\n  color: #027093;\n  text-decoration: none;\n      padding-left:5px;\n}\n\n\n", ""]);
 
 // exports
 
@@ -4144,9 +4140,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
 var vue_affix_1 = __webpack_require__("./node_modules/vue-affix/dist/vue-affix.min.js");
 var VueScrollactive = __webpack_require__("./node_modules/vue-scrollactive/dist/vue-scrollactive.min.js");
-
 var vue_multiselect_1 = __importDefault(__webpack_require__("./node_modules/vue-multiselect/dist/vue-multiselect.min.js"));
-
 vue_1.default.use(VueScrollactive);
 exports.default = {
     components: {
@@ -4252,7 +4246,6 @@ exports.default = {
                 return vue_1.default.prototype.trans('texts.language_id');
         }
     }
-
 };
 
 
@@ -6812,10 +6805,8 @@ var render = function() {
           ])
         ])
       ])
-
     ]
   )
-
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -7031,7 +7022,6 @@ var render = function() {
     ]),
     _vm._v(" "),
     !!_vm.company.settings.custom_client_contact_label1
-
       ? _c("div", { staticClass: "form-group row" }, [
           _c(
             "label",

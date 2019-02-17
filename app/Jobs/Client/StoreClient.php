@@ -40,5 +40,7 @@ class StoreClient
         $client =  $clientRepo->save($this->request, $this->client);
 
         $contacts = $clientContactRepo->save($this->request->input('contacts'), $client);
+
+        return $client;
     }
 }
