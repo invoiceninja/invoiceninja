@@ -75,6 +75,8 @@ class TaskTransformer extends EntityTransformer
             'is_running' => (bool) $task->is_running,
             'custom_value1' => $task->custom_value1 ?: '',
             'custom_value2' => $task->custom_value2 ?: '',
+            'task_status_id' => $task->task_status ? (int) $task->task_status->public_id : 0,
+            'task_status_sort_order' => $task->task_status_sort_order,
         ]);
     }
 }

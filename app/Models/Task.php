@@ -159,7 +159,7 @@ class Task extends EntityModel
             $duration += max($endTime - $startTime, 0);
         }
 
-        return $duration;
+        return round($duration);
     }
 
     public function getTimeLog() {
