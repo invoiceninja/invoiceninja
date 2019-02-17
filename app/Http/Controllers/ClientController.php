@@ -66,7 +66,6 @@ class ClientController extends Controller
      */
     public function index()
     {
-;
         if(request('page'))
             return $this->clientDatatable->query(request(), $this->getCurrentCompanyId());
 

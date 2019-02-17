@@ -2,11 +2,12 @@
 
 namespace App\Jobs\Company;
 
+use App\DataMapper\CompanySettings;
 use App\Events\UserSignedUp;
+use App\Models\Company;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
-use App\Models\Company;
 
 class CreateCompany
 {
@@ -43,6 +44,7 @@ class CreateCompany
         $company->company_key = $this->createHash();
         $company->db = config('database.default');
         $company->ip = request()->ip();
+        $company->settings = CompanySettings::defaults();
         $company->save();
 
 

@@ -2,9 +2,10 @@
 
 namespace App\Jobs\User;
 
+use App\DataMapper\DefaultSettings;
 use App\Events\User\UserCreated;
-use App\Models\User;
 use App\Models\CompanyUser;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
@@ -54,6 +55,7 @@ class CreateUser
             'account_id' => $this->account->id,
             'is_owner' => 1,
             'is_admin' => 1,
+            'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
         event(new UserCreated($user));
