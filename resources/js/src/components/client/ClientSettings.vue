@@ -115,7 +115,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_dashboard')}}</div>
 						    	</label>
 						        <div class="col-sm-7">
-						            <textarea class="form-control" id="textarea-input" label="dashboard" v-model="settings.dashboard"rows="9" placeholder=""></textarea>
+						            <textarea class="form-control" id="textarea-input" label="dashboard" v-model="settings.custom_message_dashboard"rows="9" :placeholder="placeHolderMessage('custom_message_dashboard')"></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -124,7 +124,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_unpaid_invoice')}}</div>
 								</label>
 						        <div class="col-sm-7">
-						            <textarea class="form-control" id="textarea-input" label="unpaid_invoice" v-model="settings.unpaid_invoice"rows="9" placeholder=""></textarea>
+						            <textarea class="form-control" id="textarea-input" label="unpaid_invoice" v-model="settings.custom_message_unpaid_invoice"rows="9" :placeholder="placeHolderMessage('custom_message_unpaid_invoice')"></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -133,7 +133,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{trans('help.client_paid_invoice')}}</div>
 								</label>
 						        <div class="col-sm-7">
-						            <textarea class="form-control" id="textarea-input" label="paid_invoice"  v-model="settings.paid_invoice" rows="9" placeholder=""></textarea>
+						            <textarea class="form-control" id="textarea-input" label="paid_invoice"  v-model="settings.custom_message_paid_invoice" rows="9" :placeholder="placeHolderMessage('custom_message_paid_invoice')"></textarea>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -142,7 +142,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{trans('help.client_unapproved_quote')}}</div>
 								</label>
 								<div class="col-md-7">
-									<textarea class="form-control" id="textarea-input" label="unapproved_quote" v-model="settings.unapproved_quote" rows="9" placeholder=""></textarea>
+									<textarea class="form-control" id="textarea-input" label="unapproved_quote" v-model="settings.custom_message_unapproved_quote" rows="9" :placeholder="placeHolderMessage('custom_message_unapproved_quote')"></textarea>
 								</div>
 							</div>
 
@@ -202,12 +202,12 @@ export default {
 	},
 	data () {
 	    return {
-	      options_currency: Object.keys(this.currencies).map(i => this.currencies[i]),
-	      options_language: Object.keys(this.languages).map(i => this.languages[i]),
-	      options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
-	      options_industry: Object.keys(this.industries).map(i => this.industries[i]),
-	      options_size: this.sizes,
-	      settings: this.client_settings
+			options_currency: Object.keys(this.currencies).map(i => this.currencies[i]),
+			options_language: Object.keys(this.languages).map(i => this.languages[i]),
+			options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
+			options_industry: Object.keys(this.industries).map(i => this.industries[i]),
+			options_size: this.sizes,
+			settings: this.client_settings
 	    }
 	  },
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
@@ -255,63 +255,72 @@ export default {
 		}
     },
     methods: {
-	  onItemChanged(event, currentItem, lastActiveItem) {
-	    // your logic
-	  },
-	  setObjectValue(key, value){
+		onItemChanged(event, currentItem, lastActiveItem) {
+		// your logic
+		},
+		setObjectValue(key, value){
 
-		if(value === null)
-			this.settings[key] = null
-		else
-			this.settings[key] = value
+			if(value === null)
+				this.settings[key] = null
+			else
+				this.settings[key] = value
 
-	  },
-	  placeHolderCurrency(){
+		},
+		placeHolderCurrency(){
 
-		var currency = this.options_currency.filter(obj => {
-		  return obj.id == this.company.settings.currency_id
-		})
+			var currency = this.options_currency.filter(obj => {
+				return obj.id == this.company.settings_object.currency_id
+			})
 
-		if(currency.length >= 1)
-			return currency[0].name
-		else
-			return  Vue.prototype.trans('texts.currency_id') 	
+			if(currency.length >= 1)
+				return currency[0].name
+			else
+				return  Vue.prototype.trans('texts.currency_id') 	
 
-	  },		
-	  placeHolderPaymentTerm(){
+		},		
+		placeHolderPaymentTerm(){
 
-		var payment_terms = this.payment_terms.filter(obj => {
-		  return obj.num_days == this.company.settings.payment_terms
-		})
+			var payment_terms = this.payment_terms.filter(obj => {
+			  return obj.num_days == this.company.settings_object.payment_terms
+			})
 
-		if(payment_terms.length >= 1)
-			return payment_terms[0].name
-		else
-			return  Vue.prototype.trans('texts.payment_terms') 	
+			if(payment_terms.length >= 1)
+				return payment_terms[0].name
+			else
+				return  Vue.prototype.trans('texts.payment_terms') 	
 
-	  },
-	  placeHolderIndustry(){
+		},
+		placeHolderIndustry(){
 
-	  	return  Vue.prototype.trans('texts.industry_id') 
+			return  Vue.prototype.trans('texts.industry_id') 
 
-	  },
-	  placeHolderSize(){
+		},
+		placeHolderSize(){
 
-	  	return  Vue.prototype.trans('texts.size_id') 	
+			return  Vue.prototype.trans('texts.size_id') 	
 
-	  },
-	  placeHolderLanguage(){
+		},
+		placeHolderLanguage(){
 
-		var language = this.languages.filter(obj => {
-		  return obj.id == this.company.settings.language_id
-		})
+			var language = this.languages.filter(obj => {
+			  return obj.id == this.company.settings_object.language_id
+			})
 
 			if(language.length >= 1)
 				return language[0].name
 			else
 				return  Vue.prototype.trans('texts.language_id') 
 
-		}			 
+		},
+		placeHolderMessage(message_setting : string) {
+
+			if(this.company.settings_object[message_setting] && this.company.settings_object[message_setting].length >=1) {
+
+				return this.company.settings_object[message_setting]
+				
+			}
+
+		}		 
 	
 	}
 	

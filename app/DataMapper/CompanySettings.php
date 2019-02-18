@@ -50,6 +50,11 @@ class CompanySettings extends BaseSettings
 	public $send_reminders;
 	public $show_tasks_in_portal;
 
+	public $custom_message_dashboard;
+	public $custom_message_unpaid_invoice;
+	public $custom_message_paid_invoice;
+	public $custom_message_unapproved_quote;
+	
 	public $translations;
 
 	/**

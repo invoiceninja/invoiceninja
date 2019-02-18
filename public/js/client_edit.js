@@ -4212,7 +4212,7 @@ exports.default = {
         placeHolderCurrency: function () {
             var _this = this;
             var currency = this.options_currency.filter(function (obj) {
-                return obj.id == _this.company.settings.currency_id;
+                return obj.id == _this.company.settings_object.currency_id;
             });
             if (currency.length >= 1)
                 return currency[0].name;
@@ -4222,7 +4222,7 @@ exports.default = {
         placeHolderPaymentTerm: function () {
             var _this = this;
             var payment_terms = this.payment_terms.filter(function (obj) {
-                return obj.num_days == _this.company.settings.payment_terms;
+                return obj.num_days == _this.company.settings_object.payment_terms;
             });
             if (payment_terms.length >= 1)
                 return payment_terms[0].name;
@@ -4238,12 +4238,17 @@ exports.default = {
         placeHolderLanguage: function () {
             var _this = this;
             var language = this.languages.filter(function (obj) {
-                return obj.id == _this.company.settings.language_id;
+                return obj.id == _this.company.settings_object.language_id;
             });
             if (language.length >= 1)
                 return language[0].name;
             else
                 return vue_1.default.prototype.trans('texts.language_id');
+        },
+        placeHolderMessage: function (message_setting) {
+            if (this.company.settings_object[message_setting] && this.company.settings_object[message_setting].length >= 1) {
+                return this.company.settings_object[message_setting];
+            }
         }
     }
 };
@@ -6498,8 +6503,8 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
-                          value: _vm.settings.dashboard,
-                          expression: "settings.dashboard"
+                          value: _vm.settings.custom_message_dashboard,
+                          expression: "settings.custom_message_dashboard"
                         }
                       ],
                       staticClass: "form-control",
@@ -6507,9 +6512,13 @@ var render = function() {
                         id: "textarea-input",
                         label: "dashboard",
                         rows: "9",
-                        placeholder: ""
+                        placeholder: _vm.placeHolderMessage(
+                          "custom_message_dashboard"
+                        )
                       },
-                      domProps: { value: _vm.settings.dashboard },
+                      domProps: {
+                        value: _vm.settings.custom_message_dashboard
+                      },
                       on: {
                         input: function($event) {
                           if ($event.target.composing) {
@@ -6517,7 +6526,7 @@ var render = function() {
                           }
                           _vm.$set(
                             _vm.settings,
-                            "dashboard",
+                            "custom_message_dashboard",
                             $event.target.value
                           )
                         }
@@ -6562,8 +6571,8 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
-                          value: _vm.settings.unpaid_invoice,
-                          expression: "settings.unpaid_invoice"
+                          value: _vm.settings.custom_message_unpaid_invoice,
+                          expression: "settings.custom_message_unpaid_invoice"
                         }
                       ],
                       staticClass: "form-control",
@@ -6571,9 +6580,13 @@ var render = function() {
                         id: "textarea-input",
                         label: "unpaid_invoice",
                         rows: "9",
-                        placeholder: ""
+                        placeholder: _vm.placeHolderMessage(
+                          "custom_message_unpaid_invoice"
+                        )
                       },
-                      domProps: { value: _vm.settings.unpaid_invoice },
+                      domProps: {
+                        value: _vm.settings.custom_message_unpaid_invoice
+                      },
                       on: {
                         input: function($event) {
                           if ($event.target.composing) {
@@ -6581,7 +6594,7 @@ var render = function() {
                           }
                           _vm.$set(
                             _vm.settings,
-                            "unpaid_invoice",
+                            "custom_message_unpaid_invoice",
                             $event.target.value
                           )
                         }
@@ -6622,8 +6635,8 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
-                          value: _vm.settings.paid_invoice,
-                          expression: "settings.paid_invoice"
+                          value: _vm.settings.custom_message_paid_invoice,
+                          expression: "settings.custom_message_paid_invoice"
                         }
                       ],
                       staticClass: "form-control",
@@ -6631,9 +6644,13 @@ var render = function() {
                         id: "textarea-input",
                         label: "paid_invoice",
                         rows: "9",
-                        placeholder: ""
+                        placeholder: _vm.placeHolderMessage(
+                          "custom_message_paid_invoice"
+                        )
                       },
-                      domProps: { value: _vm.settings.paid_invoice },
+                      domProps: {
+                        value: _vm.settings.custom_message_paid_invoice
+                      },
                       on: {
                         input: function($event) {
                           if ($event.target.composing) {
@@ -6641,7 +6658,7 @@ var render = function() {
                           }
                           _vm.$set(
                             _vm.settings,
-                            "paid_invoice",
+                            "custom_message_paid_invoice",
                             $event.target.value
                           )
                         }
@@ -6686,8 +6703,8 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
-                          value: _vm.settings.unapproved_quote,
-                          expression: "settings.unapproved_quote"
+                          value: _vm.settings.custom_message_unapproved_quote,
+                          expression: "settings.custom_message_unapproved_quote"
                         }
                       ],
                       staticClass: "form-control",
@@ -6695,9 +6712,13 @@ var render = function() {
                         id: "textarea-input",
                         label: "unapproved_quote",
                         rows: "9",
-                        placeholder: ""
+                        placeholder: _vm.placeHolderMessage(
+                          "custom_message_unapproved_quote"
+                        )
                       },
-                      domProps: { value: _vm.settings.unapproved_quote },
+                      domProps: {
+                        value: _vm.settings.custom_message_unapproved_quote
+                      },
                       on: {
                         input: function($event) {
                           if ($event.target.composing) {
@@ -6705,7 +6726,7 @@ var render = function() {
                           }
                           _vm.$set(
                             _vm.settings,
-                            "unapproved_quote",
+                            "custom_message_unapproved_quote",
                             $event.target.value
                           )
                         }
