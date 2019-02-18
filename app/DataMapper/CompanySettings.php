@@ -12,6 +12,7 @@ class CompanySettings extends BaseSettings
 	public $language_id;
 	public $currency_id;
 	public $payment_terms;
+
 	public $custom_label1;
 	public $custom_value1;
 	public $custom_label2;
@@ -44,6 +45,11 @@ class CompanySettings extends BaseSettings
 	public $custom_expense_label2;
 	public $custom_expense_label3;
 	public $custom_expense_label4;
+
+	public $default_task_rate;
+	public $send_reminders;
+	public $show_tasks_in_portal;
+
 	public $translations;
 
 	/**
@@ -55,15 +61,14 @@ class CompanySettings extends BaseSettings
      */
 	public function __construct($obj)
 	{
-		foreach($obj as $key => $value)
-			$this->{$key} = $value;
+		parent::__construct($obj);
 	}
 
 	/**
 	 * Provides class defaults on init
 	 * @return object
 	 */
-	public static function defaults() : object
+	public static function defaults() : \stdClass
 	{
 		$config = json_decode(config('ninja.settings'));
 

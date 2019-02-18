@@ -10,6 +10,9 @@ class ClientSettings extends BaseSettings
 	public $timezone_id;
 	public $language_id;
 	public $currency_id;
+	public $default_task_rate;
+	public $send_reminders;
+
 	
 	/**
 	 * @return \stdClass

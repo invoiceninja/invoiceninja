@@ -85,7 +85,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="" v-model="settings.send_client_reminders">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings.send_reminders">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -264,6 +264,7 @@ export default {
 			this.settings[key] = null
 		else
 			this.settings[key] = value
+
 	  },
 	  placeHolderCurrency(){
 
