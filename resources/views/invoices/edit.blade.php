@@ -14,6 +14,7 @@
 
         #scrollable-dropdown-menu .tt-menu {
             max-height: 150px;
+            width: 300px;
             overflow-y: auto;
             overflow-x: hidden;
         }
