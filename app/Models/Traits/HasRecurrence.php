@@ -39,7 +39,8 @@ trait HasRecurrence
             return false;
         }
 
-        if ($this->end_date && Carbon::parse($this->end_date, $timezone)->isPast()) {
+        if ($this->end_date && Carbon::parse($this->end_date, $timezone)->isPast()
+            && ! Carbon::parse($this->end_date, $timezone)->isToday()) {
             return false;
         }
 

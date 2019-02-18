@@ -28,7 +28,7 @@
         <td>{{ $account->present()->customLabel('invoice_text1') }}</td>
     @endif
     @if ($account->customLabel('invoice_text2'))
-        <td>{{ $account->present()->customLabel('invoice_text1') }}</td>
+        <td>{{ $account->present()->customLabel('invoice_text2') }}</td>
     @endif
     <td>{{ trans('texts.item_product') }}</td>
     <td>{{ trans('texts.item_notes') }}</td>
