@@ -66,7 +66,7 @@ class ExpenseReport extends AbstractReport
         $expenses = Expense::scope()
                         ->orderBy('expense_date', 'desc')
                         ->withArchived()
-                        ->with('client.contacts', 'vendor', 'expense_category', 'user', 'payment_type')
+                        ->with('client.contacts', 'vendor', 'expense_category', 'user')
                         ->where('expense_date', '>=', $this->startDate)
                         ->where('expense_date', '<=', $this->endDate);
 
@@ -102,7 +102,7 @@ class ExpenseReport extends AbstractReport
                 $expense->private_notes,
                 $expense->user->getDisplayName(),
                 $expense->present()->payment_date(),
-                $expense->payment_type_id ? $expense->payment_type->name : '',
+                $expense->present()->payment_type(),
                 $expense->transaction_reference,
             ];
 
