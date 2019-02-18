@@ -85,7 +85,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="" v-model="settings.send_reminders">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings_send_reminders">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -94,7 +94,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.show_tasks_in_portal') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="" v-model="settings.show_tasks_in_portal">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings_show_tasks_in_portal">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -251,6 +251,42 @@ export default {
 				return this.options_payment_term.filter(obj => {
 					return obj.num_days == this.settings.payment_terms
 				})
+			}
+		},
+		settings_show_tasks_in_portal:{
+			set: function(value) {
+
+				if(this.settings.show_tasks_in_portal == this.company.settings.show_tasks_in_portal)
+					this.settings.show_tasks_in_portal = null
+				else
+    				this.settings.show_tasks_in_portal = value;
+
+			},
+			get: function() {
+
+				if(this.settings.show_tasks_in_portal)
+					return this.settings.show_tasks_in_portal
+				else
+					return this.company.settings_object.show_tasks_in_portal
+
+			}
+		},
+		settings_send_reminders: {
+			set: function(value) {
+
+				if(this.settings.send_reminders == this.company.settings.send_reminders)
+					this.settings.send_reminders = null
+				else
+    				this.settings.send_reminders = value;
+
+			},
+			get: function() {
+
+				if(this.settings.send_reminders)
+					return this.settings.send_reminders
+				else
+					return this.company.settings_object.send_reminders
+
 			}
 		}
     },

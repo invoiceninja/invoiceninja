@@ -82,6 +82,10 @@ class CompanySettings extends BaseSettings
 			'language_id' => $config->language_id,
 			'currency_id' => $config->currency_id,
 			'payment_terms' => $config->payment_terms,
+			'default_task_rate' => 0,
+			'send_reminders' => 1,
+			'show_tasks_in_portal' => 1,
+
 			'translations' => (object) [],
 		];
 	}
