@@ -585,7 +585,9 @@
 				var options = [
 					new ExportFormatModel('csv', 'CSV'),
 					new ExportFormatModel('xlsx', 'XLSX'),
-					new ExportFormatModel('pdf', 'PDF'),
+					@if (Utils::isSelfhost())
+						new ExportFormatModel('pdf', 'PDF'),
+					@endif
 				]
 
 				if (['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_EXPENSE }}', '{{ ENTITY_DOCUMENT }}'].indexOf(self.report_type()) >= 0) {
