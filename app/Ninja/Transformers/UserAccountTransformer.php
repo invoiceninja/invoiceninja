@@ -220,6 +220,7 @@ class UserAccountTransformer extends EntityTransformer
 			'has_custom_design1' => (bool) $account->custom_design1,
 			'has_custom_design2' => (bool) $account->custom_design2,
 			'has_custom_design3' => (bool) $account->custom_design3,
+			'enable_portal_password' => (bool) $account->enable_portal_password,
         ];
     }
 }
