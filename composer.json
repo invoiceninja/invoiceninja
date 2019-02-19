@@ -43,7 +43,7 @@
         "laracasts/presenter": "dev-master",
         "laravel/framework": "5.4.*",
         "laravel/legacy-encrypter": "^1.0",
-        "laravel/socialite": "~3.0",
+        "laravel/socialite": "3.0.x-dev",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "5.4.*",
         "league/csv": "^9.1",
