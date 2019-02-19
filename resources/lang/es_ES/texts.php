@@ -249,8 +249,8 @@ $LANG = array(
     'email_from' => 'El equipo de Invoice Ninja ',
     'invoice_link_message' => 'Para visualizar la factura de cliente, haz clic en el enlace de abajo:',
     'notification_invoice_paid_subject' => 'La Factura :invoice ha sido pagada por el cliente :client',
-    'notification_invoice_sent_subject' => 'La Factura :invoice ha sido enviada a el cliente :client',
-    'notification_invoice_viewed_subject' => 'La Factura :invoice ha sido visualizado por el cliente:client',
+    'notification_invoice_sent_subject' => 'La Factura :invoice ha sido enviada al cliente :client',
+    'notification_invoice_viewed_subject' => 'La Factura :invoice ha sido visualizada por el cliente :client',
     'notification_invoice_paid' => 'Un Pago por importe de :amount ha sido realizado por el cliente :client correspondiente a la Factura :invoice.',
     'notification_invoice_sent' => 'La Factura :invoice por importe de :amount fue enviada al cliente :client.',
     'notification_invoice_viewed' => 'La Factura :invoice por importe de :amount fue visualizada por el cliente :client.',
@@ -813,7 +813,7 @@ $LANG = array(
     'archived_token' => 'Token archivado correctamente',
     'archive_user' => 'Archivar Usuario',
     'archived_user' => 'Usuario archivado correctamente',
-    'archive_account_gateway' => 'Archivar Pasarela',
+    'archive_account_gateway' => 'Delete Gateway',
     'archived_account_gateway' => 'Pasarela archivada correctamente',
     'archive_recurring_invoice' => 'Archivar Factura Recurrente',
     'archived_recurring_invoice' => 'Factura recurrente archivada correctamente',
@@ -1761,7 +1761,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'lang_Thai' => 'Tailandes',
     'lang_Macedonian' => 'Macedonio',
     'lang_Chinese - Taiwan' => 'Chino - Taiwan',
-    'lang_Serbian' => 'Serbian',
+    'lang_Serbian' => 'Serbio',
 
     // Industries
     'industry_Accounting & Legal' => 'Contabilidad y legal',
@@ -2441,6 +2441,10 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'currency_mauritian_rupee' => 'Mauritian Rupee',
     'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
     'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
+    'currency_algerian_dinar' => 'Algerian Dinar',
+    'currency_macedonian_denar' => 'Macedonian Denar',
+    'currency_fijian_dollar' => 'Fijian Dollar',
+    'currency_bolivian_boliviano' => 'Bolivian Boliviano',
 
     'review_app_help' => 'Esperamos que estés disfrutando con la app. <br/>Si consideras :link ¡te lo agraderemos enormemente!',
     'writing_a_review' => 'escribir una reseña',
@@ -3119,10 +3123,10 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'authenticate' => 'Autenticación',
     'please_authenticate' => 'Por favor, autenticarse',
     'biometric_authentication' => 'Autenticación biométrica',
-    'auto_start_tasks' => 'Auto Start Tasks',
-    'budgeted' => 'Budgeted',
-    'please_enter_a_name' => 'Please enter a name',
-    'click_plus_to_add_time' => 'Click + to add time',
+    'auto_start_tasks' => 'Tareas programadas',
+    'budgeted' => 'Presupuestado',
+    'please_enter_a_name' => 'Por favor introduce un nombre',
+    'click_plus_to_add_time' => 'Pulsa + para añadir tiempo',
 
 );
 

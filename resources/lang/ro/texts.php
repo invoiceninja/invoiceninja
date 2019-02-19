@@ -96,15 +96,15 @@ $LANG = array(
     'powered_by' => 'Creat de',
     'no_items' => 'Nici un element',
     'recurring_invoices' => 'Facturi Recurente',
-    'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-        <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-        <p>Examples of dynamic invoice variables:</p>
-        <ul>
-          <li>"Gym membership for the month of :MONTH" >> "Gym membership for the month of July"</li>
-          <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
-          <li>"Retainer payment for :QUARTER+1" >> "Retainer payment for Q2"</li>
-        </ul>',
-    'recurring_quotes' => 'Recurring Quotes',
+    'recurring_help' => '<p>In mod automatic trimite clientilor aceleasi facturi saptamanal, bi - lunar, lunar, trimestral sau anual.</p>
+<p>Se foloseste: LUNA, :TRIMESTRU sau : AN pentru date dinamice. Calcule elementare functioneaza de asemenea, de exemplu : LUNA-1.</p>
+<p>Exemple de facturi dinamice variabile: </p>
+<ul>
+<li>"Membru gym pentru luna : LUNA ">> "Membru gym pentru luna Iulie"</li>
+<li>"AN+1 inscriere anuala ">>"2015 Inscriere Anuala"</li>
+<li>"Plata pentru : TRIMESTRU+1">> "Plata pentru Q2"</li>
+</ul>',
+    'recurring_quotes' => 'Citate Recurente',
     'in_total_revenue' => 'in total venituri',
     'billed_client' => 'client facturat',
     'billed_clients' => 'clienti facturati',
@@ -821,7 +821,7 @@ Atentie: Folosește Legacy API Key, nu Token API',
     'archived_token' => 'Successfully archived token',
     'archive_user' => 'Archive User',
     'archived_user' => 'Successfully archived user',
-    'archive_account_gateway' => 'Archive Gateway',
+    'archive_account_gateway' => 'Delete Gateway',
     'archived_account_gateway' => 'Successfully archived gateway',
     'archive_recurring_invoice' => 'Archive Recurring Invoice',
     'archived_recurring_invoice' => 'Successfully archived recurring invoice',
@@ -2453,6 +2453,10 @@ Atentie: Folosește Legacy API Key, nu Token API',
     'currency_mauritian_rupee' => 'Mauritian Rupee',
     'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
     'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
+    'currency_algerian_dinar' => 'Algerian Dinar',
+    'currency_macedonian_denar' => 'Macedonian Denar',
+    'currency_fijian_dollar' => 'Fijian Dollar',
+    'currency_bolivian_boliviano' => 'Bolivian Boliviano',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
