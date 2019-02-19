@@ -2454,6 +2454,7 @@ $LANG = array(
     'currency_algerian_dinar' => 'Algerian Dinar',
     'currency_macedonian_denar' => 'Macedonian Denar',
     'currency_fijian_dollar' => 'Fijian Dollar',
+    'currency_bolivian_boliviano' => 'Bolivian Boliviano',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
