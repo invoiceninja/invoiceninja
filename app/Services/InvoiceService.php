@@ -148,10 +148,6 @@ class InvoiceService extends BaseService
             $quote->markApproved();
         }
 
-        if ($account->auto_archive_quote) {
-            $this->invoiceRepo->archive($quote);
-        }
-
         return $invitation->invitation_key;
     }
 
