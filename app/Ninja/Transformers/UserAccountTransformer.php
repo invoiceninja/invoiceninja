@@ -217,13 +217,10 @@ class UserAccountTransformer extends EntityTransformer
             'email_template_reminder1' => $account->getEmailTemplate('reminder1'),
             'email_template_reminder2' => $account->getEmailTemplate('reminder2'),
             'email_template_reminder3' => $account->getEmailTemplate('reminder3'),
-<<<<<<< HEAD
-
-=======
 			'has_custom_design1' => (bool) $account->custom_design1,
 			'has_custom_design2' => (bool) $account->custom_design2,
 			'has_custom_design3' => (bool) $account->custom_design3,
->>>>>>> cd8b764... Fixes for mobile app
+			'enable_portal_password' => (bool) $account->enable_portal_password,
         ];
     }
 }
