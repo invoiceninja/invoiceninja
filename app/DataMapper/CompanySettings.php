@@ -11,6 +11,9 @@ class CompanySettings extends BaseSettings
 	public $timezone_id;
 	public $language_id;
 	public $currency_id;
+	public $show_currency_symbol;
+	public $show_currency_code;
+
 	public $payment_terms;
 
 	public $custom_label1;
@@ -85,7 +88,8 @@ class CompanySettings extends BaseSettings
 			'default_task_rate' => 0,
 			'send_reminders' => 1,
 			'show_tasks_in_portal' => 1,
-
+			'show_currency_symbol' => 1,
+			
 			'translations' => (object) [],
 		];
 	}

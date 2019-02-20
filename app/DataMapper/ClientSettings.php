@@ -20,7 +20,8 @@ class ClientSettings extends BaseSettings
 	public $custom_message_unpaid_invoice;
 	public $custom_message_paid_invoice;
 	public $custom_message_unapproved_quote;
-
+	public $show_currency_symbol;
+	public $show_currency_code;
 
 	/**
 	 * settings which which are unique to client settings

@@ -44,11 +44,11 @@
 						    </div>
 						    <div class="form-group row client_form d-flex justify-content-center">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio1" type="radio" value="1" name="show_currency_symbol" v-model="settings.show_currency_symbol">
+									<input class="form-check-input" id="inline-radio1" type="radio" name="symbol" value="1" v-model="settings_show_currency_symbol" @click="setCurrencySymbol()">
 									<label class="form-check-label" for="show_currency_symbol-radio1">{{ trans('texts.currency_symbol') }}:</label>
 								</div>
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio2" type="radio" value="1" name="show_currency_code" v-model="settings.show_currency_code">
+									<input class="form-check-input" id="inline-radio2" type="radio" name="code" value="1" v-model="settings_show_currency_code" @click="setCurrencyCode()">
 									<label class="form-check-label" for="show_currency_code">{{ trans('texts.currency_code') }}:</label>
 								</div>
 							</div>
@@ -212,7 +212,13 @@ export default {
 	  },
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted() {
-    },
+
+    	if(!!this.settings.show_currency_symbol)
+			this.settings.show_currency_symbol = this.company.settings_object.show_currency_symbol
+		else if(!!this.settings.show_currency_code)
+			this.settings.show_currency_code = this.company.settings_object.show_currency_code
+
+	},
     computed: {
     	settings_currency_id: {
     		set: function(value){
@@ -288,6 +294,32 @@ export default {
 					return this.company.settings_object.send_reminders
 
 			}
+		},
+		settings_show_currency_symbol: {
+
+			get: function() {
+
+					return this.settings.show_currency_symbol
+				
+			},
+			set: function(value) {
+				this.settings.show_currency_symbol = 1
+				this.settings.show_currency_code = !value
+			}
+			
+		},
+		settings_show_currency_code: {
+
+			get: function() {
+
+				return this.settings.show_currency_code
+
+			},
+			set: function(value) {
+				this.settings.show_currency_code = 1
+				this.settings.show_currency_symbol = !value
+			}
+
 		}
     },
     methods: {
@@ -356,7 +388,28 @@ export default {
 				
 			}
 
-		}		 
+		},
+		setCurrencyCode() {
+			this.settings.show_currency_symbol = false;
+			this.settings.show_currency_code = true;
+
+			this.updateCurrencyExample()
+
+		},
+		setCurrencySymbol() {
+
+			this.settings.show_currency_symbol = true;
+			this.settings.show_currency_code = false;
+
+			this.updateCurrencyExample()
+
+		},
+		updateCurrencyExample() {
+			//get currency
+			//get symbol or code
+			// format example $1000
+		}
+
 	
 	}
 	
