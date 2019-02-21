@@ -294,7 +294,9 @@ class AppController extends BaseController
 
             try {
                 set_time_limit(60 * 5);
-                $this->checkInnoDB();
+                if (DB::getDriverName() !== 'sqlite') {
+                    $this->checkInnoDB();
+                }
 
                 $cacheCompiled = base_path('bootstrap/cache/compiled.php');
                 if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }

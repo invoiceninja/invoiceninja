@@ -65,15 +65,29 @@ class DashboardRepository
             $endDate->modify('-1 '.$padding);
             $records = [];
 
+            $resultHasDayPadding = false;
+            $resultHasWeekPadding = false;
+            $resultHasMonthPadding = false;
+            if (DB::getDriverName() === 'sqlite') {
+                $resultHasDayPadding = true;
+                $resultHasWeekPadding = true;
+                $resultHasMonthPadding = true;
+            }
+
             foreach ($period as $d) {
-                $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
                 if ($groupBy == 'DAYOFYEAR') {
-                    // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
-                    $date = $d->format('Y') . ($d->format($dateFormat) + 1);
-                } elseif ($groupBy == 'WEEK' && ($d->format($dateFormat) < 10)) {
-                    // PHP zero pads the week
-                    $date = $d->format('Y') . round($d->format($dateFormat));
+                    // MySQL and SQLite return 1-366 for DAYOFYEAR, whereas PHP returns 0-365
+                    $doy = $d->format('z') + 1;
+                    $date = $d->format('Y') . (($resultHasDayPadding) ? sprintf('%03d', $doy) : $doy);
+                } elseif ($groupBy == 'WEEK') {
+                    $week = $d->format('W');
+                    if (!$resultHasWeekPadding && $week < 10) {
+                        // PHP zero pads the week
+                        $week = round($week);
+                    }
+                    $date = $d->format('Y') . $week;
                 } else {
+                    $dateFormat = ($resultHasMonthPadding) ? 'm' : 'n';
                     $date = $d->format('Y'.$dateFormat);
                 }
                 $records[] = isset($data[$date]) ? $data[$date] : 0;
@@ -198,7 +212,21 @@ class DashboardRepository
     private function rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate)
     {
         $accountId = $account->id;
-        $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
+        if (DB::getDriverName() === 'sqlite') {
+            $dateFormats = [ 'DAYOFYEAR' => '%j', 'WEEK' => '%W', 'MONTH' => '%m' ];
+            $timeframe = 'strftime("%Y'.$dateFormats[$groupBy].'", '.$entityType.'_date)';
+        } else { // assume mysql
+            $timeframe = 'CONCAT(YEAR('.$entityType.'_date), ';
+            if ($groupBy === 'DAYOFYEAR') {
+                // SQLite pads the DOY with at most 2 zeroes, do so for MySQL as well
+                $timeframe .= "LPAD(";
+            }
+            $timeframe .= $groupBy.'('.$entityType.'_date)';
+            if ($groupBy === 'DAYOFYEAR') {
+                $timeframe .= '-1, 3, \'0\')'; // correct DOY by 1 and finish padding function
+            }
+            $timeframe .= ')';
+        }
 
         $records = DB::table($entityType.'s')
             ->leftJoin('clients', 'clients.id', '=', $entityType.'s.client_id')

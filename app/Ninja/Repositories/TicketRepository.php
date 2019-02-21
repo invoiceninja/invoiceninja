@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Ninja\Tickets\Actions\BaseTicketAction;
 use Auth;
 use DB;
+use DBUtils;
 use Illuminate\Support\Facades\Log;
 use Utils;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -86,11 +87,11 @@ class TicketRepository extends BaseRepository
                 'tickets.subject',
                 'tickets.contact_key',
                 'tickets.merged_parent_ticket_id',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                DB::raw("COALESCE(NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name), '')) contact_name"),
-                DB::raw("COALESCE(NULLIF(clients.user_id,'')) client_user_id"),
-                DB::raw("COALESCE(NULLIF(clients.public_id,'')) client_public_id"),
-                DB::raw("NULLIF(CONCAT(users.first_name, ' ', users.last_name),'') agent_name")
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
+                DB::raw("NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").", '') AS contact_name"),
+                DB::raw("NULLIF(clients.user_id,'') client_user_id"),
+                DB::raw("NULLIF(clients.public_id,'') client_public_id"),
+                DB::raw("NULLIF(".DBUtils::concat("users.first_name", "' '", "users.last_name").",'') AS agent_name")
 
             );
 

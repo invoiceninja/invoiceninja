@@ -26,9 +26,14 @@ class DateFormatsSeeder extends Seeder
             ['format' => 'j. F Y', 'picker_format' => 'd. MM yyyy', 'format_moment' => 'DD. MMMM YYYY', 'format_dart' => 'd. MMMM yyyy'],
         ];
 
-        foreach ($formats as $format) {
+        $query = '`format` = ?';
+        if (DB::getDriverName() !== 'sqlite') {
             // use binary to support case-sensitive search
-            $record = DateFormat::whereRaw('BINARY `format`= ?', [$format['format']])->first();
+            $query = "BINARY " . $query;
+        }
+
+        foreach ($formats as $format) {
+            $record = DateFormat::whereRaw($query, [$format['format']])->first();
             if ($record) {
                 $record->picker_format = $format['picker_format'];
                 $record->format_moment = $format['format_moment'];
@@ -57,7 +62,7 @@ class DateFormatsSeeder extends Seeder
         ];
 
         foreach ($formats as $format) {
-            $record = DatetimeFormat::whereRaw('BINARY `format`= ?', [$format['format']])->first();
+            $record = DatetimeFormat::whereRaw($query, [$format['format']])->first();
             if ($record) {
                 $record->format_moment = $format['format_moment'];
                 $record->format_dart = $format['format_dart'];

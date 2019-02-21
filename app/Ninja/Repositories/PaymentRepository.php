@@ -6,6 +6,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use DB;
+use DBUtils;
 use Utils;
 use Auth;
 
@@ -35,11 +36,11 @@ class PaymentRepository extends BaseRepository
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'payments.transaction_reference',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'payments.amount',
-                        DB::raw("CONCAT(payments.payment_date, payments.created_at) as date"),
+                        DB::raw(DBUtils::concat('payments.payment_date', 'payments.created_at').' AS date'),
                         'payments.payment_date',
                         'payments.payment_status_id',
                         'payments.payment_type_id',
@@ -121,7 +122,7 @@ class PaymentRepository extends BaseRepository
                         'invitations.invitation_key',
                         'payments.public_id',
                         'payments.transaction_reference',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                         'clients.public_id as client_public_id',
                         'payments.amount',
                         'payments.payment_date',

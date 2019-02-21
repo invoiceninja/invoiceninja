@@ -5,6 +5,7 @@ namespace App\Ninja\Repositories;
 use App\Models\Client;
 use App\Models\Credit;
 use DB;
+use DBUtils;
 use Utils;
 
 class CreditRepository extends BaseRepository
@@ -27,13 +28,13 @@ class CreditRepository extends BaseRepository
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'credits.public_id',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'credits.amount',
                         'credits.balance',
                         'credits.credit_date as credit_date_sql',
-                        DB::raw("CONCAT(credits.credit_date, credits.created_at) as credit_date"),
+                        DB::raw(DBUtils::concat('credits.credit_date', 'credits.created_at').' AS credit_date'),
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',

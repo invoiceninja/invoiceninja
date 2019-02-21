@@ -6,6 +6,7 @@ use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use DBUtils;
 use Utils;
 
 /**
@@ -250,10 +251,10 @@ class Task extends EntityModel
 
     public function scopeDateRange($query, $startDate, $endDate)
     {
-        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->modify('+1 day')->format('U'))
+        $query->whereRaw('cast('.DBUtils::substr('time_log', 3, 10).' as unsigned) <= ' . $endDate->modify('+1 day')->format('U'))
             ->whereRaw('case
-                when is_running then unix_timestamp()
-                else cast(substring(time_log, length(time_log) - 11, 10) as unsigned)
+                when is_running then '.DBUtils::unix_timestamp().'
+                else cast('.DBUtils::substr('time_log', 'length(time_log) - 11', 10).' as unsigned)
             end >= ' . $startDate->format('U'));
 
         return $query;

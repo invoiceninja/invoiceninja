@@ -8,6 +8,7 @@ use App\Models\Vendor;
 use App\Models\Client;
 use Auth;
 use DB;
+use DBUtils;
 use Utils;
 
 class ExpenseRepository extends BaseRepository
@@ -77,7 +78,7 @@ class ExpenseRepository extends BaseRepository
                         'expenses.deleted_at',
                         'expenses.exchange_rate',
                         'expenses.expense_date as expense_date_sql',
-                        DB::raw("CONCAT(expenses.expense_date, expenses.created_at) as expense_date"),
+                        DB::raw(DBUtils::concat('expenses.expense_date', 'expenses.created_at').' AS expense_date'),
                         'expenses.id',
                         'expenses.is_deleted',
                         'expenses.private_notes',
@@ -102,7 +103,7 @@ class ExpenseRepository extends BaseRepository
                         'vendors.name as vendor_name',
                         'vendors.public_id as vendor_public_id',
                         'vendors.user_id as vendor_user_id',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'contacts.first_name',

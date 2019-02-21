@@ -248,14 +248,20 @@ class Utils
             return $info;
         }
 
-        $mysqlVersion = DB::select( DB::raw("select version() as version") )[0]->version;
         $accountKey = Auth::check() ? Auth::user()->account->account_key : '';
 
         $info = "App Version: v" . NINJA_VERSION . "\\n" .
                 "White Label: " . (Utils::isWhiteLabel() ? 'Yes' : 'No') . " - {$accountKey}\\n" .
                 "Server OS: " . php_uname('s') . ' ' . php_uname('r') . "\\n" .
-                "PHP Version: " . phpversion() . "\\n" .
-                "MySQL Version: " . $mysqlVersion;
+                "PHP Version: " . phpversion() . "\\n";
+
+        $dbInfo = [
+            'mysql'  => [ 'MySQL', 'select version() as version' ], // default
+            'sqlite' => [ 'SQLite Library', 'select sqlite_version() as version' ],
+        ];
+        $dbInfo = $dbInfo[DB::getDriverName()] ?? $dbInfo['mysql'];
+        $dbVersion = DB::select( DB::raw($dbInfo[1]) )[0]->version;
+        $info .= $dbInfo[0] . " Version: " . $dbVersion;
 
         session(['DEBUG_INFO' => $info]);
 

@@ -273,6 +273,7 @@ return [
 
         'Utils' => App\Libraries\Utils::class,
         'DateUtils' => App\Libraries\DateUtils::class,
+        'DBUtils' => App\Libraries\DBUtils::class,
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
         'CurlUtils' => App\Libraries\CurlUtils::class,
         'Domain' => App\Constants\Domain::class,

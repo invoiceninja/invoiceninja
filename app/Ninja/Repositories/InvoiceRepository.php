@@ -20,6 +20,7 @@ use App\Models\GatewayType;
 use App\Services\PaymentService;
 use Auth;
 use DB;
+use DBUtils;
 use Utils;
 
 class InvoiceRepository extends BaseRepository
@@ -68,16 +69,16 @@ class InvoiceRepository extends BaseRepository
                 'invoice_number',
                 'invoice_number as quote_number',
                 'invoice_status_id',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.balance',
                 'invoices.invoice_date',
                 'invoices.due_date as due_date_sql',
                 'invoices.partial_due_date',
-                DB::raw("CONCAT(invoices.invoice_date, invoices.created_at) as date"),
-                DB::raw("CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as due_date"),
-                DB::raw("CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as valid_until"),
+                DB::raw(DBUtils::concat('invoices.invoice_date', 'invoices.created_at').' AS date'),
+                DB::raw(DBUtils::concat('COALESCE(invoices.partial_due_date, invoices.due_date)', 'invoices.created_at').' AS due_date'),
+                DB::raw(DBUtils::concat('COALESCE(invoices.partial_due_date, invoices.due_date)', 'invoices.created_at').' AS valid_until'),
                 'invoice_statuses.name as status',
                 'invoice_statuses.name as invoice_status_name',
                 'contacts.first_name',
@@ -159,16 +160,16 @@ class InvoiceRepository extends BaseRepository
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'clients.public_id as client_public_id',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                         'invoices.public_id',
                         'invoices.amount',
                         'frequencies.name as frequency',
                         'invoices.start_date as start_date_sql',
                         'invoices.end_date as end_date_sql',
                         'invoices.last_sent_date as last_sent_date_sql',
-                        DB::raw("CONCAT(invoices.start_date, invoices.created_at) as start_date"),
-                        DB::raw("CONCAT(invoices.end_date, invoices.created_at) as end_date"),
-                        DB::raw("CONCAT(invoices.last_sent_date, invoices.created_at) as last_sent"),
+                        DB::raw(DBUtils::concat('invoices.start_date', 'invoices.created_at').' AS start_date'),
+                        DB::raw(DBUtils::concat('invoices.end_date', 'invoices.created_at').' AS end_date'),
+                        DB::raw(DBUtils::concat('invoices.last_sent_date', 'invoices.created_at').' AS last_sent'),
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
@@ -302,7 +303,7 @@ class InvoiceRepository extends BaseRepository
                 'invoices.due_date',
                 'invoices.quote_invoice_id',
                 'clients.public_id as client_public_id',
-                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(".DBUtils::concat("contacts.first_name", "' '", "contacts.last_name").",''), NULLIF(contacts.email,'')) AS client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.start_date',
