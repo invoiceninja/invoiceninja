@@ -44,7 +44,8 @@ function generatePDF(invoice, javascript, force, cb) {
   var pdfDoc = GetPdfMake(invoice, javascript, cb);
 
   if (cb) {
-     pdfDoc.getDataUrl(cb);
+     //pdfDoc.getDataUrl(cb);
+     pdfDoc.getBuffer(cb);
   }
 
   return pdfDoc;

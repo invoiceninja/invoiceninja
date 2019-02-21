@@ -1,5 +1,5 @@
 @if (empty($hide_pdf))
-<object id="pdfObject" type="application/pdf" style="display:block;background-color:#525659;border:solid 2px #9a9a9a;" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></object>
+<embed id="pdfObject" type="application/pdf" style="display:block;background-color:#525659;border:solid 2px #9a9a9a;" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></embed>
 <div id="pdfCanvas" style="display:none;width:100%;background-color:#525659;border:solid 2px #9a9a9a;padding-top:40px;text-align:center">
     <canvas id="theCanvas" style="max-width:100%;border:solid 1px #CCCCCC;"></canvas>
 </div>
@@ -139,16 +139,23 @@
     }
   }
 
-  function refreshPDFCB(string) {
-    if (!string) return;
+  function refreshPDFCB(data) {
+    if (!data) return;
     @if ( !empty($hide_pdf))
         return;
     @endif
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
     var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'true' : 'false' }};
+    // Make sure the pdf data is in a binary array format
+    var pdfData = data;
+    if (typeof(pdfData) === 'string' && pdfData.indexOf('data:application/pdf') == 0) {
+      pdfData = convertDataURIToBinary(data);
+    }
     // Use the browser's built in PDF viewer
     if ((isChrome || isFirefox) && ! forceJS && ! isMobile) {
-      document.getElementById('pdfObject').data = string;
+      var pdfBlob = new Blob([pdfData], { type: 'application/pdf' });
+      var pdfUrl = URL.createObjectURL(pdfBlob);
+      document.getElementById('pdfObject').src = pdfUrl;
     // Use PDFJS to view the PDF
     } else {
       if (isRefreshing) {
@@ -156,8 +163,7 @@
         return;
       }
       isRefreshing = true;
-      var pdfAsArray = convertDataURIToBinary(string);
-      PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
+      PDFJS.getDocument(pdfData).then(function getPdfHelloWorld(pdf) {
 
         pdf.getPage(1).then(function getPageHelloWorld(page) {
           var scale = 1.5;
