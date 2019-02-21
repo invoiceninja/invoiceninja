@@ -110,7 +110,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         $calculatedSignature = hash_hmac('sha256', $rawPayload, $token);
 
         if (! hash_equals($providedSignature, $calculatedSignature)) {
-            throw new Exception('Signature does not match');
+            throw new \Exception('Signature does not match');
         }
 
         foreach ($input['events'] as $event) {
