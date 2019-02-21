@@ -186,10 +186,10 @@
 
 <script lang="ts">
 
-import Vue from 'vue';
-import { Affix } from 'vue-affix';
-var VueScrollactive = require('vue-scrollactive');
-
+import Vue from 'vue'
+import { Affix } from 'vue-affix'
+var VueScrollactive = require('vue-scrollactive')
+import NumberFormat from '../../utils/number-format'
 import Multiselect from 'vue-multiselect'
 
 
@@ -213,11 +213,12 @@ export default {
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted() {
 
-    	if(!!this.settings.show_currency_symbol)
+    	if(this.settings.show_currency_symbol == null)
 			this.settings.show_currency_symbol = this.company.settings_object.show_currency_symbol
 		else if(!!this.settings.show_currency_code)
 			this.settings.show_currency_code = this.company.settings_object.show_currency_code
 
+		this.updateCurrencyExample()
 	},
     computed: {
     	settings_currency_id: {
@@ -227,7 +228,7 @@ export default {
 
     		},
     		get: function(){
-				return this.options_currency.filter(obj => {
+				return this.options_currency.find(obj => {
 					return obj.id == this.settings.currency_id
 				})
     		}
@@ -239,7 +240,7 @@ export default {
 
 			},
 			get: function() {
-				return this.options_language.filter(obj => {
+				return this.options_language.find(obj => {
 					return obj.id == this.settings.language_id
 				})
 			}
@@ -254,7 +255,7 @@ export default {
 
 			},
 			get: function() {
-				return this.options_payment_term.filter(obj => {
+				return this.options_payment_term.find(obj => {
 					return obj.num_days == this.settings.payment_terms
 				})
 			}
@@ -299,7 +300,7 @@ export default {
 
 			get: function() {
 
-					return this.settings.show_currency_symbol
+				return this.settings.show_currency_symbol
 				
 			},
 			set: function(value) {
@@ -336,24 +337,24 @@ export default {
 		},
 		placeHolderCurrency(){
 
-			var currency = this.options_currency.filter(obj => {
+			var currency = this.options_currency.find(obj => {
 				return obj.id == this.company.settings_object.currency_id
 			})
 
-			if(currency.length >= 1)
-				return currency[0].name
+			if(currency)
+				return currency.name
 			else
 				return  Vue.prototype.trans('texts.currency_id') 	
 
 		},		
 		placeHolderPaymentTerm(){
 
-			var payment_terms = this.payment_terms.filter(obj => {
+			var payment_terms = this.payment_terms.find(obj => {
 			  return obj.num_days == this.company.settings_object.payment_terms
 			})
 
-			if(payment_terms.length >= 1)
-				return payment_terms[0].name
+			if(payment_terms)
+				return payment_terms.name
 			else
 				return  Vue.prototype.trans('texts.payment_terms') 	
 
@@ -370,12 +371,12 @@ export default {
 		},
 		placeHolderLanguage(){
 
-			var language = this.languages.filter(obj => {
+			var language = this.languages.find(obj => {
 			  return obj.id == this.company.settings_object.language_id
 			})
 
-			if(language.length >= 1)
-				return language[0].name
+			if(language)
+				return language.name
 			else
 				return  Vue.prototype.trans('texts.language_id') 
 
@@ -405,9 +406,24 @@ export default {
 
 		},
 		updateCurrencyExample() {
-			//get currency
-			//get symbol or code
-			// format example $1000
+
+			
+			var currency = this.options_currency.find(obj => {
+				return obj.id == this.company.settings_object.currency_id
+			})
+
+			var language = this.languages.find(obj => {
+			  return obj.id == this.company.settings_object.language_id
+			})
+
+
+			if(this.settings_language_id)
+				language = this.settings_language_id
+
+			if(this.settings_currency_id)
+				currency = this.settings_currency_id
+console.dir(new NumberFormat(1000, currency, this.settings.show_currency_symbol, language).format())
+			return new NumberFormat(1000, currency, this.settings.show_currency_symbol, language).format()
 		}
 
 	
