@@ -197,11 +197,11 @@ class AddTicketsSchema extends Migration
 
 
         Schema::table('users', function ($table) {
-            $table->string('avatar', 255);
-            $table->unsignedInteger('avatar_width');
-            $table->unsignedInteger('avatar_height');
-            $table->unsignedInteger('avatar_size');
-            $table->text('signature');
+            $table->string('avatar', 255)->nullable();
+            $table->unsignedInteger('avatar_width')->nullable();
+            $table->unsignedInteger('avatar_height')->nullable();
+            $table->unsignedInteger('avatar_size')->nullable();
+            $table->text('signature')->nullable();
         });
 
         if(!Utils::isNinja()) {
