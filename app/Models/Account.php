@@ -1195,7 +1195,7 @@ class Account extends Eloquent
         }
         Session::put(SESSION_DATETIME_FORMAT, $format);
 
-        Session::put('start_of_week', $this->start_of_week);
+        Session::put('start_of_week', $this->start_of_week ?? 0);
     }
 
     /**
