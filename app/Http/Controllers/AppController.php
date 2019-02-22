@@ -125,8 +125,23 @@ class AppController extends BaseController
 
         if (! Utils::isDatabaseSetup()) {
             // == DB Migrate & Seed == //
-            $sqlFile = base_path() . '/database/setup.sql';
-            DB::unprepared(file_get_contents($sqlFile));
+            $sqlFile = base_path() . '/database/setup';
+
+            $isSqlite = (DB::getDriverName() === 'sqlite');
+            if ($isSqlite) {
+               // look for setup.sqlite.sql instead
+               $sqlFile .= '.sqlite';
+            }
+
+            $sqlFile .= '.sql';
+            if ($sqlFile && file_exists($sqlFile)) {
+                DB::unprepared(file_get_contents($sqlFile));
+            } elseif ($isSqlite) {
+                Log::debug("database var dump:", $database);
+                // not supported, too many migrations are not compatible with sqlite
+                throw new Exception("Cannot setup SQLite database: database/setup.sqlite.sql is missing.");
+            }
+            Artisan::call('migrate', ['--force' => true]);
         }
 
         Cache::flush();
