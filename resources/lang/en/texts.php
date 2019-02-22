@@ -3137,6 +3137,9 @@ $LANG = array(
     'budgeted' => 'Budgeted',
     'please_enter_a_name' => 'Please enter a name',
     'click_plus_to_add_time' => 'Click + to add time',
+    'design' => 'Design',
+    'password_is_too_short' => 'Password is too short',
+    'failed_to_find_record' => 'Failed to find record',
 
 );
 
