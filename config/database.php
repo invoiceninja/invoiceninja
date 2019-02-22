@@ -61,6 +61,13 @@ return [
             'engine'    => 'InnoDB',
         ],
 
+        'sqlite' => [
+            'driver'    => 'sqlite',
+            'database'  => env('DB_DATABASE', database_path('development.sqlite')),
+            'prefix'    => '',
+	    'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+        ],
+
         // multi-database setup
         'db-ninja-0' => [
             'driver'    => 'mysql',
