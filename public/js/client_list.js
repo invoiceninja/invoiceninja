@@ -24685,13 +24685,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var vue_1 = __importDefault(__webpack_require__("./node_modules/vue/dist/vue.common.js"));
 var vuex_1 = __importDefault(__webpack_require__("./node_modules/vuex/dist/vuex.esm.js"));
 var client_list_1 = __importDefault(__webpack_require__("./resources/js/src/store/modules/client_list.ts"));
-var client_settings_1 = __importDefault(__webpack_require__("./resources/js/src/store/modules/client_settings.ts"));
 vue_1.default.use(vuex_1.default);
 var debug = "development" !== 'production';
 var store = new vuex_1.default.Store({
     modules: {
-        client_list: client_list_1.default,
-        client_settings: client_settings_1.default
+        client_list: client_list_1.default
     },
     strict: debug,
 });
@@ -24747,33 +24745,6 @@ var mutations = {
         state.bulk_count = count;
     }
 };
-exports.default = {
-    namespaced: true,
-    state: state,
-    getters: getters,
-    actions: actions,
-    mutations: mutations
-};
-
-
-/***/ }),
-
-/***/ "./resources/js/src/store/modules/client_settings.ts":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/**
- * State managment for the Client Settings View
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-var state = {};
-// getters
-var getters = {};
-// actions
-var actions = {};
-// mutations
-var mutations = {};
 exports.default = {
     namespaced: true,
     state: state,

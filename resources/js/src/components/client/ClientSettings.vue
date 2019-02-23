@@ -39,17 +39,17 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_currency') }}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect v-model="settings_currency_id" :options="options_currency" label="name" track-by="id" :placeholder="placeHolderCurrency()" :allow-empty="true"></multiselect>
+						            <multiselect v-model="settings.currency_id" :options="options_currency" label="name" track-by="id" :placeholder="placeHolderCurrency()" :allow-empty="true"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form d-flex justify-content-center">
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio1" type="radio" name="symbol" value="1" v-model="settings_show_currency_symbol" @click="setCurrencySymbol()">
-									<label class="form-check-label" for="show_currency_symbol-radio1">{{ trans('texts.currency_symbol') }}:</label>
+									<input class="form-check-input" id="inline-radio1" type="radio" name="symbol" value="1" v-model="settings.show_currency_symbol" @click="setCurrencySymbol()">
+									<label class="form-check-label" for="show_currency_symbol-radio1">{{ trans('texts.currency_symbol') }}: {{ currency_symbol_example }}</label>
 								</div>
 								<div class="form-check form-check-inline">
-									<input class="form-check-input" id="inline-radio2" type="radio" name="code" value="1" v-model="settings_show_currency_code" @click="setCurrencyCode()">
-									<label class="form-check-label" for="show_currency_code">{{ trans('texts.currency_code') }}:</label>
+									<input class="form-check-input" id="inline-radio2" type="radio" name="code" value="1" v-model="settings.show_currency_code" @click="setCurrencyCode()">
+									<label class="form-check-label" for="show_currency_code">{{ trans('texts.currency_code') }}: {{ currency_code_example }}</label>
 								</div>
 							</div>
 						    <div class="form-group row client_form">
@@ -58,7 +58,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_language')}}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect v-model="settings_language_id" :options="options_language" :placeholder="placeHolderLanguage()" label="name" track-by="id" :allow-empty="true"></multiselect>
+						            <multiselect v-model="settings.language_id" :options="options_language" :placeholder="placeHolderLanguage()" label="name" track-by="id" :allow-empty="true"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -67,7 +67,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_payment_terms')}}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect v-model="settings_payment_terms" :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="name" track-by="num_days" :allow-empty="true"></multiselect>
+						            <multiselect v-model="settings.payment_terms" :options="options_payment_term" :placeholder="placeHolderPaymentTerm()" label="name" track-by="num_days" :allow-empty="true"></multiselect>
 						        </div>
 						    </div>
 						    
@@ -85,7 +85,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.send_client_reminders') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="" v-model="settings_send_reminders">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings.send_reminders">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -94,7 +94,7 @@
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.show_tasks_in_portal') }}</label>
 						        <div class="col-sm-7">
 						            <label class="switch switch-label switch-pill switch-info">
-									<input class="switch-input" type="checkbox" checked="" v-model="settings_show_tasks_in_portal">
+									<input class="switch-input" type="checkbox" checked="" v-model="settings.show_tasks_in_portal">
 									<span class="switch-slider" data-checked="✓" data-unchecked="✕"></span>
 									</label>
 						        </div>
@@ -191,9 +191,11 @@ import { Affix } from 'vue-affix'
 var VueScrollactive = require('vue-scrollactive')
 import NumberFormat from '../../utils/number-format'
 import Multiselect from 'vue-multiselect'
-
+import ClientSettings from '../../utils/client-settings'
 
 Vue.use(VueScrollactive);
+import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
 	components: {
@@ -207,126 +209,39 @@ export default {
 			options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
 			options_industry: Object.keys(this.industries).map(i => this.industries[i]),
 			options_size: this.sizes,
-			settings: this.client_settings
+			settings: new ClientSettings(
+											this.client_settings, 
+									        this.company_settings, 
+									        this.options_language,
+									        this.options_currency,
+									        this.options_payment_term,
+									        this.options_industry,
+									        this.options_size)
 	    }
 	  },
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted() {
 
-    	if(this.settings.show_currency_symbol == null)
-			this.settings.show_currency_symbol = this.company.settings_object.show_currency_symbol
-		else if(!!this.settings.show_currency_code)
-			this.settings.show_currency_code = this.company.settings_object.show_currency_code
-
+    	console.dir(this.settings)
 		this.updateCurrencyExample()
 	},
     computed: {
-    	settings_currency_id: {
-    		set: function(value){
-
-    			this.setObjectValue('currency_id', value.id)
-
-    		},
-    		get: function(){
-				return this.options_currency.find(obj => {
-					return obj.id == this.settings.currency_id
-				})
-    		}
-    	},
-		settings_language_id: {
-			set: function(value) {
-
-    			this.setObjectValue('language_id', value.id)
-
-			},
+		currency_code_example: {
 			get: function() {
-				return this.options_language.find(obj => {
-					return obj.id == this.settings.language_id
-				})
+				return this.updateCurrencyExample(false)
+			},
+			set: function() {
 			}
 		},
-		settings_payment_terms: {
-			set: function(value) {
-				
-				if(value === null)
-					this.setObjectValue('payment_terms', null)
-				else
-    				this.setObjectValue('payment_terms', value.num_days)
-
-			},
+		currency_symbol_example: {
 			get: function() {
-				return this.options_payment_term.find(obj => {
-					return obj.num_days == this.settings.payment_terms
-				})
-			}
-		},
-		settings_show_tasks_in_portal:{
-			set: function(value) {
-
-				if(this.settings.show_tasks_in_portal == this.company.settings.show_tasks_in_portal)
-					this.settings.show_tasks_in_portal = null
-				else
-    				this.settings.show_tasks_in_portal = value;
-
+				return this.updateCurrencyExample(true)
 			},
-			get: function() {
-
-				if(this.settings.show_tasks_in_portal)
-					return this.settings.show_tasks_in_portal
-				else
-					return this.company.settings_object.show_tasks_in_portal
-
+			set: function() {
 			}
-		},
-		settings_send_reminders: {
-			set: function(value) {
-
-				if(this.settings.send_reminders == this.company.settings.send_reminders)
-					this.settings.send_reminders = null
-				else
-    				this.settings.send_reminders = value;
-
-			},
-			get: function() {
-
-				if(this.settings.send_reminders)
-					return this.settings.send_reminders
-				else
-					return this.company.settings_object.send_reminders
-
-			}
-		},
-		settings_show_currency_symbol: {
-
-			get: function() {
-
-				return this.settings.show_currency_symbol
-				
-			},
-			set: function(value) {
-				this.settings.show_currency_symbol = 1
-				this.settings.show_currency_code = !value
-			}
-			
-		},
-		settings_show_currency_code: {
-
-			get: function() {
-
-				return this.settings.show_currency_code
-
-			},
-			set: function(value) {
-				this.settings.show_currency_code = 1
-				this.settings.show_currency_symbol = !value
-			}
-
 		}
     },
     methods: {
-		onItemChanged(event, currentItem, lastActiveItem) {
-		// your logic
-		},
 		setObjectValue(key, value){
 
 			if(value === null)
@@ -394,7 +309,7 @@ export default {
 			this.settings.show_currency_symbol = false;
 			this.settings.show_currency_code = true;
 
-			this.updateCurrencyExample()
+			this.updateCurrencyExample(false)
 
 		},
 		setCurrencySymbol() {
@@ -402,10 +317,10 @@ export default {
 			this.settings.show_currency_symbol = true;
 			this.settings.show_currency_code = false;
 
-			this.updateCurrencyExample()
+			this.updateCurrencyExample(true)
 
 		},
-		updateCurrencyExample() {
+		updateCurrencyExample(currency_symbol) {
 
 			
 			var currency = this.options_currency.find(obj => {
@@ -422,8 +337,8 @@ export default {
 
 			if(this.settings_currency_id)
 				currency = this.settings_currency_id
-console.dir(new NumberFormat(1000, currency, this.settings.show_currency_symbol, language).format())
-			return new NumberFormat(1000, currency, this.settings.show_currency_symbol, language).format()
+
+			return new NumberFormat(1000, currency, currency_symbol, language).format()
 		}
 
 	

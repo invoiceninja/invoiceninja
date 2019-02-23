@@ -7,7 +7,6 @@ require('../bootstrap');
 declare var i18n;
 
 import Vue from 'vue';
-import store from '../store'
 
 Vue.component('client-edit', require('../components/client/ClientEdit.vue'));
 Vue.component('client-address', require('../components/client/ClientAddress.vue'));
@@ -19,8 +18,7 @@ Vue.component('client-settings', require('../components/client/ClientSettings.vu
 window.onload = function () {
 
     const app = new Vue({
-        el: '#client_edit',
-        store
+        el: '#client_edit'
     });
 
 }
