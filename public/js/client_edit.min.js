@@ -4157,12 +4157,12 @@ exports.default = {
             options_payment_term: Object.keys(this.payment_terms).map(function (i) { return _this.payment_terms[i]; }),
             options_industry: Object.keys(this.industries).map(function (i) { return _this.industries[i]; }),
             options_size: this.sizes,
-            settings: new client_settings_1.default(this.client_settings, this.company_settings, this.options_language, this.options_currency, this.options_payment_term, this.options_industry, this.options_size)
+            settings: new client_settings_1.default(this.client_settings, this.company.settings_object, this.options_language, this.options_currency, this.options_payment_term, this.options_industry, this.options_size).build()
         };
     },
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted: function () {
-        console.dir(this.settings);
+        //console.dir(this.settings)
         this.updateCurrencyExample();
     },
     computed: {
@@ -20358,20 +20358,26 @@ var ClientSettings = /** @class */ (function () {
      */
     ClientSettings.prototype.build = function () {
         var _this = this;
-        this.settings = new client_settings_model_1.default();
-        this.settings.currency_id = this.currencies.find(function (obj) {
-            return obj.id == _this.client_settings.currency_id;
-        });
-        if (typeof this.client_settings.show_currency_symbol == 'undefined')
+        this.settings = new client_settings_model_1.default(this.client_settings);
+        if (this.client_settings.currency_id !== null) {
+            this.settings.currency_id = this.currencies.find(function (obj) {
+                return obj.id == _this.client_settings.currency_id;
+            });
+        }
+        if (this.client_settings.show_currency_symbol == null)
             this.settings.show_currency_symbol = this.company_settings.show_currency_symbol;
-        if (typeof this.client_settings.show_currency_code == 'undefined')
+        if (this.client_settings.show_currency_code == null)
             this.settings.show_currency_code = this.company_settings.show_currency_code;
-        this.settings.language_id = this.languages.find(function (obj) {
-            return obj.id == _this.client_settings.language_id;
-        });
-        this.settings.payment_terms = this.payment_terms.find(function (obj) {
-            return obj.id == _this.client_settings.payment_terms;
-        });
+        if (this.client_settings.language_id !== null) {
+            this.settings.language_id = this.languages.find(function (obj) {
+                return obj.id == _this.client_settings.language_id;
+            });
+        }
+        if (this.client_settings.payment_terms !== null) {
+            this.settings.payment_terms = this.payment_terms.find(function (obj) {
+                return obj.id == _this.client_settings.payment_terms;
+            });
+        }
         this.settings.default_task_rate = this.client_settings.default_task_rate ? this.client_settings.default_task_rate : this.company_settings.default_task_rate;
         if (this.client_settings.send_reminders)
             this.settings.send_reminders = this.client_settings.send_reminders;
@@ -20397,12 +20403,17 @@ var ClientSettings = /** @class */ (function () {
             this.settings.custom_message_unapproved_quote = this.client_settings.custom_message_unapproved_quote;
         else
             this.settings.custom_message_unapproved_quote = this.company_settings.custom_message_unapproved_quote;
-        this.settings.industry_id = this.industries.find(function (obj) {
-            return obj.id == _this.client_settings.industry_id;
-        });
-        this.settings.size_id = this.sizes.find(function (obj) {
-            return obj.id == _this.client_settings.size_id;
-        });
+        if (this.client_settings.industry_id !== null) {
+            this.settings.industry_id = this.industries.find(function (obj) {
+                return obj.id == _this.client_settings.industry_id;
+            });
+        }
+        if (this.client_settings.size_id !== null) {
+            this.settings.size_id = this.sizes.find(function (obj) {
+                return obj.id == _this.client_settings.size_id;
+            });
+        }
+        return this.settings;
     };
     return ClientSettings;
 }());

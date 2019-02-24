@@ -45,25 +45,35 @@ export default class ClientSettings {
      */
     build() {
 
-        this.settings = new CSettings()
+        this.settings = new CSettings(this.client_settings)
+        if (this.client_settings.currency_id !== null) { 
 
-        this.settings.currency_id = this.currencies.find(obj => {
-                                        return obj.id == this.client_settings.currency_id
-                                    })
+            this.settings.currency_id = this.currencies.find(obj => {
+                                            return obj.id == this.client_settings.currency_id
+                                        })
 
-        if(typeof this.client_settings.show_currency_symbol == 'undefined')
+        }
+
+        if(this.client_settings.show_currency_symbol == null)
             this.settings.show_currency_symbol = this.company_settings.show_currency_symbol
 
-        if(typeof this.client_settings.show_currency_code == 'undefined')
+        if(this.client_settings.show_currency_code == null)
             this.settings.show_currency_code = this.company_settings.show_currency_code
 
-        this.settings.language_id = this.languages.find(obj => {
-                                        return obj.id == this.client_settings.language_id
-                                    })
+        if (this.client_settings.language_id !== null) { 
 
-        this.settings.payment_terms = this.payment_terms.find(obj => {
-                                        return obj.id == this.client_settings.payment_terms
-                                    })
+            this.settings.language_id = this.languages.find(obj => {
+                                            return obj.id == this.client_settings.language_id
+                                        })
+
+        }
+
+        if (this.client_settings.payment_terms !== null) { 
+
+            this.settings.payment_terms = this.payment_terms.find(obj => {
+                                            return obj.id == this.client_settings.payment_terms
+                                        })
+        }
 
         this.settings.default_task_rate = this.client_settings.default_task_rate ? this.client_settings.default_task_rate : this.company_settings.default_task_rate
 
@@ -97,14 +107,21 @@ export default class ClientSettings {
         else
             this.settings.custom_message_unapproved_quote = this.company_settings.custom_message_unapproved_quote
 
-        this.settings.industry_id = this.industries.find(obj => {
-                                        return obj.id == this.client_settings.industry_id
-                                    })
+        if (this.client_settings.industry_id !== null) { 
 
-        this.settings.size_id = this.sizes.find(obj => {
-                                        return obj.id == this.client_settings.size_id
-                                    })
-         
+            this.settings.industry_id = this.industries.find(obj => {
+                                            return obj.id == this.client_settings.industry_id
+                                        })
+        }
+
+        if (this.client_settings.size_id !== null) { 
+
+            this.settings.size_id = this.sizes.find(obj => {
+                                            return obj.id == this.client_settings.size_id
+                                        })
+        }         
+
+        return this.settings
     }
 
 

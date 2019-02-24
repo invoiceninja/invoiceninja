@@ -211,18 +211,18 @@ export default {
 			options_size: this.sizes,
 			settings: new ClientSettings(
 											this.client_settings, 
-									        this.company_settings, 
+									        this.company.settings_object, 
 									        this.options_language,
 									        this.options_currency,
 									        this.options_payment_term,
 									        this.options_industry,
-									        this.options_size)
+									        this.options_size).build()
 	    }
 	  },
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
     mounted() {
 
-    	console.dir(this.settings)
+    	//console.dir(this.settings)
 		this.updateCurrencyExample()
 	},
     computed: {

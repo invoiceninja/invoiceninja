@@ -1,6 +1,6 @@
 {
     "/js/client_list.js": "/js/client_list.js?id=88d90244e855305bcfff",
-    "/js/client_edit.js": "/js/client_edit.js?id=4b42aad2dea96c346296",
+    "/js/client_edit.js": "/js/client_edit.js?id=967cbab0246d2ccf4874",
     "/js/client_show.js": "/js/client_show.js?id=be7307363fb5779cdb24",
     "/js/client_create.js": "/js/client_create.js?id=ca114ece0bbf0eb79d38",
     "/js/localization.js": "/js/localization.js?id=85f6f7672f9cf65d9745",
@@ -8,7 +8,7 @@
     "/js/ninja.min.js": "/js/ninja.min.js?id=d41d8cd98f00b204e980",
     "/js/coreui.min.js": "/js/coreui.min.js?id=9cfda6dd6df9aaeea844",
     "/js/client_show.min.js": "/js/client_show.min.js?id=be7307363fb5779cdb24",
-    "/js/client_edit.min.js": "/js/client_edit.min.js?id=4b42aad2dea96c346296",
+    "/js/client_edit.min.js": "/js/client_edit.min.js?id=967cbab0246d2ccf4874",
     "/js/client_create.min.js": "/js/client_create.min.js?id=ca114ece0bbf0eb79d38",
     "/js/client_list.min.js": "/js/client_list.min.js?id=88d90244e855305bcfff",
     "/js/localization.min.js": "/js/localization.min.js?id=85f6f7672f9cf65d9745",
