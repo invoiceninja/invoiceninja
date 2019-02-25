@@ -39,7 +39,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_currency') }}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect v-model="settings.currency_id" :options="options_currency" label="name" track-by="id" :placeholder="placeHolderCurrency()" :allow-empty="true"></multiselect>
+						            <multiselect v-model="settings.currency_id" :options="options_currency" label="name" track-by="id" :placeholder="placeHolderCurrency()" :allow-empty="true" @select="currencySettingChange()"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form d-flex justify-content-center">
@@ -309,7 +309,7 @@ export default {
 			this.settings.show_currency_symbol = false;
 			this.settings.show_currency_code = true;
 
-			this.updateCurrencyExample(false)
+			this.currencySettingChange()
 
 		},
 		setCurrencySymbol() {
@@ -317,7 +317,7 @@ export default {
 			this.settings.show_currency_symbol = true;
 			this.settings.show_currency_code = false;
 
-			this.updateCurrencyExample(true)
+			this.currencySettingChange()
 
 		},
 		updateCurrencyExample(currency_symbol) {
@@ -339,6 +339,13 @@ export default {
 				currency = this.settings_currency_id
 
 			return new NumberFormat(1000, currency, currency_symbol, language).format()
+		},
+		currencySettingChange() {
+			this.currency_code_example = this.updateCurrencyExample(false)
+			this.currency_symbol_example = this.updateCurrencyExample(true)
+
+			console.dir(this.currency_symbol_example)
+			console.dir(this.currency_code_example)
 		}
 
 	
