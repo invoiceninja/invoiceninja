@@ -179,7 +179,11 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && method_exists($this, 'getEntityType') && ! Auth::user()->hasPermission('view_' . $this->getEntityType())  && $this->getEntityType() != ENTITY_TAX_RATE && $this->getEntityType() != ENTITY_DOCUMENT) {
+        if (Auth::check() && method_exists($this, 'getEntityType')
+            && ! Auth::user()->hasPermission('view_' . $this->getEntityType())
+            && $this->getEntityType() != ENTITY_TAX_RATE
+            && $this->getEntityType() != ENTITY_TICKET
+            && $this->getEntityType() != ENTITY_INVITATION) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
