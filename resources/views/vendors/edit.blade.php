@@ -118,7 +118,7 @@
             <div class="panel-body">
 
             {!! Former::select('currency_id')->addOption('','')
-                ->placeholder($account->currency ? $account->currency->name : '')
+                ->placeholder($account->currency ? $account->currency->getTranslatedName() : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
 			{!! Former::textarea('private_notes')->rows(6) !!}
 
