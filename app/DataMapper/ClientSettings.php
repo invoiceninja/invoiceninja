@@ -2,6 +2,9 @@
 
 namespace App\DataMapper;
 
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+
 /**
  * ClientSettings
  */
@@ -61,6 +64,28 @@ class ClientSettings extends BaseSettings
 
 	}
 
+	/**
+	 * Merges permissions from Company to Client
+	 * 
+	 * @param  \stdClass $company_settings
+	 * @param  \stdClass $client_settings
+	 * @return \stdClass of merged settings
+	 */
+	public static function buildClientSettings(CompanySettings $company_settings, ClientSettings $client_settings) : ClientSettings
+	{
+
+		/** Currency ID */
+
+		foreach($client_settings as $key => $value)
+		{
+
+			if(!isset($client_settings->{$key}) && property_exists($company_settings, $key))
+				$client_settings->{$key} = $company_settings->{$key};
+		}
+
+
+		return $client_settings;
+	}
 
 }
 

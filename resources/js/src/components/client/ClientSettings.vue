@@ -39,7 +39,7 @@
 									<div style="margin-top:1px; line-height:1.4; color:#939393;">{{ trans('help.client_currency') }}</div>
 						        </label>
 						        <div class="col-sm-7">
-						            <multiselect v-model="settings.currency_id" :options="options_currency" label="name" track-by="id" :placeholder="placeHolderCurrency()" :allow-empty="true" @select="currencySettingChange()"></multiselect>
+						            <multiselect v-model="settings.currency_id" :options="options_currency" label="name" track-by="id" :allow-empty="true" @select="currencySettingChange()"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form d-flex justify-content-center">
@@ -158,7 +158,7 @@
 						    <div class="form-group row client_form">
 						        <label for="name" class="col-sm-5 col-form-label text-left">{{ trans('texts.industry') }}</label>
 						        <div class="col-sm-7">
-						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" v-model="settings.language_id"></multiselect>
+						            <multiselect :options="options_industry" :placeholder="placeHolderIndustry()" label="name" track-by="id" v-model="settings.industry_id"></multiselect>
 						        </div>
 						    </div>
 						    <div class="form-group row client_form">
@@ -194,8 +194,6 @@ import Multiselect from 'vue-multiselect'
 import ClientSettings from '../../utils/client-settings'
 
 Vue.use(VueScrollactive);
-import { mapState } from 'vuex'
-import { mapGetters } from 'vuex'
 
 export default {
 	components: {
@@ -209,14 +207,7 @@ export default {
 			options_payment_term: Object.keys(this.payment_terms).map(i => this.payment_terms[i]),
 			options_industry: Object.keys(this.industries).map(i => this.industries[i]),
 			options_size: this.sizes,
-			settings: new ClientSettings(
-											this.client_settings, 
-									        this.company.settings_object, 
-									        this.options_language,
-									        this.options_currency,
-									        this.options_payment_term,
-									        this.options_industry,
-									        this.options_size).build()
+			settings: this.client_settings
 	    }
 	  },
     props: ['client_settings', 'currencies', 'languages', 'payment_terms', 'industries', 'sizes', 'company'],
