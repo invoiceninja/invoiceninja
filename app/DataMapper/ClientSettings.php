@@ -4,6 +4,7 @@ namespace App\DataMapper;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Utils\TranslationHelper;
 
 /**
  * ClientSettings
@@ -65,7 +66,7 @@ class ClientSettings extends BaseSettings
 	}
 
 	/**
-	 * Merges permissions from Company to Client
+	 * Merges settings from Company to Client
 	 * 
 	 * @param  \stdClass $company_settings
 	 * @param  \stdClass $client_settings
@@ -74,8 +75,7 @@ class ClientSettings extends BaseSettings
 	public static function buildClientSettings(CompanySettings $company_settings, ClientSettings $client_settings) : ClientSettings
 	{
 
-		/** Currency ID */
-
+		
 		foreach($client_settings as $key => $value)
 		{
 
@@ -83,6 +83,11 @@ class ClientSettings extends BaseSettings
 				$client_settings->{$key} = $company_settings->{$key};
 		}
 
+		/** Replace ID with Object for presentation in multi-select */
+		$client_settings->currency_id = TranslationHelper::getCurrencies()->where('id', $client_settings->currency_id)->first();
+		$client_settings->language_id = TranslationHelper::getLanguages()->where('id', $client_settings->language_id)->first();
+		$client_settings->payment_terms = TranslationHelper::getPaymentTerms()->where('num_days', $client_settings->payment_terms)->first();
+		//todo $client_settings->timezone_id
 
 		return $client_settings;
 	}
