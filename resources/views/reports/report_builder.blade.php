@@ -573,7 +573,7 @@
 				var options = [
 					new ExportFormatModel('csv', 'CSV'),
 					new ExportFormatModel('xlsx', 'XLSX'),
-					new ExportFormatModel('pdf', 'PDF'),
+					//new ExportFormatModel('pdf', 'PDF'),
 				]
 
 				if (['{{ ENTITY_INVOICE }}', '{{ ENTITY_QUOTE }}', '{{ ENTITY_EXPENSE }}', '{{ ENTITY_DOCUMENT }}'].indexOf(self.report_type()) >= 0) {
