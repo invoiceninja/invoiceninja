@@ -2449,6 +2449,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_macedonian_denar' => 'Macedonian Denar',
     'currency_fijian_dollar' => 'Fijian Dollar',
     'currency_bolivian_boliviano' => 'Bolivian Boliviano',
+    'currency_albanian_lek' => 'Albanian Lek',
+    'currency_serbian_dinar' => 'Serbian Dinar',
+    'currency_lebanese_pound' => 'Lebanese Pound',
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'écrire un commentaire',
@@ -3131,6 +3134,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'budgeted' => 'Budgétisé',
     'please_enter_a_name' => 'Veuillez entrer un nom',
     'click_plus_to_add_time' => 'Cliquez sur + pour ajouter du temps',
+    'design' => 'Design',
+    'password_is_too_short' => 'Password is too short',
+    'failed_to_find_record' => 'Failed to find record',
 
 );
 

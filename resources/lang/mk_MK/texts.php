@@ -2455,6 +2455,9 @@ $LANG = array(
     'currency_macedonian_denar' => 'Macedonian Denar',
     'currency_fijian_dollar' => 'Fijian Dollar',
     'currency_bolivian_boliviano' => 'Bolivian Boliviano',
+    'currency_albanian_lek' => 'Albanian Lek',
+    'currency_serbian_dinar' => 'Serbian Dinar',
+    'currency_lebanese_pound' => 'Lebanese Pound',
 
     'review_app_help' => 'Се надеваме дека уживате во користењето на апликацијата. <br/> Ако го земете во предвид :link многу би ни значело!',
     'writing_a_review' => 'пишување рецензија',
@@ -3137,6 +3140,9 @@ $LANG = array(
     'budgeted' => 'Budgeted',
     'please_enter_a_name' => 'Please enter a name',
     'click_plus_to_add_time' => 'Click + to add time',
+    'design' => 'Design',
+    'password_is_too_short' => 'Password is too short',
+    'failed_to_find_record' => 'Failed to find record',
 
 );
 
