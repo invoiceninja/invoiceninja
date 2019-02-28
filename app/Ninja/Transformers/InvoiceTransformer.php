@@ -168,7 +168,7 @@ class InvoiceTransformer extends EntityTransformer
             'is_quote' => (bool) $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
             'is_public' => (bool) $invoice->is_public,
             'filename' => $invoice->getFileName(),
-            'invoice_design_id' => $invoice->invoice_design_id,
+            'invoice_design_id' => (int) $invoice->invoice_design_id,
         ]);
     }
 }
