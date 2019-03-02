@@ -100,7 +100,7 @@ class CompanySettings extends BaseSettings
 			'send_reminders' => 1,
 			'show_tasks_in_portal' => 1,
 			'show_currency_symbol' => 1,
-			'show_currency_code' => 0
+			'show_currency_code' => 0,
 			
 			'translations' => (object) [],
 		];
