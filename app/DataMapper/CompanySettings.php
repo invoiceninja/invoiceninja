@@ -9,6 +9,12 @@ class CompanySettings extends BaseSettings
 {
 
 	public $timezone_id;
+	public $date_format_id;
+	public $datetime_format_id;
+	public $military_time;
+	public $start_of_week;
+	public $financial_year_start;
+
 	public $language_id;
 	public $currency_id;
 	public $show_currency_symbol;
@@ -81,17 +87,22 @@ class CompanySettings extends BaseSettings
 		$config = json_decode(config('ninja.settings'));
 
 		return (object) [
-			'timezone_id' => $config->timezone_id,
-			'language_id' => $config->language_id,
-			'currency_id' => $config->currency_id,
-			'payment_terms' => $config->payment_terms,
+			'timezone_id' => config('ninja.i18n.timezone'),
+			'language_id' => config('ninja.i18n.language'),
+			'currency_id' => config('ninja.i18n.currency'),
+			'payment_terms' => config('ninja.i18n.payment_terms'),
+			'datetime_format_id' => config('ninja.i18n.datetime_format'),
+			'military_time' => config('ninja.i18n.military_time'),
+			'date_format_id' => config('ninja.i18n.date_format'),
+			'start_of_week' => config('ninja.i18n.start_of_week'),
+			'financial_year_start' => config('ninja.i18n.financial_year_start'),
 			'default_task_rate' => 0,
 			'send_reminders' => 1,
 			'show_tasks_in_portal' => 1,
 			'show_currency_symbol' => 1,
+			'show_currency_code' => 0
 			
 			'translations' => (object) [],
 		];
 	}
 }
-

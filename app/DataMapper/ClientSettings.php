@@ -15,6 +15,12 @@ class ClientSettings extends BaseSettings
 	 * settings which also have a parent company setting
 	 */
 	public $timezone_id;
+	public $date_format_id;
+	public $datetime_format_id;
+	public $military_time;
+	public $start_of_week;
+	public $financial_year_start;
+
 	public $language_id;
 	public $currency_id;
 	public $default_task_rate;
@@ -61,9 +67,20 @@ class ClientSettings extends BaseSettings
 			'language_id' => NULL,
 			'currency_id' => NULL,
 			'payment_terms' => NULL,
+			'datetime_format_id' => NULL,
+			'military_time' => NULL,
+			'date_format_id' => NULL,
+			'start_of_week' => NULL,
+			'financial_year_start' => NULL,
+			'default_task_rate' => NULL,
+			'send_reminders' => NULL,
+			'show_tasks_in_portal' => NULL,
+			'show_currency_symbol' => NULL,
+			'show_currency_code' => NULL
 		];
 
 	}
+
 
 	/**
 	 * Merges settings from Company to Client
