@@ -35,7 +35,9 @@ class Company extends BaseModel
         'company_id'
     ];
 
-    protected $appends = ['settings_object'];
+    protected $appends = [
+        'settings_object'
+    ];
 
     protected $casts = [
         'settings' => 'object'

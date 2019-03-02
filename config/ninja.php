@@ -31,16 +31,20 @@ return [
     ],
 
     'i18n' => [
-        'timezone' => env('DEFAULT_TIMEZONE', 'US/Eastern'),
+        'timezone' => env('DEFAULT_TIMEZONE', 15),
         'country' => env('DEFAULT_COUNTRY', 840), // United Stated
         'currency' => env('DEFAULT_CURRENCY', 1), //USD
         'language' => env('DEFAULT_LANGUAGE', 1), //en
         'date_format' => env('DEFAULT_DATE_FORMAT', 'M j, Y'),
         'date_picker_format' => env('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy'),
         'datetime_format' => env('DEFAULT_DATETIME_FORMAT', 'F j, Y g:i a'),
-        'datetime_momemnt_format' => env('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a'),
+        'datetime_moment_format' => env('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a'),
         'locale' => env('DEFAULT_LOCALE', 'en'),
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
+        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 7),
+        'military_time' => env('MILITARY_TIME', 0),
+        'start_of_week' => env('START_OF_WEEK',1),
+        'financial_year_start' => env('FINANCIAL_YEAR_START', '2000-01-01')
     ],
 
     'testvars' => [
@@ -54,6 +58,5 @@ return [
         'from_name' => env('MAIL_FROM_NAME'),
     ],
 
-    'settings' => env('COMPANY_SETTINGS', '{"timezone_id":"15","currency_id":"1","language_id":"1","payment_terms":"7"}'),
 
 ];

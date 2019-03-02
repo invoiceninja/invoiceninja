@@ -55,10 +55,14 @@ class CreateUser
             'account_id' => $this->account->id,
             'is_owner' => 1,
             'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => json_encode([]),
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
+
         event(new UserCreated($user));
+
 
         return $user;
     }

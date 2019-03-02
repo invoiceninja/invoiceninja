@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\ClientSettings;
 use App\Models\Company;
 use App\Models\Country;
 use App\Utils\Traits\MakesHash;
@@ -17,7 +18,9 @@ class Client extends BaseModel
 
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
-    //protected $appends = ['client_id'];
+    protected $appends = [
+        'client_settings_object'
+    ];
 
     protected $guarded = [
         'id',
@@ -39,6 +42,11 @@ class Client extends BaseModel
     ];
 
     //protected $dates = ['deleted_at'];
+
+    public function getClientSettingsObjectAttribute()
+    {
+        return new ClientSettings($this->settings);
+    }
 
     public function getHashedIdAttribute()
     {

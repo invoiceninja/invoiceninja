@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\ClientSettings;
 use App\Datatables\ClientDatatable;
 use App\Datatables\MakesActionMenu;
 use App\Factory\ClientFactory;
@@ -124,7 +125,7 @@ class ClientController extends Controller
 
         $data = [
         'client' => $client,
-        'settings' => collect($client->settings),
+        'settings' => collect(ClientSettings::buildClientSettings(auth()->user()->company()->settings_object, $client->client_settings_object)),
         'pills' => $this->makeEntityTabMenu(Client::class),
         'hashed_id' => $this->encodePrimarykey($client->id),
         'company' => auth()->user()->company(),
