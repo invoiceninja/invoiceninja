@@ -10,7 +10,7 @@ class PaymentExpressPxPostPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails();
 
-        $data['transactionId'] = $data['transactionId'] . '-' . $this->invoice()->updated_at->timestamp;
+        $data['transactionId'] = substr($data['transactionId'] . '-' . strrev($this->invoice()->updated_at->timestamp), 0, 15);
 
         return $data;
     }
