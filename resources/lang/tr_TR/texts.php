@@ -1072,7 +1072,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Recurring Number',
-    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
+    'recurring_invoice_number_prefix_help' => 'Specify a prefix to be added to the invoice number for recurring invoices.',
 
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',

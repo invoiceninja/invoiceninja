@@ -1064,7 +1064,7 @@ $LANG = array(
     'invoice_item_fields' => 'Campos de itens na Nota de Pagamento',
     'custom_invoice_item_fields_help' => 'Adicionar um campo ao adicionar um item e mostrar a etiqueta e valor no PDF.',
     'recurring_invoice_number' => 'Nº Recorrente',
-    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
+    'recurring_invoice_number_prefix_help' => 'Specify a prefix to be added to the invoice number for recurring invoices.',
 
     // Client Passwords
     'enable_portal_password' => 'Proteger notas de pag. com palavra-passe',
