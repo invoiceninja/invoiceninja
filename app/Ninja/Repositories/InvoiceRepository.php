@@ -821,24 +821,15 @@ class InvoiceRepository extends BaseRepository
         }
 
         foreach ($client->contacts as $contact) {
-            $invitations = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->orderBy('id')->get();
-
-            if ($invitations->count() == 0) {
-                if (in_array($contact->id, $sendInvoiceIds)) {
-                    $invitation = Invitation::createNew($invoice);
-                    $invitation->invoice_id = $invoice->id;
-                    $invitation->contact_id = $contact->id;
-                    $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
-                    $invitation->save();
-                }
-            } else {
-                $isFirst = true;
-                foreach ($invitations as $invitation) {
-                    if (! in_array($contact->id, $sendInvoiceIds) || !$isFirst) {
-                        $invitation->delete();
-                    }
-                    $isFirst = false;
-                }
+            $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
+            if (in_array($contact->id, $sendInvoiceIds) && ! $invitation) {
+                $invitation = Invitation::createNew($invoice);
+                $invitation->invoice_id = $invoice->id;
+                $invitation->contact_id = $contact->id;
+                $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $invitation->save();
+            } elseif (! in_array($contact->id, $sendInvoiceIds) && $invitation) {
+                $invitation->delete();
             }
         }
 
