@@ -33,21 +33,6 @@ class DefaultSettings extends BaseSettings
 	{
 		
 		return (object)[
-			'datatable' => (object) [
-				'per_page' => self::$per_page,
-				'column_visibility' => (object)[
-	    			'name' => true,
-	    			'contact' => true,
-	    			'email' => true,
-	    			'client_created_at' => true,
-	    			'last_login' => true,
-	    			'balance' => true,
-	    			'custom_value1' => false,
-	    			'custom_value2' => true,
-	    			'custom_value3' => false,
-	    			'custom_value4' => false,
-				]
-			]
 		];
 
 	}

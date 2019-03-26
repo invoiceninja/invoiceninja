@@ -232,7 +232,6 @@ return [
          * Dependency Facades
          */
 
-        'Html' => Spatie\Html\Facades\Html::class,
         'Countries' => 'Webpatser\Countries\CountriesFacade',
 
     ],
