@@ -15,8 +15,8 @@
                         <h1 style="text-align: center;">@lang('texts.login_create_an_account')</h1>
                         <p class="text-muted"></p>
 
-                        {{ html()->form('POST', route('signup.submit'))->open() }}
-
+                            <form method="POST" action="{{ route('signup.submit')}}">
+                            @csrf
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
@@ -98,8 +98,7 @@
                         <button class="btn btn-block btn-success" type="submit" :disabled="!isDisabled">@lang('texts.create_account')</button>
                     </div>
 
-                    {{ html()->form()->close() }}
-
+                    </form>
                     <div class="card-footer p-4">
                         <div class="row">
                             <div class="col-6">

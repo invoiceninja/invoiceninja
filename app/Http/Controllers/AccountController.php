@@ -49,8 +49,8 @@ class AccountController extends Controller
         $user = CreateAccount::dispatchNow($request->all());
 
         //todo redirect to localization setup workflow
-        return redirect()->route('dashboard.index');
-
+        //return redirect()->route('dashboard.index');
+        return response()->json($user);
     }
 
     /**

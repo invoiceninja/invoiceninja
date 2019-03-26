@@ -63,7 +63,7 @@ class CreateAccount
         /*
          * Create token
          */
-        CreateCompanyToken::dispatchNow($company, $account);
+        $company_token = CreateCompanyToken::dispatchNow($company, $user);
 
         /*
          * Set current company

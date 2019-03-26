@@ -11,6 +11,9 @@ class CompanyToken extends BaseModel
      */
     public $timestamps = false;
 
+    protected $guarded = [
+        'id',
+    ];
 
     public function account()
     {

@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Faker\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -18,33 +19,35 @@ use Tests\TestCase;
 class ClientTest extends TestCase
 {
 
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
 
     public function setUp()
     {
         parent::setUp();
         Session::start();
 
-        $faker = \Faker\Factory::create();
-
-        $this->data = [
-            'first_name' => $faker->firstName,
-            'last_name' => $faker->lastName,
-            'email' => $faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token()
-        ];
-
-       // $this->user = CreateAccount::dispatchNow($data);
+        $this->faker = \Faker\Factory::create();
+        Model::reguard();
     }
 
     public function testAccountCreation()
     {
-        $response = $this->post('/signup', $this->data);
+        $data = [
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'email' => $this->faker->unique()->safeEmail,
+            'password' => 'ALongAndBrilliantPassword123',
+            '_token' => csrf_token(),
+            'privacy_policy' => 1,
+            'terms_of_service' => 1
+        ];
 
-        $this->assertEquals($response->json(), 'yadda');
-        //$response->assertSuccessful();
-        //$response->assertStatus(200);
+        $response = $this->post('/signup', $data);
+
+        $response->assertStatus(200)
+                ->assertJson([
+                'first_name' => $data['first_name'],
+            ]);
 
     }
 
