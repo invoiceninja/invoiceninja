@@ -162,7 +162,6 @@ return [
         /*
          * Dependency Service Providers
          */
-        Spatie\Html\HtmlServiceProvider::class,
         'Webpatser\Countries\CountriesServiceProvider',
 
         /*
