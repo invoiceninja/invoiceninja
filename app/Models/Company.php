@@ -180,4 +180,9 @@ class Company extends BaseModel
         return $this->hasMany(Payment::class, 'account_id', 'id')->withTrashed();
     }
 
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class);
+    }
+
 }

@@ -5,12 +5,7 @@ Invoice Ninja provides a RESTful API, `click here <https://app.invoiceninja.com/
 
 To access the API you first need to create a token using the "API Tokens” page under "Advanced Settings”.
 
-- **Zapier** [hosted or self-host]: https://zapier.com/zapbook/invoice-ninja/
-- **Integromat**: https://www.integromat.com/en/integrations/invoiceninja
-- **PHP SDK**: https://github.com/invoiceninja/sdk-php
-- **Zend Framework**: https://github.com/alexz707/InvoiceNinjaModule
-
-.. NOTE:: Replace ninja.test with https://app.invoiceninja.com to access a hosted account.
+.. NOTE:: Replace ninja.test with https://admin.invoiceninja.com to access a hosted account.
 
 Reading Data
 """"""""""""
@@ -75,7 +70,9 @@ Here’s an example of creating a client. Note that email address is a property 
 .. code-block:: shell
 
   curl -X POST ninja.test/api/v1/clients -H "Content-Type:application/json" \
-    -d '{"name":"Client","contact":{"email":"test@example.com"}}' -H "X-Ninja-Token: TOKEN"
+    -d '{"name":"Client","contact":{"email":"test@example.com"}}' \
+    -H "X-API-TOKEN: TOKEN" \
+    -H "X-API-SECRET: SECRET"
 
 You can also update a client by specifying a value for ‘id’. Next, here’s an example of creating an invoice.
 
@@ -83,7 +80,8 @@ You can also update a client by specifying a value for ‘id’. Next, here’s 
 
   curl -X POST ninja.test/api/v1/invoices -H "Content-Type:application/json" \
     -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}' \
-    -H "X-Ninja-Token: TOKEN"
+    -H "X-Ninja-Token: TOKEN" \
+    -H "X-API-SECRET: SECRET"
 
 If the email field is set we’ll search for a matching client, if no matches are found a new client will be created.
 
@@ -108,14 +106,18 @@ Updating Data
 
   curl -X PUT ninja.test/api/v1/clients/1 -H "Content-Type:application/json" \
     -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}' \
-    -H "X-Ninja-Token: TOKEN"
+    -H "X-Ninja-Token: TOKEN" \
+    -H "X-API-SECRET: SECRET"
+
 
 You can archive, delete or restore an entity by setting ``action`` in the request
 
 .. code-block:: shell
 
   curl -X PUT ninja.test/api/v1/invoices/1?action=archive \
-    -H "X-Ninja-Token: TOKEN"
+    -H "X-Ninja-Token: TOKEN" \
+    -H "X-API-SECRET: SECRET"
+
 
 .. TIP:: For invoices use `mark_sent` to manually mark the invoice as sent
 
@@ -127,4 +129,6 @@ To email an invoice use the email_invoice command passing the id of the invoice.
 .. code-block:: shell
 
   curl -X POST ninja.test/api/v1/email_invoice -d '{"id":1}' \
-    -H "Content-Type:application/json" -H "X-Ninja-Token: TOKEN"
+    -H "Content-Type:application/json" \
+    -H "X-Ninja-Token: TOKEN" \
+    -H "X-API-SECRET: SECRET"

@@ -60,7 +60,6 @@ class CreateUser
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
-
         event(new UserCreated($user));
 
 

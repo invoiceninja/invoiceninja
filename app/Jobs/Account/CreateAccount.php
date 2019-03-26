@@ -4,6 +4,7 @@ namespace App\Jobs\Account;
 
 use App\Events\Account\AccountCreated;
 use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\CreateUser;
 use App\Models\Account;
 use App\Models\User;
@@ -58,6 +59,11 @@ class CreateAccount
          * Create user
          */
         $user = CreateUser::dispatchNow($this->request, $account, $company);
+
+        /*
+         * Create token
+         */
+        CreateCompanyToken::dispatchNow($company, $account);
 
         /*
          * Set current company
