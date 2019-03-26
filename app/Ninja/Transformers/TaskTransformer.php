@@ -19,8 +19,8 @@ class TaskTransformer extends EntityTransformer
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="recurring_invoice_id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="client_id", type="integer", example=1) 
-     * @SWG\Property(property="project_id", type="integer", example=1) 
+     * @SWG\Property(property="client_id", type="integer", example=1)
+     * @SWG\Property(property="project_id", type="integer", example=1)
      * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
      * @SWG\Property(property="time_log", type="string", example="Time Log")
      * @SWG\Property(property="is_running", type="boolean", example=false)
@@ -76,7 +76,7 @@ class TaskTransformer extends EntityTransformer
             'custom_value1' => $task->custom_value1 ?: '',
             'custom_value2' => $task->custom_value2 ?: '',
             'task_status_id' => $task->task_status ? (int) $task->task_status->public_id : 0,
-            'task_status_sort_order' => $task->task_status_sort_order,
+            'task_status_sort_order' => (int) $task->task_status_sort_order,
         ]);
     }
 }
