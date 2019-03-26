@@ -27,25 +27,30 @@ class ClientTest extends TestCase
 
         $faker = \Faker\Factory::create();
 
-        $data = [
+        $this->data = [
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
             'email' => $faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123'
+            'password' => 'ALongAndBrilliantPassword123',
+            '_token' => csrf_token()
         ];
 
-        $this->user = CreateAccount::dispatchNow($data);
+       // $this->user = CreateAccount::dispatchNow($data);
     }
 
+    public function testAccountCreation()
+    {
+        $response = $this->post('/signup', $this->data);
 
-    /**
-     * A valid user can be logged in.
-     *
-     * @return void
-     */
+        $this->assertEquals($response->json(), 'yadda');
+        //$response->assertSuccessful();
+        //$response->assertStatus(200);
+
+    }
+
     public function testUserCreated()
     {
-        $this->assertTrue($user);
+        $this->assertTrue(true);
     }
 
 

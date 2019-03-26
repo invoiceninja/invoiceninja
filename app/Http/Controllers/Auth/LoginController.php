@@ -52,7 +52,7 @@ class LoginController extends Controller
      */
     public function authenticated(Request $request, User $user) : void
     {
-        $this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
+        //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
 
     /**
