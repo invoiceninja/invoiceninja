@@ -70,7 +70,10 @@ class ClientTest extends TestCase
 
     }
 
-    public function testClientShow()
+    /*
+     * @covers ClientController
+     */
+    public function testClientRestEndPoints()
     {
 
         $data = [
@@ -118,6 +121,7 @@ class ClientTest extends TestCase
         });
 
         $client = $account->default_company->clients()->first();
+        $client->load('contacts');
 
 
         $response = $this->withHeaders([
@@ -133,7 +137,27 @@ class ClientTest extends TestCase
             ])->get('/api/v1/clients/'.$this->encodePrimaryKey($client->id).'/edit');
 
         $response->assertStatus(200);
-    }
+
+        $client_update = [
+            'name' => 'A Funky Name'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->put('/api/v1/clients/'.$this->encodePrimaryKey($client->id), $client_update)
+            ->assertJson([
+            'name' => 'A Funky Name'
+            ]);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->delete('/api/v1/clients/'.$this->encodePrimaryKey($client->id));
+
+        $response->assertStatus(200);
+
+        }
 
 
 }

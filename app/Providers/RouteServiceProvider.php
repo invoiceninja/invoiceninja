@@ -30,7 +30,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('client', function ($value) {
             $client = \App\Models\Client::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
-            //$client->load('contacts', 'primary_contact');
+            $client->with('contacts', 'primary_contact','country');
             return $client;
         });
 

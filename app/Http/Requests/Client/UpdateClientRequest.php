@@ -27,10 +27,12 @@ class UpdateClientRequest extends Request
 
         $contacts = request('contacts');
 
-            for ($i = 0; $i < count($contacts); $i++) {
-                $rules['contacts.' . $i . '.email'] = 'required|email|unique:client_contacts,email,' . $contacts[$i]['id'];
+            if(is_array($contacts))
+            {
+                for ($i = 0; $i < count($contacts); $i++) {
+                    $rules['contacts.' . $i . '.email'] = 'required|email|unique:client_contacts,email,' . $contacts[$i]['id'];
+                }
             }
-
             return $rules;
             
 

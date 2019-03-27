@@ -32,6 +32,9 @@ class AccountTest extends TestCase
         Model::reguard();
     }
 
+    /*
+     * @covers AccountController
+     */
     public function testAccountCreation()
     {
         $data = [

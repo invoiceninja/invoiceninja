@@ -11,7 +11,7 @@ use App\Models\ClientContact;
 class ClientContactRepository extends BaseRepository
 {
 
-	public function save(array $contacts, Client $client) : void
+	public function save($contacts, Client $client) : void
 	{
 
 		/* Convert array to collection */
