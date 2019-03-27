@@ -57,7 +57,6 @@ class UniqueEmailTest extends TestCase
             'first_name' => 'user_db_1',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-            'db' => config('database.default'),
             'account_id' => $account->id,
         ];
 
@@ -65,7 +64,6 @@ class UniqueEmailTest extends TestCase
             'first_name' => 'user_db_2',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-            'db' => config('database.default'),
             'account_id' => $account2->id,
         ];
 
