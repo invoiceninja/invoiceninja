@@ -76,7 +76,7 @@ class UsersTableSeeder extends Seeder
         ]);
 
 
-        factory(\App\Models\Client::class, 50)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
+        factory(\App\Models\Client::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $user->id,

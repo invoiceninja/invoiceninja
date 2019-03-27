@@ -89,7 +89,6 @@ class ClientController extends Controller
 
         $data = [
         'client' => $client,
-        'settings' => collect(ClientSettings::buildClientSettings($client->company()->settings_object, $client->client_settings_object)),
         'hashed_id' => $this->encodePrimarykey($client->id),
         'company' => $client->company(),
         'sizes' => Size::all(),
