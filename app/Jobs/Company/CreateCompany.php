@@ -42,9 +42,9 @@ class CreateCompany
         $company->name = $this->request['first_name'] . ' ' . $this->request['last_name'];
         $company->account_id = $this->account->id;
         $company->company_key = $this->createHash();
-        $company->db = config('database.default');
         $company->ip = request()->ip();
         $company->settings = CompanySettings::defaults();
+        $company->db = config('database.default');
         $company->save();
 
 

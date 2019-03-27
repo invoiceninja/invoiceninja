@@ -2,6 +2,7 @@
 
 namespace App\Libraries;
 
+use App\Models\CompanyToken;
 use App\Models\User;
 
 /**
@@ -74,6 +75,23 @@ class MultiDB
             return false;
     }
 
+    public static function findAndSetDb($token) :bool
+    {
+
+        foreach (self::$dbs as $db)
+        {
+
+            if($ct = CompanyToken::on($db)->whereRaw("BINARY `token`= ?", [$token])->first()) 
+            {
+
+                self::setDb($ct->company->db);
+                return true;
+            }
+
+        }
+        return false;
+
+    }
 
     /**
      * @param $database

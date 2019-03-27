@@ -22,6 +22,5 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
         'email_verified_at' => now(),
         'password'          => bcrypt(config('ninja.testvars.password')), // secret
         'remember_token'    => str_random(10),
-        'db'                => config('database.default')
     ];
 });

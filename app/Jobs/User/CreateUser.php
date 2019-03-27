@@ -47,7 +47,6 @@ class CreateUser
         $user->password = bcrypt($this->request['password']);
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));
-        $user->db = config('database.default');
         $user->fill($this->request);
         $user->save();
 

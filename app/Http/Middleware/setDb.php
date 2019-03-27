@@ -14,13 +14,32 @@ class SetDb
      * @param  \Closure  $next
      * @return mixed
      */
+    
     public function handle($request, Closure $next)
     {
-        if (config('ninja.db.multi_db_enabled'))
+
+        $error['error'] = ['message' => 'Database could not be set'];
+
+
+        if( $request->header('X-API-TOKEN') && ($user = CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()->user ) && config('ninja.db.multi_db_enabled')) 
         {
-            MultiDB::setDB(auth()->user()->db);
+
+            if(! MultiDB::findAndSetDb($request->header('X-API-TOKEN')))
+            {
+
+            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
+
+            }
+        
+        }
+        else {
+
+
+            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
         }
 
         return $next($request);
     }
+
+
 }

@@ -204,7 +204,6 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
-            $table->string('db', 100);
             $table->text('signature');
             $table->string('password');
             $table->rememberToken();
@@ -224,6 +223,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id')->index();
             $table->string('token')->nullable();
             $table->string('name')->nullable();
+            $table->string('db', 100)->nullable();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

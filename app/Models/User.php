@@ -92,7 +92,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $ct->company;
 
-//        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
     }
 
     /**

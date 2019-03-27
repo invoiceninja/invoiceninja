@@ -25,7 +25,7 @@ Route::group(['middleware' => ['api_secret_check']], function () {
 });
 
 
-Route::group(['middleware' => ['api_secret_check','token_auth']], function () {
+Route::group(['middleware' => ['db','api_secret_check','token_auth']], function () {
 
   Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
 
