@@ -121,7 +121,7 @@ class ClientController extends Controller
      */
     public function create(CreateClientRequest $request)
     {
-        $client = ClientFactory::create($this->getCurrentCompanyId(), auth()->user()->id);
+        $client = ClientFactory::create(auth()->user()->company(), auth()->user()->id);
 
         $data = [
             'client' => $client,

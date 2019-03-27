@@ -19,11 +19,12 @@ class CollectionMergingTest extends TestCase
     public function setUp()
     {
 	    parent::setUp();
+
 	    Session::start();
 
 	    $this->setCurrentCompanyId(1);
 
-		$this->terms = PaymentTerm::scope()->get();
+		$this->terms = PaymentTerm::all();
     }
 
     public function testBlankCollectionReturned()

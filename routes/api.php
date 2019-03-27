@@ -29,6 +29,8 @@ Route::group(['middleware' => ['api_secret_check','token_auth']], function () {
 
   Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
 
+  Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
+
   Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
 
   Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
@@ -40,8 +42,6 @@ Route::group(['middleware' => ['api_secret_check','token_auth']], function () {
   Route::resource('recurring_invoices', 'RecurringInvoiceController'); // name = (recurring_invoices. index / create / show / update / destroy / edit
 
   Route::post('recurring_invoices/bulk', 'RecurringInvoiceController@bulk')->name('recurring_invoices.bulk');
-
-  Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
   Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Traits\UserTrait;
 use App\Utils\Traits\MakesHash;
@@ -62,7 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function token()
     {
-        return $this->tokens->first();
+        return $this->tokens()->first();
     }
 
     public function tokens()
@@ -87,7 +88,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function company()
     {
-        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
+        $ct = CompanyToken::whereToken(request()->header('X-API-TOKEN'))->first();
+
+        return $ct->company;
+
+//        return $this->companies()->where('company_id', $this->getCurrentCompanyId())->first();
     }
 
     /**
@@ -105,11 +110,14 @@ class User extends Authenticatable implements MustVerifyEmail
      * querying directly on the pivot table relationship
      * 
      * @return Collection
+     * @deprecated
      */
     public function user_company()
     {
+        $ct = CompanyToken::whereToken(request()->header('X-API-TOKEN'))->first();
 
-        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
+        return $ct->company;
+        //return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
 
     }
 
@@ -121,7 +129,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function companyId() :int
     {
 
-        return $this->getCurrentCompanyId();
+        return $this->company()->id;
         
     }
 
@@ -133,7 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         
-        $permissions = json_decode($this->user_company()->permissions);
+        $permissions = json_decode($this->company()->permissions);
         
         if (! $permissions) 
             return [];
@@ -149,7 +157,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function settings()
     {
 
-        return json_decode($this->user_company()->settings);
+        return json_decode($this->company()->settings);
 
     }
 
@@ -161,7 +169,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin() : bool
     {
 
-        return (bool) $this->user_company()->is_admin;
+        return (bool) $this->company()->is_admin;
 
     }
 
