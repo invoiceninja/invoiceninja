@@ -17,7 +17,7 @@ use Tests\TestCase;
  */
 class UniqueEmailTest extends TestCase
 {
-    use InteractsWithDatabase;
+    //use InteractsWithDatabase;
 
     protected $rule;
 

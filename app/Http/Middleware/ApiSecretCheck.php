@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\CompanyToken;
 use App\Models\User;
 use Closure;
+use Illuminate\Support\Facades\Log;
 
-class TokenAuth
+class ApiSecretCheck
 {
     /**
      * Handle an incoming request.
@@ -18,19 +18,17 @@ class TokenAuth
     public function handle($request, Closure $next)
     {
 
-        if( $request->header('X-API-TOKEN') && ($user = CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()->user ) ) 
+        if( $request->header('X-API-SECRET') && ($request->header('X-API-SECRET') == config('ninja.api_secret')) )
         {
-
-            auth()->login($user);
-        
+            return $next($request);
         }
         else {
 
-            $error['error'] = ['message' => 'Invalid token'];
+            $error['error'] = ['message' => 'Invalid secret'];
 
             return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
         }
 
-        return $next($request);
+        
     }
 }

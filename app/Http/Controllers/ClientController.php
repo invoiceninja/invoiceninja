@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\ClientSettings;
-use App\Datatables\MakesActionMenu;
 use App\Factory\ClientFactory;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -20,7 +19,6 @@ use App\Models\Currency;
 use App\Models\Size;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesMenu;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -34,8 +32,6 @@ class ClientController extends Controller
 {
     use UserSessionAttributes;
     use MakesHash;
-    use MakesMenu;
-    use MakesActionMenu;
 
     /**
      * @var ClientRepository
@@ -70,17 +66,16 @@ class ClientController extends Controller
     public function show(ShowClientRequest $request, Client $client)
     {
 
-
        $data = [
             'client' => $client,
-            'company' => auth()->user()->company(),
+            'company' => $client->company(),
             'meta' => collect([
                 'google_maps_api_key' => config('ninja.google_maps_api_key')
             ])
         ];
 
-        return response()->json($data);
-
+        //return response()->json($data);
+        return redirect()->route('clients.edit', ['id' => $this->encodePrimarykey($client->id)]);
     }
 
     /**
@@ -94,9 +89,9 @@ class ClientController extends Controller
 
         $data = [
         'client' => $client,
-        'settings' => collect(ClientSettings::buildClientSettings(auth()->user()->company()->settings_object, $client->client_settings_object)),
+        'settings' => collect(ClientSettings::buildClientSettings($client->company()->settings_object, $client->client_settings_object)),
         'hashed_id' => $this->encodePrimarykey($client->id),
-        'company' => auth()->user()->company(),
+        'company' => $client->company(),
         'sizes' => Size::all(),
         ];
 

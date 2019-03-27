@@ -60,6 +60,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
+    public function token()
+    {
+        return $this->tokens->first();
+    }
+
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class)->orderBy('id');
+    }
+
     /**
      * Returns all companies a user has access to.
      * 

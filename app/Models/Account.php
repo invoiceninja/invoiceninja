@@ -50,7 +50,7 @@ class Account extends BaseModel
 
     public function default_company()
     {
-        return $this->hasOne(Company::class, 'default_company_id', 'id');
+        return $this->hasOne(Company::class, 'id', 'default_company_id');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -12,7 +12,6 @@ class CreateAccountTest extends DuskTestCase
 {
 
     use WithFaker;
-    use DatabaseTransactions;
 
 
     public function testSignupFormDisplayed()
@@ -27,7 +26,6 @@ class CreateAccountTest extends DuskTestCase
      */
     public function testCreateAValidUser()
     {
-        DB::beginTransaction();
 
         $this->browse(function (Browser $browser) {
             $browser->visit('/signup')
@@ -41,7 +39,6 @@ class CreateAccountTest extends DuskTestCase
                 ->assertPathIs('/dashboard');
         });
 
-        DB::rollback();
     }
 
 }

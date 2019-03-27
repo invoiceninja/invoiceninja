@@ -9,6 +9,7 @@ return [
     'app_version' => '0.1',
     'terms_version' => '1.0.1',
     'app_env' => env('APP_ENV', 'development'),
+    'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'

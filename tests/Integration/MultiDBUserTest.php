@@ -22,7 +22,7 @@ use Tests\TestCase;
 class MultiDBUserTest extends TestCase
 {
     //use DatabaseMigrations;
-    use InteractsWithDatabase;
+    //use InteractsWithDatabase;
 
     public function setUp()
     {

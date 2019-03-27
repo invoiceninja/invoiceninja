@@ -3,6 +3,7 @@
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\CompanyToken;
 use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
@@ -38,6 +39,14 @@ class RandomDataSeeder extends Seeder
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 
+        $company_token = CompanyToken::create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => str_random(64),
+        ]);
+
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,
@@ -62,7 +71,7 @@ class RandomDataSeeder extends Seeder
         ]);
 
 
-        factory(\App\Models\Client::class, 50)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
+        factory(\App\Models\Client::class, 5)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $user->id,
@@ -76,16 +85,7 @@ class RandomDataSeeder extends Seeder
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-/*
-            factory(\App\Models\ClientLocation::class,1)->create([
-                'client_id' => $c->id,
-                'is_primary_billing' => 1
-            ]);
 
-            factory(\App\Models\ClientLocation::class,10)->create([
-                'client_id' => $c->id,
-            ]);
-*/
         });
 
 

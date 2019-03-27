@@ -16,8 +16,9 @@ use Tests\TestCase;
 class LoginTest extends TestCase
 {
 
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
     use UserSessionAttributes;
+    use RefreshDatabase;
 
     public function setUp()
     {
