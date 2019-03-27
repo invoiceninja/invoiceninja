@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
+use App\Models\CompanyToken;
 use Closure;
 
 class SetDb
