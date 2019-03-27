@@ -114,10 +114,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function user_company()
     {
-        $ct = CompanyToken::whereToken(request()->header('X-API-TOKEN'))->first();
 
-        return $ct->company;
-        //return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
+        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
 
     }
 
@@ -169,7 +167,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin() : bool
     {
 
-        return (bool) $this->company()->is_admin;
+        return (bool) $this->user_company()->is_admin;
 
     }
 

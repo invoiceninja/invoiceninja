@@ -103,6 +103,8 @@ class ClientTest extends TestCase
 
         $user = User::find($company_user->user_id);
 
+        $this->assertTrue($user->isAdmin());
+
         factory(\App\Models\Client::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
             factory(\App\Models\ClientContact::class,1)->create([
@@ -154,6 +156,18 @@ class ClientTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
             ])->delete('/api/v1/clients/'.$this->encodePrimaryKey($client->id));
+
+        $response->assertStatus(200);
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->post('/api/v1/clients/', ['name' => 'New Client'])
+            ->assertJson([
+            'name' => 'New Client'
+            ]);
+
 
         $response->assertStatus(200);
 

@@ -19,7 +19,6 @@ use App\Models\Currency;
 use App\Models\Size;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -30,7 +29,6 @@ use Illuminate\Support\Facades\Cache;
  */
 class ClientController extends Controller
 {
-    use UserSessionAttributes;
     use MakesHash;
 
     /**
@@ -74,7 +72,6 @@ class ClientController extends Controller
             ])
         ];
 
-        //return response()->json($data);
         return redirect()->route('clients.edit', ['id' => $this->encodePrimarykey($client->id)]);
     }
 
@@ -121,7 +118,7 @@ class ClientController extends Controller
      */
     public function create(CreateClientRequest $request)
     {
-        $client = ClientFactory::create(auth()->user()->company(), auth()->user()->id);
+        $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         $data = [
             'client' => $client,
@@ -141,7 +138,7 @@ class ClientController extends Controller
     public function store(StoreClientRequest $request)
     {
 
-        $client = StoreClient::dispatchNow($request, new Client);
+        $client = StoreClient::dispatchNow($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
 

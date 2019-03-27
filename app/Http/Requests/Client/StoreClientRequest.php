@@ -15,7 +15,7 @@ class StoreClientRequest extends Request
 
     public function authorize() : bool
     {
-        return $this->user()->can('create', Client::class);
+        return auth()->user()->can('create', Client::class);
     }
 
     public function rules()

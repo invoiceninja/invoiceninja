@@ -2,7 +2,6 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\View\View;
 
 /**
@@ -11,7 +10,6 @@ use Illuminate\View\View;
  */
 class HeaderComposer
 {
-    use UserSessionAttributes;
 
     /**
      * Bind data to the view.
@@ -40,7 +38,7 @@ class HeaderComposer
         });
 
         $data['companies'] = $companies->reject(function ($company){
-            return $company->id == auth()->user()->company->id;
+            return $company->id == auth()->user()->company()->id;
         });
 
         return $data;

@@ -15,7 +15,7 @@ class ShowClientRequest extends Request
 
     public function authorize() : bool
     {
-        return $this->user()->can('view', $this->client);
+        return auth()->user()->can('view', $this->client);
     }
 
 }

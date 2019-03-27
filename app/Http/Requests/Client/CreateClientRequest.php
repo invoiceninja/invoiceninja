@@ -15,7 +15,7 @@ class CreateClientRequest extends Request
 
     public function authorize() : bool
     {
-        return $this->user()->can('create', Client::Class);
+        return auth()->user()->can('create', Client::Class);
     }
 
 }

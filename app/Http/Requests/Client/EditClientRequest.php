@@ -15,7 +15,7 @@ class EditClientRequest extends Request
 
     public function authorize()
     {
-        return $this->user()->can('edit', $this->client);
+        return auth()->user()->can('edit', $this->client);
     }
 
     public function sanitize()
