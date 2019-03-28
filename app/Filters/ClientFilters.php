@@ -4,7 +4,7 @@ namespace App\Filters;
 
 use App\Models\Client;
 use App\Models\User;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -166,5 +166,13 @@ class ClientFilters extends QueryFilters
 
         return $query;
     }
+
+     public function company()
+        {
+            $entity = strtolower(class_basename(Client::class));
+
+            $this->builder->where($entity .'.company_id', '=', auth()->user()->company()->id);
+
+        }
 
 }

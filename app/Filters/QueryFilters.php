@@ -46,11 +46,9 @@ abstract class QueryFilters
      *
      * @param Request $request
      */
-    public function __construct(Request $request, Builder $builder)
+    public function __construct(Request $request)
     {
         $this->request = $request;
-
-        $this->builder = $builder;
     }
 
     /**
@@ -59,9 +57,9 @@ abstract class QueryFilters
      * @param  Builder $builder
      * @return Builder
      */
-    public function apply(int $company_id, User $user)
+    public function apply(Builder $builder)
     {
-        $this->builder = $this->baseQuery($company_id, $user);
+        $this->builder = $builder;
 
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {

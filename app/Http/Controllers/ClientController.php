@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
+use App\Filters\ClientFilters;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
@@ -50,9 +51,11 @@ class ClientController extends Controller
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
-    public function index()
+    public function index(ClientFilters $filters)
     {
-        return response()->json(Client::scope());
+        $clients = Client::filter($filters)->get();
+        
+        return response()->json($clients);
     }
 
     /**

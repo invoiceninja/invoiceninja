@@ -5,6 +5,7 @@ namespace App\Models;
 use App\DataMapper\ClientSettings;
 use App\Models\Company;
 use App\Models\Country;
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +16,8 @@ class Client extends BaseModel
     use PresentableTrait;
     use MakesHash;
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
     protected $appends = [

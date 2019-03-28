@@ -63,11 +63,21 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
+    /**
+     * Returns a account.
+     * 
+     * @return Collection
+     */
     public function account()
     {
         return $this->belongsTo(Account::class);
     }
 
+    /**
+     * Returns all company tokens.
+     * 
+     * @return Collection
+     */
     public function tokens()
     {
         return $this->hasMany(CompanyToken::class)->orderBy('id');
@@ -83,7 +93,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 
-
+    /**
+     * Returns the current company
+     * 
+     * @return Collection
+     */
     public function company()
     {
         return $this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
