@@ -45,6 +45,8 @@ class ClientFilters extends QueryFilters
      * 
      * @param  string query filter
      * @return Illuminate\Database\Query\Builder
+     * @deprecated
+     *     
      */
     public function filter(string $filter = '') : Builder
     {
@@ -119,6 +121,7 @@ class ClientFilters extends QueryFilters
      * 
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
+     * @deprecated
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
@@ -167,6 +170,12 @@ class ClientFilters extends QueryFilters
         return $query;
     }
 
+    /**
+     * Filters the query by the users company ID
+     * 
+     * @param $company_id The company Id
+     * @return Illuminate\Database\Query\Builder
+     */
      public function entityFilter()
     {
         

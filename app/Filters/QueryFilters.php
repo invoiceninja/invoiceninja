@@ -15,15 +15,17 @@ use Illuminate\Http\Request;
 abstract class QueryFilters
 {
     /**
-     *
+     * active status
      */
     const STATUS_ACTIVE = 'active';
+
     /**
-     *
+     * archived status
      */
     const STATUS_ARCHIVED = 'archived';
+
     /**
-     *
+     * deleted status
      */
     const STATUS_DELETED = 'deleted';
 
@@ -62,7 +64,7 @@ abstract class QueryFilters
         $this->builder = $builder;
 
         $this->entityFilter();
-        
+
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {
                 continue;
