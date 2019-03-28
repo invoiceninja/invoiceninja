@@ -93,15 +93,22 @@ class ClientTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($acc['id']);
+        $account = Account::find($acc['id']);        
 
-        $token = $account->default_company->tokens()->first()->token;
+        $company_token = $account->default_company->tokens()->first();
+        $token = $company_token->token;
+        $company = $company_token->company;
 
-        $company = $account->default_company;
+        $user = $company_token->user;
 
-        $company_user = $company->company_users()->first();
+        //$company_user = $company->company_users()->first();
 
-        $user = User::find($company_user->user_id);
+        //$user = User::find($company_user->user_id);
+        $this->assertNotNull($company_token);
+        $this->assertNotNull($token);
+        $this->assertNotNull($user);
+        $this->assertNotNull($company);
+        $this->assertNotNull($user->tokens()->first()->company);
 
         $this->assertTrue($user->isAdmin());
 

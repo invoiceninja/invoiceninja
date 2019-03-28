@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Traits\UserTrait;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -66,11 +68,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Account::class);
     }
 
-    public function token()
-    {
-        return $this->tokens()->first();
-    }
-
     public function tokens()
     {
         return $this->hasMany(CompanyToken::class)->orderBy('id');
@@ -86,17 +83,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 
-    /**
-     * Returns the current Company
-     * 
-     * @return Collection
-     */
-    public function company()
+
+    public function getCompany()
     {
-        $ct = CompanyToken::whereToken(request()->header('X-API-TOKEN'))->first();
-
-        return $ct->company;
-
+        //$ct = CompanyToken::whereToken(request()->header('X-API-TOKEN'))->first();
+        //Log::error($this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company);
+        //return $this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
+        Log::error('the request header = '.request()->header('X-API-TOKEN'));
+        return $this->tokens()->first()->company;
     }
 
     /**
@@ -118,8 +112,12 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function user_company()
     {
-
-        return $this->user_companies->where('company_id', $this->company()->id)->first();
+     //   Log::error('user_co 1'.$this->company()->id);
+     //   Log::error('coco');
+     //   Log::error('user_co '.$this->company());
+        Log::error('the company id = '.$this->companyId());
+     //   return $this->user_companies->whereCompanyId($this->company()->id)->first();
+        return $this->user_companies->where('company_id', $this->companyId())->first();
 
     }
 
@@ -131,7 +129,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function companyId() :int
     {
 
-        return $this->company()->id;
+        return $this->getCompany()->id;
         
     }
 
@@ -171,7 +169,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin() : bool
     {
 
-        return (bool) $this->user_company()->is_admin;
+        return $this->user_company()->is_admin;
 
     }
 

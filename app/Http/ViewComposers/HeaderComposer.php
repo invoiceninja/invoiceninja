@@ -34,11 +34,11 @@ class HeaderComposer
         $companies = auth()->user()->companies;
 
         $data['current_company'] = $companies->first(function ($company){
-            return $company->id == auth()->user()->company()->id;
+            return $company->id == auth()->user()->getCompany()->id;
         });
 
         $data['companies'] = $companies->reject(function ($company){
-            return $company->id == auth()->user()->company()->id;
+            return $company->id == auth()->user()->getCompany()->id;
         });
 
         return $data;

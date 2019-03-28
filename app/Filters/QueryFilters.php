@@ -3,7 +3,9 @@
 namespace App\Filters;
 
 use App\Models\User;
-use Illuminate\Database\Query\Builder;
+//use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
+
 use Illuminate\Http\Request;
 
 /**
@@ -47,6 +49,7 @@ abstract class QueryFilters
     public function __construct(Request $request, Builder $builder)
     {
         $this->request = $request;
+
         $this->builder = $builder;
     }
 

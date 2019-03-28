@@ -30,7 +30,7 @@ class BaseModel extends Model
 
     public function scopeScope($query)
     {
-        $query->where($this->getTable() .'.company_id', '=', auth()->user()->company()->id);
+        $query->where($this->getTable() .'.company_id', '=', auth()->user()->getCompany()->id);
 
         return $query;
     }

@@ -52,7 +52,7 @@ class ClientController extends Controller
      */
     public function index()
     {
-        return response()->json(Client::all());
+        return response()->json(Client::scope());
     }
 
     /**
@@ -118,7 +118,7 @@ class ClientController extends Controller
      */
     public function create(CreateClientRequest $request)
     {
-        $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $client = ClientFactory::create(auth()->user()->getCompany()->id, auth()->user()->id);
 
         $data = [
             'client' => $client,
@@ -138,7 +138,7 @@ class ClientController extends Controller
     public function store(StoreClientRequest $request)
     {
 
-        $client = StoreClient::dispatchNow($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $client = StoreClient::dispatchNow($request, ClientFactory::create(auth()->user()->getCompany()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
 
