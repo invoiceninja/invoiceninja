@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Ninja\Transformers;
+namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Client;
@@ -26,6 +26,9 @@ class PaymentTransformer extends EntityTransformer
      * @SWG\Property(property="exchange_rate", type="number", format="float", example=10)
      * @SWG\Property(property="exchange_currency_id", type="integer", example=1)
      */
+    
+    protected $serializer;
+
     protected $defaultIncludes = [];
 
     protected $availableIncludes = [
@@ -33,31 +36,31 @@ class PaymentTransformer extends EntityTransformer
         'invoice',
     ];
 
-    public function __construct($account = null, $serializer = null, $invoice = null)
+    public function __construct($serializer = null)
     {
-        parent::__construct($account, $serializer);
 
-        $this->invoice = $invoice;
+        $this->serializer = $serializer;
+
     }
 
     public function includeInvoice(Payment $payment)
     {
-        $transformer = new InvoiceTransformer($this->account, $this->serializer);
+        $transformer = new InvoiceTransformer($this->serializer);
 
-        return $this->includeItem($payment->invoice, $transformer, 'invoice');
+        return $this->includeItem($payment->invoice, $transformer, Invoice::class);
     }
 
     public function includeClient(Payment $payment)
     {
-        $transformer = new ClientTransformer($this->account, $this->serializer);
+        $transformer = new ClientTransformer($this->serializer);
 
-        return $this->includeItem($payment->client, $transformer, 'client');
+        return $this->includeItem($payment->client, $transformer, Client::class);
     }
-
+//todo incomplete
     public function transform(Payment $payment)
     {
-        return array_merge($this->getDefaults($payment), [
-            'id' => (int) $payment->public_id,
+        return  [
+            'id' => (int) $payment->id,
             'amount' => (float) $payment->amount,
             'transaction_reference' => $payment->transaction_reference ?: '',
             'payment_date' => $payment->payment_date ?: '',

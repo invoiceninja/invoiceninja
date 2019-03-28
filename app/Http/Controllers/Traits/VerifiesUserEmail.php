@@ -28,8 +28,6 @@ trait VerifiesUserEmail
             $user->confirmation_code = null;
             $user->save();
 
-            $this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
-
             Auth::loginUsingId($user->id, true);
 
             return redirect()->route('dashboard.index')->with('message', ctrans('texts.security_confirmation'));

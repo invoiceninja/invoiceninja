@@ -61,6 +61,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
     public function token()
     {
         return $this->tokens()->first();
@@ -114,7 +119,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function user_company()
     {
 
-        return $this->user_companies->where('company_id', $this->getCurrentCompanyId())->first();
+        return $this->user_companies->where('company_id', $this->company()->id)->first();
 
     }
 
@@ -138,7 +143,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         
-        $permissions = json_decode($this->company()->permissions);
+        $permissions = json_decode($this->user_company()->permissions);
         
         if (! $permissions) 
             return [];
@@ -154,7 +159,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function settings()
     {
 
-        return json_decode($this->company()->settings);
+        return json_decode($this->user_company()->settings);
 
     }
 

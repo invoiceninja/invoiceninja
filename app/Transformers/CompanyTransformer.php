@@ -1,12 +1,15 @@
 <?php
 
-namespace App\Ninja\Transformers;
+namespace App\Transformers;
 
 
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 
 /**
- * Class AccountTransformer.
+ * Class AccountTranCompanyTransformersformer.
  */
 class CompanyTransformer extends EntityTransformer
 {
@@ -74,4 +77,33 @@ class CompanyTransformer extends EntityTransformer
     }
 
 
+    public function includeUsers(Company $company)
+    {
+        $transformer = new UserTransformer($this->serializer);
+
+        return $this->includeCollection($company->users, $transformer, User::class);
+    }
+
+    public function includeClients(Company $company)
+    {
+        $transformer = new ClientTransformer($this->serializer);
+
+        return $this->includeCollection($company->clients, $transformer, Client::class);
+    }
+
+    public function includeInvoices(Company $company)
+    {
+        $transformer = new InvoiceTransformer($this->serializer);
+
+        return $this->includeCollection($company->invoices, $transformer, Invoice::class);
+    }
+
+    public function includeAccount(Company $company)
+    {
+
+        $transformer = new AccountTransformer($this->serializer);
+
+        return $this->includeItem($company->account, $transformer, Account::class);
+    
+    }
 }

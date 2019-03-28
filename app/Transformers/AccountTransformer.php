@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Ninja\Transformers;
+namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Payment;
