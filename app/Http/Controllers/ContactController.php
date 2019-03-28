@@ -8,15 +8,19 @@ use Illuminate\Http\Request;
  * Class ContactController
  * @package App\Http\Controllers
  */
-class ContactController extends Controller
+class ContactController extends BaseController
 {
     /**
      * ContactController constructor.
      */
     public function __construct()
     {
+        parent::__construct();
+
         $this->middleware('auth:contact');
     }
+
+
     /**
      * show dashboard.
      *

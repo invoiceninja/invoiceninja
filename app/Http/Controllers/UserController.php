@@ -9,9 +9,14 @@ use Illuminate\Http\Request;
  * Class UserController
  * @package App\Http\Controllers
  */
-class UserController extends Controller
+class UserController extends BaseController
 {
     use VerifiesUserEmail;
 
+	public function __construct()
+    {
+    
+        parent::__construct();
 
+    }
 }

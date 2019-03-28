@@ -7,6 +7,7 @@ return [
     'site_url' => env('APP_URL', 'https://v2.invoiceninja.com'),
     'app_domain' => env('APP_DOMAIN', 'invoiceninja.com'),
     'app_version' => '0.1',
+    'api_version' => '0.1',
     'terms_version' => '1.0.1',
     'app_env' => env('APP_ENV', 'development'),
     'api_secret' => env('API_SECRET', ''),

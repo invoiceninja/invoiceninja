@@ -8,8 +8,15 @@ use Illuminate\Http\Request;
  * Class SettingsController
  * @package App\Http\Controllers
  */
-class SettingsController extends Controller
+class SettingsController extends BaseController
 {
+    public function __construct()
+    {
+    
+        parent::__construct();
+
+    }
+    
     /**
      * Display a listing of the resource.
      *

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 
-class DashboardController extends Controller
+class DashboardController extends BaseController
 {
     /**
      * Create a new controller instance.

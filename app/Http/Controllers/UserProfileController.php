@@ -4,8 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class UserProfileController extends Controller
+class UserProfileController extends BaseController
 {
+    public function __construct()
+    {
+    
+        parent::__construct();
+
+    }
+    
     /**
      * Display a listing of the resource.
      *

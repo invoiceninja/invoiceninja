@@ -22,7 +22,7 @@ class SetDb
         $error['error'] = ['message' => 'Database could not be set'];
 
 
-        if( $request->header('X-API-TOKEN') && ($user = CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()->user ) && config('ninja.db.multi_db_enabled')) 
+        if( $request->header('X-API-TOKEN') && (CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()) && config('ninja.db.multi_db_enabled')) 
         {
 
             if(! MultiDB::findAndSetDb($request->header('X-API-TOKEN')))

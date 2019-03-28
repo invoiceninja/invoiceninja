@@ -8,12 +8,14 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class AccountController extends Controller
+class AccountController extends BaseController
 {
     use DispatchesJobs;
 
     public function __construct()
     {
+        parent::__construct();
+
         $this->middleware('guest');
     }
 

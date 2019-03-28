@@ -4,8 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class InvoiceController extends Controller
+class InvoiceController extends BaseController
 {
+
+    public function __construct()
+    {
+    
+        parent::__construct();
+
+    }
+    
     /**
      * Display a listing of the resource.
      *

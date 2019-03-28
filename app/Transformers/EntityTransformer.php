@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Ninja\Transformers;
+namespace App\Transformers;
 
-use Auth;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract
 {
     protected $serializer;
+
+    const API_SERIALIZER_ARRAY = 'array';
+    const API_SERIALIZER_JSON = 'json';
 
     public function __construct($serializer = null)
     {
@@ -16,7 +18,7 @@ class EntityTransformer extends TransformerAbstract
 
     protected function includeCollection($data, $transformer, $entityType)
     {
-        if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
+        if ($this->serializer && $this->serializer != self::API_SERIALIZER_JSON) {
             $entityType = null;
         }
 
@@ -25,22 +27,11 @@ class EntityTransformer extends TransformerAbstract
 
     protected function includeItem($data, $transformer, $entityType)
     {
-        if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
+        if ($this->serializer && $this->serializer != self::API_SERIALIZER_JSON) {
             $entityType = null;
         }
 
         return $this->item($data, $transformer, $entityType);
-    }
-
-    protected function getTimestamp($date)
-    {
-        if (method_exists($date, 'getTimestamp')) {
-            return $date->getTimestamp();
-        } elseif (is_string($date)) {
-            return strtotime($date);
-        } else {
-            return null;
-        }
     }
 
     public function getDefaultIncludes()
@@ -50,14 +41,6 @@ class EntityTransformer extends TransformerAbstract
 
     protected function getDefaults($entity)
     {
-        $data = [
-            'is_owner' => (bool) (Auth::check() && Auth::user()->owns($entity)),
-        ];
 
-        if ($entity->relationLoaded('user')) {
-            $data['user_id'] = (int) $entity->user->public_id + 1;
-        }
-
-        return $data;
     }
 }

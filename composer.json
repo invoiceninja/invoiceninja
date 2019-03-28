@@ -27,6 +27,7 @@
         "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.1",
         "laravel/tinker": "^1.0",
+        "league/fractal": "^0.17.0",
         "nwidart/laravel-modules": "^4.0",
         "predis/predis": "^1.1",
         "webpatser/laravel-countries": "dev-master#75992ad",

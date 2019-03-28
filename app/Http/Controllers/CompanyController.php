@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Hash;
  * Class CompanyController
  * @package App\Http\Controllers
  */
-class CompanyController extends Controller
+class CompanyController extends BaseController
 {
     use DispatchesJobs;
 
@@ -24,7 +24,9 @@ class CompanyController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+    
+        parent::__construct();
+
     }
 
     /**

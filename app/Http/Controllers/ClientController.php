@@ -22,15 +22,19 @@ use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-
+use App\Transformers\ClientTransformer;
 
 /**
  * Class ClientController
  * @package App\Http\Controllers
  */
-class ClientController extends Controller
+class ClientController extends BaseController
 {
     use MakesHash;
+
+    protected $entityType = Client::class;
+
+    protected $entityTransformer = ClientTransformer::class;
 
     /**
      * @var ClientRepository
@@ -43,6 +47,7 @@ class ClientController extends Controller
      */
     public function __construct(ClientRepository $clientRepo)
     {
+        parent::__construct();
 
         $this->clientRepo = $clientRepo;
 
@@ -53,9 +58,11 @@ class ClientController extends Controller
      */
     public function index(ClientFilters $filters)
     {
-        $clients = Client::filter($filters)->get();
+        $clients = Client::filter($filters);
         
-        return response()->json($clients);
+        return $this->listResponse($clients);
+
+//        return response()->json($clients);
     }
 
     /**
