@@ -61,6 +61,8 @@ abstract class QueryFilters
     {
         $this->builder = $builder;
 
+        $this->entityFilter();
+        
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {
                 continue;

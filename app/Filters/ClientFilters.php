@@ -167,12 +167,11 @@ class ClientFilters extends QueryFilters
         return $query;
     }
 
-     public function company()
-        {
-            $entity = strtolower(class_basename(Client::class));
+     public function entityFilter()
+    {
+        
+        return $this->builder->whereCompanyId(auth()->user()->company()->id);
 
-            $this->builder->where($entity .'.company_id', '=', auth()->user()->company()->id);
-
-        }
+    }
 
 }
