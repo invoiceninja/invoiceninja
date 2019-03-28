@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
@@ -59,7 +60,7 @@ class ClientTest extends TestCase
 
         $account = Account::find($acc['id']);
 
-        $token = $account->default_company->tokens()->first()->token;
+        $token = $account->default_company->tokens->first()->token;
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -108,9 +109,7 @@ class ClientTest extends TestCase
         $this->assertNotNull($token);
         $this->assertNotNull($user);
         $this->assertNotNull($company);
-        $this->assertNotNull($user->tokens()->first()->company);
-
-        $this->assertTrue($user->isAdmin());
+        $this->assertNotNull($user->tokens->first()->company);
 
         factory(\App\Models\Client::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 

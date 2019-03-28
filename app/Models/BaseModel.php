@@ -6,6 +6,7 @@ use App\Filters\QueryFilters;
 use App\Utils\Traits\UserSessionAttributes;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class BaseModel extends Model
 {
@@ -30,7 +31,8 @@ class BaseModel extends Model
 
     public function scopeScope($query)
     {
-        $query->where($this->getTable() .'.company_id', '=', auth()->user()->getCompany()->id);
+
+        $query->where($this->getTable() .'.company_id', '=', auth()->user()->company()->id);
 
         return $query;
     }

@@ -84,13 +84,9 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    public function getCompany()
+    public function company()
     {
-        //$ct = CompanyToken::whereToken(request()->header('X-API-TOKEN'))->first();
-        //Log::error($this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company);
-        //return $this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
-        Log::error('the request header = '.request()->header('X-API-TOKEN'));
-        return $this->tokens()->first()->company;
+        return $this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
     }
 
     /**
@@ -112,11 +108,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function user_company()
     {
-     //   Log::error('user_co 1'.$this->company()->id);
-     //   Log::error('coco');
-     //   Log::error('user_co '.$this->company());
-        Log::error('the company id = '.$this->companyId());
-     //   return $this->user_companies->whereCompanyId($this->company()->id)->first();
+    
         return $this->user_companies->where('company_id', $this->companyId())->first();
 
     }
@@ -129,7 +121,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function companyId() :int
     {
 
-        return $this->getCompany()->id;
+        return $this->company()->id;
         
     }
 

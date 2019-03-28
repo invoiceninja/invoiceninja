@@ -6,6 +6,7 @@ use App\Http\Requests\Account\CreateAccountRequest;
 use App\Jobs\Account\CreateAccount;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
@@ -48,8 +49,6 @@ class AccountController extends Controller
 
         $user = CreateAccount::dispatchNow($request->all());
 
-        //todo redirect to localization setup workflow
-        //return redirect()->route('dashboard.index');
         return response()->json($user);
     }
 

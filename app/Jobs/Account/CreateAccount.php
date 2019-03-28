@@ -12,12 +12,12 @@ use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreateAccount
 {
 
     use Dispatchable;
-    use UserSessionAttributes;
 
     protected $request;
 
@@ -43,7 +43,6 @@ class CreateAccount
          * Create account
          */
         $account = Account::create($this->request);
-
         /*
          * Create company
          */
@@ -64,11 +63,6 @@ class CreateAccount
          * Create token
          */
         $company_token = CreateCompanyToken::dispatchNow($company, $user);
-
-        /*
-         * Set current company
-         */
-        $this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
 
         /*
          * Login user

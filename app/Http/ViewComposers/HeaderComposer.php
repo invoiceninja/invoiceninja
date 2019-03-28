@@ -29,16 +29,16 @@ class HeaderComposer
     {
         if(!auth()->user())
             return [];
-        
+        /
         //companies
         $companies = auth()->user()->companies;
 
         $data['current_company'] = $companies->first(function ($company){
-            return $company->id == auth()->user()->getCompany()->id;
+            return $company->id == auth()->user()->company()->id;
         });
 
         $data['companies'] = $companies->reject(function ($company){
-            return $company->id == auth()->user()->getCompany()->id;
+            return $company->id == auth()->user()->company()->id;
         });
 
         return $data;
