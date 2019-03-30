@@ -34,6 +34,16 @@ class BaseController extends Controller
 
     }
 
+    /**
+     * Catch all fallback route 
+     * for non-existant route
+     */
+    public function notFound()
+    {
+        return response()->json([
+        'message' => 'Nothing to see here!'], 404);
+    }
+
     protected function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;

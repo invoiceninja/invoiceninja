@@ -58,11 +58,11 @@ class ClientController extends BaseController
      */
     public function index(ClientFilters $filters)
     {
+        
         $clients = Client::filter($filters);
         
         return $this->listResponse($clients);
 
-//        return response()->json($clients);
     }
 
     /**

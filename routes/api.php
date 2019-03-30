@@ -66,3 +66,6 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth']], function 
   Route::get('settings', 'SettingsController@index')->name('user.settings');
 
 });
+
+
+Route::fallback('BaseController@notFound');
