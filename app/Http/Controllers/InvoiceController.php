@@ -2,26 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 
 class InvoiceController extends BaseController
 {
 
-    public function __construct()
+    use MakesHash;
+
+    protected $entityType = Invoice::class;
+
+    protected $entityTransformer = InvoiceTransformer::class;
+
+    /**
+     * @var ClientRepository
+     */
+    protected $clientRepo;
+
+    /**
+     * ClientController constructor.
+     * @param ClientRepository $clientRepo
+     */
+    public function __construct(ClientRepository $clientRepo)
     {
-    
         parent::__construct();
 
+        $this->clientRepo = $clientRepo;
+
     }
-    
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
-    public function index()
+    public function index(ClientFilters $filters)
     {
-        //
+        
+        $clients = Client::filter($filters);
+        
+        return $this->listResponse($clients);
+
     }
 
     /**
