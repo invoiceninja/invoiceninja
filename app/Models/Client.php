@@ -37,7 +37,7 @@ class Client extends BaseModel
         'shipping_country'
     ];
     
-    protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country'];
+    protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country', 'company'];
 
     protected $casts = [
         'settings' => 'object'
