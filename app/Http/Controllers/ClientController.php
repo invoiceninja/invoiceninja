@@ -74,15 +74,17 @@ class ClientController extends BaseController
     public function show(ShowClientRequest $request, Client $client)
     {
 
-       $data = [
+        $data = [
             'client' => $client,
+            'hashed_id' => $this->encodePrimarykey($client->id),
             'company' => $client->company(),
-            'meta' => collect([
-                'google_maps_api_key' => config('ninja.google_maps_api_key')
-            ])
+            'sizes' => Size::all(),
         ];
 
-        return redirect()->route('clients.edit', ['id' => $this->encodePrimarykey($client->id)]);
+        return response()->json($data);
+
+       // return redirect()->route('api.clients.edit', ['id' => $this->encodePrimarykey($client->id)]);
+              
     }
 
     /**
@@ -95,10 +97,10 @@ class ClientController extends BaseController
     {
 
         $data = [
-        'client' => $client,
-        'hashed_id' => $this->encodePrimarykey($client->id),
-        'company' => $client->company(),
-        'sizes' => Size::all(),
+            'client' => $client,
+            'hashed_id' => $this->encodePrimarykey($client->id),
+            'company' => $client->company(),
+            'sizes' => Size::all(),
         ];
 
         return response()->json($data);

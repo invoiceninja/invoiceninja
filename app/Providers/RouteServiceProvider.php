@@ -29,7 +29,7 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('client', function ($value) {
-            $client = \App\Models\Client::withTrashed()->where('id', $this->decodePrimaryKey($value))->first() ?? abort(404);
+            $client = \App\Models\Client::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
             $client->with('contacts', 'primary_contact','country');
             return $client;
         });
@@ -119,7 +119,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::prefix('api/v1')
+        Route::prefix('')
              ->middleware('api')
              ->namespace($this->namespace)
              ->group(base_path('routes/api.php'));

@@ -25,7 +25,7 @@ Route::group(['middleware' => ['api_secret_check']], function () {
 });
 
 
-Route::group(['middleware' => ['db','api_secret_check','token_auth']], function () {
+Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
 
   Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
 
@@ -44,7 +44,7 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth']], function 
   Route::post('recurring_invoices/bulk', 'RecurringInvoiceController@bulk')->name('recurring_invoices.bulk');
 
   Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
-
+/*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
   
   Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
@@ -64,7 +64,7 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth']], function 
   Route::resource('user', 'UserProfileController'); // name = (clients. index / create / show / update / destroy / edit
   
   Route::get('settings', 'SettingsController@index')->name('user.settings');
-
+*/
 });
 
 
