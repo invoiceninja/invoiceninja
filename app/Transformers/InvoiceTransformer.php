@@ -9,6 +9,7 @@ use App\Models\Invoice;
  */
 class InvoiceTransformer extends EntityTransformer
 {
+    use MakesHash;
     /**
     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
     * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
@@ -75,7 +76,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includeInvoiceItems(Invoice $invoice)
     {
-        $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
+        $transformer = new InvoiceItemTransformer($this->serializer);
 
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
@@ -122,7 +123,7 @@ class InvoiceTransformer extends EntityTransformer
     public function transform(Invoice $invoice)
     {
         return [
-            'id' => (int) $invoice->public_id,
+            'id' => $this->encodePrimaryKey($invoice->id),
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
             'client_id' => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),

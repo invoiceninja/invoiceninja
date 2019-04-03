@@ -6,12 +6,14 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 
 /**
  * @SWG\Definition(definition="Payment", required={"invoice_id"}, @SWG\Xml(name="Payment"))
  */
 class PaymentTransformer extends EntityTransformer
 {
+    use MakesHash;
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
@@ -60,7 +62,7 @@ class PaymentTransformer extends EntityTransformer
     public function transform(Payment $payment)
     {
         return  [
-            'id' => (int) $payment->id,
+            'id' => $this->encodePrimaryKey($payment->id),
             'amount' => (float) $payment->amount,
             'transaction_reference' => $payment->transaction_reference ?: '',
             'payment_date' => $payment->payment_date ?: '',

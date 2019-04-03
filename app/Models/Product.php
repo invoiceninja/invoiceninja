@@ -2,26 +2,30 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends BaseModel
 {
     use MakesHash;
-    
+    use SoftDeletes;
+    use Filterable;
+
     protected $guarded = [
 		'id',
 	];
 
-    protected $appends = ['product_id'];
-
-    public function getRouteKeyName()
+    public function company()
     {
-        return 'product_id';
+        return $this->belongsTo(Company::class);
     }
 
-    public function getProductIdAttribute()
+    public function user()
     {
-        return $this->encodePrimaryKey($this->id);
+        return $this->belongsTo(User::class);
     }
+
+
 }

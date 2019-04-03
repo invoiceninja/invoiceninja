@@ -3,6 +3,7 @@
 namespace App\Transformers;
 
 use App\Models\ClientContact;
+use App\Utils\Traits\MakesHash;
 
 /**
  * Class ContactTransformer.
@@ -11,6 +12,7 @@ use App\Models\ClientContact;
  */
 class ClientContactTransformer extends EntityTransformer
 {
+    use MakesHash;
     /**
      * @param ClientContact $contact
      *
@@ -20,7 +22,7 @@ class ClientContactTransformer extends EntityTransformer
     public function transform(ClientContact $contact)
     {
         return [
-            'id' => (int) $contact->public_id,
+            'id' => $this->encodePrimaryKey($contact->id),
             'first_name' => $contact->first_name ?: '',
             'last_name' => $contact->last_name ?: '',
             'email' => $contact->email ?: '',

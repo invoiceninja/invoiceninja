@@ -24,7 +24,7 @@ class InvoiceItemTransformer extends EntityTransformer
     public function transform($item)
     {
         return [
-            'id' => (int) $item->public_id,
+            'id' => (int) $item->id,
             'product_key' => $item->product_key,
             'updated_at' => $item->updated_at,
             'archived_at' => $item->deleted_at,

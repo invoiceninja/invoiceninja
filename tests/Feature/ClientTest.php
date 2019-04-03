@@ -137,7 +137,7 @@ class ClientTest extends TestCase
                 'X-API-TOKEN' => $token,
             ])->get('/api/v1/clients/'.$this->encodePrimaryKey($client->id));
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

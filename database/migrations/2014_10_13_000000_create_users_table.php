@@ -428,14 +428,20 @@ class CreateUsersTable extends Migration
 
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
 
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
             $t->decimal('qty', 13, 2)->nullable();
 
-            $t->unsignedInteger('stock_level');
-            $t->unsignedInteger('min_stock_level');
+            $t->string('tax_name1')->nullable();
+            $t->decimal('tax_rate1', 13, 3);
+            $t->string('tax_name2')->nullable();
+            $t->decimal('tax_rate2', 13, 3);
+
+            $t->boolean('is_deleted')->default(false);
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

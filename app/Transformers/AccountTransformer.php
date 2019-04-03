@@ -4,13 +4,14 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 
 /**
  * Class AccountTransformer.
  */
 class AccountTransformer extends EntityTransformer
 {
-
+    use MakesHash;
 	/**
      * @SWG\Property(property="account_key", type="string", example="123456")
      */
@@ -39,7 +40,7 @@ class AccountTransformer extends EntityTransformer
     public function transform(Account $account)
     {
         return [
-            'id' => $account->id,
+            'id' => $this->encodePrimaryKey($account->id),
         ];
     }
 

@@ -64,7 +64,7 @@ class AccountTest extends TestCase
             'last_name' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token(),
+            //'_token' => csrf_token(),
             'privacy_policy' => 1,
             'terms_of_service' => 1
         ];

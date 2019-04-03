@@ -1,0 +1,21 @@
+<?php
+
+use Faker\Generator as Faker;
+
+$factory->define(App\Models\Product::class, function (Faker $faker) {
+    return [
+        'product_key' => $faker->text(7),
+        'notes' => $faker->text(20),
+        'cost' => $faker->numberBetween(1,1000),
+        'qty' => $faker->numberBetween(1,100),
+        'tax_name1' => 'GST',
+        'tax_rate1' => 10,
+        'tax_name2' => 'VAT',
+        'tax_rate2' => 17.5,
+        'custom_value1' => $faker->text(20),
+        'custom_value2' => $faker->text(20),
+        'custom_value3' => $faker->text(20),
+        'custom_value4' => $faker->text(20),
+        'is_deleted' => false,
+    ];
+});

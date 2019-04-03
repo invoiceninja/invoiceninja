@@ -4,10 +4,12 @@ namespace App\Helpers\Invoice;
 
 use App\Models\Invoice;
 
-class InvoiceHelper 
+class InvoiceCalc
 {
+
 	public function __construct(Invoice $invoice)
 	{
 		$this->invoice = $invoice;
 	}
+	
 }

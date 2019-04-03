@@ -20,7 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => ['api_secret_check']], function () {
 
-	Route::post('signup', 'AccountController@store')->name('signup.submit');
+	Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
 
 });
 
@@ -34,6 +34,10 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =
   Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
 
   Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
+
+  Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
+
+  Route::post('products/bulk', 'ProductController@bulk')->name('products.bulk');
 
   Route::resource('quotes', 'QuoteController'); // name = (quotes. index / create / show / update / destroy / edit
 

@@ -4,12 +4,14 @@ namespace App\Transformers;
 
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Utils\Traits\MakesHash;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
  */
 class ClientTransformer extends EntityTransformer
 {
+    use MakesHash;
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      */
@@ -45,7 +47,7 @@ class ClientTransformer extends EntityTransformer
     public function transform(Client $client)
     {
         return [
-            'id' => (int) $client->id,
+            'id' => $this->encodePrimaryKey($client->id),
             'name' => $client->name ?: '',
             'website' => $client->website ?: '',
             'private_notes' => $client->private_notes ?: '',

@@ -50,7 +50,9 @@ abstract class QueryFilters
      */
     public function __construct(Request $request)
     {
+
         $this->request = $request;
+
     }
 
     /**
@@ -87,7 +89,9 @@ abstract class QueryFilters
      */
     public function filters()
     {
+
         return $this->request->all();
+
     }
 
     /**
@@ -98,6 +102,7 @@ abstract class QueryFilters
      */
     public function split($value) : stdClass
     {
+
         $exploded_array = explode(":", $value);
 
         $parts = new stdClass;
@@ -106,6 +111,7 @@ abstract class QueryFilters
         $parts->operator = $this->operatorConvertor($exploded_array[1]);
 
         return $parts;
+
     }
 
     /**
@@ -116,6 +122,7 @@ abstract class QueryFilters
      */
     private function operatorConvertor(string $operator) : string
     {
+
         switch ($operator) {
             case 'lt':
                 return '<';
@@ -135,6 +142,7 @@ abstract class QueryFilters
             default:
                 return '=';
                 break;
+                
         }
     }
 }

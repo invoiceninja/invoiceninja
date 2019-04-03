@@ -54,7 +54,6 @@ class ClientController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
     public function index(ClientFilters $filters)
     {

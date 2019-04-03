@@ -2,43 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\SignupRequest;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\RegisterNewAccount;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Filters\ProductFilters;
+use App\Models\Product;
+use App\Transformers\ProductTransformer;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
-/**
- * Class CompanyController
- * @package App\Http\Controllers
- */
-class CompanyController extends BaseController
+class ProductController extends BaseController
 {
-    use DispatchesJobs;
+
+    use MakesHash;
+
+    protected $entityType = Product::class;
+
+    protected $entityTransformer = ProductTransformer::class;
 
     /**
-     * CompanyController constructor.
      */
-    public function __construct()
+    public function index(ProductFilters $filters)
     {
-    
-        parent::__construct();
+        
+        $products = Product::filter($filters);
+        
+        return $this->listResponse($products);
 
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-//        return view('signup.index');
-
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -53,17 +42,12 @@ class CompanyController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCompanyRequest $request)
+    public function store(Request $request)
     {
-
-        CreateCompany::dispatchNow($request);
-
-        //todo redirect to localization setup workflow
-        return redirect()->route('dashboard.index');
-
+        //
     }
 
     /**

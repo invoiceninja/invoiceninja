@@ -88,6 +88,9 @@ class RandomDataSeeder extends Seeder
 
         });
 
+        /** Product Factory */
+        factory(\App\Models\Product::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id]);
+
 
     }
 }

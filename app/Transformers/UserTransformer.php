@@ -4,12 +4,14 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 
 /**
  * @SWG\Definition(definition="User", @SWG\Xml(name="User"))
  */
 class UserTransformer extends EntityTransformer
 {
+    use MakesHash;
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="first_name", type="string", example="John")
@@ -48,7 +50,7 @@ class UserTransformer extends EntityTransformer
     public function transform(User $user)
     {
         return [
-            'id' => (int) $user->id,
+            'id' => $this->encodePrimaryKey($user->id),
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $user->email,

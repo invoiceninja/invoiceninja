@@ -16,7 +16,7 @@ class AccountController extends BaseController
     {
         parent::__construct();
 
-        $this->middleware('guest');
+        //$this->middleware('guest');
     }
 
     /**
@@ -26,7 +26,7 @@ class AccountController extends BaseController
      */
     public function index()
     {
-        return view('signup.index');
+       // return view('signup.index');
 
     }
 
