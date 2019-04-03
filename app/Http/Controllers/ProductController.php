@@ -9,6 +9,7 @@ use App\Http\Requests\Product\EditProductRequest;
 use App\Http\Requests\Product\ShowProductRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Jobs\Entity\ActionEntity;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;
@@ -77,7 +78,7 @@ class ProductController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Product $product
      * @return \Illuminate\Http\Response
      */
     public function show(ShowProductRequest $request, Product $product)
@@ -88,7 +89,7 @@ class ProductController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  Product $product
      * @return \Illuminate\Http\Response
      */
     public function edit(EditProductRequest $request, Product $product)
@@ -100,7 +101,7 @@ class ProductController extends BaseController
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  Product $product
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateProductRequest $request, Product $product)
@@ -113,11 +114,39 @@ class ProductController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return response()->json([], 200);
+    }
+
+    /**
+     * Perform bulk actions on the list view
+     * 
+     * @return Collection
+     */
+    public function bulk()
+    {
+
+        $action = request()->input('action');
+        
+        $ids = request()->input('ids');
+
+        $products = Product::withTrashed()->find($ids);
+
+        $products->each(function ($product, $key) use($action){
+
+            if(auth()->user()->can('edit', $product))
+                ActionEntity::dispatchNow($product, $action);
+
+        });
+
+        //todo need to return the updated dataset
+        return response()->json([], 200);
+        
     }
 }
