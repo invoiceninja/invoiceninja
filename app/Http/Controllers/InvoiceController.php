@@ -11,23 +11,24 @@ class InvoiceController extends BaseController
 
     use MakesHash;
 
-    protected $entityType = Invoice::class;
+    protected $entity_type = Invoice::class;
 
-    protected $entityTransformer = InvoiceTransformer::class;
+    protected $entity_transformer = InvoiceTransformer::class;
 
     /**
      * @var ClientRepository
      */
-    protected $clientRepo;
+    protected $invoice_repo;
 
     /**
      * ClientController constructor.
      * @param ClientRepository $clientRepo
      */
-    public function __construct()
+    public function __construct(InvoiceRespository $invoice_repo)
     {
         parent::__construct();
 
+        $this->invoice_repo = $invoice_repo;
 
     }
 

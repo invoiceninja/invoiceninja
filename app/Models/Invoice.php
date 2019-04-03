@@ -13,18 +13,16 @@ class Invoice extends BaseModel
 		'id',
 	];
 
-    protected $appends = ['invoice_id'];
-
-    public function getRouteKeyName()
+    public function company()
     {
-        return 'invoice_id';
+        return $this->belongsTo(Company::class);
     }
 
-    public function getInvoiceIdAttribute()
+    public function user()
     {
-        return $this->encodePrimaryKey($this->id);
+        return $this->belongsTo(User::class);
     }
-
+    
     public function invitations()
     {
         $this->morphMany(Invitation::class, 'inviteable');
