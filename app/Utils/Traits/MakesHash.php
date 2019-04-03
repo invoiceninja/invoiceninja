@@ -50,10 +50,16 @@ trait MakesHash
 
     public function decodePrimaryKey($value) : string
     {
-        $hashids = new Hashids('', 10);
+        try{
+            $hashids = new Hashids('', 10);
 
-        $decoded_array =  $hashids->decode($value);
+            $decoded_array =  $hashids->decode($value);
 
-        return $decoded_array[0];
+            return $decoded_array[0];
+        }
+        catch(\Exception $e)
+        {
+            return response()->json(['error'=>'Invalid primary key'],400);
+        }
     }
 }

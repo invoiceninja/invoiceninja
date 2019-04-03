@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Filters\ProductFilters;
+use App\Http\Requests\Product\ShowProductRequest;
+use App\Http\Requests\Product\EditProductRequest;
 use App\Models\Product;
 use App\Transformers\ProductTransformer;
 use App\Utils\Traits\MakesHash;
@@ -16,6 +18,16 @@ class ProductController extends BaseController
     protected $entityType = Product::class;
 
     protected $entityTransformer = ProductTransformer::class;
+
+   /**
+     * ProductController constructor.
+     */
+    public function __construct()
+    {
+
+        parent::__construct();
+
+    }
 
     /**
      */
@@ -56,9 +68,9 @@ class ProductController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ShowProductRequest $request, Product $product)
     {
-        //
+        return $this->itemResponse($product);
     }
 
     /**
@@ -67,9 +79,9 @@ class ProductController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(EditProductRequest $request, Product $product)
     {
-        //
+        return $this->itemResponse($product);
     }
 
     /**

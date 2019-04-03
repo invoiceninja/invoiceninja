@@ -2,7 +2,9 @@
 
 namespace App\Transformers;
 
+use App\Models\Company;
 use App\Models\Product;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -11,6 +13,43 @@ use App\Utils\Traits\MakesHash;
 class ProductTransformer extends EntityTransformer
 {
     use MakesHash;
+
+    protected $defaultIncludes = [
+    ];
+
+    /**
+     * @var array
+     */
+    protected $availableIncludes = [
+        'company',
+        'user'
+    ];
+
+
+    /**
+     * @param Product $product
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeUser(Product $product)
+    {
+        $transformer = new UserTransformer($this->serializer);
+
+        return $this->includeItem($product->user, $transformer, User::class);
+    }
+
+    /**
+     * @param Product $product
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeCompany(Product $product)
+    {
+        $transformer = new CompanyTransformer($this->serializer);
+
+        return $this->includeItem($product->company, $transformer, Company::class);
+    }
+
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="product_key", type="string", example="Item")

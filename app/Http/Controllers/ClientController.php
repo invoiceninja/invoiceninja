@@ -73,17 +73,8 @@ class ClientController extends BaseController
     public function show(ShowClientRequest $request, Client $client)
     {
 
-        $data = [
-            'client' => $client,
-            'hashed_id' => $this->encodePrimarykey($client->id),
-            'company' => $client->company(),
-            'sizes' => Size::all(),
-        ];
+        return $this->itemResponse($client);    
 
-        return response()->json($data);
-
-       // return redirect()->route('api.clients.edit', ['id' => $this->encodePrimarykey($client->id)]);
-              
     }
 
     /**
@@ -95,14 +86,7 @@ class ClientController extends BaseController
     public function edit(EditClientRequest $request, Client $client)
     {
 
-        $data = [
-            'client' => $client,
-            'hashed_id' => $this->encodePrimarykey($client->id),
-            'company' => $client->company(),
-            'sizes' => Size::all(),
-        ];
-
-        return response()->json($data);
+        return $this->itemResponse($client);
 
     }
 

@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class EntityPolicy
@@ -38,7 +39,8 @@ class EntityPolicy
 	 */
 	public function edit(User $user, $entity) : bool
 	{
-    
+    		Log::error('trying to edit');
+
 			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
 			|| ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId())
 			|| $user->owns($entity);
@@ -56,7 +58,7 @@ class EntityPolicy
 	 */
 	public function view(User $user, $entity) : bool
 	{
-
+		Log::error('trying to view');
 			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
 			|| ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId()) 
 			|| $user->owns($entity);

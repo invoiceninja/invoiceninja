@@ -5,6 +5,7 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 
@@ -13,7 +14,7 @@ use App\Utils\Traits\MakesHash;
  */
 class CompanyTransformer extends EntityTransformer
 {
-    trait MakesHash;
+    use MakesHash;
 
 	/**
      * @SWG\Property(property="account_key", type="string", example="123456")
@@ -71,8 +72,8 @@ class CompanyTransformer extends EntityTransformer
             'size_id' => (int) $company->size_id,
             'industry_id' => (int) $company->industry_id,
             'settings' => $company->settings,
-            'updated_at' => $user->updated_at,
-            'deleted_at' => $user->deleted_at,
+            'updated_at' => $company->updated_at,
+            'deleted_at' => $company->deleted_at,
         ];
     }
 

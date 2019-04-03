@@ -2,12 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    use \App\Utils\Traits\MakesHash;
+    use MakesHash;
     /**
      * This namespace is applied to your controller routes.
      *
