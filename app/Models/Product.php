@@ -14,8 +14,12 @@ class Product extends BaseModel
     use Filterable;
 
     protected $guarded = [
-		'id',
-	];
+        'id',
+        'updated_at',
+        'created_at',
+        'deleted_at',      
+        'q',
+    ];
 
     public function company()
     {

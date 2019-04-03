@@ -32,9 +32,9 @@ class ClientController extends BaseController
 {
     use MakesHash;
 
-    protected $entityType = Client::class;
+    protected $entity_type = Client::class;
 
-    protected $entityTransformer = ClientTransformer::class;
+    protected $entity_transformer = ClientTransformer::class;
 
     /**
      * @var ClientRepository
@@ -102,7 +102,7 @@ class ClientController extends BaseController
 
         $client = UpdateClient::dispatchNow($request, $client);
 
-        return response()->json($client, 200);
+        return $this->itemResponse($client);
 
     }
 
@@ -115,13 +115,8 @@ class ClientController extends BaseController
     {
         $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        $data = [
-            'client' => $client,
-            'hashed_id' => '',
-            'countries' => Country::all()
-        ];
+        return $this->itemResponse($client);
 
-        return response()->json($data);
     }
 
     /**
@@ -134,12 +129,9 @@ class ClientController extends BaseController
     {
 
         $client = StoreClient::dispatchNow($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
-
         $client->load('contacts', 'primary_contact');
 
-        $client->hashed_id = $this->encodePrimarykey($client->id);
-
-        return response()->json($client, 200);
+        return $this->itemResponse($client);
 
     }
 
@@ -178,7 +170,7 @@ class ClientController extends BaseController
         });
 
         //todo need to return the updated dataset
-        return response()->json('success', 200);
+        return response()->json([], 200);
         
     }
 

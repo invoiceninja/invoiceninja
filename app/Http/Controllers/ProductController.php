@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\ProductFactory;
 use App\Filters\ProductFilters;
-use App\Http\Requests\Product\ShowProductRequest;
+use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\EditProductRequest;
+use App\Http\Requests\Product\ShowProductRequest;
+use App\Http\Requests\Product\StoreProductRequest;
 use App\Models\Product;
+use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -15,18 +19,21 @@ class ProductController extends BaseController
 
     use MakesHash;
 
-    protected $entityType = Product::class;
+    protected $entity_type = Product::class;
 
-    protected $entityTransformer = ProductTransformer::class;
+    protected $entity_transformer = ProductTransformer::class;
+
+    protected $product_repo;
 
    /**
      * ProductController constructor.
      */
-    public function __construct()
+    public function __construct(ProductRepository $product_repo)
     {
 
         parent::__construct();
 
+        $this->product_repo = $product_repo;
     }
 
     /**
@@ -46,9 +53,11 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CreateProductRequest $request)
     {
-        //
+        $product = ProductFactory::create(auth()->user()->company()->id, auth()->user()->id);
+
+        return $this->itemResponse($product);
     }
 
     /**
@@ -57,9 +66,11 @@ class ProductController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        //
+        $product = $this->product_repo->save($request, ProductFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        return $this->itemResponse($product);
     }
 
     /**

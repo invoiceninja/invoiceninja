@@ -55,23 +55,23 @@ class BaseController extends Controller
 
 	protected function listResponse($query)
     {
-        $transformer = new $this->entityTransformer(Input::get('serializer'));
+        $transformer = new $this->entity_transformer(Input::get('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
 
-        $data = $this->createCollection($query, $transformer, $this->entityType);
+        $data = $this->createCollection($query, $transformer, $this->entity_type);
 
         return $this->response($data);
     }
 
-    protected function createCollection($query, $transformer, $entityType)
+    protected function createCollection($query, $transformer, $entity_type)
     {
         
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
-            $entityType = null;
+            $entity_type = null;
         }
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
@@ -79,10 +79,10 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
-            $resource = new Collection($query, $transformer, $entityType);
+            $resource = new Collection($query, $transformer, $entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         } else {
-            $resource = new Collection($query, $transformer, $entityType);
+            $resource = new Collection($query, $transformer, $entity_type);
         }
 
         return $this->manager->createData($resource)->toArray();
@@ -115,20 +115,20 @@ class BaseController extends Controller
     protected function itemResponse($item)
     {
 
-        $transformer = new $this->entityTransformer(Input::get('serializer'));
+        $transformer = new $this->entity_transformer(Input::get('serializer'));
 
-        $data = $this->createItem($item, $transformer, $this->entityType);
+        $data = $this->createItem($item, $transformer, $this->entity_type);
 
         return $this->response($data);
     }
 
-    protected function createItem($data, $transformer, $entityType)
+    protected function createItem($data, $transformer, $entity_type)
     {
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
-            $entityType = null;
+            $entity_type = null;
         }
 
-        $resource = new Item($data, $transformer, $entityType);
+        $resource = new Item($data, $transformer, $entity_type);
 
         return $this->manager->createData($resource)->toArray();
     }

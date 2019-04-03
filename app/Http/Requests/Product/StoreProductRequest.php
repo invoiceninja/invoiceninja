@@ -3,28 +3,27 @@
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
+use App\Models\Product;
 
-class EditProductRequest extends Request
+class StoreProductRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
+
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->product);
+        return auth()->user()->can('create', Product::class);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            'product_key' => 'required',
+            'product_key' => 'required|unique:products,product_key,null,null,company_id,'.auth()->user()->companyId(),
         ];
     }
+
+
 }
