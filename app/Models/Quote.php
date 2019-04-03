@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
-class Invoice extends BaseModel
+class Quote extends BaseModel
 {
     use MakesHash;
     
@@ -16,10 +16,8 @@ class Invoice extends BaseModel
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_VIEWED = 3;
-    const STATUS_PARTIAL = 5;
-    const STATUS_PAID = 6;
+    const STATUS_APPROVED = 4;
     const STATUS_OVERDUE = -1;
-    const STATUS_UNPAID = -2;
 
     public function company()
     {
