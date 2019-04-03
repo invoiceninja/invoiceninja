@@ -14,7 +14,7 @@ Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 Route::redirect('/', '/login', 301);
 Route::get('signup', 'AccountController@index')->name('signup');
 Route::post('signup', 'AccountController@store')->name('signup.submit');
-s
+
 Route::get('contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
 Route::post('contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
 

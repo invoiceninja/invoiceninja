@@ -26,7 +26,7 @@ class UpdateProductRequest extends Request
             //when updating you need to ignore the column ID
 
         return [
-            'product_key' => 'required|unique:products,product_key,'.$this->product->id.',id,company_id,'.auth()->user()->companyId(),
+            'product_key' => 'unique:products,product_key,'.$this->product->id.',id,company_id,'.auth()->user()->companyId(),
         ];
     }
 
