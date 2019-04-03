@@ -24,7 +24,7 @@ class EditProductRequest extends Request
     public function rules()
     {
         return [
-            'product_key' => 'required',
+            //
         ];
     }
 }
