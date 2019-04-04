@@ -91,6 +91,9 @@ class RandomDataSeeder extends Seeder
         /** Product Factory */
         factory(\App\Models\Product::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
+        /** Invoice Factory */
+        factory(\App\Models\Invoice::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+
 
     }
 }

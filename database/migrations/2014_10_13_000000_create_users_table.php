@@ -380,7 +380,7 @@ class CreateUsersTable extends Migration
             $t->timestamps();
             $t->softDeletes();
 
-            $t->unique(['company_id', 'client_id']);
+            $t->unique(['company_id', 'invoice_number']);
         });
 
         Schema::create('invitations', function ($t) {

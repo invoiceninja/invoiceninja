@@ -38,9 +38,9 @@ class InvoiceController extends BaseController
     public function index()
     {
         
-       // $clients = Client::filter($filters);
+        $invoices = Invoice::filter($filters);
       
-      //  return $this->listResponse($clients);
+        return $this->listResponse($invoices);
 
     }
 
