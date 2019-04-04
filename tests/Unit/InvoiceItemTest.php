@@ -26,7 +26,7 @@ class InvoiceItemTest extends TestCase
 		$item->cost =10;
 		$item->is_amount_discount = true;
 
-		$inclusive_tax = true
+		$inclusive_tax = true;
 
 		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
 		$item_calc->process();
@@ -42,7 +42,7 @@ class InvoiceItemTest extends TestCase
 		$item->is_amount_discount = true;
 		$item->discount = 2;
 
-		$inclusive_tax = true
+		$inclusive_tax = true;
 
 		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
 		$item_calc->process();
@@ -58,7 +58,7 @@ class InvoiceItemTest extends TestCase
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
 
-		$inclusive_tax = true
+		$inclusive_tax = true;
 
 		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
 		$item_calc->process();
@@ -66,36 +66,76 @@ class InvoiceItemTest extends TestCase
 		$this->assertEquals($item_calc->getLineTotal(), 7.48);
 	}
 
-	public function testInvoiceItemTotalSimpleWithDiscountWithPrecision()
+	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleInclusiveTax()
 	{
 		$item = InvoiceItemFactory::create();
 		$item->qty = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
+		$item->tax_rate1 = 10;
 
-		$inclusive_tax = true
+		$inclusive_tax = true;
 
 		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
 		$item_calc->process();
 
-		$this->assertEquals($item_calc->getLineTotal(), 7.48);
+		$this->assertEquals($item_calc->getTotalTaxes(), 0.68);
 	}
 
-	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleTax()
+	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleExclusiveTax()
 	{
 		$item = InvoiceItemFactory::create();
 		$item->qty = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
+		$item->tax_rate1 = 10;
 
-		$inclusive_tax = true
+		$inclusive_tax = false;
 
 		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
 		$item_calc->process();
 
-		$this->assertEquals($item_calc->getLineTotal(), 7.48);
+		$this->assertEquals($item_calc->getTotalTaxes(), 0.75);
+	}
+
+	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleInclusiveTax()
+	{
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+		$item->is_amount_discount = true;
+		$item->discount = 2.521254522145214511;
+		$item->tax_rate1 = 10;
+		$item->tax_rate2 = 17.5;
+
+		$inclusive_tax = true;
+
+		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc->process();
+
+		$this->assertEquals($item_calc->getTotalTaxes(), 1.79);
+	}
+
+	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleExclusiveTax()
+	{
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+		$item->is_amount_discount = true;
+		$item->discount = 2.521254522145214511;
+		$item->tax_rate1 = 10;
+		$item->tax_rate2 = 17.5;
+
+		$inclusive_tax = false;
+
+		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc->process();
+
+		$this->assertEquals($item_calc->getTotalTaxes(), 2.06);
 	}
 
 }
+
+

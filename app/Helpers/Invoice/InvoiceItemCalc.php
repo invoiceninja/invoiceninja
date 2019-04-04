@@ -52,14 +52,21 @@ class InvoiceItemCalc
 
 		if($tax_rate1 != 0)
 		{
-			$item_tax += $this->formatValue(($this->getLineTotal() * $tax_rate1/100) , $this->precision);
+			if($this->inclusive_tax)
+				$item_tax += $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate1/100))) , $this->precision);
+			else
+				$item_tax += $this->formatValue(($this->getLineTotal() * $tax_rate1/100), $this->precision);
 		}
 
 		$tax_rate2 = $this->formatValue($this->item->tax_rate2, $this->precision);
 
 		if($tax_rate2 != 0)
 		{
-			$item_tax += $this->formatValue(($this->getLineTotal() * $tax_rate2/100) , $this->precision);
+			if($this->inclusive_tax)
+				$item_tax += $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate2/100))) , $this->precision);
+			else
+				$item_tax += $this->formatValue(($this->getLineTotal() * $tax_rate2/100), $this->precision);
+
 		}
 
 		$this->setTotalTaxes($item_tax);
