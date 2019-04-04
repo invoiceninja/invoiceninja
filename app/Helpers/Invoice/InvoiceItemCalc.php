@@ -18,11 +18,14 @@ class InvoiceItemCalc
 
 	protected $total_taxes;
 
+	protected $tax_collection;
+
 	public function __construct(\stdClass $item, int $precision = 2, bool $inclusive_tax)
 	{
 		$this->item = $item;
 		$this->precision = $precision;
 		$this->inclusive_tax = $inclusive_tax;
+		$this->tax_collection = collect();
 	}
 
 	public function process()
@@ -30,6 +33,7 @@ class InvoiceItemCalc
 			$this->setLineTotal($this->formatValue($this->item->cost, $this->precision) * $this->formatValue($this->item->qty, $this->precision));
 			$this->setDiscount();
 			$this->calcTaxes();
+			$this->groupTaxes();
 	}	
 
 	private function setDiscount()
@@ -53,9 +57,13 @@ class InvoiceItemCalc
 		if($tax_rate1 != 0)
 		{
 			if($this->inclusive_tax)
-				$item_tax += $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate1/100))) , $this->precision);
+				$item_tax_rate1_total = $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate1/100))) , $this->precision);
 			else
-				$item_tax += $this->formatValue(($this->getLineTotal() * $tax_rate1/100), $this->precision);
+				$item_tax_rate1_total += $this->formatValue(($this->getLineTotal() * $tax_rate1/100), $this->precision);
+
+			$item_tax += $item_tax_rate1_total;
+
+			$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
 		}
 
 		$tax_rate2 = $this->formatValue($this->item->tax_rate2, $this->precision);
@@ -70,6 +78,25 @@ class InvoiceItemCalc
 		}
 
 		$this->setTotalTaxes($item_tax);
+	}
+
+	private function groupTax($tax_name, $tax_rate, $tax_total) : array
+	{
+		$group_tax = [];
+
+		$key = str_replace(" ", "", $tax_name.$tax_rate);
+		$group_tax[$key] = $tax_total
+
+		return $group_tax;
+		
+	}
+
+	private function groupTaxes($group_tax)
+	{
+
+		$this->tax_collection->merge(collect($group_tax));
+
+		return $this;
 	}
 
 	public function getLineTotal()
