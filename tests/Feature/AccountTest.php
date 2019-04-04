@@ -16,6 +16,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
+/*
+ * @covers App\Http\Controllers\AccountController
+ */
+
 class AccountTest extends TestCase
 {
 
@@ -32,9 +36,6 @@ class AccountTest extends TestCase
         Model::reguard();
     }
 
-    /*
-     * @covers AccountController
-     */
     public function testAccountCreation()
     {
         $data = [

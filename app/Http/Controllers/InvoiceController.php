@@ -6,6 +6,12 @@ use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
+/**
+ * Class ClientController
+ * @package App\Http\Controllers
+ * @covers App\Http\Controllers\ClientController
+ */
+
 class InvoiceController extends BaseController
 {
 

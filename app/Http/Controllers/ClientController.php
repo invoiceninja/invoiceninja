@@ -27,6 +27,7 @@ use App\Transformers\ClientTransformer;
 /**
  * Class ClientController
  * @package App\Http\Controllers
+ * @covers App\Http\Controllers\ClientController
  */
 class ClientController extends BaseController
 {

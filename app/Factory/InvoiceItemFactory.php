@@ -12,7 +12,7 @@ class InvoiceItemFactory
 		$item->product_key = '';
 		$item->notes = '';
 		$item->discount = 0;
-		$item->is_amount_discount = false;
+		$item->is_amount_discount = true;
 		$item->tax_name1 = '';
 		$item->tax_rate1 = 0;
 		$item->tax_name2 = '';

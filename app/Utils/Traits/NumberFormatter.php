@@ -8,9 +8,9 @@ namespace App\Utils\Traits;
  */
 trait NumberFormatter
 {
-	private function formatValue($value) : string
+	private function formatValue($value, $precision) : string
 	{
-        return number_format($this->parseFloat($value), $this->precision, '.', '');
+        return number_format($this->parseFloat($value), $precision, '.', '');
 	}
 
 	private function parseFloat($value) : float
