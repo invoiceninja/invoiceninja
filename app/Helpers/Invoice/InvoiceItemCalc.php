@@ -109,16 +109,8 @@ class InvoiceItemCalc
 
 		$group_tax[$key] = ['total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate]; 
 
-		$this->groupTaxes($group_tax);
+		$this->setGroupedTaxes($group_tax);
 		
-	}
-
-	private function groupTaxes($group_tax)
-	{
-
-		$this->tax_collection->merge(collect($group_tax));
-
-		return $this;
 	}
 
 	/****************
@@ -166,6 +158,18 @@ class InvoiceItemCalc
 	public function setTotalDiscounts($total)
 	{
 		$this->total_dicounts = $total;
+
+		return $this;
+	}
+
+	public function getGroupedTaxes()
+	{
+		return $this->tax_collection;
+	}
+
+	public function setGroupedTaxes($group_tax)
+	{
+		$this->tax_collection->merge(collect($group_tax));
 
 		return $this;
 	}

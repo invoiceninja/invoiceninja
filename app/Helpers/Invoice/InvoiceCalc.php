@@ -25,6 +25,11 @@ class InvoiceCalc
 
 	protected $invoice_total;
 
+	protected $tax_map;
+
+	protected $total_taxes;
+
+	protected $total_discount;
 
 	public function __construct(Invoice $invoice, int $precision = 2)
 	{
@@ -52,7 +57,13 @@ class InvoiceCalc
 			$new_line_items[] = $item_calc->getLineItem();
 
 			//set collection of itemised taxes
+			$this->setTaxMap($this->getTaxMap()->merge($item_calc->getGroupedTaxes()));
+
 			//set running total of taxes
+			$this->setTotalTaxes($this->getTotalTaxes() + $item_calc->getTotalTaxes());
+
+			//set running total of discounts
+			$this->setTotalDiscount($this->getTotalDiscount() + $item_calc->getTotalDiscounts());
 						
 		}
 
@@ -60,6 +71,48 @@ class InvoiceCalc
 
 	}
 
+
+
+
+	/**
+	 * Getters and Setters
+	 */
+	
+	private function getTaxMap()
+	{
+		return $this->tax_map;
+	}
+
+	private function setTaxMap($value)
+	{
+		$htis->tax_map = $value;
+
+		return $this;
+	}
+
+	private function getTotalDiscount()
+	{
+		return $this->total_discount;
+	}
+
+	private function setTotalDiscount($value)
+	{
+		$this->total_discount = $value;
+
+		return $this;
+	}
+
+	private function getTotalTaxes()
+	{
+		return $this->total_taxes;
+	}
+
+	private function setTotalTaxes($value)
+	{
+		$this->total_taxes = $value;
+
+		return $this;
+	}
 /*
 	private function setDiscount($amount, $discount, $is_amount_discount)
 	{
