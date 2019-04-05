@@ -26,9 +26,11 @@ class InvoiceItemTest extends TestCase
 		$item->cost =10;
 		$item->is_amount_discount = true;
 
-		$inclusive_tax = true;
+		$settings = new \stdClass;
+		$settings->inclusive_tax = true;
+		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getLineTotal(), 10);
@@ -42,9 +44,10 @@ class InvoiceItemTest extends TestCase
 		$item->is_amount_discount = true;
 		$item->discount = 2;
 
-		$inclusive_tax = true;
-
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$settings = new \stdClass;
+		$settings->inclusive_tax = true;
+		$settings->precision = 2;
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getLineTotal(), 8);
@@ -58,9 +61,11 @@ class InvoiceItemTest extends TestCase
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
 
-		$inclusive_tax = true;
+		$settings = new \stdClass;
+		$settings->inclusive_tax = true;
+		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getLineTotal(), 7.48);
@@ -75,9 +80,11 @@ class InvoiceItemTest extends TestCase
 		$item->discount = 2.521254522145214511;
 		$item->tax_rate1 = 10;
 
-		$inclusive_tax = true;
+		$settings = new \stdClass;
+		$settings->inclusive_tax = true;
+		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 0.68);
@@ -92,9 +99,11 @@ class InvoiceItemTest extends TestCase
 		$item->discount = 2.521254522145214511;
 		$item->tax_rate1 = 10;
 
-		$inclusive_tax = false;
+		$settings = new \stdClass;
+		$settings->inclusive_tax = false;
+		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 0.75);
@@ -110,9 +119,11 @@ class InvoiceItemTest extends TestCase
 		$item->tax_rate1 = 10;
 		$item->tax_rate2 = 17.5;
 
-		$inclusive_tax = true;
+		$settings = new \stdClass;
+		$settings->inclusive_tax = true;
+		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 1.79);
@@ -128,9 +139,11 @@ class InvoiceItemTest extends TestCase
 		$item->tax_rate1 = 10;
 		$item->tax_rate2 = 17.5;
 
-		$inclusive_tax = false;
+		$settings = new \stdClass;
+		$settings->inclusive_tax = false;
+		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemCalc($item, 2, $inclusive_tax);
+		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 2.06);
