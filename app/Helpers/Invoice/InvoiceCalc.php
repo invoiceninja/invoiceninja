@@ -21,7 +21,7 @@ class InvoiceCalc
 
 	protected $line_items;
 
-	protected $precision;
+	protected $settings;
 
 	protected $invoice_total;
 
@@ -31,10 +31,10 @@ class InvoiceCalc
 
 	protected $total_discount;
 
-	public function __construct(Invoice $invoice, int $precision = 2)
+	public function __construct(Invoice $invoice, \stdClass $settings)
 	{
 		$this->invoice = $invoice;
-		$this->precision = $precision;
+		$this->settings = $settings;
 	}
 	
 	public function build()
@@ -57,18 +57,19 @@ class InvoiceCalc
 			$new_line_items[] = $item_calc->getLineItem();
 
 			//set collection of itemised taxes
-			$this->setTaxMap($this->getTaxMap()->merge($item_calc->getGroupedTaxes()));
+			$this->tax_map->merge($item_calc->getGroupedTaxes());
 
 			//set running total of taxes
-			$this->setTotalTaxes($this->getTotalTaxes() + $item_calc->getTotalTaxes());
+			$this->total_taxes += $item_calc->getTotalTaxes();
 
 			//set running total of discounts
-			$this->setTotalDiscount($this->getTotalDiscount() + $item_calc->getTotalDiscounts());
+			$this->total_discount += $item_calc->getTotalDiscounts();
 						
 		}
 
 		$this->invoice->line_items = $new_line_items;
 
+		return $this;
 	}
 
 
