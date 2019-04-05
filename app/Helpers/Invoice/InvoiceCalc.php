@@ -2,6 +2,7 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Helpers\Invoice\InvoiceItemCalc;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 
@@ -44,22 +45,22 @@ class InvoiceCalc
 
 		foreach($this->invoice->line_items as $item) {
 
-			$total = $this->formatValue($item->cost) * $this->formatValue($item->qty);
-			$total = $this->setDiscount($total, $item->discount, $item->is_amount_discount);
-			$total = $this->setTaxRate($total, $item->tax_name1, $item->tax_rate1);
-			
-			$item->line_total = $total;
-			
-			$new_line_items[] = $item;
+			$item_calc = new InvoiceItemCalc($item);
+			$item_calc->process();
 
-			$this->setInvoiceTotal($total);
+
+			$new_line_items[] = $item_calc->getLineItem();
+
+			//set collection of itemised taxes
+			//set running total of taxes
+						
 		}
 
 		$this->invoice->line_items = $new_line_items;
 
 	}
 
-
+/*
 	private function setDiscount($amount, $discount, $is_amount_discount)
 	{
 
@@ -80,7 +81,7 @@ class InvoiceCalc
 		$this->invoice_total = $invoice_total;
 	}
 
-
+*/
 
 
 
