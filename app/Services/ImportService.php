@@ -1006,6 +1006,11 @@ class ImportService
     {
         // do nothing
     }
+	
+	private function addPaymentToMaps(Payment $payment)
+    {
+        // do nothing
+    }
 
     private function addVendorToMaps(Vendor $vendor)
     {
