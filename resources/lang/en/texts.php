@@ -985,6 +985,7 @@ $LANG = array(
     'add_bank_account' => 'Add Bank Account',
     'setup_account' => 'Setup Account',
     'import_expenses' => 'Import Expenses',
+	'import_payments' => 'Import Payments',
     'bank_id' => 'Bank',
     'integration_type' => 'Integration Type',
     'updated_bank_account' => 'Successfully updated bank account',
@@ -1936,6 +1937,9 @@ $LANG = array(
     'expense_will_create' => 'expense will be created',
     'expenses_will_create' => 'expenses will be created',
     'created_expenses' => 'Successfully created :count expense(s)',
+	'payment_will_create' => 'payment will be created',
+    'payments_will_create' => 'payments will be created',
+    'created_payments' => 'Successfully created :count payment(s)',
 
     'translate_app' => 'Help improve our translations with :link',
     'expense_category' => 'Expense Category',

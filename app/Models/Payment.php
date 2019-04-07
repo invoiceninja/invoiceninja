@@ -28,6 +28,22 @@ class Payment extends EntityModel
         'exchange_rate',
         'exchange_currency_id',
     ];
+	
+	public static function getImportColumns()
+    {
+        return [
+            'transaction_reference',
+            'private_notes',
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'reference' => 'transaction_reference',
+            'notes|details^private' => 'private_notes',
+        ];
+    }
 
     public static $statusClasses = [
         PAYMENT_STATUS_PENDING => 'info',
