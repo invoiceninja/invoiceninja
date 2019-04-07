@@ -336,4 +336,5 @@ class BaseTransformer extends TransformerAbstract
 
         return isset($this->maps[ENTITY_EXPENSE_CATEGORY][$name]) ? $this->maps[ENTITY_EXPENSE_CATEGORY][$name] : null;
     }
+	
 }
