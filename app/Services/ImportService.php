@@ -68,6 +68,16 @@ class ImportService
      * @var ContactRepository
      */
     protected $contactRepo;
+	
+	/**
+     * @var PaymentRepository
+     */
+    protected $paymentRepo;
+	
+	/**
+     * @var ExpenseRepository
+     */
+    protected $expenseRepo;
 
     /**
      * @var ProductRepository
@@ -880,6 +890,7 @@ class ImportService
             'client_ids' => [],
             'invoice_ids' => [],
             'vendors' => [],
+			'payment' => [],
             'expense_categories' => [],
             'tax_rates' => [],
             'tax_names' => [],
@@ -925,6 +936,11 @@ class ImportService
         foreach ($vendors as $vendor) {
             $this->addVendorToMaps($vendor);
         }
+		
+		$payments = $this->paymentRepo->all();
+        foreach ($payments as $payment) {
+            $this->addPaymentToMaps($payment);
+        }
 
         $expenseCaegories = $this->expenseCategoryRepo->all();
         foreach ($expenseCaegories as $category) {
@@ -950,6 +966,14 @@ class ImportService
             $this->maps['invoice_client'][$number] = $invoice->client_id;
             $this->maps['invoice_ids'][$invoice->public_id] = $invoice->id;
         }
+    }
+	
+	/**
+	 * @param Payment $payment
+	 */
+	private function addPaymentToMaps(Payment $payment)
+    {
+		$this->maps['invoice'][$payment->invoice_id] = $payment->id;
     }
 
     /**
@@ -1003,11 +1027,6 @@ class ImportService
     }
 
     private function addExpenseToMaps(Expense $expense)
-    {
-        // do nothing
-    }
-	
-	private function addPaymentToMaps(Payment $payment)
     {
         // do nothing
     }
