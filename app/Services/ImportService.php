@@ -973,7 +973,8 @@ class ImportService
 	 */
 	private function addPaymentToMaps(Payment $payment)
     {
-		$this->maps['invoice'][$payment->invoice_id] = $payment->id;
+		$this->maps['payment'][$payment->transaction_reference] = $payment->id;
+		$this->maps['invoice'][$payment->id] = $payment->invoice_id;
     }
 
     /**
