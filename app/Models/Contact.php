@@ -78,6 +78,33 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      * @var string
      */
     public static $fieldPhone = 'phone';
+	
+	/**
+     * @return array
+     */
+	 
+    public static function getImportColumns()
+    {
+        return [
+            self::$fieldFirstName,
+            self::$fieldLastName,
+            self::$fieldEmail,
+            self::$fieldPhone,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getImportMap()
+    {
+        return [
+            'first' => 'first_name',
+            'last' => 'last_name',
+            'email' => 'email',
+            'mobile|phone' => 'phone',
+        ];
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
