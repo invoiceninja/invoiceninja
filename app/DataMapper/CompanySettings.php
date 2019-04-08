@@ -64,6 +64,8 @@ class CompanySettings extends BaseSettings
 	public $custom_message_paid_invoice;
 	public $custom_message_unapproved_quote;
 	
+	public $inclusive_taxes;
+
 	public $translations;
 
 	/**
@@ -101,6 +103,7 @@ class CompanySettings extends BaseSettings
 			'show_tasks_in_portal' => 1,
 			'show_currency_symbol' => 1,
 			'show_currency_code' => 0,
+			'inclusive_taxes' => 1,
 			
 			'translations' => (object) [],
 		];

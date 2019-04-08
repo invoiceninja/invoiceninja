@@ -54,9 +54,18 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
-		$this->calcLineItems();
+		$this->calcLineItems()->calcTaxes();
 	}
 
+
+
+	/**
+	 * Calculates the Invoice Level taxes.
+	 */
+	private function calcTaxes()
+	{
+		
+	}
 
 	/**
 	 * Calculates the line items.

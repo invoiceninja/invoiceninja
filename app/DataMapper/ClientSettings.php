@@ -8,11 +8,19 @@ use App\Utils\TranslationHelper;
 
 /**
  * ClientSettings
+ *
+ * Client settings are built as a superset of Company Settings
+ * 
+ * If no client settings is specified, the default company setting is used.
+ * 
+ * Client settings are passed down to the entity level where they can be further customized and then saved
+ * into the settings column of the entity, so there is no need to create additional entity level settings handlers.
+ * 
  */
 class ClientSettings extends BaseSettings
 {
 	/**
-	 * settings which also have a parent company setting
+	 * Settings which also have a parent company setting
 	 */
 	public $timezone_id;
 	public $date_format_id;
@@ -32,6 +40,7 @@ class ClientSettings extends BaseSettings
 	public $custom_message_unapproved_quote;
 	public $show_currency_symbol;
 	public $show_currency_code;
+	public $inclusive_taxes;
 
 	/**
 	 * settings which which are unique to client settings
@@ -76,7 +85,8 @@ class ClientSettings extends BaseSettings
 			'send_reminders' => NULL,
 			'show_tasks_in_portal' => NULL,
 			'show_currency_symbol' => NULL,
-			'show_currency_code' => NULL
+			'show_currency_code' => NULL,
+			'inclusive_taxes' => NULL,
 		];
 
 	}
@@ -98,13 +108,9 @@ class ClientSettings extends BaseSettings
 
 			if(!isset($client_settings->{$key}) && property_exists($company_settings, $key))
 				$client_settings->{$key} = $company_settings->{$key};
-		}
 
-		/** Replace ID with Object for presentation in multi-select */
-		$client_settings->currency_id = TranslationHelper::getCurrencies()->where('id', $client_settings->currency_id)->first();
-		$client_settings->language_id = TranslationHelper::getLanguages()->where('id', $client_settings->language_id)->first();
-		$client_settings->payment_terms = TranslationHelper::getPaymentTerms()->where('num_days', $client_settings->payment_terms)->first();
-		//todo $client_settings->timezone_id
+		}
+		
 
 		return $client_settings;
 	}
