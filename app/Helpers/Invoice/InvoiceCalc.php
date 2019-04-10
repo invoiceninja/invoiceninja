@@ -18,6 +18,8 @@ class InvoiceCalc
 
 	protected $settings;
 
+	private $line_items;
+
 	private $balance;
 
 	private $paid_to_date;
@@ -26,9 +28,7 @@ class InvoiceCalc
 
 	private $sub_total;
 
-	private $line_items;
-
-	private $invoice_total;
+	private $total;
 
 	private $tax_map;
 
@@ -54,17 +54,83 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
-		$this->calcLineItems()->calcTaxes();
+		$this->calcLineItems()
+			->calcDiscount()
+			->sumCustomValues()
+			->calcBalance();
+
+		return $this;
 	}
 
+	private function calcDiscount()
+	{
+        if ($this->invoice->discount != 0) {
 
+            if ($this->invoice->is_amount_discount) {
+
+                $this->total -= $this->invoice->discount;
+
+            } else {
+
+                $this->total -= round($this->total * ($this->invoice->discount / 100), 2);
+
+            }
+
+        }
+
+        return $this;
+	}
+
+	private function sumBalance()
+	{
+
+		if(isset($this->invoice->id) && $this->invoice->id >= 1)
+		{
+            $this->invoice->balance = round($this->total - ($this->invoice->amount - $this->invoice->balance), 2);
+        } else {
+            $this->invoice->balance = $this->total;
+        }
+
+		return $this;
+
+	}
+
+	private function sumCustomValues()
+	{
+		$this->total += $this->getSubTotal();
+
+		// custom fields charged taxes
+        if ($this->invoice->custom_value1 && $this->settings->custom_taxes1) {
+            $this->total += $invoice->custom_value1;
+        }
+        if ($invoice->custom_value2 && $invoice->custom_taxes2) {
+            $this->total += $invoice->custom_value2;
+        }
+
+        $this->calcTaxes();
+
+        // custom fields not charged taxes
+        if ($invoice->custom_value1 && ! $this->settings->custom_taxes1) {
+            $this->total += $invoice->custom_value1;
+        }
+        if ($invoice->custom_value2 && ! $this->settings->custom_taxes2) {
+            $this->total += $invoice->custom_value2;
+        }
+	}
 
 	/**
 	 * Calculates the Invoice Level taxes.
 	 */
 	private function calcTaxes()
 	{
-		
+
+        if (! $this->settings->inclusive_taxes) {
+            $taxAmount1 = round($this->total * ($this->invoice->tax_rate1 ? $this->invoice->tax_rate1 : 0) / 100, 2);
+            $taxAmount2 = round($this->total * ($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100, 2);
+            $this->total = round($this->total + $taxAmount1 + $taxAmount2, 2);
+            $this->total += $this->total_taxes;
+        }
+
 	}
 
 	/**
