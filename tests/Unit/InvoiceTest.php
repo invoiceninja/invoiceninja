@@ -35,7 +35,12 @@ class InvoiceTest extends TestCase
 
 	private function buildSettings()
 	{
+		$settings = new \stdClass;
+		$settings->custom_taxes1 = true;
+		$settings->custom_taxes2 = true;
+		$settings->inclusive_taxes = true;
 
+		return $settings;
 	}
 
 	private function buildLineItems()
