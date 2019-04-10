@@ -56,10 +56,18 @@ class InvoiceCalc
 	{
 		$this->calcLineItems()
 			->calcDiscount()
-			->sumCustomValues()
-			->calcBalance();
+			->calcCustomValues()
+			->calcBalance()
+			->calcPartial();
 
 		return $this;
+	}
+
+	private function calcPartial()
+	{
+		if ( !$this->invoice->id && isset($this->invoice->partial) ) {
+            $this->invoice->partial = max(0, min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
+        }
 	}
 
 	private function calcDiscount()
@@ -81,7 +89,15 @@ class InvoiceCalc
         return $this;
 	}
 
-	private function sumBalance()
+	
+	/**
+	 * Calculates the balance.
+	 * 
+	 * //todo need to understand this better
+	 *
+	 * @return     self  The balance.
+	 */
+	private function calcBalance()
 	{
 
 		if(isset($this->invoice->id) && $this->invoice->id >= 1)
@@ -95,7 +111,7 @@ class InvoiceCalc
 
 	}
 
-	private function sumCustomValues()
+	private function calcCustomValues()
 	{
 		$this->total += $this->getSubTotal();
 

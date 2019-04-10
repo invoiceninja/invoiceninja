@@ -369,7 +369,6 @@ class CreateUsersTable extends Migration
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
 
-            $t->decimal('total', 13,2);
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->decimal('partial', 13, 2)->nullable();
