@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use Tests\TestCase;
 
@@ -11,11 +12,49 @@ use Tests\TestCase;
  */
 class InvoiceTest extends TestCase
 {
+
+	protected $invoice;
+
+	protected $invoice_calc;
+
+	private $settings;
+
     public function setUp()
     {
     
     parent::setUp();
 	
+		$this->invoice = InvoiceFactory::create();
+		$this->invoice->line_items = $this->buildLineItems();
+
+		$this->settings = $this->buildSettings();
+
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 	}
 
+
+	private function buildSettings()
+	{
+
+	}
+
+	private function buildLineItems()
+	{
+		$line_items = [];
+
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+
+		$line_items[] = $item;
+
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+
+		$line_items[] = $item;
+
+		return $line_items;
+
+	}
 }

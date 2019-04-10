@@ -355,7 +355,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->text('line_items')->nullable();
-            $t->text('options')->nullable();
+            $t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
             $t->string('tax_name1');
