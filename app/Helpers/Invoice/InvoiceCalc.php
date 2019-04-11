@@ -33,6 +33,8 @@ class InvoiceCalc
 
 	private $tax_map;
 
+	private $total_item_taxes;
+
 	private $total_taxes;
 
 	private $total_discount;
@@ -147,8 +149,9 @@ class InvoiceCalc
         if (! $this->settings->inclusive_taxes) {
             $taxAmount1 = round($this->total * ($this->invoice->tax_rate1 ? $this->invoice->tax_rate1 : 0) / 100, 2);
             $taxAmount2 = round($this->total * ($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100, 2);
-            $this->total = round($this->total + $taxAmount1 + $taxAmount2, 2);
+            $this->total_taxes = round($taxAmount1 + $taxAmount2, 2);
             $this->total += $this->total_taxes;
+            $this->total += $this->total_item_taxes;
         }
 
         return $this;
@@ -176,7 +179,7 @@ class InvoiceCalc
 			$this->tax_map->merge($item_calc->getGroupedTaxes());
 
 			//set running total of taxes
-			$this->total_taxes += $item_calc->getTotalTaxes();
+			$this->total_item_taxes += $item_calc->getTotalTaxes();
 
 			//set running total of discounts
 			$this->total_discount += $item_calc->getTotalDiscounts();
