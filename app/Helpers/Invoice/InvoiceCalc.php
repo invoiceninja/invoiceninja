@@ -5,6 +5,7 @@ namespace App\Helpers\Invoice;
 use App\Helpers\Invoice\InvoiceItemCalc;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
+use Illuminate\Support\Collection;
 
 /**
  * Class for invoice calculations.
@@ -43,10 +44,11 @@ class InvoiceCalc
 	 * @param      \App\Models\Invoice  $invoice   The invoice
 	 * @param      \stdClass            $settings  The settings
 	 */
-	public function __construct(Invoice $invoice, \stdClass $settings)
+	public function __construct($invoice, \stdClass $settings)
 	{
 		$this->invoice = $invoice;
 		$this->settings = $settings;
+		$this->tax_map = new Collection;
 	}
 	
 	/**
@@ -65,7 +67,7 @@ class InvoiceCalc
 
 	private function calcPartial()
 	{
-		if ( !$this->invoice->id && isset($this->invoice->partial) ) {
+		if ( !isset($this->invoice->id) && isset($this->invoice->partial) ) {
             $this->invoice->partial = max(0, min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
         }
 	}
@@ -117,21 +119,23 @@ class InvoiceCalc
 
 		// custom fields charged taxes
         if ($this->invoice->custom_value1 && $this->settings->custom_taxes1) {
-            $this->total += $invoice->custom_value1;
+            $this->total += $this->invoice->custom_value1;
         }
-        if ($invoice->custom_value2 && $invoice->custom_taxes2) {
-            $this->total += $invoice->custom_value2;
+        if ($this->invoice->custom_value2 && $this->invoice->custom_taxes2) {
+            $this->total += $this->invoice->custom_value2;
         }
 
         $this->calcTaxes();
 
         // custom fields not charged taxes
-        if ($invoice->custom_value1 && ! $this->settings->custom_taxes1) {
-            $this->total += $invoice->custom_value1;
+        if ($this->invoice->custom_value1 && ! $this->settings->custom_taxes1) {
+            $this->total += $this->invoice->custom_value1;
         }
-        if ($invoice->custom_value2 && ! $this->settings->custom_taxes2) {
-            $this->total += $invoice->custom_value2;
+        if ($this->invoice->custom_value2 && ! $this->settings->custom_taxes2) {
+            $this->total += $this->invoice->custom_value2;
         }
+
+        return $this;
 	}
 
 	/**
@@ -147,6 +151,7 @@ class InvoiceCalc
             $this->total += $this->total_taxes;
         }
 
+        return $this;
 	}
 
 	/**
@@ -161,7 +166,7 @@ class InvoiceCalc
 
 		foreach($this->invoice->line_items as $item) {
 
-			$item_calc = new InvoiceItemCalc($item);
+			$item_calc = new InvoiceItemCalc($item, $this->settings);
 			$item_calc->process();
 
 
@@ -197,9 +202,9 @@ class InvoiceCalc
 	 *
 	 * @return     float  The sub total.
 	 */
-	private function getSubTotal()
+	public function getSubTotal()
 	{
-		return $this->subtotal;
+		return $this->sub_total;
 	}
 
 	/**
@@ -209,7 +214,7 @@ class InvoiceCalc
 	 *
 	 * @return     self    $this
 	 */
-	private function setSubTotal($value)
+	public function setSubTotal($value)
 	{
 		$this->sub_total = $value;
 
@@ -221,7 +226,7 @@ class InvoiceCalc
 	 *
 	 * @return     Collection  The tax map.
 	 */
-	private function getTaxMap()
+	public function getTaxMap()
 	{
 		return $this->tax_map;
 	}
@@ -233,7 +238,7 @@ class InvoiceCalc
 	 *
 	 * @return     self    $this
 	 */
-	private function setTaxMap($value)
+	public function setTaxMap($value)
 	{
 		$htis->tax_map = $value;
 
@@ -245,7 +250,7 @@ class InvoiceCalc
 	 *
 	 * @return     float  The total discount.
 	 */
-	private function getTotalDiscount()
+	public function getTotalDiscount()
 	{
 		return $this->total_discount;
 	}
@@ -257,7 +262,7 @@ class InvoiceCalc
 	 *
 	 * @return     self    $this
 	 */
-	private function setTotalDiscount($value)
+	public function setTotalDiscount($value)
 	{
 		$this->total_discount = $value;
 
@@ -269,7 +274,7 @@ class InvoiceCalc
 	 *
 	 * @return     float  The total taxes.
 	 */
-	private function getTotalTaxes()
+	public function getTotalTaxes()
 	{
 		return $this->total_taxes;
 	}
@@ -281,7 +286,7 @@ class InvoiceCalc
 	 *
 	 * @return     self    ( $this )
 	 */
-	private function setTotalTaxes($value)
+	public function setTotalTaxes($value)
 	{
 		$this->total_taxes = $value;
 

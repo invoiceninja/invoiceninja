@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Helpers\Invoice\InvoiceCalc;
 use Tests\TestCase;
 
 /**
@@ -39,6 +40,7 @@ class InvoiceTest extends TestCase
 		$settings->custom_taxes1 = true;
 		$settings->custom_taxes2 = true;
 		$settings->inclusive_taxes = true;
+		$settings->precision = 2;
 
 		return $settings;
 	}
@@ -61,5 +63,12 @@ class InvoiceTest extends TestCase
 
 		return $line_items;
 
+	}
+
+	public function testInvoiceTotals()
+	{
+		$this->invoice_calc->build();
+
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
 	}
 }

@@ -4,6 +4,7 @@ namespace App\Helpers\Invoice;
 
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
+use Illuminate\Support\Collection;
 
 class InvoiceItemCalc
 {
@@ -29,7 +30,7 @@ class InvoiceItemCalc
 
 		$this->settings = $settings;
 
-		$this->tax_collection = collect();
+		$this->tax_collection = new Collection;
 
 	}
 
@@ -122,7 +123,7 @@ class InvoiceItemCalc
 	*
 	*
 	*/
-	public function getLimeItem()
+	public function getLineItem()
 	{
 
 		return $this->item;
@@ -155,12 +156,12 @@ class InvoiceItemCalc
 
 	public function getTotalDiscounts()
 	{
-		return $this->total_dicounts;
+		return $this->total_discounts;
 	}
 
 	public function setTotalDiscounts($total)
 	{
-		$this->total_dicounts = $total;
+		$this->total_discounts = $total;
 
 		return $this;
 	}
