@@ -104,9 +104,9 @@ class InvoiceCalc
 
 		if(isset($this->invoice->id) && $this->invoice->id >= 1)
 		{
-            $this->invoice->balance = round($this->total - ($this->invoice->amount - $this->invoice->balance), 2);
+            $this->balance = round($this->total - ($this->invoice->amount - $this->invoice->balance), 2);
         } else {
-            $this->invoice->balance = $this->total;
+            $this->balance = $this->total;
         }
 
 		return $this;
@@ -293,6 +293,25 @@ class InvoiceCalc
 		return $this;
 	}
 
+	public function getTotal()
+	{
+		return $this->total;
+	}
+
+	public function setTotal($value)
+	{
+		$this->total = $value;
+	}
+
+	public function getBalance()
+	{
+		return $this->balance;
+	}
+
+	public function setBalance($value)
+	{
+		$this->balance = $value;
+	}
 
 /*
 	private function setDiscount($amount, $discount, $is_amount_discount)
@@ -305,15 +324,7 @@ class InvoiceCalc
         
 	}
 
-	private function getInvoiceTotal()
-	{
-		return $this->invoice_total;
-	}
 
-	private function setInvoiceTotal($invoice_total)
-	{
-		$this->invoice_total = $invoice_total;
-	}
 
 */
 
