@@ -30,7 +30,7 @@ class InvoiceItemCalc
 
 		$this->settings = $settings;
 
-		$this->tax_collection = new Collection;
+		$this->tax_collection = collect([]);
 
 	}
 
@@ -76,7 +76,7 @@ class InvoiceItemCalc
 
 		if($tax_rate1 != 0)
 		{
-			if($this->settings->inclusive_tax)
+			if($this->settings->inclusive_taxes)
 				$item_tax_rate1_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate1/100))) , $this->settings->precision);
 			else
 				$item_tax_rate1_total = $this->formatValue(($this->line_total * $tax_rate1/100), $this->settings->precision);
@@ -90,7 +90,7 @@ class InvoiceItemCalc
 
 		if($tax_rate2 != 0)
 		{
-			if($this->settings->inclusive_tax)
+			if($this->settings->inclusive_taxes)
 				$item_tax_rate2_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate2/100))) , $this->settings->precision);
 			else
 				$item_tax_rate2_total = $this->formatValue(($this->line_total * $tax_rate2/100), $this->settings->precision);
@@ -113,7 +113,7 @@ class InvoiceItemCalc
 
 		$group_tax[$key] = ['total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate]; 
 
-		$this->tax_collection->merge(collect($group_tax));
+		$this->tax_collection->push(collect($group_tax));
 		
 	}
 

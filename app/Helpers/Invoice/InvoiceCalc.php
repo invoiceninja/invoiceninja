@@ -61,6 +61,7 @@ class InvoiceCalc
 		$this->calcLineItems()
 			->calcDiscount()
 			->calcCustomValues()
+			//->calcTaxes()
 			->calcBalance()
 			->calcPartial();
 
@@ -72,6 +73,8 @@ class InvoiceCalc
 		if ( !isset($this->invoice->id) && isset($this->invoice->partial) ) {
             $this->invoice->partial = max(0, min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
         }
+
+        return $this;
 	}
 
 	private function calcDiscount()
@@ -117,7 +120,6 @@ class InvoiceCalc
 
 	private function calcCustomValues()
 	{
-		$this->total += $this->getSubTotal();
 
 		// custom fields charged taxes
         if ($this->invoice->custom_value1 && $this->settings->custom_taxes1) {
@@ -149,9 +151,8 @@ class InvoiceCalc
         if (! $this->settings->inclusive_taxes) {
             $taxAmount1 = round($this->total * ($this->invoice->tax_rate1 ? $this->invoice->tax_rate1 : 0) / 100, 2);
             $taxAmount2 = round($this->total * ($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100, 2);
-            $this->total_taxes = round($taxAmount1 + $taxAmount2, 2);
+            $this->total_taxes = round($taxAmount1 + $taxAmount2, 2) + $this->total_item_taxes;
             $this->total += $this->total_taxes;
-            $this->total += $this->total_item_taxes;
         }
 
         return $this;
@@ -176,7 +177,7 @@ class InvoiceCalc
 			$new_line_items[] = $item_calc->getLineItem();
 
 			//set collection of itemised taxes
-			$this->tax_map->merge($item_calc->getGroupedTaxes());
+			$this->tax_map->push($item_calc->getGroupedTaxes());
 
 			//set running total of taxes
 			$this->total_item_taxes += $item_calc->getTotalTaxes();
@@ -186,7 +187,9 @@ class InvoiceCalc
 
 			//set running subtotal
 			$this->sub_total += $item_calc->getLineTotal();
-						
+
+			$this->total += $item_calc->getLineTotal();
+
 		}
 
 		$this->invoice->line_items = $new_line_items;

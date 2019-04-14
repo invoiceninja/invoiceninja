@@ -27,7 +27,7 @@ class InvoiceItemTest extends TestCase
 		$item->is_amount_discount = true;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = true;
+		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemCalc($item, $settings);
@@ -45,7 +45,7 @@ class InvoiceItemTest extends TestCase
 		$item->discount = 2;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = true;
+		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
@@ -62,7 +62,7 @@ class InvoiceItemTest extends TestCase
 		$item->discount = 2.521254522145214511;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = true;
+		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemCalc($item, $settings);
@@ -81,7 +81,7 @@ class InvoiceItemTest extends TestCase
 		$item->tax_rate1 = 10;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = true;
+		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemCalc($item, $settings);
@@ -100,7 +100,7 @@ class InvoiceItemTest extends TestCase
 		$item->tax_rate1 = 10;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = false;
+		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemCalc($item, $settings);
@@ -120,7 +120,7 @@ class InvoiceItemTest extends TestCase
 		$item->tax_rate2 = 17.5;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = true;
+		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemCalc($item, $settings);
@@ -140,13 +140,14 @@ class InvoiceItemTest extends TestCase
 		$item->tax_rate2 = 17.5;
 
 		$settings = new \stdClass;
-		$settings->inclusive_tax = false;
+		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemCalc($item, $settings);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 2.06);
+		$this->assertEquals($item_calc->getGroupedTaxes()->count(), 2);
 	}
 
 }

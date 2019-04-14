@@ -114,13 +114,14 @@ class InvoiceTest extends TestCase
 	public function testInvoiceTotalsWithDiscountWithSurchargeWithExclusiveTax()
 	{
 
-		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 
 		$this->invoice->discount = 5;
 		$this->invoice->custom_value1 = 5;
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 		$this->settings->inclusive_taxes = false;
+
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 
 		$this->invoice_calc->build();
 
@@ -130,7 +131,7 @@ class InvoiceTest extends TestCase
 		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 2);
 	}
 
-		public function testInvoiceTotalsWithDiscountWithSurchargeWithDoubleExclusiveTax()
+	public function testInvoiceTotalsWithDiscountWithSurchargeWithDoubleExclusiveTax()
 	{
 
 		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
@@ -152,6 +153,78 @@ class InvoiceTest extends TestCase
 	}
 
 
+	public function testLineItemTaxRatesInclusiveTaxes()
+	{
+		$line_items = [];
 
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+
+		$line_items[] = $item;
+
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+
+		$line_items[] = $item;
+
+		$this->invoice->line_items = $line_items;
+		$this->settings->inclusive_taxes = true;
+		$this->invoice->discount = 0;
+		$this->invoice->custom_value1 = 0;
+
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
+		$this->invoice_calc->build();
+
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getBalance(), 20);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 0);
+		$this->assertEquals($this->invoice_calc->getTaxMap()->count(), 2);
+	}
+
+	public function testLineItemTaxRatesExclusiveTaxes()
+	{
+
+		$line_items = [];
+
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+
+		$line_items[] = $item;
+
+		$item = InvoiceItemFactory::create();
+		$item->qty = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+
+		$line_items[] = $item;
+
+		$this->invoice->line_items = $line_items;
+		$this->invoice->discount = 0;
+		$this->invoice->tax_name1 = 'GST';
+		$this->invoice->tax_rate1 = 10;
+		$this->invoice->tax_name2 = 'GST';
+		$this->invoice->tax_rate2 = 10;
+		
+		$this->settings->inclusive_taxes = false;
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
+		$this->invoice_calc->build();
+
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 26);
+		$this->assertEquals($this->invoice_calc->getBalance(), 26);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 6);
+		$this->assertEquals($this->invoice_calc->getTaxMap()->count(), 2);
+	}
 
 }
