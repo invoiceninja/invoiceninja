@@ -6,7 +6,7 @@ use App\Models\Invoice;
 
 class InvoiceFactory
 {
-	public static function create() :\stdClass
+	public static function create(int $company_id, int $user_id) :\stdClass
 	{
 		$invoice = new \stdClass;
 		$invoice->invoice_status_id = Invoice::STATUS_DRAFT;
@@ -31,6 +31,8 @@ class InvoiceFactory
 		$invoice->amount = 0;
 		$invoice->balance = 0;
 		$invoice->partial = 0;
+		$invoice->user_id = $user_id;
+		$invoice->company_id = $company_id;
 		
 		return $invoice;
 	}

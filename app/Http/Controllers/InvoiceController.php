@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\InvoiceFactory;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -57,7 +58,9 @@ class InvoiceController extends BaseController
      */
     public function create()
     {
-        //
+        $invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+
+        return $this->itemResponse($invoice);
     }
 
     /**

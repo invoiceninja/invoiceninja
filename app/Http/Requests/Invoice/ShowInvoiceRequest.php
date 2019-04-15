@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Client;
+namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Models\Client;
+use App\Models\Invoice;
 
-class CreateClientRequest extends Request
+class ShowInvoiceRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +15,7 @@ class CreateClientRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Client::class);
+        return auth()->user()->can('view', $this->invoice);
     }
 
 }
