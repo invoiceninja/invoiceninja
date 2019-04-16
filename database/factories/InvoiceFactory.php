@@ -21,7 +21,6 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
 		'invoice_date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => false,
-		'options' => '',
 		'backup' => '', 
     ];
 });

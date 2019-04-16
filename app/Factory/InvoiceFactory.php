@@ -18,7 +18,7 @@ class InvoiceFactory
 		$invoice->due_date = null;
 		$invoice->is_deleted = false;
 		$invoice->line_items = json_encode([]);
-		$invoice->settings = json_encode([]);
+		$invoice->settings = json_encode([]); //todo need to embed the settings here
 		$invoice->backup = json_encode([]);
 		$invoice->tax_name1 = '';
 		$invoice->tax_rate1 = 0;

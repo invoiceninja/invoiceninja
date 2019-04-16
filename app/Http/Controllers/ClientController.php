@@ -6,6 +6,7 @@ use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
 use App\Http\Requests\Client\CreateClientRequest;
+use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
@@ -19,10 +20,10 @@ use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Size;
 use App\Repositories\ClientRepository;
+use App\Transformers\ClientTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Transformers\ClientTransformer;
 
 /**
  * Class ClientController
@@ -142,7 +143,7 @@ class ClientController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Client $client)
+    public function destroy(DestroyClientRequest $request, Client $client)
     {
         $client->delete();
 

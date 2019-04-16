@@ -3,7 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Factory\InvoiceFactory;
+use App\Http\Requests\Invoice\CreateInvoiceRequest;
+use App\Http\Requests\Invoice\EditInvoiceRequest;
+use App\Http\Requests\Invoice\ShowInvoiceRequest;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Models\Invoice;
+use App\Transformers\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
@@ -56,7 +62,7 @@ class InvoiceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CreateInvoiceRequest $request)
     {
         $invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
@@ -69,9 +75,12 @@ class InvoiceController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreInvoiceRequest $request)
     {
-        //
+        
+        $invoice = $this->invoice_repo->save();
+        return $this->itemResponse($invoice);
+
     }
 
     /**
@@ -80,7 +89,7 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ShowInvoiceRequest $request)
     {
         //
     }
@@ -91,7 +100,7 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(EditInvoiceRequest)
     {
         //
     }
@@ -103,7 +112,7 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateInvoiceRequest $request)
     {
         //
     }
@@ -114,7 +123,7 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
         //
     }

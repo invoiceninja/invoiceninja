@@ -44,12 +44,11 @@ class InvoiceCalc
 	 * Constructs the object with Invoice and Settings object
 	 *
 	 * @param      \App\Models\Invoice  $invoice   The invoice
-	 * @param      \stdClass            $settings  The settings
 	 */
-	public function __construct($invoice, \stdClass $settings)
+	public function __construct($invoice)
 	{
 		$this->invoice = $invoice;
-		$this->settings = $settings;
+		$this->settings = $invoice->settings;
 		$this->tax_map = new Collection;
 	}
 	
