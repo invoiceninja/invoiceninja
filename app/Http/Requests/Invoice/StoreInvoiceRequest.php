@@ -24,6 +24,11 @@ class StoreInvoiceRequest extends Request
 
     }
 
+    public function sanitize()
+    {
+        //do post processing of invoice request here, ie. invoice_items
+    }
+
     public function messages()
     {
 

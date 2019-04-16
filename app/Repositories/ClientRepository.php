@@ -13,6 +13,22 @@ use Illuminate\Support\Facades\Log;
 class ClientRepository extends BaseRepository
 {
 
+    /**
+     * @var ClientContactRepository
+     */
+    protected $contactRepo;
+
+    /**
+     * ClientController constructor.
+     * @param ClientContactRepository $contactRepo
+     */
+    public function __construct(ClientContactRepository $contactRepo)
+    {
+
+        $this->contactRepo = $contactRepo;
+
+    }
+
     public function getClassName()
     {
         return Client::class;
@@ -22,6 +38,8 @@ class ClientRepository extends BaseRepository
 	{
         $client->fill($request->input());
         $client->save();
+
+        $contacts = $this->contactRepo->save($request->input('contacts'), $client);
 
         return $client;
 	}

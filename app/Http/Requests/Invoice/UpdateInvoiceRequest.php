@@ -14,14 +14,31 @@ class UpdateInvoiceRequest extends Request
      * @return bool
      */
 
-    public function authorize()
+    public function authorize() : bool
     {
-        return true;
-       // return ! auth()->user(); //todo permissions
+        return auth()->user()->can('edit', $this->invoice);
     }
 
     public function rules()
     {
+        if (! $this->entity()) {
+            return [];
+        }
+
+        $invoiceId = $this->entity()->id;
+
+        $rules = [
+            'client' => 'required',
+            'discount' => 'positive',
+            'invoice_date' => 'required',
+        ];
+
+        return $rules;
+    }
+
+    public function sanitize()
+    {
+        //do post processing of invoice request here, ie. invoice_items
 
     }
 

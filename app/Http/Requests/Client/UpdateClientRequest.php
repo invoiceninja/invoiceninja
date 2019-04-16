@@ -14,10 +14,9 @@ class UpdateClientRequest extends Request
      * @return bool
      */
 
-    public function authorize()
+    public function authorize() : bool
     {
-        return true;
-       // return ! auth()->user(); //todo permissions
+        return auth()->user()->can('edit', $this->client);
     }
 
     public function rules()

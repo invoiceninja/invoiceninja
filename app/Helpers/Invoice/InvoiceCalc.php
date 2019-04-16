@@ -318,6 +318,12 @@ class InvoiceCalc
 		$this->balance = $value;
 	}
 
+	public function getInvoice()
+	{
+		//todo build invoice values here and return Invoice
+		
+		return $this->invoice;
+	}
 /*
 	private function setDiscount($amount, $discount, $is_amount_discount)
 	{

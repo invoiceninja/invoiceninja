@@ -101,8 +101,7 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-
-        $client = UpdateClient::dispatchNow($request, $client);
+        $client = $this->clientRepo->save($request, $client);
 
         return $this->itemResponse($client);
 
@@ -129,8 +128,9 @@ class ClientController extends BaseController
      */
     public function store(StoreClientRequest $request)
     {
+        
+        $client = $this->clientRepo->save($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $client = StoreClient::dispatchNow($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
         $client->load('contacts', 'primary_contact');
 
         return $this->itemResponse($client);
@@ -145,6 +145,7 @@ class ClientController extends BaseController
      */
     public function destroy(DestroyClientRequest $request, Client $client)
     {
+        //may not need these destroy routes as we are using actions to 'archive/delete'
         $client->delete();
 
         return response()->json([], 200);

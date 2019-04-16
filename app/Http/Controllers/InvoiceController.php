@@ -78,7 +78,8 @@ class InvoiceController extends BaseController
     public function store(StoreInvoiceRequest $request)
     {
         
-        $invoice = $this->invoice_repo->save();
+        $invoice = $this->invoice_repo->save($request, InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
         return $this->itemResponse($invoice);
 
     }
@@ -89,9 +90,11 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ShowInvoiceRequest $request)
+    public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
-        //
+
+        return $this->itemResponse($invoice);
+
     }
 
     /**
@@ -100,9 +103,11 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(EditInvoiceRequest)
+    public function edit(EditInvoiceRequest, Invoice $invoice)
     {
-        //
+
+        return $this->itemResponse($invoice);
+
     }
 
     /**
@@ -112,9 +117,13 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateInvoiceRequest $request)
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-        //
+
+        $invoice = $this->invoice_repo->save($request, $invoice);
+
+        return $this->itemResponse($invoice);
+
     }
 
     /**
@@ -125,6 +134,10 @@ class InvoiceController extends BaseController
      */
     public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
-        //
+
+        $invoice->delete();
+
+        return response()->json([], 200);
+        
     }
 }
