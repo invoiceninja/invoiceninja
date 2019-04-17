@@ -32,9 +32,10 @@ class ClientPresenter extends EntityPresenter
             return '';
         }
 
-        $link = Utils::addHttp($client->website);
+        $website = e($client->website);
+        $link = Utils::addHttp($website);
 
-        return link_to($link, $client->website, ['target' => '_blank']);
+        return link_to($link, $website, ['target' => '_blank']);
     }
 
     public function paid_to_date()

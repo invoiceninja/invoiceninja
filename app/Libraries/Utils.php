@@ -1258,6 +1258,7 @@ class Utils
             return '';
         }
 
+        $link = e($link);
         $title = $link;
         if (substr($link, 0, 4) != 'http') {
             $link = 'http://' . $link;
