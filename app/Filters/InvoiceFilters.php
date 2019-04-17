@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * ProductFilters
  */
-class Invoiceilters extends QueryFilters
+class InvoiceFilters extends QueryFilters
 {
 
 

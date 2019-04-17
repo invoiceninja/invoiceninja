@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Factory\InvoiceFactory;
+use App\Filters\InvoiceFilters;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Models\Invoice;
+use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -37,7 +39,7 @@ class InvoiceController extends BaseController
      * ClientController constructor.
      * @param ClientRepository $clientRepo
      */
-    public function __construct(InvoiceRespository $invoice_repo)
+    public function __construct(InvoiceRepository $invoice_repo)
     {
         parent::__construct();
 
@@ -48,7 +50,7 @@ class InvoiceController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
-    public function index()
+    public function index(InvoiceFilters $filters)
     {
         
         $invoices = Invoice::filter($filters);
@@ -103,7 +105,7 @@ class InvoiceController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(EditInvoiceRequest, Invoice $invoice)
+    public function edit(EditInvoiceRequest $request, Invoice $invoice)
     {
 
         return $this->itemResponse($invoice);
@@ -138,6 +140,6 @@ class InvoiceController extends BaseController
         $invoice->delete();
 
         return response()->json([], 200);
-        
+
     }
 }

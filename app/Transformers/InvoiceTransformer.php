@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Transformers;
-use App\Models\Client;
+
 use App\Models\Invoice;
+use App\Utils\Traits\MakesHash;
 
 /**
  * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
@@ -67,20 +68,14 @@ class InvoiceTransformer extends EntityTransformer
     //    'documents',
     ];
 
-    public function __construct($client = null)
-    {
-        parent::__construct($serializer);
-
-        $this->client = $client;
-    }
-
+/*
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->serializer);
 
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
-/*
+
     public function includeInvitations(Invoice $invoice)
     {
         $transformer = new InvitationTransformer($this->account, $this->serializer);
@@ -126,7 +121,7 @@ class InvoiceTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($invoice->id),
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),
+            'client_id' => (int) $invoice->client_id,
             'invoice_status_id' => (int) ($invoice->invoice_status_id ?: 1),
             'updated_at' => $invoice->updated_at,
             'archived_at' => $invoice->deleted_at,
@@ -164,10 +159,7 @@ class InvoiceTransformer extends EntityTransformer
             'quote_invoice_id' => (int) ($invoice->quote_invoice_id ?: 0),
             'custom_text_value1' => $invoice->custom_text_value1 ?: '',
             'custom_text_value2' => $invoice->custom_text_value2 ?: '',
-            'is_quote' => (bool) $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
             'is_public' => (bool) $invoice->is_public,
-            'filename' => $invoice->getFileName(),
-            'options' => $invoice->options ?: '',
             'backup' => $invoice->backup ?: '',
         ];
     }
