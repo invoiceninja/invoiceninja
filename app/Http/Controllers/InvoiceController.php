@@ -17,9 +17,8 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
- * Class ClientController
- * @package App\Http\Controllers
- * @covers App\Http\Controllers\ClientController
+ * Class InvoiceController
+ * @package App\Http\Controllers\InvoiceController
  */
 
 class InvoiceController extends BaseController
@@ -32,16 +31,18 @@ class InvoiceController extends BaseController
     protected $entity_transformer = InvoiceTransformer::class;
 
     /**
-     * @var ClientRepository
+     * @var InvoiceRepository
      */
     protected $invoice_repo;
 
     /**
-     * ClientController constructor.
-     * @param ClientRepository $clientRepo
+     * InvoiceController constructor.
+     *
+     * @param      \App\Repositories\InvoiceRepository  $invoice_repo  The invoice repo
      */
     public function __construct(InvoiceRepository $invoice_repo)
     {
+
         parent::__construct();
 
         $this->invoice_repo = $invoice_repo;
@@ -49,7 +50,11 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+     * Show the list of Invoices
+     *
+     * @param      \App\Filters\InvoiceFilters  $filters  The filters
+     *
+     * @return \Illuminate\Http\Response
      */
     public function index(InvoiceFilters $filters)
     {
@@ -63,19 +68,25 @@ class InvoiceController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
+     * @param      \App\Http\Requests\Invoice\CreateInvoiceRequest  $request  The request
+     *
      * @return \Illuminate\Http\Response
      */
     public function create(CreateInvoiceRequest $request)
     {
+
         $invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($invoice);
+
     }
+
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param      \App\Http\Requests\Invoice\StoreInvoiceRequest  $request  The request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(StoreInvoiceRequest $request)
@@ -90,7 +101,9 @@ class InvoiceController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param      \App\Http\Requests\Invoice\ShowInvoiceRequest  $request  The request
+     * @param      \App\Models\Invoice                            $invoice  The invoice
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
@@ -103,7 +116,9 @@ class InvoiceController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param      \App\Http\Requests\Invoice\EditInvoiceRequest  $request  The request
+     * @param      \App\Models\Invoice                            $invoice  The invoice
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(EditInvoiceRequest $request, Invoice $invoice)
@@ -112,12 +127,13 @@ class InvoiceController extends BaseController
         return $this->itemResponse($invoice);
 
     }
-
+    
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param      \App\Http\Requests\Invoice\UpdateInvoiceRequest  $request  The request
+     * @param      \App\Models\Invoice                              $invoice  The invoice
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
@@ -132,8 +148,10 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param      \App\Http\Requests\Invoice\DestroyInvoiceRequest  $request  
+     * @param      \App\Models\Invoice                               $invoice  
+     *
+     * @return     \Illuminate\Http\Response
      */
     public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
@@ -143,4 +161,5 @@ class InvoiceController extends BaseController
         return response()->json([], 200);
 
     }
+    
 }
