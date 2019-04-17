@@ -2092,6 +2092,7 @@ $LANG = array(
     'notes_reminder1' => 'First Reminder',
     'notes_reminder2' => 'Second Reminder',
     'notes_reminder3' => 'Third Reminder',
+    'notes_reminder4' => 'Reminder',
     'bcc_email' => 'BCC Email',
     'tax_quote' => 'Tax Quote',
     'tax_invoice' => 'Tax Invoice',
