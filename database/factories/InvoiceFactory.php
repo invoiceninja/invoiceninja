@@ -1,5 +1,7 @@
 <?php
 
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Invoice::class, function (Faker $faker) {
@@ -12,15 +14,16 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
 		'tax_rate1' => 10,
 		'tax_name2' => 'VAT',
 		'tax_rate2' => 17.5,
-		'custom_value1' => $faker->text(20),
-		'custom_value2' => $faker->text(20),
-		'custom_value3' => $faker->text(20),
-		'custom_value4' => $faker->text(20),
+		'custom_value1' => $faker->numberBetween(1,4),
+		'custom_value2' => $faker->numberBetween(1,4),
+		'custom_value3' => $faker->numberBetween(1,4),
+		'custom_value4' => $faker->numberBetween(1,4),
 		'is_deleted' => false,
 		'po_number' => $faker->text(10),
 		'invoice_date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => false,
 		'backup' => '', 
+		'settings' => ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new CompanySettings(ClientSettings::defaults()))
     ];
 });

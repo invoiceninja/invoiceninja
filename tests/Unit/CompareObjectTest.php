@@ -18,8 +18,8 @@ class CompanyObjectTest extends TestCase
     
     parent::setUp();
 	
-    $this->client_settings = ClientSettings::defaults();
-    $this->company_settings = CompanySettings::defaults();
+    $this->client_settings = new ClientSettings(ClientSettings::defaults());
+    $this->company_settings = new CompanySettings(CompanySettings::defaults());
 
 	}
 

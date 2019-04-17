@@ -6,6 +6,7 @@ use App\Helpers\Invoice\InvoiceItemCalc;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class for invoice calculations.
@@ -57,6 +58,9 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
+
+		Log::error($this->invoice);
+
 		$this->calcLineItems()
 			->calcDiscount()
 			->calcCustomValues()
@@ -121,20 +125,20 @@ class InvoiceCalc
 	{
 
 		// custom fields charged taxes
-        if ($this->invoice->custom_value1 && $this->settings->custom_taxes1) {
+        if (isset($this->invoice->custom_value1) && $this->settings->custom_taxes1) {
             $this->total += $this->invoice->custom_value1;
         }
-        if ($this->invoice->custom_value2 && $this->invoice->custom_taxes2) {
+        if (isset($this->invoice->custom_value2) && $this->invoice->custom_taxes2) {
             $this->total += $this->invoice->custom_value2;
         }
 
         $this->calcTaxes();
 
         // custom fields not charged taxes
-        if ($this->invoice->custom_value1 && ! $this->settings->custom_taxes1) {
+        if (isset($this->invoice->custom_value1) && ! $this->settings->custom_taxes1) {
             $this->total += $this->invoice->custom_value1;
         }
-        if ($this->invoice->custom_value2 && ! $this->settings->custom_taxes2) {
+        if (isset($this->invoice->custom_value2) && ! $this->settings->custom_taxes2) {
             $this->total += $this->invoice->custom_value2;
         }
 
@@ -164,6 +168,8 @@ class InvoiceCalc
 	 */
 	private function calcLineItems()
 	{
+		if(!$this->invoice->line_items || count($this->invoice->line_items) == 0)
+			return $this;
 
 		$new_line_items = [];
 

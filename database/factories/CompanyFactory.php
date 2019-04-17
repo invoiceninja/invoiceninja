@@ -9,6 +9,6 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'company_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         'ip' => $faker->ipv4,
         'db' => config('database.default'),
-        'settings' => CompanySettings::defaults(),
+        'settings' => new CompanySettings(CompanySettings::defaults()),
     ];
 });

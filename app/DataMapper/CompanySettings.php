@@ -55,6 +55,9 @@ class CompanySettings extends BaseSettings
 	public $custom_expense_label3;
 	public $custom_expense_label4;
 
+	public $custom_taxes1;
+	public $custom_taxes2;
+
 	public $default_task_rate;
 	public $send_reminders;
 	public $show_tasks_in_portal;

@@ -18,11 +18,6 @@ class StoreInvoiceRequest extends Request
         return auth()->user()->can('create', Invoice::class);
     }
 
-    public function rules()
-    {
-            
-
-    }
 
     public function sanitize()
     {

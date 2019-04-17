@@ -17,6 +17,10 @@ class Invoice extends BaseModel
 		'id',
 	];
 
+    protected $casts = [
+        'settings' => 'object'
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_VIEWED = 3;

@@ -162,7 +162,7 @@ class ClientTest extends TestCase
             ])->delete('/api/v1/clients/'.$this->encodePrimaryKey($client->id));
 
         $response->assertStatus(200);
-/*
+
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -173,7 +173,7 @@ class ClientTest extends TestCase
 
         $response->assertStatus(200);
 
-*/
+
         }
 
 }

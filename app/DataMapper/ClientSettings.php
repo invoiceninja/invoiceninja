@@ -5,6 +5,7 @@ namespace App\DataMapper;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Utils\TranslationHelper;
+use Illuminate\Support\Facades\Log;
 
 /**
  * ClientSettings
@@ -99,7 +100,7 @@ class ClientSettings extends BaseSettings
 	 * @param  \stdClass $client_settings
 	 * @return \stdClass of merged settings
 	 */
-	public static function buildClientSettings(CompanySettings $company_settings, ClientSettings $client_settings) : ClientSettings
+	public static function buildClientSettings($company_settings, $client_settings) 
 	{
 
 		
@@ -111,7 +112,6 @@ class ClientSettings extends BaseSettings
 
 		}
 		
-
 		return $client_settings;
 	}
 

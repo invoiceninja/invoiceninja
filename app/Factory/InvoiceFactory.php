@@ -2,7 +2,10 @@
 
 namespace App\Factory;
 
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Models\Invoice;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceFactory
 {
@@ -18,7 +21,7 @@ class InvoiceFactory
 		$invoice->due_date = null;
 		$invoice->is_deleted = false;
 		$invoice->line_items = json_encode([]);
-		$invoice->settings = json_encode([]); //todo need to embed the settings here
+		$invoice->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()); //todo need to embed the settings here
 		$invoice->backup = json_encode([]);
 		$invoice->tax_name1 = '';
 		$invoice->tax_rate1 = 0;
@@ -33,7 +36,7 @@ class InvoiceFactory
 		$invoice->partial = 0;
 		$invoice->user_id = $user_id;
 		$invoice->company_id = $company_id;
-		
+
 		return $invoice;
 	}
 }

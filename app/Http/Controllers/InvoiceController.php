@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
+use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
@@ -122,7 +123,7 @@ class InvoiceController extends BaseController
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
 
-        $invoice = $this->invoice_repo->save($request, $invoice);
+        $invoice = $this->invoice_repo->save(request(), $invoice);
 
         return $this->itemResponse($invoice);
 
