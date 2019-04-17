@@ -43,6 +43,9 @@ class ClientSettings extends BaseSettings
 	public $show_currency_code;
 	public $inclusive_taxes;
 
+	public $custom_taxes1;
+	public $custom_taxes2;
+
 	/**
 	 * settings which which are unique to client settings
 	 */
@@ -88,6 +91,8 @@ class ClientSettings extends BaseSettings
 			'show_currency_symbol' => NULL,
 			'show_currency_code' => NULL,
 			'inclusive_taxes' => NULL,
+			'custom_taxes1' => NULL,
+			'custom_taxes2' => NULL,
 		];
 
 	}

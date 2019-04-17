@@ -22,13 +22,6 @@ class BaseSettingsTest extends TestCase
 
 	}
 
-	public function testPropertyExists()
-	{
-		$blank_object = new \stdClass;
-
-		$this->assertEquals(count(get_object_vars($this->migrate($blank_object))), 15);
-	}
-
 	public function testPropertyNamesExist()
 	{
 		$blank_object = new \stdClass;

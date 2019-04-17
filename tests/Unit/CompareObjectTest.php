@@ -19,6 +19,7 @@ class CompanyObjectTest extends TestCase
     parent::setUp();
 	
     $this->client_settings = new ClientSettings(ClientSettings::defaults());
+
     $this->company_settings = new CompanySettings(CompanySettings::defaults());
 
 	}
@@ -30,7 +31,7 @@ class CompanyObjectTest extends TestCase
 		foreach($this->client_settings as $key => $value)
 		{
 
-			if(!isset($this->client_settings->{$key}))
+			if(!isset($this->client_settings->{$key}) && property_exists($this->company_settings, $key))
 				$this->client_settings->{$key} = $this->company_settings->{$key};
 		}
 

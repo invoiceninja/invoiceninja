@@ -107,7 +107,9 @@ class CompanySettings extends BaseSettings
 			'show_currency_symbol' => 1,
 			'show_currency_code' => 0,
 			'inclusive_taxes' => 1,
-			
+			'custom_taxes1' => 0,
+			'custom_taxes2' => 0,
+
 			'translations' => (object) [],
 		];
 	}

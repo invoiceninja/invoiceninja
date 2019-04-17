@@ -58,8 +58,7 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
-
-		Log::error($this->invoice);
+		Log::error(print_r($this->invoice,1));
 
 		$this->calcLineItems()
 			->calcDiscount()
@@ -128,7 +127,7 @@ class InvoiceCalc
         if (isset($this->invoice->custom_value1) && $this->settings->custom_taxes1) {
             $this->total += $this->invoice->custom_value1;
         }
-        if (isset($this->invoice->custom_value2) && $this->invoice->custom_taxes2) {
+        if (isset($this->invoice->custom_value2) && $this->settings->custom_taxes2) {
             $this->total += $this->invoice->custom_value2;
         }
 
