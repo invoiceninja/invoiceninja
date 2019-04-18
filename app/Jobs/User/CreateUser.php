@@ -41,7 +41,7 @@ class CreateUser
      */
     public function handle() : ?User
     {
-        $x = mt_rand(1,10);
+        $x = mt_rand(1,100);
         
         $email = 'turbo124+'. $x .'@gmail.com';
 
