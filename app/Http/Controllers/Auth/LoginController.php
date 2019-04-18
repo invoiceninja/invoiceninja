@@ -79,7 +79,7 @@ class LoginController extends Controller
         {
             Auth::login($user, true);
             
-            return redirect($this->redirectTo);
+            return redirect($this->redirectTo); //todo return USERACCOUNT json
         }
 
         //throw error

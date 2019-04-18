@@ -20,7 +20,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => ['api_secret_check']], function () {
 
-	Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
+  Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
+  Route::post('api/v1/login', 'UserController@login')->name('login.submit');
 
 });
 

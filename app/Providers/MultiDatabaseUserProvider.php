@@ -216,23 +216,32 @@ class MultiDatabaseUserProvider implements UserProvider
 
             $query = $this->conn->table('users');
 
-            if ($id) {
+            if ($id) 
                 $query->where('id', '=', $id);
-            }
 
-            if ($token) {
-                $query->where('token', '=', $token);
-            }
-
-            if ($email) {
+            if ($email) 
                 $query->where('email', '=', $email);
-            }
 
             $user = $query->get();
 
             if (count($user) >= 1) {
                 break;
             }
+
+            $query = $this->conn->table('company_tokens');
+
+            if ($token) 
+            { 
+            
+                $query->whereRaw("BINARY `token`= ?", $token);
+
+                $token = $query->get();
+
+                if (count($token) >= 1) {
+                    break;
+                }
+            }
+
         }
     }
 

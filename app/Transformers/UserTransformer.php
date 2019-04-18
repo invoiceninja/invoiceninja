@@ -3,7 +3,11 @@
 namespace App\Transformers;
 
 use App\Models\Account;
+use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\User;
+use App\Transformers\CompanyTokenTransformer;
+use App\Transformers\CompanyTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -37,6 +41,8 @@ class UserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
+        'company_token',
+        'companies',
     ];
 
     /**
@@ -73,4 +79,19 @@ class UserTransformer extends EntityTransformer
     
     }
 
+    public function includeCompanies(User $user)
+    {
+        $transformer = new CompanyTransformer($this->serializer);
+
+        return $this->includeCollection($user->companies(), $transformer, Company::class)
+    }
+
+    public function includeCompanyToken(User $user)
+    {
+        $transformer = new CompanyTokenTransformer($this->serializer);
+
+        return $this->includeItem($user->token(), $transformer, CompanyToken::class)
+
+
+    }
 }
