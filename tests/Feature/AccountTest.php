@@ -50,10 +50,7 @@ class AccountTest extends TestCase
 
         $response = $this->post('/signup', $data);
 
-        $response->assertStatus(200)
-                ->assertJson([
-                'first_name' => $data['first_name'],
-            ]);
+        $response->assertStatus(200);
 
     }
 
@@ -65,7 +62,6 @@ class AccountTest extends TestCase
             'last_name' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
-            //'_token' => csrf_token(),
             'privacy_policy' => 1,
             'terms_of_service' => 1
         ];
@@ -75,10 +71,7 @@ class AccountTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/signup', $data);
 
-        $response->assertStatus(200)
-                ->assertJson([
-                'first_name' => $data['first_name'],
-            ]);
+        $response->assertStatus(200);
         
     }
 

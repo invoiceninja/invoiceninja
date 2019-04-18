@@ -21,6 +21,7 @@ use App\Models\Traits\AccountTrait;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel
@@ -188,6 +189,13 @@ class Company extends BaseModel
     public function company_users()
     {
         return $this->hasMany(CompanyUser::class);
+    }
+
+    public function owner()
+    {
+        $c = $this->company_users->where('is_owner',true)->first();
+
+        return User::find($c->user_id);
     }
 
 }

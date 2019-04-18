@@ -27,11 +27,12 @@ class CreateUser
      * @return void
      */
 
-    public function __construct(array $request, $account, $company)
+    public function __construct(array $request, $account, $company, $company_owner = false)
     {
         $this->request = $request;
         $this->account = $account;
         $this->company = $company;
+        $this->company_owner = $company_owner;
     }
 
     /**
@@ -41,7 +42,7 @@ class CreateUser
      */
     public function handle() : ?User
     {
-        $x = mt_rand(1,100);
+        $x = mt_rand(1,10000);
         
         $email = 'turbo124+'. $x .'@gmail.com';
 
@@ -56,7 +57,7 @@ class CreateUser
 
         $user->companies()->attach($this->company->id, [
             'account_id' => $this->account->id,
-            'is_owner' => 1,
+            'is_owner' => $this->company_owner,
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => json_encode([]),

@@ -54,7 +54,7 @@ class InvoiceTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($acc['id']);        
+        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));        
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -117,7 +117,7 @@ class InvoiceTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($acc['id']);        
+        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));        
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;

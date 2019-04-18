@@ -51,14 +51,12 @@ class ClientTest extends TestCase
             ])->post('/api/v1/signup', $data);
 
 
-        $response->assertStatus(200)
-                ->assertJson([
-                'first_name' => $data['first_name'],
-            ]);
+        $response->assertStatus(200);
 
         $acc = $response->json();
 
-        $account = Account::find($acc['id']);
+
+        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));
 
         $token = $account->default_company->tokens->first()->token;
 
@@ -94,9 +92,10 @@ class ClientTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($acc['id']);        
+        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));        
 
         $company_token = $account->default_company->tokens()->first();
+
         $token = $company_token->token;
         $company = $company_token->company;
 

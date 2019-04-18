@@ -44,6 +44,9 @@ class Account extends BaseModel
         'discount_expires',
     ];
 
+    protected $with = [
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

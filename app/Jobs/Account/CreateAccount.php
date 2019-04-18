@@ -37,7 +37,7 @@ class CreateAccount
      *
      * @return void
      */
-    public function handle() : ?User
+    public function handle() : ?Account
     {
         /*
          * Create account
@@ -57,7 +57,7 @@ class CreateAccount
         /*
          * Create user
          */
-        $user = CreateUser::dispatchNow($this->request, $account, $company);
+        $user = CreateUser::dispatchNow($this->request, $account, $company, true); //make user company_owner
 
         /*
          * Create token
@@ -67,13 +67,13 @@ class CreateAccount
         /*
          * Login user
          */
-        Auth::loginUsingId($user->id, true);
+        //Auth::loginUsingId($user->id, true);
 
         /*
          * Fire related events
          */
         event(new AccountCreated($user));
 
-        return $user;
+        return $account;
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
 use App\Jobs\Account\CreateAccount;
+use App\Models\Account;
+use App\Transformers\AccountTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +13,10 @@ use Illuminate\Support\Facades\Log;
 class AccountController extends BaseController
 {
     use DispatchesJobs;
+
+    protected $entity_type = Account::class;
+
+    protected $entity_transformer = AccountTransformer::class;
 
     public function __construct()
     {
@@ -49,9 +55,10 @@ class AccountController extends BaseController
     public function store(CreateAccountRequest $request)
     {
 
-        $user = CreateAccount::dispatchNow($request->all());
+        $account = CreateAccount::dispatchNow($request->all());
 
-        return response()->json($user);
+        return $this->itemResponse($account);
+
     }
 
     /**
