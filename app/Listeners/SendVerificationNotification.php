@@ -28,13 +28,14 @@ class SendVerificationNotification
      */
     public function handle($event)
     {//todo handle the change of DB locaiton to Company Token table
-        /*send confirmation email using $event->user
-        MultiDB::setDB($event->user->db);
+        /*send confirmation email using $event->user*/
+
+        MultiDB::setDB($event->company->db);
 
         Mail::to($event->user->email)
             //->cc('')
             //->bcc('')
             ->queue(new VerifyUser($event->user));
-            */
+            
     }
 }

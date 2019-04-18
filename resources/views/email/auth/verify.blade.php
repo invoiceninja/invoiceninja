@@ -11,7 +11,7 @@ Header Title
 {{ $user }}
 @lang('texts.confirmation_message')
 
-@component('mail::button', ['url' => url("/user/confirm/{$user->confirmation_code} ")])
+@component('mail::button', ['url' => url("/user/confirm/{$user->confirmation_code}")])
 @lang('texts.confirm')
 @endcomponent
 

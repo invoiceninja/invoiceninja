@@ -48,9 +48,13 @@ class InvoiceCalc
 	 */
 	public function __construct($invoice)
 	{
+		
 		$this->invoice = $invoice;
+
 		$this->settings = $invoice->settings;
+
 		$this->tax_map = new Collection;
+
 	}
 	
 	/**
@@ -58,18 +62,23 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
-		Log::error(print_r($this->invoice,1));
+		//Log::error(print_r($this->invoice,1));
 
 		$this->calcLineItems()
 			->calcDiscount()
 			->calcCustomValues()
-			//->calcTaxes()
 			->calcBalance()
 			->calcPartial();
 
 		return $this;
 	}
 
+
+	/**
+	 * Calculates the partial balance.
+	 *
+	 * @return     self  The partial.
+	 */
 	private function calcPartial()
 	{
 		if ( !isset($this->invoice->id) && isset($this->invoice->partial) ) {
@@ -79,6 +88,12 @@ class InvoiceCalc
         return $this;
 	}
 
+
+	/**
+	 * Calculates the discount.
+	 *
+	 * @return     self  The discount.
+	 */
 	private function calcDiscount()
 	{
         if ($this->invoice->discount != 0) {
@@ -102,8 +117,6 @@ class InvoiceCalc
 	/**
 	 * Calculates the balance.
 	 * 
-	 * //todo need to understand this better
-	 *
 	 * @return     self  The balance.
 	 */
 	private function calcBalance()
@@ -120,6 +133,12 @@ class InvoiceCalc
 
 	}
 
+
+	/**
+	 * Calculates the custom values.
+	 *
+	 * @return     self  The custom values.
+	 */
 	private function calcCustomValues()
 	{
 
@@ -206,24 +225,11 @@ class InvoiceCalc
 	 * Getters and Setters
 	 */
 	
-
-	/**
-	 * Gets the sub total.
-	 *
-	 * @return     float  The sub total.
-	 */
 	public function getSubTotal()
 	{
 		return $this->sub_total;
 	}
 
-	/**
-	 * Sets the sub total.
-	 *
-	 * @param      float  $value  The value
-	 *
-	 * @return     self    $this
-	 */
 	public function setSubTotal($value)
 	{
 		$this->sub_total = $value;
@@ -231,23 +237,11 @@ class InvoiceCalc
 		return $this;
 	}
 	
-	/**
-	 * Gets the tax map.
-	 *
-	 * @return     Collection  The tax map.
-	 */
 	public function getTaxMap()
 	{
 		return $this->tax_map;
 	}
 
-	/**
-	 * Sets the tax map.
-	 *
-	 * @param      Collection  $value  Collection of mapped taxes
-	 *
-	 * @return     self    $this
-	 */
 	public function setTaxMap($value)
 	{
 		$htis->tax_map = $value;
@@ -255,23 +249,11 @@ class InvoiceCalc
 		return $this;
 	}
 
-	/**
-	 * Gets the total discount.
-	 *
-	 * @return     float  The total discount.
-	 */
 	public function getTotalDiscount()
 	{
 		return $this->total_discount;
 	}
 
-	/**
-	 * Sets the total discount.
-	 *
-	 * @param      float  $value  The value
-	 *
-	 * @return     self    $this
-	 */
 	public function setTotalDiscount($value)
 	{
 		$this->total_discount = $value;
@@ -279,23 +261,11 @@ class InvoiceCalc
 		return $this;
 	}
 
-	/**
-	 * Gets the total taxes.
-	 *
-	 * @return     float  The total taxes.
-	 */
 	public function getTotalTaxes()
 	{
 		return $this->total_taxes;
 	}
 
-	/**
-	 * Sets the total taxes.
-	 *
-	 * @param      float  $value  The value
-	 *
-	 * @return     self    ( $this )
-	 */
 	public function setTotalTaxes($value)
 	{
 		$this->total_taxes = $value;

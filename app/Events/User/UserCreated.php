@@ -19,18 +19,24 @@ class UserCreated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var
+     * @var $user
      */
     public $user;
 
+    /**
+     *  @var $company
+     */
+    
+    public $company;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct($user, $company)
     {
         $this->user = $user;
+        $this->company = $company;
     }
 
     /**

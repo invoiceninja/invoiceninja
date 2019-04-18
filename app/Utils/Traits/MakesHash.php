@@ -22,6 +22,7 @@ trait MakesHash
 
     /**
      * Creates a simple alphanumeric Hash which is prepended with a encoded database prefix
+     * 
      * @param $db - Full database name
      * @return string 01-asfas8df76a78f6a78dfsdf
      */

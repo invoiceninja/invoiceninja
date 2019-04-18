@@ -8,13 +8,25 @@ namespace App\Utils\Traits;
  */
 trait NumberFormatter
 {
+    
 	private function formatValue($value, $precision) : string
 	{
+
         return number_format($this->parseFloat($value), $precision, '.', '');
+
 	}
 
-	private function parseFloat($value) : float
+
+	/**
+     * Parse a float value that may be delimited with either a comma or decimal point
+     *
+     * @param      string $value  The value
+     *
+     * @return     float   Consumable float value
+     */
+    private function parseFloat($value) : float
     {
+
         // check for comma as decimal separator
         if (preg_match('/,[\d]{1,2}$/', $value)) {
             $value = str_replace(',', '.', $value);
@@ -23,6 +35,7 @@ trait NumberFormatter
         $value = preg_replace('/[^0-9\.\-]/', '', $value);
 
         return floatval($value);
+
     }
 
 }
