@@ -23,7 +23,7 @@ class CreateAccountTest extends DuskTestCase
      * A valid user can be logged in.
      *
      * @return void
-     */
+    
     public function testCreateAValidUser()
     {
 
@@ -40,5 +40,5 @@ class CreateAccountTest extends DuskTestCase
         });
 
     }
-
+ */
 }
