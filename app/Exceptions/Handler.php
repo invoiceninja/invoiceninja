@@ -3,9 +3,10 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 
 class Handler extends ExceptionHandler
 {
@@ -56,7 +57,11 @@ class Handler extends ExceptionHandler
     
         if ($exception instanceof ModelNotFoundException)
         {
-            return response()->json(['error'=>'Record not found'],400);
+            return response()->json(['message'=>'Record not found'],400);
+        }
+        else if($exception instanceof ThrottleRequestsException)
+        {
+             return response()->json(['message'=>'Too many requests'],429);
         }
 
         return parent::render($request, $exception);
