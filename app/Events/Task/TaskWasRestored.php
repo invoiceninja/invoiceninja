@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class TaskWasRestored.
  */
-class TaskWasRestored extends Event
+class TaskWasRestored 
 {
     use SerializesModels;
 

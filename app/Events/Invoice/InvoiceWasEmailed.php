@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class InvoiceWasEmailed.
  */
-class InvoiceWasEmailed extends Event
+class InvoiceWasEmailed 
 {
     use SerializesModels;
 

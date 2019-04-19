@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class PaymentWasArchived.
  */
-class PaymentWasArchived extends Event
+class PaymentWasArchived 
 {
     use SerializesModels;
 

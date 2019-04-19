@@ -4,7 +4,7 @@ namespace App\Events\Quote;
 
 use Illuminate\Queue\SerializesModels;
 
-class QuoteWasArchived extends Event
+class QuoteWasArchived
 {
     use SerializesModels;
     

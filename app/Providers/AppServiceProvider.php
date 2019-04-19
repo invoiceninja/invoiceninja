@@ -2,6 +2,30 @@
 
 namespace App\Providers;
 
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Proposal;
+use App\Models\Quote;
+use App\Models\Task;
+use App\Models\User;
+use App\Observers\AccountObserver;
+use App\Observers\ClientObserver;
+use App\Observers\CompanyObserver;
+use App\Observers\CompanyTokenObserver;
+use App\Observers\ExpenseObserver;
+use App\Observers\InvoiceObserver;
+use App\Observers\PaymentObserver;
+use App\Observers\ProductObserver;
+use App\Observers\ProposalObserver;
+use App\Observers\QuoteObserver;
+use App\Observers\TaskObserver;
+use App\Observers\UserObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
@@ -26,6 +50,19 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Schema::defaultStringLength(191);
+
+        User::observe(UserObserver::class);
+        Account::observe(AccountObserver::class);
+        Client::observe(ClientObserver::class);
+        Company::observe(CompanyObserver::class);
+        CompanyToken::observe(CompanyTokenObserver::class);
+        Expense::observe(ExpenseObserver::class);
+        Invoice::observe(InvoiceObserver::class);
+        Payment::observe(PaymentObserver::class);
+        Product::observe(ProductObserver::class);
+        Proposal::observe(ProposalObserver::class);
+        Quote::observe(QuoteObserver::class);
+        Task::observe(TaskObserver::class);
 
     }
 

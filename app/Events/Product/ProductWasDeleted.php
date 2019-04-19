@@ -5,7 +5,7 @@ namespace App\Events\Product;
 use App\Models\Product;
 use Illuminate\Queue\SerializesModels;
 
-class ProductWasDeleted extends Event
+class ProductWasDeleted 
 {
     use SerializesModels;
 

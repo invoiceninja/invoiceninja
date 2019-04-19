@@ -5,7 +5,7 @@ namespace App\Events\Product;
 use App\Models\Product;
 use Illuminate\Queue\SerializesModels;
 
-class ProductWasUpdated extends Event
+class ProductWasUpdated
 {
     use SerializesModels;
 

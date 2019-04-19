@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class VendorWasRestored.
  */
-class VendorWasRestored extends Event
+class VendorWasRestored 
 {
     use SerializesModels;
 

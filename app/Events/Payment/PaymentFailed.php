@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class PaymentFailed.
  */
-class PaymentFailed extends Event
+class PaymentFailed 
 {
     use SerializesModels;
 
