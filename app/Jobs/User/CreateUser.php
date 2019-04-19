@@ -42,9 +42,9 @@ class CreateUser
      */
     public function handle() : ?User
     {
-        $x = mt_rand(1,10000);
+        $x = mt_rand(1,10000);//todo
         
-        $email = 'turbo124+'. $x .'@gmail.com';
+        $email = 'turbo124+'. $x .'@gmail.com'; //todo
 
         $user = new User();
         $user->account_id = $this->account->id;

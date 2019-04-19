@@ -55,6 +55,18 @@ class LoginController extends Controller
         //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
 
+    public function apiLogin(Request $request)
+    {
+        $this->validateLogin($request);
+
+        if ($this->attemptLogin($request)) {
+
+            return $this->authenticated($request, $this->guard()->user())
+                            ?: response()->json(['message' => ctrans('texts.invalid_credentials')]);
+
+        }
+    }
+
     /**
      * Redirect the user to the provider authentication page
      *
