@@ -3,7 +3,7 @@
 </p>
 
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=v2)](https://travis-ci.org/invoiceninja/invoiceninja)
-[![codecov](https://codecov.io/gh/invoiceninja/invoiceninja/branch/v5.0/graph/badge.svg)](https://codecov.io/gh/invoiceninja/invoiceninja)
+[![codecov](https://codecov.io/gh/invoiceninja/invoiceninja/branch/v2/graph/badge.svg)](https://codecov.io/gh/invoiceninja/invoiceninja)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d39acb4bf0f74a0698dc77f382769ba5)](https://www.codacy.com/app/turbo124/invoiceninja?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=invoiceninja/invoiceninja&amp;utm_campaign=Badge_Grade)
 
 **Invoice Ninja v 2** is coming soon!
