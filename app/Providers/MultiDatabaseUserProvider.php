@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
-use PhpParser\Node\Expr\BinaryOp\Mul;
+use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Contracts\Hashing\Hasher as HasherContract;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class MultiDatabaseUserProvider implements UserProvider
 {
@@ -108,13 +108,19 @@ class MultiDatabaseUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
+        Log::error('retrieving by credentials');
         if (empty($credentials) ||
            (count($credentials) === 1 &&
             array_key_exists('password', $credentials))) {
             return;
         }
 
+        Log::error('settings DB');
+
         $this->setDefaultDatabase(false, $credentials['email'], false);
+
+        Log::error('set DB');
+
 
         // First we will add each credential element to the query as a where clause.
         // Then we can execute the query and, if we found a user, return it in a
@@ -132,7 +138,7 @@ class MultiDatabaseUserProvider implements UserProvider
                 $query->where($key, $value);
             }
         }
-
+Log::error($query->count());
         return $query->first();
     }
 
@@ -144,9 +150,10 @@ class MultiDatabaseUserProvider implements UserProvider
      * @return bool
      */
     public function validateCredentials(UserContract $user, array $credentials)
-    {
-        $plain = $credentials['password'];
+    {        Log::error('validateCredentials');
 
+        $plain = $credentials['password'];
+ Log::error($plain);
         return $this->hasher->check($plain, $user->getAuthPassword());
     }
 
@@ -210,7 +217,7 @@ class MultiDatabaseUserProvider implements UserProvider
 
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
-
+Log::error('setting DB');
         foreach (MultiDB::getDbs() as $database) {
             $this->setDB($database);
 
@@ -225,6 +232,7 @@ class MultiDatabaseUserProvider implements UserProvider
             $user = $query->get();
 
             if (count($user) >= 1) {
+            Log::error('found user, settings DB for EMAIL');
                 break;
             }
 
@@ -232,7 +240,8 @@ class MultiDatabaseUserProvider implements UserProvider
 
             if ($token) 
             { 
-            
+                        Log::error('found user, settings DB for TOKEN');
+
                 $query->whereRaw("BINARY `token`= ?", $token);
 
                 $token = $query->get();

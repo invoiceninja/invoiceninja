@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Libraries\OAuth;
 use App\Models\User;
+use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
-class LoginController extends Controller
+class LoginController extends BaseController
 {
     /*
     |--------------------------------------------------------------------------
@@ -27,6 +30,10 @@ class LoginController extends Controller
     use AuthenticatesUsers;
     use UserSessionAttributes;
 
+    protected $entity_type = User::class;
+
+    protected $entity_transformer = UserTransformer::class;
+
     /**
      * Where to redirect users after login.
      *
@@ -41,7 +48,8 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest:user')->except('logout');
+        parent::__construct();
+     //   $this->middleware('guest:user')->except('logout');
     }
 
     /**
@@ -59,12 +67,11 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        if ($this->attemptLogin($request)) {
+        if ($this->attemptLogin($request))
+            return $this->itemResponse($this->guard()->user());
+        else
+            return response()->json(['message' => ctrans('texts.invalid_credentials')]);
 
-            return $this->authenticated($request, $this->guard()->user())
-                            ?: response()->json(['message' => ctrans('texts.invalid_credentials')]);
-
-        }
     }
 
     /**
