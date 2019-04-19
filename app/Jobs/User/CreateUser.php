@@ -3,7 +3,7 @@
 namespace App\Jobs\User;
 
 use App\DataMapper\DefaultSettings;
-use App\Events\User\UserCreated;
+use App\Events\User\UserWasCreated;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -64,7 +64,7 @@ class CreateUser
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
-        event(new UserCreated($user,$this->company));
+        event(new UserWasCreated($user,$this->company));
 
 
         return $user;

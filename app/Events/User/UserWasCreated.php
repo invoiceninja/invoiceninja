@@ -11,10 +11,10 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 /**
- * Class UserCreated
+ * Class UserWasCreated
  * @package App\Events\User
  */
-class UserCreated
+class UserWasCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
