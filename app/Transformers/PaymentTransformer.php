@@ -64,6 +64,7 @@ class PaymentTransformer extends EntityTransformer
         return  [
             'id' => $this->encodePrimaryKey($payment->id),
             'amount' => (float) $payment->amount,
+            /*
             'transaction_reference' => $payment->transaction_reference ?: '',
             'payment_date' => $payment->payment_date ?: '',
             'updated_at' => $this->getTimestamp($payment->updated_at),
@@ -76,7 +77,8 @@ class PaymentTransformer extends EntityTransformer
             'exchange_rate' => (float) $payment->exchange_rate,
             'exchange_currency_id' => (int) $payment->exchange_currency_id,
             'refunded' => (float) $payment->refunded,
-            'payment_status_id' => (int) ($payment->payment_status_id ?: PAYMENT_STATUS_COMPLETED),
-        ]);
+            'payment_status_id' => (int) $payment->payment_status_id,
+            */
+        ];
     }
 }
