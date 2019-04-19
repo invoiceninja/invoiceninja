@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
+/**
+ * @test
+ * @covers App\Http\Controllers\ClientController
+ */
 class ClientTest extends TestCase
 {
     use MakesHash;

@@ -12,8 +12,9 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
-/*
- * @covers InvoiceController
+/**
+ * @test
+ * @covers App\Http\Controllers\InvoiceController
  */
     
 class InvoiceTest extends TestCase

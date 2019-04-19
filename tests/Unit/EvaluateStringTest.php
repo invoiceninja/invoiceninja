@@ -6,6 +6,10 @@ use App\DataMapper\DefaultSettings;
 use App\Models\Client;
 use Tests\TestCase;
 
+/**
+ * @test
+ */
+
 class EvaluateStringTest extends TestCase
 {
 

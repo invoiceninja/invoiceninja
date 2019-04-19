@@ -16,7 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
-/*
+/**
+ * @test
  * @covers App\Http\Controllers\AccountController
  */
 
