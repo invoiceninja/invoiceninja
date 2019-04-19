@@ -125,4 +125,36 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
+    public function testApiLogin()
+    {
+        $account = factory(Account::class)->create();
+        $user = factory(User::class)->create([
+            'account_id' => $account->id,
+            'email' => 'test@example.com',
+            'password' => '123456'
+        ]);
+
+        $company = factory(\App\Models\Company::class)->make([
+            'account_id' => $account->id,
+        ]);
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+        ]);
+
+        $data = [
+            'email' => 'test@example.com',
+            'password' => '123456'
+        ];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+            ])->post('/api/v1/login', $data);
+
+
+        $response->assertStatus(200);
+    }
+
 }
