@@ -32,6 +32,12 @@
               <directory suffix=".php">./app/Providers</directory>
                 <directory suffix=".php">./app/Http</directory>
                 <directory suffix=".php">./app/Models</directory>
+                <directory suffix=".php">./app/Transformers</directory>
+                <directory suffix=".php">./app/Events</directory>
+                <directory suffix=".php">./app/Observers</directory>
+                <directory suffix=".php">./app/Policies</directory>
+                <directory suffix=".php">./app/Jobs</directory>
+                <directory suffix=".php">./app/Filters</directory>
               <file>./app/Console/Kernel.php</file>
                 <file>./app/Constants.php</file>
                 <file>./app/Libraries/OFX.php</file>
