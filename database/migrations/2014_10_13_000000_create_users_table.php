@@ -592,6 +592,9 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('company_id');
+            $table->unsignedInteger('activity_type_id');
+            
+            $table->timestamps();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
 

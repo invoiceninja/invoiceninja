@@ -6,5 +6,103 @@ use Illuminate\Database\Eloquent\Model;
 
 class Activity extends Model
 {
-    //
+    const CREATE_CLIENT=1;
+    const ARCHIVE_CLIENT=2;
+    const DELETE_CLIENT=3;
+    const CREATE_INVOICE=4;
+    const UPDATE_INVOICE=5;
+    const EMAIL_INVOICE=6;
+    const VIEW_INVOICE=7;
+    const ARCHIVE_INVOICE=8;
+    const DELETE_INVOICE=9;
+    const CREATE_PAYMENT=10;
+    //const UPDATE_PAYMENT=11;
+    const ARCHIVE_PAYMENT=12;
+    const DELETE_PAYMENT=13;
+    const CREATE_CREDIT=14;
+    //const UPDATE_CREDIT=15;
+    const ARCHIVE_CREDIT=16;
+    const DELETE_CREDIT=17;
+    const CREATE_QUOTE=18;
+    const UPDATE_QUOTE=19;
+    const EMAIL_QUOTE=20;
+    const VIEW_QUOTE=21;
+    const ARCHIVE_QUOTE=22;
+    const DELETE_QUOTE=23;
+    const RESTORE_QUOTE=24;
+    const RESTORE_INVOICE=25;
+    const RESTORE_CLIENT=26;
+    const RESTORE_PAYMENT=27;
+    const RESTORE_CREDIT=28;
+    const APPROVE_QUOTE=29;
+    const CREATE_VENDOR=30;
+    const ARCHIVE_VENDOR=31;
+    const DELETE_VENDOR=32;
+    const RESTORE_VENDOR=33;
+    const CREATE_EXPENSE=34;
+    const ARCHIVE_EXPENSE=35;
+    const DELETE_EXPENSE=36;
+    const RESTORE_EXPENSE=37;
+    const VOIDED_PAYMENT=39;
+    const REFUNDED_PAYMENT=40;
+    const FAILED_PAYMENT=41;
+    const CREATE_TASK=42;
+    const UPDATE_TASK=43;
+    const ARCHIVE_TASK=44;
+    const DELETE_TASK=45;
+    const RESTORE_TASK=46;
+    const UPDATE_EXPENSE=47;
+
+
+
+    /**
+     * @return mixed
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function contact()
+    {
+        return $this->belongsTo(ClientContact::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class)->withTrashed();
+    }
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class)->withTrashed();
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class)->withTrashed();
+    }
+
 }
