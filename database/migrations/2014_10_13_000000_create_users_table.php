@@ -587,6 +587,16 @@ class CreateUsersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
+
+        Schema::create('activities', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('company_id');
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+        });
+
     }
 
     /**
