@@ -5,7 +5,7 @@ namespace App\Listeners\Client;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CreatedClient
+class CreatedClient implements ShouldQueue
 {
     /**
      * Create the event listener.
