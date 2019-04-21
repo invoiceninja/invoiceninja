@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Events\Client\ClientWasCreated;
 use App\Events\User\UserCreated;
-use App\Listeners\Client\CreatedClient;
+use App\Listeners\Client\CreatedClientActivity;
 use App\Listeners\SendVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -22,7 +22,7 @@ class EventServiceProvider extends ServiceProvider
 
         // Clients
         ClientWasCreated::class => [
-            CreatedClient::class,
+            CreatedClientActivity::class,
            // 'App\Listeners\SubscriptionListener@createdClient',
         ],
         'App\Events\ClientWasArchived' => [
