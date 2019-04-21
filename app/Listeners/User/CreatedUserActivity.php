@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Listeners\User;
+
+use App\Models\Activity;
+use App\Repositories\ActivityRepository;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+
+class CreatedUserActivity
+{
+    protected $activityRepo;
+    /**
+     * Create the event listener.
+     *
+     * @return void
+     */
+    public function __construct(ActivityRepository $activityRepo)
+    {
+        $this->activityRepo = $activityRepo;
+    }
+
+    /**
+     * Handle the event.
+     *
+     * @param  object  $event
+     * @return void
+     */
+    public function handle($event)
+    {
+
+        $fields = new \stdClass;
+
+        $fields->user_id = auth()->user()->id;
+        $fields->company_id = $event->user->company_id;
+        $fields->activity_type_id = Activity::CREATE_USER;
+
+        $this->activityRepo->save($fields, $event->user);
+    }
+}

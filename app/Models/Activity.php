@@ -52,13 +52,18 @@ class Activity extends BaseModel
     const DELETE_TASK=45;
     const RESTORE_TASK=46;
     const UPDATE_EXPENSE=47;
+    const CREATE_USER=48;
+    const UPDATE_USER=49;
+    const ARCHIVE_USER=50;
+    const DELETE_USER=51;
+    const RESTORE_USER=52;
 
 
     public function backup()
     {
     	return $this->hasOne(Backup::class);
     }
-    
+
     /**
      * @return mixed
      */
