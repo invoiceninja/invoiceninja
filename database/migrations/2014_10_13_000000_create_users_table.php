@@ -590,18 +590,51 @@ class CreateUsersTable extends Migration
 
         Schema::create('activities', function ($table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('user_id')->nullable();
             $table->unsignedInteger('company_id');
-            $table->unsignedInteger('activity_type_id');
-            
+            $table->unsignedInteger('client_id')->nullable();
+            $table->unsignedInteger('client_contact_id')->nullable();
+            $table->unsignedInteger('account_id')->nullable();
+            $table->unsignedInteger('payment_id')->nullable();
+            $table->unsignedInteger('invoice_id')->nullable();
+            $table->unsignedInteger('invitation_id')->nullable();
+            $table->unsignedInteger('task_id')->nullable();
+            $table->unsignedInteger('expense_id')->nullable();
+            $table->unsignedInteger('activity_type_id')->nullable();
+            $table->decimal('adjustment', 13, 2)->nullable();
+            $table->decimal('balance', 13, 2)->nullable();
+            $table->string('ip');
+            $table->boolean('is_system')->default(0);
+
+            $table->text('notes');
             $table->timestamps();
 
+            $table->index(['user_id', 'company_id']);
+            $table->index(['client_id', 'company_id']);
+            $table->index(['payment_id', 'company_id']);
+            $table->index(['invoice_id', 'company_id']);
+            $table->index(['invitation_id', 'company_id']);
+            $table->index(['task_id', 'company_id']);
+            $table->index(['expense_id', 'company_id']);
+            $table->index(['client_contact_id', 'company_id']);
+
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+
+        });
+
+        Schema::create('backups', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('activity_id');
+            $table->text('json_backup');
+            $table->timestamps();
+
+            $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
 
         });
 
     }
-
+  
     /**
      * Reverse the migrations.
      *

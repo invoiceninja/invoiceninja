@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Events\Client\ClientWasCreated;
 use App\Models\Client;
 
 class ClientObserver
@@ -14,7 +15,7 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-        //
+        event(new ClientWasCreated($client));
     }
 
     /**

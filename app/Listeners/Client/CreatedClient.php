@@ -2,19 +2,22 @@
 
 namespace App\Listeners\Client;
 
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Activity;
+use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 
-class CreatedClient implements ShouldQueue
+class CreatedClient
 {
+    protected $activityRepo;
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ActivityRepository $activityRepo)
     {
-        //
+        $this->activityRepo = $activityRepo;
     }
 
     /**
@@ -25,6 +28,14 @@ class CreatedClient implements ShouldQueue
      */
     public function handle($event)
     {
-        //
+
+        $fields = new \stdClass;
+
+        $fields->client_id = $event->client->id;
+        $fields->user_id = $event->client->user_id;
+        $fields->company_id = $event->client->company_id;
+        $fields->activity_type_id = Activity::CREATE_CLIENT;
+
+        $this->activityRepo->save($fields, $event->client);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Activity extends Model
+class Activity extends BaseModel
 {
     const CREATE_CLIENT=1;
     const ARCHIVE_CLIENT=2;
@@ -54,7 +54,11 @@ class Activity extends Model
     const UPDATE_EXPENSE=47;
 
 
-
+    public function backup()
+    {
+    	return $this->hasOne(Backup::class);
+    }
+    
     /**
      * @return mixed
      */

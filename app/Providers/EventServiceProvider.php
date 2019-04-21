@@ -23,7 +23,7 @@ class EventServiceProvider extends ServiceProvider
         // Clients
         ClientWasCreated::class => [
             CreatedClient::class,
-            'App\Listeners\SubscriptionListener@createdClient',
+           // 'App\Listeners\SubscriptionListener@createdClient',
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
