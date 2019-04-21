@@ -45,6 +45,7 @@ class ClientSettings extends BaseSettings
 
 	public $custom_taxes1;
 	public $custom_taxes2;
+	public $lock_sent_invoices;
 
 	/**
 	 * settings which which are unique to client settings
@@ -93,6 +94,7 @@ class ClientSettings extends BaseSettings
 			'inclusive_taxes' => NULL,
 			'custom_taxes1' => NULL,
 			'custom_taxes2' => NULL,
+			'lock_sent_invoices' => NULL,
 		];
 
 	}

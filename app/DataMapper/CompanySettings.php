@@ -66,7 +66,8 @@ class CompanySettings extends BaseSettings
 	public $custom_message_unpaid_invoice;
 	public $custom_message_paid_invoice;
 	public $custom_message_unapproved_quote;
-	
+	public $lock_sent_invoices;
+
 	public $inclusive_taxes;
 
 	public $translations;
@@ -109,6 +110,7 @@ class CompanySettings extends BaseSettings
 			'inclusive_taxes' => 1,
 			'custom_taxes1' => 0,
 			'custom_taxes2' => 0,
+			'lock_sent_invoices' => 0,
 
 			'translations' => (object) [],
 		];
