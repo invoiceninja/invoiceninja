@@ -12,27 +12,17 @@ trait MakesTimezoneAdjustment
 	public function createClientDate($utc_date , $timezone)
 	{
 
-		$userTimezone = new \DateTimeZone($timezone);
-		$gmtTimezone = new \DateTimeZone('GMT');
-		//$myDateTime = new \DateTime($utc_date, $gmtTimezone);
-		$offset = $userTimezone->getOffset($utc_date);
-		$myInterval = \DateInterval::createFromDateString((string)$offset . 'seconds');
-		$utc_date->add($myInterval);
+		$utc_date->setTimezone(new \DateTimeZone($timezone));
 
 		return $utc_date;
 
 	}
 
 
-	public function createUtcDate($client_date, $timezone)
+	public function createUtcDate($client_date)
 	{
 
-		$userTimezone = new \DateTimeZone($timezone);
-		$gmtTimezone = new \DateTimeZone('GMT');
-		//$clientDateTime = new \DateTime($client_date, $userTimezone);
-		$offset = $userTimezone->getOffset($client_date);
-		$myInterval = \DateInterval::createFromDateString((string)$offset . 'seconds');
-		$client_date->add($myInterval);
+		$client_date->setTimezone(new \DateTimeZone('GMT'));
 
 		return $client_date;
 	}
