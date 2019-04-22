@@ -2,18 +2,23 @@
 
 namespace Tests\Unit;
 
-use App\Utils\Traits\MakesTimezoneAdjustment;
+use App\Utils\Traits\MakesDates;
 use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\MakesTimezoneAdjustment
+ * @covers  App\Utils\Traits\MakesDates
  */
-class TimezoneTraitTest extends TestCase
+class MakesDatesTest extends TestCase
 {
 
-	use MakesTimezoneAdjustment;
+	use MakesDates;
 
+/*
+ * tests may break with daylight savings changes ( as PHP handle DST under the hood )
+ * these tests are to confirm the timezone conversions
+ * work as expected at this point in time.
+ */
 
 	public function testConvertClientDateToUTCDateTimeTickOverSameDay()
 	{

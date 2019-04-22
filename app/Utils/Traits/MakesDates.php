@@ -3,10 +3,10 @@
 namespace App\Utils\Traits;
 
 /**
- * Class MakesTimezoneAdjustment
+ * Class MakesDates
  * @package App\Utils\Traits
  */
-trait MakesTimezoneAdjustment
+trait MakesDates
 {
 
 	public function createClientDate($utc_date , $timezone)
