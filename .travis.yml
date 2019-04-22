@@ -5,8 +5,13 @@ sudo: true
 # Prevent tests from taking more than 50 minutes
 group: deprecated-2017Q4
 
+matrix:
+  allow_failures:
+    - 7.3
+
 php:
   - 7.2
+  - 7.3
 
 addons:
   hosts:
