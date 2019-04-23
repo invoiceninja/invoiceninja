@@ -49,7 +49,7 @@ class MakesDatesTest extends TestCase
 	{
 
 	    $date_src = '2007-04-19 23:59'; 
-	    $client_timezone = 'Atlantic/Cape_Verde'; // +1 UTC
+	    $client_timezone = 'Atlantic/Cape_Verde'; // -1 UTC
     	$date_time = new \DateTime($date_src, new \DateTimeZone($client_timezone)); 
 
     	$utc_date = $this->createUtcDate($date_time, $client_timezone);
@@ -61,7 +61,7 @@ class MakesDatesTest extends TestCase
 	{
 
 	    $date_src = '2007-04-19 22:59'; 
-	    $client_timezone = 'Atlantic/Cape_Verde'; // +1 UTC
+	    $client_timezone = 'Atlantic/Cape_Verde'; // -1 UTC
     	$date_time = new \DateTime($date_src, new \DateTimeZone($client_timezone)); 
 
     	$utc_date = $this->createUtcDate($date_time, $client_timezone);

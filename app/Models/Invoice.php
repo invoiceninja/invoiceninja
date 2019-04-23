@@ -23,9 +23,10 @@ class Invoice extends BaseModel
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
-    const STATUS_VIEWED = 3;
     const STATUS_PARTIAL = 5;
     const STATUS_PAID = 6;
+    const STATUS_REVERSED = 7; //new for V2
+
     const STATUS_OVERDUE = -1;
     const STATUS_UNPAID = -2;
 

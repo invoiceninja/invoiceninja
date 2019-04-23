@@ -34,6 +34,8 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =
 
   Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
 
+  Route::get('invoices/{invoice}/{action}', 'InvoiceController@action');
+
   Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
 
   Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit

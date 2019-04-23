@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\CloneInvoiceFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
+use App\Http\Requests\Invoice\ActionInvoiceRequest;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
@@ -15,6 +17,7 @@ use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class InvoiceController
@@ -160,6 +163,42 @@ class InvoiceController extends BaseController
 
         return response()->json([], 200);
 
+    }
+
+    public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
+    {
+        
+        switch ($action) {
+            case 'clone':
+                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
+                return $this->itemResponse($invoice);
+                break;
+            case 'clone_to_quote':
+                # code...
+                break;
+            case 'history':
+                # code...
+                break;
+            case 'delivery_note':
+                # code...
+                break;
+            case 'mark_paid':
+                # code...
+                break;
+            case 'archive':
+                # code...
+                break;
+            case 'delete':
+                # code...
+                break;
+            case 'email':
+                //dispatch email to queue
+                break;
+
+            default:
+                # code...
+                break;
+        }
     }
     
 }

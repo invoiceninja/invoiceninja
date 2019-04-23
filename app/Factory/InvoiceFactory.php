@@ -17,8 +17,13 @@ class InvoiceFactory
 		$invoice->discount = 0;
 		$invoice->is_amount_discount = true;
 		$invoice->po_number = '';
+		$invoice->footer = '';
+		$invoice->terms = '';
+		$invoice->public_notes = '';
+		$invoice->private_notes = '';
 		$invoice->invoice_date = null;
 		$invoice->due_date = null;
+		$invoice->partial_due_date = null;
 		$invoice->is_deleted = false;
 		$invoice->line_items = json_encode([]);
 		$invoice->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()); //todo need to embed the settings here

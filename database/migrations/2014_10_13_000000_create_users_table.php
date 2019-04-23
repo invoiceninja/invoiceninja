@@ -357,6 +357,12 @@ class CreateUsersTable extends Migration
             $t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
+
+
             $t->string('tax_name1');
             $t->decimal('tax_rate1', 13, 3);
 
@@ -371,6 +377,9 @@ class CreateUsersTable extends Migration
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->decimal('partial', 13, 2)->nullable();
+            $t->date('partial_due_date')->nullable();
+
+            $t->datetime('last_viewed')->nullable();
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
