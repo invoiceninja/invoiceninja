@@ -456,7 +456,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('company_id')->index();
-            $t->unsignedInteger('quote_status_id');
+            $t->unsignedInteger('status_id');
 
             $t->string('quote_number');
             $t->float('discount');

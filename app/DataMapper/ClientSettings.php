@@ -46,6 +46,7 @@ class ClientSettings extends BaseSettings
 	public $custom_taxes1;
 	public $custom_taxes2;
 	public $lock_sent_invoices;
+	public $auto_bill;
 
 	/**
 	 * settings which which are unique to client settings
