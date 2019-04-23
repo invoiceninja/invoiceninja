@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\CloneInvoiceFactory;
+use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
 use App\Http\Requests\Invoice\ActionInvoiceRequest;
@@ -204,7 +205,8 @@ class InvoiceController extends BaseController
                 return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
-                # code...
+                $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
+                // todo build the quote transformer and return response here 
                 break;
             case 'history':
                 # code...
