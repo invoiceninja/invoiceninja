@@ -199,7 +199,7 @@ class InvoiceController extends BaseController
     {
         
         switch ($action) {
-            case 'clone':
+            case 'clone_to_invoice':
                 $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
                 return $this->itemResponse($invoice);
                 break;

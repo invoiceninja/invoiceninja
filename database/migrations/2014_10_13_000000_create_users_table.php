@@ -391,6 +391,121 @@ class CreateUsersTable extends Migration
             $t->unique(['company_id', 'invoice_number']);
         });
 
+        Schema::create('recurring_invoices', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('client_id')->index();
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('company_id')->index();
+
+            $t->string('invoice_number');
+            $t->float('discount');
+            $t->boolean('is_amount_discount');
+
+            $t->string('po_number');
+            $t->date('invoice_date')->nullable();
+            $t->date('due_date')->nullable();
+
+            $t->boolean('is_deleted')->default(false);
+
+            $t->text('line_items')->nullable();
+            $t->text('settings')->nullable();
+            $t->text('backup')->nullable();
+
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
+
+
+            $t->string('tax_name1');
+            $t->decimal('tax_rate1', 13, 3);
+
+            $t->string('tax_name2');
+            $t->decimal('tax_rate2', 13, 3);
+
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
+
+            $t->decimal('amount', 13, 2);
+            $t->decimal('balance', 13, 2);
+            $t->decimal('partial', 13, 2)->nullable();
+            $t->date('partial_due_date')->nullable();
+
+            $t->datetime('last_viewed')->nullable();
+
+            $t->unsignedInteger('frequency_id');
+            $t->date('start_date')->nullable();
+            $t->date('last_sent_date')->nullable();
+            $t->date('next_send_date')->nullable();
+            $t->unsignedInteger('remaining_cycles')->nullable();
+
+            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $t->timestamps();
+            $t->softDeletes();
+
+            $t->unique(['company_id', 'invoice_number']);
+        });
+
+        Schema::create('quotes', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('client_id')->index();
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('company_id')->index();
+            $t->unsignedInteger('quote_status_id');
+
+            $t->string('quote_number');
+            $t->float('discount');
+            $t->boolean('is_amount_discount');
+
+            $t->string('po_number');
+            $t->date('quote_date')->nullable();
+            $t->date('due_date')->nullable();
+
+            $t->boolean('is_deleted')->default(false);
+
+            $t->text('line_items')->nullable();
+            $t->text('settings')->nullable();
+            $t->text('backup')->nullable();
+
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
+
+
+            $t->string('tax_name1');
+            $t->decimal('tax_rate1', 13, 3);
+
+            $t->string('tax_name2');
+            $t->decimal('tax_rate2', 13, 3);
+
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
+
+            $t->decimal('amount', 13, 2);
+            $t->decimal('balance', 13, 2);
+            $t->decimal('partial', 13, 2)->nullable();
+            $t->date('partial_due_date')->nullable();
+
+            $t->datetime('last_viewed')->nullable();
+
+            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $t->timestamps();
+            $t->softDeletes();
+
+            $t->unique(['company_id', 'quote_number']);
+        });
+
         Schema::create('invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('company_id');

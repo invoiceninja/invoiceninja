@@ -12,9 +12,7 @@ trait MakesDates
 	public function createClientDate($utc_date , $timezone)
 	{
 
-		$utc_date->setTimezone(new \DateTimeZone($timezone));
-
-		return $utc_date;
+		return $utc_date->setTimezone(new \DateTimeZone($timezone));
 
 	}
 
@@ -22,9 +20,8 @@ trait MakesDates
 	public function createUtcDate($client_date)
 	{
 
-		$client_date->setTimezone(new \DateTimeZone('GMT'));
+		return $client_date->setTimezone(new \DateTimeZone('GMT'));
 
-		return $client_date;
 	}
 
 }
