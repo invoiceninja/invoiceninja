@@ -12,7 +12,9 @@ use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
+use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
+use App\Repositories\BaseRepository;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
@@ -37,6 +39,8 @@ class InvoiceController extends BaseController
      * @var InvoiceRepository
      */
     protected $invoice_repo;
+
+    protected $base_repo;
 
     /**
      * InvoiceController constructor.
@@ -163,6 +167,32 @@ class InvoiceController extends BaseController
 
         return response()->json([], 200);
 
+    }
+
+    /**
+     * Perform bulk actions on the list view
+     * 
+     * @return Collection
+     */
+    public function bulk()
+    {
+
+        $action = request()->input('action');
+        
+        $ids = request()->input('ids');
+
+        $invoices = Invoice::withTrashed()->find($ids);
+
+        $invoices->each(function ($invoice, $key) use($action){
+
+            if(auth()->user()->can('edit', $invoice))
+                $this->invoice_repo->{$action}($invoice);
+
+        });
+
+        //todo need to return the updated dataset
+        return $this->listResponse(Invoice::withTrashed()->whereIn('id', $ids));
+        
     }
 
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)

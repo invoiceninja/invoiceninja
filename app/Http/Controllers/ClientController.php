@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Size;
+use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
 use App\Utils\Traits\MakesHash;
@@ -41,17 +42,17 @@ class ClientController extends BaseController
     /**
      * @var ClientRepository
      */
-    protected $clientRepo;
+    protected $client_repo;
 
     /**
      * ClientController constructor.
      * @param ClientRepository $clientRepo
      */
-    public function __construct(ClientRepository $clientRepo)
+    public function __construct(ClientRepository $client_repo)
     {
         parent::__construct();
 
-        $this->clientRepo = $clientRepo;
+        $this->client_repo = $client_repo;
 
     }
 
@@ -101,7 +102,7 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-        $client = $this->clientRepo->save($request, $client);
+        $client = $this->client_repo->save($request, $client);
 
         return $this->itemResponse($client);
 
@@ -129,7 +130,7 @@ class ClientController extends BaseController
     public function store(StoreClientRequest $request)
     {
         
-        $client = $this->clientRepo->save($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $client = $this->client_repo->save($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
 
@@ -168,12 +169,11 @@ class ClientController extends BaseController
         $clients->each(function ($client, $key) use($action){
 
             if(auth()->user()->can('edit', $client))
-                ActionEntity::dispatchNow($client, $action);
+                $this->client_repo->{$action}($invoice);
 
         });
 
-        //todo need to return the updated dataset
-        return response()->json([], 200);
+        return $this->listResponse(Client::withTrashed()->whereIn('id', $ids));
         
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class Handler extends ExceptionHandler
 {
@@ -61,7 +62,11 @@ class Handler extends ExceptionHandler
         }
         else if($exception instanceof ThrottleRequestsException)
         {
-             return response()->json(['message'=>'Too many requests'],429);
+            return response()->json(['message'=>'Too many requests'],429);
+        }
+        else if($exception instanceof FatalThrowableError)
+        {
+            return response()->json(['message'=>'Fatal error', 500]);
         }
 
         return parent::render($request, $exception);
