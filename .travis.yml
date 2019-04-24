@@ -50,6 +50,7 @@ install:
 
 services:
   - mysql
+  - xvfb
   
 before_script:
   # copy configuration files

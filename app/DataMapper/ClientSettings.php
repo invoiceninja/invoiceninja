@@ -53,7 +53,7 @@ class ClientSettings extends BaseSettings
 	 */
 	public $industry_id;
 	public $size_id;
-	public $invoice_email_list;	
+	public $invoice_email_list;	//default comma separated list of contacts to email
 
 	/**
 	 * Cast object values and return entire class
