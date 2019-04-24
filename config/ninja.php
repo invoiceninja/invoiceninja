@@ -12,6 +12,7 @@ return [
     'app_env' => env('APP_ENV', 'development'),
     'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    'key_length' => 64,
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 

@@ -17,7 +17,7 @@ trait MakesHash
      */
     public function createHash() : string
     {
-        return strtolower(str_random(RANDOM_KEY_LENGTH));
+        return str_random(config('ninja.key_length'));
     }
 
     /**
@@ -28,7 +28,7 @@ trait MakesHash
      */
     public function createDbHash($db) : string
     {
-        return  $this->getDbCode($db) . '-' . strtolower(str_random(RANDOM_KEY_LENGTH));
+        return  $this->getDbCode($db) . '-' . str_random(config('ninja.key_length'));
     }
 
     /**
