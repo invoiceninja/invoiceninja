@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceCalc;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -14,18 +15,19 @@ use Tests\TestCase;
 class InvoiceTest extends TestCase
 {
 
-	protected $invoice;
+	public $invoice;
 
-	protected $invoice_calc;
+	public $invoice_calc;
 
-	private $settings;
+	public $settings;
 
-    public function setUp()
+    public function setUp() :void
     {
     
-    parent::setUp();
+    	parent::setUp();
 	
 		$this->invoice = InvoiceFactory::create(1,1);//stub the company and user_id
+
 		$this->invoice->line_items = $this->buildLineItems();
 		
 		$this->settings = $this->invoice->settings;
@@ -37,6 +39,7 @@ class InvoiceTest extends TestCase
 
 
 		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
+
 	}
 
 	private function buildLineItems()
@@ -61,6 +64,7 @@ class InvoiceTest extends TestCase
 
 	public function testInvoiceTotals()
 	{
+
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -168,6 +172,7 @@ class InvoiceTest extends TestCase
 		$line_items[] = $item;
 
 		$this->invoice->line_items = $line_items;
+
 		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 0;
 		$this->invoice->custom_value1 = 0;

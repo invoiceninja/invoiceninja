@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceItemCalc;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -12,7 +13,9 @@ use Tests\TestCase;
  */
 class InvoiceItemTest extends TestCase
 {
-    public function setUp()
+	
+
+    public function setUp() :void
     {
     
     parent::setUp();

@@ -25,7 +25,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->save();
 
 
-        $invoice_calc = new InvoiceCalc($invoice);
+        $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
         $invoice = $invoice_calc->build()->getInvoice();
 

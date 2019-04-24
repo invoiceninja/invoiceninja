@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -25,8 +26,9 @@ use Tests\TestCase;
 class ClientTest extends TestCase
 {
     use MakesHash;
+    use DatabaseTransactions;
 
-    public function setUp()
+    public function setUp() :void
     {
         parent::setUp();
 
@@ -184,8 +186,39 @@ class ClientTest extends TestCase
         public function testDefaultTimeZoneFromClientModel()
         {
 
-            $user = User::all()->first();
-            $company = Company::all()->first();
+        $account = factory(\App\Models\Account::class)->create();
+                $company = factory(\App\Models\Company::class)->create([
+                    'account_id' => $account->id,
+                ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        $user = factory(\App\Models\User::class)->create([
+            'account_id' => $account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default'))
+        ]);
+
+
+        $userPermissions = collect([
+                                    'view_invoice',
+                                    'view_client',
+                                    'edit_client',
+                                    'edit_invoice',
+                                    'create_invoice',
+                                    'create_client'
+                                ]);
+
+        $userSettings = DefaultSettings::userSettings();
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'permissions' => $userPermissions->toJson(),
+            'settings' => json_encode($userSettings),
+            'is_locked' => 0,
+        ]);
 
             factory(\App\Models\Client::class, 3)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
@@ -204,8 +237,11 @@ class ClientTest extends TestCase
 
             });
 
-            $client = Client::all()->first();
+            $client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
+            $this->assertNotNull($client);
+
+            Log::error(print_r($client,1));
             /* Make sure we have a valid settings object*/
             $this->assertEquals($client->getSettings()->timezone_id, 15);            
 

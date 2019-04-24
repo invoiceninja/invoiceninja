@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -12,8 +13,8 @@ use Tests\TestCase;
  */
 class BaseSettingsTest extends TestCase
 {
-
-    public function setUp()
+	
+    public function setUp() :void
     {
     
     parent::setUp();

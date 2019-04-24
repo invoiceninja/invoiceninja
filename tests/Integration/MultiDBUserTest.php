@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -21,10 +22,8 @@ use Tests\TestCase;
 
 class MultiDBUserTest extends TestCase
 {
-    //use DatabaseMigrations;
-    //use InteractsWithDatabase;
 
-    public function setUp()
+    public function setUp() :void
     {
         parent::setUp();
 
@@ -118,7 +117,7 @@ class MultiDBUserTest extends TestCase
         $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-01'));
     }
 
-    public function tearDown()
+    public function tearDown() :void
     {
          DB::connection('db-ninja-01')->table('users')->delete();
          DB::connection('db-ninja-02')->table('users')->delete();

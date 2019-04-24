@@ -31,10 +31,10 @@ use Tests\TestCase;
 
 class InvitationTest extends TestCase
 {
-  	use DatabaseTransactions;
 	use MakesHash;
+    use DatabaseTransactions;
 
-    public function setUp()
+    public function setUp() :void
     {
         parent::setUp();
 
@@ -125,8 +125,6 @@ class InvitationTest extends TestCase
         $this->assertNotNull($i);
         
         $this->assertEquals($i->invoice_id, $invoice->id);
-
-
 
     }
 }

@@ -10,10 +10,10 @@ use Tests\TestCase;
  * @test
  * @covers  App\DataMapper\ClientSettings
  */
-class CompanyObjectTest extends TestCase
+class CompareObjectTest extends TestCase
 {
 
-    public function setUp()
+    public function setUp() :void
     {
     
     parent::setUp();
@@ -50,6 +50,18 @@ class CompanyObjectTest extends TestCase
 		$this->assertEquals($build_client_settings->language_id, 1);
 		$this->assertEquals($build_client_settings->payment_terms, 7);
 	}	
+
+	public function testDirectClientSettingsBuild()
+	{
+		$settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
+
+		$this->assertEquals($settings->timezone_id, 15);
+		$this->assertEquals($settings->currency_id, 1);
+		$this->assertEquals($settings->language_id, 1);
+		$this->assertEquals($settings->payment_terms, 7);
+		$this->assertTrue(property_exists($settings, 'invoice_email_list'));
+		$this->assertEquals($settings->custom_taxes1, 'FALSE');
+	}
 
 
 }

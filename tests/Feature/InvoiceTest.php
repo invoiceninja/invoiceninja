@@ -2,13 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
@@ -21,8 +25,9 @@ class InvoiceTest extends TestCase
 {
 
     use MakesHash;
+    use DatabaseTransactions;
 
-    public function setUp()
+    public function setUp() :void
     {
 
         parent::setUp();
@@ -153,7 +158,10 @@ class InvoiceTest extends TestCase
         factory(\App\Models\Invoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoice = Invoice::where('user_id',$user->id)->first();
+        $invoice->settings = ClientSettings::buildClientSettings(new CompanySettings($company->settings), new ClientSettings($client->getSettings()));
+        $invoice->save();
 
+        
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
@@ -171,6 +179,11 @@ class InvoiceTest extends TestCase
         $invoice_update = [
             'status_id' => Invoice::STATUS_PAID
         ];
+
+        $this->assertNotNull($invoice);
+        $this->assertNotNull($invoice->settings);
+
+        $this->assertTrue(property_exists($invoice->settings, 'custom_taxes1'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

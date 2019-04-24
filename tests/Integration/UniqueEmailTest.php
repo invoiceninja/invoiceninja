@@ -3,10 +3,11 @@
 namespace Tests\Unit;
 
 use App\Http\ValidationRules\UniqueUserRule;
-use App\Models\User;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -17,11 +18,10 @@ use Tests\TestCase;
  */
 class UniqueEmailTest extends TestCase
 {
-    //use InteractsWithDatabase;
 
     protected $rule;
 
-    public function setUp()
+    public function setUp() :void
     {
         parent::setUp();
 
@@ -86,7 +86,7 @@ class UniqueEmailTest extends TestCase
 
     }
 
-    public function tearDown()
+    public function tearDown() :void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

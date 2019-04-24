@@ -12,7 +12,7 @@ use Tests\TestCase;
 class CompanySettingsTest extends TestCase
 {
 
-    public function setUp()
+    public function setUp() :void
     {
     
     parent::setUp();

@@ -23,7 +23,7 @@ class InvoiceItemCalc
 
 	private $line_total;
 
-	public function __construct(\stdClass $item, \stdClass $settings)
+	public function __construct(\stdClass $item, $settings)
 	{
 
 		$this->item = $item;

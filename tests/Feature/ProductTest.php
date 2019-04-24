@@ -24,8 +24,9 @@ use Tests\TestCase;
 class ProductTest extends TestCase
 {
     use MakesHash;
+    use DatabaseTransactions;
 
-    public function setUp()
+    public function setUp() :void
     {
         parent::setUp();
 

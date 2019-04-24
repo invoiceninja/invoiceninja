@@ -24,9 +24,7 @@ use Tests\TestCase;
 class AccountTest extends TestCase
 {
 
-    //use DatabaseTransactions;
-
-    public function setUp()
+    public function setUp() :void
     {
         parent::setUp();
 

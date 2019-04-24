@@ -93,10 +93,11 @@ class ClientSettings extends BaseSettings
 			'show_currency_symbol' => NULL,
 			'show_currency_code' => NULL,
 			'inclusive_taxes' => NULL,
-			'custom_taxes1' => NULL,
-			'custom_taxes2' => NULL,
 			'lock_sent_invoices' => NULL,
 			'invoice_email_list' => NULL, 
+			'custom_taxes1' => NULL,
+			'custom_taxes2' => NULL,
+			'auto_bill' => NULL,
 		];
 
 	}
@@ -116,8 +117,10 @@ class ClientSettings extends BaseSettings
 		foreach($client_settings as $key => $value)
 		{
 
-			if(!isset($client_settings->{$key}) && property_exists($company_settings, $key))
+			if(!isset($client_settings->{$key}) && property_exists($company_settings, $key)) {
+				Log::error('settings ' . $key .' to '. $company_settings->{$key});
 				$client_settings->{$key} = $company_settings->{$key};
+			}
 
 		}
 		

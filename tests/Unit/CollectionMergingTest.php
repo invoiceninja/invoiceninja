@@ -16,7 +16,7 @@ class CollectionMergingTest extends TestCase
 
     use UserSessionAttributes;
 
-    public function setUp()
+    public function setUp() :void
     {
 	    parent::setUp();
 
