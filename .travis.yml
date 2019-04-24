@@ -6,16 +6,13 @@ sudo: true
 group: deprecated-2017Q4
 
 php:
+  - 7.1
   - 7.2
   - 7.3
   - 7.4snapshot
 
 addons:
-  apt:
-    sources:
-      - google-chrome
-    packages:
-      - google-chrome-stable
+  chrome: beta
   hosts:
     - www.ninja.test
 
