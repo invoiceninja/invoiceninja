@@ -53,7 +53,7 @@ class ClientSettings extends BaseSettings
 	 */
 	public $industry_id;
 	public $size_id;
-	
+	public $invoice_email_list;	
 
 	/**
 	 * Cast object values and return entire class
@@ -96,6 +96,7 @@ class ClientSettings extends BaseSettings
 			'custom_taxes1' => NULL,
 			'custom_taxes2' => NULL,
 			'lock_sent_invoices' => NULL,
+			'invoice_email_list' => NULL,
 		];
 
 	}
