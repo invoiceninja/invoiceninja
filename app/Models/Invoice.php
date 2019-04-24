@@ -42,6 +42,6 @@ class Invoice extends BaseModel
 
     public function invitations()
     {
-        $this->morphMany(Invitation::class, 'inviteable');
+        return $this->hasMany(InvoiceInvitation::class);
     }
 }

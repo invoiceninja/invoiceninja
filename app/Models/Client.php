@@ -6,6 +6,7 @@ use App\DataMapper\ClientSettings;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Filterable;
+use App\Models\Timezone;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -43,8 +44,6 @@ class Client extends BaseModel
         'settings' => 'object'
     ];
 
-    //protected $dates = ['deleted_at'];
-
     public function getClientSettingsObjectAttribute()
     {
         return new ClientSettings($this->settings);
@@ -79,5 +78,17 @@ class Client extends BaseModel
     {
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }
+
+    public function timezone()
+    {
+        return Timezone::find($this->getSettings()->timezone_id);
+    }
+
+    public function getSettings()
+    {
+        return ClientSettings::buildClientSettings($this->company->settings, $this->settings);
+    }
+
+
 
 }

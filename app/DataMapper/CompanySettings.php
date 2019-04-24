@@ -93,9 +93,9 @@ class CompanySettings extends BaseSettings
 		$config = json_decode(config('ninja.settings'));
 
 		return (object) [
-			'timezone_id' => config('ninja.i18n.timezone'),
-			'language_id' => config('ninja.i18n.language'),
-			'currency_id' => config('ninja.i18n.currency'),
+			'timezone_id' => config('ninja.i18n.timezone_id'),
+			'language_id' => config('ninja.i18n.language_id'),
+			'currency_id' => config('ninja.i18n.currency_id'),
 			'payment_terms' => config('ninja.i18n.payment_terms'),
 			'datetime_format_id' => config('ninja.i18n.datetime_format'),
 			'military_time' => config('ninja.i18n.military_time'),

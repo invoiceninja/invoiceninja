@@ -30,6 +30,7 @@ class Quote extends BaseModel
 
     public function invitations()
     {
-        $this->morphMany(Invitation::class, 'inviteable');
+        return $this->hasMany(QuoteInvitation::class);
     }
+
 }

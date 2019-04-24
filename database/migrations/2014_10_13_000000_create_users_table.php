@@ -506,26 +506,33 @@ class CreateUsersTable extends Migration
             $t->unique(['company_id', 'quote_number']);
         });
 
-        Schema::create('invitations', function ($t) {
+        Schema::create('invoice_invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('company_id');
-            $t->unsignedInteger('inviteable_id');
-            $t->string('inviteable_type');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('client_contact_id');
             $t->unsignedInteger('invoice_id')->index();
-            $t->string('invitation_key',100)->index()->unique();
+            $t->string('invitation_key')->index()->unique();
             $t->timestamps();
             $t->softDeletes();
 
             $t->string('transaction_reference')->nullable();
+            $t->string('message_id')->nullable();
+            $t->text('email_error');
+            $t->text('signature_base64');
+            $t->timestamp('signature_date')->nullable();
+
             $t->timestamp('sent_date')->nullable();
             $t->timestamp('viewed_date')->nullable();
+            $t->timestamp('opened_date')->nullable();
 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+            $t->index(['deleted_at', 'invoice_id']);
+
         });
 
 

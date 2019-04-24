@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -63,8 +66,16 @@ class RouteServiceProvider extends ServiceProvider
             return \App\Models\Expense::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
-        Route::bind('invitation', function ($value) {
-            return \App\Models\Invitation::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        Route::bind('invoice_invitation', function ($value) {
+            return \App\Models\InvoiceInvitation::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
+
+        Route::bind('recurring_invoice_invitation', function ($value) {
+            return \App\Models\RecurringInvoiceInvitation::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
+
+        Route::bind('quote_invitation', function ($value) {
+            return \App\Models\QuoteInvitation::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
         Route::bind('task', function ($value) {

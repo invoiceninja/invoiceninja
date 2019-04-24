@@ -33,6 +33,6 @@ class RecurringInvoice extends BaseModel
 
     public function invitations()
     {
-        $this->morphMany(Invitation::class, 'inviteable');
+        $this->morphMany(RecurringInvoiceInvitation::class);
     }
 }

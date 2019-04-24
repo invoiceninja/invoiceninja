@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -177,6 +178,36 @@ class ClientTest extends TestCase
         $response->assertStatus(200);
 
 
+        }
+
+        public function testDefaultTimeZoneFromClientModel()
+        {
+
+            $user = User::all()->first();
+            $company = Company::all()->first();
+
+            factory(\App\Models\Client::class, 3)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
+
+                factory(\App\Models\ClientContact::class,1)->create([
+                    'user_id' => $user->id,
+                    'client_id' => $c->id,
+                    'company_id' => $company->id,
+                    'is_primary' => 1
+                ]);
+
+                factory(\App\Models\ClientContact::class,2)->create([
+                    'user_id' => $user->id,
+                    'client_id' => $c->id,
+                    'company_id' => $company->id
+                ]);
+
+            });
+
+            $client = Client::all()->first();
+
+            $this->assertEquals($client->getSettings()->timezone_id, 15);            
+
+            $this->assertEquals($client->timezone()->name, 'US/Eastern');
         }
 
 }

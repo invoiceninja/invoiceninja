@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Models;
+
+use App\Utils\Traits\MakesDates;
+use Illuminate\Database\Eloquent\Model;
+
+class QuoteInvitation extends BaseModel
+{
+
+	use MakesDates;
+
+    /**
+     * @return mixed
+     */
+    public function quote()
+    {
+        return $this->belongsTo(Quote::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function contact()
+    {
+        return $this->belongsTo(ClientContact::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function signatureDiv()
+    {
+        if (! $this->signature_base64) {
+            return false;
+        }
+
+        return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, ctrans('texts.signed'), $this->createClientDate($this->signature_date, $this->contact->client->timezone()->name));
+    }
+
+}
