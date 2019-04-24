@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Events\Client\ClientWasCreated;
+use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\User\UserCreated;
 use App\Listeners\Client\CreatedClientActivity;
 use App\Listeners\SendVerificationNotification;
@@ -38,6 +39,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\ClientWasRestored' => [
             'App\Listeners\ActivityListener@restoredClient',
+        ],
+
+        //Invoices
+        [
+            InvoiceWasMarkedSent::class => [
+                CreateInvoiceInvitations::class
+            ]
         ],
     ];
 

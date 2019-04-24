@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -205,9 +206,16 @@ class ClientTest extends TestCase
 
             $client = Client::all()->first();
 
+            /* Make sure we have a valid settings object*/
             $this->assertEquals($client->getSettings()->timezone_id, 15);            
 
+            /* Make sure we are harvesting valid data */
             $this->assertEquals($client->timezone()->name, 'US/Eastern');
+
+            $contacts = ClientContact::whereIn('id', explode(',', $client->getSettings()->invoice_email_list))->get();
+
+            /* Make sure NULL settings return the correct count (0) instead of throwing an exception*/
+            $this->assertEquals(count($contacts), 0);
         }
 
 }

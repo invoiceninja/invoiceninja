@@ -4,6 +4,10 @@ sudo: true
 
 dist: xenial
 
+services:
+  - mysql
+  - xvfb
+
 # Prevent tests from taking more than 50 minutes
 group: deprecated-2017Q4
 
@@ -48,10 +52,6 @@ install:
   #  - sed -i '/2checkout/d' composer.json
   - travis_retry composer install --no-interaction 
 
-services:
-  - mysql
-  - xvfb
-  
 before_script:
   # copy configuration files
   - php artisan key:generate --no-interaction
@@ -72,6 +72,7 @@ before_script:
   # Start webserver on ninja.test:8000
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
+  - sleep 3
   - ./vendor/laravel/dusk/bin/chromedriver-linux &
   - php artisan serve &
 

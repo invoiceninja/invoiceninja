@@ -53,7 +53,7 @@ class ClientSettings extends BaseSettings
 	 */
 	public $industry_id;
 	public $size_id;
-	public $invoice_email_list;	//default comma separated list of contacts to email
+	public $invoice_email_list;	//default comma separated list of contact ids to email
 
 	/**
 	 * Cast object values and return entire class
@@ -96,7 +96,7 @@ class ClientSettings extends BaseSettings
 			'custom_taxes1' => NULL,
 			'custom_taxes2' => NULL,
 			'lock_sent_invoices' => NULL,
-			'invoice_email_list' => NULL,
+			'invoice_email_list' => NULL, 
 		];
 
 	}
