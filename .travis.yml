@@ -8,6 +8,7 @@ group: deprecated-2017Q4
 php:
   - 7.2
   - 7.3
+  - 7.4snapshot
 
 addons:
   apt:
@@ -15,7 +16,6 @@ addons:
       - google-chrome
     packages:
       - google-chrome-stable
-  chrome: stable
   hosts:
     - www.ninja.test
 
