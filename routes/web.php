@@ -101,7 +101,8 @@ Authenticated Contact Routes
 
 Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function () {
 
-   Route::get('/', 'ContactController@index')->name('contact.dashboard');
+   Route::get('/', 'ClientPortal\DashboardController@index')->name('contact.dashboard');
+   
    Route::get('logout', 'Auth\ContactLoginController@logout')->name('contact.logout');
    
 });

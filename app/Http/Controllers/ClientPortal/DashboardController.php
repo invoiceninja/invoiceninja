@@ -7,11 +7,6 @@ use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
-    
-    public function __construct()
-    {
-
-    }
 
     /**
      * Display a listing of the resource.
@@ -20,7 +15,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $this->middleware('auth:contact');
+
     }
 
     /**

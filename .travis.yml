@@ -45,6 +45,9 @@ install:
   #  - sed -i '/2checkout/d' composer.json
   - travis_retry composer install --no-interaction 
 
+services:
+  - mysql
+  
 before_script:
   # copy configuration files
   - php artisan key:generate --no-interaction
