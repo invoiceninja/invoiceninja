@@ -2,6 +2,8 @@ language: php
 
 sudo: true
 
+dist: xenial
+
 # Prevent tests from taking more than 50 minutes
 group: deprecated-2017Q4
 
@@ -12,7 +14,7 @@ php:
   - 7.4snapshot
 
 addons:
-  chrome: beta
+  chrome: stable
   hosts:
     - www.ninja.test
 
