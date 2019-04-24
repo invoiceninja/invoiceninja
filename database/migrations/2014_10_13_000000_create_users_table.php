@@ -341,7 +341,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('company_id')->index();
-            $t->unsignedInteger('invoice_status_id');
+            $t->unsignedInteger('status_id');
 
             $t->string('invoice_number');
             $t->float('discount');
@@ -520,11 +520,11 @@ class CreateUsersTable extends Migration
             $t->string('message_id')->nullable();
             $t->text('email_error');
             $t->text('signature_base64');
-            $t->timestamp('signature_date')->nullable();
+            $t->date('signature_date')->nullable();
 
-            $t->timestamp('sent_date')->nullable();
-            $t->timestamp('viewed_date')->nullable();
-            $t->timestamp('opened_date')->nullable();
+            $t->date('sent_date')->nullable();
+            $t->date('viewed_date')->nullable();
+            $t->date('opened_date')->nullable();
 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');

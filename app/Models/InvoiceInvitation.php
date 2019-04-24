@@ -10,6 +10,10 @@ class InvoiceInvitation extends BaseModel
 
 	use MakesDates;
 
+    protected $guarded = [
+        'id',
+    ];
+
     /**
      * @return mixed
      */

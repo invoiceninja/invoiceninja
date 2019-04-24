@@ -27,21 +27,16 @@ class InvoiceTest extends TestCase
 	
 		$this->invoice = InvoiceFactory::create(1,1);//stub the company and user_id
 		$this->invoice->line_items = $this->buildLineItems();
+		
+		$this->settings = $this->invoice->settings;
 
-		$this->invoice->settings = $this->buildSettings();
-		$this->invoice_calc = new InvoiceCalc($this->invoice);
-	}
+		$this->settings->custom_taxes1 = true;
+		$this->settings->custom_taxes2 = true;
+		$this->settings->inclusive_taxes = true;
+		$this->settings->precision = 2;
 
 
-	private function buildSettings()
-	{
-		$settings = new \stdClass;
-		$settings->custom_taxes1 = true;
-		$settings->custom_taxes2 = true;
-		$settings->inclusive_taxes = true;
-		$settings->precision = 2;
-
-		return $settings;
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 	}
 
 	private function buildLineItems()
@@ -118,9 +113,9 @@ class InvoiceTest extends TestCase
 		$this->invoice->custom_value1 = 5;
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
-		$this->invoice->settings->inclusive_taxes = false;
+		$this->settings->inclusive_taxes = false;
 
-		$this->invoice_calc = new InvoiceCalc($this->invoice);
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 
 		$this->invoice_calc->build();
 
@@ -133,7 +128,7 @@ class InvoiceTest extends TestCase
 	public function testInvoiceTotalsWithDiscountWithSurchargeWithDoubleExclusiveTax()
 	{
 
-		$this->invoice_calc = new InvoiceCalc($this->invoice);
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 
 		$this->invoice->discount = 5;
 		$this->invoice->custom_value1 = 5;
@@ -141,7 +136,7 @@ class InvoiceTest extends TestCase
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->tax_name2 = 'GST';
 		$this->invoice->tax_rate2 = 10;
-		$this->invoice->settings->inclusive_taxes = false;
+		$this->settings->inclusive_taxes = false;
 
 		$this->invoice_calc->build();
 
@@ -173,11 +168,11 @@ class InvoiceTest extends TestCase
 		$line_items[] = $item;
 
 		$this->invoice->line_items = $line_items;
-		$this->invoice->settings->inclusive_taxes = true;
+		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 0;
 		$this->invoice->custom_value1 = 0;
 
-		$this->invoice_calc = new InvoiceCalc($this->invoice);
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -215,8 +210,8 @@ class InvoiceTest extends TestCase
 		$this->invoice->tax_name2 = 'GST';
 		$this->invoice->tax_rate2 = 10;
 
-		$this->invoice->settings->inclusive_taxes = false;
-		$this->invoice_calc = new InvoiceCalc($this->invoice);
+		$this->settings->inclusive_taxes = false;
+		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);

@@ -44,4 +44,9 @@ class Invoice extends BaseModel
     {
         return $this->hasMany(InvoiceInvitation::class);
     }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 }

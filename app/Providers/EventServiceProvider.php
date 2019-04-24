@@ -6,6 +6,7 @@ use App\Events\Client\ClientWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\User\UserCreated;
 use App\Listeners\Client\CreatedClientActivity;
+use App\Listeners\Invoice\CreateInvoiceInvitations;
 use App\Listeners\SendVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -43,8 +44,8 @@ class EventServiceProvider extends ServiceProvider
 
         //Invoices
         [
-            InvoiceWasMarkedSent::class => [
-                CreateInvoiceInvitations::class
+        InvoiceWasMarkedSent::class => [
+            CreateInvoiceInvitations::class,
             ]
         ],
     ];

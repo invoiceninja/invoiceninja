@@ -19,7 +19,7 @@ class InvoiceTransformer extends EntityTransformer
     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
     * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
     * @SWG\Property(property="client_id", type="integer", example=1)
-    * @SWG\Property(property="invoice_status_id", type="integer", example=1, readOnly=true)
+    * @SWG\Property(property="status_id", type="integer", example=1, readOnly=true)
     * @SWG\Property(property="invoice_number", type="string", example="0001")
     * @SWG\Property(property="discount", type="number", format="float", example=10)
     * @SWG\Property(property="po_number", type="string", example="0001")
@@ -122,7 +122,7 @@ class InvoiceTransformer extends EntityTransformer
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
             'client_id' => (int) $invoice->client_id,
-            'invoice_status_id' => (int) ($invoice->invoice_status_id ?: 1),
+            'status_id' => (int) ($invoice->status_id ?: 1),
             'updated_at' => $invoice->updated_at,
             'archived_at' => $invoice->deleted_at,
             'invoice_number' => $invoice->invoice_number,

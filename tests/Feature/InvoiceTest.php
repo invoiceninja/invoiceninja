@@ -169,7 +169,7 @@ class InvoiceTest extends TestCase
         $response->assertStatus(200);
 
         $invoice_update = [
-            'invoice_status_id' => Invoice::STATUS_PAID
+            'status_id' => Invoice::STATUS_PAID
         ];
 
         $response = $this->withHeaders([

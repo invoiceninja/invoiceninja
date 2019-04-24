@@ -6,7 +6,7 @@ use Faker\Generator as Faker;
 
 $factory->define(App\Models\Invoice::class, function (Faker $faker) {
     return [
-		'invoice_status_id' => App\Models\Invoice::STATUS_PAID,
+		'status_id' => App\Models\Invoice::STATUS_DRAFT,
 		'invoice_number' => $faker->text(256),
 		'discount' => $faker->numberBetween(1,10),
 		'is_amount_discount' => $faker->boolean(),
@@ -24,6 +24,5 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
 		'due_date' => $faker->date(),
 		'line_items' => false,
 		'backup' => '', 
-		'settings' => ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new CompanySettings(ClientSettings::defaults()))
     ];
 });
