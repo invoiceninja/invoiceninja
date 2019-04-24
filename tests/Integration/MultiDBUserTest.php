@@ -22,7 +22,6 @@ use Tests\TestCase;
 
 class MultiDBUserTest extends TestCase
 {
-    use DatabaseTransactions;
 
     public function setUp() :void
     {

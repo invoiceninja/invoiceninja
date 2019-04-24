@@ -18,7 +18,6 @@ use Tests\TestCase;
  */
 class UniqueEmailTest extends TestCase
 {
-
     protected $rule;
 
     public function setUp() :void
