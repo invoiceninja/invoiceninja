@@ -23,7 +23,8 @@ use Tests\TestCase;
 
 class AccountTest extends TestCase
 {
-
+    use DatabaseTransactions;
+    
     public function setUp() :void
     {
         parent::setUp();
