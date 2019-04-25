@@ -80,7 +80,8 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Zamponi](https://github.com/alexz707)
 * [Matthieu Calie](https://github.com/Matth--)
-* [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad) - (Security)
+* [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad)
+* [Mike Skaggs](https://github.com/titan-fail)
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.  
