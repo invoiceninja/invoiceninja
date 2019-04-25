@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Events\User\UserWasUpdated;
 use App\Models\User;
 
 class UserObserver
@@ -25,7 +26,7 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        //
+        event(new UserWasUpdated($user));
     }
 
     /**

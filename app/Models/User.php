@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\Filterable;
 use App\Models\Traits\UserTrait;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
@@ -25,7 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use MakesHash;
     use UserSessionAttributes;
     use UserSettings;
-    
+    use Filterable;
+
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];
