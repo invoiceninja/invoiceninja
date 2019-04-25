@@ -20,7 +20,6 @@ class TokenAuth
 
         if( $request->header('X-API-TOKEN') && ($user = CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()->user ) ) 
         {
-            //$user->with('company');
             
             auth()->login($user);
         

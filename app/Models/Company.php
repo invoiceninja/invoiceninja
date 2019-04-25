@@ -44,6 +44,10 @@ class Company extends BaseModel
         'settings' => 'object'
     ];
 
+    protected $with = [
+   //     'tokens'
+    ];
+
     public function getSettingsObjectAttribute()
     {
         return new CompanySettings($this->settings);

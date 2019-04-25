@@ -21,6 +21,10 @@ class Invoice extends BaseModel
         'settings' => 'object'
     ];
 
+    protected $with = [
+        'company'
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_PARTIAL = 5;
