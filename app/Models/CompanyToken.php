@@ -15,6 +15,11 @@ class CompanyToken extends BaseModel
         'id',
     ];
 
+    protected $with = [
+    //    'user',
+    //    'company',
+    ];
+
     public function account()
     {
         return $this->belongsTo(Account::class);

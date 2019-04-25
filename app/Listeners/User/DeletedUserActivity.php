@@ -7,7 +7,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class CreatedUserActivity
+class DeletedUserActivity
 {
     protected $activityRepo;
     /**
@@ -37,7 +37,7 @@ class CreatedUserActivity
             $fields->user_id = $event->user->id;
         
         $fields->company_id = $event->user->company_id;
-        $fields->activity_type_id = Activity::CREATE_USER;
+        $fields->activity_type_id = Activity::DELETE_USER;
 
         $this->activityRepo->save($fields, $event->user);
     }

@@ -5,7 +5,6 @@ namespace App\DataMapper;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Utils\TranslationHelper;
-use Illuminate\Support\Facades\Log;
 
 /**
  * ClientSettings
@@ -118,7 +117,6 @@ class ClientSettings extends BaseSettings
 		{
 
 			if(!isset($client_settings->{$key}) && property_exists($company_settings, $key)) {
-				Log::error('settings ' . $key .' to '. $company_settings->{$key});
 				$client_settings->{$key} = $company_settings->{$key};
 			}
 
