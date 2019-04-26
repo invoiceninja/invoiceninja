@@ -10,7 +10,7 @@ class CloneInvoiceFactory
 	{
 		$clone_invoice = $invoice->replicate();
 		$clone_invoice->status_id = Invoice::STATUS_DRAFT;
-		$clone_invoice->invoice_number = '';
+		$clone_invoice->invoice_number = NULL;
 		$clone_invoice->invoice_date = null;
 		$clone_invoice->due_date = null;
 		$clone_invoice->partial_due_date = null;

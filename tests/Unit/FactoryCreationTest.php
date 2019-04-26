@@ -4,6 +4,9 @@ namespace Tests\Unit;
 
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
+use App\Factory\CloneInvoiceFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
@@ -44,6 +47,69 @@ class FactoryCreationTest extends TestCase
         //    'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
+    }
+
+    /**
+     * @test
+     * @covers      App\Factory\ProductFactory
+     */
+    public function testProductionCreation()
+    {
+        $product = ProductFactory::create($this->company->id, $this->user->id);
+        $product->save();
+
+        $this->assertNotNull($product);
+
+        $this->assertInternalType("int", $product->id);
+    }
+
+    /**
+     * @test
+     * @covers      App\Factory\InvoiceFactory
+     */
+    
+    public function testInvoiceCreation()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+
+        $client->save();
+
+        $invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice->client_id = $client->id;
+        $invoice->save();
+
+        $this->assertNotNull($invoice);
+
+        $this->assertInternalType("int", $invoice->id);
+    }
+
+    /**
+     * @test
+     * @covers App|Factory\CloneInvoiceFactory
+     */
+    public function testCloneInvoiceCreation()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+
+        $client->save();
+
+        $invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice->client_id = $client->id;
+        $invoice->save();
+
+        $this->assertNotNull($invoice);
+
+        $this->assertInternalType("int", $invoice->id);
+
+
+        $clone = CloneInvoiceFactory::create($invoice, $this->user->id);
+        $clone->save();
+
+        $this->assertNotNull($clone);
+
+        $this->assertInternalType("int", $clone->id);
+        
+
     }
 
     /**

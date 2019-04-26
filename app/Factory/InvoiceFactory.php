@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class InvoiceFactory
 {
-	public static function create(int $company_id, int $user_id) :\stdClass
+	public static function create(int $company_id, int $user_id) :Invoice
 	{
-		$invoice = new \stdClass;
+		$invoice = new Invoice();
 		$invoice->status_id = Invoice::STATUS_DRAFT;
 		$invoice->invoice_number = '';
 		$invoice->discount = 0;
