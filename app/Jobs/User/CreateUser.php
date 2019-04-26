@@ -47,7 +47,7 @@ class CreateUser
         $email = 'turbo124+'. $x .'@gmail.com'; //todo
 
         $user = new User();
-        $user->account_id = $this->account->id;
+       // $user->account_id = $this->account->id;
         $user->password = bcrypt($this->request['password']);
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));

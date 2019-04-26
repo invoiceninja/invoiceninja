@@ -61,7 +61,7 @@ class MultiDBUserTest extends TestCase
             'remember_token' => str_random(10),
             'email' => 'db1@example.com',
             'oauth_user_id' => '123',
-            'account_id' => $account->id,
+       //     'account_id' => $account->id,
         ];
 
 
@@ -74,7 +74,7 @@ class MultiDBUserTest extends TestCase
             'remember_token'    => str_random(10),
             'email'             => 'db2@example.com',
             'oauth_user_id'     => 'abc',
-            'account_id' => $account2->id,
+      //      'account_id' => $account2->id,
 
         ];
 

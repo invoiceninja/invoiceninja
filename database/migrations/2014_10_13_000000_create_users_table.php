@@ -186,7 +186,7 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
 
             $table->increments('id');
-            $table->unsignedInteger('account_id')->index();
+            //$table->unsignedInteger('account_id')->index();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
@@ -211,7 +211,7 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+           // $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
         });
 
