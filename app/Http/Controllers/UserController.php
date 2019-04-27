@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
+use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Requests\User\DestroyUserRequest;
+use App\Http\Requests\User\EditUserRequest;
+use App\Http\Requests\User\ShowUserRequest;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
@@ -47,9 +54,11 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CreateUserRequest $request)
     {
-        //
+        $user = UserFactory::create();
+
+        return $this->itemResponse($user);
     }
 
     /**
@@ -58,7 +67,7 @@ class UserController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
         //
     }
@@ -69,7 +78,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ShowUserRequest $request)
     {
         //
     }
@@ -80,7 +89,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(EditUserRequest $request)
     {
         //
     }
@@ -92,7 +101,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request)
     {
         //
     }
@@ -103,7 +112,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DestroyUserRequest $request)
     {
         //
     }

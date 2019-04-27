@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\User;
 use App\Policies\ClientPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\ProductPolicy;
@@ -23,6 +24,7 @@ class AuthServiceProvider extends ServiceProvider
         Client::class => ClientPolicy::class,
         Product::class => ProductPolicy::class,
         Invoice::class => InvoicePolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**
