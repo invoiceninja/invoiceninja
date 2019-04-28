@@ -46,6 +46,14 @@ class RunReport extends Job
                     $startDate = Carbon::now()->subMonth()->firstOfMonth()->toDateString();
                     $endDate = Carbon::now()->subMonth()->lastOfMonth()->toDateString();
                     break;
+                case 'this_quarter':
+                    $startDate = Carbon::now()->firstOfQuarter()->toDateString();
+                    $endDate = Carbon::now()->lastOfQuarter()->toDateString();
+                    break;
+                case 'last_quarter':
+                    $startDate = Carbon::now()->subMonth(3)->firstOfQuarter()->toDateString();
+                    $endDate = Carbon::now()->subMonth(3)->lastOfQuarter()->toDateString();
+                    break;
                 case 'this_year':
                     $startDate = Carbon::now()->firstOfYear()->toDateString();
                     $endDate = Carbon::now()->lastOfYear()->toDateString();
