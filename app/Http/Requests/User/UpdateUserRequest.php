@@ -20,4 +20,13 @@ class UpdateUserRequest extends Request
     }
 
 
+    public function rules()
+    {
+        return [
+            'first_name' => 'required|string|max:100',
+            'last_name' =>  'required|string:max:100',
+            'email' => new UniqueUserRule(),
+        ];
+    }
+
 }

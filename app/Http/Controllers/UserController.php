@@ -69,7 +69,11 @@ class UserController extends BaseController
      */
     public function store(StoreUserRequest $request)
     {
-        //
+        //save user
+        
+
+        //attach user to company
+        
     }
 
     /**

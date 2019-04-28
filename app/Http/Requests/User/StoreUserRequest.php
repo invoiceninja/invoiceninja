@@ -18,6 +18,15 @@ class StoreUserRequest extends Request
         return auth()->user()->can('create', User::class);
     }
 
+    public function rules()
+    {
+        return [
+            'first_name' => 'required|string|max:100',
+            'last_name' =>  'required|string:max:100',
+            'email' => new UniqueUserRule(),
+        ];
+    }
+
 
     public function sanitize()
     {
