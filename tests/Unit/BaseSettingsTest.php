@@ -19,7 +19,7 @@ class BaseSettingsTest extends TestCase
     
     parent::setUp();
 	
-    $this->settings = ClientSettings::defaults();
+    $this->settings = new ClientSettings(ClientSettings::defaults());
 
 	}
 

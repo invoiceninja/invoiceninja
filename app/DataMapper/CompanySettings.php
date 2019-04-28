@@ -77,19 +77,17 @@ class CompanySettings extends BaseSettings
 	 */
 	public $invoice_number_prefix;
 	public $invoice_number_pattern;
-	public $invoice_number_counter;
 
 	public $quote_number_prefix;
 	public $quote_number_pattern;
-	public $quote_number_counter;
 
 	public $client_number_prefix;
 	public $client_number_pattern;
-	public $client_number_counter;
 
 	public $credit_number_prefix;
 	public $credit_number_pattern;
-	public $credit_number_counter;
+
+	public $shared_invoice_quote_counter;
 
 	public $entity_number_padding;
 	public $recurring_number_prefix;
@@ -135,7 +133,8 @@ class CompanySettings extends BaseSettings
 			'custom_taxes1' => 'FALSE',
 			'custom_taxes2' => 'FALSE',
 			'lock_sent_invoices' => 'TRUE',
-
+			'shared_invoice_quote_counter' => 'FALSE',
+			
 			'translations' => (object) [],
 		];
 	}

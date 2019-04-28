@@ -28,6 +28,7 @@ class ClientSettings extends BaseSettings
 	public $military_time;
 	public $start_of_week;
 	public $financial_year_start;
+	public $payment_terms;
 
 	public $language_id;
 	public $currency_id;
@@ -46,6 +47,23 @@ class ClientSettings extends BaseSettings
 	public $custom_taxes2;
 	public $lock_sent_invoices;
 	public $auto_bill;
+
+	/**
+	 * Counter Variables
+	 */
+	public $invoice_number_prefix;
+	public $invoice_number_pattern;
+
+	public $quote_number_prefix;
+	public $quote_number_pattern;
+
+	public $client_number_prefix;
+	public $client_number_pattern;
+
+	public $credit_number_prefix;
+	public $credit_number_pattern;
+
+	public $shared_invoice_quote_counter;
 
 	/**
 	 * settings which which are unique to client settings
@@ -77,26 +95,9 @@ class ClientSettings extends BaseSettings
 	{
 
 		return (object)[
-			'timezone_id' => NULL,
-			'language_id' => NULL,
-			'currency_id' => NULL,
-			'payment_terms' => NULL,
-			'datetime_format_id' => NULL,
-			'military_time' => NULL,
-			'date_format_id' => NULL,
-			'start_of_week' => NULL,
-			'financial_year_start' => NULL,
-			'default_task_rate' => NULL,
-			'send_reminders' => NULL,
-			'show_tasks_in_portal' => NULL,
-			'show_currency_symbol' => NULL,
-			'show_currency_code' => NULL,
-			'inclusive_taxes' => NULL,
-			'lock_sent_invoices' => NULL,
-			'invoice_email_list' => NULL, 
-			'custom_taxes1' => NULL,
-			'custom_taxes2' => NULL,
-			'auto_bill' => NULL,
+			'industry_id' => NULL,
+			'size_id' => NULL,
+			'invoice_email_list' => NULL,
 		];
 
 	}
