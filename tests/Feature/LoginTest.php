@@ -122,7 +122,7 @@ class LoginTest extends TestCase
         $response = $this->actingAs($user)->post('/logout',[
             '_token' => csrf_token()
         ]);
-        $response->assertStatus(200);
+        $response->assertStatus(302);
         
        // $this->assertGuest();
     }

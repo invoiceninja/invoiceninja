@@ -40,8 +40,8 @@ class QueryLogging
                 $time = $timeEnd - $timeStart;
                 Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
                 
-                if($count > 20)
-                    Log::info($queries);
+              //  if($count > 20)
+               //     Log::info($queries);
             }
         
         }

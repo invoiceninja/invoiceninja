@@ -241,7 +241,6 @@ class ClientTest extends TestCase
 
             $this->assertNotNull($client);
 
-            Log::error(print_r($client,1));
             /* Make sure we have a valid settings object*/
             $this->assertEquals($client->getSettings()->timezone_id, 15);            
 
