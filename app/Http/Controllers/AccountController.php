@@ -940,7 +940,7 @@ class AccountController extends BaseController
                 $account->account_email_settings->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
-            foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
+            foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3, TEMPLATE_QUOTE_REMINDER1, TEMPLATE_QUOTE_REMINDER2, TEMPLATE_QUOTE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
                 $account->account_email_settings->$enableField = Input::get($enableField) ? true : false;
                 $account->account_email_settings->{"num_days_{$type}"} = Input::get("num_days_{$type}");
@@ -948,12 +948,20 @@ class AccountController extends BaseController
                 $account->account_email_settings->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
 
                 $number = preg_replace('/[^0-9]/', '', $type);
-                $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
-                $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
+                if (strpos($type, 'quote') !== false) {
+                    $account->account_email_settings->{"late_fee_quote{$number}_amount"} = Input::get("late_fee_quote{$number}_amount");
+                    $account->account_email_settings->{"late_fee_quote{$number}_percent"} = Input::get("late_fee_quote{$number}_percent");
+                } else {
+                    $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
+                    $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
+                }
             }
 
             $account->account_email_settings->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
             $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
+
+            $account->account_email_settings->enable_quote_reminder4 = Input::get('enable_quote_reminder4') ? true : false;
+            $account->account_email_settings->frequency_id_quote_reminder4 = Input::get('frequency_id_quote_reminder4');
 
             $account->save();
             $account->account_email_settings->save();

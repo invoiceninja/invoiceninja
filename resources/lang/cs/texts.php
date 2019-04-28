@@ -689,6 +689,7 @@ $LANG = array(
     'military_time' => '24 hodinový čas',
     'last_sent' => 'Poslední odeslány',
     'reminder_emails' => 'Připomínky emailem',
+    'quote_reminder_emails' => 'Připomínky emailem (nabídky)',
     'templates_and_reminders' => 'Šablony & Připomínky',
     'subject' => 'Předmět',
     'body' => 'Tělo',

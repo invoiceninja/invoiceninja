@@ -136,12 +136,12 @@ trait SendsEmails
      */
     public function getReminderDate($reminder, $filterEnabled = true)
     {
-        if ($filterEnabled && ! $this->account_email_settings->{"enable_reminder{$reminder}"}) {
+        if ($filterEnabled && ! $this->account_email_settings->{"enable_{$reminder}"}) {
             return false;
         }
 
-        $numDays = $this->account_email_settings->{"num_days_reminder{$reminder}"};
-        $plusMinus = $this->account_email_settings->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
+        $numDays = $this->account_email_settings->{"num_days_{$reminder}"};
+        $plusMinus = $this->account_email_settings->{"direction_{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
 
         return date('Y-m-d', strtotime("$plusMinus $numDays days"));
     }
@@ -153,16 +153,18 @@ trait SendsEmails
      */
     public function getInvoiceReminder($invoice, $filterEnabled = true)
     {
+        $reminder = $invoice->isQuote() ? 'quote_reminder' : 'reminder';
+
         for ($i = 1; $i <= 3; $i++) {
-            if ($date = $this->getReminderDate($i, $filterEnabled)) {
-                if ($this->account_email_settings->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+            if ($date = $this->getReminderDate($reminder.$i, $filterEnabled)) {
+                if ($this->account_email_settings->{'field_'.$reminder.$i} == REMINDER_FIELD_DUE_DATE) {
                     if (($invoice->partial && $invoice->partial_due_date == $date)
                         || $invoice->due_date == $date) {
-                        return "reminder{$i}";
+                        return $reminder.$i;
                     }
                 } else {
                     if ($invoice->invoice_date == $date) {
-                        return "reminder{$i}";
+                        return $reminder.$i;
                     }
                 }
             }
