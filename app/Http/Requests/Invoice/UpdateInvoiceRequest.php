@@ -22,4 +22,11 @@ class UpdateInvoiceRequest extends Request
     }
 
 
+    public function rules()
+    {
+        return [
+            'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
+        ];
+    }
+    
 }

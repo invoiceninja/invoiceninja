@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Document extends BaseModel
 {
+    const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
     /**
      * @var array

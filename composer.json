@@ -23,6 +23,7 @@
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",
         "hashids/hashids": "^3.0",
+        "intervention/image": "^2.4",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "5.8.*",
         "laravel/socialite": "^3.1",
