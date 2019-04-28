@@ -146,6 +146,7 @@ class InvoiceReport extends AbstractReport
 
                 $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
                 $this->addToTotals($client->currency_id, 'balance', $invoice->balance);
+                $this->addToTotals($client->currency_id, 'tax', $invoice->getTaxTotal());
 
                 if ($subgroup == 'status') {
                     $dimension = $invoice->statusLabel();
