@@ -92,6 +92,7 @@
 	}
 
 	var account = {!! $account !!};
+    var chartQuarter = moment().quarter();
 	var dateRanges = {!! $account->present()->dateRangeOptions !!};
 	var chartStartDate;
 	var chartEndDate;

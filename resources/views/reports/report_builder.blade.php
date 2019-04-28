@@ -63,6 +63,7 @@
 
 		var chartStartDate = moment("{{ $startDate }}");
 		var chartEndDate = moment("{{ $endDate }}");
+        var chartQuarter = moment().quarter();
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
 		function resolveRange(range) {

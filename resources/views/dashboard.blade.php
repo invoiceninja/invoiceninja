@@ -86,6 +86,7 @@
         var account = {!! $account !!};
         var chartGroupBy = 'day';
         var chartCurrencyId = {{ $account->getCurrencyId() }};
+        var chartQuarter = moment().quarter();
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 		var chartStartDate;
         var chartEndDate;
