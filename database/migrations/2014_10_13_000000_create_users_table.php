@@ -186,8 +186,29 @@ class CreateUsersTable extends Migration
 
         });
 
+        Schema::create('documents', function (Blueprint $table){
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('company_id')->index();
+            $table->string('path');
+            $table->string('preview');
+            $table->string('name');
+            $table->string('type');
+            $table->string('disk');
+            $table->string('hash', 100);
+            $table->unsignedInteger('size')->nullable();
+            $table->unsignedInteger('width')->nullable();
+            $table->unsignedInteger('height')->nullable();
+            $table->boolean('is_default')->default(0);
 
-        
+            $table->unsignedInteger('documentable_id');
+            $table->string('documentable_type');
+            $table->timestamps();
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+        });
+         
         Schema::create('users', function (Blueprint $table) {
 
             $table->increments('id');

@@ -25,5 +25,9 @@ class Proposal extends BaseModel
         return $this->encodePrimaryKey($this->id);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
 
 }

@@ -89,6 +89,11 @@ class Client extends BaseModel
         return ClientSettings::buildClientSettings($this->company->settings, $this->settings);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
 
 
 }

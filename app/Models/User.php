@@ -258,4 +258,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
 }

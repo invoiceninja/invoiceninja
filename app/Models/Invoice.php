@@ -53,4 +53,9 @@ class Invoice extends BaseModel
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
 }

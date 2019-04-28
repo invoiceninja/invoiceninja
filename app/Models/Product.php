@@ -31,5 +31,10 @@ class Product extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
 
 }

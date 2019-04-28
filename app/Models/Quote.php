@@ -33,4 +33,9 @@ class Quote extends BaseModel
         return $this->hasMany(QuoteInvitation::class);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
 }
