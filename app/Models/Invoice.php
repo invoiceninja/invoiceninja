@@ -543,6 +543,20 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return Invitation|null
+     */
+    public function invitationByContactId(int $contactId)
+    {
+        foreach ($this->invitations as $invitation) {
+            if ($invitation->contact_id === $contactId) {
+                return $invitation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param $typeId
      *
      * @return bool

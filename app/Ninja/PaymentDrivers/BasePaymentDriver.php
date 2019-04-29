@@ -703,6 +703,7 @@ class BasePaymentDriver
         if($invoice->isQuote()) {
             $invoiceService = app('App\Services\InvoiceService');
             $invoice = $invoiceService->convertQuote($invoice);
+            $invitation = $invoice->invitationByContactId($invitation->contact_id);
         }
 
         $invoice->markSentIfUnsent();
