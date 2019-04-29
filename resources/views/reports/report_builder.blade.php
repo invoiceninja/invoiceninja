@@ -63,6 +63,7 @@
 
 		var chartStartDate = moment("{{ $startDate }}");
 		var chartEndDate = moment("{{ $endDate }}");
+        var chartQuarter = moment().quarter();
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
 		function resolveRange(range) {
@@ -357,6 +358,16 @@
 				<center style="padding-bottom:40px;font-size:16px;">
 					<div id="scheduleHelp"></div>
 				</center>
+
+				{!! Former::select('range')
+							->addOption(trans('texts.none'), '')
+							->addOption(trans('texts.this_month'), 'this_month')
+							->addOption(trans('texts.last_month'), 'last_month')
+							->addOption(trans('texts.current_quarter'), 'this_quarter')
+							->addOption(trans('texts.last_quarter'), 'last_quarter')
+							->addOption(trans('texts.this_year'), 'this_year')
+							->addOption(trans('texts.last_year'), 'last_year')
+							->value('') !!}
 
 				{!! Former::select('frequency')
 							->addOption(trans('texts.freq_daily'), REPORT_FREQUENCY_DAILY)

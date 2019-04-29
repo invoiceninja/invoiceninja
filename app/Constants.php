@@ -513,6 +513,10 @@ if (! defined('APP_NAME')) {
     define('TEMPLATE_REMINDER2', 'reminder2');
     define('TEMPLATE_REMINDER3', 'reminder3');
     define('TEMPLATE_REMINDER4', 'reminder4');
+    define('TEMPLATE_QUOTE_REMINDER1', 'quote_reminder1');
+    define('TEMPLATE_QUOTE_REMINDER2', 'quote_reminder2');
+    define('TEMPLATE_QUOTE_REMINDER3', 'quote_reminder3');
+    define('TEMPLATE_QUOTE_REMINDER4', 'quote_reminder4');
 
     define('CUSTOM_MESSAGE_DASHBOARD', 'dashboard');
     define('CUSTOM_MESSAGE_UNPAID_INVOICE', 'unpaid_invoice');
