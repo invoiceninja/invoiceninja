@@ -80,14 +80,10 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Zamponi](https://github.com/alexz707)
 * [Matthieu Calie](https://github.com/Matth--)
-<<<<<<< HEAD
 * [Christopher Di Carlo](https://github.com/dicarlosystems) - [Di Carlo Systems Inc.](https://www.dicarlosystems.ca)
 * [Kristian Feldsam](https://github.com/feldsam) - [FeldHost™](https://www.feldhost.net)
-* [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad) - (Security)
-=======
 * [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad)
 * [Mike Skaggs](https://github.com/titan-fail)
->>>>>>> 3b5bfd4... Update readme
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.
