@@ -4,6 +4,7 @@ namespace App\DataMapper;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Models\Client;
 use App\Utils\TranslationHelper;
 
 /**
@@ -53,15 +54,18 @@ class ClientSettings extends BaseSettings
 	 */
 	public $invoice_number_prefix;
 	public $invoice_number_pattern;
+	public $invoice_number_counter;
 
 	public $quote_number_prefix;
 	public $quote_number_pattern;
+	public $quote_number_counter;
 
 	public $client_number_prefix;
 	public $client_number_pattern;
 
 	public $credit_number_prefix;
 	public $credit_number_pattern;
+	public $credit_number_counter;
 
 	public $shared_invoice_quote_counter;
 
@@ -95,6 +99,7 @@ class ClientSettings extends BaseSettings
 	{
 
 		return (object)[
+			'entity' => Client::class,
 			'industry_id' => NULL,
 			'size_id' => NULL,
 			'invoice_email_list' => NULL,

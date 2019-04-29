@@ -2,6 +2,8 @@
 
 namespace App\DataMapper;
 
+use App\Models\Company;
+
 /**
  * CompanySettings
  */
@@ -77,15 +79,18 @@ class CompanySettings extends BaseSettings
 	 */
 	public $invoice_number_prefix;
 	public $invoice_number_pattern;
+	public $invoice_number_counter;
 
 	public $quote_number_prefix;
 	public $quote_number_pattern;
+	public $quote_number_counter;
 
 	public $client_number_prefix;
 	public $client_number_pattern;
 
 	public $credit_number_prefix;
 	public $credit_number_pattern;
+	public $credit_number_counter;
 
 	public $shared_invoice_quote_counter;
 
@@ -115,6 +120,7 @@ class CompanySettings extends BaseSettings
 		$config = json_decode(config('ninja.settings'));
 
 		return (object) [
+			'entity' => Company::class,
 			'timezone_id' => config('ninja.i18n.timezone_id'),
 			'language_id' => config('ninja.i18n.language_id'),
 			'currency_id' => config('ninja.i18n.currency_id'),
@@ -134,7 +140,10 @@ class CompanySettings extends BaseSettings
 			'custom_taxes2' => 'FALSE',
 			'lock_sent_invoices' => 'TRUE',
 			'shared_invoice_quote_counter' => 'FALSE',
-			
+			'invoice_number_counter' => 1,
+			'quote_number_counter' => 1,
+			'credit_number_counter' => 1,
+
 			'translations' => (object) [],
 		];
 	}

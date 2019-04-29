@@ -147,10 +147,6 @@ class CreateUsersTable extends Migration
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
-
-            $table->unsignedInteger('invoice_number_counter')->default(1);
-            $table->unsignedInteger('quote_number_counter')->default(1);
-            $table->unsignedInteger('credit_number_counter')->default(1);
             
             $table->text('settings');
             
@@ -287,10 +283,6 @@ class CreateUsersTable extends Migration
             $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
             $table->text('settings');
-
-            $table->unsignedInteger('invoice_number_counter')->default(1);
-            $table->unsignedInteger('quote_number_counter')->default(1);
-            $table->unsignedInteger('credit_number_counter')->default(1);
 
             $table->boolean('is_deleted')->default(false);
             $table->string('payment_terms')->nullable();  //todo type? depends how we are storing this

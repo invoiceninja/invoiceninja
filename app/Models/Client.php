@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Filterable;
@@ -90,10 +91,59 @@ class Client extends BaseModel
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
     }
 
+
+    /**
+     * Gets the settings by key.
+     *
+     * When we need to update a setting value, we need to harvest
+     * the object of the setting. This is not possible when using the merged settings
+     * as we do not know which object the setting has come from.
+     *
+     * The following method will return the entire object of the property searched for
+     * where a value exists for $key.
+     *
+     * This object can then be mutated by the handling class, 
+     * to persist the new settings we will also need to pass back a 
+     * reference to the parent class.
+     *
+     * @param      mixes  $key    The key of property
+     */
+    public function getSettingsByKey($key)
+    {
+        
+        /* Does Setting Exist @ client level */
+        if(isset($this->getSettings()->{$key}))
+        {
+            return $this->getSettings();
+        }
+        else
+            return new CompanySettings($this->company->settings);
+
+    }
+
+    public function setSettingsByEntity($entity, $settings)
+    {
+        switch ($entity) {
+            case Client::class:
+                $this->settings = $settings;
+                $this->save();
+                break;
+            case Company::class:
+                $this->company->settings = $settings;
+                $this->company->save();
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
 
 
 
