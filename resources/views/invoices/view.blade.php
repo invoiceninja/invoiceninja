@@ -167,6 +167,9 @@
 				@elseif ($invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
 					{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
                 @endif
+			@elseif ($invoice->isQuote() && $invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
+				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+				{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
 			@elseif ( ! $invoice->canBePaid())
 				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@elseif ($invoice->client->account->isGatewayConfigured() && floatval($invoice->balance) && !$invoice->is_recurring)
