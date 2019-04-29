@@ -405,11 +405,6 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="quote_workflow">
                     <div class="panel-body">
-                        {!! Former::checkbox('auto_convert_quote')
-                                ->text(trans('texts.enable'))
-                                ->blockHelp(trans('texts.auto_convert_quote_help'))
-                                ->value(1) !!}
-
                         {!! Former::checkbox('auto_archive_quote')
                                 ->text(trans('texts.enable'))
                                 ->blockHelp(trans('texts.auto_archive_quote_help'))
@@ -417,7 +412,12 @@
 
                         {!! Former::checkbox('require_approve_quote')
                                 ->text(trans('texts.enable'))
-                                ->blockHelp(trans('texts.require_approve_quote'))
+                                ->blockHelp(trans('texts.require_approve_quote_help'))
+                                ->value(1) !!}
+
+                        {!! Former::checkbox('auto_convert_quote')
+                                ->text(trans('texts.enable'))
+                                ->blockHelp(trans('texts.auto_convert_quote_help'))
                                 ->value(1) !!}
 
                         {!! Former::checkbox('allow_approve_expired_quote')
@@ -636,6 +636,7 @@
         onClientNumberEnabled();
         onCreditNumberEnabled();
         onResetFrequencyChange();
+        updateCheckboxes();
 
         $('#reset_counter_date').datepicker('update', '{{ Utils::fromSqlDate($account->reset_counter_date) ?: 'new Date()' }}');
         $('.reset_counter_date_group .input-group-addon').click(function() {
@@ -646,6 +647,14 @@
             @include('partials.dropzone', ['documentSource' => 'defaultDocuments', 'isDefault' => true])
         @endif
     });
+
+    $('#require_approve_quote').change(updateCheckboxes);
+
+    function updateCheckboxes() {
+        var checked = $('#require_approve_quote').is(':checked');
+        $('#auto_convert_quote').prop('disabled', ! checked);
+        $('#allow_approve_expired_quote').prop('disabled', ! checked);
+    }
 
 	</script>
 
