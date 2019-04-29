@@ -689,6 +689,7 @@ $LANG = array(
     'military_time' => '24 Hour Time',
     'last_sent' => 'Last Sent',
     'reminder_emails' => 'Reminder Emails',
+    'quote_reminder_emails' => 'Quote Reminder Emails',
     'templates_and_reminders' => 'Templates & Reminders',
     'subject' => 'Subject',
     'body' => 'Body',

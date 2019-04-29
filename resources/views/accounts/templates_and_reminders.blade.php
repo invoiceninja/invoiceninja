@@ -88,6 +88,30 @@
         </div>
     </div>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.quote_reminder_emails') !!}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active"><a href="#quote_reminder1" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.first_reminder') }}</a></li>
+                        <li role="presentation"><a href="#quote_reminder2" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.second_reminder') }}</a></li>
+                        <li role="presentation"><a href="#quote_reminder3" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.third_reminder') }}</a></li>
+                        <li role="presentation"><a href="#quote_reminder4" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.endless_reminder') }}</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        @include('accounts.quote_template', ['field' => 'quote_reminder1', 'number' => 1, 'isReminder' => true, 'active' => true])
+                        @include('accounts.quote_template', ['field' => 'quote_reminder2', 'number' => 2, 'isReminder' => true])
+                        @include('accounts.quote_template', ['field' => 'quote_reminder3', 'number' => 3, 'isReminder' => true])
+                        @include('accounts.quote_template', ['field' => 'quote_reminder4', 'number' => 4, 'isReminder' => true])
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="templatePreviewModal" tabindex="-1" role="dialog" aria-labelledby="templatePreviewModalLabel" aria-hidden="true">
         <div class="modal-dialog" style="width:800px">
