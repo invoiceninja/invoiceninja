@@ -563,7 +563,7 @@
 					@endif
                     @if ($invoice->id)
                         {!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
-                    @elseif (! $invoice->isQuote() && Request::is('*/clone'))
+                    @elseif (Request::is('*/clone'))
                         {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
 					@elseif (! empty($tasks))
 						{!! Button::normal(trans('texts.add_product'))->withAttributes(['id' => 'addItemButton', 'onclick' => 'onAddItemClick()'])->appendIcon(Icon::create('plus-sign')) !!}
