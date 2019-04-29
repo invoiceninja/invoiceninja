@@ -146,13 +146,14 @@ class ClientPortalController extends BaseController
             }
         }
 
-        $showApprove = $invoice->quote_invoice_id ? false : true;
+        $showApprove = ($invoice->isQuote() && $account->require_approve_quote) ? true: false;
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
         }
 
         $data += [
             'account' => $account,
+            'approveRequired' => $account->require_approve_quote,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
             'invoice' => $invoice->hidePrivateFields(),

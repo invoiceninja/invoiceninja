@@ -160,7 +160,7 @@
             @include($partialView)
         @else
             <div id="paymentButtons" class="pull-right" style="text-align:right">
-            @if ($invoice->isQuote())
+            @if ($invoice->isQuote() && $approveRequired)
                 {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()', 'class' => 'require-authorization'])->large() !!}
