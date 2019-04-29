@@ -112,7 +112,12 @@
   var isRefreshing = false;
   var needsRefresh = false;
 
-  function refreshPDF(force) {
+  function refreshPDF(force, manual) {
+    @if (isset($realtime_preview) && ! $realtime_preview)
+        if (manual !== true) return;
+        $('#refreshPdfButton').attr('disabled', true);
+    @endif
+
     try {
         return getPDFString(refreshPDFCB, force);
     } catch (exception) {
@@ -179,6 +184,9 @@
         });
       });
     }
+    @if (isset($realtime_preview) && ! $realtime_preview)
+    $('#refreshPdfButton').attr('disabled', false);
+    @endif
   }
 
   function showMoreDesigns() {

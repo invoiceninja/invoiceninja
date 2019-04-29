@@ -127,6 +127,7 @@ class Account extends Eloquent
         'enable_client_portal_dashboard',
         'page_size',
         'live_preview',
+        'realtime_preview',
         'invoice_number_padding',
         'enable_second_tax_rate',
         'auto_bill_on_due_date',
