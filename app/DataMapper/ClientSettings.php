@@ -62,12 +62,13 @@ class ClientSettings extends BaseSettings
 
 	public $client_number_prefix;
 	public $client_number_pattern;
-
+	
 	public $credit_number_prefix;
 	public $credit_number_pattern;
 	public $credit_number_counter;
 
 	public $shared_invoice_quote_counter;
+	public $counter_padding;
 
 	/**
 	 * Settings which which are unique to client settings

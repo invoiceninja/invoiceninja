@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Filterable;
 use App\Models\Timezone;
+use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,6 +21,7 @@ class Client extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
+    use GeneratesNumberCounter;
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 

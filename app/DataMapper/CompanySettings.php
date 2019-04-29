@@ -87,6 +87,7 @@ class CompanySettings extends BaseSettings
 
 	public $client_number_prefix;
 	public $client_number_pattern;
+	public $client_number_counter;
 
 	public $credit_number_prefix;
 	public $credit_number_pattern;
@@ -98,6 +99,7 @@ class CompanySettings extends BaseSettings
 	public $recurring_number_prefix;
 	public $reset_counter_frequency_id;
 	public $reset_counter_date;
+	public $counter_padding;
 
 	/**
 	 * Cast object values and return entire class
@@ -143,6 +145,8 @@ class CompanySettings extends BaseSettings
 			'invoice_number_counter' => 1,
 			'quote_number_counter' => 1,
 			'credit_number_counter' => 1,
+			'client_number_counter' => 1,
+			'counter_padding' => 0,
 
 			'translations' => (object) [],
 		];
