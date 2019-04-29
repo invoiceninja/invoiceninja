@@ -543,6 +543,20 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return Invitation|null
+     */
+    public function invitationByContactId(int $contactId)
+    {
+        foreach ($this->invitations as $invitation) {
+            if ($invitation->contact_id === $contactId) {
+                return $invitation;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param $typeId
      *
      * @return bool
@@ -787,7 +801,15 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return ! $this->isPaid() && ! $this->is_deleted && $this->isStandard();
+        // already paid or deleted
+        if ($this->isPaid() || $this->is_deleted) return false;
+
+        // if quote approve is required, them only standard invoices can be paid
+        if ($this->account->require_approve_quote) {
+            return $this->isStandard();
+        }
+
+        return true;
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)

@@ -109,6 +109,8 @@ class Account extends Eloquent
         'body_font_id',
         'auto_convert_quote',
         'auto_archive_quote',
+        'require_approve_quote',
+        'allow_approve_expired_quote',
         'auto_archive_invoice',
         'auto_email_invoice',
         'all_pages_footer',
