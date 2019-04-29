@@ -135,6 +135,7 @@ $LANG = array(
     'status' => 'Status',
     'invoice_total' => 'Invoice Total',
     'frequency' => 'Frequency',
+    'range' => 'Range',
     'start_date' => 'Start Date',
     'end_date' => 'End Date',
     'transaction_reference' => 'Transaction Reference',
