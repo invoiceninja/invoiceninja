@@ -278,7 +278,7 @@
                     refreshPDF();
                 @endif
 
-				@if ($account->requiresAuthorization($invoice))
+				@if ($account->requiresAuthorization($invoice) && ! $invitation->signature_date)
 					$('.require-authorization a').on('click', function(e) {
 						e.preventDefault();
 						window.pendingPaymentHref = $(this).attr('href');
