@@ -158,7 +158,7 @@ class InvoiceTest extends TestCase
         factory(\App\Models\Invoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoice = Invoice::where('user_id',$user->id)->first();
-        $invoice->settings = ClientSettings::buildClientSettings(new CompanySettings($company->settings), new ClientSettings($client->getSettings()));
+        $invoice->settings = $client->getMergedSettings();
         $invoice->save();
 
         

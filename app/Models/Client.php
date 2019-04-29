@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Filterable;
@@ -22,7 +23,6 @@ class Client extends BaseModel
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
     protected $appends = [
-        'client_settings_object'
     ];
 
     protected $guarded = [
@@ -38,21 +38,17 @@ class Client extends BaseModel
         'shipping_country'
     ];
     
-    protected $with = ['contacts', 'primary_contact', 'country', 'shipping_country', 'company'];
+    protected $with = [
+        'contacts', 
+        'primary_contact', 
+        'country', 
+        'shipping_country', 
+        'company'
+    ];
 
     protected $casts = [
         'settings' => 'object'
     ];
-
-    public function getClientSettingsObjectAttribute()
-    {
-        return new ClientSettings($this->settings);
-    }
-
-    public function getHashedIdAttribute()
-    {
-        return $this->encodePrimaryKey($this->id);
-    }
 
     public function contacts()
     {
@@ -81,12 +77,17 @@ class Client extends BaseModel
 
     public function timezone()
     {
-        return Timezone::find($this->getSettings()->timezone_id);
+        return Timezone::find($this->getMergedSettings()->timezone_id);
     }
 
     public function getSettings()
     {
-        return ClientSettings::buildClientSettings($this->company->settings, $this->settings);
+        return new ClientSettings($this->settings);
+    }
+
+    public function getMergedSettings()
+    {
+        return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
     }
 
     public function documents()
