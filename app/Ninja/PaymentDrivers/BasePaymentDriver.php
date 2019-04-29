@@ -698,6 +698,13 @@ class BasePaymentDriver
         if (! $invoice->canBePaid()) {
             return false;
         }
+
+        // check if invoice is quote and if is, them convert it
+        if($invoice->isQuote()) {
+            $invoiceService = app('App\Services\InvoiceService');
+            $invoice = $invoiceService->convertQuote($invoice);
+        }
+
         $invoice->markSentIfUnsent();
 
         $payment = Payment::createNew($invitation);
