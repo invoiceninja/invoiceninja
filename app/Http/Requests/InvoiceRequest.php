@@ -48,24 +48,24 @@ class InvoiceRequest extends EntityRequest
         if(request()->is('recurring_quotes/create*') && $this->user()->can('createEntity', ENTITY_QUOTE))
             return true;
 
-        if($invoice && !$invoice->isQuote() && request()->is('*invoices/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice))
+        if($invoice && $invoice->isType(INVOICE_TYPE_STANDARD) && request()->is('*invoices/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice))
             return true;
 
-        if($invoice && $invoice->isQuote() && request()->is('*quotes/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice))
+        if($invoice && $invoice->isType(INVOICE_TYPE_QUOTE) && request()->is('*quotes/*/edit') && request()->isMethod('put') && $this->user()->can('edit', $invoice))
             return true;
 
         // allow cross clone quote to invoice
-        if($invoice && $invoice->isQuote() && request()->is('*invoices/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity))
+        if($invoice && $invoice->isType(INVOICE_TYPE_QUOTE) && request()->is('*invoices/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity))
             return true;
 
         // allow cross clone invoice to quote
-        if($invoice && !$invoice->isQuote() && request()->is('*quotes/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity))
+        if($invoice && $invoice->isType(INVOICE_TYPE_STANDARD) && request()->is('*quotes/*/clone') && request()->isMethod('get') && $this->user()->can('view', $invoice, $crossCloneEntity))
             return true;
 
-        if($invoice && !$invoice->isQuote() && request()->is('*invoices/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity))
+        if($invoice && $invoice->isType(INVOICE_TYPE_STANDARD) && request()->is('*invoices/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity))
             return true;
 
-        if($invoice && $invoice->isQuote() && request()->is('*quotes/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity))
+        if($invoice && $invoice->isType(INVOICE_TYPE_QUOTE) && request()->is('*quotes/*') && request()->isMethod('get') && $this->user()->can('view', $invoice, $entity))
             return true;
 
         if ($invoice) {
