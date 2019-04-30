@@ -68,6 +68,8 @@ class ClientSettings extends BaseSettings
 	public $credit_number_counter;
 
 	public $shared_invoice_quote_counter;
+	public $recurring_invoice_number_prefix;
+	
 	public $counter_padding;
 
 	/**

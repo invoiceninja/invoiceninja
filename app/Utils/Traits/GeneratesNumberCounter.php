@@ -6,6 +6,8 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
+use Illuminate\Support\Carbon;
 
 /**
  * Class GeneratesNumberCounter
@@ -18,22 +20,79 @@ trait GeneratesNumberCounter
 	{
 
 		$counter = $this->getCounter($entity);
+		$check = false;
+
+		do {
+
+            if ($this->hasNumberPattern($entity)) {
+                $number = $this->applyNumberPattern($entity, $counter);
+            } else {
+                $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+            }
+
+            if ($entity->recurring_invoice_id) {
+                $number = $this->recurring_invoice_number_prefix . $number;
+            }
+
+            if ($entity->isentity(ENTITY_CLIENT)) {
+                $check = Client::scope(false, $this->id)->whereIdNumber($number)->withTrashed()->first();
+            } else {
+                $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
+            }
+            $counter++;
+            $counterOffset++;
+
+            // prevent getting stuck in a loop
+            if ($number == $lastNumber) {
+                return '';
+            }
+            $lastNumber = $number;
+
+		} while ($check);
+
 
 	}
 
 	public function hasSharedCounter() : bool
 	{
 
-		return $this->getSettingsByKey($shared_invoice_quote_counter)->shared_invoice_quote_counter;
+		return $this->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter;
 
 	}
+
+    /**
+     * @param $entity
+     *
+     * @return bool
+     */
+    public function hasNumberPattern($entity) : bool
+    {
+        return $this->getNumberPattern($entity) ? true : false;
+    }
+
+    /**
+     * @param $entity
+     *
+     * @return NULL|string
+     */
+    public function getNumberPattern($entity)
+    {
+		/** Recurring invoice share the same number pattern as invoices  */
+		if($entity == RecurringInvoice::class )
+			$entity = Invoice::class;
+
+        $field = $this->entityName($entity) . "_number_pattern";
+
+		return $this->getSettingsByKey( $field )->{$field};
+
+    }
 
 	private function incrementCounter($entity)
 	{
 
 	}
 
-	private function entity_name($entity)
+	private function entityName($entity)
 	{
 
 		return strtolower(class_basename($entity));
@@ -42,10 +101,57 @@ trait GeneratesNumberCounter
 
 	public function getCounter($entity) : int
 	{
-		$counter = $this->entity_name($entity) . '_number_counter';
+		/** Recurring invoice share the same counter as invoices also harvest the invoice_counter if quote and invoices are sharing a counter */
+		if($entity == RecurringInvoice::class || $this->hasSharedCounter())
+			$entity = Invoice::class;
+
+		$counter = $this->entityName($entity) . '_number_counter';
 
 		return $this->getSettingsByKey( $counter )->{$counter};
 
 	}
+
+    /**
+     * @param $entity
+     * @param mixed $counter
+     * todo       localize PHP date
+     * @return bool|mixed
+     */
+    public function applyNumberPattern($entity, $counter = 1)
+    {
+        $counter = $counter ?: $this->getCounter($entity);
+        $pattern = $this->getNumberPattern($entity);
+
+        if (! $pattern) {
+            return false;
+        }
+
+        $search = ['{$year}'];
+        $replace = [date('Y')];
+
+        $search[] = '{$counter}';
+        $replace[] = str_pad($counter, $this->getSettingsByKey( 'counter_padding' )->counter_padding, '0', STR_PAD_LEFT);
+
+        if (strstr($pattern, '{$user_id}')) {
+            $user_id = $entity->user ? $entity->user->id : (auth()->check() ? auth()->user()->id : 0);
+            $search[] = '{$user_id}';
+            $replace[] = str_pad(($user_id + 1), 2, '0', STR_PAD_LEFT);
+        }
+
+        $matches = false;
+        preg_match('/{\$date:(.*?)}/', $pattern, $matches);
+        if (count($matches) > 1) {
+            $format = $matches[1];
+            $search[] = $matches[0];
+
+            $date = Carbon::now($this->company->timezone()->name)->format($format);
+            $replace[] = str_replace($format, $date, $matches[1]);
+        }
+
+        $pattern = str_replace($search, $replace, $pattern);
+        $pattern = $this->getClientInvoiceNumber($pattern, $entity);
+
+        return $pattern;
+    }
 
 }

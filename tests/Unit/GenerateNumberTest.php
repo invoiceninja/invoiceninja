@@ -37,7 +37,7 @@ class GenerateNumberTest extends TestCase
     public function testEntityName()
     {
 
-        $this->assertEquals($this->entity_name(Client::class), 'client');
+        $this->assertEquals($this->entityName(Client::class), 'client');
 
     }
 

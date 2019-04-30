@@ -96,7 +96,7 @@ class CompanySettings extends BaseSettings
 	public $shared_invoice_quote_counter;
 
 	public $entity_number_padding;
-	public $recurring_number_prefix;
+	public $recurring_invoice_number_prefix;
 	public $reset_counter_frequency_id;
 	public $reset_counter_date;
 	public $counter_padding;

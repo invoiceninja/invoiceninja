@@ -37,7 +37,6 @@ class Company extends BaseModel
     ];
 
     protected $appends = [
-        'settings_object'
     ];
 
     protected $casts = [
@@ -47,16 +46,6 @@ class Company extends BaseModel
     protected $with = [
    //     'tokens'
     ];
-
-    public function getSettingsObjectAttribute()
-    {
-        return new CompanySettings($this->settings);
-    }
-
-    public function getRouteKeyName()
-    {
-        return 'company_id';
-    }
 
     public function getCompanyIdAttribute()
     {
@@ -130,11 +119,11 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * 
      */
     public function timezone()
     {
-        return $this->belongsTo(Timezone::class);
+        return Timezone::find($this->settings->timezone_id);
     }
 
     /**
@@ -142,7 +131,7 @@ class Company extends BaseModel
      */
     public function language()
     {
-        return $this->belongsTo(Language::class);
+        return Language::find($this->settings->language_id);
     }
 
     /**

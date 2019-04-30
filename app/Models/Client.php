@@ -10,6 +10,7 @@ use App\Models\Country;
 use App\Models\Filterable;
 use App\Models\Timezone;
 use App\Utils\Traits\GeneratesNumberCounter;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +20,7 @@ class Client extends BaseModel
 {
     use PresentableTrait;
     use MakesHash;
+    use MakesDates;
     use SoftDeletes;
     use Filterable;
     use GeneratesNumberCounter;
