@@ -60,8 +60,8 @@ class ClientSettings extends BaseSettings
 	public $quote_number_pattern;
 	public $quote_number_counter;
 
-	public $client_number_prefix;
-	public $client_number_pattern;
+	//public $client_number_prefix;
+	//public $client_number_pattern;
 	
 	public $credit_number_prefix;
 	public $credit_number_pattern;

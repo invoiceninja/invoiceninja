@@ -4,12 +4,13 @@ namespace Tests\Unit;
 
 use App\DataMapper\DefaultSettings;
 use App\Models\Client;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Session;
-use Tests\TestCase;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Tests\TestCase;
 
 /**
  * @test
@@ -97,5 +98,17 @@ class GenerateNumberTest extends TestCase
         $client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
         $this->assertEquals($client->getCounter(Client::class), 1);
+
+        $this->assertEquals($client->getNextNumber(Client::class),1);
+
+        $settings = $client->getSettingsByKey('recurring_invoice_number_prefix');
+        $settings->recurring_invoice_number_prefix = 'R';
+        $client->setSettingsByEntity($settings->entity, $settings);
+
+        $this->assertEquals($client->getNextNumber(RecurringInvoice::class), 'R1');
+
+        $client->incrementCounter(Client::class);
+
+        $this->assertEquals($client->getCounter(Client::class), 2);
     }
 }

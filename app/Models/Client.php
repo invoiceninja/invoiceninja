@@ -14,6 +14,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
 class Client extends BaseModel
@@ -129,12 +130,14 @@ class Client extends BaseModel
     {
         switch ($entity) {
             case Client::class:
+                Log::error('saving client settings');
                 $this->settings = $settings;
                 $this->save();
                 break;
             case Company::class:
+                Log::error('saving company settings');
                 $this->company->settings = $settings;
-                $this->company->save();
+                $this->push();
                 break;
             
             default:

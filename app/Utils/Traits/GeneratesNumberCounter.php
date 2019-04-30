@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class GeneratesNumberCounter
@@ -20,7 +21,9 @@ trait GeneratesNumberCounter
 	{
 
 		$counter = $this->getCounter($entity);
-        $prefix = $this->getNumberPrefix($entityType);
+		$counter_offset = 0;
+        $prefix = $this->getNumberPrefix($entity);
+        $lastNumber = false;
 
 		$check = false;
 
@@ -32,17 +35,22 @@ trait GeneratesNumberCounter
                 $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
             }
 
-            if ($entity->recurring_invoice_id) {
+            if ($entity == RecurringInvoice::class) {
                 $number = $this->recurring_invoice_number_prefix . $number;
             }
 
-            if ($entity->isentity(ENTITY_CLIENT)) {
-                $check = Client::scope(false, $this->id)->whereIdNumber($number)->withTrashed()->first();
-            } else {
-                $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
+            if ($entity == Client::class) {
+                $check = Client::whereIdNumber($number)->withTrashed()->first();
+            } elseif ($entity == Invoice::class) {
+                $check = Invoice::whereInvoiceNumber($number)->withTrashed()->first();
+            } elseif ($entity == Quote::class) {
+            	$check = Quote::whereQuoteNumber($number)->withTrashed()->first();
+            } elseif ($entity == Credit::class) {
+         		$check = Credit::whereCreditNumber($number)->withTrashed()->first();
             }
+
             $counter++;
-            $counterOffset++;
+            $counter_offset++; //?
 
             // prevent getting stuck in a loop
             if ($number == $lastNumber) {
@@ -53,6 +61,9 @@ trait GeneratesNumberCounter
 		} while ($check);
 
 
+        return $number;
+
+		//increment the counter here
 	}
 
 	public function hasSharedCounter() : bool
@@ -69,7 +80,9 @@ trait GeneratesNumberCounter
      */
     public function hasNumberPattern($entity) : bool
     {
+
         return $this->getNumberPattern($entity) ? true : false;
+
     }
 
     /**
@@ -79,6 +92,7 @@ trait GeneratesNumberCounter
      */
     public function getNumberPattern($entity)
     {
+
 		/** Recurring invoice share the same number pattern as invoices  */
 		if($entity == RecurringInvoice::class )
 			$entity = Invoice::class;
@@ -100,25 +114,47 @@ trait GeneratesNumberCounter
         $field = $this->entityName($entity) . "_number_prefix";
 
         return $this->getSettingsByKey( $field )->{$field};
+
     }
 
 
-	private function incrementCounter($entity)
+	public function incrementCounter($entity)
 	{
+		if($entity == RecurringInvoice::class || ( $entity == Quote::class && $this->hasSharedCounter()) )
+			$entity = Invoice::class;
+
+		$counter = $this->entityName($entity) . '_number_counter';
+
+		Log::error($counter);
+
+		$entity_settings = $this->getSettingsByKey( $counter );
+
+		Log::error(print_r($entity_settings,1));
+
+		$entity_settings->{$counter} = $entity_settings->{$counter} + 1;
+
+		Log::error($entity_settings->{$counter});
+		Log::error($entity_settings->entity);
+
+		$this->setSettingsByEntity($entity_settings->entity, $entity_settings); 
+
+		Log::error(print_r($entity_settings,1));
+
 
 	}
 
 	private function entityName($entity)
 	{
 
-		return strtolower(class_basename($entity));
+		return strtolower(snake_case(class_basename($entity)));
 	
 	}
 
 	public function getCounter($entity) : int
 	{
+
 		/** Recurring invoice share the same counter as invoices also harvest the invoice_counter if quote and invoices are sharing a counter */
-		if($entity == RecurringInvoice::class || $this->hasSharedCounter())
+		if($entity == RecurringInvoice::class || ( $entity == Quote::class && $this->hasSharedCounter()) )
 			$entity = Invoice::class;
 
 		$counter = $this->entityName($entity) . '_number_counter';
@@ -135,6 +171,7 @@ trait GeneratesNumberCounter
      */
     public function applyNumberPattern($entity, $counter = 1)
     {
+
         $counter = $counter ?: $this->getCounter($entity);
         $pattern = $this->getNumberPattern($entity);
 
@@ -168,6 +205,7 @@ trait GeneratesNumberCounter
         $pattern = $this->getClientInvoiceNumber($pattern, $entity);
 
         return $pattern;
+
     }
 
 }

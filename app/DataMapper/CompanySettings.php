@@ -147,7 +147,8 @@ class CompanySettings extends BaseSettings
 			'credit_number_counter' => 1,
 			'client_number_counter' => 1,
 			'counter_padding' => 0,
-
+			'recurring_invoice_number_prefix' => 'R',
+			
 			'translations' => (object) [],
 		];
 	}
