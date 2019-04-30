@@ -20,6 +20,8 @@ trait GeneratesNumberCounter
 	{
 
 		$counter = $this->getCounter($entity);
+        $prefix = $this->getNumberPrefix($entityType);
+
 		$check = false;
 
 		do {
@@ -86,6 +88,20 @@ trait GeneratesNumberCounter
 		return $this->getSettingsByKey( $field )->{$field};
 
     }
+
+    /**
+     * @param $entity
+     *
+     * @return string
+     */
+    public function getNumberPrefix($entity)
+    {
+
+        $field = $this->entityName($entity) . "_number_prefix";
+
+        return $this->getSettingsByKey( $field )->{$field};
+    }
+
 
 	private function incrementCounter($entity)
 	{
