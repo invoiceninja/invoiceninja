@@ -172,6 +172,7 @@
 
 		{!! Former::open('settings/account_management') !!}
 		{!! Former::populateField('live_preview', intval($account->live_preview)) !!}
+		{!! Former::populateField('realtime_preview', intval($account->realtime_preview)) !!}
 		{!! Former::populateField('force_pdfjs', intval(Auth::user()->force_pdfjs)) !!}
 
 		<div class="panel panel-default">
@@ -219,6 +220,11 @@
 				{!! Former::checkbox('live_preview')
 						->text(trans('texts.enable'))
 						->help(trans('texts.live_preview_help') . '<br/>' . trans('texts.recommend_on'))
+						->value(1) !!}
+
+				{!! Former::checkbox('realtime_preview')
+						->text(trans('texts.enable'))
+						->help(trans('texts.realtime_preview_help'))
 						->value(1) !!}
 
 				{!! Former::checkbox('force_pdfjs')
@@ -378,6 +384,11 @@
         }
     }
 
+    function updateCheckboxes() {
+        var checked = $('#live_preview').is(':checked');
+        $('#realtime_preview').prop('disabled', ! checked);
+    }
+
   	jQuery(document).ready(function($){
 		function updatePlanModal() {
 			var plan = $('#plan').val();
@@ -406,6 +417,9 @@
 		$('#plan_term, #plan, #num_users').change(updatePlanModal);
 	  	updatePlanModal();
         onPlanChange();
+
+        $('#live_preview').change(updateCheckboxes);
+        updateCheckboxes();
 
 		if(window.location.hash) {
 			var hash = window.location.hash;

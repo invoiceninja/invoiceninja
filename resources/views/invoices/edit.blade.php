@@ -550,6 +550,10 @@
 				@endif
             @else
 				@if (!$invoice->is_deleted)
+					@if ( ! Auth::user()->account->realtime_preview && Auth::user()->account->live_preview)
+						{!! Button::normal('PDF')->withAttributes(['id' => 'refreshPdfButton', 'onclick' => 'refreshPDF(true,true)'])->appendIcon(Icon::create('refresh')) !!}
+					@endif
+
 					@if ($invoice->isSent())
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
@@ -577,7 +581,7 @@
 
 	</center>
 
-	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
+	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview, 'realtime_preview' => Auth::user()->account->realtime_preview])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
@@ -1026,11 +1030,11 @@
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
                 setInvoiceNumber(selected);
-                refreshPDF(true);
+                refreshPDF(true, true);
 			} else if (oldId) {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;
-                refreshPDF(true);
+                refreshPDF(true, true);
 			}
 		});
 
@@ -1092,7 +1096,7 @@
 		@if ($invoice->client->id)
 			$input.trigger('change');
 		@else
-			refreshPDF(true);
+			refreshPDF(true, true);
 		@endif
 
 		var client = model.invoice().client();
