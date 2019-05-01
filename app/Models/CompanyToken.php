@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CompanyToken extends BaseModel
+class CompanyToken extends Model
 {
     /**
      * @var bool

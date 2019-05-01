@@ -6,11 +6,13 @@ use App\Filters\QueryFilters;
 use App\Utils\Traits\UserSessionAttributes;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
 class BaseModel extends Model
 {
     use UserSessionAttributes;
+    use SoftDeletes;
 
     public function __call($method, $params)
     {
@@ -27,6 +29,12 @@ class BaseModel extends Model
         }
 
         return parent::__call($method, $params);
+    }
+
+    public function scopeCompany($query, $company_id)
+    {
+        $query->where('company_id', $company_id);
+        return $query;
     }
 
     public function scopeScope($query)

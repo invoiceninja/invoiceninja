@@ -40,13 +40,13 @@ trait GeneratesNumberCounter
             }
 
             if ($entity == Client::class) {
-                $check = Client::whereIdNumber($number)->withTrashed()->first();
+                $check = Client::company($this->company_id)->whereIdNumber($number)->withTrashed()->first();
             } elseif ($entity == Invoice::class) {
-                $check = Invoice::whereInvoiceNumber($number)->withTrashed()->first();
+                $check = Invoice::company($this->company_id)->whereInvoiceNumber($number)->withTrashed()->first();
             } elseif ($entity == Quote::class) {
-            	$check = Quote::whereQuoteNumber($number)->withTrashed()->first();
+            	$check = Quote::company($this->company_id)->whereQuoteNumber($number)->withTrashed()->first();
             } elseif ($entity == Credit::class) {
-         		$check = Credit::whereCreditNumber($number)->withTrashed()->first();
+         		$check = Credit::company($this->company_id)->whereCreditNumber($number)->withTrashed()->first();
             }
 
             $counter++;
