@@ -865,6 +865,7 @@ class Utils
         }
 
         $variables = ['MONTH', 'QUARTER', 'YEAR', 'DATE_MONTH', 'DATE_YEAR'];
+        $yearOverlap = 0;
         for ($i = 0; $i < count($variables); $i++) {
             $variable = $variables[$i];
             $regExp = '/:'.$variable.'[+-]?[\d]*/';
@@ -885,6 +886,9 @@ class Utils
                 } elseif (count($minArray) > 1) {
                     $offset = intval($minArray[1]) * -1;
                 }
+
+                $yearOverlap += self::getDateYearOverlap($variable, $offset);
+                if($variable === 'YEAR') $offset += $yearOverlap;
 
                 $locale = $client && $client->language_id ? $client->language->locale : null;
                 $val = self::getDatePart($variable, $offset, $locale);
@@ -909,6 +913,20 @@ class Utils
         } elseif ($part == 'DATE_YEAR') {
             return self::getDateYear($offset);
         }
+    }
+
+    private static function getDateYearOverlap(string $part, int $offset): int
+    {
+        $offset = intval($offset);
+
+        switch ($part) {
+            case 'MONTH':
+                return self::getMonthYearOverlap($offset);
+            case 'QUARTER':
+                return self::getQuarterYearOverlap($offset);
+        }
+
+        return 0;
     }
 
     public static function getDateMonth($offset, $locale) 
@@ -977,6 +995,34 @@ class Utils
         }
 
         return 'Q'.$quarter;
+    }
+
+    private static function getMonthYearOverlap(int $offset): int
+    {
+        $month = intval(date('n')) - 1;
+
+        $month += $offset;
+
+        if($month < 0){
+            $month += 1;
+            return (((abs($month) / 12 % 12) + 1) * -1);
+        }
+
+        return ($month / 12 % 12);
+    }
+
+    private static function getQuarterYearOverlap(int $offset): int
+    {
+        $month = intval(date('n')) - 1;
+        $quarter = floor(($month + 3) / 3);
+        $quarter += $offset - 1;
+
+        if($quarter < 0){
+            $quarter += 1;
+            return (((abs($quarter) / 4 % 4) + 1) * -1);
+        }
+
+        return ($quarter / 4 % 4);
     }
 
     private static function getYear($offset)
