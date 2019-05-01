@@ -147,6 +147,27 @@
                 });
             });
 		</script>
+	@elseif (($entityType == ENTITY_RECURRING_QUOTE || $entityType == ENTITY_INVOICE) && ! isset($clientId))
+
+		@if (Auth::user()->can('createEntity', ENTITY_RECURRING_INVOICE))
+			{!! DropdownButton::normal(trans('texts.recurring_invoices'))
+                ->withAttributes(['class'=>'recurringDropdown'])
+                ->withContents([
+                  ['label' => trans('texts.new_recurring_invoice'), 'url' => url('/recurring_invoices/create')],
+                ]
+              )->split() !!}
+		@else
+			{!! DropdownButton::normal(trans('texts.recurring_invoices'))
+                ->withAttributes(['class'=>'recurringDropdown'])
+                ->split() !!}
+		@endif
+		<script type="text/javascript">
+            $(function() {
+                $('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+                    openUrlOnClick('{{ url('/recurring_invoices') }}', event)
+                });
+            });
+		</script>
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.kanban'))->asLinkTo(url('/tasks/kanban' . (! empty($clientId) ? ('/' . $clientId . (! empty($projectId) ? '/' . $projectId : '')) : '')))->appendIcon(Icon::create('th')) !!}
 		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
