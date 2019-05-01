@@ -59,6 +59,7 @@ function copyObject(orig) {
 function processVariables(str) {
   if (!str) return '';
   var variables = ['MONTH','QUARTER','YEAR'];
+  var yearOverlap = 0;
   for (var i=0; i<variables.length; i++) {
     var variable = variables[i];
         var regexp = new RegExp(':' + variable + '[+-]?[\\d]*', 'g');
@@ -74,6 +75,10 @@ function processVariables(str) {
             } else if (match.split('-').length > 1) {
                 offset = parseInt(match.split('-')[1]) * -1;
             }
+
+            yearOverlap += getDateYearOverlap(variable, offset);
+            if(variable === 'YEAR') offset += yearOverlap;
+
             str = str.replace(match, getDatePart(variable, offset));
         }
   }
@@ -93,6 +98,20 @@ function getDatePart(part, offset) {
   } else if (part == 'YEAR') {
     return getYear(offset);
   }
+}
+
+function getDateYearOverlap(part, offset)
+{
+    offset = parseInt(offset);
+
+    switch (part) {
+        case 'MONTH':
+            return getMonthYearOverlap(offset);
+        case 'QUARTER':
+            return getQuarterYearOverlap(offset);
+    }
+
+    return 0;
 }
 
 function getMonth(offset) {
@@ -123,6 +142,34 @@ function getQuarter(offset) {
          quarter = 4;
     }
     return 'Q' + quarter;
+}
+
+function getMonthYearOverlap(offset)
+{
+    var today = new Date();
+    var month = today.getMonth();
+    month = parseInt(month) + offset;
+
+    if(month < 0){
+        month += 1;
+        return Math.ceil(((Math.abs(month) / 12 % 12) + 1) * -1);
+    }
+
+    return Math.floor(month / 12 % 12);
+}
+
+function getQuarterYearOverlap(offset)
+{
+    var today = new Date();
+    var quarter = Math.floor((today.getMonth() + 3) / 3);
+    quarter += offset - 1;
+
+    if(quarter < 0){
+        quarter += 1;
+        return Math.ceil(((Math.abs(quarter) / 4 % 4) + 1) * -1);
+    }
+
+    return Math.floor(quarter / 4 % 4);
 }
 
 // https://gist.github.com/beiyuu/2029907
