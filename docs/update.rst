@@ -9,7 +9,7 @@ https://download.invoiceninja.com
 
 If you have trouble updating you can manually load /update to check for errors.
 
-.. TIP:: We recommend using this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process, run it as a daily cron to automatically keep your app up to date.
+.. TIP:: We recommend using this `shell script <https://github.com/titan-fail/Ninja_Update>`_ to automate the update process, run it as a daily cron to automatically keep your app up to date.
 
 If you're moving servers make sure to copy over the .env file and the custom company logo(s) located in the public/logo directory. For attachments make sure you do not forget to copy the storage/documents directory.
 
