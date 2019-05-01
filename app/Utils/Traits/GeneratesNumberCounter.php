@@ -25,19 +25,19 @@ trait GeneratesNumberCounter
         $prefix = $this->getNumberPrefix($entity);
         $lastNumber = false;
 
+
 		$check = false;
 
 		do {
-
             if ($this->hasNumberPattern($entity)) {
                 $number = $this->applyNumberPattern($entity, $counter);
             } else {
                 $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
             }
 
-            if ($entity == RecurringInvoice::class) {
-                $number = $this->recurring_invoice_number_prefix . $number;
-            }
+            // if ($entity == RecurringInvoice::class) {
+            //     $number = $this->getSettingsByKey('recurring_invoice_number_prefix')->recurring_invoice_number_prefix . $number;
+            // }
 
             if ($entity == Client::class) {
                 $check = Client::company($this->company_id)->whereIdNumber($number)->withTrashed()->first();
@@ -60,7 +60,8 @@ trait GeneratesNumberCounter
 
 		} while ($check);
 
-
+		$this->incrementCounter($entity);
+		
         return $number;
 
 		//increment the counter here
@@ -68,7 +69,7 @@ trait GeneratesNumberCounter
 
 	public function hasSharedCounter() : bool
 	{
-		Log::error('The Shared Counter = '. $this->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter);
+
 		return $this->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter === TRUE;
 
 	}
@@ -125,20 +126,23 @@ trait GeneratesNumberCounter
 
 		$counter = $this->entityName($entity) . '_number_counter';
 
-		//Log::error($counter);
+		Log::error('entity = '.$entity);
 
 		$entity_settings = $this->getSettingsByKey( $counter );
 
 		//Log::error(print_r($entity_settings,1));
 
-		$entity_settings->{$counter} = $entity_settings->{$counter} + 1;
-
+		$entity_settings->$counter = $entity_settings->$counter + 1;
+		// Log::error('name '.$counter);
+		// Log::error('key '.$entity_settings->$counter);
+		// Log::error('value '.$entity_settings->{$counter});
+		// Log::error('value inc '.$entity_settings->{$counter}++);
 		//Log::error($entity_settings->{$counter});
 		//Log::error($entity_settings->entity);
 
 		$this->setSettingsByEntity($entity_settings->entity, $entity_settings); 
 
-		//Log::error(print_r($entity_settings,1));
+		Log::error(print_r($entity_settings,1));
 
 
 	}
@@ -186,9 +190,9 @@ trait GeneratesNumberCounter
         $replace[] = str_pad($counter, $this->getSettingsByKey( 'counter_padding' )->counter_padding, '0', STR_PAD_LEFT);
 
         if (strstr($pattern, '{$user_id}')) {
-            $user_id = $entity->user ? $entity->user->id : (auth()->check() ? auth()->user()->id : 0);
+            $user_id = auth()->check() ? auth()->user()->id : 0;
             $search[] = '{$user_id}';
-            $replace[] = str_pad(($user_id + 1), 2, '0', STR_PAD_LEFT);
+            $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;
@@ -202,10 +206,42 @@ trait GeneratesNumberCounter
         }
 
         $pattern = str_replace($search, $replace, $pattern);
-        $pattern = $this->getClientInvoiceNumber($pattern, $entity);
+       // $pattern = $this->getClientInvoiceNumber($pattern, $entity);
 
         return $pattern;
 
+    }
+
+    private function getClientInvoiceNumber($pattern, $invoice)
+    {
+        if (! $invoice->client_id) {
+            return $pattern;
+        }
+
+        $search = [
+            '{$custom1}',
+            '{$custom2}',
+            '{$idNumber}',
+            '{$clientCustom1}',
+            '{$clientCustom2}',
+            '{$clientIdNumber}',
+            '{$clientCounter}',
+        ];
+
+        $client = $invoice->client;
+        $clientCounter = ($invoice->isQuote() && ! $this->share_counter) ? $client->quote_number_counter : $client->invoice_number_counter;
+
+        $replace = [
+            $client->custom_value1,
+            $client->custom_value2,
+            $client->id_number,
+            $client->custom_value1, // backwards compatibility
+            $client->custom_value2,
+            $client->id_number,
+            str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
+        ];
+
+        return str_replace($search, $replace, $pattern);
     }
 
 }

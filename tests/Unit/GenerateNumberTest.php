@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\DataMapper\DefaultSettings;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
@@ -121,11 +122,9 @@ class GenerateNumberTest extends TestCase
     public function testRecurringInvoiceNumberPrefix()
     {
 
-        $settings = $this->client->getSettingsByKey('recurring_invoice_number_prefix');
-        $settings->recurring_invoice_number_prefix = 'R';
-        $this->client->setSettingsByEntity($settings->entity, $settings);
-
-        $this->assertEquals($this->client->getNextNumber(RecurringInvoice::class), 'R1');        
+        $this->assertEquals($this->client->getNextNumber(RecurringInvoice::class), 'R1');     
+        $this->assertEquals($this->client->getCounter(Client::class), 1);
+   
     }
 
     public function testClientIncrementer()
@@ -156,11 +155,29 @@ class GenerateNumberTest extends TestCase
         $this->assertEquals($this->client->getCounter(Invoice::class), 3);
         $this->assertEquals($this->client->getCounter(RecurringInvoice::class), 3);
         $this->assertEquals($this->client->getCounter(Credit::class), 2);
+
+
     }
 
+    /**
+     * {$counter}
+     * {$userId}
+     * {$year}
+     * {$date:format} - See options
+     * @return [type] [description]
+     */
     public function testClientNumberPattern()
     {
-        
+
+        $settings = $this->client->getSettingsByKey('client_number_pattern');
+        $settings->client_number_pattern = '{$year}-{$counter}';
+        $this->client->setSettingsByEntity($settings->entity, $settings);
+        $this->assertEquals($this->client->getNextNumber(Client::class), '2019-1');
+        $this->assertEquals($this->client->getNextNumber(Client::class), '2019-2');
+
+        $company = Company::find($this->client->company_id);
+
+        $this->assertEquals($company->settings->client_number_counter,3);
     }
 
 }

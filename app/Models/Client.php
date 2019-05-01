@@ -123,7 +123,7 @@ class Client extends BaseModel
             return $this->getSettings();
         }
         else {
-            //Log::error('harvesting company settings for key = '. $key);
+            //Log::error(print_r(new CompanySettings($this->company->settings),1));
             return new CompanySettings($this->company->settings);  
         }
 
@@ -133,14 +133,16 @@ class Client extends BaseModel
     {
         switch ($entity) {
             case Client::class:
-              //  Log::error('saving client settings');
+                Log::error('saving client settings');
                 $this->settings = $settings;
                 $this->save();
+                $this->fresh();
                 break;
             case Company::class:
-               // Log::error('saving company settings');
+                Log::error('saving company settings');
                 $this->company->settings = $settings;
                 $this->company->save();
+                $this->company->fresh();
                 break;
             
             default:
