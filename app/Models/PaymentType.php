@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentType extends BaseModel
+class PaymentType extends Model
 {
     //
 }
