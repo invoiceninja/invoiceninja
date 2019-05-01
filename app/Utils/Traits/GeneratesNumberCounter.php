@@ -19,6 +19,7 @@ trait GeneratesNumberCounter
 
 	public function getNextNumber($entity)
 	{
+        $entity_name = $this->entityName($entity);
 
 		$counter = $this->getCounter($entity);
 		$counter_offset = 0;
@@ -39,13 +40,13 @@ trait GeneratesNumberCounter
             //     $number = $this->getSettingsByKey('recurring_invoice_number_prefix')->recurring_invoice_number_prefix . $number;
             // }
 
-            if ($entity == Client::class) {
+            if ($entity_name == Client::class) {
                 $check = Client::company($this->company_id)->whereIdNumber($number)->withTrashed()->first();
-            } elseif ($entity == Invoice::class) {
+            } elseif ($entity_name == Invoice::class) {
                 $check = Invoice::company($this->company_id)->whereInvoiceNumber($number)->withTrashed()->first();
-            } elseif ($entity == Quote::class) {
+            } elseif ($entity_name == Quote::class) {
             	$check = Quote::company($this->company_id)->whereQuoteNumber($number)->withTrashed()->first();
-            } elseif ($entity == Credit::class) {
+            } elseif ($entity_name == Credit::class) {
          		$check = Credit::company($this->company_id)->whereCreditNumber($number)->withTrashed()->first();
             }
 
@@ -93,12 +94,13 @@ trait GeneratesNumberCounter
      */
     public function getNumberPattern($entity)
     {
+        $entity_name = $this->entityName($entity);
 
 		/** Recurring invoice share the same number pattern as invoices  */
-		if($entity == RecurringInvoice::class )
-			$entity = Invoice::class;
+		if($entity_name == $this->entityName(RecurringInvoice::class) )
+			$entity_name = $this->entityName(Invoice::class);
 
-        $field = $this->entityName($entity) . "_number_pattern";
+        $field = $entity_name . "_number_pattern";
 
 		return $this->getSettingsByKey( $field )->{$field};
 
@@ -111,8 +113,9 @@ trait GeneratesNumberCounter
      */
     public function getNumberPrefix($entity)
     {
+        $entity_name = $this->entityName($entity);
 
-        $field = $this->entityName($entity) . "_number_prefix";
+        $field = $this->entityName($entity_name) . "_number_prefix";
 
         return $this->getSettingsByKey( $field )->{$field};
 
@@ -121,12 +124,14 @@ trait GeneratesNumberCounter
 
 	public function incrementCounter($entity)
 	{
-		if($entity == RecurringInvoice::class || ( $entity == Quote::class && $this->hasSharedCounter()) )
-			$entity = Invoice::class;
+        $entity_name = $this->entityName($entity);
 
-		$counter = $this->entityName($entity) . '_number_counter';
+		if($entity_name == $this->entityName(RecurringInvoice::class) || ( $entity_name == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
+			$entity_name = $this->entityName(Invoice::class);
 
-		Log::error('entity = '.$entity);
+		$counter = $entity_name . '_number_counter';
+
+		Log::error('entity = '.$entity_name);
 
 		$entity_settings = $this->getSettingsByKey( $counter );
 
@@ -156,12 +161,13 @@ trait GeneratesNumberCounter
 
 	public function getCounter($entity) : int
 	{
+        $entity_name = $this->entityName($entity);
 
 		/** Recurring invoice share the same counter as invoices also harvest the invoice_counter if quote and invoices are sharing a counter */
-		if($entity == RecurringInvoice::class || ( $entity == Quote::class && $this->hasSharedCounter()) )
-			$entity = Invoice::class;
+		if($entity_name == $this->entityName(RecurringInvoice::class) || ( $entity_name == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
+			$entity_name = $this->entityName(Invoice::class);
 
-		$counter = $this->entityName($entity) . '_number_counter';
+		$counter = $entity_name . '_number_counter';
 
 		return $this->getSettingsByKey( $counter )->{$counter};
 
@@ -175,9 +181,10 @@ trait GeneratesNumberCounter
      */
     public function applyNumberPattern($entity, $counter = 1)
     {
+        $entity_name = $this->entityName($entity);
 
-        $counter = $counter ?: $this->getCounter($entity);
-        $pattern = $this->getNumberPattern($entity);
+        $counter = $counter ?: $this->getCounter($entity_name);
+        $pattern = $this->getNumberPattern($entity_name);
 
         if (! $pattern) {
             return false;
@@ -206,15 +213,19 @@ trait GeneratesNumberCounter
         }
 
         $pattern = str_replace($search, $replace, $pattern);
-       // $pattern = $this->getClientInvoiceNumber($pattern, $entity);
+        $pattern = $this->getClientInvoiceNumber($pattern, $entity);
 
         return $pattern;
 
     }
 
-    private function getClientInvoiceNumber($pattern, $invoice)
+    private function getClientInvoiceNumber($pattern, $entity)
     {
-        if (! $invoice->client_id) {
+
+        $entity_name = $this->entityName($entity);
+
+        if ($entity_name == $this->entityName(Client::class) || $entity_name == $this->entityName(Credit::class) || ! $entity->client_id) 
+        {
             return $pattern;
         }
 
@@ -228,17 +239,22 @@ trait GeneratesNumberCounter
             '{$clientCounter}',
         ];
 
-        $client = $invoice->client;
-        $clientCounter = ($invoice->isQuote() && ! $this->share_counter) ? $client->quote_number_counter : $client->invoice_number_counter;
+        if($entity_name == $this->entityName(RecurringInvoice::class) || ( $entity_name == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
+            $entity_name = Invoice::class;
+
+        $counter = $entity_name . '_number_counter';
+
+        $counter_value = $this->getSettingsByKey( $counter )->{$counter};
+        $entity_padding = $this->getSettingsByKey( 'counter_padding' )->counter_padding;
 
         $replace = [
-            $client->custom_value1,
-            $client->custom_value2,
-            $client->id_number,
-            $client->custom_value1, // backwards compatibility
-            $client->custom_value2,
-            $client->id_number,
-            str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
+            $this->custom_value1,
+            $this->custom_value2,
+            $this->id_number,
+            $this->custom_value1, // backwards compatibility
+            $this->custom_value2,
+            $this->id_number,
+            str_pad($counter_value, $entity_padding, '0', STR_PAD_LEFT),
         ];
 
         return str_replace($search, $replace, $pattern);
