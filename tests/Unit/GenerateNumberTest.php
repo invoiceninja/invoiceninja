@@ -4,6 +4,8 @@ namespace Tests\Unit;
 
 use App\DataMapper\DefaultSettings;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesHash;
@@ -32,19 +34,8 @@ class GenerateNumberTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
-    }    
 
-
-    public function testEntityName()
-    {
-
-        $this->assertEquals($this->entityName(Client::class), 'client');
-
-    }
-
-    public function testCounterVariables()
-    {
-        $account = factory(\App\Models\Account::class)->create();
+                $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
         ]);
@@ -95,20 +86,81 @@ class GenerateNumberTest extends TestCase
 
         });
 
-        $client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
+        $this->client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
+    }    
 
-        $this->assertEquals($client->getCounter(Client::class), 1);
 
-        $this->assertEquals($client->getNextNumber(Client::class),1);
+    public function testEntityName()
+    {
 
-        $settings = $client->getSettingsByKey('recurring_invoice_number_prefix');
-        $settings->recurring_invoice_number_prefix = 'R';
-        $client->setSettingsByEntity($settings->entity, $settings);
+        $this->assertEquals($this->entityName(Client::class), 'client');
 
-        $this->assertEquals($client->getNextNumber(RecurringInvoice::class), 'R1');
-
-        $client->incrementCounter(Client::class);
-
-        $this->assertEquals($client->getCounter(Client::class), 2);
     }
+
+    public function testSharedCounter()
+    {
+
+        $this->assertFalse($this->client->hasSharedCounter());
+
+    }
+
+    public function testClientCounterValue()
+    {
+
+         $this->assertEquals($this->client->getCounter(Client::class), 1);
+
+    }
+
+    public function testClientNextNumber()
+    {
+
+        $this->assertEquals($this->client->getNextNumber(Client::class),1);
+
+    }
+
+    public function testRecurringInvoiceNumberPrefix()
+    {
+
+        $settings = $this->client->getSettingsByKey('recurring_invoice_number_prefix');
+        $settings->recurring_invoice_number_prefix = 'R';
+        $this->client->setSettingsByEntity($settings->entity, $settings);
+
+        $this->assertEquals($this->client->getNextNumber(RecurringInvoice::class), 'R1');        
+    }
+
+    public function testClientIncrementer()
+    {
+        $this->client->incrementCounter(Client::class);
+
+        $this->assertEquals($this->client->getCounter(Client::class), 2);
+    }
+
+    public function testCounterValues()
+    {
+
+
+        $this->assertEquals($this->client->getCounter(Invoice::class), 1);
+        $this->assertEquals($this->client->getCounter(RecurringInvoice::class), 1);
+        $this->assertEquals($this->client->getCounter(Credit::class), 1);
+
+
+    }
+
+    public function testClassIncrementers()
+    {
+
+        $this->client->incrementCounter(Invoice::class);
+        $this->client->incrementCounter(RecurringInvoice::class);
+        $this->client->incrementCounter(Credit::class);
+
+        $this->assertEquals($this->client->getCounter(Invoice::class), 3);
+        $this->assertEquals($this->client->getCounter(RecurringInvoice::class), 3);
+        $this->assertEquals($this->client->getCounter(Credit::class), 2);
+    }
+
+    public function testClientNumberPattern()
+    {
+        
+    }
+
 }

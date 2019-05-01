@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Bank.
  */
-class Bank extends BaseModel
+class Bank extends Model
 {
     /**
      * @var bool

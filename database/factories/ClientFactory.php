@@ -28,6 +28,6 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'shipping_state' => $faker->state,
         'shipping_postal_code' => $faker->postcode,
         'shipping_country_id' => 4,
-        'settings' => ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults())),
+        'settings' => new ClientSettings(ClientSettings::defaults()),
     ];
 });

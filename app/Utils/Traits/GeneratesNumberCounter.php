@@ -68,8 +68,8 @@ trait GeneratesNumberCounter
 
 	public function hasSharedCounter() : bool
 	{
-
-		return $this->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter;
+		Log::error('The Shared Counter = '. $this->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter);
+		return $this->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter === TRUE;
 
 	}
 
@@ -125,20 +125,20 @@ trait GeneratesNumberCounter
 
 		$counter = $this->entityName($entity) . '_number_counter';
 
-		Log::error($counter);
+		//Log::error($counter);
 
 		$entity_settings = $this->getSettingsByKey( $counter );
 
-		Log::error(print_r($entity_settings,1));
+		//Log::error(print_r($entity_settings,1));
 
 		$entity_settings->{$counter} = $entity_settings->{$counter} + 1;
 
-		Log::error($entity_settings->{$counter});
-		Log::error($entity_settings->entity);
+		//Log::error($entity_settings->{$counter});
+		//Log::error($entity_settings->entity);
 
 		$this->setSettingsByEntity($entity_settings->entity, $entity_settings); 
 
-		Log::error(print_r($entity_settings,1));
+		//Log::error(print_r($entity_settings,1));
 
 
 	}
