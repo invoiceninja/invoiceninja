@@ -189,7 +189,7 @@ class GenerateNumberTest extends TestCase
         $this->assertEquals($this->client->getNextNumber($this->client), date('j') . '-1');
     }
 
-    public function testClientNumberPatternWithDate()
+    public function testClientNumberPatternWithDate2()
     {
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$date:d M Y}-{$counter}';  

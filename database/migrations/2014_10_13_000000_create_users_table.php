@@ -485,7 +485,7 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number');
             $t->date('quote_date')->nullable();
-            $t->date('due_date')->nullable();
+            $t->date('valid_until')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 

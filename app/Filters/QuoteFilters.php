@@ -6,9 +6,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * InvoiceFilters
+ * QuoteFilters
  */
-class InvoiceFilters extends QueryFilters
+class QuoteFilters extends QueryFilters
 {
 
 
@@ -26,10 +26,10 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
 
         return  $this->builder->where(function ($query) use ($filter) {
-                    $query->where('invoices.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value2', 'like' , '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value3', 'like' , '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value4', 'like' , '%'.$filter.'%');
+                    $query->where('quotes.custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('quotes.custom_value2', 'like' , '%'.$filter.'%')
+                          ->orWhere('quotes.custom_value3', 'like' , '%'.$filter.'%')
+                          ->orWhere('quotes.custom_value4', 'like' , '%'.$filter.'%');
                 });
     }
 
@@ -45,7 +45,7 @@ class InvoiceFilters extends QueryFilters
         if(strlen($filter) == 0)
             return $this->builder;
 
-        $table = 'invoices';
+        $table = 'quotes';
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters, $table) {
