@@ -200,7 +200,7 @@ trait GeneratesNumberCounter
             $format = $matches[1];
             $search[] = $matches[0];
 
-            /* The following adjusts for the company timezone */
+            /* The following adjusts for the company timezone - may bork tests depending on the time of day the tests are run!!!!!!*/
             $date = Carbon::now($this->company->timezone()->name)->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
