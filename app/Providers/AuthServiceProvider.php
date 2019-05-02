@@ -6,11 +6,13 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\User;
 use App\Policies\ClientPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\QuotePolicy;
+use App\Policies\RecurringInvoicePolicy;
 use Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +28,7 @@ class AuthServiceProvider extends ServiceProvider
         Client::class => ClientPolicy::class,
         Product::class => ProductPolicy::class,
         Invoice::class => InvoicePolicy::class,
+        RecurringInvoice::class => RecurringInvoicePolicy::class,
         Quote::class => QuotePolicy::class,
         User::class => UserPolicy::class,
     ];
