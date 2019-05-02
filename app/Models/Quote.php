@@ -2,21 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
 class Quote extends BaseModel
 {
     use MakesHash;
-    
+    use Filterable;
+
 	protected $guarded = [
 		'id',
 	];
 
+    protected $casts = [
+        'settings' => 'object'
+    ];
+    
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
-    const STATUS_APPROVED = 4;
-    const STATUS_OVERDUE = -1;
+    const STATUS_APPROVED = 3;
+    const STATUS_EXPIRED = -1;
 
     public function company()
     {

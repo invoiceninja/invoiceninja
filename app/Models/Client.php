@@ -133,13 +133,13 @@ class Client extends BaseModel
     {
         switch ($entity) {
             case Client::class:
-                Log::error('saving client settings');
+               // Log::error('saving client settings');
                 $this->settings = $settings;
                 $this->save();
                 $this->fresh();
                 break;
             case Company::class:
-                Log::error('saving company settings');
+               // Log::error('saving company settings');
                 $this->company->settings = $settings;
                 $this->company->save();
                 $this->company->fresh();
