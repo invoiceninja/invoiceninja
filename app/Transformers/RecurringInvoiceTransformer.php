@@ -3,6 +3,7 @@
 namespace App\Transformers;
 
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 
 /**
