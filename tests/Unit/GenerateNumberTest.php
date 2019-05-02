@@ -186,15 +186,15 @@ class GenerateNumberTest extends TestCase
         $settings->client_number_pattern = '{$date:j}-{$counter}';  
         $this->client->setSettingsByEntity($settings->entity, $settings);
         
-        $this->assertEquals($this->client->getNextNumber($this->client), date('j').'-1');
+        $this->assertEquals($this->client->getNextNumber($this->client), date('j') . '-1');
     }
 
-    public function testClientNumberPatternWithDate2()
+    public function testClientNumberPatternWithDate()
     {
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$date:d M Y}-{$counter}';  
         $this->client->setSettingsByEntity($settings->entity, $settings);
         
-        $this->assertEquals($this->client->getNextNumber($this->client), date('d M Y').'-1');
+        $this->assertEquals($this->client->getNextNumber($this->client), date('d M Y') . '-1');
     }
 }

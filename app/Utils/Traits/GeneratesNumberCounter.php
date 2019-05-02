@@ -122,16 +122,13 @@ trait GeneratesNumberCounter
     }
 
 
+
+
 	public function incrementCounter($entity)
 	{
-        $entity_name = $this->entityName($entity);
+		$counter = $this->getCounterName($entity) . '_number_counter';
 
-		if($entity_name == $this->entityName(RecurringInvoice::class) || ( $entity_name == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
-			$entity_name = $this->entityName(Invoice::class);
-
-		$counter = $entity_name . '_number_counter';
-
-		Log::error('entity = '.$entity_name);
+		//Log::error('entity = '.$entity_name);
 
 		$entity_settings = $this->getSettingsByKey( $counter );
 
@@ -147,7 +144,7 @@ trait GeneratesNumberCounter
 
 		$this->setSettingsByEntity($entity_settings->entity, $entity_settings); 
 
-		Log::error(print_r($entity_settings,1));
+		//Log::error(print_r($entity_settings,1));
 
 
 	}
@@ -161,13 +158,8 @@ trait GeneratesNumberCounter
 
 	public function getCounter($entity) : int
 	{
-        $entity_name = $this->entityName($entity);
 
-		/** Recurring invoice share the same counter as invoices also harvest the invoice_counter if quote and invoices are sharing a counter */
-		if($entity_name == $this->entityName(RecurringInvoice::class) || ( $entity_name == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
-			$entity_name = $this->entityName(Invoice::class);
-
-		$counter = $entity_name . '_number_counter';
+		$counter = $this->getCounterName($entity) . '_number_counter';
 
 		return $this->getSettingsByKey( $counter )->{$counter};
 
@@ -208,6 +200,7 @@ trait GeneratesNumberCounter
             $format = $matches[1];
             $search[] = $matches[0];
 
+            /* The following adjusts for the company timezone */
             $date = Carbon::now($this->company->timezone()->name)->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
@@ -239,10 +232,7 @@ trait GeneratesNumberCounter
             '{$clientCounter}',
         ];
 
-        if($entity_name == $this->entityName(RecurringInvoice::class) || ( $entity_name == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
-            $entity_name = Invoice::class;
-
-        $counter = $entity_name . '_number_counter';
+        $counter = $this->getCounterName($entity) . '_number_counter';
 
         $counter_value = $this->getSettingsByKey( $counter )->{$counter};
         $entity_padding = $this->getSettingsByKey( 'counter_padding' )->counter_padding;
@@ -258,6 +248,16 @@ trait GeneratesNumberCounter
         ];
 
         return str_replace($search, $replace, $pattern);
+    }
+
+
+    private function getCounterName($entity)
+    {
+
+        if($this->entityName($entity) == $this->entityName(RecurringInvoice::class) || ( $this->entityName($entity) == $this->entityName(Quote::class) && $this->hasSharedCounter()) )
+            $entity = Invoice::class;
+
+        return $this->entityName($entity);
     }
 
 }
