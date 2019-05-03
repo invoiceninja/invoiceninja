@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Filters\PaymentFilters;
 use App\Http\Requests\Payment\ActionPaymentRequest;
 use App\Http\Requests\Payment\CreatePaymentRequest;
 use App\Http\Requests\Payment\DestroyPaymentRequest;
@@ -13,6 +14,7 @@ use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Payment;
 use App\Repositories\BaseRepository;
+use App\Transformers\PaymentTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
@@ -28,14 +30,13 @@ class PaymentController extends BaseController
 
     protected $entity_type = Payment::class;
 
-    protected $entity_transformer = Paymentransformer::class;
+    protected $entity_transformer = PaymentTransformer::class;
 
     /**
      * @var PaymentRepository
      */
     protected $payment_repo;
 
-    protected $base_repo;
 
     /**
      * PaymentController constructor.
@@ -61,7 +62,7 @@ class PaymentController extends BaseController
     public function index(PaymentFilters $filters)
     {
         
-        $payments = Invoice::filter($filters);
+        $payments = Payment::filter($filters);
       
         return $this->listResponse($payments);
 
