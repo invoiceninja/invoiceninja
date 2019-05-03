@@ -19,10 +19,12 @@ class RecurringInvoice extends BaseModel
     /**
      * Invoice Statuses
      */
-    const STATUS_PENDING = 1;
-    const STATUS_ACTIVE = 2;
-    const STATUS_COMPLETED = 3;
-    const STATUS_CANCELLED = 4;
+    const STATUS_DRAFT = 2;
+    const STATUS_ACTIVE = 3;
+    const STATUS_PENDING = -1;
+    const STATUS_COMPLETED = -2;
+    const STATUS_CANCELLED = -3;
+
 
     /**
      * Recurring intervals

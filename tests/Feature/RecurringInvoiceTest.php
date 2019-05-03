@@ -177,7 +177,7 @@ class RecurringInvoiceTest extends TestCase
         $response->assertStatus(200);
 
         $RecurringInvoice_update = [
-            'status_id' => RecurringInvoice::STATUS_PAID
+            'status_id' => RecurringInvoice::STATUS_DRAFT
         ];
 
         $this->assertNotNull($RecurringInvoice);

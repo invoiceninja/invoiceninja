@@ -11,7 +11,7 @@ class RecurringInvoiceFactory
 	public static function create(int $company_id, int $user_id) :RecurringInvoice
 	{
 		$invoice = new RecurringInvoice();
-		$invoice->status_id = RecurringInvoice::STATUS_PENDING;
+		$invoice->status_id = RecurringInvoice::STATUS_DRAFT;
 		$invoice->discount = 0;
 		$invoice->is_amount_discount = true;
 		$invoice->po_number = '';
