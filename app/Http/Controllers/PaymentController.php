@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Factory\PaymentFactory;
 use App\Filters\PaymentFilters;
 use App\Http\Requests\Payment\ActionPaymentRequest;
 use App\Http\Requests\Payment\CreatePaymentRequest;
@@ -14,6 +15,7 @@ use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Payment;
 use App\Repositories\BaseRepository;
+use App\Repositories\PaymentRepository;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -109,7 +111,7 @@ class PaymentController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(ShowPaymentRequest $request, Invoice $payment)
+    public function show(ShowPaymentRequest $request, Payment $payment)
     {
 
         return $this->itemResponse($payment);
@@ -124,7 +126,7 @@ class PaymentController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function edit(EditPaymentRequest $request, Invoice $payment)
+    public function edit(EditPaymentRequest $request, Payment $payment)
     {
 
         return $this->itemResponse($payment);
@@ -139,7 +141,7 @@ class PaymentController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePaymentRequest $request, Invoice $payment)
+    public function update(UpdatePaymentRequest $request, Payment $payment)
     {
 
         $payment = $this->payment_repo->save(request(), $payment);
@@ -156,7 +158,7 @@ class PaymentController extends BaseController
      *
      * @return     \Illuminate\Http\Response
      */
-    public function destroy(DestroyPaymentRequest $request, Invoice $payment)
+    public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
 
         $payment->delete();
@@ -191,7 +193,7 @@ class PaymentController extends BaseController
         
     }
 
-    public function action(ActionPaymentRequest $request, Invoice $payment, $action)
+    public function action(ActionPaymentRequest $request, Payment $payment, $action)
     {
         
         switch ($action) {

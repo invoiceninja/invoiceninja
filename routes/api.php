@@ -51,14 +51,16 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =
   Route::post('recurring_invoices/bulk', 'RecurringInvoiceController@bulk')->name('recurring_invoices.bulk');
 
   Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
+
+  Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
+  
+  Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
+
 /*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
   
   Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
   
-  Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
-  
-  Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
   
   Route::resource('credits', 'CreditController'); // name = (credits. index / create / show / update / destroy / edit
   

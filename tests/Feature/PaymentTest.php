@@ -157,9 +157,7 @@ class PaymentTest extends TestCase
 
         factory(\App\Models\Payment::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $Payment = Payment::where('user_id',$user->id)->first();
-        $Payment->settings = $client->getMergedSettings();
-        $Payment->save();
+        $Payment = Payment::all()->first();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -180,9 +178,7 @@ class PaymentTest extends TestCase
         ];
 
         $this->assertNotNull($Payment);
-        $this->assertNotNull($Payment->settings);
 
-        $this->assertTrue(property_exists($Payment->settings, 'custom_taxes1'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
