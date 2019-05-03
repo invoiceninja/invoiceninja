@@ -160,7 +160,7 @@ class QuoteTest extends TestCase
         $quote = Quote::where('user_id',$user->id)->first();
         $quote->settings = $client->getMergedSettings();
         $quote->save();
-        Log::error(print_r($quote,1));
+
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,

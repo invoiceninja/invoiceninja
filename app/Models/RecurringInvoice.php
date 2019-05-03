@@ -49,8 +49,8 @@ class RecurringInvoice extends BaseModel
     ];
 
     protected $with = [
-        'client',
-        'company',
+   //     'client',
+   //     'company',
     ];
 
     public function company()
