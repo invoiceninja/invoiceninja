@@ -85,7 +85,7 @@ class FactoryCreationTest extends TestCase
 
     /**
      * @test
-     * @covers App|Factory\CloneInvoiceFactory
+     * @covers App\Factory\CloneInvoiceFactory
      */
     public function testCloneInvoiceCreation()
     {
@@ -114,7 +114,7 @@ class FactoryCreationTest extends TestCase
 
     /**
      * @test
-     * @covers App|Factory\ClientFactory
+     * @covers App\Factory\ClientFactory
      */
     public function testClientCreate()
     {
@@ -129,7 +129,7 @@ class FactoryCreationTest extends TestCase
 
     /**
      * @test
-     * @covers App|Factory\ClientContactFactory
+     * @covers App\Factory\ClientContactFactory
      */
     public function testClientContactCreate()
     {
@@ -166,7 +166,7 @@ class FactoryCreationTest extends TestCase
 
     /**
      * @test
-     * @covers App|Factory\UserFactory
+     * @covers App\Factory\UserFactory
      */
     public function testUserCreate()
     {
