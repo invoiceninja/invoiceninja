@@ -33,6 +33,7 @@
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^1.0",
         "simshaun/recurr": "^4.0",
+        "spatie/browsershot": "^3.29",
         "superbalist/laravel-google-cloud-storage": "^2.2",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/postmark-php": "^2.6"
