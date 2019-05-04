@@ -2,27 +2,32 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends BaseModel
 {
     use MakesHash;
+    use Filterable;
     
     protected $guarded = [
 		'id',
 	];
 
-    protected $appends = ['payment_id'];
-
-    public function getRouteKeyName()
+    public function client()
     {
-        return 'payment_id';
+        return $this->belongsTo(Client::class);
     }
 
-    public function getPaymentIdAttribute()
+    public function company()
     {
-        return $this->encodePrimaryKey($this->id);
+        return $this->belongsTo(Company::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function documents()

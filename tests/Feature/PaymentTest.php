@@ -6,7 +6,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
-use App\Models\Quote;
+use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -18,10 +18,10 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Http\Controllers\QuoteController
+ * @covers App\Http\Controllers\PaymentController
  */
     
-class QuoteTest extends TestCase
+class PaymentTest extends TestCase
 {
 
     use MakesHash;
@@ -41,7 +41,7 @@ class QuoteTest extends TestCase
 
     }
 
-    public function testQuoteList()
+    public function testPaymentList()
     {
         $data = [
             'first_name' => $this->faker->firstName,
@@ -92,19 +92,19 @@ class QuoteTest extends TestCase
         });
         $client = Client::all()->first();
 
-        factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Payment::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->get('/api/v1/quotes');
+            ])->get('/api/v1/payments');
 
         $response->assertStatus(200);
 
     }
 
-    public function testQuoteRESTEndPoints()
+    public function testPaymentRESTEndPoints()
     {
         $data = [
             'first_name' => $this->faker->firstName,
@@ -155,45 +155,41 @@ class QuoteTest extends TestCase
         });
         $client = Client::all()->first();
 
-        factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Payment::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $quote = Quote::where('user_id',$user->id)->first();
-        $quote->settings = $client->getMergedSettings();
-        $quote->save();
+        $Payment = Payment::all()->first();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id));
+            ])->get('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id));
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id).'/edit');
+            ])->get('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id).'/edit');
 
         $response->assertStatus(200);
 
-        $quote_update = [
-            'status_id' => Quote::STATUS_APPROVED
+        $Payment_update = [
+            'amount' => 10
         ];
 
-        $this->assertNotNull($quote);
-        $this->assertNotNull($quote->settings);
+        $this->assertNotNull($Payment);
 
-        $this->assertTrue(property_exists($quote->settings, 'custom_taxes1'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->put('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id), $quote_update)
+            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id), $Payment_update)
             ->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->delete('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id));
+            ])->delete('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id));
 
         $response->assertStatus(200);
 

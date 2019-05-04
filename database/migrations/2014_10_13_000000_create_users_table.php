@@ -418,7 +418,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('company_id')->index();
 
-            $t->string('invoice_number');
+            $t->unsignedInteger('status_id')->index();
+
             $t->float('discount');
             $t->boolean('is_amount_discount');
 
@@ -469,7 +470,6 @@ class CreateUsersTable extends Migration
             $t->timestamps();
             $t->softDeletes();
 
-            $t->unique(['company_id', 'invoice_number']);
         });
 
         Schema::create('quotes', function ($t) {
@@ -624,7 +624,7 @@ class CreateUsersTable extends Migration
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
 
-            $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+            //$t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
