@@ -71,7 +71,7 @@ function processVariables(str) {
             var match = matches[j];
             var offset = 0;
             if (match.split('+').length > 1) {
-                offset = match.split('+')[1];
+                offset = parseInt(match.split('+')[1]);
             } else if (match.split('-').length > 1) {
                 offset = parseInt(match.split('-')[1]) * -1;
             }
