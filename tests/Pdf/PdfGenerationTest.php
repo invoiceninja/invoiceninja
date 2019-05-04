@@ -2,6 +2,7 @@
 
 namespace Tests\Pdf;
 
+use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 use Tests\TestCase;
 
@@ -28,6 +29,8 @@ class PdfGenerationTest extends TestCase
 		Browsershot::html($html)->save($pdf);
 
 		$this->assertTrue(file_exists($pdf));
+
+		unlink($pdf);
 
 	}
 }
