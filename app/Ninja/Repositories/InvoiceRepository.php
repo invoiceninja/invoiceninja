@@ -1226,6 +1226,7 @@ class InvoiceRepository extends BaseRepository
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
+                    ->whereNull('quote_invoice_id') // skip converted quotes
                     ->whereIsPublic(true)
                     ->whereRaw('('.$sql.')')
                     ->get();
@@ -1261,6 +1262,7 @@ class InvoiceRepository extends BaseRepository
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
+                    ->whereNull('quote_invoice_id') // skip converted quotes
                     ->whereIsPublic(true)
                     ->where('last_sent_date', '<', $lastSentDate);
 
