@@ -182,6 +182,9 @@ class GenerateNumberTest extends TestCase
 
     public function testClientNumberPatternWithDate()
     {
+
+        date_default_timezone_set('US/Eastern');
+
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$date:j}-{$counter}';  
         $this->client->setSettingsByEntity($settings->entity, $settings);
@@ -191,6 +194,8 @@ class GenerateNumberTest extends TestCase
 
     public function testClientNumberPatternWithDate2()
     {
+        date_default_timezone_set('US/Eastern');
+
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$date:d M Y}-{$counter}';  
         $this->client->setSettingsByEntity($settings->entity, $settings);
