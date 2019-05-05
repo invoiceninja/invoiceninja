@@ -46,6 +46,10 @@ class RouteServiceProvider extends ServiceProvider
             return \App\Models\RecurringInvoice::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
+        Route::bind('recurring_quote', function ($value) {
+            return \App\Models\RecurringQuote::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
+
         Route::bind('quote', function ($value) {
             return \App\Models\Quote::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });

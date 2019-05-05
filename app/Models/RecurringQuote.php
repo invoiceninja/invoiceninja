@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class for Recurring Invoices.
  */
-class RecurringInvoice extends BaseModel
+class RecurringQuote extends BaseModel
 {
     use MakesHash;
     use SoftDeletes;
@@ -72,6 +72,6 @@ class RecurringInvoice extends BaseModel
 
     public function invitations()
     {
-        $this->morphMany(RecurringInvoiceInvitation::class);
+        $this->morphMany(RecurringQuoteInvitation::class);
     }
 }
