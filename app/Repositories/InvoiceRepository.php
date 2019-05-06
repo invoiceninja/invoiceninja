@@ -18,9 +18,9 @@ class InvoiceRepository extends BaseRepository
         return Invoice::class;
     }
     
-	public function save(Request $request, Invoice $invoice) : ?Invoice
+	public function save($data, Invoice $invoice) : ?Invoice
 	{
-        $invoice->fill($request->input());
+        $invoice->fill($data);
         
         $invoice->save();
 

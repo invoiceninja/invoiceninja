@@ -100,7 +100,7 @@ class InvoiceController extends BaseController
     public function store(StoreInvoiceRequest $request)
     {
         
-        $invoice = $this->invoice_repo->save($request, InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($invoice);
 
@@ -147,7 +147,7 @@ class InvoiceController extends BaseController
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
 
-        $invoice = $this->invoice_repo->save(request(), $invoice);
+        $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
         return $this->itemResponse($invoice);
 

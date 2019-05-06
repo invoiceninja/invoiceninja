@@ -27,6 +27,7 @@ class ClientContactRepository extends BaseRepository
 
 		$contacts->first(function($contact){
 			$contact['is_primary'] = true;
+			$contact->save();
 		});
 
 		//loop and update/create contacts
