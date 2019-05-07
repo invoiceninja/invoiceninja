@@ -45,7 +45,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->integer('gateway_type_id');
-            $table->timestamps();
+            $table->timestamps(6);
         });
 
         Schema::create('timezones', function ($table) {
@@ -75,12 +75,12 @@ class CreateUsersTable extends Migration
         Schema::create('industries', function ($table) {
             $table->increments('id');
             $table->string('name');
-            $table->timestamps();
+            $table->timestamps(6);
         });
 
         Schema::create('gateways', function ($table) {
             $table->increments('id');
-            $table->timestamps();
+            $table->timestamps(6);
             $table->string('name');
             $table->string('provider');
             $table->boolean('visible')->default(true);
@@ -122,7 +122,7 @@ class CreateUsersTable extends Migration
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
             $table->string('referral_code')->nullable();
 
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
         });
         
@@ -150,7 +150,7 @@ class CreateUsersTable extends Migration
             
             $table->text('settings');
             
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
             
             $table->foreign('country_id')->references('id')->on('countries');
@@ -172,7 +172,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin');
             $table->boolean('is_locked')->default(false); // locks user out of account
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -199,7 +199,7 @@ class CreateUsersTable extends Migration
 
             $table->unsignedInteger('documentable_id');
             $table->string('documentable_type');
-            $table->timestamps();
+            $table->timestamps(6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
 
@@ -230,7 +230,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
            // $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -289,7 +289,7 @@ class CreateUsersTable extends Migration
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
 
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -327,7 +327,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_size')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -346,7 +346,7 @@ class CreateUsersTable extends Migration
             $table->boolean('update_address')->default(true)->nullable();
             $table->text('config');
 
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
 
@@ -406,7 +406,7 @@ class CreateUsersTable extends Migration
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
             $t->unique(['company_id', 'invoice_number']);
@@ -467,7 +467,7 @@ class CreateUsersTable extends Migration
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
         });
@@ -525,7 +525,7 @@ class CreateUsersTable extends Migration
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
         });
@@ -579,7 +579,7 @@ class CreateUsersTable extends Migration
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
             $t->unique(['company_id', 'quote_number']);
@@ -592,7 +592,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('client_contact_id');
             $t->unsignedInteger('invoice_id')->index();
             $t->string('invitation_key')->index()->unique();
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
             $t->string('transaction_reference')->nullable();
@@ -620,7 +620,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('user_id')->nullable();
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
             $t->string('name',100)->unique();
@@ -658,7 +658,7 @@ class CreateUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
 
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
         });
 
@@ -673,7 +673,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id')->nullable();
             $t->unsignedInteger('account_gateway_id')->nullable();
             $t->unsignedInteger('payment_type_id')->nullable();
-            $t->timestamps();
+            $t->timestamps(6);
             $t->softDeletes();
 
             $t->boolean('is_deleted')->default(false);
@@ -696,7 +696,7 @@ class CreateUsersTable extends Migration
 
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
-            $t->timestamps();
+            $t->timestamps(6);
 
             $t->string('name');
             $t->boolean('visible')->default(true);
@@ -723,7 +723,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('invoice_id')->nullable();
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->string('custom_value1')->nullable();
@@ -756,7 +756,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('username');
 
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -775,7 +775,7 @@ class CreateUsersTable extends Migration
             $table->string('account_name');
             $table->string('account_number');
 
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -790,7 +790,7 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
-            $table->timestamps();
+            $table->timestamps(6);
             $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -817,7 +817,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_system')->default(0);
 
             $table->text('notes');
-            $table->timestamps();
+            $table->timestamps(6);
 
             $table->index(['user_id', 'company_id']);
             $table->index(['client_id', 'company_id']);
@@ -837,10 +837,30 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('activity_id');
             $table->text('json_backup');
-            $table->timestamps();
+            $table->timestamps(6);
 
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
 
+        });
+
+        Schema::create('company_ledger', function ($table) {
+            
+            $table->increments('id');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('client_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
+
+            $table->decimal('adjustment', 13, 2)->nullable();
+            $table->decimal('balance', 13, 2)->nullable();
+            $table->decimal('balance_carried_forward', 13, 2)->nullable();
+            $table->text('notes');
+
+            $table->unsignedInteger('company_ledger_id');
+            $table->string('company_ledger_type');
+            $table->timestamps(6);
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
         });
 
     }
