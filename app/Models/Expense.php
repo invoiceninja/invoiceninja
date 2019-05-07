@@ -13,6 +13,9 @@ class Expense extends BaseModel
     	'id',
     ];
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
+
     protected $appends = ['expense_id'];
 
     public function getRouteKeyName()

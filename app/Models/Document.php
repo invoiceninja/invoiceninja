@@ -15,6 +15,9 @@ class Document extends BaseModel
         'is_default',
     ];
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
+
 	/**
      * @var array
      */

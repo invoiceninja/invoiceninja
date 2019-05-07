@@ -14,6 +14,8 @@ class BaseModel extends Model
     use UserSessionAttributes;
     use SoftDeletes;
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public function __call($method, $params)
     {
         $entity = strtolower(class_basename($this));
