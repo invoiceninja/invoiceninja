@@ -26,8 +26,6 @@ class Client extends BaseModel
     use Filterable;
     use GeneratesNumberCounter;
     
-    protected $dateFormat = 'Y-m-d H:i:s.u';
-
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
     protected $appends = [

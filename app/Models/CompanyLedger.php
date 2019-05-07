@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CompanyLedger extends Model
+class CompanyLedger extends BaseModel
 {
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
