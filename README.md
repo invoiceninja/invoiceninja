@@ -20,12 +20,8 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [User Guide](https://invoice-ninja.readthedocs.io/en/latest/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 
-## Affiliates Programs
-* Referral Program (we pay you)
-	* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-Label Reseller (you pay us)
-	* Hosted: $500 annually and either 10% of revenue or $1/user/month
-	* Self-Hosted: Contact us for volume license pricing
+## Referral Program
+* Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 
 ## Mobile Apps
 * Current: [github.com/invoiceninja/flutter-mobile](https://github.com/invoiceninja/flutter-mobile)
@@ -86,7 +82,8 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Matthieu Calie](https://github.com/Matth--)
 * [Christopher Di Carlo](https://github.com/dicarlosystems) - [Di Carlo Systems Inc.](https://www.dicarlosystems.ca)
 * [Kristian Feldsam](https://github.com/feldsam) - [FeldHost™](https://www.feldhost.net)
-* [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad) - (Security)
+* [Suhas Sunil Gaikwad](https://github.com/Suhas-Gaikwad)
+* [Mike Skaggs](https://github.com/titan-fail)
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.

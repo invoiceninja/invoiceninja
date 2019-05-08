@@ -157,6 +157,7 @@ class UserAccountTransformer extends EntityTransformer
     public function transform(User $user)
     {
         $account = $user->account;
+        $company = $account->company;
 
         return [
             'account_key' => $account->account_key,
@@ -164,7 +165,7 @@ class UserAccountTransformer extends EntityTransformer
             'name' => $account->present()->name ?: '',
             'token' => $account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
-            'plan' => $account->company->plan ?: '',
+            'plan' => $company->hasActivePlan() && $company->plan ? $company->plan : '',
             'logo' => $account->logo ?: '',
             'logo_url' => $account->getLogoURL() ?: '',
             'currency_id' => (int) $account->currency_id,
@@ -216,7 +217,10 @@ class UserAccountTransformer extends EntityTransformer
             'email_template_reminder1' => $account->getEmailTemplate('reminder1'),
             'email_template_reminder2' => $account->getEmailTemplate('reminder2'),
             'email_template_reminder3' => $account->getEmailTemplate('reminder3'),
-
+			'has_custom_design1' => (bool) $account->custom_design1,
+			'has_custom_design2' => (bool) $account->custom_design2,
+			'has_custom_design3' => (bool) $account->custom_design3,
+			'enable_portal_password' => (bool) $account->enable_portal_password,
         ];
     }
 }

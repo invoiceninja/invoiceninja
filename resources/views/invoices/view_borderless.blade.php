@@ -69,7 +69,19 @@
 					@endif
 				@endif
             @else
-                refreshPDF();
+				@if (request()->download)
+					try {
+						var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
+						var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
+						doc.save(fileName + '_' + invoice.invoice_number + '.pdf');
+					} catch (exception) {
+						if (location.href.indexOf('/view/') > 0) {
+							location.href = location.href.replace('/view/', '/download/');
+						}
+					}
+				@else
+					refreshPDF();
+				@endif
             @endif
 		});
 

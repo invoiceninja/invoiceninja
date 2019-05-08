@@ -352,6 +352,7 @@ class AccountTransformer extends EntityTransformer
             'enable_client_portal_dashboard' => (bool) $account->enable_client_portal_dashboard,
             'page_size' => $account->page_size,
             'live_preview' => (bool) $account->live_preview,
+            'realtime_preview' => (bool) $account->realtime_preview,
             'invoice_number_padding' => (int) $account->invoice_number_padding,
             'enable_second_tax_rate' => (bool) $account->enable_second_tax_rate,
             'auto_bill_on_due_date' => (bool) $account->auto_bill_on_due_date,

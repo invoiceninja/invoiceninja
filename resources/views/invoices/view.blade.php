@@ -160,13 +160,16 @@
             @include($partialView)
         @else
             <div id="paymentButtons" class="pull-right" style="text-align:right">
-            @if ($invoice->isQuote())
+            @if ($invoice->isQuote() && $approveRequired)
                 {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->withAttributes(['id' => 'approveButton', 'onclick' => 'onApproveClick()', 'class' => 'require-authorization'])->large() !!}
 				@elseif ($invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
 					{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
                 @endif
+			@elseif ($invoice->isQuote() && $invoiceLink = $invoice->getInvoiceLinkForQuote($contact->id))
+				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+				{!! Button::success(trans('texts.view_invoice'))->asLinkTo($invoiceLink)->large() !!}
 			@elseif ( ! $invoice->canBePaid())
 				{!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@elseif ($invoice->client->account->isGatewayConfigured() && floatval($invoice->balance) && !$invoice->is_recurring)
@@ -278,7 +281,7 @@
                     refreshPDF();
                 @endif
 
-				@if ($account->requiresAuthorization($invoice))
+				@if ($account->requiresAuthorization($invoice) && ! $invitation->signature_date)
 					$('.require-authorization a').on('click', function(e) {
 						e.preventDefault();
 						window.pendingPaymentHref = $(this).attr('href');

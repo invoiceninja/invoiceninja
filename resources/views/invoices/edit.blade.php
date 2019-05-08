@@ -19,6 +19,7 @@
 
         #scrollable-dropdown-menu .tt-menu {
             max-height: 150px;
+            width: 300px;
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -223,9 +224,9 @@
 			<div data-bind="visible: is_recurring" style="display: none">
 				{!! Former::select('frequency_id')->label('frequency')->options($frequencies)->data_bind("value: frequency_id")
                         ->appendIcon('question-sign')->addGroupClass('frequency_id')->onchange('onFrequencyChange()') !!}
-				{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")->data_date_start_date($invoice->id ? false : $account->formatDate($account->getDateTime()))
+				{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
-				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")->data_date_start_date($invoice->id ? false : $account->formatDate($account->getDateTime()))
+				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
                 {!! Former::select('recurring_due_date')->label($account->getLabel($invoice->getDueDateLabel()))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
 			</div>
@@ -549,6 +550,10 @@
 				@endif
             @else
 				@if (!$invoice->is_deleted)
+					@if ( ! Auth::user()->account->realtime_preview && Auth::user()->account->live_preview)
+						{!! Button::normal('PDF')->withAttributes(['id' => 'refreshPdfButton', 'onclick' => 'refreshPDF(true,true)'])->appendIcon(Icon::create('refresh')) !!}
+					@endif
+
 					@if ($invoice->isSent())
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
@@ -562,7 +567,7 @@
 					@endif
                     @if ($invoice->id)
                         {!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
-                    @elseif (! $invoice->isQuote() && Request::is('*/clone'))
+                    @elseif (Request::is('*/clone'))
                         {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
 					@elseif (! empty($tasks))
 						{!! Button::normal(trans('texts.add_product'))->withAttributes(['id' => 'addItemButton', 'onclick' => 'onAddItemClick()'])->appendIcon(Icon::create('plus-sign')) !!}
@@ -576,7 +581,7 @@
 
 	</center>
 
-	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
+	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview, 'realtime_preview' => Auth::user()->account->realtime_preview])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
@@ -1025,11 +1030,11 @@
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
                 setInvoiceNumber(selected);
-                refreshPDF(true);
+                refreshPDF(true, true);
 			} else if (oldId) {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;
-                refreshPDF(true);
+                refreshPDF(true, true);
 			}
 		});
 
@@ -1091,7 +1096,7 @@
 		@if ($invoice->client->id)
 			$input.trigger('change');
 		@else
-			refreshPDF(true);
+			refreshPDF(true, true);
 		@endif
 
 		var client = model.invoice().client();

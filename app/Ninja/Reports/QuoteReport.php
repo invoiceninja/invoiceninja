@@ -30,7 +30,7 @@ class QuoteReport extends AbstractReport
         if ($account->customLabel('invoice_text1')) {
             $columns[$account->present()->customLabel('invoice_text1')] = ['columnSelector-false', 'custom'];
         }
-        if ($account->customLabel('invoice_text1')) {
+        if ($account->customLabel('invoice_text2')) {
             $columns[$account->present()->customLabel('invoice_text2')] = ['columnSelector-false', 'custom'];
         }
 

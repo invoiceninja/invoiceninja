@@ -318,21 +318,21 @@ class InvoicePresenter extends EntityPresenter
             return '';
         }
 
-        if ($invoice->getGatewayFeeItem()) {
-            $label = ' + ' . trans('texts.fee');
+        if ($gatewayFeeItem = $invoice->getGatewayFeeItem()) {
+            $fee = $invoice->calcGatewayFee($gatewayTypeId, true, $gatewayFeeItem->cost);
         } else {
             $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
-            $fee = $account->formatMoney($fee, $invoice->client);
-
-            if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
-                $label = trans('texts.discount');
-            } else {
-                $label = trans('texts.fee');
-            }
-
-            $label = ' - ' . $fee . ' ' . $label;
         }
 
+        $fee = $account->formatMoney($fee, $invoice->client);
+
+        if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
+            $label = trans('texts.discount');
+        } else {
+            $label = trans('texts.fee');
+        }
+
+        $label = ' - ' . $fee . ' ' . $label;
         $label .= '&nbsp;&nbsp; <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.fee_help') . '"></i>';
 
         return $label;

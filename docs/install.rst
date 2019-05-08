@@ -3,7 +3,7 @@ Install
 
 Thanks for taking the time to setup Invoice Ninja.
 
-.. Note:: The applications requires PHP >= 7.0.0 and MySQL.
+.. Note:: The applications requires PHP 7.0, 7.1 or 7.2 and MySQL.
 
 Detailed Guides
 ^^^^^^^^^^^^^^^
@@ -84,7 +84,7 @@ See the `details here <https://invoice-ninja.readthedocs.io/en/latest/configure.
 Step 6: Enable auto updates
 """""""""""""""""""""""""""
 
-Use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process.
+Use this `shell script <https://github.com/titan-fail/Ninja_Update>`_ to automate the update process.
 
 You can run it as a daily cron to automatically keep your app up to date.
 

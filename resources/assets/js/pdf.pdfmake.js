@@ -288,6 +288,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'signature': NINJA.signature(invoice),
         'signatureBase64': NINJA.signatureImage(invoice),
         'signatureDate': NINJA.signatureDate(invoice),
+        'invoiceTotal': formatMoneyInvoice(invoice.amount, invoice),
     }
 
     for (var key in json) {
@@ -1361,6 +1362,8 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = contact.email == clientName ? '' : contact.email;
     } else if (field == 'client.phone') {
         value = contact.phone;
+    } else if (field == 'client.work_phone') {
+        value = client.work_phone;
     } else if (field == 'client.custom_value1') {
         if (account.custom_fields.client1 && client.custom_value1) {
             label = NINJA.getCustomLabel(account.custom_fields.client1);

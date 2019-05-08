@@ -48,10 +48,10 @@ class AccountRepository
             if (Input::get('utm_campaign')) {
                 if (env('PROMO_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                     $company->applyDiscount(.75);
-                }
-
-                if (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
+                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
+                    $company->applyFreeYear(2);
                 }
             } else {
                 //$company->applyDiscount(.5);
@@ -767,7 +767,7 @@ class AccountRepository
     public function findWithReminders()
     {
         return Account::whereHas('account_email_settings', function($query) {
-            $query->whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1');
+            $query->whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1 OR enable_reminder4 = 1 OR enable_quote_reminder1 = 1 OR enable_quote_reminder2 = 1 OR enable_quote_reminder3 = 1 OR enable_quote_reminder4 = 1');
         })->get();
     }
 
@@ -779,7 +779,13 @@ class AccountRepository
                     ->orWhere('late_fee2_amount', '>', 0)
                     ->orWhere('late_fee2_percent', '>', 0)
                     ->orWhere('late_fee3_amount', '>', 0)
-                    ->orWhere('late_fee3_percent', '>', 0);
+                    ->orWhere('late_fee3_percent', '>', 0)
+                    ->orWhere('late_fee_quote1_amount', '>', 0)
+                    ->orWhere('late_fee_quote1_percent', '>', 0)
+                    ->orWhere('late_fee_quote2_amount', '>', 0)
+                    ->orWhere('late_fee_quote2_percent', '>', 0)
+                    ->orWhere('late_fee_quote3_amount', '>', 0)
+                    ->orWhere('late_fee_quote3_percent', '>', 0);
         })->get();
     }
 

@@ -820,6 +820,7 @@ class AccountController extends BaseController
         $user->save();
 
         $account->live_preview = Input::get('live_preview') ? true : false;
+        $account->realtime_preview = Input::get('realtime_preview') ? true : false;
 
         // Automatically disable live preview when using a large font
         $fonts = Cache::get('fonts')->filter(function ($font) use ($account) {
@@ -940,7 +941,7 @@ class AccountController extends BaseController
                 $account->account_email_settings->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
-            foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
+            foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3, TEMPLATE_QUOTE_REMINDER1, TEMPLATE_QUOTE_REMINDER2, TEMPLATE_QUOTE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
                 $account->account_email_settings->$enableField = Input::get($enableField) ? true : false;
                 $account->account_email_settings->{"num_days_{$type}"} = Input::get("num_days_{$type}");
@@ -948,12 +949,20 @@ class AccountController extends BaseController
                 $account->account_email_settings->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
 
                 $number = preg_replace('/[^0-9]/', '', $type);
-                $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
-                $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
+                if (strpos($type, 'quote') !== false) {
+                    $account->account_email_settings->{"late_fee_quote{$number}_amount"} = Input::get("late_fee_quote{$number}_amount");
+                    $account->account_email_settings->{"late_fee_quote{$number}_percent"} = Input::get("late_fee_quote{$number}_percent");
+                } else {
+                    $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
+                    $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
+                }
             }
 
             $account->account_email_settings->enable_reminder4 = Input::get('enable_reminder4') ? true : false;
             $account->account_email_settings->frequency_id_reminder4 = Input::get('frequency_id_reminder4');
+
+            $account->account_email_settings->enable_quote_reminder4 = Input::get('enable_quote_reminder4') ? true : false;
+            $account->account_email_settings->frequency_id_quote_reminder4 = Input::get('frequency_id_quote_reminder4');
 
             $account->save();
             $account->account_email_settings->save();
@@ -1057,6 +1066,7 @@ class AccountController extends BaseController
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
                 $account->auto_archive_quote = Input::get('auto_archive_quote');
+                $account->require_approve_quote = Input::get('require_approve_quote');
                 $account->allow_approve_expired_quote = Input::get('allow_approve_expired_quote');
                 $account->auto_archive_invoice = Input::get('auto_archive_invoice');
                 $account->auto_email_invoice = Input::get('auto_email_invoice');

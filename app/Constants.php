@@ -381,7 +381,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'https://invoice-ninja.readthedocs.io/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.5.8' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.5.11' . env('NINJA_VERSION_SUFFIX'));
     define('NINJA_TERMS_VERSION', '1.0.1');
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
@@ -513,6 +513,10 @@ if (! defined('APP_NAME')) {
     define('TEMPLATE_REMINDER2', 'reminder2');
     define('TEMPLATE_REMINDER3', 'reminder3');
     define('TEMPLATE_REMINDER4', 'reminder4');
+    define('TEMPLATE_QUOTE_REMINDER1', 'quote_reminder1');
+    define('TEMPLATE_QUOTE_REMINDER2', 'quote_reminder2');
+    define('TEMPLATE_QUOTE_REMINDER3', 'quote_reminder3');
+    define('TEMPLATE_QUOTE_REMINDER4', 'quote_reminder4');
 
     define('CUSTOM_MESSAGE_DASHBOARD', 'dashboard');
     define('CUSTOM_MESSAGE_UNPAID_INVOICE', 'unpaid_invoice');

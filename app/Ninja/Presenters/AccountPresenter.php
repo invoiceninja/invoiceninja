@@ -169,6 +169,8 @@ class AccountPresenter extends Presenter
             "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
             "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
             "' . trans('texts.last_month') . '": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
+            "' . trans('texts.current_quarter') . '": [moment().quarter(chartQuarter).startOf("quarter"), moment().quarter(chartQuarter).endOf("quarter")],
+            "' . trans('texts.last_quarter') . '": [moment().subtract(1, "quarter").startOf("quarter"), moment().subtract(1, "quarter").endOf("quarter")],
             "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
             "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
         }';

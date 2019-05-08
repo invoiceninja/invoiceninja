@@ -141,8 +141,14 @@ class SendReminders extends Command
                     $account->loadLocalizationSettings($invoice->client); // support trans to add fee line item
                     $number = preg_replace('/[^0-9]/', '', $reminder);
 
-                    $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
-                    $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
+                    if ($invoice->isQuote()) {
+                        $amount = $account->account_email_settings->{"late_fee_quote{$number}_amount"};
+                        $percent = $account->account_email_settings->{"late_fee_quote{$number}_percent"};
+                    } else {
+                        $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
+                        $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
+                    }
+
                     $this->invoiceRepo->setLateFee($invoice, $amount, $percent);
                 }
             }
@@ -183,6 +189,18 @@ class SendReminders extends Command
                 }
                 $this->info(date('r') . ' Send email: ' . $invoice->id);
                 dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'reminder4'));
+            }
+
+            // endless quote reminders
+            $invoices = $this->invoiceRepo->findNeedingEndlessReminding($account, true);
+            $this->info(date('r ') . $account->name . ': ' . $invoices->count() . ' endless quotes found');
+
+            foreach ($invoices as $invoice) {
+                if ($invoice->last_sent_date == date('Y-m-d')) {
+                    continue;
+                }
+                $this->info(date('r') . ' Send email: ' . $invoice->id);
+                dispatch(new SendInvoiceEmail($invoice, $invoice->user_id, 'quote_reminder4'));
             }
         }
     }

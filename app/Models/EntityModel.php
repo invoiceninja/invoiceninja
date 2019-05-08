@@ -192,7 +192,11 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && method_exists($this, 'getEntityType') && ! Auth::user()->hasPermission('view_' . $this->getEntityType())  && $this->getEntityType() != ENTITY_TAX_RATE && $this->getEntityType() != ENTITY_TICKET) {
+        if (Auth::check() && method_exists($this, 'getEntityType')
+            && ! Auth::user()->hasPermission('view_' . $this->getEntityType())
+            && $this->getEntityType() != ENTITY_TAX_RATE
+            && $this->getEntityType() != ENTITY_DOCUMENT
+            && $this->getEntityType() != ENTITY_INVITATION) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -476,7 +480,7 @@ class EntityModel extends Eloquent
         if ($entity) {
             $configPath = "modules.relations.$entity.$method";
 
-            
+
             if (config()->has($configPath)) {
                 $function = config()->get($configPath);
 

@@ -49,7 +49,7 @@
                                         var label = " {!! trans('texts.expenses') !!}: ";
                                     }
 
-                                    return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);
+                                    return label + formatMoney(item.yLabel, realCurrencyId, account.country_id);
                                 }
                             }
                         },
@@ -73,7 +73,7 @@
                                 ticks: {
                                     beginAtZero: true,
                                     callback: function(label, index, labels) {
-                                        return formatMoney(label, chartCurrencyId, account.country_id);
+                                        return formatMoney(label, realCurrencyId, account.country_id);
                                     }
                                 },
                             }]
@@ -85,7 +85,9 @@
 
         var account = {!! $account !!};
         var chartGroupBy = 'day';
+        var realCurrencyId = {{ $account->getCurrencyId() }};
         var chartCurrencyId = {{ $account->getCurrencyId() }};
+        var chartQuarter = moment().quarter();
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 		var chartStartDate;
         var chartEndDate;
@@ -160,10 +162,11 @@
                 t.addClass("active").siblings().removeClass("active");
 
                 if(t.attr("data-button") === "totals"){
-
-                    chartCurrencyId = 'totals';
+                    realCurrencyId  = account.currency.id;
+                    chartCurrencyId = "totals";
                 }else {
-                    chartCurrencyId = currencyMap[t.text()].id;
+                    realCurrencyId  = currencyMap[t.text()].id;
+                    chartCurrencyId = realCurrencyId;
                 }
                 displayTotalsNote();
 

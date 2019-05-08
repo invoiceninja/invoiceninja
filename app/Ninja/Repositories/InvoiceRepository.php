@@ -377,14 +377,6 @@ class InvoiceRepository extends BaseRepository
         /** @var Account $account */
         $account = $invoice ? $invoice->account : \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-
-        if (Utils::isNinjaProd() && ! Utils::isReseller()) {
-            $copy = json_decode( json_encode($data), true);
-            $copy['data'] = false;
-            $logMessage = date('r') . ' account_id: ' . $account->id . ' ' . json_encode($copy) . "\n\n";
-            @file_put_contents(storage_path('logs/invoice-repo.log'), $logMessage, FILE_APPEND);
-        }
-
         $isNew = ! $publicId || intval($publicId) < 0;
 
         if ($invoice) {
@@ -925,6 +917,7 @@ class InvoiceRepository extends BaseRepository
           'terms',
           'invoice_footer',
           'public_notes',
+          'private_notes',
           'invoice_design_id',
           'tax_name1',
           'tax_rate1',
@@ -945,6 +938,7 @@ class InvoiceRepository extends BaseRepository
 
         if ($quoteId) {
             $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
+            $clone->invoice_design_id = $account->invoice_design_id;
             $clone->quote_id = $quoteId;
             if ($account->invoice_terms) {
                 $clone->terms = $account->invoice_terms;
@@ -1204,8 +1198,15 @@ class InvoiceRepository extends BaseRepository
         $dates = [];
 
         for ($i = 1; $i <= 3; $i++) {
-            if ($date = $account->getReminderDate($i, $filterEnabled)) {
+            if ($date = $account->getReminderDate('reminder'.$i, $filterEnabled)) {
                 if ($account->account_email_settings->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                    $dates[] = "(due_date = '$date' OR partial_due_date = '$date')";
+                } else {
+                    $dates[] = "invoice_date = '$date'";
+                }
+            }
+            if ($date = $account->getReminderDate('quote_reminder'.$i, $filterEnabled)) {
+                if ($account->account_email_settings->{"field_quote_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
                     $dates[] = "(due_date = '$date' OR partial_due_date = '$date')";
                 } else {
                     $dates[] = "invoice_date = '$date'";
@@ -1218,14 +1219,14 @@ class InvoiceRepository extends BaseRepository
         }
 
         $sql = implode(' OR ', $dates);
-        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
-                    ->with('client', 'invoice_items')
+        $invoices = Invoice::with('client', 'invoice_items')
                     ->whereHas('client', function ($query) {
                         $query->whereSendReminders(true);
                     })
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
+                    ->whereNull('quote_invoice_id') // skip converted quotes
                     ->whereIsPublic(true)
                     ->whereRaw('('.$sql.')')
                     ->get();
@@ -1233,12 +1234,19 @@ class InvoiceRepository extends BaseRepository
         return $invoices;
     }
 
-    public function findNeedingEndlessReminding(Account $account)
+    public function findNeedingEndlessReminding(Account $account, $quote = false)
     {
-        $settings = $account->account_email_settings;
-        $frequencyId = $settings->frequency_id_reminder4;
+        $invoiceType = INVOICE_TYPE_STANDARD;
+        $reminder = 'reminder';
+        if ($quote) {
+            $reminder = 'quote_reminder';
+            $invoiceType = INVOICE_TYPE_QUOTE;
+        }
 
-        if (! $frequencyId || ! $account->account_email_settings->enable_reminder4) {
+        $settings = $account->account_email_settings;
+        $frequencyId = $settings->{"frequency_id_{$reminder}4"};
+
+        if (! $frequencyId || ! $account->account_email_settings->{"enable_{$reminder}4"}) {
             return collect();
         }
 
@@ -1246,7 +1254,7 @@ class InvoiceRepository extends BaseRepository
         $lastSentDate = date_create();
         $lastSentDate->sub(date_interval_create_from_date_string($frequency->date_interval));
 
-        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+        $invoices = Invoice::invoiceType($invoiceType)
                     ->with('client', 'invoice_items')
                     ->whereHas('client', function ($query) {
                         $query->whereSendReminders(true);
@@ -1254,17 +1262,18 @@ class InvoiceRepository extends BaseRepository
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
+                    ->whereNull('quote_invoice_id') // skip converted quotes
                     ->whereIsPublic(true)
                     ->where('last_sent_date', '<', $lastSentDate);
 
         for ($i=1; $i<=3; $i++) {
-            if (!$account->account_email_settings->{"enable_reminder{$i}"}) {
+            if (!$account->account_email_settings->{"enable_{$reminder}{$i}"}) {
                 continue;
             }
-            $field = $account->account_email_settings->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
+            $field = $account->account_email_settings->{"field_{$reminder}{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
             $date = date_create();
-            if ($account->account_email_settings->{"direction_reminder{$i}"} == REMINDER_DIRECTION_AFTER) {
-                $date->sub(date_interval_create_from_date_string($account->account_email_settings->{"num_days_reminder{$i}"} . ' days'));
+            if ($account->account_email_settings->{"direction_{$reminder}{$i}"} == REMINDER_DIRECTION_AFTER) {
+                $date->sub(date_interval_create_from_date_string($account->account_email_settings->{"num_days_{$reminder}{$i}"} . ' days'));
             }
             $invoices->where($field, '<', $date);
         }
@@ -1336,14 +1345,19 @@ class InvoiceRepository extends BaseRepository
         $date = $account->getDateTime()->format($account->getCustomDateFormat());
         $feeItemLabel = $account->getLabel('gateway_fee_item') ?: ($fee >= 0 ? trans('texts.surcharge') : trans('texts.discount'));
 
-        if ($feeDescriptionLabel = $account->getLabel('gateway_fee_description')) {
-            if (strpos($feeDescriptionLabel, '$date') !== false) {
-                $feeDescriptionLabel = str_replace('$date', $date, $feeDescriptionLabel);
-            } else {
-                $feeDescriptionLabel .= ' • ' . $date;
-            }
+        if($fee == 0){
+            return;
+        }
+
+        if($fee > 0){
+            $feeDescriptionLabel = $account->getLabel('gateway_fee_description') ? $account->getLabel('gateway_fee_description') : trans('texts.online_payment_surcharge');
+        }else{
+            $feeDescriptionLabel = $account->getLabel('gateway_fee_discount_description') ? $account->getLabel('gateway_fee_discount_description') : trans('texts.online_payment_discount');
+        }
+
+        if (strpos($feeDescriptionLabel, '$date') !== false) {
+            $feeDescriptionLabel = str_replace('$date', $date, $feeDescriptionLabel);
         } else {
-            $feeDescriptionLabel = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
             $feeDescriptionLabel .= ' • ' . $date;
         }
 

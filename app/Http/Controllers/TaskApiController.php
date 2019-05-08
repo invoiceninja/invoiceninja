@@ -45,7 +45,7 @@ class TaskApiController extends BaseAPIController
     {
         $tasks = Task::scope()
                         ->withTrashed()
-                        ->with('client', 'invoice', 'project')
+                        ->with('client', 'invoice', 'project', 'task_status', 'user')
                         ->orderBy('updated_at', 'desc');
 
         return $this->listResponse($tasks);

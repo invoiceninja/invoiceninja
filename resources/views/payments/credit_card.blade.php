@@ -452,7 +452,10 @@
               event.preventDefault();
 
 
-            var options = {};
+            var options = {
+                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value
+            };
+
             if (document.getElementById('postal_code')) {
                 options.address_zip = document.getElementById('postal_code').value;
             }
@@ -576,22 +579,6 @@
                         </div>
                     </div>
 
-                    <div class="row" style="padding-top:18px">
-
-                        <div class="col-md-12">
-                            @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
-                                <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
-                                <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
-                                <span class="help-block" style="font-size:15px">
-                                    @if ($storageGateway == GATEWAY_STRIPE)
-                                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
-                                    @elseif ($storageGateway == GATEWAY_BRAINTREE)
-                                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
-                                    @endif
-                                </span>
-                            @endif
-                        </div>
-                    </div>
                 </div>
                 <div class="col-lg-4" style="padding-top: 12px; padding-left: 0px;">
                     <div class='card-wrapper'></div>
@@ -599,6 +586,23 @@
             @endif
         </div>
     @endif
+
+    <div class="row" style="padding-top:18px">
+        <div class="col-md-12">
+            @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
+                <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
+                <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
+                <span class="help-block" style="font-size:15px">
+                    @if ($storageGateway == GATEWAY_STRIPE)
+                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
+                    @elseif ($storageGateway == GATEWAY_BRAINTREE)
+                        {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
+                    @endif
+                </span>
+            @endif
+        </div>
+    </div>
+
 
     <div class="col-md-12">
         <div id="js-error-message" style="display:none" class="alert alert-danger"></div>
