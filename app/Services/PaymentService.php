@@ -165,6 +165,18 @@ class PaymentService extends BaseService
             $credit->save();
             $input['amount'] = $invoice->balance;
         }
+        
+        // If the payment amount is less than the balance, and it is wanted by the user, issue a discount
+        if ($invoice && $input['payment_discount_remaining_balance'] && Utils::parseFloat($input['amount']) < $invoice->balance) {
+            $amount = Utils::parseFloat($input['amount']);
+            $remaining = $invoice->balance - $amount;
+            if($remaining > 0) {
+                $invoice->discount = $remaining;
+                $invoice->is_amount_discount = true;
+                $invoice->balance = 0;
+                $invoice->updatePaidStatus(true, true);
+            }
+        }
 
         return $this->paymentRepo->save($input, $payment);
     }

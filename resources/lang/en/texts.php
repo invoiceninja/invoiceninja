@@ -942,6 +942,7 @@ $LANG = array(
     'expense_error_multiple_clients' => 'The expenses can\'t belong to different clients',
     'expense_error_invoiced' => 'Expense has already been invoiced',
     'convert_currency' => 'Convert currency',
+    'payment_discount_remaining_balance' => 'Add discount for remaining balance',
     'num_days' => 'Number of Days',
     'create_payment_term' => 'Create Payment Term',
     'edit_payment_terms' => 'Edit Payment Term',
