@@ -173,7 +173,7 @@ class PaymentService extends BaseService
             if($remaining > 0) {
                 $invoice->discount = $remaining;
                 $invoice->is_amount_discount = true;
-                $invoice->balance = 0;
+                $invoice->balance = $invoice->balance - $remaining;
                 $invoice->updatePaidStatus(true, true);
             }
         }
