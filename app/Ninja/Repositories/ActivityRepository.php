@@ -79,7 +79,6 @@ class ActivityRepository
                     ->leftJoin('expenses', 'expenses.id', '=', 'activities.expense_id')
                     ->leftJoin('tickets', 'tickets.id', '=', 'activities.ticket_id')
                     ->where('clients.id', '=', $clientId)
-                    ->where('contacts.is_primary', '=', 1)
                     ->whereNull('contacts.deleted_at')
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
