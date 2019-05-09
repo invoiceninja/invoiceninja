@@ -34,19 +34,19 @@ class InvoiceRepository extends BaseRepository
      */
     public function save($data, Invoice $invoice) : ?Invoice
 	{
+
         $invoice->fill($data);
         
         $invoice->save();
 
-
         $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
         $invoice = $invoice_calc->build()->getInvoice();
-
-        //fire events here that cascading from the saving of an invoice
-        //ie. client balance update...
         
+        $invoice->save();
+
         return $invoice;
+        
 	}
 
 

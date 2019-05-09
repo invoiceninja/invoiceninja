@@ -14,6 +14,7 @@ use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Jobs\Entity\ActionEntity;
+use App\Jobs\Invoice\StoreInvoice;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
 use App\Repositories\InvoiceRepository;
@@ -101,6 +102,8 @@ class InvoiceController extends BaseController
     {
         
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all());
 
         return $this->itemResponse($invoice);
 
