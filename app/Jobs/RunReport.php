@@ -10,11 +10,12 @@ use App\Jobs\Job;
 
 class RunReport extends Job
 {
-    public function __construct($user, $reportType, $config, $isExport = false)
+    public function __construct($user, $reportType, $config, $account, $isExport = false)
     {
         $this->user = $user;
         $this->reportType = $reportType;
         $this->config = $config;
+        $this->account = $account;
         $this->isExport = $isExport;
     }
 
@@ -71,7 +72,7 @@ class RunReport extends Job
             $endDate = $config['end_date'];
         }
 
-        $report = new $reportClass($startDate, $endDate, $isExport, $config);
+        $report = new $reportClass($startDate, $endDate, $isExport, $this->account, $config);
         $report->run();
 
         $params = [

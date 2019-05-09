@@ -61,6 +61,8 @@ class ReportController extends BaseController
         $action = Input::get('action');
         $format = Input::get('format');
 
+        $account = Auth::user()->account;
+
         if (Input::get('report_type')) {
             $reportType = Input::get('report_type');
             $dateField = Input::get('date_field');
@@ -96,10 +98,10 @@ class ReportController extends BaseController
             'reportTypes' => array_combine($reportTypes, Utils::trans($reportTypes)),
             'reportType' => $reportType,
             'title' => trans('texts.charts_and_reports'),
-            'account' => Auth::user()->account,
+            'account' => $account,
         ];
 
-        if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
+        if ($account->hasFeature(FEATURE_REPORTS)) {
             $isExport = $action == 'export';
             $config = [
                 'date_field' => $dateField,
@@ -112,7 +114,8 @@ class ReportController extends BaseController
                 'start_date' => $params['startDate'],
                 'end_date' => $params['endDate'],
             ];
-            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $isExport));
+
+            $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $account, $isExport));
             $params = array_merge($params, $report->exportParams);
             switch ($action) {
                 case 'export':
