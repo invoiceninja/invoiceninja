@@ -424,11 +424,6 @@
                                 ->text(trans('texts.enable'))
                                 ->blockHelp(trans('texts.allow_approve_expired_quote_help'))
                                 ->value(1) !!}
-
-                        {!! Former::checkbox('allow_approve_expired_quote')
-                                ->text(trans('texts.enable'))
-                                ->blockHelp(trans('texts.allow_approve_expired_quote_help'))
-                                ->value(1) !!}
                     </div>
                 </div>
             </div>
