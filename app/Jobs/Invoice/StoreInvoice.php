@@ -2,6 +2,9 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Invoice\InvoiceNotification;
+use App\Jobs\Payment\PaymentNotification;
+use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -69,6 +72,8 @@ class StoreInvoice implements ShouldQueue
             $this->invoice = $invoice_repo->markSent($this->invoice);
 
             //fire invoice job (the job performs the filtering logic of the email recipients... if any.)
+            InvoiceNotification::dispatch($invoice);
+
         }
 
         if(isset($this->data['mark_paid']) && (bool)$this->data['mark_paid'])
@@ -86,6 +91,8 @@ class StoreInvoice implements ShouldQueue
         if($payment)
         {
             //fire payment notifications here
+            PaymentNotification::dipatch($payment);
+            
         }
 
         if(isset($data['download_invoice']) && (bool)$this->data['download_invoice'])

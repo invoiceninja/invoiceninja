@@ -46,7 +46,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->save();
 
         return $invoice;
-        
+
 	}
 
 
@@ -61,9 +61,10 @@ class InvoiceRepository extends BaseRepository
     {
 
         if($invoice->status_id >= Invoice::STATUS_SENT)
-            return;
+            return $invoice;
 
         $invoice->status_id = Invoice::STATUS_SENT;
+        
         $invoice->save();
 
         return $invoice;
