@@ -12,17 +12,15 @@ use Illuminate\Http\Request;
 class InvoiceRepository extends BaseRepository
 {
 
-
     /**
      * Gets the class name.
      *
-     * @return     ::class  The class name.
+     * @return     string  The class name.
      */
     public function getClassName()
     {
         return Invoice::class;
     }
-
     
 	/**
      * Saves the invoices
@@ -49,7 +47,6 @@ class InvoiceRepository extends BaseRepository
 
 	}
 
-
     /**
      * Mark the invoice as sent.
      *
@@ -64,7 +61,7 @@ class InvoiceRepository extends BaseRepository
             return $invoice;
 
         $invoice->status_id = Invoice::STATUS_SENT;
-        
+
         $invoice->save();
 
         return $invoice;

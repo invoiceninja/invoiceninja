@@ -5,10 +5,9 @@ namespace App\Repositories;
 use App\Models\Client;
 use App\Repositories\ClientContactRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
- * 
+ * ClientRepository
  */
 class ClientRepository extends BaseRepository
 {
@@ -16,32 +15,55 @@ class ClientRepository extends BaseRepository
     /**
      * @var ClientContactRepository
      */
-    protected $contactRepo;
+    protected $contact_repo;
 
     /**
      * ClientController constructor.
-     * @param ClientContactRepository $contactRepo
+     * @param ClientContactRepository $contact_repo
      */
-    public function __construct(ClientContactRepository $contactRepo)
+    public function __construct(ClientContactRepository $contact_repo)
     {
 
-        $this->contactRepo = $contactRepo;
+        $this->contact_repo = $contact_repo;
 
     }
 
+    /**
+     * Gets the class name.
+     *
+     * @return     string The class name.
+     */
     public function getClassName()
     {
+
         return Client::class;
+
     }
-    
-	public function save(Request $request, Client $client) : ?Client
+
+	/**
+     * Saves the client and its contacts
+     *
+     * @param      array                           $data    The data
+     * @param      \App\Models\Client              $client  The client
+     *
+     * @return     Client|\App\Models\Client|null  Client Object
+     */
+    public function save(array $data, Client $client) : ?Client
 	{
-        $client->fill($request->input());
+
+        $client->fill($data);
+
         $client->save();
 
-        $contacts = $this->contactRepo->save($request->input('contacts'), $client);
+        $client->id_number = $client->getNextNumber($client); //todo write tests for this and make sure that custom client numbers also works as expected from here
+
+        $client->save();
+
+        if(isset($data['contacts']))
+            $contacts = $this->contact_repo->save($data['contacts'], $client);
 
         return $client;
+        
 	}
 
 }

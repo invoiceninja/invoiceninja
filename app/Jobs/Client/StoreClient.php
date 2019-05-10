@@ -14,7 +14,7 @@ class StoreClient
 {
     use Dispatchable;
 
-    protected $request;
+    protected $data;
 
     protected $client;
 
@@ -24,9 +24,10 @@ class StoreClient
      * @return void
      */
 
-    public function __construct(Request $request, Client $client)
+    public function __construct(array $data, Client $client)
     {
-        $this->request = $request;
+        $this->data = $data;
+
         $this->client = $client;
     }
 
@@ -35,11 +36,11 @@ class StoreClient
      *
      * @return void
      */
-    public function handle(ClientRepository $clientRepo, ClientContactRepository $clientContactRepo) : ?Client
-    {
-        $client =  $clientRepo->save($this->request, $this->client);
+    public function handle(ClientRepository $client_repo, ClientContactRepository $client_contact_repo) : ?Client
+    
+        $client =  $client_repo->save($this->data, $this->client);
 
-        $contacts = $clientContactRepo->save($this->request->input('contacts'), $client);
+        $contacts = $client_contact_repo->save($data['contacts']), $client);
 
         return $client;
     }

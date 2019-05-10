@@ -6,7 +6,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 
 /**
- * 
+ * ClientContactRepository
  */
 class ClientContactRepository extends BaseRepository
 {
@@ -19,15 +19,19 @@ class ClientContactRepository extends BaseRepository
 
 		/* Get array of IDs which have been removed from the contacts array and soft delete each contact */
 		collect($client->contacts->pluck('id'))->diff($contacts->pluck('id'))->each(function($contact){
+
 			ClientContact::destroy($contact);
+
 		});
 
 		/* Set first record to primary - always*/
 		$contacts = $contacts->sortBy('is_primary');
 
 		$contacts->first(function($contact){
+
 			$contact['is_primary'] = true;
 			$contact->save();
+
 		});
 
 		//loop and update/create contacts
@@ -43,13 +47,11 @@ class ClientContactRepository extends BaseRepository
 			);
 
 			$update_contact->fill($contact);
+
 			$update_contact->save();
 		});
 
 
 	}
-	
-
-
 
 }

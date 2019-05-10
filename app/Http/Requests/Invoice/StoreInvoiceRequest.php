@@ -37,7 +37,7 @@ public function sanitize()
     /** If we have an email address instead of a client_id - harvest the client_id here */
     if(isset($input['email']) && !$input['client_id'])
     {
-        $contact = ClientContact::company()->whereEmail($input['email'])->first();
+        $contact = ClientContact::company(auth()->user()->company()->id)->whereEmail($input['email'])->first();
 
         if($contact)
             $input['client_id'] = $contact->client_id;

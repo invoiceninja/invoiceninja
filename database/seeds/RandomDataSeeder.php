@@ -35,7 +35,7 @@ class RandomDataSeeder extends Seeder
 
         $user = factory(\App\Models\User::class)->create([
             'email'             => $faker->email,
-            'account_id' => $account->id,
+           // 'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 
@@ -94,6 +94,12 @@ class RandomDataSeeder extends Seeder
         /** Invoice Factory */
         factory(\App\Models\Invoice::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
+        $clients = Client::all();
 
+        foreach($clients as $client)
+        {
+            $client->getNextNumber($client);
+            $client->save();
+        }
     }
 }

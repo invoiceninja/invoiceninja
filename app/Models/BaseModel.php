@@ -36,6 +36,7 @@ class BaseModel extends Model
     public function scopeCompany($query, $company_id)
     {
         $query->where('company_id', $company_id);
+        
         return $query;
     }
 

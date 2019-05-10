@@ -102,7 +102,8 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-        $client = $this->client_repo->save($request, $client);
+
+        $client = $this->client_repo->save($request->all(), $client);
 
         return $this->itemResponse($client);
 
@@ -115,6 +116,7 @@ class ClientController extends BaseController
      */
     public function create(CreateClientRequest $request)
     {
+        
         $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($client);
@@ -130,7 +132,7 @@ class ClientController extends BaseController
     public function store(StoreClientRequest $request)
     {
         
-        $client = $this->client_repo->save($request, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $client = $this->client_repo->save($request->all(), ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
 

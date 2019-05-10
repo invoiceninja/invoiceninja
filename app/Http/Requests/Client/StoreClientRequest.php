@@ -4,9 +4,11 @@ namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
 use App\Models\Client;
+use App\Utils\Traits\GeneratesNumberCounter;
 
 class StoreClientRequest extends Request
 {
+    use GeneratesNumberCounter;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -20,8 +22,11 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
+//        $this->sanitize();
+
         /* Ensure we have a client name, and that all emails are unique*/
         $rules['name'] = 'required';
+        $rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
 
         $contacts = request('contacts');
 
@@ -36,6 +41,15 @@ class StoreClientRequest extends Request
 
         return $rules;
             
+
+    }
+
+
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        $this->replace($input);   
 
     }
 
