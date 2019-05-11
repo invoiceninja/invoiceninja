@@ -19,36 +19,51 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class InvoiceNotification implements ShouldQueue
+/**
+ * Class InvoiceActions
+ * @package App\Jobs\Invoice
+ */
+class InvoiceActions implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var Invoice $invoice
+     */
     public $invoice;
+
+    /**
+     * @var array $data
+     */
+    public $data;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, array $data)
     {
 
         $this->invoice = $invoice;
+
+        $this->data = $data;
 
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
     {
 
-        //notification for the invoice.
-        //
-        //could mean a email, sms, slack, push
+        switch($this->data['action'])
+        {
+            //fire actions here
+        }
 
     }
 }

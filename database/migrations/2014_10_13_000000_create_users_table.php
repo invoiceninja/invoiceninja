@@ -811,8 +811,6 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('task_id')->nullable();
             $table->unsignedInteger('expense_id')->nullable();
             $table->unsignedInteger('activity_type_id')->nullable();
-            $table->decimal('adjustment', 13, 2)->nullable();
-            $table->decimal('balance', 13, 2)->nullable();
             $table->string('ip');
             $table->boolean('is_system')->default(0);
 

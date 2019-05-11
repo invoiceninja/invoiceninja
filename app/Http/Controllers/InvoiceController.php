@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Http\Controllers;
 
@@ -103,7 +112,7 @@ class InvoiceController extends BaseController
         
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $invoice = StoreInvoice::dispatchNow($invoice, $request->all());
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all()); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
         return $this->itemResponse($invoice);
 
