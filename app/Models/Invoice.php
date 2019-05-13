@@ -75,6 +75,11 @@ class Invoice extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function payments()
+    {
+        return $this->morphToMany(Payment::class, 'paymentable');
+    }
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */

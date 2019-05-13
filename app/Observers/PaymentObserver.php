@@ -23,7 +23,7 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-        //
+
     }
 
     /**

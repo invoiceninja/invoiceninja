@@ -14,6 +14,7 @@ namespace App\Factory;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Payment;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class PaymentFactory
@@ -31,10 +32,11 @@ class PaymentFactory
 		$payment->payment_type_id = null;
 		$payment->is_deleted = false;
 		$payment->amount = 0;
-		$payment->payment_date = null;
+		$payment->payment_date = Carbon::now();
 		$payment->transaction_reference = null;
 		$payment->payer_id = null;
 		$payment->invoice_id = 0;
+		$payment->status_id = Payment::STATUS_PENDING;
 		
 		return $payment;
 	}

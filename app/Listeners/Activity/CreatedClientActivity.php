@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Listeners\Client;
+namespace App\Listeners\Activity;
 
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;

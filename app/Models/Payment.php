@@ -19,7 +19,14 @@ class Payment extends BaseModel
 {
     use MakesHash;
     use Filterable;
-    
+
+    const STATUS_PENDING = 1;
+    const STATUS_VOIDED = 2;
+    const STATUS_FAILED = 3;
+    const STATUS_COMPLETED = 4;
+    const STATUS_PARTIALLY_REFUNDED = 5;
+    const STATUS_REFUNDED = 6;
+
     protected $guarded = [
 		'id',
 	];
@@ -42,5 +49,10 @@ class Payment extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function invoices()
+    {
+        return $this->morphedByMany(Invoice::class, 'paymentable');
     }
 }

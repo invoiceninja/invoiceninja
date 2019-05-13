@@ -13,8 +13,10 @@ namespace App\Providers;
 
 use App\Events\Client\ClientWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Events\Payment\PaymentWasCreated;
 use App\Events\User\UserCreated;
-use App\Listeners\Client\CreatedClientActivity;
+use App\Listeners\Activity\PaymentCreatedActivity;
+use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Invoice\CreateInvoiceInvitations;
 use App\Listeners\SendVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -35,6 +37,9 @@ class EventServiceProvider extends ServiceProvider
         ClientWasCreated::class => [
             CreatedClientActivity::class,
            // 'App\Listeners\SubscriptionListener@createdClient',
+        ],
+        PaymentWasCreated::class => [
+            PaymentCreatedActivity::class,
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',

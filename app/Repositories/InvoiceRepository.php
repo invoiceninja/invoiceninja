@@ -65,8 +65,8 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-
-        if($invoice->status_id >= Invoice::STATUS_SENT)
+        /* Return immediately if status is not draft*/
+        if($invoice->status_id != Invoice::STATUS_DRAFT)
             return $invoice;
 
         $invoice->status_id = Invoice::STATUS_SENT;

@@ -665,7 +665,7 @@ class CreateUsersTable extends Migration
 
         Schema::create('payments', function ($t) {
             $t->increments('id');
-            $t->unsignedInteger('invoice_id')->nullable()->index(); //todo handle payments where there is no invoice OR we are paying MULTIPLE invoices
+            //$t->unsignedInteger('invoice_id')->nullable()->index(); //todo handle payments where there is no invoice OR we are paying MULTIPLE invoices
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('client_contact_id')->nullable();
@@ -673,6 +673,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id')->nullable();
             $t->unsignedInteger('account_gateway_id')->nullable();
             $t->unsignedInteger('payment_type_id')->nullable();
+            $t->unsignedInteger('status_id')->index();
+
             $t->timestamps(6);
             $t->softDeletes();
 
@@ -693,6 +695,11 @@ class CreateUsersTable extends Migration
 
         });
 
+        Schema::create('paymentables', function ($table) {
+            $table->unsignedInteger('payment_id');
+            $table->unsignedInteger('paymentable_id');
+            $table->string('paymentable_type');
+        });
 
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
