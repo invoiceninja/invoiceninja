@@ -10,7 +10,6 @@ $factory->define(App\Models\Payment::class, function (Faker $faker) {
 		'amount' => $faker->numberBetween(1,10),
 		'payment_date' => $faker->date(),
 		'transaction_reference' => $faker->text(10),
-		'invoice_id' => $faker->numberBetween(1,10)
     ];
 });
 
