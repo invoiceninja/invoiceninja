@@ -307,6 +307,16 @@ class InvoiceCalc
 		
 		return $this->invoice;
 	}
+
+
+	/**
+	 * Build $this->invoice variable after
+	 * calculations have been performed.
+	 */
+	private function setCalculatedAttributes()
+	{
+
+	}
 /*
 	private function setDiscount($amount, $discount, $is_amount_discount)
 	{

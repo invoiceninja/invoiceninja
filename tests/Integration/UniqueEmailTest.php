@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Integration;
 
 use App\Http\ValidationRules\UniqueUserRule;
 use App\Models\Account;

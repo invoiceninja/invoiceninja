@@ -21,7 +21,7 @@ class PaymentFactory
 {
 	public static function create(int $company_id, int $user_id) :Payment
 	{
-		$payment = new Payment();
+		$payment = new Payment;
 		
 		$payment->company_id = $company_id;
 		$payment->user_id = $user_id;
@@ -32,10 +32,9 @@ class PaymentFactory
 		$payment->payment_type_id = null;
 		$payment->is_deleted = false;
 		$payment->amount = 0;
-		$payment->payment_date = Carbon::now();
+		$payment->payment_date = Carbon::now()->format('Y-m-d');
 		$payment->transaction_reference = null;
 		$payment->payer_id = null;
-		$payment->invoice_id = 0;
 		$payment->status_id = Payment::STATUS_PENDING;
 		
 		return $payment;

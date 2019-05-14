@@ -31,7 +31,7 @@ class CompanySettings extends BaseSettings
 	public $show_currency_symbol;
 	public $show_currency_code;
 
-	public $payment_terms;
+	public $payment_terms; //days
 
 	public $custom_label1;
 	public $custom_value1;
@@ -78,6 +78,7 @@ class CompanySettings extends BaseSettings
 	public $custom_message_paid_invoice;
 	public $custom_message_unapproved_quote;
 	public $lock_sent_invoices;
+	public $auto_archive_invoice;
 
 	public $inclusive_taxes;
 
@@ -157,6 +158,7 @@ class CompanySettings extends BaseSettings
 			'client_number_counter' => 1,
 			'counter_padding' => 0,
 			'recurring_invoice_number_prefix' => 'R',
+			'auto_archive_invoice' => 'FALSE',
 			
 			'translations' => (object) [],
 		];

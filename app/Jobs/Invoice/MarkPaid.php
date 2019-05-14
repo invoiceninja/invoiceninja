@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\ApplyPaymentToInvoice;
 use App\Models\Invoice;
@@ -21,6 +22,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class MarkPaid implements ShouldQueue
 {
@@ -49,18 +51,19 @@ class MarkPaid implements ShouldQueue
     public function handle()
     {
         /* Create Payment */
-        $payment = new PaymentFactory($this->invoice->company_id, $this->invoice->user_id);
+        $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $invoice->balance;
+        $payment->amount = $this->invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->client_id = $invoice->client_id;
+        $payment->client_id = $this->invoice->client_id;
 
         $payment->save();
 
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->save($this->invoice);
-
-
+//Log::error($payment);
+//Log::error('num of payment invoice relations '.count($payment->invoices));
+//Log::error(print_r($payment->invoices,1));
         /* Need to engineer the ability to pass an array of invoices to the activity handler*/
         $data = [
             'payment_id' => $payment->id,
@@ -72,7 +75,7 @@ class MarkPaid implements ShouldQueue
         event(new PaymentWasCreated($data));
 
         /* Update Invoice balance */
-        ApplyPaymentToInvoice::dispatchNow($payment, $invoice);
+        ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
 
     }
 }

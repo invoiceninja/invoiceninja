@@ -12,6 +12,7 @@
 namespace App\Listeners\Activity;
 
 use App\Models\Activity;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
