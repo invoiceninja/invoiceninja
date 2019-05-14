@@ -61,10 +61,7 @@ class MarkPaid implements ShouldQueue
 
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->save($this->invoice);
-//Log::error($payment);
-//Log::error('num of payment invoice relations '.count($payment->invoices));
-//Log::error(print_r($payment->invoices,1));
-        /* Need to engineer the ability to pass an array of invoices to the activity handler*/
+
         $data = [
             'payment_id' => $payment->id,
             'invoice_ids' => [

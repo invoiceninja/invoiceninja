@@ -78,9 +78,8 @@ trait MockAccountData
 		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
-		$this->invoice->amount = $this->invoice_calc->getTotal();
-		$this->invoice->balance = $this->invoice_calc->getTotal();
-		
+		$this->invoice = $this->invoice_calc->getInvoice();
+
         $this->invoice->save();
         $this->invoice->fresh();
 

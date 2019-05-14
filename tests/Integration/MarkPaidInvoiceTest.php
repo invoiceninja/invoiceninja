@@ -10,9 +10,6 @@ use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -47,16 +44,12 @@ class MarkPaidInvoiceTest extends TestCase
 
         $this->assertEquals(1, count($invoice->payments));
 
-
         foreach($invoice->payments as $payment) {
-            Log::error($payment);
+            //Log::error($payment);
             $this->assertEquals(10, $payment->amount);
         }
 
-
-
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
-
 
         $this->assertEquals(0.00, $invoice->balance);
 

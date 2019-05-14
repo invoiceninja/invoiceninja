@@ -303,20 +303,34 @@ class InvoiceCalc
 
 	public function getInvoice()
 	{
-		//todo build invoice values here and return Invoice
-		
+		//Build invoice values here and return Invoice
+		$this->setCalculatedAttributes();
+
 		return $this->invoice;
 	}
 
 
 	/**
-	 * Build $this->invoice variable after
+	 * Build $this->invoice variables after
 	 * calculations have been performed.
 	 */
 	private function setCalculatedAttributes()
 	{
+		/* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
+		if($this->invoice->amount != $this->invoice->balance)
+		{
+			$paid_to_date = $this->invoice->amount - $this->invoice->balance;
+
+			$this->invoice->balance = $this->getTotal() - $paid_to_date;
+		}
+		else
+			$this->invoice->balance = $this->getTotal();
+
+		/* Set new calculated total */
+		$this->invoice->amount = $this->getTotal();
 
 	}
+
 /*
 	private function setDiscount($amount, $discount, $is_amount_discount)
 	{

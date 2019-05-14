@@ -53,7 +53,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
     public function handle()
     {
 
-        /* The amoun we are adjusting the invoice by*/
+        /* The amount we are adjusting the invoice by*/
         $adjustment = $this->payment->amount * -1;
 
         /* Calculate if the amount paid is less than the partial value.

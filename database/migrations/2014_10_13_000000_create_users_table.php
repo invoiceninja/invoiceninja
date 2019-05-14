@@ -856,8 +856,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id')->nullable();
 
             $table->decimal('adjustment', 13, 2)->nullable();
-            $table->decimal('balance', 13, 2)->nullable();
-            $table->decimal('balance_carried_forward', 13, 2)->nullable();
+            $table->decimal('balance', 13, 2)->nullable(); //this is the clients balance carried forward
             $table->text('notes');
 
             $table->unsignedInteger('company_ledger_id');
