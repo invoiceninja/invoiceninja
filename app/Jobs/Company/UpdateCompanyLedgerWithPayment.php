@@ -14,8 +14,12 @@ namespace App\Jobs\Company;
 use App\Factory\CompanyLedgerFactory;
 use App\Models\CompanyLedger;
 use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+/**
+ * Class for update company ledger with payment.
+ */
 class UpdateCompanyLedgerWithPayment
 {
     use Dispatchable;
@@ -23,6 +27,7 @@ class UpdateCompanyLedgerWithPayment
     public $adjustment;
 
     public $payment
+
     /**
      * Create a new job instance.
      *
@@ -47,6 +52,7 @@ class UpdateCompanyLedgerWithPayment
     {
         $balance = 0;
 
+        /* Get the last record for the client and set the current balance*/
         $ledger = CompanyLedger::whereClientId($this->payment->client_id)
                                 ->whereCompanyId($this->payment->company_id)
                                 ->orderBy('id', 'DESC')
@@ -59,6 +65,7 @@ class UpdateCompanyLedgerWithPayment
         $company_ledger = CompanyLedgerFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $company_ledger->client_id = $this->payment->client_id;
         $company_ledger->balance = $balance + $this->adjustment;
+        $company_ledger->save();
 
         $this->payment->company_ledger()->save($company_ledger); //todo add model directive here
 

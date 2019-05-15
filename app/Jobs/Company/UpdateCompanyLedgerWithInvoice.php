@@ -59,7 +59,8 @@ class UpdateCompanyLedgerWithInvoice
         $company_ledger = CompanyLedgerFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $company_ledger->client_id = $this->invoice->client_id;
         $company_ledger->balance = $balance + $this->adjustment;
-
+        $company_ledger->save();
+        
         $this->invoice->company_ledger()->save($company_ledger);
 
     }

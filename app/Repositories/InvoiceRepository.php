@@ -11,6 +11,8 @@
 
 namespace App\Repositories;
 
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Invoice;
@@ -42,6 +44,12 @@ class InvoiceRepository extends BaseRepository
      */
     public function save($data, Invoice $invoice) : ?Invoice
 	{
+        /* Test if this is a new invoice or existing */
+        $new_invoice = true;
+
+        if(isset($invoice->id))
+            $new_invoice = false;
+
         /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
         $starting_amount = $invoice->amount;
 
@@ -55,11 +63,16 @@ class InvoiceRepository extends BaseRepository
         
         $invoice->save();
 
+        if($new_invoice)
+            event(new InvoiceWasCreated($invoice));
+        else
+            event(new InvoiceWasUpdated($invoice));
+
         $finished_amount = $invoice->amount;
 
         if($finished_amount != $starting_amount)
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice);
-        
+
         return $invoice;
 
 	}

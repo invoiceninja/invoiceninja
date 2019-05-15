@@ -9,14 +9,17 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Listeners\Activity;
+namespace App\Listeners\Invoice;
 
-use App\Models\Activity;
+use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
 use App\Repositories\ActivityRepository;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
-class CreatedClientActivity
+class CreateInvoiceActivity
 {
     protected $activity_repo;
     /**
@@ -40,11 +43,11 @@ class CreatedClientActivity
 
         $fields = new \stdClass;
 
-        $fields->client_id = $event->client->id;
-        $fields->user_id = $event->client->user_id;
-        $fields->company_id = $event->client->company_id;
-        $fields->activity_type_id = Activity::CREATE_CLIENT;
+        $fields->client_id = $event->invoice->id;
+        $fields->user_id = $event->invoice->user_id;
+        $fields->company_id = $event->invoice->company_id;
+        $fields->activity_type_id = Activity::CREATE_INVOIE;
 
-        $this->activity_repo->save($fields, $event->client);
+        $this->activity_repo->save($fields, $event->invoice);
     }
 }
