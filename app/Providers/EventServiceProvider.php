@@ -19,7 +19,9 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Events\User\UserCreated;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
+use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceInvitations;
+use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\SendVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -64,10 +66,10 @@ class EventServiceProvider extends ServiceProvider
             CreateInvoiceInvitations::class,
         ],
         InvoiceWasUpdated::class => [
-
+            UpdateInvoiceActivity::class,
         ],
         InvoiceWasCreated::class => [
-
+            CreateInvoiceActivity::class,
         ],
     ];
 
