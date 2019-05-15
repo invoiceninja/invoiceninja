@@ -107,5 +107,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
         $this->invoice->save();
 
+        /* Insert the ledger transaction */
+        UpdateCompanyLedgerWithPayment::dispatch($this->payment, $adjustment);
     }
 }

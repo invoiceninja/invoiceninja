@@ -31,4 +31,9 @@ class CompanyLedger extends BaseModel
     {
     	return $this->belongsTo(Company::class);
     }
+
+    public function company_ledgerable()
+    {
+        return $this->morphTo();
+    }
 }

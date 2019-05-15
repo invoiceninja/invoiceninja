@@ -81,6 +81,11 @@ class Invoice extends BaseModel
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
+    public function company_ledger()
+    {
+        return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
+    }
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */

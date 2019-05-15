@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Helpers\Invoice\InvoiceCalc;
+use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 
@@ -41,6 +42,8 @@ class InvoiceRepository extends BaseRepository
      */
     public function save($data, Invoice $invoice) : ?Invoice
 	{
+        /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
+        $starting_amount = $invoice->amount;
 
         $invoice->fill($data);
         
@@ -52,6 +55,11 @@ class InvoiceRepository extends BaseRepository
         
         $invoice->save();
 
+        $finished_amount = $invoice->amount;
+
+        if($finished_amount != $starting_amount)
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice);
+        
         return $invoice;
 
 	}

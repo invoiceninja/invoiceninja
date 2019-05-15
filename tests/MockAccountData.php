@@ -81,7 +81,6 @@ trait MockAccountData
 		$this->invoice = $this->invoice_calc->getInvoice();
 
         $this->invoice->save();
-        $this->invoice->fresh();
 
 	}
 
