@@ -25,6 +25,7 @@ use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Jobs\Entity\ActionEntity;
+use App\Jobs\Invoice\MarkPaid;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
@@ -233,7 +234,11 @@ class InvoiceController extends BaseController
                 # code...
                 break;
             case 'mark_paid':
-                # code...
+                if($invoice->balance == 0 || $invoice->status_id == Invoice::STATUS_PAID)
+                    return $this->errorResponse(['message' => 'Invoice has no balance owing'], 400);
+
+                $invoice = MarkPaid::dispatchNow($invoice);
+                    return $this->itemResponse($invoice);
                 break;
             case 'archive':
                 # code...

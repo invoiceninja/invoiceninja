@@ -13,6 +13,7 @@ namespace App\Jobs\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Invoice\ApplyPaymentToInvoice;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -72,7 +73,10 @@ class MarkPaid implements ShouldQueue
         event(new PaymentWasCreated($data));
 
         /* Update Invoice balance */
-        ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
+        $invoice = ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
 
+        UpdateCompanyLedgerWithPayment::dispatchNow($payment, $payment->amount);
+        
+        return $invoice;
     }
 }

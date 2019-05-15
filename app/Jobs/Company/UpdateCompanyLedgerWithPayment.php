@@ -26,7 +26,7 @@ class UpdateCompanyLedgerWithPayment
 
     public $adjustment;
 
-    public $payment
+    public $payment;
 
     /**
      * Create a new job instance.
@@ -51,6 +51,7 @@ class UpdateCompanyLedgerWithPayment
     public function handle() 
     {
         $balance = 0;
+        $this->adjustment = $this->adjustment * -1;
 
         /* Get the last record for the client and set the current balance*/
         $ledger = CompanyLedger::whereClientId($this->payment->client_id)
@@ -62,8 +63,9 @@ class UpdateCompanyLedgerWithPayment
             $balance = $ledger->balance;
 
 
-        $company_ledger = CompanyLedgerFactory::create($this->invoice->company_id, $this->invoice->user_id);
+        $company_ledger = CompanyLedgerFactory::create($this->payment->company_id, $this->payment->user_id);
         $company_ledger->client_id = $this->payment->client_id;
+        $company_ledger->adjustment = $this->adjustment;
         $company_ledger->balance = $balance + $this->adjustment;
         $company_ledger->save();
 

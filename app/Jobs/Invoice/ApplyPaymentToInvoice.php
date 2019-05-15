@@ -107,5 +107,6 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
         $this->invoice->save();
 
+        return $this->invoice;
     }
 }

@@ -23,6 +23,7 @@ class UpdateCompanyLedgerWithInvoice
     public $adjustment;
 
     public $invoice;
+
     /**
      * Create a new job instance.
      *
@@ -58,6 +59,7 @@ class UpdateCompanyLedgerWithInvoice
 
         $company_ledger = CompanyLedgerFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $company_ledger->client_id = $this->invoice->client_id;
+        $company_ledger->adjustment = $this->adjustment;
         $company_ledger->balance = $balance + $this->adjustment;
         $company_ledger->save();
 
