@@ -44,11 +44,6 @@ class InvoiceRepository extends BaseRepository
      */
     public function save($data, Invoice $invoice) : ?Invoice
 	{
-        /* Test if this is a new invoice or existing */
-        $new_invoice = true;
-
-        if(isset($invoice->id))
-            $new_invoice = false;
 
         /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
         $starting_amount = $invoice->amount;
@@ -62,11 +57,6 @@ class InvoiceRepository extends BaseRepository
         $invoice = $invoice_calc->build()->getInvoice();
         
         $invoice->save();
-
-        if($new_invoice)
-            event(new InvoiceWasCreated($invoice));
-        else
-            event(new InvoiceWasUpdated($invoice));
 
         $finished_amount = $invoice->amount;
 

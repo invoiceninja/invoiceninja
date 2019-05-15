@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
@@ -114,6 +116,8 @@ class InvoiceController extends BaseController
 
         $invoice = StoreInvoice::dispatchNow($invoice, $request->all()); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
+        event(new InvoiceWasCreated($invoice));
+
         return $this->itemResponse($invoice);
 
     }
@@ -160,6 +164,8 @@ class InvoiceController extends BaseController
     {
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
+
+        event(new InvoiceWasUpdated($invoice));
 
         return $this->itemResponse($invoice);
 

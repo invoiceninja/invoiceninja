@@ -13,8 +13,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Activity extends BaseModel
+class Activity extends Model
 {
+
     const CREATE_CLIENT=1;
     const ARCHIVE_CLIENT=2;
     const DELETE_CLIENT=3;
