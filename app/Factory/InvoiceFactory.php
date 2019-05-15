@@ -22,7 +22,7 @@ class InvoiceFactory
 	{
 		$invoice = new Invoice();
 		$invoice->status_id = Invoice::STATUS_DRAFT;
-		$invoice->invoice_number = '';
+		$invoice->invoice_number = null;
 		$invoice->discount = 0;
 		$invoice->is_amount_discount = true;
 		$invoice->po_number = '';

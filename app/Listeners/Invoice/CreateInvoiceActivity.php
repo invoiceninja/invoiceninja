@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
 use App\Repositories\ActivityRepository;
@@ -43,10 +44,10 @@ class CreateInvoiceActivity
 
         $fields = new \stdClass;
 
-        $fields->client_id = $event->invoice->id;
+        $fields->invoice_id = $event->invoice->id;
         $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
-        $fields->activity_type_id = Activity::CREATE_INVOIE;
+        $fields->activity_type_id = Activity::CREATE_INVOICE;
 
         $this->activity_repo->save($fields, $event->invoice);
     }

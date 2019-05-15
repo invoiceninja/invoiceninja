@@ -42,6 +42,7 @@ class ClientSettings extends BaseSettings
 
 	public $language_id;
 	public $currency_id;
+	public $precision;
 	public $default_task_rate;
 	public $send_reminders;
 	public $show_tasks_in_portal;

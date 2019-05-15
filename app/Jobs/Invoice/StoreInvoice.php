@@ -65,7 +65,7 @@ class StoreInvoice implements ShouldQueue
         $payment = false;
 
         /* Test if we should auto-bill the invoice */
-        if((bool)$invoice->settings->auto_bill)
+        if((bool)$this->invoice->settings->auto_bill)
         {
 
            $this->invoice = $invoice_repo->markSent($this->invoice);
@@ -108,6 +108,8 @@ class StoreInvoice implements ShouldQueue
         {
             //fire invoice download and return PDF response from here
         }
+
+        return $this->invoice;
 
     }
 }

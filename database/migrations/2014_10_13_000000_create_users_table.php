@@ -848,7 +848,7 @@ class CreateUsersTable extends Migration
 
         });
 
-        Schema::create('company_ledger', function ($table) {
+        Schema::create('company_ledgers', function ($table) {
             
             $table->increments('id');
             $table->unsignedInteger('company_id');

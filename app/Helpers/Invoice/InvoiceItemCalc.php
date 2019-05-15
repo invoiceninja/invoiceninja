@@ -55,6 +55,9 @@ class InvoiceItemCalc
 	private function setDiscount()
 	{
 
+		if(!isset($this->item->is_amount_discount))
+			return $this;
+
 		if($this->item->is_amount_discount)
 		{	
 			$discount = $this->formatValue($this->item->discount, $this->settings->precision);
@@ -81,10 +84,10 @@ class InvoiceItemCalc
 	{
 		$item_tax = 0;
 
-		$tax_rate1 = $this->formatValue($this->item->tax_rate1, $this->settings->precision);
-
-		if($tax_rate1 != 0)
+		if(isset($this->item->tax_rate1) && $this->item->tax_rate1 > 0)
 		{
+			$tax_rate1 = $this->formatValue($this->item->tax_rate1, $this->settings->precision);
+
 			if($this->settings->inclusive_taxes)
 				$item_tax_rate1_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate1/100))) , $this->settings->precision);
 			else
@@ -95,10 +98,10 @@ class InvoiceItemCalc
 			$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
 		}
 
-		$tax_rate2 = $this->formatValue($this->item->tax_rate2, $this->settings->precision);
-
-		if($tax_rate2 != 0)
+		if(isset($this->item->tax_rate2) && $this->item->tax_rate2 > 0)
 		{
+			$tax_rate2 = $this->formatValue($this->item->tax_rate2, $this->settings->precision);
+
 			if($this->settings->inclusive_taxes)
 				$item_tax_rate2_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate2/100))) , $this->settings->precision);
 			else

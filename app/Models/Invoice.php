@@ -27,9 +27,34 @@ class Invoice extends BaseModel
     use NumberFormatter;
     use MakesDates;
 
-	protected $guarded = [
-		'id',
-	];
+    protected $fillable = [
+        'invoice_number',
+        'discount',
+        'po_number',
+        'invoice_date',
+        'due_date',
+        'terms',
+        'public_notes',
+        'private_notes',
+        'invoice_type_id',
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
+        'is_amount_discount',
+        'invoice_footer',
+        'partial',
+        'partial_due_date',
+        'custom_value1',
+        'custom_value2',
+        'custom_taxes1',
+        'custom_taxes2',
+        'custom_text_value1',
+        'custom_text_value2',
+        'line_items',
+        'settings',
+        'client_id',
+    ];
 
     protected $casts = [
         'settings' => 'object',

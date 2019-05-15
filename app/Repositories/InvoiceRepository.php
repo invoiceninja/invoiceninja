@@ -61,7 +61,7 @@ class InvoiceRepository extends BaseRepository
         $finished_amount = $invoice->amount;
 
         if($finished_amount != $starting_amount)
-            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice);
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
 
         return $invoice;
 

@@ -30,20 +30,20 @@ class StoreInvoiceRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
+        //$this->sanitize();
 
         return [
             'client_id' => 'required',
-            'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
+      //      'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
     }
 
-
+/* If we have an email address instead of a client_id - harvest the client_id here 
 public function sanitize()
 {
     $input = $this->all();
 
-    /** If we have an email address instead of a client_id - harvest the client_id here */
+    
     if(isset($input['email']) && !$input['client_id'])
     {
         $contact = ClientContact::company(auth()->user()->company()->id)->whereEmail($input['email'])->first();
@@ -59,7 +59,7 @@ public function sanitize()
     {
 
     }
-
+*/
 
 }
 
