@@ -15,6 +15,7 @@ class SimpleSelectComponent implements Htmlable
     protected $module;
     protected $secondaryItemLabel;
     protected $selectId;
+    protected $defaultValue;
 
     public function __construct($entityType, $items, $itemLabel, $fieldLabel, $defaultValue = null, $secondaryItemLabel = null, $module = null, $selectId = null) {
         $this->entityType = $entityType;
