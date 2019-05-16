@@ -16,11 +16,12 @@ class SimpleSelectComponent implements Htmlable
     protected $secondaryItemLabel;
     protected $selectId;
 
-    public function __construct($entityType, $items, $itemLabel, $fieldLabel, $secondaryItemLabel = null, $module = null, $selectId = null) {
+    public function __construct($entityType, $items, $itemLabel, $fieldLabel, $defaultValue = null, $secondaryItemLabel = null, $module = null, $selectId = null) {
         $this->entityType = $entityType;
         $this->items = $items;
         $this->itemLabel = $itemLabel;
         $this->fieldLabel = $fieldLabel;
+        $this->defaultValue = $defaultValue;
         $this->module = $module;
         $this->secondaryItemLabel = $secondaryItemLabel;
 
@@ -40,6 +41,7 @@ class SimpleSelectComponent implements Htmlable
             'secondaryItemLabel' => $this->secondaryItemLabel,
             'fieldLabel' => mtrans($this->module, $this->fieldLabel),
             'selectId' => $this->selectId,
+            'defaultValue' => $this->defaultValue,
         ])->render();
     }
 }

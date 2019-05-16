@@ -47,6 +47,9 @@
             $itemSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
                 var entity = itemMap[$('#{!! $selectId !!}').val()];
             });
+
+            $itemSelect.val('{!! $defaultValue !!}');
+            $itemSelect.data('combobox').refresh();
         });
     </script>
 @endpush
