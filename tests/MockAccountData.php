@@ -15,6 +15,7 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceCalc;
+use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -81,6 +82,8 @@ trait MockAccountData
 		$this->invoice = $this->invoice_calc->getInvoice();
 
         $this->invoice->save();
+
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount);
 
 	}
 

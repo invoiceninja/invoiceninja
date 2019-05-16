@@ -51,6 +51,7 @@ class UpdateCompanyLedgerWithPayment
     public function handle() 
     {
         $balance = 0;
+        
         $this->adjustment = $this->adjustment * -1;
 
         /* Get the last record for the client and set the current balance*/
