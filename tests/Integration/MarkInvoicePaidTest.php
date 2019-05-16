@@ -2,7 +2,7 @@
 
 namespace Tests\Integration;
 
-use App\Jobs\Invoice\MarkPaid;
+use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -15,9 +15,9 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Jobs\Invoice\MarkPaid
+ * @covers  App\Jobs\Invoice\MarkInvoicePaid
  */
-class MarkPaidInvoiceTest extends TestCase
+class MarkInvoicePaidTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
@@ -34,9 +34,9 @@ class MarkPaidInvoiceTest extends TestCase
         $this->assertNotNull($this->client);
     }
 
-    public function testMarkPaidInvoice()
+    public function testMarkInvoicePaidInvoice()
     {
-        MarkPaid::dispatchNow($this->invoice);
+        MarkInvoicePaid::dispatchNow($this->invoice);
 
         $invoice = Invoice::find($this->invoice->id);
 

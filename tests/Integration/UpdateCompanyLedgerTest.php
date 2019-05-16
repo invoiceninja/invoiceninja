@@ -5,7 +5,7 @@ namespace Tests\Integration;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
-use App\Jobs\Invoice\MarkPaid;
+use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Company;
@@ -37,7 +37,7 @@ class UpdateCompanyLedgerTest extends TestCase
     public function testPaymentIsPresentInLedger()
     {
 
-        $invoice = MarkPaid::dispatchNow($this->invoice);
+        $invoice = MarkInvoicePaid::dispatchNow($this->invoice);
 
 
         $ledger = CompanyLedger::whereClientId($invoice->client_id)
