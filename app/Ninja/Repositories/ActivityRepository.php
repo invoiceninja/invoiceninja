@@ -71,7 +71,7 @@ class ActivityRepository
                     ->join('accounts', 'accounts.id', '=', 'activities.account_id')
                     ->join('users', 'users.id', '=', 'activities.user_id')
                     ->join('clients', 'clients.id', '=', 'activities.client_id')
-                    ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
+                    ->leftJoin('contacts', 'contacts.id', '=', 'activities.contact_id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
                     ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')
                     ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
@@ -114,6 +114,7 @@ class ActivityRepository
                         'expenses.public_notes as expense_public_notes',
                         'expenses.public_id as expense_public_id',
                         'tickets.public_id as ticket_public_id'
-                    );
+                    )
+                    ->orderBy('activities.created_at', 'desc');
     }
 }
