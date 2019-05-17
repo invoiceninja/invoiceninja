@@ -24,10 +24,8 @@
                 switch(entityType) {
                     case '{!! ENTITY_USER !!}':
                         itemMap[entity.id] = entity;
-                        console.log('ENTITY_USER');
                         break;
                     default:
-                    console.log('default');
                         itemMap[entity.public_id] = entity;
                 }
 
