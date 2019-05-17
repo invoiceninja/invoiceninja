@@ -13,9 +13,6 @@
             var secondaryItemLabel = '{!! $secondaryItemLabel !!}';
             var secondaryItemLabelType = '{!! empty($secondaryItemLabelType) ? "field" : $secondaryItemLabelType !!}';
             var defaultValue = {!! $defaultValue !!};
-            console.log(entityType);
-            console.log(defaultValue);
-            console.log(items);
 
             var itemMap = {};
             var $itemSelect = $('select#{!! $selectId !!}');
@@ -55,8 +52,6 @@
                     itemNameLabel = {!! empty($secondaryItemLabel) ? "''" : $secondaryItemLabel !!};
                  }
             }
-
-            console.log(itemMap);
 
             $itemSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
                 var entity = itemMap[$('#{!! $selectId !!}').val()];
