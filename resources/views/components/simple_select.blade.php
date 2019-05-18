@@ -1,7 +1,7 @@
 
 {!! Former::select($selectId)
     ->addOption('', '')
-    ->fromQuery($items, $itemLabel, 'public_id')
+    ->fromQuery($items, $itemLabel, ($entityType == ENTITY_USER ? 'id' : 'public_id'))
     ->label($fieldLabel) !!}
 
 @push('component_scripts')
@@ -12,6 +12,7 @@
             var items = {!! $items !!};
             var secondaryItemLabel = '{!! $secondaryItemLabel !!}';
             var secondaryItemLabelType = '{!! empty($secondaryItemLabelType) ? "field" : $secondaryItemLabelType !!}';
+            var defaultValue = {!! $defaultValue !!};
 
             var itemMap = {};
             var $itemSelect = $('select#{!! $selectId !!}');
@@ -20,7 +21,13 @@
                 var entity = items[i];
                 var itemName = '';
 
-                itemMap[entity.public_id] = entity;
+                switch(entityType) {
+                    case '{!! ENTITY_USER !!}':
+                        itemMap[entity.id] = entity;
+                        break;
+                    default:
+                        itemMap[entity.public_id] = entity;
+                }
 
                 switch(entityType) {
                     case '{!! ENTITY_CLIENT !!}':
