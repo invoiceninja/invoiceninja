@@ -345,7 +345,7 @@ class DashboardRepository
             $activities = $activities->where('activities.user_id', '=', $userId);
         }
 
-        return $activities->orderBy('activities.created_at', 'desc')
+        return $activities->orderBy('activities.created_at', 'desc')->orderBy('activities.id', 'desc')
                 ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account', 'task', 'expense', 'contact')
                 ->take(50)
                 ->get();
