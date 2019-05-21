@@ -100,7 +100,10 @@ class LoginController extends BaseController
      */
     public function redirectToProvider(string $provider) 
     {
-        return Socialite::driver($provider)->redirect();
+        if(request()->has('code'))
+            return $this->handleProviderCallback($provider);
+        else
+            return Socialite::driver($provider)->redirect();
     }
 
     /**
