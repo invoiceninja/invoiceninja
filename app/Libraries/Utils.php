@@ -752,9 +752,10 @@ class Utils
         }
 
         $timestamp = $dateTime->getTimestamp();
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        return self::timestampToString($timestamp, false, $format);
+        return self::timestampToString($timestamp, $timezone, $format);
     }
 
     public static function timestampToString($timestamp, $timezone, $format)
@@ -929,7 +930,7 @@ class Utils
         return 0;
     }
 
-    public static function getDateMonth($offset, $locale) 
+    public static function getDateMonth($offset, $locale)
     {
         $timestamp = time();
         $res = $timestamp + ($offset * 24 * 60 * 60);
@@ -946,7 +947,7 @@ class Utils
         return trans('texts.' . $months[$month], [], $locale);
     }
 
-    public static function getDateYear($offset) 
+    public static function getDateYear($offset)
     {
         $timestamp = time();
         $res = $timestamp + ($offset * 24 * 60 * 60);
