@@ -157,7 +157,7 @@ class LoginController extends BaseController
     public function handleProviderCallback(string $provider) 
     {
         $socialite_user = Socialite::driver($provider)
-                                    ->scope('https://www.googleapis.com/auth/gmail.send','email','profile','openid')
+                                    ->scopes('https://www.googleapis.com/auth/gmail.send','email','profile','openid')
                                     ->stateless()
                                     ->user();
 
