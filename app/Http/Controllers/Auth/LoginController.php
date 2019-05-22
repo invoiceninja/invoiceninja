@@ -189,7 +189,7 @@ class LoginController extends BaseController
 
             $account = CreateAccount::dispatchNow($new_account);
 
-            Auth::login($user, true);
+            Auth::login($account->default_company->owner(), true);
             
             return redirect($this->redirectTo);
         }
