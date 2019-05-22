@@ -2465,6 +2465,13 @@ $LANG = array(
     'currency_albanian_lek' => 'Albanian Lek',
     'currency_serbian_dinar' => 'Serbian Dinar',
     'currency_lebanese_pound' => 'Lebanese Pound',
+    'currency_armenian_dram' => 'Armenian Dram',
+    'currency_azerbaijan_manat' => 'Azerbaijan Manat',
+    'currency_bosnia_and_herzegovina_convertible_mark' => 'Bosnia and Herzegovina Convertible Mark',
+    'currency_belarusian_ruble' => 'Belarusian Ruble',
+    'currency_moldovan_leu' => 'Moldovan Leu',
+    'currency_kazakhstani_tenge' => 'Kazakhstani Tenge',
+    'currency_gibraltar_pound' => 'Gibraltar Pound',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
