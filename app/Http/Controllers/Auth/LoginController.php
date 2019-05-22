@@ -165,7 +165,7 @@ class LoginController extends BaseController
         {
             Auth::login($user, true);
             
-            return redirect($this->redirectTo)
+            return redirect($this->redirectTo);
         }
         else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
         {
