@@ -81,7 +81,7 @@ class MultiDB
 
             }
 
-            return false;
+            return null;
     }
 
     public static function findAndSetDb($token) :bool

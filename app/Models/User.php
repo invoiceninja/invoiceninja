@@ -112,7 +112,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function companies()
     {
-        return $this->belongsToMany(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+        return $this->belongsToMany(Company::class)->using(CompanyUser::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 
     /**
@@ -129,6 +129,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * Returns the pivot tables for Company / User
      * 
      * @return Collection
+     * 
      */
     public function user_companies()
     {

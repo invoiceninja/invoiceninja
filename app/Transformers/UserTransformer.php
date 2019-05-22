@@ -14,9 +14,11 @@ namespace App\Transformers;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CompanyTransformer;
+use App\Transformers\CompanyUserTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -58,8 +60,8 @@ class UserTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'user_company',
         'companies',
+        'company_tokens',
     ];
 
 
@@ -82,26 +84,37 @@ class UserTransformer extends EntityTransformer
 
     public function includeUserCompany(User $user)
     {
+//cannot use this here as it will fail retrieving the company as we depend on the token in the header which may not be present for this request
+        //$transformer = new CompanyUserTransformer($this->serializer);
 
-        $transformer = new UserCompanyTransformer($this->serializer);
-
-        return $this->includeItem($user->user_company(), $transformer, CompanyUser::class);
+        //return $this->includeItem($user->user_company(), $transformer, CompanyUser::class);
     
     }
 
     public function includeCompanies(User $user)
     {
+
         $transformer = new CompanyTransformer($this->serializer);
 
-        return $this->includeCollection($user->companies(), $transformer, Company::class);
+        return $this->includeCollection($user->companies, $transformer, Company::class);
+
     }
 
     public function includeCompanyToken(User $user)
     {
+
         $transformer = new CompanyTokenTransformer($this->serializer);
 
         return $this->includeItem($user->token(), $transformer, CompanyToken::class);
 
+    }
+
+    public function includeCompanyTokens(User $user)
+    {
+
+        $transformer = new CompanyTokenTransformer($this->serializer);
+
+        return $this->includeCollection($user->tokens, $transformer, CompanyToken::class);
 
     }
 }

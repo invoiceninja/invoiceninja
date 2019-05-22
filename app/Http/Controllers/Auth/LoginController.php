@@ -13,6 +13,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Jobs\Account\CreateAccount;
+use App\Libraries\MultiDB;
 use App\Libraries\OAuth;
 use App\Models\User;
 use App\Transformers\UserTransformer;
@@ -118,12 +120,33 @@ class LoginController extends BaseController
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
-            Auth::login($user, true);
-            
-            return redirect($this->redirectTo); //todo return USERACCOUNT json
+            //Auth::login($user, true);
+            return $this->itemResponse($user);
+            //return redirect($this->redirectTo); //todo return USERACCOUNT json
+        }
+        else if(MultiDB::checkUserEmailExists($user->getEmail()))
+        {
+
+            return $this->errorResponse(['message'=>'User exists in system, but not with this authentication method'], 400);
+
+        }       
+        /** 3. Automagically creating a new account here. */
+        else {
+            //todo            
+            $name = OAuth::splitName($socialite_user->getName());
+
+            $new_account = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $socialite_user->getEmail(),
+            ];
+
+            $account = CreateAccount::dispatchNow($new_account);
+
+            return $this->itemResponse($account->default_company->users->first());
         }
 
-        //throw error
 
     }
 }

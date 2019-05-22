@@ -36,7 +36,7 @@ class OAuth
      * @param Socialite $user
      */
 
-    public static function handleAuth(object $user, string $provider) : ?User
+    public static function handleAuth(object $user, string $provider)
     {
         /** 1. Ensure user arrives on the correct provider **/
 
@@ -49,24 +49,19 @@ class OAuth
         {
             return $user;
         }
+        else
+            return false;
 
-        /** 2. If email exists, then they already have an account did they select the wrong provider? redirect to a guest error screen */
+    }
 
-        if(MultiDB::checkUserEmailExists($user->getEmail()))
-        {
-            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
-            return view('auth.login');
-        }
+    /* Splits a socialite user name into first and last names */
+    public static function splitName($name)
+    {
+        $name = trim($name);
+        $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
+        $first_name = trim(preg_replace('#' . preg_quote($last_name, '/') . '#', '', $name));
 
-        /*
-
-            Session::flash('error', 'User does not exist'); //todo add translations
-            return view('auth.login');
-        */
-       
-        /** 3. We will not handle automagically creating a new account here. */
-
-
+        return [$first_name, $last_name];
     }
 
     public static function providerToString(int $social_provider) : string
