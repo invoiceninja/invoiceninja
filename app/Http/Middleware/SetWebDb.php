@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
 use Closure;
-use Symfony\Component\HttpFoundation\Cookie;
+use Cookie;
 
 class SetWebDb
 {
