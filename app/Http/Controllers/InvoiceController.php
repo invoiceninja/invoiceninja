@@ -234,7 +234,7 @@ class InvoiceController extends BaseController
                 # code...
                 break;
             case 'mark_paid':
-                if($invoice->balance == 0 || $invoice->status_id == Invoice::STATUS_PAID)
+                if($invoice->balance <= 0 || $invoice->status_id == Invoice::STATUS_PAID)
                     return $this->errorResponse(['message' => 'Invoice has no balance owing'], 400);
 
                 $invoice = MarkInvoicePaid::dispatchNow($invoice);

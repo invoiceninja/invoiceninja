@@ -106,28 +106,40 @@ class LoginController extends BaseController
         if(request()->has('code'))
             return $this->handleProviderCallback($provider);
         else
-            return Socialite::driver($provider)->redirect();
+            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send','email','profile','openid')->redirect();
     }
 
-    /**
-     * Received the returning object from the provider
-     * which we will use to resolve the user, we return the response in JSON format
-     *
-     * @return json
-     */
-    public function handleProviderCallbackApiUser(string $provider) 
-    {
-        $socialite_user = Socialite::driver($provider)->stateless()->user();
 
+    public function redirectToProviderAndCreate(string $provider)
+    {
+        if(request()->has('code'))
+            return $this->handleProviderCallbackAndCreate($provider);
+        else
+            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send','email','profile','openid')->redirect();
+
+        //config('services.google.redirect')
+    }
+
+
+    
+    public function handleProviderCallbackAndCreate(string $provider)
+    {
+        $socialite_user = Socialite::driver($provider)
+                                    ->stateless()
+                                    ->user();
+
+        /* Handle existing users who attempt to create another account with existing OAuth credentials */
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
-            return $this->itemResponse($user);
+            Auth::login($user, true);
+            
+            return redirect($this->redirectTo);
         }
         else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
         {
+            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
 
-            return $this->errorResponse(['message'=>'User exists in system, but not with this authentication method'], 400);
-
+            return view('auth.login');
         }       
         /** 3. Automagically creating a new account here. */
         else {
@@ -139,16 +151,21 @@ class LoginController extends BaseController
                 'last_name' => $name[1],
                 'password' => '',
                 'email' => $socialite_user->getEmail(),
+                'oauth_user_id' => $socialite_user->getId(),
+                'oauth_provider_id' => $provider
             ];
 
             $account = CreateAccount::dispatchNow($new_account);
 
-            return $this->itemResponse($account->default_company->owner());
+            Auth::login($account->default_company->owner(), true);
+            
+            $cookie = cookie('db', $account->default_company->db);
+
+            return redirect($this->redirectTo)->withCookie($cookie);
         }
 
-
     }
-    
+
     /**
      * We use this function when OAUTHING via the web interface
      * 
@@ -223,4 +240,45 @@ class LoginController extends BaseController
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
+
+
+    /**
+     * Received the returning object from the provider
+     * which we will use to resolve the user, we return the response in JSON format
+     *
+     * @return json
+     
+    public function handleProviderCallbackApiUser(string $provider) 
+    {
+        $socialite_user = Socialite::driver($provider)->stateless()->user();
+
+        if($user = OAuth::handleAuth($socialite_user, $provider))
+        {
+            return $this->itemResponse($user);
+        }
+        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
+        {
+
+            return $this->errorResponse(['message'=>'User exists in system, but not with this authentication method'], 400);
+
+        }       
+        else {
+            //todo            
+            $name = OAuth::splitName($socialite_user->getName());
+
+            $new_account = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $socialite_user->getEmail(),
+            ];
+
+            $account = CreateAccount::dispatchNow($new_account);
+
+            return $this->itemResponse($account->default_company->owner());
+        }
+
+
+    }
+    */
 }

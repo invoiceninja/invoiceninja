@@ -30,8 +30,10 @@ class SetDb
 
         $error['error'] = ['message' => 'Database could not be set'];
 
-
-        if( $request->header('X-API-TOKEN') && (CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()) && config('ninja.db.multi_db_enabled')) 
+        // we must have a token passed, that matched a token in the db, and multiDB is enabled.
+        // todo i don't think we can call the DB prior to setting it???? i think this if statement needs to be rethought
+        //if( $request->header('X-API-TOKEN') && (CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()) && config('ninja.db.multi_db_enabled')) 
+        if( $request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) 
         {
 
             if(! MultiDB::findAndSetDb($request->header('X-API-TOKEN')))
