@@ -38,10 +38,13 @@ class HeaderComposer
     {
         if(!auth()->user())
             return [];
-        /
-        //companies
-        $companies = auth()->user()->companies;
+        
+        $companies = auth()->user()->companies
 
+        //companies
+        $data['current_company'] = $companies->first();
+        $data['companies'] = $companies;
+/*
         $data['current_company'] = $companies->first(function ($company){
             return $company->id == auth()->user()->company()->id;
         });
@@ -49,7 +52,7 @@ class HeaderComposer
         $data['companies'] = $companies->reject(function ($company){
             return $company->id == auth()->user()->company()->id;
         });
-
+*/
         return $data;
     }
 
