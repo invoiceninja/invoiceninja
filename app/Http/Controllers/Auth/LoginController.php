@@ -15,7 +15,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
-use App\Libraries\OAuth;
+use App\Libraries\OAuth\OAuth;
 use App\Models\User;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
@@ -59,8 +59,9 @@ class LoginController extends BaseController
      */
     public function __construct()
     {
+
         parent::__construct();
-     //   $this->middleware('guest:user')->except('logout');
+
     }
 
     /**
@@ -110,19 +111,17 @@ class LoginController extends BaseController
 
     /**
      * Received the returning object from the provider
-     * which we will use to resolve the user
+     * which we will use to resolve the user, we return the response in JSON format
      *
-     * @return redirect
+     * @return json
      */
-    public function handleProviderCallback(string $provider) 
+    public function handleProviderCallbackApiUser(string $provider) 
     {
         $socialite_user = Socialite::driver($provider)->stateless()->user();
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
-            //Auth::login($user, true);
             return $this->itemResponse($user);
-            //return redirect($this->redirectTo); //todo return USERACCOUNT json
         }
         else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
         {
@@ -147,6 +146,76 @@ class LoginController extends BaseController
             return $this->itemResponse($account->default_company->owner());
         }
 
+
+    }
+    
+    /**
+     * We use this function when OAUTHING via the web interface
+     * 
+     * @return redirect 
+     */
+    public function handleProviderCallback(string $provider) 
+    {
+        $socialite_user = Socialite::driver($provider)->stateless()->user();
+
+        if($user = OAuth::handleAuth($socialite_user, $provider))
+        {
+            Auth::login($user, true);
+            
+            return redirect($this->redirectTo)
+        }
+        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
+        {
+            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+
+            return view('auth.login');
+        }       
+        /** 3. Automagically creating a new account here. */
+        else {
+            //todo            
+            $name = OAuth::splitName($socialite_user->getName());
+
+            $new_account = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $socialite_user->getEmail(),
+                'oauth_user_id' => $socialite_user->getId(),
+                'oauth_provider_id' => $provider
+            ];
+
+            $account = CreateAccount::dispatchNow($new_account);
+
+            Auth::login($user, true);
+            
+            return redirect($this->redirectTo);
+        }
+
+
+    }
+
+    /**
+     * A client side authentication has taken place. 
+     * We now digest the token and confirm authentication with
+     * the authentication server, the correct user object
+     * is returned to us here and we send back the correct
+     * user object payload - or error.
+     *
+     * return   User $user
+     */
+    public function oauthApiLogin()
+    {
+
+        $user = false;
+
+        $oauth = new OAuth();
+
+        $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('token'));
+
+        if ($user) 
+            return $this->itemResponse($user);
+        else
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
 }

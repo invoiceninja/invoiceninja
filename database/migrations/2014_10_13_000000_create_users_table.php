@@ -218,8 +218,8 @@ class CreateUsersTable extends Migration
             $table->integer('theme_id')->nullable();
             $table->smallInteger('failed_logins')->nullable();
             $table->string('referral_code')->nullable();
-            $table->string('oauth_user_id',100)->nullable()->unique();
-            $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
+            $table->string('oauth_user_id',100)->nullable();
+            $table->string('oauth_provider_id')->nullable();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
             $table->string('avatar', 100)->default('');
@@ -232,6 +232,9 @@ class CreateUsersTable extends Migration
             
             $table->timestamps(6);
             $table->softDeletes();
+
+            $table->unique(['oauth_user_id', 'oauth_provider_id']);
+
 
            // $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
