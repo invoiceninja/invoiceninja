@@ -124,7 +124,7 @@ class LoginController extends BaseController
             return $this->itemResponse($user);
             //return redirect($this->redirectTo); //todo return USERACCOUNT json
         }
-        else if(MultiDB::checkUserEmailExists($user->getEmail()))
+        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
         {
 
             return $this->errorResponse(['message'=>'User exists in system, but not with this authentication method'], 400);

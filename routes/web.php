@@ -32,7 +32,6 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('passw
  */
 
 Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
-Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 
 /*
  * Authenticated User Routes
