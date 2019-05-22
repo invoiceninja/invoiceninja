@@ -39,7 +39,7 @@ class HeaderComposer
         if(!auth()->user())
             return [];
         
-        $companies = auth()->user()->companies
+        $companies = auth()->user()->companies;
 
         //companies
         $data['current_company'] = $companies->first();
