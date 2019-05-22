@@ -116,7 +116,7 @@ class LoginController extends BaseController
      */
     public function handleProviderCallback(string $provider) 
     {
-        $socialite_user = Socialite::driver($provider)->user();
+        $socialite_user = Socialite::driver($provider)->stateless()->user();
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
