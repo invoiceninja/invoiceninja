@@ -60,7 +60,7 @@ Route::group(['middleware' => ['auth:user', 'web_db']], function () {
   Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
   Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
-/*
+
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
   
   Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
@@ -80,7 +80,6 @@ Route::group(['middleware' => ['auth:user', 'web_db']], function () {
   Route::resource('user', 'UserProfileController'); // name = (clients. index / create / show / update / destroy / edit
   
   Route::get('settings', 'SettingsController@index')->name('user.settings');
-*/
 
 
 });
