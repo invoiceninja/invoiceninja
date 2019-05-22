@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Controllers\Auth;
+namespace Http\Controllers\Auth;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
@@ -144,7 +144,7 @@ class LoginController extends BaseController
 
             $account = CreateAccount::dispatchNow($new_account);
 
-            return $this->itemResponse($account->default_company->users->first());
+            return $this->itemResponse($account->default_company->owner());
         }
 
 
