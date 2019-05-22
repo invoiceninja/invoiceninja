@@ -56,7 +56,10 @@ class Kernel extends HttpKernel
         'db' => [
             \App\Http\Middleware\SetDb::class,
         ],
-        'url-db' => [
+        'web_db' => [
+            \App\Http\Middleware\SetWebDb::class,
+        ],
+        'url_db' => [
             \App\Http\Middleware\UrlSetDb::class,
         ]
     ];

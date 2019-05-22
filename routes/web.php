@@ -37,7 +37,7 @@ Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
  * Authenticated User Routes
  */
 
-Route::group(['middleware' => ['auth:user', 'db']], function () {
+Route::group(['middleware' => ['auth:user', 'web_db']], function () {
 
 	Route::resource('dashboard', 'DashboardController'); // name = (dashboard. index / create / show / update / destroy / edit
 
@@ -88,7 +88,7 @@ Route::group(['middleware' => ['auth:user', 'db']], function () {
 /*
  * Inbound routes requiring DB Lookup
  */
-Route::group(['middleware' => ['url-db']], function () {
+Route::group(['middleware' => ['url_db']], function () {
 
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
 

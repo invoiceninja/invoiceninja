@@ -191,7 +191,9 @@ class LoginController extends BaseController
 
             Auth::login($account->default_company->owner(), true);
             
-            return redirect($this->redirectTo);
+            $cookie = cookie('db', $account->default_company->db);
+
+            return redirect($this->redirectTo)->withCookie($cookie);
         }
 
 

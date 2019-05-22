@@ -46,6 +46,7 @@ class SetDb
 
 
             return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
+            
         }
 
         return $next($request);
