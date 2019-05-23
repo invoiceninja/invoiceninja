@@ -1071,7 +1071,7 @@ $LANG = array(
 Fushat e njësive në faturë',
     'custom_invoice_item_fields_help' => 'Shtoni një fushë ë kur të krijoni faturë dhe etiketa me vlerë të shfaqen në PDF.',
     'recurring_invoice_number' => 'Recurring Number',
-    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
+    'recurring_invoice_number_prefix_help' => 'Specify a prefix to be added to the invoice number for recurring invoices.',
 
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',

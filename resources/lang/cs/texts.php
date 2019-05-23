@@ -1076,7 +1076,7 @@ $LANG = array(
     'invoice_item_fields' => 'Pole položky faktury',
     'custom_invoice_item_fields_help' => 'Během vytváření faktury si přidejte pole a zobrazte si jeho popis a hodnotu v PDF.',
     'recurring_invoice_number' => 'Recurring Number',
-    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
+    'recurring_invoice_number_prefix_help' => 'Specify a prefix to be added to the invoice number for recurring invoices.',
 
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',
