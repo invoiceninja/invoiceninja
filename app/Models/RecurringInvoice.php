@@ -83,4 +83,51 @@ class RecurringInvoice extends BaseModel
     {
         $this->morphMany(RecurringInvoiceInvitation::class);
     }
+
+    public function nextSendDate()
+    {
+
+        switch ($this->frequency_id) {
+            case FREQUENCY_WEEKLY:
+                return $this->next_send_date->addWeek();
+            case FREQUENCY_TWO_WEEKS:
+                return $this->next_send_date->addWeeks(2);
+            case FREQUENCY_FOUR_WEEKS:
+                return $this->next_send_date->addWeeks(4);
+            case FREQUENCY_MONTHLY:
+                return $this->next_send_date->addMonth();
+            case FREQUENCY_TWO_MONTHS:
+                return $this->next_send_date->addMonths(2);
+            case FREQUENCY_THREE_MONTHS:
+                return $this->next_send_date->addMonths(3);
+            case FREQUENCY_FOUR_MONTHS:
+                return $this->next_send_date->addMonths(4);
+            case FREQUENCY_SIX_MONTHS:
+                return $this->next_send_date->addMonths(6);
+            case FREQUENCY_ANNUALLY:
+                return $this->next_send_date->addYear();
+            case FREQUENCY_TWO_YEARS:
+                return $this->next_send_date->addYears(2);
+            default:
+                return false;
+    }
+
+    public function remainingCycles()
+    {
+
+        if($this->remaining_cycles == 0)
+            return 0;
+        else
+            return $this->remaining_cycles - 1;
+
+    }
+
+    public function setCompleted()
+    {
+
+        $this->status_id = self::STATUS_COMPLETED;
+        $this->next_send_date = null;
+        $this->save();
+        
+    }
 }

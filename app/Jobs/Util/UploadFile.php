@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace Jobs\Util;
+namespace App\Jobs\Util;
 
 use App\Models\Document;
 use App\Utils\Traits\MakesHash;
