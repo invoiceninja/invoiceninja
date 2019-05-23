@@ -44,7 +44,7 @@ class HandleUserSettingsChanged
         $users = $this->accountRepo->loadAccounts(Auth::user()->id);
         Session::put(SESSION_USER_ACCOUNTS, $users);
 
-        if ($event->user && $event->user->isEmailBeingChanged()) {
+        if ($event->user && $event->user->confirmed && $event->user->isEmailBeingChanged()) {
             $this->userMailer->sendConfirmation($event->user);
             $this->userMailer->sendEmailChanged($event->user);
 
