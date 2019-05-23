@@ -26,16 +26,19 @@ class SendRecurring
 
     public $recurring_invoice;
 
+    protected $db;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
 
-    public function __construct(RecurringInvoice $recurring_invoice)
+    public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
     {
 
         $this->recurring_invoice = $recurring_invoice;
+        $this->db = $db;
 
     }
 
@@ -46,6 +49,7 @@ class SendRecurring
      */
     public function handle() : void
     {
+        MultiDb::setDb($this->db);
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);
