@@ -427,7 +427,7 @@ class CheckData extends Command
         $queueDB = config('queue.connections.database.connection');
         $count = DB::connection($queueDB)->table('failed_jobs')->count();
 
-        if ($count > 0) {
+        if ($count > 25) {
             $this->isValid = false;
         }
 
@@ -676,6 +676,8 @@ class CheckData extends Command
 
         foreach ($clients as $client) {
             $this->logMessage("=== Company: {$client->company_id} Account:{$client->account_id} Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
+
+            /*
             $foundProblem = false;
             $lastBalance = 0;
             $lastAdjustment = 0;
@@ -838,6 +840,7 @@ class CheckData extends Command
                     ->where('id', $client->id)
                     ->update($data);
             }
+            */
         }
     }
 
