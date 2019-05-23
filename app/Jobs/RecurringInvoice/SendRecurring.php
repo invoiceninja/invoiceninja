@@ -12,6 +12,7 @@
 namespace App\Jobs\RecurringInvoice;
 
 use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesNumberCounter;
 use Illuminate\Http\Request;
@@ -49,19 +50,15 @@ class SendRecurring
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);
         $invoice->invoice_number = $this->getNextNumber($invoice);
+        $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->save();
 
-        // Queue: Emails for invoice
-        
-
-        // Calcuate next send date for recurring invoice
-         
-        
-        // Decrement # of invoices remaining 
-         
+        // Queue: Emails for invoice  
+        // $this->recurring_invoice->settings->invoice_email_list //todo comma separated list of emails to fire this email to                
 
         // Fire Payment if auto-bill is enabled
-        
+        if($this->recurring_invoice->settings->auto_bill)
+            //PAYMENT ACTION HERE TODO
 
         // Clean up recurring invoice object
         
@@ -73,7 +70,6 @@ class SendRecurring
         else 
             $this->recurring_invoice->setCompleted();
         
-
         $this->recurring_invoice->save(); 
 
     }

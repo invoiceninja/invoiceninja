@@ -15,6 +15,7 @@ use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class for Recurring Invoices.
@@ -84,35 +85,38 @@ class RecurringInvoice extends BaseModel
         $this->morphMany(RecurringInvoiceInvitation::class);
     }
 
-    public function nextSendDate()
+    public function nextSendDate() :?Carbon
     {
 
-        switch ($this->frequency_id) {
+        switch ($this->frequency_id) 
+        {
             case FREQUENCY_WEEKLY:
-                return $this->next_send_date->addWeek();
+                return Carbon::parse($this->next_send_date->addWeek());
             case FREQUENCY_TWO_WEEKS:
-                return $this->next_send_date->addWeeks(2);
+                return Carbon::parse($this->next_send_date->addWeeks(2));
             case FREQUENCY_FOUR_WEEKS:
-                return $this->next_send_date->addWeeks(4);
+                return Carbon::parse($this->next_send_date->addWeeks(4));
             case FREQUENCY_MONTHLY:
-                return $this->next_send_date->addMonth();
+                return Carbon::parse($this->next_send_date->addMonth());
             case FREQUENCY_TWO_MONTHS:
-                return $this->next_send_date->addMonths(2);
+                return Carbon::parse($this->next_send_date->addMonths(2));
             case FREQUENCY_THREE_MONTHS:
-                return $this->next_send_date->addMonths(3);
+                return Carbon::parse($this->next_send_date->addMonths(3));
             case FREQUENCY_FOUR_MONTHS:
-                return $this->next_send_date->addMonths(4);
+                return Carbon::parse($this->next_send_date->addMonths(4));
             case FREQUENCY_SIX_MONTHS:
-                return $this->next_send_date->addMonths(6);
+                return Carbon::parse($this->next_send_date->addMonths(6));
             case FREQUENCY_ANNUALLY:
-                return $this->next_send_date->addYear();
+                return Carbon::parse($this->next_send_date->addYear());
             case FREQUENCY_TWO_YEARS:
-                return $this->next_send_date->addYears(2);
+                return Carbon::parse($this->next_send_date->addYears(2));
             default:
-                return false;
+                return null;
+        }
+
     }
 
-    public function remainingCycles()
+    public function remainingCycles() : int
     {
 
         if($this->remaining_cycles == 0)
@@ -122,12 +126,13 @@ class RecurringInvoice extends BaseModel
 
     }
 
-    public function setCompleted()
+    public function setCompleted() :  void
     {
 
         $this->status_id = self::STATUS_COMPLETED;
         $this->next_send_date = null;
+        $this->remaining_cycles = 0;
         $this->save();
-        
+
     }
 }
