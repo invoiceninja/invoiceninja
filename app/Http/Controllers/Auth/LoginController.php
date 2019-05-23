@@ -69,12 +69,21 @@ class LoginController extends BaseController
      * the default company into a session variable
      *
      * @return void
+     * deprecated .1 API ONLY we don't need to set any session variables
      */
     public function authenticated(Request $request, User $user) : void
     {
         //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
 
+
+    /**
+     * Login via API
+     *
+     * @param      \Illuminate\Http\Request  $request  The request
+     *
+     * @return     Response|User Process user login.
+     */
     public function apiLogin(Request $request)
     {
         $this->validateLogin($request);
@@ -103,21 +112,26 @@ class LoginController extends BaseController
      */
     public function redirectToProvider(string $provider) 
     {
+        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
+        //
         if(request()->has('code'))
             return $this->handleProviderCallback($provider);
         else
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send','email','profile','openid')->redirect();
+            return Socialite::driver($provider)->scopes()->redirect();
     }
 
 
     public function redirectToProviderAndCreate(string $provider)
     {
+
+        $redirect_url = config('services.' . $provider . '.redirect') . '/create';
+
         if(request()->has('code'))
             return $this->handleProviderCallbackAndCreate($provider);
         else
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send','email','profile','openid')->redirect();
+            return Socialite::driver($provider)->redirectUrl($redirect_url)->redirect();
 
-        //config('services.google.redirect')
+        
     }
 
 
@@ -174,7 +188,6 @@ class LoginController extends BaseController
     public function handleProviderCallback(string $provider) 
     {
         $socialite_user = Socialite::driver($provider)
-                                    ->scopes('https://www.googleapis.com/auth/gmail.send','email','profile','openid')
                                     ->stateless()
                                     ->user();
 
@@ -223,6 +236,9 @@ class LoginController extends BaseController
      * is returned to us here and we send back the correct
      * user object payload - or error.
      *
+     * This can be extended to a create route also - need to pass a ?create query parameter and 
+     * then process the signup
+     * 
      * return   User $user
      */
     public function oauthApiLogin()

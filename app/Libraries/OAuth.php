@@ -123,19 +123,21 @@ class OAuth
 
     public function getTokenResponse($token)
     {
-        $user = null;
+        $user = false;
 
         $payload = $this->provider_instance->getTokenResponse($token);
-        $oauthUserId = $this->provider_instance->harvestSubField($payload);
 
-        LookupUser::setServerByField('oauth_user_key', $this->providerId . '-' . $oauthUserId);
+        $oauth_user_id = $this->provider_instance->harvestSubField($payload);
 
-        if($this->provider_instance)
-          $user = User::where('oauth_user_id', $oauthUserId)->where('oauth_provider_id', $this->provider_id)->first();
+         $query = [
+            'oauth_user_id' => oauth_user_id,
+            'oauth_provider_id'=> $this->provider_id
+        ];
 
-
-        if ($user)
+        if($user = MultiDB::hasUser($query))
+        {
             return $user;
+        }
         else
             return false;
 
