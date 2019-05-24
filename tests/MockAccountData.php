@@ -14,6 +14,7 @@ namespace Tests;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
@@ -21,6 +22,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +35,7 @@ trait MockAccountData
 {
 
 	use MakesHash;
-	
+	use GeneratesNumberCounter;
 	public $account;
 
 	public $company;
@@ -85,6 +87,66 @@ trait MockAccountData
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount);
 
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->next_send_date = Carbon::now();
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->start_date = Carbon::now();
+        $recurring_invoice->save();
+
+        $recurring_invoice->invoice_number = $this->getNextNumber();
+        $recurring_invoice->save()
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->next_send_date = Carbon::now()->addMinutes(2);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->start_date = Carbon::now();
+        $recurring_invoice->save();
+
+        $recurring_invoice->invoice_number = $this->getNextNumber();
+        $recurring_invoice->save()
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->next_send_date = Carbon::now()->addMinutes(10);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->start_date = Carbon::now();
+        $recurring_invoice->save();
+
+        $recurring_invoice->invoice_number = $this->getNextNumber();
+        $recurring_invoice->save()
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->next_send_date = Carbon::now()->addMinutes(15);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->start_date = Carbon::now();
+        $recurring_invoice->save();
+
+        $recurring_invoice->invoice_number = $this->getNextNumber();
+        $recurring_invoice->save()
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->next_send_date = Carbon::now()->addMinutes(20);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->start_date = Carbon::now();
+        $recurring_invoice->save();
+
+        $recurring_invoice->invoice_number = $this->getNextNumber();
+        $recurring_invoice->save()
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->next_send_date = Carbon::now()->addDays(10);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->start_date = Carbon::now();
+        $recurring_invoice->save();
+
+        $recurring_invoice->invoice_number = $this->getNextNumber();
+        $recurring_invoice->save()
 	}
 
 

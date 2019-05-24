@@ -24,6 +24,7 @@ class RecurringInvoiceFactory
 		$invoice->discount = 0;
 		$invoice->is_amount_discount = true;
 		$invoice->po_number = '';
+		$invoice->invoice_number = '';
 		$invoice->footer = '';
 		$invoice->terms = '';
 		$invoice->public_notes = '';

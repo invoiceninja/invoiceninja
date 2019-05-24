@@ -422,6 +422,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
 
             $t->unsignedInteger('status_id')->index();
+            $t->text('invoice_number')->nullable();
 
             $t->float('discount');
             $t->boolean('is_amount_discount');
