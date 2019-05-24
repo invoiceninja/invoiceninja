@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
@@ -25,7 +26,6 @@ use Tests\TestCase;
 class RecurringInvoicesCronTest extends TestCase
 {
 
-    use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
 
@@ -42,8 +42,14 @@ class RecurringInvoicesCronTest extends TestCase
     public function testCountCorrectNumberOfRecurringInvoicesDue()
     {
         //spin up 5 valid and 1 invalid recurring invoices
-        
-        
+        $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
+
+        $recurring_all = RecurringInvoice::all();
+
+        $this->assertEquals(5, $recurring_invoices->count());
+
+        $this->assertEquals(6, $recurring_all->count());
     }
+
 
 }

@@ -101,49 +101,51 @@ class GenerateNumberTest extends TestCase
     public function testSharedCounter()
     {
 
-        $this->assertFalse($this->client->hasSharedCounter());
+        $this->assertFalse($this->hasSharedCounter($this->client));
 
     }
 
     public function testClientCounterValue()
     {
 
-         $this->assertEquals($this->client->getCounter($this->client), 1);
+         $this->assertEquals($this->getCounter($this->client), 1);
 
     }
 
     public function testClientNextNumber()
     {
 
-        $this->assertEquals($this->client->getNextNumber($this->client),1);
+        $this->assertEquals($this->getNextNumber($this->client),1);
 
     }
 
     public function testRecurringInvoiceNumberPrefix()
     {
 
-        $this->assertEquals($this->client->getNextNumber(RecurringInvoice::class), 'R1');     
-        $this->assertEquals($this->client->getCounter($this->client), 1);
+        //$this->assertEquals($this->getNextNumber(RecurringInvoice::class), 'R1');     
+        $this->assertEquals($this->getCounter($this->client), 1);
    
     }
 
     public function testClientIncrementer()
     {
-        $this->client->incrementCounter($this->client);
+        $this->incrementCounter($this->client);
 
-        $this->assertEquals($this->client->getCounter($this->client), 2);
+        $this->assertEquals($this->getCounter($this->client), 2);
     }
 
+/*
     public function testCounterValues()
     {
 
 
-        $this->assertEquals($this->client->getCounter(Invoice::class), 1);
-        $this->assertEquals($this->client->getCounter(RecurringInvoice::class), 1);
-        $this->assertEquals($this->client->getCounter(Credit::class), 1);
+        $this->assertEquals($this->getCounter(Invoice::class), 1);
+        $this->assertEquals($this->getCounter(RecurringInvoice::class), 1);
+        $this->assertEquals($this->getCounter(Credit::class), 1);
 
 
     }
+
 
     public function testClassIncrementers()
     {
@@ -152,13 +154,13 @@ class GenerateNumberTest extends TestCase
         $this->client->incrementCounter(RecurringInvoice::class);
         $this->client->incrementCounter(Credit::class);
 
-        $this->assertEquals($this->client->getCounter(Invoice::class), 3);
-        $this->assertEquals($this->client->getCounter(RecurringInvoice::class), 3);
-        $this->assertEquals($this->client->getCounter(Credit::class), 2);
+        $this->assertEquals($this->getCounter(Invoice::class), 3);
+        $this->assertEquals($this->getCounter(RecurringInvoice::class), 3);
+        $this->assertEquals($this->getCounter(Credit::class), 2);
 
 
     }
-
+*/
     /**
      * {$counter}
      * {$userId}
@@ -171,13 +173,20 @@ class GenerateNumberTest extends TestCase
 
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$year}-{$counter}';
-        $this->client->setSettingsByEntity($settings->entity, $settings);
-        $this->assertEquals($this->client->getNextNumber($this->client), '2019-1');
-        $this->assertEquals($this->client->getNextNumber($this->client), '2019-2');
+        $this->client->setSettingsByEntity(Client::class, $settings);
 
         $company = Company::find($this->client->company_id);
 
-        $this->assertEquals($company->settings->client_number_counter,3);
+        $this->assertEquals($company->settings->client_number_counter,1);
+
+        $this->assertEquals($this->getNextNumber($this->client), '2019-1');
+        $this->assertEquals($this->getNextNumber($this->client), '2019-2');
+       
+        $company = Company::find($this->client->company_id);
+
+        $this->assertEquals($company->settings->client_number_counter,2);
+
+        $this->assertEquals($this->client->settings->client_number_counter,1);
     }
 
     public function testClientNumberPatternWithDate()
@@ -187,9 +196,9 @@ class GenerateNumberTest extends TestCase
 
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$date:j}-{$counter}';  
-        $this->client->setSettingsByEntity($settings->entity, $settings);
+        $this->client->setSettingsByEntity(Client::class, $settings);
         
-        $this->assertEquals($this->client->getNextNumber($this->client), date('j') . '-1');
+        $this->assertEquals($this->getNextNumber($this->client), date('j') . '-1');
     }
 
     public function testClientNumberPatternWithDate2()
@@ -198,8 +207,8 @@ class GenerateNumberTest extends TestCase
 
         $settings = $this->client->getSettingsByKey('client_number_pattern');
         $settings->client_number_pattern = '{$date:d M Y}-{$counter}';  
-        $this->client->setSettingsByEntity($settings->entity, $settings);
+        $this->client->setSettingsByEntity(Client::class, $settings);
         
-        $this->assertEquals($this->client->getNextNumber($this->client), date('d M Y') . '-1');
+        $this->assertEquals($this->getNextNumber($this->client), date('d M Y') . '-1');
     }
 }

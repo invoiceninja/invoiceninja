@@ -57,7 +57,8 @@ class RecurringInvoice extends BaseModel
 	];
 
     protected $casts = [
-        'settings' => 'object'
+        'settings' => 'object',
+        'line_items' => 'object',
     ];
 
     protected $with = [

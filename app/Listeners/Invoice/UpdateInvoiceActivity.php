@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
 use App\Repositories\ActivityRepository;
@@ -43,7 +44,7 @@ class UpdateInvoiceActivity
 
         $fields = new \stdClass;
 
-        $fields->client_id = $event->invoice->id;
+        $fields->client_id = $event->invoice->client_id;
         $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::UPDATE_INVOICE;

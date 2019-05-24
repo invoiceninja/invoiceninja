@@ -95,69 +95,11 @@ class Client extends BaseModel
         return Timezone::find($this->getMergedSettings()->timezone_id);
     }
 
-    public function getSettings()
-    {
-        return new ClientSettings($this->settings);
-    }
-
     public function getMergedSettings()
     {
+
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
-    }
 
-
-    /**
-     * Gets the settings by key.
-     *
-     * When we need to update a setting value, we need to harvest
-     * the object of the setting. This is not possible when using the merged settings
-     * as we do not know which object the setting has come from.
-     *
-     * The following method will return the entire object of the property searched for
-     * where a value exists for $key.
-     *
-     * This object can then be mutated by the handling class, 
-     * to persist the new settings we will also need to pass back a 
-     * reference to the parent class.
-     *
-     * @param      mixes  $key    The key of property
-     */
-    public function getSettingsByKey($key)
-    {
-        /* Does Setting Exist @ client level */
-        if(isset($this->getSettings()->{$key}))
-        {   
-            //Log::error('harvesting client settings for key = '. $key . ' and it has the value = '. $this->getSettings()->{$key});
-            //Log::error(print_r($this->getSettings(),1));
-            return $this->getSettings();
-        }
-        else {
-            //Log::error(print_r(new CompanySettings($this->company->settings),1));
-            return new CompanySettings($this->company->settings);  
-        }
-
-    }
-
-    public function setSettingsByEntity($entity, $settings)
-    {
-        switch ($entity) {
-            case Client::class:
-               // Log::error('saving client settings');
-                $this->settings = $settings;
-                $this->save();
-                $this->fresh();
-                break;
-            case Company::class:
-               // Log::error('saving company settings');
-                $this->company->settings = $settings;
-                $this->company->save();
-                $this->company->fresh();
-                break;
-            
-            default:
-                # code...
-                break;
-        }
     }
 
     public function documents()

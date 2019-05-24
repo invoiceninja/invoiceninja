@@ -373,7 +373,7 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number');
             $t->date('invoice_date')->nullable();
-            $t->date('due_date')->nullable();
+            $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -401,7 +401,7 @@ class CreateUsersTable extends Migration
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->decimal('partial', 13, 2)->nullable();
-            $t->date('partial_due_date')->nullable();
+            $t->datetime('partial_due_date')->nullable();
 
             $t->datetime('last_viewed')->nullable();
 
@@ -429,7 +429,7 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number');
             $t->date('invoice_date')->nullable();
-            $t->date('due_date')->nullable();
+            $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -457,14 +457,13 @@ class CreateUsersTable extends Migration
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->decimal('partial', 13, 2)->nullable();
-            $t->date('partial_due_date')->nullable();
 
             $t->datetime('last_viewed')->nullable();
 
             $t->unsignedInteger('frequency_id');
             $t->date('start_date')->nullable();
-            $t->date('last_sent_date')->nullable();
-            $t->date('next_send_date')->nullable();
+            $t->datetime('last_sent_date')->nullable();
+            $t->datetime('next_send_date')->nullable();
             $t->unsignedInteger('remaining_cycles')->nullable();
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
@@ -490,7 +489,7 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number');
             $t->date('quote_date')->nullable();
-            $t->date('valid_until')->nullable();
+            $t->datetime('valid_until')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -521,8 +520,8 @@ class CreateUsersTable extends Migration
 
             $t->unsignedInteger('frequency_id');
             $t->date('start_date')->nullable();
-            $t->date('last_sent_date')->nullable();
-            $t->date('next_send_date')->nullable();
+            $t->datetime('last_sent_date')->nullable();
+            $t->datetime('next_send_date')->nullable();
             $t->unsignedInteger('remaining_cycles')->nullable();
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
@@ -547,7 +546,7 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number');
             $t->date('quote_date')->nullable();
-            $t->date('valid_until')->nullable();
+            $t->datetime('valid_until')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -575,7 +574,7 @@ class CreateUsersTable extends Migration
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->decimal('partial', 13, 2)->nullable();
-            $t->date('partial_due_date')->nullable();
+            $t->datetime('partial_due_date')->nullable();
 
             $t->datetime('last_viewed')->nullable();
 
@@ -603,11 +602,11 @@ class CreateUsersTable extends Migration
             $t->string('message_id')->nullable();
             $t->text('email_error');
             $t->text('signature_base64');
-            $t->date('signature_date')->nullable();
+            $t->datetime('signature_date')->nullable();
 
-            $t->date('sent_date')->nullable();
-            $t->date('viewed_date')->nullable();
-            $t->date('opened_date')->nullable();
+            $t->datetime('sent_date')->nullable();
+            $t->datetime('viewed_date')->nullable();
+            $t->datetime('opened_date')->nullable();
 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
@@ -684,7 +683,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
             $t->decimal('amount', 13, 2);
-            $t->date('payment_date')->nullable();
+            $t->datetime('payment_date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
 
