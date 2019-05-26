@@ -25,6 +25,8 @@ class InvoiceReport extends AbstractReport
             'private_notes' => ['columnSelector-false'],
             'vat_number' => ['columnSelector-false'],
             'user' => ['columnSelector-false'],
+            'billing_address' => ['columnSelector-false'],
+            'shipping_address' => ['columnSelector-false'],
         ];
 
         if (TaxRate::scope()->count()) {
@@ -121,6 +123,8 @@ class InvoiceReport extends AbstractReport
                         $invoice->private_notes,
                         $client->vat_number,
                         $invoice->user->getDisplayName(),
+                        trim(str_replace('<br/>', ', ', $client->present()->address()), ', '),
+                        trim(str_replace('<br/>', ', ', $client->present()->address(ADDRESS_SHIPPING)), ', '),
                     ];
 
                     if ($hasTaxRates) {

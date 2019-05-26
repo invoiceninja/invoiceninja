@@ -19,6 +19,8 @@ class QuoteReport extends AbstractReport
             'status' => [],
             'private_notes' => ['columnSelector-false'],
             'user' => ['columnSelector-false'],
+            'billing_address' => ['columnSelector-false'],
+            'shipping_address' => ['columnSelector-false'],
         ];
 
         if (TaxRate::scope()->count()) {
@@ -87,6 +89,8 @@ class QuoteReport extends AbstractReport
                     $invoice->present()->status(),
                     $invoice->private_notes,
                     $invoice->user->getDisplayName(),
+                    trim(str_replace('<br/>', ', ', $client->present()->address()), ', '),
+                    trim(str_replace('<br/>', ', ', $client->present()->address(ADDRESS_SHIPPING)), ', '),
                 ];
 
                 if ($hasTaxRates) {
