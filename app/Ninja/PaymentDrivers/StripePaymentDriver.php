@@ -111,6 +111,7 @@ class StripePaymentDriver extends BasePaymentDriver
             return false;
         }
 
+        /*
         $this->tokenResponse = $response->getData();
 
         // import Stripe tokens created before payment methods table was added
@@ -121,6 +122,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 $customer->load('payment_methods');
             }
         }
+        */
 
         return true;
     }
