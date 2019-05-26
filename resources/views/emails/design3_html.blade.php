@@ -38,13 +38,13 @@
                             </span>
                         </p>
                     </td>
-                    <td style="border-collapse: collapse; vertical-align: middle; line-height: 16px;" valign="middle">
+                    <td style="border-collapse: collapse; vertical-align: middle; line-height: 20px;" valign="middle">
                         <p style="margin: 0; padding: 0;">
                             @if (! isset($isRefund) || ! $isRefund)
                                 <span style="font-size: 12px; color: #8f8d8e;">
                                     {{ strtoupper(trans('texts.' . $invoice->present()->balanceDueLabel)) }}:
                                 </span><br />
-                                <span class="total" style="font-size: 27px; color: #FFFFFF; margin-top: 5px;display: block;">
+                                <span class="total" style="font-size: 22px; color: #FFFFFF; margin-top: 5px;display: block;">
                                     {{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}
                                 </span>
                             @endif
