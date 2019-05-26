@@ -100,9 +100,9 @@ $LANG = array(
         <p>Uporaba: MESEC, :ČETRTLETJE ali: LETO za dinamične datume. Osnovna matematika deluje, kot tudi, na primer: MESEC-1.</p>
         <p>Primer dinamičnih spremenljivk računa:</p>
         <ul>
-          <li>"Fitnes članarina za mesec :MESEC" => "Fitnes članarina za mesec Julij"</li>
-          <li>":LETO+1 letna članarina" => "2015 Letna članarina"</li>
-          <li>"Predujem za :ČETRTLETJE+1" => "Predujem za Q2"</li>
+          <li>"Fitnes članarina za mesec :MESEC" >> "Fitnes članarina za mesec Julij"</li>
+          <li>":LETO+1 letna članarina" >> "2015 Letna članarina"</li>
+          <li>"Predujem za :ČETRTLETJE+1" >> "Predujem za Q2"</li>
         </ul>',
     'recurring_quotes' => 'Ponavljajoči predračuni',
     'in_total_revenue' => 'celotni prihodki',
