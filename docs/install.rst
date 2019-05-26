@@ -100,3 +100,11 @@ Troubleshooting
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
 - PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php. If the file doesn't exist the steps `here <https://stackoverflow.com/a/37266353/497368>`_ may help.
 - To support invoices with many line items you may need to increase the value of max_input_vars in the php.ini file.
+- Some webservers run filtering software which can cause errors, you can test adding this code to your .htaccess file to test if it's related.
+
+.. code-block:: shell
+
+   <IfModule mod_security.c>
+     SecFilterEngine Off
+     SecFilterScanPOST Off
+   </IfModule>
