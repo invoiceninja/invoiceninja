@@ -36,7 +36,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'TargetPay Ideal', 'provider' => 'TargetPay_Ideal'],
             ['name' => 'TargetPay Mr Cash', 'provider' => 'TargetPay_Mrcash'],
             ['name' => 'TwoCheckout', 'provider' => 'TwoCheckout', 'is_offsite' => true],
-            ['name' => 'WorldPay', 'provider' => 'WorldPay'],
+            ['name' => 'WorldPay', 'provider' => 'WorldPay', 'is_offsite' => true],
             ['name' => 'BeanStream', 'provider' => 'BeanStream', 'payment_library_id' => 2],
             ['name' => 'Psigate', 'provider' => 'Psigate', 'payment_library_id' => 2],
             ['name' => 'moolah', 'provider' => 'AuthorizeNet_AIM'],
