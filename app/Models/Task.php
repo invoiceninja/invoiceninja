@@ -54,7 +54,7 @@ class Task extends EntityModel
      */
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     /**
