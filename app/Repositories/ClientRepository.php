@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Models\Client;
 use App\Repositories\ClientContactRepository;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 
 /**
@@ -20,7 +21,7 @@ use Illuminate\Http\Request;
  */
 class ClientRepository extends BaseRepository
 {
-
+    use GeneratesCounter;
     /**
      * @var ClientContactRepository
      */
@@ -64,7 +65,7 @@ class ClientRepository extends BaseRepository
 
         $client->save();
 
-        $client->id_number = $client->getNextNumber($client); //todo write tests for this and make sure that custom client numbers also works as expected from here
+        $client->id_number = $this->getNextClientNumber($client); //todo write tests for this and make sure that custom client numbers also works as expected from here
 
         $client->save();
 

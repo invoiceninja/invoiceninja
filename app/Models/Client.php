@@ -18,7 +18,6 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Filterable;
 use App\Models\Timezone;
-use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
@@ -33,7 +32,6 @@ class Client extends BaseModel
     use MakesDates;
     use SoftDeletes;
     use Filterable;
-    use GeneratesNumberCounter;
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 

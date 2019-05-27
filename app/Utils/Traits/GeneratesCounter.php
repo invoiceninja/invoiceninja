@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
  * Class GeneratesCounter
  * @package App\Utils\Traits
  */
-trait GeneratesNumberCounter
+trait GeneratesCounter
 {
 
 	public function getNextInvoiceNumber(Client $client)
@@ -40,6 +40,7 @@ trait GeneratesNumberCounter
 		//build number pattern
 		$invoice_number = $this->applyNumberPattern($client, $counter, $client_counter, $client->company->settings->invoice_number_pattern);
 		
+		return $invoice_number;
 	}
 
 	public function getNextCreditNumber()
@@ -62,9 +63,17 @@ trait GeneratesNumberCounter
 
 	}
 
-	public function getNextClientNumber()
+	public function getNextClientNumber(Client $client)
 	{
+        //Reset counters if enabled
+		$this->resetCounters($client);
 
+        $counter = $client->company->getSettingsByKey( 'client_number_counter' );
+		$counter = $this->checkEntityNumber($client, $counter, $client->company->settings->counter_padding, $client->company->settings->client_number_prefix);
+
+		$client_number = $this->applyNumberPattern($client, $counter, $counter, $client->company->settings->client_number_pattern);
+
+		return $client_number;
 	}
 
 
@@ -87,13 +96,15 @@ trait GeneratesNumberCounter
 			$number = $this->padCounter($counter, $padding);
 			$number = $this->prefixCounter($number, $prefix);
 
-			$check = $entity::company($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
+			$class = get_class($entity);
+
+			$check = $class::whereCompanyId($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
 
 			$counter++;
 
 		} while ($check);
 
-		$this->incrementCounter($client, 'invoice_number_counter');
+		$this->incrementCounter($entity, 'invoice_number_counter');
 		
         return $number;
 	}
@@ -105,17 +116,17 @@ trait GeneratesNumberCounter
 	 * @param      \App\Models\Client                 $client        The client
 	 * @param      \App\Models\Client|integer|string  $counter_name  The counter name
 	 */
-	private function incrementCounter(Client $client, string $counter_name) :void 
+	private function incrementCounter($entity, string $counter_name) :void 
 	{
-		$company_settings = $client->company->settings;
+		$company_settings = $entity->company->settings;
 		$company_settings->$counter_name = $company_settings->$counter_name + 1;
-		$client->company->settings = $company_settings;
-		$client->company->save();
+		$entity->company->settings = $company_settings;
+		$entity->company->save();
 
-		$client_settings = $client->settings;
+		$client_settings = $entity->settings;
 		$client_settings->$counter_name = $client_settings->$counter_name + 1;
-		$client->settings = $client_settings;
-		$client->save();
+		$entity->settings = $client_settings;
+		$entity->save();
 	}
 
 	private function prefixCounter($counter, $prefix) : string
@@ -231,7 +242,7 @@ trait GeneratesNumberCounter
     private function applyNumberPattern($client, $counter, $client_counter, $pattern)
     {
     	if(!$pattern)
-    		return $counter;
+			return $counter;
 
         $search = ['{$year}'];
         $replace = [date('Y')];

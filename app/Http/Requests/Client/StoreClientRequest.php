@@ -13,11 +13,9 @@ namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
 use App\Models\Client;
-use App\Utils\Traits\GeneratesNumberCounter;
 
 class StoreClientRequest extends Request
 {
-    use GeneratesNumberCounter;
     /**
      * Determine if the user is authorized to make this request.
      *

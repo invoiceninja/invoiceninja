@@ -22,7 +22,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\Utils\Traits\GeneratesNumberCounter;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +35,8 @@ trait MockAccountData
 {
 
 	use MakesHash;
-	use GeneratesNumberCounter;
+	use GeneratesCounter;
+
 	public $account;
 
 	public $company;
@@ -94,7 +95,7 @@ trait MockAccountData
         $recurring_invoice->start_date = Carbon::now()->format('Y-m-d');
         $recurring_invoice->save();
         
-        $recurring_invoice->invoice_number = $this->getNextNumber($recurring_invoice);
+        $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -104,7 +105,7 @@ trait MockAccountData
         $recurring_invoice->start_date = Carbon::now()->format('Y-m-d');
         $recurring_invoice->save();
         
-        $recurring_invoice->invoice_number = $this->getNextNumber($recurring_invoice);
+        $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -114,7 +115,7 @@ trait MockAccountData
         $recurring_invoice->start_date = Carbon::now()->format('Y-m-d');
         $recurring_invoice->save();
         
-        $recurring_invoice->invoice_number = $this->getNextNumber($recurring_invoice);
+        $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -124,7 +125,7 @@ trait MockAccountData
         $recurring_invoice->start_date = Carbon::now()->format('Y-m-d');
         $recurring_invoice->save();
         
-        $recurring_invoice->invoice_number = $this->getNextNumber($recurring_invoice);
+        $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
 
@@ -135,7 +136,7 @@ trait MockAccountData
         $recurring_invoice->start_date = Carbon::now()->format('Y-m-d');
         $recurring_invoice->save();
         
-        $recurring_invoice->invoice_number = $this->getNextNumber($recurring_invoice);
+        $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -145,7 +146,7 @@ trait MockAccountData
         $recurring_invoice->start_date = Carbon::now()->format('Y-m-d');
         $recurring_invoice->save();
         
-        $recurring_invoice->invoice_number = $this->getNextNumber($recurring_invoice);
+        $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
 	}

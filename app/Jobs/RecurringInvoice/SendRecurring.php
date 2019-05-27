@@ -14,7 +14,7 @@ namespace App\Jobs\RecurringInvoice;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
-use App\Utils\Traits\GeneratesNumberCounter;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\Log;
 class SendRecurring
 {
 
-    use GeneratesNumberCounter;
-
+    use GeneratesCounter;
+    
     public $recurring_invoice;
 
     protected $db;
@@ -53,7 +53,7 @@ class SendRecurring
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);
-        $invoice->invoice_number = $this->getNextNumber($invoice);
+        $invoice->invoice_number = $this->getNextInvoiceNumber($this->recurring_invoice->client);
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->save();
 
