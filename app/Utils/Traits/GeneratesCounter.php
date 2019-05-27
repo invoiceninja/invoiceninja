@@ -31,15 +31,30 @@ trait GeneratesCounter
 		//Reset counters if enabled
 		$this->resetCounters($client);
 
-		$counter = $this->getNextInvoiceCounter($client);
+		$is_client_counter = false;
+
+		$pattern = $client->company->settings->invoice_number_pattern;
+
+		if(strpos($pattern, 'client_counter') === false)
+		{
+			$counter = $client->company->settings->invoice_number_counter;
+		}
+		else 
+		{
+			$counter = $client->settings->invoice_number_counter;
+			$is_client_counter = true;
+		}
+
 		$counter = $this->checkEntityNumber($client, $counter, $client->company->settings->counter_padding, $client->company->settings->invoice_number_prefix);
 
-		$client_counter = $this->getNextInvoiceClientCounter($client);
-		$client_counter = $this->checkEntityNumber($client, $client_counter, $client->company->settings->counter_padding, $client->company->settings->invoice_number_prefix);
-
 		//build number pattern
-		$invoice_number = $this->applyNumberPattern($client, $counter, $client_counter, $client->company->settings->invoice_number_pattern);
+		$invoice_number = $this->applyNumberPattern($client, $counter, $client->company->settings->invoice_number_pattern);
 		
+		if($is_client_counter)
+			$this->incrementCounter($client, 'invoice_number_counter');
+		else
+			$this->incrementCounter($client->company, 'invoice_number_counter');
+
 		return $invoice_number;
 	}
 
@@ -76,6 +91,12 @@ trait GeneratesCounter
 		return $client_number;
 	}
 
+	public function hasSharedCounter($client)
+	{
+
+		return $client->getSettingsByKey('shared_invoice_quote_counter') === TRUE;
+
+	}
 
 	/**
 	 * Checks that the number has not already been used
@@ -104,7 +125,6 @@ trait GeneratesCounter
 
 		} while ($check);
 
-		$this->incrementCounter($entity, 'invoice_number_counter');
 		
         return $number;
 	}
@@ -118,15 +138,12 @@ trait GeneratesCounter
 	 */
 	private function incrementCounter($entity, string $counter_name) :void 
 	{
-		$company_settings = $entity->company->settings;
-		$company_settings->$counter_name = $company_settings->$counter_name + 1;
-		$entity->company->settings = $company_settings;
-		$entity->company->save();
 
-		$client_settings = $entity->settings;
-		$client_settings->$counter_name = $client_settings->$counter_name + 1;
-		$entity->settings = $client_settings;
+		$settings = $entity->settings;
+		$settings->$counter_name = $settings->$counter_name + 1;
+		$entity->settings = $settings;
 		$entity->save();
+
 	}
 
 	private function prefixCounter($counter, $prefix) : string
@@ -153,31 +170,6 @@ trait GeneratesCounter
 
 	}
 
-	/**
-	 * Gets the next invoice counter.
-	 *
-	 * Determine whether we need to harvest the
-	 * Client specific invoice increment OR 
-	 * the Company wide invoice increment
-	 *
-	 * @param      string              $number_pattern  The number pattern
-	 * @param      \App\Models\Client  $client          The client
-	 *
-	 * @return     string              The next invoice counter.
-	 */
-	private function getNextInvoiceCounter(Client $client) : string
-	{
-
-		return $client->company->settings->invoice_number_counter;
-
-	}
-
-	private function getNextInvoiceClientCounter(Client $client) : string
-	{
-
-		return $client->settings->invoice_number_counter;
-
-	}
 
 	/**
 	 * If we are using counter reset, 
@@ -191,10 +183,16 @@ trait GeneratesCounter
 
         $timezone = $client->company->timezone()->name;
 
+Log::error('timezone = '.$timezone);
+
         $reset_date = Carbon::parse($client->company->settings->reset_counter_date, $timezone);
 
-        if (! $reset_date->isToday()) 
+Log::error('reset date = '. $reset_date->format('Y-m-d'));
+
+        if (! $reset_date->isToday() || ! $client->company->settings->reset_counter_date) 
             return false;
+
+Log::error('we are resetting here!!');
 
         switch ($client->company->reset_counter_frequency_id) {
             case RecurringInvoice::FREQUENCY_WEEKLY:
@@ -239,19 +237,20 @@ trait GeneratesCounter
         $client->company->save();
     }
 
-    private function applyNumberPattern($client, $counter, $client_counter, $pattern)
+    private function applyNumberPattern($client, $counter, $pattern)
     {
     	if(!$pattern)
 			return $counter;
+
 
         $search = ['{$year}'];
         $replace = [date('Y')];
 
         $search[] = '{$counter}';
-        $replace[] = [$counter];
+        $replace[] = $counter;
 
-        $search[] = '{$client_counter';
-        $replace[] = [$client_counter];
+        $search[] = '{$client_counter}';
+        $replace[] = $counter;
 
         if (strstr($pattern, '{$user_id}')) {
             $user_id = auth()->check() ? auth()->user()->id : 0;
@@ -271,20 +270,22 @@ trait GeneratesCounter
         }
 
         $search[] = '{$custom1}';
-        $replace[] = [$client->custom_value1];
+        $replace[] = $client->custom_value1;
 
         $search[] = '{$custom2}';
-        $replace[] = [$client->custom_value1];
+        $replace[] = $client->custom_value1;
 
         $search[] = '{$custom3}';
-        $replace[] = [$client->custom_value1];
+        $replace[] = $client->custom_value1;
 
         $search[] = '{$custom4}';
-        $replace[] = [$client->custom_value1];
+        $replace[] = $client->custom_value1;
 
         $search[] = '{$id_number}';
-        $replace[] = [$client->id_number];
-
+        $replace[] = $client->id_number;
+Log::error($search);
+Log::error($replace);
+Log::error($pattern);
         return str_replace($search, $replace, $pattern);
 
     }
