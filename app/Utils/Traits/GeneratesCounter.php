@@ -35,6 +35,7 @@ trait GeneratesCounter
 
 		$pattern = $client->company->settings->invoice_number_pattern;
 
+		//Determine if we are using client_counters
 		if(strpos($pattern, 'client_counter') === false)
 		{
 			$counter = $client->company->settings->invoice_number_counter;
@@ -45,11 +46,13 @@ trait GeneratesCounter
 			$is_client_counter = true;
 		}
 
+		//Return a valid counter
 		$counter = $this->checkEntityNumber($client, $counter, $client->company->settings->counter_padding, $client->company->settings->invoice_number_prefix);
 
-		//build number pattern
+		//build number pattern and replace variables in pattern
 		$invoice_number = $this->applyNumberPattern($client, $counter, $client->company->settings->invoice_number_pattern);
 		
+		//increment the corrent invoice_number Counter (company vs client)
 		if($is_client_counter)
 			$this->incrementCounter($client, 'invoice_number_counter');
 		else
