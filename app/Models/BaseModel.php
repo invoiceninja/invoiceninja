@@ -88,11 +88,11 @@ class BaseModel extends Model
         {   
             //Log::error('harvesting client settings for key = '. $key . ' and it has the value = '. $this->getSettings()->{$key});
             //Log::error(print_r($this->getSettings(),1));
-            return $this->getSettings();
+            return $this->getSettings()->{$key};
         }
         else {
             //Log::error(print_r(new CompanySettings($this->company->settings),1));
-            return new CompanySettings($this->company->settings);  
+            return (new CompanySettings($this->company->settings))->{$key};  
         }
 
     }

@@ -159,6 +159,10 @@ class CompanySettings extends BaseSettings
 			'client_number_counter' => 1,
 			'counter_padding' => 0,
 			'recurring_invoice_number_prefix' => 'R',
+			'invoice_number_prefix' => '',
+			'quote_number_prefix' => '',
+			'credit_number_prefix' => '',
+			'client_number_prefix' => '',
 			'auto_archive_invoice' => 'FALSE',
 			
 			'translations' => (object) [],

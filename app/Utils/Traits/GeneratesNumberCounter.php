@@ -42,7 +42,7 @@ trait GeneratesNumberCounter
             if ($this->hasNumberPattern($entity)) {
                 $number = $this->applyNumberPattern($entity, $counter);
             } else {
-                $number = $prefix . str_pad($counter, $entity->getSettingsByKey('counter_padding')->counter_padding, '0', STR_PAD_LEFT);
+                $number = $prefix . str_pad($counter, $entity->getSettingsByKey('counter_padding'), '0', STR_PAD_LEFT);
             }
 
 
@@ -85,7 +85,7 @@ trait GeneratesNumberCounter
     public function hasSharedCounter($entity) : bool
 	{
 
-		return $entity->getSettingsByKey('shared_invoice_quote_counter')->shared_invoice_quote_counter === TRUE;
+		return $entity->getSettingsByKey('shared_invoice_quote_counter') === TRUE;
 
 	}
 
@@ -116,7 +116,7 @@ trait GeneratesNumberCounter
 
         $field = $entity_name . "_number_pattern";
 
-		return $entity->getSettingsByKey( $field )->{$field};
+		return $entity->getSettingsByKey( $field );
 
     }
 
@@ -131,7 +131,7 @@ trait GeneratesNumberCounter
 
         $field = $this->entityName($entity_name) . "_number_prefix";
 
-        return $entity->getSettingsByKey( $field )->{$field};
+        return $entity->getSettingsByKey( $field );
 
     }
 
@@ -176,9 +176,9 @@ trait GeneratesNumberCounter
 		$counter = $this->getCounterName($entity) . '_number_counter';
         
         if($counter == 'client_number_counter')
-          return $entity->company->getSettingsByKey( $counter )->{$counter};
+          return $entity->company->getSettingsByKey( $counter );
         else
-		  return $entity->getSettingsByKey( $counter )->{$counter}; 
+		  return $entity->getSettingsByKey( $counter ); 
 
 	}
 
@@ -203,7 +203,7 @@ trait GeneratesNumberCounter
         $replace = [date('Y')];
 
         $search[] = '{$counter}';
-        $replace[] = str_pad($counter, $entity->getSettingsByKey( 'counter_padding' )->counter_padding, '0', STR_PAD_LEFT);
+        $replace[] = str_pad($counter, $entity->getSettingsByKey( 'counter_padding' ), '0', STR_PAD_LEFT);
 
         if (strstr($pattern, '{$user_id}')) {
             $user_id = auth()->check() ? auth()->user()->id : 0;
@@ -251,8 +251,8 @@ trait GeneratesNumberCounter
 
         $counter = $this->getCounterName($entity) . '_number_counter';
 
-        $counter_value = $entity->client->getSettingsByKey( $counter )->{$counter};
-        $entity_padding = $this->getSettingsByKey( 'counter_padding' )->counter_padding;
+        $counter_value = $entity->client->getSettingsByKey( $counter );
+        $entity_padding = $this->getSettingsByKey( 'counter_padding' );
 
         $replace = [
             $this->custom_value1,
