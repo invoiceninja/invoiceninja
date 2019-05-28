@@ -62,6 +62,9 @@ class ClientSettings extends BaseSettings
 	
 	/**
 	 * Counter Variables
+	 *
+	 * Currently we have only engineered counters to be implemented at the client level
+	 * prefix/patterns and padding are not there yet.
 	 */
 	public $invoice_number_prefix;
 	public $invoice_number_pattern;

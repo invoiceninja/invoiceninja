@@ -145,6 +145,94 @@ class GeneratesCounterTest extends TestCase
        
     }
 
+    public function testInvoicePadding()
+    {
+        $settings = $this->client->company->settings;
+        $settings->counter_padding = 5;
+        $this->client->company->settings = $settings;
+        $this->client->company->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client);
+
+        $this->assertEquals(strlen($invoice_number), 5);
+
+        $settings = $this->client->company->settings;
+        $settings->counter_padding = 10;
+        $this->client->company->settings = $settings;
+        $this->client->company->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client);
+
+        $this->assertEquals(strlen($invoice_number), 10);
+
+    }
+
+    public function testInvoicePrefix()
+    {
+        $settings = $this->client->company->settings;
+        $settings->invoice_number_prefix = 'R';
+        $this->client->company->settings = $settings;
+        $this->client->company->save();    
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client);
+    
+        $this->assertEquals($invoice_number, 'R1');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client);
+
+        $this->assertEquals($invoice_number, 'R2');
+
+
+    }
+
+    public function testClientNumber()
+    {
+        $client_number = $this->getNextClientNumber($this->client);
+
+        $this->assertEquals($client_number, '1');
+
+        $client_number = $this->getNextClientNumber($this->client);
+
+        $this->assertEquals($client_number, '2');
+
+    }
+
+
+    public function testClientNumberPrefix()
+    {
+        $settings = $this->client->company->settings;
+        $settings->client_number_prefix = 'C';
+        $this->client->company->settings = $settings;
+        $this->client->company->save();    
+
+        $client_number = $this->getNextClientNumber($this->client);
+    
+        $this->assertEquals($client_number, 'C1');
+
+        $client_number = $this->getNextClientNumber($this->client);
+
+        $this->assertEquals($client_number, 'C2');
+
+
+    }
+
+    public function testClientNumberPattern()
+    {
+        $settings = $this->client->company->settings;
+        $settings->client_number_prefix = 'C-';
+        $settings->client_number_pattern = '{$year}-{$user_id}-{$counter}';
+        $this->client->company->settings = $settings;
+        $this->client->company->save();    
+
+        $client_number = $this->getNextClientNumber($this->client);
+    
+        $this->assertEquals($client_number, 'C-' . date('Y') . '-' . $this->client->user_id . '-1');
+
+        $client_number = $this->getNextClientNumber($this->client);
+    
+        $this->assertEquals($client_number, 'C-' . date('Y') . '-' . $this->client->user_id . '-1');
+
+    }
 /*
     public function testPrefixOnlyInvoiceNumber()
     {
