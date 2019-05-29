@@ -96,20 +96,16 @@ class GeneratesCounterTest extends TestCase
 
         $this->assertEquals($invoice_number, 2);
 
-
-	//	Log::error(print_r($client->company->settings,1));
-	//	Log::error(print_r($client->settings,1));
     }
 
     public function testInvoiceNumberPattern()
     {
         $settings = $this->client->company->settings;
-
+        $settings->invoice_number_prefix = null;
         $settings->invoice_number_pattern = '{$year}-{$counter}';
+
         $this->client->company->settings = $settings;
         $this->client->company->save();
-
-//Log::error(print_r($this->client->company->settings,1));
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
         $invoice_number2 = $this->getNextInvoiceNumber($this->client);
@@ -124,6 +120,7 @@ class GeneratesCounterTest extends TestCase
     {
         $settings = $this->client->company->settings;
 
+        $settings->invoice_number_prefix = null;
         $settings->invoice_number_pattern = '{$year}-{$client_counter}';
         $this->client->company->settings = $settings;
         $this->client->company->save();
@@ -150,37 +147,43 @@ class GeneratesCounterTest extends TestCase
         $settings = $this->client->company->settings;
         $settings->counter_padding = 5;
         $this->client->company->settings = $settings;
-        $this->client->company->save();
+        $this->client->push();
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
 
+        $this->assertEquals($this->client->company->settings->counter_padding, 5);
         $this->assertEquals(strlen($invoice_number), 5);
+        $this->assertEquals($invoice_number, '00001');
+
 
         $settings = $this->client->company->settings;
         $settings->counter_padding = 10;
         $this->client->company->settings = $settings;
-        $this->client->company->save();
+        $this->client->push();
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
 
+        $this->assertEquals($this->client->company->settings->counter_padding, 10);
         $this->assertEquals(strlen($invoice_number), 10);
+        $this->assertEquals($invoice_number, '0000000002');
+
 
     }
 
     public function testInvoicePrefix()
     {
         $settings = $this->client->company->settings;
-        $settings->invoice_number_prefix = 'R';
+        $settings->invoice_number_prefix = 'X';
         $this->client->company->settings = $settings;
         $this->client->company->save();    
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
     
-        $this->assertEquals($invoice_number, 'R1');
+        $this->assertEquals($invoice_number, 'X1');
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, 'R2');
+        $this->assertEquals($invoice_number, 'X2');
 
 
     }
@@ -219,30 +222,22 @@ class GeneratesCounterTest extends TestCase
     public function testClientNumberPattern()
     {
         $settings = $this->client->company->settings;
-        $settings->client_number_prefix = 'C-';
+        $settings->client_number_prefix = null;
         $settings->client_number_pattern = '{$year}-{$user_id}-{$counter}';
         $this->client->company->settings = $settings;
         $this->client->company->save();    
 
         $client_number = $this->getNextClientNumber($this->client);
     
-        $this->assertEquals($client_number, 'C-' . date('Y') . '-' . $this->client->user_id . '-1');
+        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-1');
 
         $client_number = $this->getNextClientNumber($this->client);
     
-        $this->assertEquals($client_number, 'C-' . date('Y') . '-' . $this->client->user_id . '-1');
+        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-2');
 
     }
 /*
-    public function testPrefixOnlyInvoiceNumber()
-    {
-    	$this->assertEquals(true, true);
-    }
-
-    public function testClientCounterValue()
-    {
-         $this->assertEquals($this->getCounter($this->client), 1);
-    }
+   
     public function testClientNextNumber()
     {
         $this->assertEquals($this->getNextNumber($this->client),1);

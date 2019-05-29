@@ -25,7 +25,8 @@ use Illuminate\Support\Facades\Log;
  */
 trait GeneratesCounter
 {
-
+//todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
+//only one type is allow else this will cause confusion to the end user
 
 	/**
 	 * Gets the next invoice number.
@@ -56,11 +57,11 @@ trait GeneratesCounter
 		}
 
 		//Return a valid counter
-		$counter = $this->checkEntityNumber(Client::class, $client->company_id, $counter, $client->company->settings->counter_padding, $client->company->settings->invoice_number_prefix);
+		$pattern = $client->company->settings->invoice_number_pattern;
+		$prefix = $client->company->settings->invoice_number_prefix;
+		$padding = $client->company->settings->counter_padding;
+		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $prefix, $pattern);
 
-		//build number pattern and replace variables in pattern
-		$invoice_number = $this->applyNumberPattern($client, $counter, $client->company->settings->invoice_number_pattern);
-		
 		//increment the correct invoice_number Counter (company vs client)
 		if($is_client_counter)
 			$this->incrementCounter($client, 'invoice_number_counter');
@@ -70,18 +71,29 @@ trait GeneratesCounter
 		return $invoice_number;
 	}
 
-	public function getNextCreditNumber(Client $client)
+
+	/**
+	 * Gets the next credit number.
+	 *
+	 * @param      \App\Models\Client  $client  The client
+	 *
+	 * @return     string              The next credit number.
+	 */
+	public function getNextCreditNumber(Client $client) :string
 	{
 		//Reset counters if enabled
 		$this->resetCounters($client);
 
 		//todo handle if we have specific client patterns in the future
 		$pattern = $client->company->settings->credit_number_pattern;
+		$prefix = $client->company->settings->credit_number_pattern;
+		$padding = $client->company->settings->credit_number_pattern;
 
-		$counter = $this->checkEntityNumber(Credit::class, $client->company_id, $counter, $client->company->settings->counter_padding, $client->company->settings->invoice_number_prefix);
+		$credit_number = $this->checkEntityNumber(Credit::class, $client, $counter, $padding, $prefix, $pattern);
 
-		$credit_number = $this->applyNumberPattern($client, $counter, $client->company->settings->credit_number_pattern);
+		$this->incrementCounter($client->company, 'credit_number_counter');
 
+		return $credit_number;
 	}
 
 	public function getNextQuoteNumber()
@@ -92,30 +104,71 @@ trait GeneratesCounter
 	public function getNextRecurringInvoiceNumber()
 	{
 
+//Reset counters if enabled
+		$this->resetCounters($client);
+
+		$is_client_counter = false;
+
+		//todo handle if we have specific client patterns in the future
+		$pattern = $client->company->settings->invoice_number_pattern;
+
+		//Determine if we are using client_counters
+		if(strpos($pattern, 'client_counter') === false)
+		{
+			$counter = $client->company->settings->invoice_number_counter;
+		}
+		else 
+		{
+			$counter = $client->settings->invoice_number_counter;
+			$is_client_counter = true;
+		}
+
+		//Return a valid counter
+		$pattern = '';
+		$prefix = $client->company->settings->recurring_invoice_number_prefix;
+		$padding = $client->company->settings->counter_padding;
+		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $prefix, $pattern);
+
+		//increment the correct invoice_number Counter (company vs client)
+		if($is_client_counter)
+			$this->incrementCounter($client, 'invoice_number_counter');
+		else
+			$this->incrementCounter($client->company, 'invoice_number_counter');
+
+		return $invoice_number;
+
 	}
 
-	public function getNextClientInvoiceNumber()
-	{
-
-	}
-
-	public function getNextClientNumber(Client $client)
+	/**
+	 * Gets the next client number.
+	 *
+	 * @param      \App\Models\Client  $client  The client
+	 *
+	 * @return     string              The next client number.
+	 */
+	public function getNextClientNumber(Client $client) :string
 	{
         //Reset counters if enabled
 		$this->resetCounters($client);
 
         $counter = $client->company->getSettingsByKey( 'client_number_counter' );
 
-		$client_number = $this->checkEntityNumber(Client::class, $counter, $client->company->settings->counter_padding, $client->company->settings->client_number_prefix, $client->company->settings->client_number_pattern);
-
-		//$client_number = $this->applyNumberPattern($client, $counter, $client->company->settings->client_number_pattern);
+		$client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->company->settings->counter_padding, $client->company->settings->client_number_prefix, $client->company->settings->client_number_pattern);
 
 		$this->incrementCounter($client->company, 'client_number_counter');
 
 		return $client_number;
 	}
 
-	public function hasSharedCounter($client)
+	
+	/**
+	 * Determines if it has shared counter.
+	 *
+	 * @param      \App\Models\Client  $client  The client
+	 *
+	 * @return     boolean             True if has shared counter, False otherwise.
+	 */
+	public function hasSharedCounter(Client $client) : bool
 	{
 
 		return $client->getSettingsByKey('shared_invoice_quote_counter') === TRUE;
@@ -132,7 +185,7 @@ trait GeneratesCounter
 	 *
 	 * @return     string   The padded and prefixed invoice number
 	 */
-	private function checkEntityNumber($entity, $counter, $padding, $prefix, $pattern)
+	private function checkEntityNumber($class, $client, $counter, $padding, $prefix, $pattern)
 	{
 		$check = false;
 
@@ -140,18 +193,24 @@ trait GeneratesCounter
 
 			$number = $this->padCounter($counter, $padding);
 
-			if(isset($prefix))
+			if(isset($prefix) && strlen($prefix) >= 1)
 				$number = $this->prefixCounter($number, $prefix);
 			else
-				$number = $this->applyNumberPattern($entity, $counter, $pattern);
-			//todo
-			$check = $entity::whereCompanyId($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
+				$number = $this->applyNumberPattern($client, $number, $pattern);
+		
+			if($class == Invoice::class || $class == RecurringInvoice::class)
+				$check = $class::whereCompanyId($client->company_id)->whereInvoiceNumber($number)->withTrashed()->first();
+			elseif($class == Client::class)
+				$check = $class::whereCompanyId($client->company_id)->whereIdNumber($number)->withTrashed()->first();
+			elseif($class == Credit::class)
+				$check = $class::whereCompanyId($client->company_id)->whereCreditNumber($number)->withTrashed()->first();
+			elseif($class == Quote::class)
+				$check = $class::whereCompanyId($client->company_id)->whereQuoteNumber($number)->withTrashed()->first();
 
 			$counter++;
 
 		} while ($check);
 
-		
         return $number;
 	}
 
@@ -189,7 +248,7 @@ trait GeneratesCounter
 	 *
 	 * @return     int  the padded counter
 	 */
-	private function padCounter($counter, $padding)
+	private function padCounter($counter, $padding) :string
 	{
 
 		return str_pad($counter, $padding, '0', STR_PAD_LEFT);
@@ -209,16 +268,10 @@ trait GeneratesCounter
 
         $timezone = $client->company->timezone()->name;
 
-Log::error('timezone = '.$timezone);
-
         $reset_date = Carbon::parse($client->company->settings->reset_counter_date, $timezone);
-
-Log::error('reset date = '. $reset_date->format('Y-m-d'));
 
         if (! $reset_date->isToday() || ! $client->company->settings->reset_counter_date) 
             return false;
-
-Log::error('we are resetting here!!');
 
         switch ($client->company->reset_counter_frequency_id) {
             case RecurringInvoice::FREQUENCY_WEEKLY:
@@ -263,15 +316,20 @@ Log::error('we are resetting here!!');
         $client->company->save();
     }
 
-    private function applyNumberPattern($entity, $counter, $pattern)
+
+    /**
+     * { function_description }
+     *
+     * @param      \App\Models\Client  $client   The client
+     * @param      string              $counter  The counter
+     * @param      null|string             $pattern  The pattern
+     *
+     * @return     string              ( description_of_the_return_value )
+     */
+    private function applyNumberPattern(Client $client, string $counter, $pattern) :string
     {
     	if(!$pattern)
 			return $counter;
-
-		if($entity instanceof Client)
-			$client = $entity;
-		else
-			$client = $entity->client;
 
         $search = ['{$year}'];
         $replace = [date('Y')];
@@ -283,7 +341,7 @@ Log::error('we are resetting here!!');
         $replace[] = $counter;
 
         if (strstr($pattern, '{$user_id}')) {
-            $user_id = $entity->user_id ? $entity->user_ids : 0;
+            $user_id = $client->user_id ? $client->user_id : 0;
             $search[] = '{$user_id}';
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
@@ -295,7 +353,7 @@ Log::error('we are resetting here!!');
             $search[] = $matches[0];
 
             /* The following adjusts for the company timezone - may bork tests depending on the time of day the tests are run!!!!!!*/
-            $date = Carbon::now($entity->company->timezone()->name)->format($format);
+            $date = Carbon::now($client->company->timezone()->name)->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
@@ -316,6 +374,7 @@ Log::error('we are resetting here!!');
 //Log::error($search);
 //Log::error($replace);
 //Log::error($pattern);
+    	
         return str_replace($search, $replace, $pattern);
 
     }

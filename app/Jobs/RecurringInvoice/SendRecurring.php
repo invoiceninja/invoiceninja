@@ -53,7 +53,7 @@ class SendRecurring
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);
-        $invoice->invoice_number = $this->getNextInvoiceNumber($this->recurring_invoice->client);
+        $invoice->invoice_number = $this->getNextRecurringInvoiceNumber($this->recurring_invoice->client);
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->save();
 
