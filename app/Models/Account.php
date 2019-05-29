@@ -901,6 +901,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return string
+     */
+    public function getCountryCode()
+    {
+        return $this->country ? $this->country->iso_3166_2 : 'US';
+    }
+
+    /**
      * @param $date
      *
      * @return null|string
