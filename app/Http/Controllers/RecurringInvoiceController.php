@@ -109,7 +109,7 @@ class RecurringInvoiceController extends BaseController
     public function store(StoreRecurringInvoiceRequest $request)
     {
         
-        $recurring_invoice = $this->recurring_invoice_repo->save($request, RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($recurring_invoice);
 
@@ -156,7 +156,7 @@ class RecurringInvoiceController extends BaseController
     public function update(UpdateRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
 
-        $recurring_invoice = $this->recurring_invoice_repo->save(request(), $recurring_invoice);
+        $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
         return $this->itemResponse($recurring_invoice);
 

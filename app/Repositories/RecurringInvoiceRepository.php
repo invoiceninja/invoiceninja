@@ -27,12 +27,11 @@ class RecurringInvoiceRepository extends BaseRepository
         return RecurringInvoice::class;
     }
     
-	public function save(Request $request, RecurringInvoice $invoice) : ?RecurringInvoice
+	public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
 	{
-        $invoice->fill($request->input());
+        $invoice->fill($data);
         
         $invoice->save();
-
 
         $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 

@@ -12,13 +12,19 @@
 namespace App\Utils\Traits;
 
 /**
- * Class MakesDates
+ * Class Inviteable
  * @package App\Utils\Traits
  */
 trait Inviteable
 {
 
-	public function getStatus()
+
+	/**
+	 * Gets the status.
+	 *
+	 * @return     string  The status.
+	 */
+	public function getStatus() : string
 	{
 		$status = '';
 
