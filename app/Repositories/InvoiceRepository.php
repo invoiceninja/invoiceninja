@@ -13,10 +13,13 @@ namespace App\Repositories;
 
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * InvoiceRepository
@@ -82,10 +85,48 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->status_id = Invoice::STATUS_SENT;
 
+        $this->markInvitationsSent();
+
         $invoice->save();
 
         return $invoice;
 
+    }
+
+    private function markInvitationsSent(Invoice $invoice) :Invoice
+    {
+        $invoice->invitations->each(function($invitation, $key) {
+            $invitation->sent_date = Carbon::now()->format('Y-m-d H:i');
+            $invitation->save();
+        });
+    }
+
+    private function saveInvitations(Invoice $invoice) :Invoice
+    {
+        $contact_list = (array)$invoice->settings->invoice_email_list;
+
+        $contacts = ClientContact::findMany($contacts);
+
+        if (! $contacts->count()) {
+            return $invoice;
+        }
+
+        $contacts->each(function($contact, $key) use ($invoice){
+
+            $invitation = InvoiceInvitation::whereClientContactId($contact->id)->whereInvoiceId($invoice->id)->first();
+
+            if($!invitation){
+                $invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+                $invitation->client_contact_id = $contact->id;
+                $invitation->invoice_id = $invoice->id;
+                $invitation->save();
+            }
+           
+
+        });
+
+
+        return $invoice;
     }
 
 }

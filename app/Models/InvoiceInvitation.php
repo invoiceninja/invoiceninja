@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Invoice;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,6 +23,11 @@ class InvoiceInvitation extends BaseModel
     protected $guarded = [
         'id',
     ];
+
+    public function entityType()
+    {
+        return Invoice::class;
+    }
 
     /**
      * @return mixed
