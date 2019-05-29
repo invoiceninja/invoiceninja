@@ -24,6 +24,7 @@ class ProductFactory
 		$product->product_key = '';
 		$product->notes = '';
 		$product->cost = 0;
+		$product->price = 0;
 		$product->qty = 0;
 		$product->tax_name1 = '';
 		$product->tax_rate1 = 0;

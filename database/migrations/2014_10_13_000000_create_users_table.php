@@ -367,6 +367,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
 
+            $t->unsignedInteger('recurring_invoice_id')->nullable();
+
             $t->string('invoice_number')->nullable();
             $t->float('discount');
             $t->boolean('is_amount_discount');
@@ -648,6 +650,7 @@ class CreateUsersTable extends Migration
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
+            $t->decimal('price', 13, 2);
             $t->decimal('qty', 13, 2)->nullable();
 
             $t->string('tax_name1')->nullable();
