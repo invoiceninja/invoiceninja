@@ -120,7 +120,7 @@
 	        // https://stripe.com/docs/stripe-js/elements/payment-request-button
 	        var stripe = Stripe('{{ $accountGateway->getPublishableKey() }}');
 	        var paymentRequest = stripe.paymentRequest({
-	            country: '{{ $invoice->client->getCountryCode() }}',
+	            country: '{{ $account->getCountryCode() }}',
 	            currency: '{{ strtolower($invoice->client->getCurrencyCode()) }}',
 	            total: {
 	                label: '{{ trans('texts.invoice') . ' ' . $invitation->invoice->invoice_number }}',
