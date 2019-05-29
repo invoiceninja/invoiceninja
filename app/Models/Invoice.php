@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Invoice extends BaseModel
 {
@@ -155,5 +156,9 @@ class Invoice extends BaseModel
         return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
     }
 
+    public function markViewed()
+    {
+        $this->last_viewed = Carbon::now()->format('Y-m-d H:i');
+    }
     
 }

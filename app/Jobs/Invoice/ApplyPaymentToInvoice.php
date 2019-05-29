@@ -85,7 +85,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
 
             if(!$this->invoice->due_date)
-                $this->invoice->due_date = Carbon::now()->addDays($this->invoice->settings->payment_terms)->format('Y-m-d');
+                $this->invoice->due_date = Carbon::now()->addDays($this->invoice->settings->payment_terms)->format(config('ninja.date_format'));
 
         }        
 

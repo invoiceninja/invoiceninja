@@ -96,8 +96,13 @@ class InvoiceRepository extends BaseRepository
     private function markInvitationsSent(Invoice $invoice) :Invoice
     {
         $invoice->invitations->each(function($invitation, $key) {
-            $invitation->sent_date = Carbon::now()->format('Y-m-d H:i');
-            $invitation->save();
+
+            if(!isset($invitation->sent_date))
+            {
+                $invitation->sent_date = Carbon::now()->format('Y-m-d H:i');
+                $invitation->save();
+            }
+
         });
     }
 
@@ -115,7 +120,7 @@ class InvoiceRepository extends BaseRepository
 
             $invitation = InvoiceInvitation::whereClientContactId($contact->id)->whereInvoiceId($invoice->id)->first();
 
-            if($!invitation){
+            if(!$invitation){
                 $invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
                 $invitation->client_contact_id = $contact->id;
                 $invitation->invoice_id = $invoice->id;

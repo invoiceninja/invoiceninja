@@ -13,6 +13,8 @@ return [
     'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
     'key_length' => 64,
+    'date_format' => 'Y-m-d',
+    'date_time_format' => 'Y-m-d H:i',
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
