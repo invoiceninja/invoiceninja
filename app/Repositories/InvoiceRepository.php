@@ -52,8 +52,10 @@ class InvoiceRepository extends BaseRepository
         $starting_amount = $invoice->amount;
 
         $invoice->fill($data);
-        
+
         $invoice->save();
+
+        $this->saveInvitations($data['invitations'], $invoice);
 
         $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
@@ -79,7 +81,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-        /* Return immediately if status is not draft*/
+        /* Return immediately if status is not draft */
         if($invoice->status_id != Invoice::STATUS_DRAFT)
             return $invoice;
 
@@ -93,43 +95,51 @@ class InvoiceRepository extends BaseRepository
 
     }
 
-    private function markInvitationsSent(Invoice $invoice) :Invoice
+
+    /**
+     * Updates Invites to SENT
+     *
+     * @param      \App\Models\Invoice  $invoice  The invoice
+     */
+    private function markInvitationsSent(Invoice $invoice) :void
     {
         $invoice->invitations->each(function($invitation, $key) {
 
             if(!isset($invitation->sent_date))
             {
-                $invitation->sent_date = Carbon::now()->format('Y-m-d H:i');
+                $invitation->sent_date = Carbon::now()->format(config('ninja.date_time_format'));
                 $invitation->save();
             }
 
         });
     }
 
-    private function saveInvitations(Invoice $invoice) :Invoice
+
+    /**
+     * Saves invitations.
+     *
+     * @param      array                        $invitations  The invitations
+     * @param      \App\Models\Invoice          $invoice      The invoice
+     *
+     * @return     Invoice|\App\Models\Invoice  Return the invoice object
+     */
+    private function saveInvitations(array $invitations, Invoice $invoice) :Invoice
     {
-        $contact_list = (array)$invoice->settings->invoice_email_list;
 
-        $contacts = ClientContact::findMany($contacts);
+        foreach($invitations as $invitation)
+        {
+            //only update new invitations
+            if(strlen($invitation['invitation_key']) == 0)
+            {
 
-        if (! $contacts->count()) {
-            return $invoice;
-        }
-
-        $contacts->each(function($contact, $key) use ($invoice){
-
-            $invitation = InvoiceInvitation::whereClientContactId($contact->id)->whereInvoiceId($invoice->id)->first();
-
-            if(!$invitation){
                 $invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-                $invitation->client_contact_id = $contact->id;
+                $invitation->client_contact_id = $invitation->['client_contact_id'];
                 $invitation->invoice_id = $invoice->id;
                 $invitation->save();
+
             }
-           
-
-        });
-
+            
+        }
 
         return $invoice;
     }
