@@ -88,7 +88,6 @@ class ClientSettings extends BaseSettings
 	 */
 	public $industry_id;
 	public $size_id;
-	public $invoice_email_list;	//default comma separated list of contact ids to email
 
 	/**
 	 * Cast object values and return entire class
@@ -116,7 +115,6 @@ class ClientSettings extends BaseSettings
 			'entity' => Client::class,
 			'industry_id' => NULL,
 			'size_id' => NULL,
-			'invoice_email_list' => NULL,
 		];
 
 	}

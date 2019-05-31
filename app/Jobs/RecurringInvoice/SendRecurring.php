@@ -58,8 +58,8 @@ class SendRecurring
         $invoice->save();
 
         // Queue: Emails for invoice  
-        // $this->recurring_invoice->settings->invoice_email_list //todo comma separated list of emails to fire this email to                
-
+        // foreach invoice->invitations
+        
         // Fire Payment if auto-bill is enabled
         if($this->recurring_invoice->settings->auto_bill)
             //PAYMENT ACTION HERE TODO

@@ -55,7 +55,8 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->save();
 
-        $this->saveInvitations($data['invitations'], $invoice);
+        if(array_key_exists('invitations', $data))
+            $this->saveInvitations($data['invitations'], $invoice);
 
         $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
@@ -128,12 +129,12 @@ class InvoiceRepository extends BaseRepository
 
         foreach($invitations as $invitation)
         {
-            //only update new invitations
-            if(strlen($invitation['invitation_key']) == 0)
+            //only insert new invitations
+            if(! array_key_exists('id', $invitation) || strlen($invitation['id']) == 0)
             {
 
                 $invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-                $invitation->client_contact_id = $invitation->['client_contact_id'];
+                $invitation->client_contact_id = $invitation['client_contact_id'];
                 $invitation->invoice_id = $invoice->id;
                 $invitation->save();
 
