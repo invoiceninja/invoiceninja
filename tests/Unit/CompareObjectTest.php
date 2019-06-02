@@ -59,7 +59,6 @@ class CompareObjectTest extends TestCase
 		$this->assertEquals($settings->currency_id, 1);
 		$this->assertEquals($settings->language_id, 1);
 		$this->assertEquals($settings->payment_terms, 7);
-		$this->assertTrue(property_exists($settings, 'invoice_email_list'));
 		$this->assertEquals($settings->custom_taxes1, 'FALSE');
 	}
 

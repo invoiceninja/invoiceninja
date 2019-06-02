@@ -226,7 +226,7 @@ class ClientTest extends TestCase
                     'user_id' => $user->id,
                     'client_id' => $c->id,
                     'company_id' => $company->id,
-                    'is_primary' => 1
+                    'is_primary' => 1,
                 ]);
 
                 factory(\App\Models\ClientContact::class,2)->create([
@@ -247,10 +247,8 @@ class ClientTest extends TestCase
             /* Make sure we are harvesting valid data */
             $this->assertEquals($client->timezone()->name, 'US/Eastern');
 
-            $contacts = ClientContact::whereIn('id', explode(',', $client->getMergedSettings()->invoice_email_list))->get();
-
             /* Make sure NULL settings return the correct count (0) instead of throwing an exception*/
-            $this->assertEquals(count($contacts), 0);
+            $this->assertEquals($client->contacts->count(), 3);
         }
 
 }

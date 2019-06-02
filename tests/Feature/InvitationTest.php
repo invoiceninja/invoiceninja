@@ -5,6 +5,7 @@ namespace Feature;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Account\CreateAccount;
 use App\Listeners\Invoice\CreateInvoiceInvitations;
 use App\Models\Account;
@@ -108,23 +109,13 @@ class InvitationTest extends TestCase
         $this->assertNotNull($invoice->client);
         $this->assertNotNull($invoice->client->primary_contact);
 
-        $arr[] = $invoice->client->primary_contact->first()->id;
 
-        $settings = $invoice->settings;
-        $settings->invoice_email_list = implode(",",$arr);
+        $i = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+        $i->client_contact_id = $client->primary_contact->first()->id;
+        $i->invoice_id = $invoice->id;
+        $i->save();
 
-        $invoice->settings = $settings;
-        $invoice->save();
-
- 		$listener = new CreateInvoiceInvitations();
-
-        $listener->handle(new InvoiceWasMarkedSent($invoice));
-
-        $i = InvoiceInvitation::whereClientContactId($invoice->client->primary_contact->first()->id)->whereInvoiceId($invoice->id)->first();
-
-        $this->assertNotNull($i);
+        $this->assertNotNull($invoice->invitations);
         
-        $this->assertEquals($i->invoice_id, $invoice->id);
-
     }
 }
