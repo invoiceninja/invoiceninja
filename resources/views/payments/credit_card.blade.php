@@ -154,11 +154,12 @@
 
     @if ($client)
         {{ Former::populate($client) }}
+        {{ Former::populateField('country_id', (string) $client->country_id) }}
         {{ Former::populateField('first_name', $contact->first_name) }}
         {{ Former::populateField('last_name', $contact->last_name) }}
         {{ Former::populateField('email', $contact->email) }}
         @if (!$client->country_id && $client->account->country_id)
-            {{ Former::populateField('country_id', $client->account->country_id) }}
+            {{ Former::populateField('country_id', (string) $client->account->country_id) }}
             {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
         @endif
     @endif
@@ -170,7 +171,7 @@
         {{ Former::populateField('city', 'New York') }}
         {{ Former::populateField('state', 'NY') }}
         {{ Former::populateField('postal_code', '10118') }}
-        {{ Former::populateField('country_id', 840) }}
+        {{ Former::populateField('country_id', (string) 840) }}
 
         <script>
             $(function() {
@@ -253,7 +254,7 @@
                 <div class="col-md-6">
                     {!! Former::select('country_id')
                             ->placeholder(trans('texts.country_id'))
-                            ->fromQuery($countries, 'name', 'id')
+                            ->fromQuery($countries, 'name', ['value' => 'id', 'data-iso_3166_2' => 'iso_3166_2'])
                             ->addGroupClass('country-select')
                             ->label('') !!}
                 </div>
@@ -453,12 +454,16 @@
 
 
             var options = {
-                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value
+                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value,
+@if (!empty($accountGateway->show_address))
+                address_line1: $('#address1').val(),
+                address_line2: $('#address2').val(),
+                address_city: $('#city').val(),
+                address_state: $('#state').val(),
+                address_zip: $('#postal_code').val(),
+                address_country: $("#country_id option:selected").attr('data-iso_3166_2')
+@endif
             };
-
-            if (document.getElementById('postal_code')) {
-                options.address_zip = document.getElementById('postal_code').value;
-            }
 
             stripe.createToken(cardNumber, options).then(function(result) {
                 if (result.error) {
