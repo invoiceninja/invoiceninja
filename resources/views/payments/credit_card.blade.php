@@ -254,7 +254,7 @@
                 <div class="col-md-6">
                     {!! Former::select('country_id')
                             ->placeholder(trans('texts.country_id'))
-                            ->fromQuery($countries, 'name', 'id')
+                            ->fromQuery($countries, 'name', ['value' => 'id', 'data-iso_3166_2' => 'iso_3166_2'])
                             ->addGroupClass('country-select')
                             ->label('') !!}
                 </div>
