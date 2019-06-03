@@ -133,7 +133,6 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('industry_id')->nullable();
             $table->string('ip');
             $table->string('company_key',100)->unique();
-            $table->timestamp('last_login')->nullable();
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
             $table->string('city')->nullable();
@@ -226,6 +225,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
+            $table->timestamp('last_login')->nullable();
             $table->text('signature');
             $table->string('password');
             $table->rememberToken();

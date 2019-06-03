@@ -31,7 +31,7 @@ class TokenAuth
         {
             
             auth()->login($user);
-        
+            event();
         }
         else {
 
