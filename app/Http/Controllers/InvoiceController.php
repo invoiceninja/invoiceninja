@@ -54,8 +54,6 @@ class InvoiceController extends BaseController
      */
     protected $invoice_repo;
 
-    protected $base_repo;
-
     /**
      * InvoiceController constructor.
      *

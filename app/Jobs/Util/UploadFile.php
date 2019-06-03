@@ -16,9 +16,15 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class UploadFile
+class UploadFile implements ShouldQueue
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     use MakesHash;
 
@@ -28,7 +34,7 @@ class UploadFile
 
     protected $company;
 
-    $entity;
+    public $entity;
 
     /**
      * Create a new job instance.
@@ -52,14 +58,18 @@ class UploadFile
     public function handle() : ?Document
     {
 
-        $path = $this->encodePrimaryKey($this->company->id) . '/' . microtime() . '_' . str_replace(" ", "", $this->file->getClientOriginalName());
+        //$path = $this->encodePrimaryKey($this->company->id) . '/' . sha1(time()) . '_' . str_replace(" ", "", $this->file->getClientOriginalName());
+        $path = $this->encodePrimaryKey($this->company->id);
+        $file_path = $path . '/' . $this->file->hashName();
+
+//        Storage::makeDirectory($path);
 
         Storage::put($path, $this->file); 
 
         $width = 0;
         $height = 0;
 
-        if (in_array($this->file->getClientOriginalExtension(), ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
+        if (in_array($this->file->getClientOriginalExtension(),['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
         {
             $imageSize = getimagesize($this->file);
             $width = $imageSize[0];
@@ -73,16 +83,18 @@ class UploadFile
         $document->name = $this->file->getClientOriginalName();
         $document->type = $this->file->getClientOriginalExtension();
         $document->disk = config('filesystems.default');
-        $document->hash = $this->createHash();
-        $document->size = filesize($filePath);
+        $document->hash = $this->file->hashName();
+        $document->size = filesize(Storage::path($file_path));
         $document->width = $width;
         $document->height = $height;
 
-        $preview_path = $this->encodePrimaryKey($this->company->id) . '/' . microtime() . '_preview_' . str_replace(" ", "", $this->file->getClientOriginalName());
+        $preview_path = $this->encodePrimaryKey($this->company->id) . '/' . sha1(time()) . '_preview_' . str_replace(" ", "", $this->file->getClientOriginalName());
 
         $document->preview = $this->generatePreview($preview_path);
 
         $this->entity->documents()->save($document);
+
+        return $document;
 
     }
 
