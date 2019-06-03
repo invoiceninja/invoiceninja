@@ -58,22 +58,25 @@ class UploadFile implements ShouldQueue
     public function handle() : ?Document
     {
 
-        //$path = $this->encodePrimaryKey($this->company->id) . '/' . sha1(time()) . '_' . str_replace(" ", "", $this->file->getClientOriginalName());
         $path = $this->encodePrimaryKey($this->company->id);
-        $file_path = $path . '/' . $this->file->hashName();
 
-//        Storage::makeDirectory($path);
+        $file_path = $path . '/' . $this->file->hashName();
 
         Storage::put($path, $this->file); 
 
         $width = 0;
+
         $height = 0;
 
         if (in_array($this->file->getClientOriginalExtension(),['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
         {
+
             $imageSize = getimagesize($this->file);
+
             $width = $imageSize[0];
+
             $height = $imageSize[1];
+
         }
 
         $document = new Document();
@@ -88,21 +91,33 @@ class UploadFile implements ShouldQueue
         $document->width = $width;
         $document->height = $height;
 
-        $preview_path = $this->encodePrimaryKey($this->company->id) . '/' . sha1(time()) . '_preview_' . str_replace(" ", "", $this->file->getClientOriginalName());
+        $preview_path = $this->encodePrimaryKey($this->company->id);
 
         $document->preview = $this->generatePreview($preview_path);
 
         $this->entity->documents()->save($document);
 
-        return $document;
+            return $document;
 
     }
 
     private function generatePreview($preview_path) : string
     {
+        $extension = $this->file->getClientOriginalExtension();
+
+        if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
+            $documentType = Document::$extraExtensions[$extension];
+        } else {
+            $documentType = $extension;
+        }
+
+        if (empty(Document::$types[$documentType])) {
+            return 'Unsupported file type';
+        }
+        
         $preview = '';
 
-        if (in_array($this->file->getClientOriginalExtension(), ['jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
+        if (in_array($this->file->getClientOriginalExtension(),['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
         {
             $makePreview = false;
             $imageSize = getimagesize($this->file);
@@ -135,7 +150,7 @@ class UploadFile implements ShouldQueue
                 // We haven't created a preview yet
                 $imgManager = new ImageManager($imgManagerConfig);
 
-                $img = $imgManager->make($filePath);
+                $img = $imgManager->make($preview_path);
 
                 if ($width <= Document::DOCUMENT_PREVIEW_SIZE && $height <= Document::DOCUMENT_PREVIEW_SIZE) {
                     $previewWidth = $width;

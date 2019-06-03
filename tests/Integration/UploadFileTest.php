@@ -44,9 +44,6 @@ class UploadFileTest extends TestCase
         $document = UploadFile::dispatchNow(UploadedFile::fake()->image('avatar.jpg'), $this->invoice->user, $this->invoice->company, $this->invoice);
 
         $this->assertNotNull($document);
-        
-Log::error($document);
-//        $this->assertEquals($invoice->amount, $payment);
 
     }
 

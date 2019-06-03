@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Filterable;
 use App\Models\Timezone;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
@@ -32,6 +33,7 @@ class Client extends BaseModel
     use MakesDates;
     use SoftDeletes;
     use Filterable;
+    use GeneratesCounter;
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
@@ -50,7 +52,7 @@ class Client extends BaseModel
         'country',
         'shipping_country'
     ];
-    
+    /*
     protected $with = [
         'contacts', 
         'primary_contact', 
@@ -58,7 +60,7 @@ class Client extends BaseModel
         'shipping_country', 
         'company'
     ];
-
+    */
     protected $casts = [
         'settings' => 'object'
     ];

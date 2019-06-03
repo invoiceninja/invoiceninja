@@ -76,6 +76,15 @@ class Document extends BaseModel
         ],
     ];
 
+    /**
+     * @var array
+     */
+    public static $extraExtensions = [
+        'jpg' => 'jpeg',
+        'tif' => 'tiff',
+    ];
+
+
     public function documentable()
     {
         return $this->morphTo();
