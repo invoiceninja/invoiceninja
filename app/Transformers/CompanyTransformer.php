@@ -65,7 +65,6 @@ class CompanyTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($company->id),
             'name' => $company->name,
             'company_key' => $company->company_key,
-            'last_login' => $company->last_login,
             'address1' => $company->address1,
             'address2' => $company->address2,
             'city' => $company->city,

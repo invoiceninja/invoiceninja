@@ -100,7 +100,7 @@ class StoreInvoice implements ShouldQueue
         if($payment)
         {
             //fire payment notifications here
-            PaymentNotification::dipatch($payment);
+            PaymentNotification::dispatch($payment);
             
         }
 

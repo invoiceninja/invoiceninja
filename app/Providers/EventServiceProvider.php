@@ -17,12 +17,14 @@ use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\User\UserCreated;
+use App\Events\User\UserLoggedIn;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceInvitations;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\SendVerificationNotification;
+use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -36,7 +38,9 @@ class EventServiceProvider extends ServiceProvider
         UserCreated::class => [
             SendVerificationNotification::class,
         ],
-
+        UserLoggedIn::class => [
+            UpdateUserLastLogin::class,
+        ],
         // Clients
         ClientWasCreated::class => [
             CreatedClientActivity::class,
@@ -87,10 +91,10 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(DispatcherContract $events)
     {
-        parent::boot();
 
-        //
+        parent::boot($events);
+
     }
 }
