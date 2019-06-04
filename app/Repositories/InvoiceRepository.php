@@ -34,7 +34,9 @@ class InvoiceRepository extends BaseRepository
      */
     public function getClassName()
     {
+
         return Invoice::class;
+
     }
     
 	/**
@@ -108,8 +110,11 @@ class InvoiceRepository extends BaseRepository
 
             if(!isset($invitation->sent_date))
             {
+
                 $invitation->sent_date = Carbon::now()->format(config('ninja.date_time_format'));
+
                 $invitation->save();
+                
             }
 
         });
