@@ -91,9 +91,11 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ShowUserRequest $request)
+    public function show(ShowUserRequest $request, User $user)
     {
-        //
+    
+        return $this->itemResponse($user);
+    
     }
 
     /**
@@ -102,9 +104,11 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(EditUserRequest $request)
+    public function edit(EditUserRequest $request, User $user)
     {
-        //
+
+        return $this->itemResponse($user);
+
     }
 
     /**
