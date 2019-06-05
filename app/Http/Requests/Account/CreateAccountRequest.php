@@ -12,9 +12,7 @@
 namespace App\Http\Requests\Account;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\UniqueUserRule;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Http\ValidationRules\NewUniqueUserRule;
 
 class CreateAccountRequest extends Request
 {
@@ -41,7 +39,7 @@ class CreateAccountRequest extends Request
             'first_name'        => 'required|string|max:100',
             'last_name'         =>  'required|string:max:100',
             'password'          => 'required|string|min:6',
-            'email'             => new UniqueUserRule(),
+            'email'             => new NewUniqueUserRule(),
             'privacy_policy'    => 'required',
             'terms_of_service'  => 'required'
         ];

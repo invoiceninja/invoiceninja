@@ -12,6 +12,7 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\NewUniqueUserRule;
 use App\Models\User;
 
 class StoreUserRequest extends Request
@@ -32,7 +33,7 @@ class StoreUserRequest extends Request
         return [
             'first_name' => 'required|string|max:100',
             'last_name' =>  'required|string:max:100',
-            'email' => new UniqueUserRule(),
+            'email' => new NewUniqueUserRule(),
         ];
     }
 
