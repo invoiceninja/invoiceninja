@@ -38,7 +38,7 @@ class UpdateUserLastLogin
 
        $user = $event->user;
 
-       $user->last_login = now()
+       $user->last_login = now();
        $user->save();
        
     }

@@ -11,6 +11,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Events\User\UserLoggedIn;
 use App\Models\CompanyToken;
 use App\Models\User;
 use Closure;
@@ -31,7 +32,7 @@ class TokenAuth
         {
             
             auth()->login($user);
-            event();
+            event(new UserLoggedIn($user));
         }
         else {
 

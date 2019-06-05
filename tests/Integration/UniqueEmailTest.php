@@ -2,7 +2,7 @@
 
 namespace Tests\Integration;
 
-use App\Http\ValidationRules\UniqueUserRule;
+use App\Http\ValidationRules\NewUniqueUserRule;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\User;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\NumberHelper
+ * @covers  App\Http\ValidationRules\NewUniqueUserRule
  */
 class UniqueEmailTest extends TestCase
 {
@@ -30,7 +30,7 @@ class UniqueEmailTest extends TestCase
          DB::connection('db-ninja-01')->table('users')->delete();
          DB::connection('db-ninja-02')->table('users')->delete();
 
-        $this->rule = new UniqueUserRule();
+        $this->rule = new NewUniqueUserRule();
 
         $ac = factory(\App\Models\Account::class)->make();
 
