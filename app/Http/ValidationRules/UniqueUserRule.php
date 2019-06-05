@@ -22,6 +22,18 @@ use Illuminate\Contracts\Validation\Rule;
 class UniqueUserRule implements Rule
 {
 
+    public $user;
+
+    public $new_email;
+
+    public function __construct($user, $new_email)
+    {
+    
+        $this->user= $user;
+    
+        $this->new_email = $new_email;
+    }
+
     /**
      * @param string $attribute
      * @param mixed $value
@@ -29,7 +41,12 @@ class UniqueUserRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return ! $this->checkIfEmailExists($value); //if it exists, return false!
+        /* If the input has not changed, return early! */
+
+        if($this->user->email == $this->new_email)
+            return true;
+        else
+            return ! $this->checkIfEmailExists($value); //if it exists, return false!
     }
 
     /**

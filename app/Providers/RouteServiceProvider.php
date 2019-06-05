@@ -43,8 +43,12 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('client', function ($value) {
             $client = \App\Models\Client::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-           // $client->with('contacts', 'primary_contact','country');
             return $client;
+        });
+
+        Route::bind('user', function ($value) {
+            $user = \App\Models\User::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            return $user;
         });
 
         Route::bind('invoice', function ($value) {

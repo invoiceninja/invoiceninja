@@ -114,7 +114,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateUserRequest $request)
+    public function update(UpdateUserRequest $request, User $user)
     {
         //
     }

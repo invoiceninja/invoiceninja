@@ -12,6 +12,7 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\UniqueUserRule;
 
 class UpdateUserRequest extends Request
 {
@@ -31,10 +32,13 @@ class UpdateUserRequest extends Request
 
     public function rules()
     {
+
+        $input = $this->all();
+
         return [
             'first_name' => 'required|string|max:100',
             'last_name' =>  'required|string:max:100',
-            'email' => new UniqueUserRule(),
+            'email' => ['required', new UniqueUserRule($this->user, $input['email'])],
         ];
     }
 
