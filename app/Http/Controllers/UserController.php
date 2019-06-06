@@ -21,6 +21,7 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
+use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -39,11 +40,14 @@ class UserController extends BaseController
 
     protected $entity_transformer = UserTransformer::class;
 
-	public function __construct()
+    protected $user_repo;
+
+	public function __construct(UserRepository $user_repo)
     {
     
         parent::__construct();
 
+        $this->user_repo = $user_repo;
     }
     
     /**
@@ -78,10 +82,22 @@ class UserController extends BaseController
      */
     public function store(StoreUserRequest $request)
     {
+        $company = auth()->user()->company();
         //save user
-        
+        $user = $this->user_repo->save($request->all(), UserFactory::create($company->id, auth()->user()->id));
 
-        //attach user to company
+        $user->companies()->attach($company->id, [
+            'account_id' => $company->account->id,
+            'is_owner' => 0,
+            'is_admin' => $request->input('is_admin'),
+            'is_locked' => 0,
+            'permissions' => $request->input('permissions'),
+            'settings' => $request->input('settings'),
+        ]);
+
+        $user->load('companies');
+        
+        return $this->itemResponse($user);
         
     }
 
@@ -120,7 +136,10 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        $user = $this->user_repo->save($request->all(), $user);
+
+        return $this->itemResponse($user);
+
     }
 
     /**
@@ -129,9 +148,11 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(DestroyUserRequest $request)
+    public function destroy(DestroyUserRequest $request, User $user)
     {
-        //
+        $user->delete();
+
+        return response()->json([], 200);
     }
 
 }

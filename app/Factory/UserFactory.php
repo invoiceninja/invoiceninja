@@ -23,11 +23,11 @@ class UserFactory
 		$user->last_name = '';
 		$user->phone = '';
 		$user->email = '';
-		$user->theme_id = 0;
+		$user->last_login = now();
 		$user->failed_logins = 0;
 		$user->signature = '';
+		$user->theme_id = 0;
 
 		return $user;
 	}
 }
-
