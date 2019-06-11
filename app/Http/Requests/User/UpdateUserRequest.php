@@ -13,7 +13,6 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\UniqueUserRule;
-use Illuminate\Support\Facades\Log;
 
 class UpdateUserRequest extends Request
 {
@@ -25,7 +24,6 @@ class UpdateUserRequest extends Request
 
     public function authorize() : bool
     {
-Log::error($this->user);
         return auth()->user()->can('edit', $this->user);
 
     }
@@ -33,6 +31,7 @@ Log::error($this->user);
 
     public function rules()
     {
+        $this->sanitize();
 
         $input = $this->all();
 
@@ -42,5 +41,19 @@ Log::error($this->user);
             'email' => ['required', new UniqueUserRule($this->user, $input['email'])],
         ];
     }
+
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        
+        if(!isset($input['email']))
+        {
+            $input['email'] = null;
+        }
+
+        $this->replace($input);     
+    }
+
 
 }

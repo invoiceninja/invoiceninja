@@ -12,6 +12,7 @@
 namespace App\Policies;
 
 use App\Models\Client;
+use App\Models\CompanyUser;
 use App\Models\User;
 
 /**
@@ -30,15 +31,21 @@ class UserPolicy extends EntityPolicy
 	{
 
 		return $user->isAdmin() || $user->hasPermission('create_user');
-		
+
 	}
 
 
-	//we need to override as User does not have the company_id property!!!!!
+	/*
+	*
+	* We need to override as User does not have the company_id property!!!!!
+	*
+	* We use the CompanyUser table as a proxy
+	*/
 	public function edit(User $user, $user_entity) : bool
 	{
+		$company_user = CompanyUser::whereUserId($user_entity->id)->whereCompanyId($user->companyId())->first();
 
-		return ($user->isAdmin() && $user_entity->companyId() == $user->companyId());;
+		return ($user->isAdmin() && $company_user);
     
 	}
 
