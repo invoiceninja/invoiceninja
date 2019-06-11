@@ -42,12 +42,18 @@ class UserController extends BaseController
 
     protected $user_repo;
 
-	public function __construct(UserRepository $user_repo)
+	/**
+     * Constructor
+     *
+     * @param      \App\Repositories\UserRepository  $user_repo  The user repo
+     */
+    public function __construct(UserRepository $user_repo)
     {
     
         parent::__construct();
 
         $this->user_repo = $user_repo;
+
     }
     
     /**
