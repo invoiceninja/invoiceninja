@@ -89,21 +89,20 @@ class User extends Authenticatable implements MustVerifyEmail
      * 
      * @return Collection
      */
-    public function tokens()
+    public function token()
     {
-        return $this->hasMany(CompanyToken::class)->orderBy('id', 'ASC');
+        return $this->hasOne(CompanyToken::class)->orderBy('id', 'ASC');
     }
-
 
     /**
      * Return first user token
      *
      * @return  token object
      */
-    public function token()
-    {
-        return $this->tokens()->first();
-    }
+    //public function token()
+    //{
+    //    return $this->tokens()->first();
+    //}
 
     /**
      * Returns all companies a user has access to.
@@ -122,7 +121,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function company()
     {
-        return $this->tokens()->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
+        return $this->token->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
     }
 
     /**

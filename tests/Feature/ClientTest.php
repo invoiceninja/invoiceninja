@@ -116,7 +116,7 @@ class ClientTest extends TestCase
         $this->assertNotNull($token);
         $this->assertNotNull($user);
         $this->assertNotNull($company);
-        $this->assertNotNull($user->tokens->first()->company);
+        $this->assertNotNull($user->token->company);
 
         factory(\App\Models\Client::class, 3)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 

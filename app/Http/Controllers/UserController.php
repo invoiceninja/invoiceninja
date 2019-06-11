@@ -55,7 +55,7 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(UserFilters $filster)
+    public function index(UserFilters $filters)
     {
         $users = User::filter($filters);
         
@@ -96,7 +96,7 @@ class UserController extends BaseController
         ]);
 
         $user->load('companies');
-        
+
         return $this->itemResponse($user);
         
     }

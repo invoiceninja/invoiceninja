@@ -61,6 +61,8 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =
   
   Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
 
+  Route::resource('users', 'UserController'); // name = (users. index / create / show / update / destroy / edit
+
 /*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
   
@@ -75,7 +77,6 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =
   
   Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
   
-  Route::resource('user', 'UserProfileController'); // name = (clients. index / create / show / update / destroy / edit
   
   Route::get('settings', 'SettingsController@index')->name('user.settings');
 */

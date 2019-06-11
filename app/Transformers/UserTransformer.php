@@ -52,8 +52,8 @@ class UserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-        'company_token',
-       
+    //    'company_token',
+       'token',
     ];
 
     /**
@@ -61,7 +61,6 @@ class UserTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'companies',
-        'company_tokens',
     ];
 
 
@@ -101,12 +100,12 @@ class UserTransformer extends EntityTransformer
 
     }
 
-    public function includeCompanyToken(User $user)
+    public function includeToken(User $user)
     {
 
         $transformer = new CompanyTokenTransformer($this->serializer);
 
-        return $this->includeItem($user->token(), $transformer, CompanyToken::class);
+        return $this->includeItem($user->token, $transformer, CompanyToken::class);
 
     }
 
