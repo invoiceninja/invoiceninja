@@ -13,6 +13,7 @@ namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
 use App\Models\Client;
+use Illuminate\Support\Facades\Log;
 
 class StoreClientRequest extends Request
 {
@@ -24,7 +25,9 @@ class StoreClientRequest extends Request
 
     public function authorize() : bool
     {
+
         return auth()->user()->can('create', Client::class);
+
     }
 
     public function rules()
@@ -32,7 +35,7 @@ class StoreClientRequest extends Request
 //        $this->sanitize();
 
         /* Ensure we have a client name, and that all emails are unique*/
-        $rules['name'] = 'required';
+        $rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
 
         $contacts = request('contacts');
@@ -45,6 +48,8 @@ class StoreClientRequest extends Request
             }
 
         }
+
+    Log::error($rules);
 
         return $rules;
             

@@ -13,6 +13,7 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\UniqueUserRule;
+use Illuminate\Support\Facades\Log;
 
 class UpdateUserRequest extends Request
 {
@@ -24,7 +25,7 @@ class UpdateUserRequest extends Request
 
     public function authorize() : bool
     {
-
+Log::error($this->user);
         return auth()->user()->can('edit', $this->user);
 
     }

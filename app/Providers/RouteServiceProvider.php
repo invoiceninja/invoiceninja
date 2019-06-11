@@ -17,6 +17,7 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -37,7 +38,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        //           
+
 
         parent::boot();
 

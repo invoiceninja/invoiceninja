@@ -31,4 +31,15 @@ class UserPolicy extends EntityPolicy
 		return $user->isAdmin() || $user->hasPermission('create_user');
 	}
 
+
+	//we need to override as User does not have the company_id property!!!!!
+	public function edit(User $user, $entity) : bool
+	{
+
+			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
+			|| ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId())
+			|| $user->owns($entity);
+    
+	}
+
 }

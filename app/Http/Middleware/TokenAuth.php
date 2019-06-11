@@ -28,10 +28,22 @@ class TokenAuth
     public function handle($request, Closure $next)
     {
 
-        if( $request->header('X-API-TOKEN') && ($user = CompanyToken::whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first()->user ) ) 
+        if( $request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user','company'])->whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first() ) ) 
         {
+            $user = $company_token->user;
             
-            auth()->login($user);
+            /*
+            |
+            | Necessary evil here: As we are authenticating on CompanyToken, 
+            | we need to link the company to the user manually. This allows
+            | us to decouple a $user and their attached companies completely.
+            |
+            */
+            $user->setCompany($company_token->company); 
+
+            //stateless, don't remember the user.
+            auth()->login($user, false); 
+
             event(new UserLoggedIn($user));
         }
         else {

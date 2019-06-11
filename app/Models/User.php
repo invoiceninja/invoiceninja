@@ -44,6 +44,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $presenter = 'App\Models\Presenters\UserPresenter';
 
     protected $with = ['companies','user_companies'];
+
+    public $company;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -85,7 +88,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns all company tokens.
+     * Returns all one company token.
      * 
      * @return Collection
      */
@@ -95,14 +98,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Return first user token
-     *
-     * @return  token object
+     * Returns all company tokens.
+     * 
+     * @return Collection
      */
-    //public function token()
-    //{
-    //    return $this->tokens()->first();
-    //}
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class)->orderBy('id', 'ASC');
+    }
 
     /**
      * Returns all companies a user has access to.
@@ -115,13 +118,33 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+    *
+    * As we are authenticating on CompanyToken, 
+    * we need to link the company to the user manually. This allows
+    * us to decouple a $user and their attached companies.
+    *
+    */
+    public function setCompany($company)
+    {
+        $this->company = $company;
+    }
+
+    /**
+     * Returns the currently set Company
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
      * Returns the current company
      * 
      * @return Collection
-     */
+     */ 
     public function company()
     {
-        return $this->token->whereRaw("BINARY `token`= ?", [request()->header('X-API-TOKEN')])->first()->company;
+        return $this->getCompany();
     }
 
     /**

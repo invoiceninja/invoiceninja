@@ -34,6 +34,7 @@ use App\Transformers\ClientTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class ClientController
@@ -140,7 +141,7 @@ class ClientController extends BaseController
      */
     public function store(StoreClientRequest $request)
     {
-        
+
         $client = $this->client_repo->save($request->all(), ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
