@@ -48,7 +48,7 @@ class recurring_invoiceToInvoiceFactory
 		$invoice->balance = $recurring_invoice->balance;
 		$invoice->user_id = $recurring_invoice->user_id;
 		$invoice->company_id = $recurring_invoice->company_id;
-		$invoice->recurring_invoice_id = $recurring_invoice->id
+		$invoice->recurring_invoice_id = $recurring_invoice->id;
 		
 		return $invoice;
 	}
