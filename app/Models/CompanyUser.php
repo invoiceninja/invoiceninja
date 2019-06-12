@@ -25,6 +25,7 @@ class CompanyUser extends Pivot
      */
     protected $casts = [
         'settings' => 'collection',
+        'permissions' => 'object',
     ];
 
     public function account()

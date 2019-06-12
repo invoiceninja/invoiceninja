@@ -20,11 +20,13 @@ use App\Http\Requests\User\EditUserRequest;
 use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class UserController
@@ -63,9 +65,11 @@ class UserController extends BaseController
      */
     public function index(UserFilters $filters)
     {
+
         $users = User::filter($filters);
         
         return $this->listResponse($users);
+
     }
 
     /**
@@ -75,9 +79,11 @@ class UserController extends BaseController
      */
     public function create(CreateUserRequest $request)
     {
+
         $user = UserFactory::create();
 
         return $this->itemResponse($user);
+
     }
 
     /**
@@ -88,8 +94,10 @@ class UserController extends BaseController
      */
     public function store(StoreUserRequest $request)
     {
+
         $company = auth()->user()->company();
         //save user
+        
         $user = $this->user_repo->save($request->all(), UserFactory::create($company->id, auth()->user()->id));
 
         $user->companies()->attach($company->id, [
@@ -100,6 +108,8 @@ class UserController extends BaseController
             'permissions' => $request->input('permissions'),
             'settings' => $request->input('settings'),
         ]);
+
+        CreateCompanyToken::dispatchNow($company, $user);
 
         $user->load('companies');
 
@@ -142,6 +152,7 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+
         $user = $this->user_repo->save($request->all(), $user);
 
         return $this->itemResponse($user);
@@ -156,10 +167,39 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
+
         $user->delete();
-        $user->tokens->delete();
         
         return response()->json([], 200);
+
+    }
+
+    /**
+     * Perform bulk actions on the list view
+     * 
+     * @return Collection
+     */
+    public function bulk()
+    {
+
+        $action = request()->input('action');
+        
+        $ids = request()->input('ids');
+
+        $ids = $this->transformKeys($ids);
+
+        $users = User::withTrashed()->find($ids);
+
+        $users->each(function ($user, $key) use($action){
+
+            if(auth()->user()->can('edit', $user))
+                $this->user_repo->{$action}($user);
+
+        });
+
+        //todo need to return the updated dataset
+        return $this->listResponse(User::withTrashed()->whereIn('id', $ids));
+        
     }
 
 }

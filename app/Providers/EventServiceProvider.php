@@ -16,8 +16,8 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
-use App\Events\User\UserCreated;
 use App\Events\User\UserLoggedIn;
+use App\Events\User\UserWasCreated;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Invoice\CreateInvoiceActivity;
@@ -35,7 +35,7 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        UserCreated::class => [
+        UserWasCreated::class => [
             SendVerificationNotification::class,
         ],
         UserLoggedIn::class => [

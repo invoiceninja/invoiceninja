@@ -72,4 +72,21 @@ trait MakesHash
             return response()->json(['error'=>'Invalid primary key'],400);
         }
     }
+
+    public function transformKeys($keys)
+    {
+
+        if(is_array($keys))
+        {
+            foreach($keys as &$value)
+            {
+                 $value = $this->decodePrimaryKey($value);
+            }
+
+            return $keys;
+        }
+        else
+            return $this->decodePrimaryKey($keys);
+
+    }
 }

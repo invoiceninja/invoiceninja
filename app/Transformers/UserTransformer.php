@@ -84,10 +84,10 @@ class UserTransformer extends EntityTransformer
 
     public function includeUserCompany(User $user)
     {
-        //cannot use this here as it will fail retrieving the company as we depend on the token in the header which may not be present for this request
-        //$transformer = new CompanyUserTransformer($this->serializer);
+        
+        $transformer = new CompanyUserTransformer($this->serializer);
 
-        //return $this->includeItem($user->user_company(), $transformer, CompanyUser::class);
+        return $this->includeItem($user->user_company(), $transformer, CompanyUser::class);
     
     }
 

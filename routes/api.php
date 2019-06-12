@@ -63,6 +63,8 @@ Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =
 
   Route::resource('users', 'UserController'); // name = (users. index / create / show / update / destroy / edit
 
+  Route::post('users/bulk', 'UserController@bulk')->name('users.bulk');
+
 /*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
   

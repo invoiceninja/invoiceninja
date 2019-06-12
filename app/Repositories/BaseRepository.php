@@ -11,12 +11,14 @@
 
 namespace App\Repositories;
 
+use App\Utils\Traits\MakesHash;
+
 /**
  * 
  */
 class BaseRepository 
 {
-
+    use MakesHash;
     /**
      * @return null
      */
@@ -121,6 +123,8 @@ class BaseRepository
         if (! $ids) {
             return 0;
         }
+
+        $ids = $this->transformKeys($ids);
 
         $entities = $this->findByPublicIdsWithTrashed($ids);
 

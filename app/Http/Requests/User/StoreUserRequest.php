@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\User;
 
+use App\DataMapper\DefaultSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\NewUniqueUserRule;
 use App\Models\User;
@@ -25,27 +26,39 @@ class StoreUserRequest extends Request
 
     public function authorize() : bool
     {
+
         return auth()->user()->can('create', User::class);
+
     }
 
     public function rules()
     {
+
+        $this->sanitize();
+
         return [
             'first_name' => 'required|string|max:100',
             'last_name' =>  'required|string:max:100',
             'email' => new NewUniqueUserRule(),
+            'is_admin' => 'required',
         ];
-    }
 
+    }
 
     public function sanitize()
     {
-        //do post processing of user request
-    }
+        $input = $this->all();
 
-    public function messages()
-    {
+        if(!isset($input['is_admin']))
+            $input['is_admin'] = null;
 
+        if(!isset($input['permissions']))
+            $input['permissions'] = json_encode([]);
+
+        if(!isset($input['settings']))
+            $input['settings'] = json_encode(DefaultSettings::userSettings());
+
+        $this->replace($input); 
     }
 
 
