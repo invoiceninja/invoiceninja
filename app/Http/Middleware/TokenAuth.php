@@ -30,8 +30,13 @@ class TokenAuth
 
         if( $request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user','company'])->whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first() ) ) 
         {
+
             $user = $company_token->user;
             
+            //user who once existed, but has been soft deleted
+            if(!$user)
+                return response()->json(json_encode(['message' => 'User inactive'], JSON_PRETTY_PRINT) ,403); 
+
             /*
             |
             | Necessary evil here: As we are authenticating on CompanyToken, 
@@ -41,10 +46,15 @@ class TokenAuth
             */
             $user->setCompany($company_token->company); 
 
+            //user who once existed, but has been soft deleted   
+            if($user->user_company()->is_locked)
+                return response()->json(json_encode(['message' => 'User access locked'], JSON_PRETTY_PRINT) ,403); 
+   
             //stateless, don't remember the user.
             auth()->login($user, false); 
 
             event(new UserLoggedIn($user));
+            
         }
         else {
 
@@ -53,4 +63,5 @@ class TokenAuth
 
         return $next($request);
     }
+
 }

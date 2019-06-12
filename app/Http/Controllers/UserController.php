@@ -157,7 +157,8 @@ class UserController extends BaseController
     public function destroy(DestroyUserRequest $request, User $user)
     {
         $user->delete();
-
+        $user->tokens->delete();
+        
         return response()->json([], 200);
     }
 

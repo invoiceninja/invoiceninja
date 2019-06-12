@@ -46,7 +46,6 @@ class UpdateUserRequest extends Request
     {
         $input = $this->all();
 
-        
         if(!isset($input['email']))
         {
             $input['email'] = null;
