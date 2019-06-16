@@ -33,10 +33,13 @@ class CreateCompany
      * @return void
      */
 
-    public function __construct(array $request, $account = false)
+    public function __construct(array $request, $account)
     {
+
         $this->request = $request;
+
         $this->account = $account;
+        
     }
 
     /**
@@ -48,7 +51,7 @@ class CreateCompany
     {
 
         $company = new Company();
-        $company->name = $this->request['first_name'] . ' ' . $this->request['last_name'];
+        $company->name = $this->request['name'] ?: $this->request['first_name'] . ' ' . $this->request['last_name'];
         $company->account_id = $this->account->id;
         $company->company_key = $this->createHash();
         $company->ip = request()->ip();

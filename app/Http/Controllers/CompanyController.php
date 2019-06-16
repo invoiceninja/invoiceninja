@@ -12,9 +12,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Company\CreateCompanyRequest;
+use App\Http\Requests\Company\ShowCompanyRequest;
 use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\RegisterNewAccount;
+use App\Models\Company;
+use App\Transformers\CompanyTransformer;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +31,11 @@ use Illuminate\Support\Facades\Hash;
 class CompanyController extends BaseController
 {
     use DispatchesJobs;
+    use MakesHash;
+
+    protected $entity_type = Company::class;
+
+    protected $entity_transformer = CompanyTransformer::class;
 
     /**
      * CompanyController constructor.
@@ -68,10 +77,9 @@ class CompanyController extends BaseController
     public function store(CreateCompanyRequest $request)
     {
 
-        CreateCompany::dispatchNow($request);
+        $company = CreateCompany::dispatchNow($request, auth()->user()->company()->account);
 
-        //todo redirect to localization setup workflow
-        return redirect()->route('dashboard.index');
+        return $this->itemResponse($company);
 
     }
 
@@ -81,7 +89,7 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ShowCompanyRequest $request, Company $company)
     {
         //
     }

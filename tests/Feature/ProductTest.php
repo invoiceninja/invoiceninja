@@ -44,7 +44,8 @@ class ProductTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-            'email' => $this->faker->unique()->safeEmail,
+             'name' => $this->faker->company,
+          'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
             'privacy_policy' => 1,
