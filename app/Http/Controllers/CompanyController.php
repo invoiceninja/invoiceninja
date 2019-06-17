@@ -12,11 +12,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Company\CreateCompanyRequest;
+use App\Http\Requests\Company\DestroyCompanyRequest;
+use App\Http\Requests\Company\EditCompanyRequest;
 use App\Http\Requests\Company\ShowCompanyRequest;
+use App\Http\Requests\Company\StoreCompanyRequest;
+use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\RegisterNewAccount;
 use App\Models\Company;
+use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -37,13 +42,16 @@ class CompanyController extends BaseController
 
     protected $entity_transformer = CompanyTransformer::class;
 
+    protected $company_repo;
     /**
      * CompanyController constructor.
      */
-    public function __construct()
+    public function __construct(CompanyRepository $company_repo)
     {
     
         parent::__construct();
+
+        $this->company_repo = $company_repo;
 
     }
 
@@ -54,7 +62,10 @@ class CompanyController extends BaseController
      */
     public function index()
     {
-//        return view('signup.index');
+
+        $companies = Company::whereAccountId(auth()->user()->id);
+
+        return $this->listResponse($companies);
 
     }
 
@@ -63,9 +74,12 @@ class CompanyController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CreateCompanyRequest $request)
     {
-        //
+
+        $company = CompanyFactory::create(auth()->user()->company()->account->id);
+        
+        return $this->itemResponse($company);
     }
 
     /**
@@ -74,7 +88,7 @@ class CompanyController extends BaseController
      * @param  \App\Http\Requests\SignupRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateCompanyRequest $request)
+    public function store(StoreCompanyRequest $request)
     {
 
         $company = CreateCompany::dispatchNow($request, auth()->user()->company()->account);
@@ -91,7 +105,9 @@ class CompanyController extends BaseController
      */
     public function show(ShowCompanyRequest $request, Company $company)
     {
-        //
+
+        return $this->itemResponse($company);
+
     }
 
     /**
@@ -100,9 +116,11 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(EditCompanyRequest $request, Company $company)
     {
-        //
+
+        return $this->itemResponse($company);       
+
     }
 
     /**
@@ -112,9 +130,11 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCompanyRequest $request, Company $company)
     {
-        //
+        $company = $this->company_repo->save($request->all(), $company);
+
+        return $this->itemResponse($company);
     }
 
     /**
@@ -123,8 +143,11 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-        //
+
+        $company->delete();
+
+        return response()->json([], 200);
     }
 }

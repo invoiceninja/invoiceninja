@@ -33,7 +33,7 @@ class StoreCompanyRequest extends Request
         //$this->sanitize();
 
         return [
-      //      'client_id' => 'required',
+            'name' => 'required',
       //      'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
     }

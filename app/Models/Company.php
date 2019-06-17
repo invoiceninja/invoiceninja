@@ -40,9 +40,8 @@ class Company extends BaseModel
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
-    protected $guarded = [
-        'id',
-        'company_id'
+    protected $fillable = [
+        'name',
     ];
 
     protected $appends = [
