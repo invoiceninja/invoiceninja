@@ -20,6 +20,7 @@
 
 	{{ Former::populate($account) }}
 	{{ Former::populateField('task_rate', floatval($account->task_rate) ? Utils::roundSignificant($account->task_rate) : '') }}
+    {{ Former::populateField('valid_until_days', intval($account->valid_until_days) ? $account->valid_until_days : '') }}
 
     @include('accounts.nav', ['selected' => ACCOUNT_COMPANY_DETAILS])
 
@@ -106,6 +107,10 @@
 					{!! Former::text('task_rate')
 					 		->help('task_rate_help')!!}
 				@endif
+
+                {!! Former::text('valid_until_days')
+                                ->label(trans('texts.valid_until_days'))
+                                ->help(trans('texts.valid_until_days_help')) !!}
 
             </div>
         </div>
