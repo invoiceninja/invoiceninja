@@ -3159,7 +3159,8 @@ $LANG = array(
     'design' => 'Design',
     'password_is_too_short' => 'Password is too short',
     'failed_to_find_record' => 'Failed to find record',
-
+    'valid_until_days' => 'Valid Until',
+    'valid_until_days_help' => 'Automatically sets the <b>Valid Until</b> value on quotes to this many days in the future.  Leave blank to disable.',
 );
 
 return $LANG;

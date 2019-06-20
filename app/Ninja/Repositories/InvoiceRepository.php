@@ -399,6 +399,8 @@ class InvoiceRepository extends BaseRepository
             if ($entityType == ENTITY_INVOICE && empty($data['partial_due_date'])) {
                 $client = Client::scope()->whereId($data['client_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
+            } elseif($entityType == ENTITY_QUOTE && empty($data['due_date']) && !empty($account->valid_until_days)) {
+                $invoice->due_date = \Carbon::parse($data['invoice_date'])->addDays($account->valid_until_days);
             }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();

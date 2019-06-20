@@ -164,6 +164,7 @@ class Account extends Eloquent
         'custom_value2',
         'custom_messages',
         'custom_fields_options',
+        'valid_until_days',
     ];
 
     /**
