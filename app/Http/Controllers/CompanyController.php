@@ -63,7 +63,7 @@ class CompanyController extends BaseController
     public function index()
     {
 
-        $companies = Company::whereAccountId(auth()->user()->id);
+        $companies = Company::whereAccountId(auth()->user()->company()->account->id);
 
         return $this->listResponse($companies);
 
