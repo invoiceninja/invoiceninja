@@ -70,7 +70,7 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->get('/api/v1/copmanies');
+            ])->get('/api/v1/companies');
 
         $response->assertStatus(200);
 
@@ -83,25 +83,28 @@ class CompanyTest extends TestCase
                 'name' => 'A New Company'
             ]
         )
-            ->assertStatus(200);
+            ->assertStatus(200)->decodeResponseJson();
 
-        $product = Product::all()->first();
+        $company = Company::find($this->decodePrimaryKey($response['data']['id']));
+        
+Log::error('coco');
+Log::error($company);
 
-        $product_update = [
-            'notes' => 'CHANGE'
+        $company_update = [
+            'name' => 'CHANGE NAME'
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->put('/api/v1/products/'.$this->encodePrimaryKey($product->id), $product_update)
+            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
             ->assertStatus(200);
 
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
-        ])->delete('/api/v1/products/'.$this->encodePrimaryKey($product->id))
+        ])->delete('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200);
     }
 }

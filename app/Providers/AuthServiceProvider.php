@@ -12,6 +12,7 @@
 namespace App\Providers;
 
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
@@ -20,6 +21,7 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
 use App\Models\User;
 use App\Policies\ClientPolicy;
+use App\Policies\CompanyPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\ProductPolicy;
@@ -40,6 +42,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Client::class => ClientPolicy::class,
+        Company::class => CompanyPolicy::class,
         Product::class => ProductPolicy::class,
         Invoice::class => InvoicePolicy::class,
         Payment::class => PaymentPolicy::class,

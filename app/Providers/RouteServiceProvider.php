@@ -81,6 +81,10 @@ class RouteServiceProvider extends ServiceProvider
             return \App\Models\Company::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
+        Route::bind('companies', function ($value) {
+            return \App\Models\Company::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
+    
         Route::bind('account', function ($value) {
             return \App\Models\Account::withTrashed()->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });

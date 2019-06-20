@@ -91,7 +91,7 @@ class CompanyController extends BaseController
     public function store(StoreCompanyRequest $request)
     {
 
-        $company = CreateCompany::dispatchNow($request, auth()->user()->company()->account);
+        $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
         return $this->itemResponse($company);
 
