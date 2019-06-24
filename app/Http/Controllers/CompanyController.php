@@ -107,6 +107,19 @@ class CompanyController extends BaseController
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
+        /*
+         * Required dependencies
+         */
+        if($user)
+            auth()->login($user, false); 
+
+        $user->setCompany($company);
+
+        /*
+         * Create token
+         */
+        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user());
+
         return $this->itemResponse($company);
 
     }

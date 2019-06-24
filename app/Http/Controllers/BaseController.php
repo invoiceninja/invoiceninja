@@ -54,6 +54,7 @@ class BaseController extends Controller
 
     private function buildManager()
     {
+        $include = '';
 
         if(request()->input('include') !== null)
         {
@@ -65,17 +66,12 @@ class BaseController extends Controller
             $include = implode(",", $include);
 
         }
-        else
+        else if(count($this->forced_includes) >= 1)
         {
 
-            if(count($this->forced_includes)>=1)
-                $include = implode(",", $this->forced_includes);
-            else
-                $include = '';
-        }
+            $include = implode(",", $this->forced_includes);
 
-        Log::error('forced includes = ' . print_r($this->forced_includes,1));
-        Log::error('includes = ' . $include);
+        }
 
         $this->manager->parseIncludes($include);
 
@@ -86,7 +82,8 @@ class BaseController extends Controller
 
             $this->manager->setSerializer(new JsonApiSerializer());
 
-        } else 
+        } 
+        else 
         {
 
             $this->manager->setSerializer(new ArraySerializer());

@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\AccountGateway;
 use App\Models\Client;
+use App\Models\CompanyUser;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
@@ -67,7 +68,7 @@ class Company extends BaseModel
 
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(CompanyUser::class);
     }
 
     /**

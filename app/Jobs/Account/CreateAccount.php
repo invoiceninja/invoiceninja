@@ -38,7 +38,9 @@ class CreateAccount
 
     public function __construct(array $request)
     {
+
         $this->request = $request;
+
     }
 
     /**
@@ -67,6 +69,14 @@ class CreateAccount
          * Create user
          */
         $user = CreateUser::dispatchNow($this->request, $account, $company, true); //make user company_owner
+
+        /*
+         * Required dependencies
+         */
+        if($user)
+            auth()->login($user, false); 
+
+        $user->setCompany($company);
 
         /*
          * Create token
