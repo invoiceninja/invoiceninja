@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\DefaultSettings;
 use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
 use App\Http\Requests\Company\EditCompanyRequest;
@@ -43,6 +44,9 @@ class CompanyController extends BaseController
     protected $entity_transformer = CompanyTransformer::class;
 
     protected $company_repo;
+
+    public $forced_includes = [];
+
     /**
      * CompanyController constructor.
      */
@@ -90,8 +94,18 @@ class CompanyController extends BaseController
      */
     public function store(StoreCompanyRequest $request)
     {
+       // $this->forced_includes = ['company_user'];
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
+
+        auth()->user()->companies()->attach($company->id, [
+            'account_id' => $company->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => json_encode([]),
+            'settings' => json_encode(DefaultSettings::userSettings()),
+        ]);
 
         return $this->itemResponse($company);
 

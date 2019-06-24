@@ -15,7 +15,9 @@ namespace App\Transformers;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\User;
+use App\Transformers\CompanyUserTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -51,6 +53,7 @@ class CompanyTransformer extends EntityTransformer
         'language',
         'expenses',
         'payments',
+        'company_user'
     ];
 
 
@@ -85,6 +88,13 @@ class CompanyTransformer extends EntityTransformer
         ];
     }
 
+    public function includeCompanyUser(Company $company)
+    {
+        $transformer = new CompanyUserTransformer($this->serializer);
+
+        return $this->includeItem($company->company_users->where('user_id', auth()->user()->id)->first(), $transformer, CompanyUser::class);
+
+    }
 
     public function includeUsers(Company $company)
     {

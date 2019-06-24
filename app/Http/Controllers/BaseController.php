@@ -22,25 +22,76 @@ use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
 
+/**
+ * 
+ */
 class BaseController extends Controller
 {
+    /**
+     * Passed from the parent when we need to force
+     * includes internally rather than externally via 
+     * the REQUEST 'include' variable.
+     * 
+     * @var array
+     */
+    public $forced_includes;
+
+    /**
+     * Fractal manager
+     * @var object
+     */
+    protected $manager;
+
 
 	public function __construct()
     {
+
         $this->manager = new Manager();
 
-        if ($include = request()->input('include')) {
-            $this->manager->parseIncludes($include);
+        $this->forced_includes = [];
+
+    }
+
+    private function buildManager()
+    {
+
+        if(request()->input('include') !== null)
+        {
+
+            $request_include = explode(",", request()->input('include'));
+
+            $include = array_merge($this->forced_includes, $request_include);
+
+            $include = implode(",", $include);
+
         }
+        else
+        {
+
+            if(count($this->forced_includes)>=1)
+                $include = implode(",", $this->forced_includes);
+            else
+                $include = '';
+        }
+
+        Log::error('forced includes = ' . print_r($this->forced_includes,1));
+        Log::error('includes = ' . $include);
+
+        $this->manager->parseIncludes($include);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
-        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
-            $this->manager->setSerializer(new JsonApiSerializer());
-        } else {
-            $this->manager->setSerializer(new ArraySerializer());
-        }
+        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) 
+        {
 
+            $this->manager->setSerializer(new JsonApiSerializer());
+
+        } else 
+        {
+
+            $this->manager->setSerializer(new ArraySerializer());
+
+        }
     }
 
     /**
@@ -64,6 +115,9 @@ class BaseController extends Controller
 
 	protected function listResponse($query)
     {
+
+        $this->buildManager();
+
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
@@ -79,6 +133,8 @@ class BaseController extends Controller
     protected function createCollection($query, $transformer, $entity_type)
     {
         
+        $this->buildManager();
+
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $entity_type = null;
         }
@@ -123,6 +179,7 @@ class BaseController extends Controller
 
     protected function itemResponse($item)
     {
+        $this->buildManager();
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
