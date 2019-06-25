@@ -85,8 +85,9 @@ class CompanyTest extends TestCase
             ]
         )
         ->assertStatus(200)->decodeResponseJson();
+//Log::error($response);
 
-        $company = Company::find($this->decodePrimaryKey($response['data']['id']));
+        $company = Company::find($this->decodePrimaryKey($response['data']['company_users'][0]['company']['id']));
         
         $token = CompanyToken::whereCompanyId($company->id)->first()->token;
 
