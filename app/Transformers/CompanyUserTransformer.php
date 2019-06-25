@@ -12,8 +12,10 @@
 namespace App\Transformers;
 
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Transformers\CompanyTokenTransformer;
 
 /**
  * @SWG\Definition(definition="CompanyUser", @SWG\Xml(name="CompanyUser"))
@@ -25,6 +27,9 @@ class CompanyUserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
+        'company',
+        'user',
+        'token'
     ];
 
     /**
@@ -32,14 +37,14 @@ class CompanyUserTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'user',
-        'company'
+        'company',
+        'token'
     ];
 
 
     public function transform(CompanyUser $company_user)
     {
         return [
-            'id' => (int) $company_user->id,
             'permissions' => $company_user->permissions,
             'settings' => $company_user->settings,
             'is_owner' => (bool) $company_user->is_owner,
@@ -66,6 +71,15 @@ class CompanyUserTransformer extends EntityTransformer
 
         return $this->includeItem($company_user->user, $transformer, User::class);
     
+    }
+
+    public function includeToken(CompanyUser $company_user)
+    {
+
+        $transformer = new CompanyTokenTransformer($this->serializer);
+
+        return $this->includeItem($company_user->token, $transformer, CompanyToken::class);
+
     }
 
 }

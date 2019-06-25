@@ -13,9 +13,11 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\Payment;
 use App\Models\User;
 use App\Transformers\CompanyTransformer;
+use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -33,8 +35,9 @@ class AccountTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-        'default_company',
-        'user',
+        //'default_company',
+        //'user',
+        'company_users'
     ];
 
     /**
@@ -42,6 +45,8 @@ class AccountTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'default_company',
+        'company_users',
+        'companies',
     ];
 
 
@@ -54,20 +59,34 @@ class AccountTransformer extends EntityTransformer
      */
     public function transform(Account $account)
     {
+
         return [
             'id' => $this->encodePrimaryKey($account->id),
         ];
+
+    }
+
+    public function includeCompanyUsers(Account $account)
+    {
+
+        $transformer = new CompanyUserTransformer($this->serializer);
+
+        return $this->includeCollection($account->company_users, $transformer, CompanyUser::class);
+
     }
 
     public function includeDefaultCompany(Account $account)
     {
+
         $transformer = new CompanyTransformer($this->serializer);
 
         return $this->includeItem($account->default_company, $transformer, Company::class);
+    
     }
 
     public function includeUser(Account $account)
     {
+    
         $transformer = new UserTransformer($this->serializer);
 
         return $this->includeItem($account->default_company->owner(), $transformer, User::class);

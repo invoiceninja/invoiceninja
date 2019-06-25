@@ -94,7 +94,7 @@ class CompanyController extends BaseController
      */
     public function store(StoreCompanyRequest $request)
     {
-       // $this->forced_includes = ['company_user'];
+        $this->forced_includes = ['company_user'];
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
@@ -110,10 +110,7 @@ class CompanyController extends BaseController
         /*
          * Required dependencies
          */
-        if($user)
-            auth()->login($user, false); 
-
-        $user->setCompany($company);
+        auth()->user()->setCompany($company);
 
         /*
          * Create token

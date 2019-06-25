@@ -53,9 +53,6 @@ class Account extends BaseModel
         'discount_expires',
     ];
 
-    protected $with = [
-    ];
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -70,5 +67,15 @@ class Account extends BaseModel
     public function payment()
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
+    }
+
+    public function company_users()
+    {
+        return $this->hasMany(CompanyUser::class);
     }
 }

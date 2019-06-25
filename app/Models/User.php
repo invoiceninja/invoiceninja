@@ -88,17 +88,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns all one company token.
-     * 
-     * @return Collection
-     */
-    public function token()
-    {
-        return $this->tokens->whereCompanyId($this->company()->id)->first();
-        //return $this->hasOne(CompanyToken::class)->orderBy('id', 'ASC');
-    }
-
-    /**
      * Returns all company tokens.
      * 
      * @return Collection
