@@ -51,7 +51,7 @@ class CreateCompany
     {
 
         $company = new Company();
-        $company->name = isset($this->request['name']) ?: $this->request['first_name'] . ' ' . $this->request['last_name'];
+        $company->name = isset($this->request['name']) ? $this->request['name'] : $this->request['first_name'] . ' ' . $this->request['last_name'];
         $company->account_id = $this->account->id;
         $company->company_key = $this->createHash();
         $company->ip = request()->ip();

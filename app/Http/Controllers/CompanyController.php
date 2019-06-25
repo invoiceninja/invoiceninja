@@ -22,8 +22,10 @@ use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\RegisterNewAccount;
+use App\Models\Account;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
+use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -118,7 +120,11 @@ class CompanyController extends BaseController
          */
         $company_token = CreateCompanyToken::dispatchNow($company, auth()->user());
 
-        return $this->itemResponse($company);
+        //todo Need to discuss this with Hillel which is the best representation to return
+        //when a company is created. Do we send the entire account? Do we only send back the created CompanyUser?
+        $this->entity_transformer = AccountTransformer::class;
+        $this->entity_type = Account::class;
+        return $this->itemResponse($company->account);
 
     }
 

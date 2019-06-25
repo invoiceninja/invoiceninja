@@ -116,7 +116,7 @@ class CreateUsersTable extends Migration
             $table->string('utm_term')->nullable();
             $table->string('utm_content')->nullable();
 
-            $table->float('discount');
+            $table->float('discount')->default(0);
             $table->date('discount_expires')->nullable();
 
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
