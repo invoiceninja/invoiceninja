@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\Product;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -83,12 +84,11 @@ class CompanyTest extends TestCase
                 'name' => 'A New Company'
             ]
         )
-            ->assertStatus(200)->decodeResponseJson();
+        ->assertStatus(200)->decodeResponseJson();
 
         $company = Company::find($this->decodePrimaryKey($response['data']['id']));
         
-Log::error('coco');
-Log::error($company);
+        $token = CompanyToken::whereCompanyId($company->id)->first()->token;
 
         $company_update = [
             'name' => 'CHANGE NAME'

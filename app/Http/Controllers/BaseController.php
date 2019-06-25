@@ -36,6 +36,14 @@ class BaseController extends Controller
      */
     public $forced_includes;
 
+
+    /**
+     * Passed from the parent when we need to force
+     * the key of the response object
+     * @var string
+     */
+    public $forced_index;
+
     /**
      * Fractal manager
      * @var object
@@ -49,6 +57,8 @@ class BaseController extends Controller
         $this->manager = new Manager();
 
         $this->forced_includes = [];
+
+        $this->forced_index = 'data';
 
     }
 
@@ -152,7 +162,7 @@ class BaseController extends Controller
 
     protected function response($response)
     {
-        $index = request()->input('index') ?: 'data';
+        $index = request()->input('index') ?: $this->forced_index;
 
         if ($index == 'none') {
             unset($response['meta']);

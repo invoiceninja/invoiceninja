@@ -20,6 +20,7 @@ use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\RegisterNewAccount;
 use App\Models\Company;
 use App\Repositories\CompanyRepository;
