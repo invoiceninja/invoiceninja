@@ -35,8 +35,16 @@ class ClientContact extends Authenticatable
 
     protected $dates = ['deleted_at'];
     
-    protected $guarded = [
-        'id',
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'phone',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'email',
+        'avatar',
     ];
    
     protected $hidden = [

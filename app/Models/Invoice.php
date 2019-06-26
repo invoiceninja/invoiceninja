@@ -48,6 +48,8 @@ class Invoice extends BaseModel
         'partial_due_date',
         'custom_value1',
         'custom_value2',
+        'custom_value3',
+        'custom_value4',
         'custom_taxes1',
         'custom_taxes2',
         'custom_text_value1',
@@ -55,6 +57,7 @@ class Invoice extends BaseModel
         'line_items',
         'settings',
         'client_id',
+        'footer',
     ];
 
     protected $casts = [

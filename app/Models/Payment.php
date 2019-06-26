@@ -27,8 +27,12 @@ class Payment extends BaseModel
     const STATUS_PARTIALLY_REFUNDED = 5;
     const STATUS_REFUNDED = 6;
 
-    protected $guarded = [
-		'id',
+    protected $fillable = [
+		'client_id',
+        'payment_type_id',
+        'amount',
+        'payment_date',
+        'transaction_reference'
 	];
 
     public function client()

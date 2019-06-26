@@ -52,8 +52,32 @@ class RecurringInvoice extends BaseModel
 
     const RECURS_INDEFINITELY = -1;
     
-	protected $guarded = [
-		'id',
+	protected $fillable = [
+		'client_id',
+        'invoice_number',
+        'discount'
+        'is_amount_discount',
+        'po_number',
+        'invoice_date',
+        'due_date',
+        'line_items',
+        'settings',
+        'footer',
+        'public_notes'
+        'private_notes',
+        'terms',
+        'tax_name1',
+        'tax_name2',
+        'tax_rate1',
+        'tax_rate2',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'amount',
+        'partial'
+        'frequency_id'
+        'start_date',
 	];
 
     protected $casts = [

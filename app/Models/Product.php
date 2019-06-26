@@ -22,12 +22,20 @@ class Product extends BaseModel
     use SoftDeletes;
     use Filterable;
 
-    protected $guarded = [
-        'id',
-        'updated_at',
-        'created_at',
-        'deleted_at',      
-        'q',
+    protected $fillable = [
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',      
+        'product_key',
+        'notes',
+        'cost',
+        'price',
+        'qty',
+        'tax_name1',
+        'tax_name2',
+        'tax_rate1',
+        'tax_rate2',
     ];
 
     public function company()

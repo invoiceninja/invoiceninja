@@ -20,8 +20,31 @@ class Quote extends BaseModel
     use MakesHash;
     use Filterable;
 
-	protected $guarded = [
-		'id',
+	protected $fillable = [
+		'client_id',
+        'quote_number',
+        'discount',
+        'is_amount_discount',
+        'po_number',
+        'quote_date',
+        'valid_until',
+        'line_items',
+        'settings',
+        'footer',
+        'public_note',
+        'private_notes',
+        'terms',
+        'tax_name1',
+        'tax_name2',
+        'tax_rate1',
+        'tax_rate2',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'amount',
+        'partial',
+        'partial_due_date',
 	];
 
     protected $casts = [

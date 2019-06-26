@@ -39,7 +39,7 @@ class Client extends BaseModel
 
     protected $appends = [
     ];
-
+    /*
     protected $guarded = [
         'id',
         'updated_at',
@@ -52,6 +52,37 @@ class Client extends BaseModel
         'country',
         'shipping_country'
     ];
+    */
+   
+    protected $fillable = [
+        'name',
+        'website',
+        'private_notes',
+        'industry_id',
+        'size_id',
+        'currency_id',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4,',
+        'shipping_address1',
+        'shipping_address2',
+        'shipping_city',
+        'shipping_state',
+        'shipping_postal_code',
+        'shipping_country_id',
+        'settings',
+        'payment_terms',
+        'vat_number',
+        'id_number',
+    ];
+    
     /*
     protected $with = [
         'contacts', 

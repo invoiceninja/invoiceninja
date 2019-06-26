@@ -18,8 +18,14 @@ class Task extends BaseModel
 {
     use MakesHash;
     
-    protected $guarded = [
-		'id',
+    protected $fillable = [
+		'client_id',
+        'invoice_id',
+        'custom_value1',
+        'custom_value2',
+        'description',
+        'is_running',
+        'time_log',
 	];
 
     protected $appends = ['task_id'];

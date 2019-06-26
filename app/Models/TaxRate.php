@@ -18,8 +18,9 @@ class TaxRate extends BaseModel
 {
     use MakesHash;
     
-    protected $guarded = [
-		'id',
+    protected $fillable = [
+		'name',
+        'rate'
 	];
 
     protected $appends = ['tax_rate_id'];

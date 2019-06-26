@@ -44,6 +44,20 @@ class Company extends BaseModel
     protected $fillable = [
         'name',
         'logo',
+        'industry_id',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'work_phone',
+        'work_email',
+        'country_id',
+        'subdomain',
+        'vat_number',
+        'id_number',
+        'size_id',
+        'settings',
     ];
 
     protected $appends = [
