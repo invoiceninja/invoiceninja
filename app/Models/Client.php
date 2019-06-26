@@ -630,10 +630,9 @@ class Client extends EntityModel
         $paysIn = $this->invoices()
                         ->where('invoice_status_id', '=', INVOICE_STATUS_PAID)
                         ->get()
-                        ->map(function ($item, $key) {
+                        ->map(function ($item) {
                             $payments = $item->payments()->orderBy('payment_date', 'asc')->get();
                             $invoiceTotal = $item->amount;
-                            $totalPayments = $payments->count();
 
                             foreach($payments as $payment) {
                                 if($payment->amount < $invoiceTotal) {
