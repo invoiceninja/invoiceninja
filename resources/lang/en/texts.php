@@ -3159,6 +3159,7 @@ $LANG = array(
     'design' => 'Design',
     'password_is_too_short' => 'Password is too short',
     'failed_to_find_record' => 'Failed to find record',
+    'usually_pays_in_days' => 'Days',
 
 );
 
