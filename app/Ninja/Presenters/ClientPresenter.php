@@ -46,6 +46,13 @@ class ClientPresenter extends EntityPresenter
         return $account->formatMoney($client->paid_to_date, $client);
     }
 
+    public function usuallyPaysIn() {
+        $avgDays = $this->entity
+                        ->getUsuallyPaysIn();
+
+        return Utils::roundSignificant($avgDays) . ' days';
+    }
+
     public function paymentTerms()
     {
         $client = $this->entity;
