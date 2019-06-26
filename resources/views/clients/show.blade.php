@@ -212,6 +212,10 @@
                     <td style="text-align: right">{{ Utils::formatMoney($credit, $client->getCurrencyId()) }}</td>
                 </tr>
                 @endif
+                <tr>
+                    <td><small>Usually Pays In</small></td>
+                    <td style="text-align: right;">{{ $client->present()->usuallyPaysIn() }}</td>
+                </tr>
             </table>
             </h3>
         </div>
