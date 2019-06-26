@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
@@ -81,7 +82,8 @@ class CompanyTest extends TestCase
             'X-API-TOKEN' => $token,
         ])->post('/api/v1/companies/', 
             [
-                'name' => 'A New Company'
+                'name' => 'A New Company',
+                'logo' => UploadedFile::fake()->image('avatar.jpg')
             ]
         )
         ->assertStatus(200)->decodeResponseJson();
@@ -89,10 +91,25 @@ class CompanyTest extends TestCase
 
         $company = Company::find($this->decodePrimaryKey($response['data']['company_users'][0]['company']['id']));
         
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->post('/api/v1/companies/', 
+            [
+                'name' => 'A New Company',
+                'logo' => UploadedFile::fake()->create('avatar.pdf',100)
+            ]
+        )
+        ->assertStatus(302);
+
+        Log::error($company);
+
         $token = CompanyToken::whereCompanyId($company->id)->first()->token;
 
         $company_update = [
-            'name' => 'CHANGE NAME'
+            'name' => 'CHANGE NAME',
+         //   'logo' => UploadedFile::fake()->image('avatar.jpg')
         ];
 
         $response = $this->withHeaders([
@@ -100,6 +117,7 @@ class CompanyTest extends TestCase
                 'X-API-TOKEN' => $token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
             ->assertStatus(200);
+
 
 
         $response = $this->withHeaders([

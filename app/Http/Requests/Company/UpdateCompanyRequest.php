@@ -34,7 +34,8 @@ class UpdateCompanyRequest extends Request
     public function rules()
     {
         return [
-       //     'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
+            'logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
+            'name' => 'required',
         ];
     }
     

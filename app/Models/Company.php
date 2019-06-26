@@ -43,6 +43,7 @@ class Company extends BaseModel
 
     protected $fillable = [
         'name',
+        'logo',
     ];
 
     protected $appends = [

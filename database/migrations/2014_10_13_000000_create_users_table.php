@@ -133,6 +133,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('industry_id')->nullable();
             $table->string('ip');
             $table->string('company_key',100)->unique();
+            $table->string('logo')->nullable();
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
             $table->string('city')->nullable();
