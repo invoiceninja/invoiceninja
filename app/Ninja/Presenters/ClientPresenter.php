@@ -47,10 +47,9 @@ class ClientPresenter extends EntityPresenter
     }
 
     public function usuallyPaysIn() {
-        $avgDays = $this->entity
-                        ->getUsuallyPaysIn();
+        $avgDays = $this->entity->getUsuallyPaysIn();
 
-        return Utils::roundSignificant($avgDays) . ' days';
+        return Utils::roundSignificant($avgDays) . ' ' . trans('texts.usually_pays_in_days');
     }
 
     public function paymentTerms()

@@ -3161,6 +3161,8 @@ $LANG = array(
     'failed_to_find_record' => 'Failed to find record',
     'valid_until_days' => 'Valid Until',
     'valid_until_days_help' => 'Automatically sets the <b>Valid Until</b> value on quotes to this many days in the future.  Leave blank to disable.',
+    'usually_pays_in_days' => 'Days',
+
 );
 
 return $LANG;
