@@ -628,7 +628,10 @@ class Client extends EntityModel
 
     public function getUsuallyPaysIn() {
         $paysIn = $this->invoices()
+                        ->with('payments')
                         ->where('invoice_status_id', '=', INVOICE_STATUS_PAID)
+                        ->orderBy('invoice_date', 'desc')
+                        ->take(20)
                         ->get()
                         ->map(function ($item) {
                             $payments = $item->payments()->orderBy('payment_date', 'asc')->get();
