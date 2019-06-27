@@ -625,6 +625,29 @@ class Client extends EntityModel
             }
         }
     }
+
+    public function getUsuallyPaysIn() {
+        $paysIn = $this->invoices()
+                        ->with('payments')
+                        ->where('invoice_status_id', '=', INVOICE_STATUS_PAID)
+                        ->orderBy('invoice_date', 'desc')
+                        ->take(20)
+                        ->get()
+                        ->map(function ($item) {
+                            $payments = $item->payments()->orderBy('payment_date', 'asc')->get();
+                            $invoiceTotal = $item->amount;
+
+                            foreach($payments as $payment) {
+                                if($payment->amount < $invoiceTotal) {
+                                    $invoiceTotal -= $payment->amount;
+                                } elseif($payment->amount >= $invoiceTotal) {
+                                    return \Carbon::parse($item->invoice_date)->diffInDays($payment->payment_date);
+                                }
+                            }
+                        })->avg();
+
+        return $paysIn;
+    }
 }
 
 Client::creating(function ($client) {
