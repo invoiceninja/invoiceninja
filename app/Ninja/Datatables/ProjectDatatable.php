@@ -64,6 +64,9 @@ class ProjectDatatable extends EntityDatatable
                     } elseif($model->client_task_rate !== '0.0000') {
                         $taskRate = $model->client_task_rate;
                         $taskRateIcon = '<i class="fa fa-user"></i> ';
+                    } elseif($model->account_task_rate !== '0.0000') {
+                        $taskRate = $model->account_task_rate;
+                        $taskRateIcon = '<i class="fa fa-cog"></i> ';
                     }
 
                     return floatval($taskRate) ? $taskRateIcon . Utils::formatMoney($taskRate) : '';

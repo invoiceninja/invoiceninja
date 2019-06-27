@@ -23,6 +23,7 @@ class ProjectRepository extends BaseRepository
     {
         $query = DB::table('projects')
                 ->where('projects.account_id', '=', Auth::user()->account_id)
+                ->join('accounts', 'accounts.id', '=', 'projects.account_id')
                 ->leftjoin('clients', 'clients.id', '=', 'projects.client_id')
                 ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                 ->where('contacts.deleted_at', '=', null)
@@ -44,7 +45,8 @@ class ProjectRepository extends BaseRepository
                     DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                     'clients.user_id as client_user_id',
                     'clients.public_id as client_public_id',
-                    'clients.task_rate as client_task_rate'
+                    'clients.task_rate as client_task_rate',
+                    'accounts.task_rate as account_task_rate'
                 );
 
         $this->applyFilters($query, ENTITY_PROJECT);
