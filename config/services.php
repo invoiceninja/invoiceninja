@@ -17,8 +17,8 @@ return [
     'postmark' => env('POSTMARK_API_TOKEN', ''),
 
     'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN'),
-        'secret' => env('MAILGUN_SECRET'),
+        'domain' => env('MAILGUN_DOMAIN',''),
+        'secret' => env('MAILGUN_SECRET',''),
     ],
 
     'mandrill' => [
@@ -26,8 +26,8 @@ return [
     ],
 
     'ses' => [
-        'key' => env('SES_KEY'),
-        'secret' => env('SES_SECRET'),
+        'key' => env('SES_KEY', ''),
+        'secret' => env('SES_SECRET', ''),
         'region' => env('SES_DEFAULT_REGION', 'us-east-1'),
     ],
 
@@ -36,9 +36,8 @@ return [
     ],
 
     'stripe' => [
-        'model' => App\User::class,
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
+        'model'  => 'User',
+        'secret' => '',
     ],
 
     'github' => [
