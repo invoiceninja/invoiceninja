@@ -55,7 +55,7 @@ class RecurringInvoice extends BaseModel
 	protected $fillable = [
 		'client_id',
         'invoice_number',
-        'discount'
+        'discount',
         'is_amount_discount',
         'po_number',
         'invoice_date',
@@ -63,7 +63,7 @@ class RecurringInvoice extends BaseModel
         'line_items',
         'settings',
         'footer',
-        'public_notes'
+        'public_notes',
         'private_notes',
         'terms',
         'tax_name1',
@@ -75,8 +75,8 @@ class RecurringInvoice extends BaseModel
         'custom_value3',
         'custom_value4',
         'amount',
-        'partial'
-        'frequency_id'
+        'partial',
+        'frequency_id',
         'start_date',
 	];
 
