@@ -33,6 +33,12 @@ class UpdateClientRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
         $rules['name'] = 'required';
 
+        $rules['industry_id'] = 'integer|nullable';
+        $rules['size_id'] = 'integer|nullable';
+        $rules['currency_id'] = 'integer|nullable';
+        $rules['country_id'] = 'integer|nullable';
+        $rules['shipping_country_id'] = 'integer|nullable';
+
         $contacts = request('contacts');
 
             if(is_array($contacts))

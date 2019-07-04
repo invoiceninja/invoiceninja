@@ -35,6 +35,8 @@ class UpdateRecurringQuoteRequest extends Request
     {
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
+            'client_id' => 'required|integer',
+
         ];
     }
     
