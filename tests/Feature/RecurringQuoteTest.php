@@ -179,7 +179,8 @@ class RecurringQuoteTest extends TestCase
         $response->assertStatus(200);
 
         $RecurringQuote_update = [
-            'status_id' => RecurringQuote::STATUS_DRAFT
+            'status_id' => RecurringQuote::STATUS_DRAFT,
+            'client_id' => $RecurringQuote->client_id,
         ];
 
         $this->assertNotNull($RecurringQuote);

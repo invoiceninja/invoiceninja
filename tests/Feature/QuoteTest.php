@@ -178,7 +178,8 @@ class QuoteTest extends TestCase
         $response->assertStatus(200);
 
         $quote_update = [
-            'status_id' => Quote::STATUS_APPROVED
+            'status_id' => Quote::STATUS_APPROVED,
+            'client_id' => $quote->client_id,
         ];
 
         $this->assertNotNull($quote);

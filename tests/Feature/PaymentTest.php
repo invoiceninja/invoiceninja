@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
@@ -46,8 +47,8 @@ class PaymentTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-                'name' => $this->faker->company,
-        'email' => $this->faker->unique()->safeEmail,
+            'name' => $this->faker->company,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
             'privacy_policy' => 1,
@@ -110,8 +111,8 @@ class PaymentTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-                 'name' => $this->faker->company,
-         'email' => $this->faker->unique()->safeEmail,
+            'name' => $this->faker->company,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
             'privacy_policy' => 1,
@@ -176,7 +177,8 @@ class PaymentTest extends TestCase
         $response->assertStatus(200);
 
         $Payment_update = [
-            'amount' => 10
+            'amount' => 10,
+            'payment_date' => Carbon::now()
         ];
 
         $this->assertNotNull($Payment);

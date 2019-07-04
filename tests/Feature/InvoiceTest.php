@@ -179,6 +179,7 @@ class InvoiceTest extends TestCase
         $response->assertStatus(200);
 
         $invoice_update = [
+            'client_id' => $invoice->client_id,
             'status_id' => Invoice::STATUS_PAID
         ];
 

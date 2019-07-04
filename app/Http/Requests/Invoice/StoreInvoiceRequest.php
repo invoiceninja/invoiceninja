@@ -34,7 +34,7 @@ class StoreInvoiceRequest extends Request
 
         return [
             'client_id' => 'required',
-            'invoice_type_id' => 'integer',
+           // 'invoice_type_id' => 'integer',
 
       //      'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];

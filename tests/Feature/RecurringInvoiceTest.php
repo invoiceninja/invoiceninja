@@ -179,7 +179,8 @@ Log::error($acc);
         $response->assertStatus(200);
 
         $RecurringInvoice_update = [
-            'status_id' => RecurringInvoice::STATUS_DRAFT
+            'status_id' => RecurringInvoice::STATUS_DRAFT,
+            'client_id' => $RecurringInvoice->client_id,
         ];
 
         $this->assertNotNull($RecurringInvoice);
