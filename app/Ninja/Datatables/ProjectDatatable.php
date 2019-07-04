@@ -55,7 +55,21 @@ class ProjectDatatable extends EntityDatatable
             [
                 'task_rate',
                 function ($model) {
-                    return floatval($model->task_rate) ? Utils::formatMoney($model->task_rate) : '';
+                    $taskRate = 0.0000;
+                    $taskRateIcon = '';
+
+                    if($model->task_rate !== '0.0000') {
+                        $taskRate = $model->task_rate;
+                        $taskRateIcon = '<i class="fa fa-briefcase"></i> ';
+                    } elseif($model->client_task_rate !== '0.0000') {
+                        $taskRate = $model->client_task_rate;
+                        $taskRateIcon = '<i class="fa fa-user"></i> ';
+                    } elseif($model->account_task_rate !== '0.0000') {
+                        $taskRate = $model->account_task_rate;
+                        $taskRateIcon = '<i class="fa fa-cog"></i> ';
+                    }
+
+                    return floatval($taskRate) ? $taskRateIcon . Utils::formatMoney($taskRate) : '';
                 }
             ],
         ];
