@@ -49,11 +49,10 @@ class AccountTest extends TestCase
             'terms_of_service' => 1
         ];
 
-        $response = $this->post('/signup', $data);
+        $response = $this->post('/signup', $data, ['X-API-SECRET' => 'password']);
 
-        //$response->assertStatus(200);
-        //
-        $this->assertTrue(true);
+        $response->assertStatus(200);
+        
 
     }
 
@@ -63,8 +62,8 @@ class AccountTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-              'name' => $this->faker->company,
-          'email' => $this->faker->unique()->safeEmail,
+            'name' => $this->faker->company,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             'privacy_policy' => 1,
             'terms_of_service' => 1
