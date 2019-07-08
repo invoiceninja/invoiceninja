@@ -91,7 +91,8 @@ class CreateAccount
         /*
          * Fire related events
          */
-        event(new AccountCreated($user));
+        if($user)
+            event(new AccountCreated($user));
 
         return $account;
     }

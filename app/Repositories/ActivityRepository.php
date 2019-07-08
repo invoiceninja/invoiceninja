@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Models\Activity;
 use App\Models\Backup;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class for activity repository.
@@ -32,6 +33,8 @@ class ActivityRepository extends BaseRepository
 
 		$activity->is_system = app()->runningInConsole();
         $activity->ip = request()->getClientIp();
+//Log::error($activity);
+//Log::error($entity);
 
         foreach($fields as $key => $value) {
 

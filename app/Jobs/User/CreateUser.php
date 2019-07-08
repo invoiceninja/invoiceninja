@@ -73,7 +73,7 @@ class CreateUser
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
-        event(new UserWasCreated($user,$this->company));
+        event(new UserWasCreated($user, $this->company));
 
 
         return $user;
