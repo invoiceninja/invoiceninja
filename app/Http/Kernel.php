@@ -11,6 +11,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\ContactTokenAuth;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -53,6 +54,11 @@ class Kernel extends HttpKernel
             'bindings',
             'query_logging',
         ],
+        'contact' => [
+            'throttle:60,1',
+            'bindings',
+            'query_logging',
+        ],
         'db' => [
             \App\Http\Middleware\SetDb::class,
         ],
@@ -84,6 +90,7 @@ class Kernel extends HttpKernel
         'query_logging' => \App\Http\Middleware\QueryLogging::class,
         'token_auth' => \App\Http\Middleware\TokenAuth::class,
         'api_secret_check' => \App\Http\Middleware\ApiSecretCheck::class,
-
+        'contact_token_auth' => \App\Http\Middleware\ContactTokenAuth::class,
+        'contact_db' => \App\Http\Middleware\ContactSetDb::class,
     ];
 }

@@ -128,9 +128,7 @@ class Client extends BaseModel
 
     public function getMergedSettings()
     {
-
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
-
     }
 
     public function documents()

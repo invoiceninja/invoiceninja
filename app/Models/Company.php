@@ -99,7 +99,7 @@ class Company extends BaseModel
      */
     public function contacts()
     {
-        return $this->hasMany(Contact::class);
+        return $this->hasMany(ClientContact::class);
     }
 
     /**

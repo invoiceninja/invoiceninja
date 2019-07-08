@@ -11,6 +11,8 @@
 
 namespace App\Models;
 
+use App\Models\Company;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -71,6 +73,16 @@ class ClientContact extends Authenticatable
     public function primary_contact()
     {
         $this->where('is_primary', true);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
 }

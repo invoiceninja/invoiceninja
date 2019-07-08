@@ -78,7 +78,7 @@ return [
         ],
         'contacts' => [
             'driver' => env('CONTACT_AUTH_PROVIDER', 'eloquent'),
-            'model' => App\Models\Contact::class,
+            'model' => App\Models\ClientContact::class,
         ],
 
         // 'users' => [

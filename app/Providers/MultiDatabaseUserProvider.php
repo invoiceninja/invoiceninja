@@ -227,10 +227,14 @@ Log::error($query->count());
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
 Log::error('setting DB');
+Log::error('model = '.$this->model);
+
         foreach (MultiDB::getDbs() as $database) {
             $this->setDB($database);
 
-            $query = $this->conn->table('users');
+//            $query = $this->conn->table('users');
+            
+            $query = $this->conn->table((new $this->model)->getTable());
 
             if ($id) 
                 $query->where('id', '=', $id);

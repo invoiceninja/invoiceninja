@@ -222,7 +222,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function contacts()
     {
 
-        return $this->hasMany(Contact::class);
+        return $this->hasMany(ClientContact::class);
 
     }
 

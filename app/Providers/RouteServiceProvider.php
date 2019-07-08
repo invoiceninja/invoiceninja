@@ -136,7 +136,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
-        //
+        $this->mapContactApiRoutes();
     }
 
     /**
@@ -168,6 +168,19 @@ class RouteServiceProvider extends ServiceProvider
              ->group(base_path('routes/api.php'));
     }
     
-   
+   /**
+     * Define the "api" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapContactApiRoutes()
+    {
+        Route::prefix('')
+             ->middleware('contact')
+             ->namespace($this->namespace)
+             ->group(base_path('routes/contact.php'));
+    }
     
 }
