@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
@@ -24,7 +25,8 @@ use Tests\TestCase;
 class AccountTest extends TestCase
 {
     use DatabaseTransactions;
-    
+    use WithoutMiddleware;
+
     public function setUp() :void
     {
         parent::setUp();
