@@ -233,7 +233,8 @@ Log::error('model = '.$this->model);
             $this->setDB($database);
 
 //            $query = $this->conn->table('users');
-            
+//            
+            /** Make sure we hook into the correct guard class */
             $query = $this->conn->table((new $this->model)->getTable());
 
             if ($id) 
