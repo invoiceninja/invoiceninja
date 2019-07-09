@@ -27,7 +27,7 @@ class SystemHealth
 		'zip',
 	];
 
-    private static $php_version = 7.1;
+    private static $php_version = 7.3;
 
 
 	/**
