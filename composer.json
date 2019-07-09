@@ -62,6 +62,7 @@
         "predis/predis": "^1.1",
         "roave/security-advisories": "dev-master",
         "simshaun/recurr": "dev-master",
+        "stripe/stripe-php": "^6.40",
         "symfony/css-selector": "~3.1",
         "tamayo/laravel-scout-elastic": "^3.0",
         "turbo124/laravel-push-notification": "2.*",

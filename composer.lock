@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63453d6f86ab48ae0c8afb63a1845d76",
+    "content-hash": "35ab1773191336eb4a8fa7f0fe0527c4",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -3087,12 +3087,12 @@
             "version": "v3.5.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/google/protobuf.git",
+                "url": "https://github.com/protocolbuffers/protobuf-php.git",
                 "reference": "b5fbb742af122b565925987e65c08957739976a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/protobuf/zipball/b5fbb742af122b565925987e65c08957739976a7",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/b5fbb742af122b565925987e65c08957739976a7",
                 "reference": "b5fbb742af122b565925987e65c08957739976a7",
                 "shasum": ""
             },
@@ -9265,6 +9265,62 @@
                 "paytrace"
             ],
             "time": "2017-08-24T17:02:28+00:00"
+        },
+        {
+            "name": "stripe/stripe-php",
+            "version": "v6.40.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stripe/stripe-php.git",
+                "reference": "9c22ffab790ef4dae0f371929de50e8b53c9ec8d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/9c22ffab790ef4dae0f371929de50e8b53c9ec8d",
+                "reference": "9c22ffab790ef4dae0f371929de50e8b53c9ec8d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "1.*",
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "~2.0",
+                "symfony/process": "~2.8"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stripe\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stripe and contributors",
+                    "homepage": "https://github.com/stripe/stripe-php/contributors"
+                }
+            ],
+            "description": "Stripe PHP Library",
+            "homepage": "https://stripe.com/",
+            "keywords": [
+                "api",
+                "payment processing",
+                "stripe"
+            ],
+            "time": "2019-06-27T23:24:51+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

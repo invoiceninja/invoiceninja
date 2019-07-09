@@ -450,42 +450,58 @@
             // Handle form submission.
             var form = document.getElementById('payment-form');
             form.addEventListener('submit', function(event) {
-              event.preventDefault();
+                event.preventDefault();
+                var options = {
+                    billing_details: {
+                        name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value,
+                        @if (!empty($accountGateway->show_address))
+                        address: {
+                            line1: $('#address1').val(),
+                            line2: $('#address2').val(),
+                            city: $('#city').val(),
+                            state: $('#state').val(),
+                            postal_code: $('#postal_code').val(),
+                            country: $("#country_id option:selected").attr('data-iso_3166_2')
+                        }
+                        @endif
+                    }
+                };
 
-
-            var options = {
-                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value,
-@if (!empty($accountGateway->show_address))
-                address_line1: $('#address1').val(),
-                address_line2: $('#address2').val(),
-                address_city: $('#city').val(),
-                address_state: $('#state').val(),
-                address_zip: $('#postal_code').val(),
-                address_country: $("#country_id option:selected").attr('data-iso_3166_2')
-@endif
-            };
-
-            stripe.createToken(cardNumber, options).then(function(result) {
-                if (result.error) {
-                  // Inform the user if there was an error.
-                  var errorElement = document.getElementById('card-errors');
-                  errorElement.textContent = result.error.message;
-                    releaseSubmitButton();
-                } else {
-                  // Send the token to your server.
-                  stripeTokenHandler(result.token);
-                }
-              });
+                @if(request()->capture)
+                stripe.handleCardSetup('{{$driver->getSetupIntent()->client_secret}}', cardNumber, {payment_method_data: options}).then(function (result) {
+                    if (result.error) {
+                        // Inform the user if there was an error.
+                        var errorElement = document.getElementById('card-errors');
+                        errorElement.textContent = result.error.message;
+                        releaseSubmitButton();
+                    } else {
+                        // Send the ID to your server.
+                        stripePaymentMethodHandler(result.setupIntent.payment_method);
+                    }
+                });
+                @else
+                stripe.createPaymentMethod('card', cardNumber, options).then(function (result) {
+                    if (result.error) {
+                      // Inform the user if there was an error.
+                      var errorElement = document.getElementById('card-errors');
+                      errorElement.textContent = result.error.message;
+                        releaseSubmitButton();
+                    } else {
+                      // Send the ID to your server.
+                      stripePaymentMethodHandler(result.paymentMethod.id);
+                    }
+                });
+                @endif
             });
 
 
-            function stripeTokenHandler(token) {
+            function stripePaymentMethodHandler(paymentMethodID) {
               // Insert the token ID into the form so it gets submitted to the server
               var form = document.getElementById('payment-form');
               var hiddenInput = document.createElement('input');
               hiddenInput.setAttribute('type', 'hidden');
-              hiddenInput.setAttribute('name', 'sourceToken');
-              hiddenInput.setAttribute('value', token.id);
+              hiddenInput.setAttribute('name', 'paymentMethodID');
+              hiddenInput.setAttribute('value', paymentMethodID);
               form.appendChild(hiddenInput);
 
               // Submit the form
