@@ -258,6 +258,12 @@ class StripePaymentDriver extends BasePaymentDriver
                     // Use a stored payment method.
                     $params['payment_method'] = $data['token'];
                     $params['customer']       = $this->getCustomerID();
+
+                    if (substr($data['token'], 0, 3) === 'ba_') {
+                        // The PaymentIntent API doesn't seem to work with saved Bank Accounts.
+                        // For now, just use the old API.
+                        return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
+                    }
                 }
 
                 $intent = PaymentIntent::create($params);
