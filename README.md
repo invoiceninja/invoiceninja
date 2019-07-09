@@ -22,7 +22,7 @@ Where practical code should be strongly typed, ie your methods must return a typ
 
 `public function doThis() : void`
 
-PHP >= 7.1 allows the return type Nullable so there should be no circumstance a type cannot be return by using the following:
+PHP >= 7.3 allows the return type Nullable so there should be no circumstance a type cannot be return by using the following:
 
 `public function doThat() ?:string`
 
