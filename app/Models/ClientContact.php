@@ -29,15 +29,21 @@ class ClientContact extends Authenticatable
     use PresentableTrait;
     use SoftDeletes;
 
-   // protected $appends = ['contact_id'];
-
+    /* Used to authenticate a contact */
     protected $guard = 'contact';
 
+    /* Deprecated TODO remove*/
     protected $presenter = 'App\Models\Presenters\ClientContactPresenter';
 
     protected $dates = ['deleted_at'];
     
+    /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
+    protected $hidden = [
+        'password', 
+        'remember_token',
+    ];
 
 
     protected $fillable = [
@@ -51,13 +57,8 @@ class ClientContact extends Authenticatable
         'email',
         'avatar',
     ];
-   
-    protected $hidden = [
-        'password', 
-        'remember_token',
-    ];
 
-    
+    /**/
     public function getRouteKeyName()
     {
         return 'contact_id';

@@ -18,7 +18,7 @@ use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Models\ClientContact;
 use App\Models\User;
-use App\Transformers\ClientContactTransformer;
+use App\Transformers\ClientContactLoginTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -45,7 +45,7 @@ class LoginController extends BaseController
 
     protected $entity_type = ClientContact::class;
 
-    protected $entity_transformer = ClientContactTransformer::class;
+    protected $entity_transformer = ClientContactLoginTransformer::class;
 
     /**
      * Where to redirect users after login.
@@ -89,12 +89,7 @@ class LoginController extends BaseController
      */
     public function apiLogin(Request $request)
     {
-     /*   
-        if (auth()->guard('contact')->attempt(['email' => $request->email, 'password' => $request->password], false) {
 
-            return redirect()->intended('/admin');
-        }
-*/
         Auth::shouldUse('contact');
 
         $this->validateLogin($request);
