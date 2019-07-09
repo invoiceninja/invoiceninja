@@ -19,14 +19,13 @@ class CompanyUser extends Pivot
 {
     protected $guarded = ['id'];
 
-
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
-        'settings' => 'collection',
+        'settings' => 'object',
         'permissions' => 'object',
     ];
 

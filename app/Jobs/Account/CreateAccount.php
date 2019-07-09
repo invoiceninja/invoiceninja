@@ -58,18 +58,15 @@ class CreateAccount
          * Create company
          */
         $company = CreateCompany::dispatchNow($this->request, $account);
-
         /*
          * Set default company
          */
         $account->default_company_id = $company->id;
         $account->save();
-
         /*
          * Create user
          */
         $user = CreateUser::dispatchNow($this->request, $account, $company, true); //make user company_owner
-
         /*
          * Required dependencies
          */
@@ -77,23 +74,20 @@ class CreateAccount
             auth()->login($user, false); 
 
         $user->setCompany($company);
-
         /*
          * Create token
          */
         $company_token = CreateCompanyToken::dispatchNow($company, $user);
-
         /*
          * Login user
          */
         //Auth::loginUsingId($user->id, true);
-
         /*
          * Fire related events
          */
         if($user)
             event(new AccountCreated($user));
-
+        
         return $account;
     }
 }

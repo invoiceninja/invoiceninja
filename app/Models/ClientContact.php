@@ -37,6 +37,9 @@ class ClientContact extends Authenticatable
 
     protected $dates = ['deleted_at'];
     
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
+
     protected $fillable = [
         'first_name',
         'last_name',

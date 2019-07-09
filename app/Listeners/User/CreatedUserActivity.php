@@ -40,7 +40,7 @@ class CreatedUserActivity
 
         $fields = new \stdClass;
 
-        if(auth()->user()->id)
+        if(auth()->user())
             $fields->user_id = auth()->user()->id;
         else
             $fields->user_id = $event->user->id;

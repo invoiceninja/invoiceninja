@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -52,6 +53,8 @@ class RandomDataSeeder extends Seeder
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+            'permissions' => json_encode([]),
+            'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
         $client = factory(\App\Models\Client::class)->create([

@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CreateUser
 {
@@ -29,6 +30,8 @@ class CreateUser
     protected $account;
 
     protected $company;
+
+    protected $company_owner;
 
     /**
      * Create a new job instance.

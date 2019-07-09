@@ -45,6 +45,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $with = ['companies','user_companies'];
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public $company;
 
     /**
@@ -77,6 +79,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'slack_webhook_url',
     ];
 
+    protected $casts = [
+        'settings' => 'object',
+        'permissions' => 'object',
+    ];
+
     /**
      * Returns a account.
      * 
@@ -105,6 +112,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function companies()
     {
         return $this->belongsToMany(Company::class)->using(CompanyUser::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+       
     }
 
     /**

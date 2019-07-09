@@ -172,8 +172,6 @@ class CreateUsersTable extends Migration
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin');
             $table->boolean('is_locked')->default(false); // locks user out of account
-            $table->timestamps(6);
-            $table->softDeletes();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
