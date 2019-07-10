@@ -23,5 +23,6 @@ Route::group(['middleware' => ['api_secret_check']], function () {
 
 Route::group(['middleware' => ['contact_db','api_secret_check','contact_token_auth'], 'prefix' =>'api/v1/contact', 'as' => 'api.contact.'], function () {
 
+  Route::get('invoices', 'Contact\InvoiceController@index'); // name = (clients. index / create / show / update / destroy / edit
 
 });

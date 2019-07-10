@@ -71,12 +71,12 @@ class ClientContact extends Authenticatable
 
     public function client()
     {
-        $this->hasOne(Client::class);
+        return $this->belongsTo(Client::class);
     }
 
     public function primary_contact()
     {
-        $this->where('is_primary', true);
+        return $this->where('is_primary', true);
     }
 
     public function company()
