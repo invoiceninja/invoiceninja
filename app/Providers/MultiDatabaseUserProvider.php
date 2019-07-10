@@ -117,18 +117,18 @@ class MultiDatabaseUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        Log::error('retrieving by credentials');
+        //Log::error('retrieving by credentials');
         if (empty($credentials) ||
            (count($credentials) === 1 &&
             array_key_exists('password', $credentials))) {
             return;
         }
 
-        Log::error('settings DB');
+        //Log::error('settings DB');
 
         $this->setDefaultDatabase(false, $credentials['email'], false);
 
-        Log::error('set DB');
+        //Log::error('set DB');
 
 
         // First we will add each credential element to the query as a where clause.
@@ -147,7 +147,7 @@ class MultiDatabaseUserProvider implements UserProvider
                 $query->where($key, $value);
             }
         }
-Log::error($query->count());
+//Log::error($query->count());
         return $query->first();
     }
 
@@ -162,7 +162,7 @@ Log::error($query->count());
     {        Log::error('validateCredentials');
 
         $plain = $credentials['password'];
- Log::error($plain);
+ //Log::error($plain);
         return $this->hasher->check($plain, $user->getAuthPassword());
     }
 
@@ -226,8 +226,8 @@ Log::error($query->count());
 
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
-Log::error('setting DB');
-Log::error('model = '.$this->model);
+//Log::error('setting DB');
+//Log::error('model = '.$this->model);
 
         foreach (MultiDB::getDbs() as $database) {
             $this->setDB($database);
@@ -246,7 +246,7 @@ Log::error('model = '.$this->model);
             $user = $query->get();
 
             if (count($user) >= 1) {
-            Log::error('found user, settings DB for EMAIL');
+            //Log::error('found user, settings DB for EMAIL');
                 break;
             }
 

@@ -12,6 +12,7 @@
 namespace App\Providers;
 
 use App\Events\Client\ClientWasCreated;
+use App\Events\Contact\ContactLoggedIn;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
@@ -20,6 +21,7 @@ use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
+use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceInvitations;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
@@ -40,6 +42,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserLoggedIn::class => [
             UpdateUserLastLogin::class,
+        ],
+        ContactLoggedIn::class => [
+            UpdateContactLastLogin::class,
         ],
         // Clients
         ClientWasCreated::class => [
