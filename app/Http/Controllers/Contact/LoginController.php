@@ -48,13 +48,6 @@ class LoginController extends BaseController
     protected $entity_transformer = ClientContactLoginTransformer::class;
 
     /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/dashboard';
-
-    /**
      * Create a new controller instance.
      *
      * @return void
@@ -64,21 +57,7 @@ class LoginController extends BaseController
 
         parent::__construct();
 
-
     }
-
-    /**
-     * Once the user is authenticated, we need to set
-     * the default company into a session variable
-     *
-     * @return void
-     * deprecated .1 API ONLY we don't need to set any session variables
-     */
-    public function authenticated(Request $request, User $user) : void
-    {
-        //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
-    }
-
 
     /**
      * Login via API

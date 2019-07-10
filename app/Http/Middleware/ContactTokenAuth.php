@@ -11,7 +11,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Events\User\UserLoggedIn;
+use App\Events\Contact\ContactLoggedIn;
 use App\Models\ClientContact;
 use App\Models\CompanyToken;
 use App\Models\User;
@@ -43,9 +43,9 @@ class ContactTokenAuth
 
             //stateless, don't remember the contact.
             auth()->guard('contact')->login($client_contact, false); 
-
-            //event(new UserLoggedIn($user)); //todo
             
+            event(new ContactLoggedIn($client_contact)); //todo
+
         }
         else {
 

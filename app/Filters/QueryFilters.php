@@ -76,6 +76,8 @@ abstract class QueryFilters
 
         $this->entityFilter();
 
+        $this->clientFilter();
+
         foreach ($this->filters() as $name => $value) {
             if (! method_exists($this, $name)) {
                 continue;
@@ -153,5 +155,19 @@ abstract class QueryFilters
                 break;
                 
         }
+    }
+
+    /**
+     * Filters the query by the contact's client_id.
+     * 
+     * -Can only be used on contact routes
+     * 
+     * @param       $client_id The client Id
+     * @param      Illuminate\Database\Query\Builder
+     */
+    public function clientFilter()
+    {
+        if(auth('contact')->user())
+            return $this->builder->whereClientId(auth('contact')->user()->client->id);
     }
 }

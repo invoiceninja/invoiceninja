@@ -117,19 +117,14 @@ class MultiDatabaseUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        //Log::error('retrieving by credentials');
+
         if (empty($credentials) ||
            (count($credentials) === 1 &&
             array_key_exists('password', $credentials))) {
             return;
         }
 
-        //Log::error('settings DB');
-
         $this->setDefaultDatabase(false, $credentials['email'], false);
-
-        //Log::error('set DB');
-
 
         // First we will add each credential element to the query as a where clause.
         // Then we can execute the query and, if we found a user, return it in a
@@ -147,7 +142,7 @@ class MultiDatabaseUserProvider implements UserProvider
                 $query->where($key, $value);
             }
         }
-//Log::error($query->count());
+
         return $query->first();
     }
 
@@ -162,7 +157,7 @@ class MultiDatabaseUserProvider implements UserProvider
     {        Log::error('validateCredentials');
 
         $plain = $credentials['password'];
- //Log::error($plain);
+
         return $this->hasher->check($plain, $user->getAuthPassword());
     }
 
@@ -224,16 +219,16 @@ class MultiDatabaseUserProvider implements UserProvider
         return $this;
     }
 
+    /**
+     * Sets correct database by variable
+     */
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
-//Log::error('setting DB');
-//Log::error('model = '.$this->model);
 
         foreach (MultiDB::getDbs() as $database) {
-            $this->setDB($database);
 
-//            $query = $this->conn->table('users');
-//            
+            $this->setDB($database);
+          
             /** Make sure we hook into the correct guard class */
             $query = $this->conn->table((new $this->model)->getTable());
 
@@ -245,8 +240,8 @@ class MultiDatabaseUserProvider implements UserProvider
 
             $user = $query->get();
 
-            if (count($user) >= 1) {
-            //Log::error('found user, settings DB for EMAIL');
+            if (count($user) >= 1) 
+            {
                 break;
             }
 
@@ -254,32 +249,35 @@ class MultiDatabaseUserProvider implements UserProvider
 
             if ($token) 
             { 
-                        Log::error('found user, settings DB for TOKEN');
 
                 $query->whereRaw("BINARY `token`= ?", $token);
 
                 $token = $query->get();
 
-                if (count($token) >= 1) {
+                if (count($token) >= 1) 
+                {
                     break;
                 }
+
             }
 
         }
     }
 
+    /**
+     * Sets the database at runtime
+     */
     private function setDB($database)
     {
         /** Get the database name we want to switch to*/
         $db_name = config('database.connections.'.$database.'.database');
-        //$db_host = config("database.connections.".$database.".db_host");
 
         /* This will set the default configuration for the request / session?*/
         config(['database.default' => $database]);
 
         /* Set the connection to complete the user authentication */
-        //$this->conn = app('db')->connection(config("database.connections.database." . $database . "." . $db_name));
         $this->conn = app('db')->connection(config('database.connections.database.'.$database));
+
     }
     
 }

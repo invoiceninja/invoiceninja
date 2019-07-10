@@ -106,15 +106,23 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * Filters the query by the users company ID
+     *
+     * We need to ensure we are using the correct company ID
+     * as we could be hitting this from either the client or company auth guard
      * 
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
      public function entityFilter()
     {
-        
-        return $this->builder->whereCompanyId(auth()->user()->company()->id);
+
+        if(auth('contact')->user())
+            return $this->builder->whereCompanyId(auth('contact')->user()->company->id);
+        else
+            return $this->builder->whereCompanyId(auth()->user()->company()->id);
 
     }
+
+
 
 }

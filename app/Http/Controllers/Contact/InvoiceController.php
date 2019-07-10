@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\Contact;
 
+use App\Filters\InvoiceFilters;
 use App\Http\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Transformers\Contact\InvoiceTransformer;
@@ -39,10 +40,11 @@ class InvoiceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(InvoiceFilters $filters)
     {
-        $invoices = Invoice::whereClientId(auth('contact')->user()->client->id);
-        //$invoices = Invoice::filter($filters);
+        //$invoices = Invoice::whereClientId(auth('contact')->user()->client->id);
+        
+        $invoices = Invoice::filter($filters);
       
         return $this->listResponse($invoices);
 
