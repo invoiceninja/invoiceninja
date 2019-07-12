@@ -64,7 +64,7 @@ class ClientTest extends TestCase
 
         $acc = $response->json();
 
-Log::error($acc);
+
         $account = Account::find($this->decodePrimaryKey($acc['data']['id']));
 
         $token = $account->default_company->tokens->first()->token;
@@ -191,7 +191,8 @@ Log::error($acc);
         $account = factory(\App\Models\Account::class)->create();
                 $company = factory(\App\Models\Company::class)->create([
                     'account_id' => $account->id,
-                ]);
+                    'domain' => 'ninja.test',
+                     ]);
 
         $account->default_company_id = $company->id;
         $account->save();

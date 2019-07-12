@@ -142,7 +142,7 @@ class CreateUsersTable extends Migration
             $table->string('work_phone')->nullable();
             $table->string('work_email')->nullable();
             $table->unsignedInteger('country_id')->nullable();
-            $table->string('subdomain')->nullable();
+            $table->string('domain')->nullable();
             $table->string('db')->nullable();
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();

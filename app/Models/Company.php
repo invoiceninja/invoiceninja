@@ -53,7 +53,7 @@ class Company extends BaseModel
         'work_phone',
         'work_email',
         'country_id',
-        'subdomain',
+        'domain',
         'vat_number',
         'id_number',
         'size_id',

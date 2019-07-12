@@ -12,6 +12,7 @@
 namespace App\Libraries;
 
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
 
@@ -35,6 +36,24 @@ class MultiDB
 
         return self::$dbs;
 
+    }
+
+    public static function checkDomainAvailable($domain) : bool
+    {
+
+        if (! config('ninja.db.multi_db_enabled'))
+        {
+            return Company::whereDomain($domain)->get()->count() == 0;
+        }
+
+            //multi-db active
+            foreach (self::$dbs as $db)
+            {
+                if(Company::whereDomain($domain)->get()->count() >=1)
+                    return false;
+            }
+
+            return true;
     }
 
     public static function checkUserEmailExists($email) : bool
@@ -115,6 +134,25 @@ class MultiDB
 
                 self::setDb($ct->company->db);
                 return true;
+            }
+
+        }
+        return false;
+
+    }
+
+    public static function findAndSetDbByDomain($host) :bool
+    {
+
+        foreach (self::$dbs as $db)
+        {
+
+            if($company = Company::on($db)->whereDomain($host)->first()) 
+            {
+
+                self::setDb($company->db);
+                return true;
+
             }
 
         }

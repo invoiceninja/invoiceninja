@@ -34,15 +34,14 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * Show the list of Invoices
+     * List Invoices
      *
-     * @param      \App\Filters\ContactInvoiceFilters  $filters  The filters
+     * @param  \App\Filters\InvoiceFilters  $filters  The filters
      *
      * @return \Illuminate\Http\Response
      */
     public function index(InvoiceFilters $filters)
     {
-        //$invoices = Invoice::whereClientId(auth('contact')->user()->client->id);
         
         $invoices = Invoice::filter($filters);
       

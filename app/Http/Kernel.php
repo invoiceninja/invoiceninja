@@ -92,5 +92,6 @@ class Kernel extends HttpKernel
         'api_secret_check' => \App\Http\Middleware\ApiSecretCheck::class,
         'contact_token_auth' => \App\Http\Middleware\ContactTokenAuth::class,
         'contact_db' => \App\Http\Middleware\ContactSetDb::class,
+        'domain_db' => \App\Http\Middleware\SetDomainNameDb::class,
     ];
 }

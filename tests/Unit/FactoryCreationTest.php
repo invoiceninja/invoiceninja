@@ -38,6 +38,8 @@ class FactoryCreationTest extends TestCase
         $this->account = factory(\App\Models\Account::class)->create();
                 $this->company = factory(\App\Models\Company::class)->create([
                     'account_id' => $this->account->id,
+                                'domain' => 'ninja.test',
+
                 ]);
 
         $this->account->default_company_id = $this->company->id;

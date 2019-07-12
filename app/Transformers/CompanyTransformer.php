@@ -77,7 +77,7 @@ class CompanyTransformer extends EntityTransformer
             'work_phone' => $company->work_phone,
             'work_email' => $company->work_email,
             'country_id' => (int) $company->country_id,
-            'subdomain' => $company->subdomain,
+            'domain' => $company->domain,
             'db' => $company->db,
             'vat_number' => $company->vat_number,
             'id_number' => $company->id_number,
