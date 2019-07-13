@@ -42,7 +42,11 @@ class CreateOnlinePaymentRequest extends Request
         $input['invitation'] = $invitation;
 
         if ($gatewayTypeAlias = request()->gateway_type) {
-            $input['gateway_type'] = GatewayType::getIdFromAlias($gatewayTypeAlias);
+            if ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
+                $input['gateway_type'] = GatewayType::getIdFromAlias($gatewayTypeAlias);
+            } else {
+                $input['gateway_type'] = $gatewayTypeAlias;
+            }
         } else {
             $input['gateway_type'] = session($invitation->id . 'gateway_type');
         }

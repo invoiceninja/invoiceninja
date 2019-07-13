@@ -37,7 +37,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
-    Route::post('payment/{invitation_key}/{gateway_type?}', 'OnlinePaymentController@doPayment');
+    Route::post('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@doPayment');
     Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
