@@ -3084,16 +3084,16 @@
         },
         {
             "name": "google/protobuf",
-            "version": "v3.5.2",
+            "version": "v3.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "b5fbb742af122b565925987e65c08957739976a7"
+                "reference": "a257235dc1a0d45f8cfc641d0c2ad852f57396c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/b5fbb742af122b565925987e65c08957739976a7",
-                "reference": "b5fbb742af122b565925987e65c08957739976a7",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/a257235dc1a0d45f8cfc641d0c2ad852f57396c4",
+                "reference": "a257235dc1a0d45f8cfc641d0c2ad852f57396c4",
                 "shasum": ""
             },
             "require": {
@@ -3108,8 +3108,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Google\\Protobuf\\": "php/src/Google/Protobuf",
-                    "GPBMetadata\\Google\\Protobuf\\": "php/src/GPBMetadata/Google/Protobuf"
+                    "Google\\Protobuf\\": "src/Google/Protobuf",
+                    "GPBMetadata\\Google\\Protobuf\\": "src/GPBMetadata/Google/Protobuf"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -3121,7 +3121,7 @@
             "keywords": [
                 "proto"
             ],
-            "time": "2018-03-06T03:54:18+00:00"
+            "time": "2019-05-29T00:06:29+00:00"
         },
         {
             "name": "grpc/grpc",
@@ -3961,7 +3961,7 @@
             "time": "2017-06-01T20:29:30+00:00"
         },
         {
-            "name": "jeremeamia/SuperClosure",
+            "name": "jeremeamia/superclosure",
             "version": "2.3.0",
             "source": {
                 "type": "git",
@@ -5083,12 +5083,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lokielse/omnipay-alipay.git",
-                "reference": "294449c11dcba9f2669666f2a3dc44cd07f7597f"
+                "reference": "0a8e30dd1c9c8cc4a4cffbc8e381a7b1284d3b95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lokielse/omnipay-alipay/zipball/294449c11dcba9f2669666f2a3dc44cd07f7597f",
-                "reference": "294449c11dcba9f2669666f2a3dc44cd07f7597f",
+                "url": "https://api.github.com/repos/lokielse/omnipay-alipay/zipball/0a8e30dd1c9c8cc4a4cffbc8e381a7b1284d3b95",
+                "reference": "0a8e30dd1c9c8cc4a4cffbc8e381a7b1284d3b95",
                 "shasum": ""
             },
             "require": {
@@ -11105,7 +11105,7 @@
                 "iso_3166_3",
                 "laravel"
             ],
-            "time": "2017-10-15T11:08:15+00:00"
+            "time": "2019-07-12T14:06:05+00:00"
         },
         {
             "name": "websight/l5-google-cloud-storage",
@@ -12308,8 +12308,7 @@
             "authors": [
                 {
                     "name": "Chris Boulton",
-                    "homepage": "http://github.com/chrisboulton",
-                    "role": "Original developer"
+                    "homepage": "http://github.com/chrisboulton"
                 }
             ],
             "description": "A comprehensive library for generating differences between two hashable objects (strings or arrays).",
