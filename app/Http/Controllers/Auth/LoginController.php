@@ -86,6 +86,8 @@ class LoginController extends BaseController
      */
     public function apiLogin(Request $request)
     {
+        $this->forced_includes = ['company_users'];
+
         $this->validateLogin($request);
 
         if ($this->hasTooManyLoginAttempts($request)) {

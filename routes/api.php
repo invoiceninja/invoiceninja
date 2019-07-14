@@ -21,11 +21,15 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['api_secret_check']], function () {
 
   Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
-  Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
   Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
   
 });
 
+Route::group(['api_secret_check','domain_db'], function () {
+
+  Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
+
+});
 
 Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
 

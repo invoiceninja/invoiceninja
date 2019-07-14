@@ -157,6 +157,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Alias of user_companies()
+     */
+    public function company_users()
+    {
+        return $this->user_companies();
+    }
+
+    /**
      * Returns the current company by
      * querying directly on the pivot table relationship
      * 

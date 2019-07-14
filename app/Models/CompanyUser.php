@@ -11,8 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\CompanyToken;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class CompanyUser extends Pivot

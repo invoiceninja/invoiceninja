@@ -141,13 +141,13 @@ class MultiDB
 
     }
 
-    public static function findAndSetDbByDomain($host) :bool
+    public static function findAndSetDbByDomain($domain) :bool
     {
 
         foreach (self::$dbs as $db)
         {
 
-            if($company = Company::on($db)->whereDomain($host)->first()) 
+            if($company = Company::on($db)->whereDomain($domain)->first()) 
             {
 
                 self::setDb($company->db);

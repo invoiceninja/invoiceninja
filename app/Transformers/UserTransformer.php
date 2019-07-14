@@ -52,8 +52,8 @@ class UserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-    //   'company_token',
-    //   'token',
+        //'company_users',
+        //   'token',
     ];
 
     /**
@@ -61,6 +61,7 @@ class UserTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'companies',
+        'company_users',
     ];
 
 
@@ -80,15 +81,6 @@ class UserTransformer extends EntityTransformer
             'oauth_provider_id' => $user->oauth_provider_id,
             'signature' => $user->signature,
         ];
-    }
-
-    public function includeUserCompany(User $user)
-    {
-        
-        $transformer = new CompanyUserTransformer($this->serializer);
-
-        return $this->includeItem($user->user_company(), $transformer, CompanyUser::class);
-    
     }
 
     public function includeCompanies(User $user)
@@ -115,6 +107,15 @@ class UserTransformer extends EntityTransformer
         $transformer = new CompanyTokenTransformer($this->serializer);
 
         return $this->includeCollection($user->tokens, $transformer, CompanyToken::class);
+
+    }
+
+    public function includeCompanyUsers(User $user)
+    {
+
+        $transformer = new CompanyUserTransformer($this->serializer);
+
+        return $this->includeCollection($user->user_companies, $transformer, CompanyUser::class);
 
     }
 }
