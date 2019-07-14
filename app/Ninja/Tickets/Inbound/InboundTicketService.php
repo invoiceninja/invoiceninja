@@ -123,7 +123,7 @@ class InboundTicketService
 
             $doc = [];
             $doc['file'] = $attachment->download();
-            $doc['filePath'] = sys_get_temp_dir().$attachment->Name;
+            $doc['filePath'] = sys_get_temp_dir().'/'.$attachment->Name;
             $doc['fileName'] = $attachment->Name;
             $doc['ticket_id'] = $ticket->id;
             $doc['user_id'] = $ticket->user_id;
