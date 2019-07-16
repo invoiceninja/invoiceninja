@@ -12,3 +12,5 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 
 });
+
+Route::fallback('BaseController@notFoundClient');

@@ -111,6 +111,11 @@ class BaseController extends Controller
         'message' => 'Nothing to see here!'], 404);
     }
 
+    public function notFoundClient()
+    {
+        return abort(404);
+    }
+
     protected function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;
