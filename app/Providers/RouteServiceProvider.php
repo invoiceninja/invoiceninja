@@ -137,6 +137,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapWebRoutes();
 
         $this->mapContactApiRoutes();
+
+        $this->mapClientApiRoutes();
     }
 
     /**
@@ -181,6 +183,21 @@ class RouteServiceProvider extends ServiceProvider
              ->middleware('contact')
              ->namespace($this->namespace)
              ->group(base_path('routes/contact.php'));
+    }
+
+    /**
+     * Define the "client" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapClientApiRoutes()
+    {
+        Route::prefix('')
+             ->middleware('client')
+             ->namespace($this->namespace)
+             ->group(base_path('routes/client.php'));
     }
     
 }

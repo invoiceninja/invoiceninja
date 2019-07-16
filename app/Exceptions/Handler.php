@@ -94,7 +94,7 @@ class Handler extends ExceptionHandler
 
         switch ($guard) {
            case 'contact':
-                $login = 'contact.login';
+                $login = 'client.login';
                 break;
             case 'user':
                 $login = 'login';

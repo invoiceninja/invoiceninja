@@ -11,15 +11,18 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Route;
 
 class ContactLoginController extends Controller
 {
    
-    protected $redirectTo = '/contact';
+    use AuthenticatesUsers;
+
+    protected $redirectTo = '/client/dashboard';
 
     public function __construct()
     {
@@ -33,25 +36,34 @@ class ContactLoginController extends Controller
     
     public function login(Request $request)
     {
-      // Validate the form data
-      $this->validate($request, [
-        'email'   => 'required|email',
-        'password' => 'required|min:6'
-      ]);
-      
-      // Attempt to log the user in
-      if (Auth::guard('contact')->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-        // if successful, then redirect to their intended location
-        return redirect()->intended(route('contact.dashboard'));
-      } 
 
-      // if unsuccessful, then redirect back to the login with the form data
-      return redirect()->back()->withInput($request->only('email', 'remember'));
+      Auth::shouldUse('contact');
+
+        $this->validateLogin($request);
+
+        if ($this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+
+            return response()->json(['message' => 'Too many login attempts, you are being throttled']);
+        }
+
+        if ($this->attemptLogin($request))
+          return redirect()->intended(route('client.dashboard'));
+        else {
+
+            $this->incrementLoginAttempts($request);
+
+            return redirect()->back()->withInput($request->only('email', 'remember'));
+        }
+
+
     }
     
     public function logout()
     {
+
         Auth::guard('contact')->logout();
-        return redirect('/contact/login');
+
+        return redirect('/client/login');
     }
 }

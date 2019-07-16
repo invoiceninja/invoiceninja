@@ -29,7 +29,7 @@ class RedirectIfAuthenticated
       switch ($guard) {
         case 'contact':
           if (Auth::guard($guard)->check()) {
-            return redirect()->route('contact.dashboard');
+            return redirect()->route('client.dashboard');
           }
           break;
           case 'user':

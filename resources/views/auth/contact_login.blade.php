@@ -8,7 +8,12 @@
                 <div class="card-header">{{ __('Login') }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('contact.login.submit') }}">
+                    @if (Session::has('error'))
+                        <div class="alert alert-danger">
+                            <li>{!! Session::get('error') !!}</li>
+                        </div>
+                    @endif
+                    <form method="POST" action="{{ route('client.login.submit') }}">
                         @csrf
 
                         <div class="form-group row">

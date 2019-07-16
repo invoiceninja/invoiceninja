@@ -15,9 +15,6 @@ Route::redirect('/', '/login', 301);
 Route::get('signup', 'AccountController@index')->name('signup');
 Route::post('signup', 'AccountController@store')->name('signup.submit');
 
-Route::get('contact/login', 'Auth\ContactLoginController@showLoginForm')->name('contact.login');
-Route::post('contact/login', 'Auth\ContactLoginController@login')->name('contact.login.submit');
-
 /*
  *  Password Reset Routes...
  */
@@ -94,17 +91,7 @@ Route::group(['middleware' => ['url_db']], function () {
 
 });
 
-/*
-Authenticated Contact Routes
- */
 
-Route::group(['prefix' => 'contact',  'middleware' => 'auth:contact'], function () {
-
-   Route::get('/', 'ClientPortal\DashboardController@index')->name('contact.dashboard');
-   
-   Route::get('logout', 'Auth\ContactLoginController@logout')->name('contact.logout');
-   
-});
 
 /*
  * Injects users translation strings in json format for frontend consumption.
