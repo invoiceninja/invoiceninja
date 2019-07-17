@@ -71,7 +71,7 @@
                                         <button class="btn btn-primary px-4" type="submit">@lang('texts.login')</button>
                                     </div>
                                     <div class="col-6 text-right">
-                                        <a class="btn btn-link" href="{{ route('password.request') }}">
+                                        <a class="btn btn-link" href="{{ route('client.password.request') }}">
                                             @lang('texts.forgot_password')
                                         </a>
                                     </div>
