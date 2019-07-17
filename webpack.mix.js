@@ -11,50 +11,16 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.webpackConfig({
-        resolve: {
-            extensions: ['.ts']
-        },
-        module: {
-            rules: [
-                {
-                    test: /\.ts$/,
-                    loader: 'ts-loader',
-                    options: { appendTsSuffixTo: [/\.vue$/] },
-                    exclude: /node_modules/,
-                }
-            ]
-        }
-    });
 
-mix.js('resources/js/src/client/client_show.ts', 'public/js');
-mix.js('resources/js/src/client/client_edit.ts', 'public/js');
-mix.js('resources/js/src/client/client_create.ts', 'public/js');
-mix.js('resources/js/src/client/client_list.ts', 'public/js');
-mix.js('resources/js/src/settings/localization.ts', 'public/js');
-mix.js('node_modules/@coreui/coreui/dist/js/coreui.js', 'public/js');
-
-/*
-mix.scripts([
-    'js/src/bootstrap.js'
-], 'public/js/ninja.js');
-*/
-
-mix.minify('public/js/ninja.js');
-mix.minify('public/js/coreui.js');
-mix.minify('public/js/client_show.js');
-mix.minify('public/js/client_edit.js');
-mix.minify('public/js/client_create.js');
-mix.minify('public/js/client_list.js');
-mix.minify('public/js/localization.js');
-
-mix.styles([
-    'node_modules/@coreui/coreui/dist/css/coreui.css',
-    'node_modules/@coreui/icons/css/coreui-icons.css',
-    'node_modules/font-awesome/css/font-awesome.css'
-], 'public/css/ninja.css');
-
-mix.minify('public/css/ninja.css');
+mix.copyDirectory('node_modules/@coreui/coreui/dist/css/coreui.min.css', 'public/vendors/css/coreui.min.css');
+mix.copyDirectory('node_modules/@coreui/icons/css/coreui-icons.min.css', 'public/vendors/css/coreui-icons.min.css');
+mix.copyDirectory('node_modules/@coreui/coreui/dist/css/bootstrap.min.css', 'public/vendors/css/bootstrap.min.css');
+mix.copyDirectory('node_modules/font-awesome/css/font-awesome.min.css', 'public/vendors/css/font-awesome.min.css');
+mix.copyDirectory('node_modules/@coreui/coreui/dist/js/coreui.min.js', 'public/vendors/js/coreui.min.js');
+mix.copyDirectory('node_modules/bootstrap/dist/js/bootstrap.min.js', 'public/vendors/js/bootstrap.min.js');
+mix.copyDirectory('node_modules/jquery/dist/jquery.min.js', 'public/vendors/js/jquery.min.js');
+mix.copyDirectory('node_modules/popper.js/dist/popper.min.js', 'public/vendors/js/popper.min.js');
+mix.copyDirectory('node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js', 'public/vendors/js/perfect-scrollbar.min.js');
 
 mix.copyDirectory('node_modules/font-awesome/fonts', 'public/fonts');
 

@@ -1,17 +1,11 @@
 {
-    "/js/client_list.js": "/js/client_list.js?id=497dadf330d671d77df2",
-    "/js/client_edit.js": "/js/client_edit.js?id=4af6b4f5e15167bbc24d",
-    "/js/client_show.js": "/js/client_show.js?id=d1fa3c09614c73dc4b7e",
-    "/js/client_create.js": "/js/client_create.js?id=d5acb9e9a827386a517c",
-    "/js/localization.js": "/js/localization.js?id=054592ec61c720b458de",
-    "/js/coreui.js": "/js/coreui.js?id=3c7e911851224f97523e",
-    "/js/ninja.min.js": "/js/ninja.min.js?id=d41d8cd98f00b204e980",
-    "/js/coreui.min.js": "/js/coreui.min.js?id=3c7e911851224f97523e",
-    "/js/client_show.min.js": "/js/client_show.min.js?id=d1fa3c09614c73dc4b7e",
-    "/js/client_edit.min.js": "/js/client_edit.min.js?id=4af6b4f5e15167bbc24d",
-    "/js/client_create.min.js": "/js/client_create.min.js?id=d5acb9e9a827386a517c",
-    "/js/client_list.min.js": "/js/client_list.min.js?id=497dadf330d671d77df2",
-    "/js/localization.min.js": "/js/localization.min.js?id=054592ec61c720b458de",
-    "/css/ninja.css": "/css/ninja.css?id=28421bc494c5086ac359",
-    "/css/ninja.min.css": "/css/ninja.min.css?id=28421bc494c5086ac359"
+    "/vendors/css/coreui.min.css": "/vendors/css/coreui.min.css?id=cc8e626c1902d53ee805",
+    "/vendors/css/coreui-icons.min.css": "/vendors/css/coreui-icons.min.css?id=23447e24a210c12e4559",
+    "/vendors/css/bootstrap.min.css": "/vendors/css/bootstrap.min.css?id=6f27def50398084c3b22",
+    "/vendors/css/font-awesome.min.css": "/vendors/css/font-awesome.min.css?id=269550530cc127b6aa5a",
+    "/vendors/js/coreui.min.js": "/vendors/js/coreui.min.js?id=0fa9ac379e62c48d26e6",
+    "/vendors/js/bootstrap.min.js": "/vendors/js/bootstrap.min.js?id=e1d98d47689e00f8ecbc",
+    "/vendors/js/jquery.min.js": "/vendors/js/jquery.min.js?id=220afd743d9e9643852e",
+    "/vendors/js/popper.min.js": "/vendors/js/popper.min.js?id=61b9b07b83557d9325c3",
+    "/vendors/js/perfect-scrollbar.min.js": "/vendors/js/perfect-scrollbar.min.js?id=4a10bcfa0a9c9fa9d503"
 }

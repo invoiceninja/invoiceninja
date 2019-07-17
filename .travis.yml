@@ -78,7 +78,7 @@ before_script:
 script:
   - php ./vendor/bin/phpunit --debug --verbose --coverage-clover=coverage.xml
   # php artisan dusk
-  - npm test
+  #- npm test
 after_success:
     - bash <(curl -s https://codecov.io/bash)
 

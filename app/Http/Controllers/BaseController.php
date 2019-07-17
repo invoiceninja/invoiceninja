@@ -108,7 +108,7 @@ class BaseController extends Controller
     public function notFound()
     {
         return response()->json([
-        'message' => 'Nothing to see here!'], 404);
+        'message' => '404 | Nothing to see here!'], 404);
     }
 
     public function notFoundClient()
