@@ -30,27 +30,6 @@
     <meta name="description" content="@yield('meta_description')"/>
     <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
 
-    <!--
-    TODO Setup social sharing info
-    <meta property="og:site_name" content="Invoice Ninja"/>
-    <meta property="og:url" content="{{ config('ninja.site_url') }}"/>
-    <meta property="og:title" content="Invoice Ninja"/>
-    <meta property="og:image" content="{{ config('ninja.site_url') }}/images/logo.png"/>
-    <meta property="og:description" content="Create. Send. Get Paid."/>
-    --/>
-    <!-- http://realfavicongenerator.net -->
-    <!--
-    TODO Setup favicon
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" href="{{ url('favicon-32x32.png') }}" sizes="32x32">
-    <link rel="icon" type="image/png" href="{{ url('favicon-16x16.png') }}" sizes="16x16">
-    <link rel="manifest" href="{{ url('manifest.json') }}">
-    <link rel="mask-icon" href="{{ url('safari-pinned-tab.svg') }}" color="#3bc65c">
-    <link rel="shortcut icon" href="{{ url('favicon.ico') }}">
-    <meta name="apple-mobile-web-app-title" content="Invoice Ninja">
-    <meta name="application-name" content="Invoice Ninja">
-    <meta name="theme-color" content="#ffffff">
-    -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -58,12 +37,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
-    <link rel="stylesheet" href="{{ mix('/css/ninja.min.css') }}">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src=" {{ mix('/js/coreui.min.js') }}"></script>
-    <script defer src=" {{ mix('/js/ninja.min.js') }}"></script>
+
 
     @yield('head')
 

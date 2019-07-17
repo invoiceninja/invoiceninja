@@ -13,6 +13,8 @@ namespace App\Models;
 
 use App\Models\Company;
 use App\Models\User;
+use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
+use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -89,4 +91,8 @@ class ClientContact extends Authenticatable
         return $this->belongsTo(User::class);
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ClientContactResetPassword($token));
+    }
 }

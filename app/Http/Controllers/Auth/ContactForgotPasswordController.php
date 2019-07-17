@@ -13,6 +13,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 
 class ContactForgotPasswordController extends Controller
 {
@@ -36,11 +38,28 @@ class ContactForgotPasswordController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest:contact');
+    }
+
+     /**
+     * Show the reset email form.
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function showLinkRequestForm(){
+        return view('portal.default.auth.passwords.email',[
+            'title' => 'Client Password Reset',
+            'passwordEmailRoute' => 'client.password.email'
+        ]);
     }
 
     protected function guard()
     {
         return Auth::guard('contact');
+    }
+
+    public function broker()
+    {
+      return Password::broker('contacts'); 
     }
 }
