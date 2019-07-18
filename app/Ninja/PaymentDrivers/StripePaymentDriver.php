@@ -437,6 +437,11 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($isBitcoin) {
                 $payment->payment_type_id = PAYMENT_TYPE_BITCOIN;
             }
+        } else if (! $paymentMethod && $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) && ! strcmp($this->purchaseResponse['payment_method_details']['type'], "card")) {
+            $card = $this->purchaseResponse['payment_method_details']['card'];
+            $payment->last4 = $card['last4'];
+            $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-01';
+            $payment->payment_type_id = PaymentType::parseCardType($card['brand']);
         }
 
         return $payment;
