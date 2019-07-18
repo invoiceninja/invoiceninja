@@ -76,7 +76,7 @@
 		@if ($invoice->is_recurring && $invoice->isSent())
 			@if (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00')
 				{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
-			@elseif ($invoice->end_date && Carbon::parse($invoice->end_date)->isPast())
+			@elseif ($invoice->end_date && Carbon::parse(Utils::toSqlDate($invoice->end_date))->isPast())
 				{!! $invoice->present()->statusLabel(trans('texts.status_completed')) !!}
 			@else
 				{!! $invoice->present()->statusLabel(trans('texts.active')) !!}
