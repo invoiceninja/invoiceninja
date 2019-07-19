@@ -9,7 +9,7 @@
 <script src="/vendors/js/popper.min.js"></script>
 <script src="/vendors/js/bootstrap.min.js"></script>
 <script src="/vendors/js/perfect-scrollbar.min.js"></script>
-<script src="/vendors/coreui.min.js"></script>
+<script src="/vendors/js/coreui.min.js"></script>
 <script>
 $('#ui-view').ajaxLoad();
 </script>

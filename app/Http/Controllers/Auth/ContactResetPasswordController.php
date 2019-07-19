@@ -70,7 +70,7 @@ class ContactResetPasswordController extends Controller
         return Auth::guard('contact');
     }
 
-    protected function broker()
+    public function broker()
     {
       return Password::broker('contacts'); 
     }
