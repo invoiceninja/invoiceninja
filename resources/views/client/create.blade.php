@@ -1,4 +1,4 @@
-    @extends('layouts.master', ['header' => $header])
+@extends('layouts.master', ['header' => $header])
 
 @section('body')
 <main class="main" id="client_create">

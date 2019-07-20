@@ -4,8 +4,7 @@
     "/vendors/css/bootstrap.min.css": "/vendors/css/bootstrap.min.css?id=6f27def50398084c3b22",
     "/vendors/css/font-awesome.min.css": "/vendors/css/font-awesome.min.css?id=269550530cc127b6aa5a",
     "/vendors/js/coreui.min.js": "/vendors/js/coreui.min.js?id=0fa9ac379e62c48d26e6",
-    "/vendors/js/bootstrap.min.js": "/vendors/js/bootstrap.min.js?id=e1d98d47689e00f8ecbc",
+    "/vendors/js/bootstrap.bundle.min.js": "/vendors/js/bootstrap.bundle.min.js?id=a454220fc07088bf1fdd",
     "/vendors/js/jquery.min.js": "/vendors/js/jquery.min.js?id=220afd743d9e9643852e",
-    "/vendors/js/popper.min.js": "/vendors/js/popper.min.js?id=61b9b07b83557d9325c3",
     "/vendors/js/perfect-scrollbar.min.js": "/vendors/js/perfect-scrollbar.min.js?id=4a10bcfa0a9c9fa9d503"
 }

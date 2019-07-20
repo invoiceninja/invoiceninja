@@ -45,13 +45,8 @@
     @yield('head')
 </head>
 
-@include('portal.default.header', $header)
-@yield('header')
-
-@include('portal.default.sidebar')
-@yield('sidebar')
-
 @section('body')
+
 @yield('body')
 
 </html>

@@ -17,11 +17,10 @@ mix.copyDirectory('node_modules/@coreui/icons/css/coreui-icons.min.css', 'public
 mix.copyDirectory('node_modules/@coreui/coreui/dist/css/bootstrap.min.css', 'public/vendors/css/bootstrap.min.css');
 mix.copyDirectory('node_modules/font-awesome/css/font-awesome.min.css', 'public/vendors/css/font-awesome.min.css');
 mix.copyDirectory('node_modules/@coreui/coreui/dist/js/coreui.min.js', 'public/vendors/js/coreui.min.js');
-mix.copyDirectory('node_modules/bootstrap/dist/js/bootstrap.min.js', 'public/vendors/js/bootstrap.min.js');
+mix.copyDirectory('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js', 'public/vendors/js/bootstrap.bundle.min.js');
 mix.copyDirectory('node_modules/jquery/dist/jquery.min.js', 'public/vendors/js/jquery.min.js');
-mix.copyDirectory('node_modules/popper.js/dist/popper.min.js', 'public/vendors/js/popper.min.js');
 mix.copyDirectory('node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js', 'public/vendors/js/perfect-scrollbar.min.js');
 
-mix.copyDirectory('node_modules/font-awesome/fonts', 'public/fonts');
+mix.copyDirectory('node_modules/font-awesome/fonts', 'public/vendors/fonts');
 
 mix.version();

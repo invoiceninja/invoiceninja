@@ -56,4 +56,5 @@
 
 @include('portal.default.footer')
 @yield('footer')
+
 </html>
