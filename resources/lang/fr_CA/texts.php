@@ -754,7 +754,7 @@ $LANG = array(
     'activity_7' => ':contact a visualisé la facture :invoice pour :client',
     'activity_8' => ':user a archivé la facture :invoice',
     'activity_9' => ':user a supprimé la facture :invoice',
-    'activity_10' => ':contact a saisi le paiement :payment pour :invoice pour :client',
+    'activity_10' => ':contact a saisi le paiement :payment de :payment_amount de la facture :invoice pour :client',
     'activity_11' => ':user a mis à jour le paiement :payment',
     'activity_12' => ':user a archivé le paiement :payment',
     'activity_13' => ':user a supprimé le paiement :payment',
@@ -1765,6 +1765,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Macedonian' => 'Macédonien',
     'lang_Chinese - Taiwan' => 'Chinois - Taiwan',
     'lang_Serbian' => 'Serbe',
+    'lang_Bulgarian' => 'Bulgarian',
 
     // Industries
     'industry_Accounting & Legal' => 'Administration',
@@ -3151,7 +3152,23 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'design' => 'Conception',
     'password_is_too_short' => 'Le mot de passe est trop court',
     'failed_to_find_record' => 'Enregistrement introuvable',
-
+    'valid_until_days' => 'Valable jusque',
+    'valid_until_days_help' => 'Définit automatiquement la valeur <b>Valable jusque</b> sur les soumissions pour autant de jours à venir.  Laissez vide pour désactiver.',
+    'usually_pays_in_days' => 'Jours',
+    'requires_an_enterprise_plan' => 'Requires an enterprise plan',
+    'take_picture' => 'Take Picture',
+    'upload_file' => 'Upload File',
+    'new_document' => 'New Document',
+    'edit_document' => 'Edit Document',
+    'uploaded_document' => 'Successfully uploaded document',
+    'updated_document' => 'Successfully updated document',
+    'archived_document' => 'Successfully archived document',
+    'deleted_document' => 'Successfully deleted document',
+    'restored_document' => 'Successfully restored document',
+    'no_history' => 'No History',
+    'expense_status_1' => 'Logged',
+    'expense_status_2' => 'Pending',
+    'expense_status_3' => 'Invoiced',
 );
 
 return $LANG;
