@@ -757,11 +757,11 @@ $LANG = array(
     'activity_3' => ':user löschte Kunde :client',
     'activity_4' => ':user erstellte Rechnung :invoice',
     'activity_5' => ':user aktualisierte Rechnung :invoice',
-    'activity_6' => ':user emailed invoice :invoice for :client to :contact',
+    'activity_6' => ':user mailte Rechnung :invoice für :client an :contact',
     'activity_7' => ':contact viewed invoice :invoice for :client',
     'activity_8' => ':user archivierte Rechnung :invoice',
     'activity_9' => ':user löschte Rechnung :invoice',
-    'activity_10' => ':contact entered payment :payment for :invoice for :client',
+    'activity_10' => ':contact entered payment :payment for :payment_amount on invoice :invoice for :client',
     'activity_11' => ':user aktualisierte Zahlung :payment',
     'activity_12' => ':user archivierte Zahlung :payment',
     'activity_13' => ':user löschte Zahlung :payment',
@@ -780,7 +780,7 @@ $LANG = array(
     'activity_26' => ':user stellte Kunde :client wieder her',
     'activity_27' => ':user stellte Zahlung :payment wieder her',
     'activity_28' => ':user stellte Guthaben :credit wieder her',
-    'activity_29' => ':contact approved quote :quote for :client',
+    'activity_29' => ':contact akzeptierte Angebot :quote für :client',
     'activity_30' => ':user hat Lieferant :vendor erstellt',
     'activity_31' => ':user hat Lieferant :vendor archiviert',
     'activity_32' => ':user hat Lieferant :vendor gelöscht',
@@ -1076,7 +1076,7 @@ $LANG = array(
     'invoice_item_fields' => 'Rechnungspositionsfeld',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Wiederkehrende Nummer',
-    'recurring_invoice_number_prefix_help' => 'Specify a prefix to be added to the invoice number for recurring invoices.',
+    'recurring_invoice_number_prefix_help' => 'Gib ein Präfix an, das der Rechnungsnummer für wiederkehrende Rechnungen hinzugefügt werden soll.',
 
     // Client Passwords
     'enable_portal_password' => 'Rechnungen mit Passwort schützen',
@@ -1775,6 +1775,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'lang_Macedonian' => 'Mazedonier',
     'lang_Chinese - Taiwan' => 'Chinesisch - Taiwan',
     'lang_Serbian' => 'Serbisch',
+    'lang_Bulgarian' => 'Bulgarian',
 
     // Industries
     'industry_Accounting & Legal' => 'Buchhaltung und Rechnungswesen',
@@ -2472,7 +2473,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'currency_belarusian_ruble' => 'Belarusian Ruble',
     'currency_moldovan_leu' => 'Moldovan Leu',
     'currency_kazakhstani_tenge' => 'Kazakhstani Tenge',
-    'currency_gibraltar_pound' => 'Gibraltar Pound',
+    'currency_gibraltar_pound' => 'Gibraltar-Pfund',
 
     'review_app_help' => 'Wir hoffen, dass Ihnen die App gefällt. Wenn Sie :link in Betracht ziehen würden, wären wir Ihnen sehr dankbar!',
     'writing_a_review' => 'Schreiben einer Rezension',
@@ -3160,7 +3161,23 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'design' => 'Design',
     'password_is_too_short' => 'Das Passwort ist zu kurz',
     'failed_to_find_record' => 'Datensatz konnte nicht gefunden werden',
-
+    'valid_until_days' => 'Valid Until',
+    'valid_until_days_help' => 'Automatically sets the <b>Valid Until</b> value on quotes to this many days in the future.  Leave blank to disable.',
+    'usually_pays_in_days' => 'Days',
+    'requires_an_enterprise_plan' => 'Requires an enterprise plan',
+    'take_picture' => 'Take Picture',
+    'upload_file' => 'Upload File',
+    'new_document' => 'New Document',
+    'edit_document' => 'Edit Document',
+    'uploaded_document' => 'Successfully uploaded document',
+    'updated_document' => 'Successfully updated document',
+    'archived_document' => 'Successfully archived document',
+    'deleted_document' => 'Successfully deleted document',
+    'restored_document' => 'Successfully restored document',
+    'no_history' => 'No History',
+    'expense_status_1' => 'Logged',
+    'expense_status_2' => 'Pending',
+    'expense_status_3' => 'Invoiced',
 );
 
 return $LANG;

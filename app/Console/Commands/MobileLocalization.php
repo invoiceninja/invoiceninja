@@ -89,7 +89,7 @@ class MobileLocalization extends Command
 
     private function getResources()
     {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/localization.dart';
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
         $start = strpos($data, '\'en\': {') + 8;

@@ -1774,6 +1774,7 @@ $LANG = array(
     'lang_Macedonian' => 'Macedonian',
     'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
     'lang_Serbian' => 'Serbian',
+    'lang_Bulgarian' => 'Bulgarian',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -3162,7 +3163,20 @@ $LANG = array(
     'valid_until_days' => 'Valid Until',
     'valid_until_days_help' => 'Automatically sets the <b>Valid Until</b> value on quotes to this many days in the future.  Leave blank to disable.',
     'usually_pays_in_days' => 'Days',
-
+    'requires_an_enterprise_plan' => 'Requires an enterprise plan',
+    'take_picture' => 'Take Picture',
+    'upload_file' => 'Upload File',
+    'new_document' => 'New Document',
+    'edit_document' => 'Edit Document',
+    'uploaded_document' => 'Successfully uploaded document',
+    'updated_document' => 'Successfully updated document',
+    'archived_document' => 'Successfully archived document',
+    'deleted_document' => 'Successfully deleted document',
+    'restored_document' => 'Successfully restored document',
+    'no_history' => 'No History',
+    'expense_status_1' => 'Logged',
+    'expense_status_2' => 'Pending',
+    'expense_status_3' => 'Invoiced',
 );
 
 return $LANG;

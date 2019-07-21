@@ -760,7 +760,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'activity_7' => 'Η επαφή :contact είδε το τιμολόγιο :invoice για τον πελάτη :client',
     'activity_8' => 'Ο χρήστης :user αρχειοθέτησε το τιμολόγιο :invoice',
     'activity_9' => 'Ο χρήστης :user διέγραψε το τιμολόγιο :invoice',
-    'activity_10' => 'Η επαφή :contact καταχώρησε την πληρωμή :payment για το τιμολόγιο :Invoice για τον πελάτη :client',
+    'activity_10' => ':contact entered payment :payment for :payment_amount on invoice :invoice for :client',
     'activity_11' => 'Ο χρήστης :user ενημέρωσε την πληρωμή :payment',
     'activity_12' => 'Ο χρήστης :user αρχειοθέτησε την πληρωμή :payment',
     'activity_13' => 'Ο χρήστης :user διέγραψε την πληρωμή :payment',
@@ -1774,6 +1774,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'lang_Macedonian' => 'Μακεδονικά',
     'lang_Chinese - Taiwan' => 'Κινέζικα Ταϊβάν',
     'lang_Serbian' => 'Σέρβικα',
+    'lang_Bulgarian' => 'Bulgarian',
 
     // Industries
     'industry_Accounting & Legal' => 'Λογιστικά & Νομικά',
@@ -3159,7 +3160,23 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'design' => 'Σχεδίαση',
     'password_is_too_short' => 'Ο κωδικός πρόσβασης είναι πολύ μικρός',
     'failed_to_find_record' => 'Αποτυχία ανεύρεσης εγγραφής',
-
+    'valid_until_days' => 'Έγκυρο Έως',
+    'valid_until_days_help' => 'Ορίστε αυτόματα την τιμή <b>Έγκυρο Έως</b> στις προσφορές τόσες μέρες στο μέλλον. Αφήστε κενό για απενεργοποίηση.',
+    'usually_pays_in_days' => 'Ημέρες',
+    'requires_an_enterprise_plan' => 'Requires an enterprise plan',
+    'take_picture' => 'Take Picture',
+    'upload_file' => 'Upload File',
+    'new_document' => 'New Document',
+    'edit_document' => 'Edit Document',
+    'uploaded_document' => 'Successfully uploaded document',
+    'updated_document' => 'Successfully updated document',
+    'archived_document' => 'Successfully archived document',
+    'deleted_document' => 'Successfully deleted document',
+    'restored_document' => 'Successfully restored document',
+    'no_history' => 'No History',
+    'expense_status_1' => 'Logged',
+    'expense_status_2' => 'Pending',
+    'expense_status_3' => 'Invoiced',
 );
 
 return $LANG;

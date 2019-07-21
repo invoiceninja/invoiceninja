@@ -757,7 +757,7 @@ Não consegue achar a fatura? Precisa de mais ajuda? Ficaremos feliz em ajudar
     'activity_7' => ':contact viewed invoice :invoice for :client',
     'activity_8' => ':user arquivou a fatura :invoice',
     'activity_9' => ':user excluiu a fatura :invoice',
-    'activity_10' => ':contact entered payment :payment for :invoice for :client',
+    'activity_10' => ':contact entered payment :payment for :payment_amount on invoice :invoice for :client',
     'activity_11' => ':user atualizou o pagamento :payment',
     'activity_12' => ':user arquivou o pagamento :payment',
     'activity_13' => ':user excluiu o pagamento :payment',
@@ -1768,6 +1768,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'lang_Macedonian' => 'Macedônia',
     'lang_Chinese - Taiwan' => 'Chinês (Taiwan)',
     'lang_Serbian' => 'Sérvia',
+    'lang_Bulgarian' => 'Bulgarian',
 
     // Industries
     'industry_Accounting & Legal' => 'Contabilidade & Jurídico',
@@ -3153,7 +3154,23 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'design' => 'Design',
     'password_is_too_short' => 'A senha é muito curta',
     'failed_to_find_record' => 'Falha ao procurar registro',
-
+    'valid_until_days' => 'Valid Until',
+    'valid_until_days_help' => 'Automatically sets the <b>Valid Until</b> value on quotes to this many days in the future.  Leave blank to disable.',
+    'usually_pays_in_days' => 'Days',
+    'requires_an_enterprise_plan' => 'Requires an enterprise plan',
+    'take_picture' => 'Take Picture',
+    'upload_file' => 'Upload File',
+    'new_document' => 'New Document',
+    'edit_document' => 'Edit Document',
+    'uploaded_document' => 'Successfully uploaded document',
+    'updated_document' => 'Successfully updated document',
+    'archived_document' => 'Successfully archived document',
+    'deleted_document' => 'Successfully deleted document',
+    'restored_document' => 'Successfully restored document',
+    'no_history' => 'No History',
+    'expense_status_1' => 'Logged',
+    'expense_status_2' => 'Pending',
+    'expense_status_3' => 'Invoiced',
 );
 
 return $LANG;
