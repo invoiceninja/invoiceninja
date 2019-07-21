@@ -15,9 +15,8 @@ class DocumentTransformer extends EntityTransformer
      * @SWG\Property(property="type", type="string", example="png")
      * @SWG\Property(property="path", type="string", example="abc/sample.png")
      * @SWG\Property(property="invoice_id", type="integer", example=1)
-     * @SWG\Property(property="expense_id", type="integer", example=1)
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
-     * @SWG\Property(property="is_default", type="boolean", example=false)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
     public function transform(Document $document)
     {
@@ -26,10 +25,16 @@ class DocumentTransformer extends EntityTransformer
             'name' => $document->name,
             'type' => $document->type,
             'path' => $document->path,
-            'invoice_id' => $document->invoice_id && $document->invoice ? (int) $document->invoice->public_id : null,
-            'expense_id' => $document->expense_id && $document->expense ? (int) $document->expense->public_id : null,
+            'invoice_id' => (int) ($document->invoice_id && $document->invoice ? $document->invoice->public_id : null),
+            'expense_id' => (int) ($document->expense_id && $document->expense ? $document->expense->public_id : null),
             'updated_at' => $this->getTimestamp($document->updated_at),
+            'created_at' => $this->getTimestamp($document->created_at),
+            'is_deleted' => (bool) false,
             'is_default' => (bool) $document->is_default,
+            'preview' => $document->preview,
+            'size' => (int) $document->size,
+            'width' => (int) $document->width,
+            'height' => (int) $document->height,
         ]);
     }
 }
