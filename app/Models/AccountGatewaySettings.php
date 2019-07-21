@@ -51,7 +51,7 @@ class AccountGatewaySettings extends EntityModel
 
     public function hasTaxes()
     {
-        return floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate1);
+        return floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate2);
     }
 
     public function feesToString()

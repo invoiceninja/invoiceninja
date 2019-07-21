@@ -202,7 +202,7 @@ if (! defined('APP_NAME')) {
     define('IMPORT_PANCAKE', 'Pancake');
 
     define('MAX_NUM_CLIENTS', 100);
-    define('MAX_NUM_CLIENTS_PRO', 20000);
+    define('MAX_NUM_CLIENTS_PRO', 40000);
     define('MAX_NUM_CLIENTS_LEGACY', 500);
     define('MAX_INVOICE_AMOUNT', 1000000000);
     define('LEGACY_CUTOFF', 57800);

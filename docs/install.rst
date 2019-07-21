@@ -92,6 +92,7 @@ Troubleshooting
 ^^^^^^^^^^^^^^^
 
 - Check your webserver log (ie, /var/log/apache2/error.log) and the application logs (storage/logs/laravel-error.log) for more details or set ``APP_DEBUG=true`` in .env
+- If you see "Whoops, looks like something went wrong" this `blog post <https://bobcares.com/blog/laravel-something-went-wrong/>`_ may be helpful.
 - To resolve ``[Symfony\Component\Debug\Exception\FatalErrorException] Class 'SomeClass' not found`` try running php artisan optimize
 - To resolve ``file_put_contents(...): failed to open stream: Permission denied`` run ``chmod -R 777 storage`` then ``chmod -R 755 storage``
 - If index.php is in the URL it likely means that mod_rewrite needs to be enabled.
