@@ -11,6 +11,7 @@
 
 namespace App\Filters;
 
+use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -113,13 +114,28 @@ class InvoiceFilters extends QueryFilters
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
-     public function entityFilter()
+    public function entityFilter()
     {
 
         if(auth('contact')->user())
-            return $this->builder->whereCompanyId(auth('contact')->user()->company->id);
+            return $this->contactViewFilter();
         else
             return $this->builder->whereCompanyId(auth()->user()->company()->id);
+
+    }
+
+    /**
+     * We need additional filters when showing invoices for the
+     * client portal. Need to automatically exclude drafts and cancelled invoices
+     * 
+     * @return Illuminate\Database\Query\Builder
+     */
+    private function contactViewFilter() : Builder
+    {
+
+        return $this->builder
+                    ->whereCompanyId(auth('contact')->user()->company->id)
+                    ->whereNotIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_CANCELLED]);
 
     }
 

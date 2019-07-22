@@ -13,6 +13,7 @@ Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset'
 Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
+	Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index'); // name = (dashboard. index / create / show / update / destroy / edit
 
 	Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 

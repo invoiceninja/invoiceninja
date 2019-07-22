@@ -26,22 +26,35 @@ class PortalComposer
      * @param  View  $view
      * @return void
      */
-    public function compose(View $view)
+    public function compose(View $view) :void
     {
-        $view->with('header', $this->portalData());
+       $view->with('portal', $this->portalData());
     }
 
     /**
      * @return array
      */
-    private function portalData()
+    private function portalData() :array
     {
         if(!auth()->user())
             return [];
 
-        $data = [];
+        $data['sidebar'] = $this->sidebarMenu();
+        $data['header'] = [];
+        $data['footer'] = [];
 
         
+        return $data;
+    }
+
+    private function sidebarMenu() :array
+    {
+
+        $data = [];
+
+        $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'fa fa-tachometer'];
+        $data[] = [ 'title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'fa fa-file-excel-o'];
+
         return $data;
     }
 
