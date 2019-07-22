@@ -4,8 +4,8 @@
         <ul class="nav">
             @foreach($portal['sidebar'] as $row)
                 <li class="nav-item ">
-                    <a class="nav-link" href="{{ $row['url'] }}">
-                        <i class="{{$row['icon']}}"></i> {{ $row['title'] }}
+                    <a class="nav-link" href="{{ route($row['url']) }}">
+                        <span><i class="{{$row['icon']}}"></i></span> <span> {{ $row['title'] }} </span>
                     </a>
                 </li>
             @endforeach

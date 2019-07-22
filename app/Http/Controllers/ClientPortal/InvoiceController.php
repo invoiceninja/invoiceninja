@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\InvoiceFilters;
 use App\Jobs\Entity\ActionEntity;
