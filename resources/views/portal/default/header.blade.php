@@ -37,11 +37,11 @@
             </div>
         </li>
 
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown" style="padding-right: 20px;">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
                 <img class="img-avatar" src="/images/logo.png" alt=""> {{ auth()->user()->present()->name() }}
             </a>
-            <div class="dropdown-menu dropdown-menu-right">
+            <div class="dropdown-menu dropdown-menu-sm">
                 <div class="dropdown-header text-center">
                     <strong>@lang('texts.settings')</strong>
                 </div>

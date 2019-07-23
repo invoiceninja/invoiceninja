@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\InvoiceFilters;
+use App\Http\Controllers\Controller;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
@@ -23,7 +24,7 @@ use Illuminate\Http\Request;
  * @package App\Http\Controllers\ClientPortal\InvoiceController
  */
 
-class InvoiceController extends BaseController
+class InvoiceController extends Controller
 {
 
     use MakesHash;
@@ -35,8 +36,6 @@ class InvoiceController extends BaseController
      */
     public function __construct()
     {
-
-        parent::__construct();
 
     }
 
@@ -50,9 +49,9 @@ class InvoiceController extends BaseController
     public function index(InvoiceFilters $filters)
     {
         
-        $invoices = Invoice::filter($filters);
+       // $invoices = Invoice::filter($filters);
       
-        return $this->listResponse($invoices);
+        return view('portal.default.invoices.index');
 
     }
 
