@@ -263,7 +263,7 @@ class SubscriptionListener
         $jsonData = $manager->createData($resource)->toArray();
 
         // For legacy Zapier support
-        if (isset($jsonData['client_id'])) {
+        if (isset($jsonData['client_id']) && $jsonData['client_id'] != 0) {
             $jsonData['client_name'] = $entity->client->getDisplayName();
         }
 
