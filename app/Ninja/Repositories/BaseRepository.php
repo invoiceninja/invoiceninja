@@ -36,7 +36,7 @@ class BaseRepository
      */
     private function getEventClass($entity, $type)
     {
-        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . ucfirst($type);
     }
 
     /**
