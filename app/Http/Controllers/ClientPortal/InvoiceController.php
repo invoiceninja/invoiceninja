@@ -41,9 +41,13 @@ class InvoiceController extends Controller
      */
     public function index(InvoiceFilters $filters, Builder $builder)
     {
-        
+        $invoices = Invoice::filter($filters);
+        Log::error('invoice count = ...');
+        Log::error($invoices->count());
+
         if (request()->ajax()) {
-            return DataTables::of(Invoice::all())->addColumn('action', function ($invoice) {
+
+            return DataTables::of(Invoice::filter($filters))->addColumn('action', function ($invoice) {
                     return '<a href="/client/invoices/'. $invoice->id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
                 })
                 ->addColumn('checkbox', function ($invoice){
@@ -51,6 +55,7 @@ class InvoiceController extends Controller
                 })
                 ->rawColumns(['checkbox', 'action'])
                 ->make(true);
+        
         }
 
         $builder->addAction();
@@ -59,11 +64,11 @@ class InvoiceController extends Controller
         $html = $builder->columns([
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
             ['data' => 'invoice_number', 'name' => 'invoice_number', 'title' => trans('texts.invoice_number'), 'visible'=> true],
-          //  ['data' => 'full_name', 'name' => 'full_name', 'title' => trans('texts.contact'), 'visible'=> true],
-          //  ['data' => 'email', 'name' => 'email', 'title' => trans('texts.email'), 'visible'=> true],
-          //  ['data' => 'created_at', 'name' => 'created_at', 'title' => trans('texts.date_created'), 'visible'=> true],
-          //  ['data' => 'last_login', 'name' => 'last_login', 'title' => trans('texts.last_login'), 'visible'=> true],
-           // ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
+            ['data' => 'invoice_date', 'name' => 'invoice_date', 'title' => trans('texts.invoice_date'), 'visible'=> true],
+            ['data' => 'amount', 'name' => 'amount', 'title' => trans('texts.total'), 'visible'=> true],
+            ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
+            ['data' => 'due_date', 'name' => 'due_date', 'title' => trans('texts.due_date'), 'visible'=> true],
+            ['data' => 'status_id', 'name' => 'status_id', 'title' => trans('texts.status'), 'visible'=> true],
             ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
         ]);
 

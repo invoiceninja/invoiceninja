@@ -132,7 +132,7 @@ class InvoiceFilters extends QueryFilters
      */
     private function contactViewFilter() : Builder
     {
-
+        
         return $this->builder
                     ->whereCompanyId(auth('contact')->user()->company->id)
                     ->whereNotIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_CANCELLED]);
