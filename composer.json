@@ -40,6 +40,7 @@
         "superbalist/laravel-google-cloud-storage": "^2.2",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/postmark-php": "^2.6",
+        "yajra/laravel-datatables-html": "^4.0",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {

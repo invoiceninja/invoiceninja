@@ -18,6 +18,7 @@ use App\Models\Invoice;
 use App\Repositories\BaseRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Html\Builder;
 
 /**
  * Class InvoiceController
@@ -29,16 +30,6 @@ class InvoiceController extends Controller
 
     use MakesHash;
 
-
-    /**
-     * InvoiceController constructor.
-     *
-     */
-    public function __construct()
-    {
-
-    }
-
     /**
      * Show the list of Invoices
      *
@@ -46,12 +37,38 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(InvoiceFilters $filters)
+    public function index(InvoiceFilters $filters, Builder $builder)
     {
         
-       // $invoices = Invoice::filter($filters);
+        if (request()->ajax()) {
+
+            return DataTables::of(Invoice::all())
+                ->make(true);
+        }
+
+        $builder->addAction();
+        $builder->addCheckbox();
+        
+        $html = $builder->columns([
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
+            ['data' => 'invoice_number', 'name' => 'invoice_number', 'title' => trans('texts.invoice_number'), 'visible'=> true],
+          //  ['data' => 'full_name', 'name' => 'full_name', 'title' => trans('texts.contact'), 'visible'=> true],
+          //  ['data' => 'email', 'name' => 'email', 'title' => trans('texts.email'), 'visible'=> true],
+          //  ['data' => 'created_at', 'name' => 'created_at', 'title' => trans('texts.date_created'), 'visible'=> true],
+          //  ['data' => 'last_login', 'name' => 'last_login', 'title' => trans('texts.last_login'), 'visible'=> true],
+           // ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
+           // ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
+        ]);
+
+        $builder->ajax([
+            'url' => route('client.invoices.index'),
+            'type' => 'GET',
+            'data' => 'function(d) { d.key = "value"; }',
+        ]);
+
+        $data['html'] = $html;
       
-        return view('portal.default.invoices.index');
+        return view('portal.default.invoices.index', $data);
 
     }
 
