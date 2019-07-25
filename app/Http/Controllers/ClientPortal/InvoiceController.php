@@ -18,6 +18,8 @@ use App\Models\Invoice;
 use App\Repositories\BaseRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 /**
@@ -41,8 +43,13 @@ class InvoiceController extends Controller
     {
         
         if (request()->ajax()) {
-
-            return DataTables::of(Invoice::all())
+            return DataTables::of(Invoice::all())->addColumn('action', function ($invoice) {
+                    return '<a href="/client/invoices/'. $invoice->id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                })
+                ->addColumn('checkbox', function ($invoice){
+                    return '<input type="checkbox" name="bulk" value="'. $invoice->id .'"/>';
+                })
+                ->rawColumns(['checkbox', 'action'])
                 ->make(true);
         }
 
@@ -57,7 +64,7 @@ class InvoiceController extends Controller
           //  ['data' => 'created_at', 'name' => 'created_at', 'title' => trans('texts.date_created'), 'visible'=> true],
           //  ['data' => 'last_login', 'name' => 'last_login', 'title' => trans('texts.last_login'), 'visible'=> true],
            // ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
-           // ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
+            ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
         ]);
 
         $builder->ajax([

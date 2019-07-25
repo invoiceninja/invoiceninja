@@ -27,10 +27,11 @@
 </body>
 @endsection
 
-@section('footer')
-    @parent
-    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript" defer></script>
-    <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js" defer></script>
+@push('scripts')
+	<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+@endpush
 
+@section('footer')
     {!! $html->scripts() !!}
 @endsection
