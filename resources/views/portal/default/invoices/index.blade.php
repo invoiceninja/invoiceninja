@@ -15,7 +15,7 @@
 					<div class="animated fadeIn">
 	                    <div class="col-md-12 card">
 
-	                        {!! $html->table() !!}
+    					{!! $html->table(['class' => 'table table-hover table-striped'], true) !!}
 
 	                    </div>
 	                </div>
