@@ -28,6 +28,15 @@ class Invoice extends BaseModel
     use NumberFormatter;
     use MakesDates;
 
+    protected $hidden = [
+        'id',
+        'private_notes'
+    ];
+
+    protected $appends = [
+        'hashed_id'
+    ];
+
     protected $fillable = [
         'invoice_number',
         'discount',
@@ -79,6 +88,11 @@ class Invoice extends BaseModel
     const STATUS_OVERDUE = -1;
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
 
     public function company()
     {

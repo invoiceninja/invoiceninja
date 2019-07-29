@@ -19,6 +19,7 @@
     "type": "project",
     "require": {
         "php": ">=7.3",
+        "anahkiasen/former": "^4.2",
         "asgrim/ofxparser": "^1.2",
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",

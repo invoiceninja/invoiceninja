@@ -11,11 +11,18 @@
 
 			<div class="row" style="padding-top: 30px;">
 			
-				<div class="col-lg-12">
+				<div class="col-lg-12" style="padding-bottom: 10px;">
 					
+                    <div class="pull-left">
+
+                            <button class="btn btn-dark">{{ctrans('texts.download')}}</button>
+                            <button class="btn btn-success">{{ctrans('texts.pay_now')}}</button>
+                    </div>
+
 					<!-- Filters / Buttons in here.-->
 					<div id="top_right_buttons" class="pull-right">
-						<input id="tableFilter_invoice" type="text" style="width:180px;margin-right:17px;background-color: white !important"
+
+						<input id="tableFilter_invoice" type="text" style="width:180px;background-color: white !important"
 					        class="form-control pull-left" placeholder="Filter" value=""/>
 					</div>
 
@@ -27,6 +34,7 @@
 	                    </div>
 	                </div>
 				</div>
+
 			</div>
 
         </div>
@@ -58,7 +66,7 @@ $(function() {
         ajax: '{!! route('client.invoices.index') !!}',
         columns: [
 
-            {data: 'checkbox', name: 'checkbox', title: '', searchable: false, orderable: false},
+            {data: 'checkbox', name: 'checkbox', title: '<input type="checkbox" class="select_all">', searchable: false, orderable: false},
             {data: 'invoice_number', name: 'invoice_number', title: '{{trans('texts.invoice_number')}}', visible: true},
             {data: 'invoice_date', name: 'invoice_date', title: '{{trans('texts.invoice_date')}}', visible: true},
             {data: 'amount', name: 'amount', title: '{{trans('texts.total')}}', visible: true},
@@ -70,8 +78,24 @@ $(function() {
     });
 });
 
-$(".dataTables_filter").hide();
 
+
+
+</script defer>
+
+<script>
+
+$('#tableFilter_invoice').on('keyup', function(){
+
+});
+
+$(document).ready(function() {
+
+    $('.select_all').change(function() {
+        $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
+    }); 
+
+});  
 </script>
 @endsection
 

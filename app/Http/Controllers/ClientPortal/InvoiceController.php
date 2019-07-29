@@ -42,16 +42,14 @@ class InvoiceController extends Controller
     public function index(InvoiceFilters $filters, Builder $builder)
     {
         $invoices = Invoice::filter($filters);
-        Log::error('invoice count = ...');
-        Log::error($invoices->count());
 
         if (request()->ajax()) {
 
             return DataTables::of(Invoice::filter($filters))->addColumn('action', function ($invoice) {
-                    return '<a href="/client/invoices/'. $invoice->id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                    return '<a href="/client/invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
                 })
                 ->addColumn('checkbox', function ($invoice){
-                    return '<input type="checkbox" name="bulk" value="'. $invoice->id .'"/>';
+                    return '<input type="checkbox" name="bulk" value="'. $invoice->hashed_id .'"/>';
                 })
                 ->rawColumns(['checkbox', 'action'])
                 ->make(true);
@@ -61,6 +59,7 @@ class InvoiceController extends Controller
         $builder->addAction();
         $builder->addCheckbox();
         
+        /**todo this is redundant, but keep in case we want to build this serverside*/
         $html = $builder->columns([
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
             ['data' => 'invoice_number', 'name' => 'invoice_number', 'title' => trans('texts.invoice_number'), 'visible'=> true],
