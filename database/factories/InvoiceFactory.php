@@ -6,7 +6,7 @@ use Faker\Generator as Faker;
 
 $factory->define(App\Models\Invoice::class, function (Faker $faker) {
     return [
-		'status_id' => App\Models\Invoice::STATUS_DRAFT,
+		'status_id' => App\Models\Invoice::STATUS_SENT,
 		'invoice_number' => $faker->text(256),
 		'discount' => $faker->numberBetween(1,10),
 		'is_amount_discount' => $faker->boolean(),

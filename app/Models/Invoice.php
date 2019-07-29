@@ -14,7 +14,6 @@ namespace App\Models;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,7 +21,6 @@ use Illuminate\Support\Carbon;
 
 class Invoice extends BaseModel
 {
-    use MakesHash;
     use SoftDeletes;
     use Filterable;
     use NumberFormatter;
@@ -30,11 +28,12 @@ class Invoice extends BaseModel
 
     protected $hidden = [
         'id',
-        'private_notes'
-    ];
-
-    protected $appends = [
-        'hashed_id'
+        'private_notes',
+        'user_id',
+        'client_id',
+        'company_id',
+        'backup',
+        'settings',
     ];
 
     protected $fillable = [
@@ -88,11 +87,6 @@ class Invoice extends BaseModel
     const STATUS_OVERDUE = -1;
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
-
-    public function getHashedIdAttribute()
-    {
-        return $this->encodePrimaryKey($this->id);
-    }
 
     public function company()
     {

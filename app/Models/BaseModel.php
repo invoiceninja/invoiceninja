@@ -14,6 +14,7 @@ namespace App\Models;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Filters\QueryFilters;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 
 class BaseModel extends Model
 {
+    use MakesHash;
     use UserSessionAttributes;
     use SoftDeletes;
 
@@ -29,7 +31,17 @@ class BaseModel extends Model
     ///const CREATED_AT = 'creation_date';
     //const UPDATED_AT = 'last_update';
 
+    protected $appends = [
+        'hashed_id'
+    ];
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
+
 
     public function __call($method, $params)
     {

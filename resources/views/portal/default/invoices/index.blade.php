@@ -15,21 +15,22 @@
 					
                     <div class="pull-left">
 
-                            <button class="btn btn-dark">{{ctrans('texts.download')}}</button>
-                            <button class="btn btn-success">{{ctrans('texts.pay_now')}}</button>
+                            {!! Former::dark_button(ctrans('texts.download'))->addClass('download_invoices') !!}
+                            {!! Former::success_button(ctrans('texts.pay_now'))->addClass('pay_invoices') !!}
+
                     </div>
 
 					<!-- Filters / Buttons in here.-->
 					<div id="top_right_buttons" class="pull-right">
 
-						<input id="tableFilter_invoice" type="text" style="width:180px;background-color: white !important"
+						<input id="table_filter" type="text" style="width:180px;background-color: white !important"
 					        class="form-control pull-left" placeholder="Filter" value=""/>
 					</div>
 
 					<div class="animated fadeIn">
 	                    <div class="col-md-12 card">
 
-    					{!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'invoice-table'], true) !!}
+    					{!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'datatable'], true) !!}
 
 	                    </div>
 	                </div>
@@ -49,8 +50,12 @@
 
 @section('footer')
 <script>
+
+var data;
+
 $(function() {
-    $('#invoice-table').DataTable({
+
+    $('#datatable').DataTable({
         processing: true,
         serverSide: true,
         searching: false,
@@ -64,6 +69,11 @@ $(function() {
 	        zeroRecords:    "{{ trans('texts.no_records_found') }}"
     	},
         ajax: '{!! route('client.invoices.index') !!}',
+        drawCallback: function(settings){
+
+           data = this.api().ajax.json().data;
+
+        },
         columns: [
 
             {data: 'checkbox', name: 'checkbox', title: '<input type="checkbox" class="select_all">', searchable: false, orderable: false},
@@ -78,24 +88,38 @@ $(function() {
     });
 });
 
-
-
-
-</script defer>
+</script>
 
 <script>
 
-$('#tableFilter_invoice').on('keyup', function(){
-
-});
-
 $(document).ready(function() {
+
+    $("#datatable").on('change', 'input[type=checkbox]', function() {
+        var selected = [];
+        $.each($("input[name='hashed_ids[]']:checked"), function(){            
+            selected.push($(this).val());
+        });
+        alert("Selected hashed_ids: " + selected.join(", "));
+    });
+
+    $('#table_filter').on('keyup', function(){
+        alert('filter');
+    });
 
     $('.select_all').change(function() {
         $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
     }); 
 
+    $('.pay_invoices').click(function() {
+        alert('pay');
+    }); 
+
+    $('.download_invoices').click(function() {
+        alert('download');
+    }); 
+
 });  
+
 </script>
 @endsection
 

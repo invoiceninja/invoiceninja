@@ -37,22 +37,17 @@ class Client extends BaseModel
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
-    protected $appends = [
-    ];
-    /*
-    protected $guarded = [
+
+    protected $hidden = [
         'id',
-        'updated_at',
-        'created_at',
-        'deleted_at',
-        'contacts',
-        'primary_contact',
-        'q',
-        'company',
-        'country',
-        'shipping_country'
+        'private_notes',
+        'user_id',
+        'company_id',
+        'backup',
+        'settings',
+        'last_login',
+        'private_notes'
     ];
-    */
    
     protected $fillable = [
         'name',

@@ -60,7 +60,14 @@ class Company extends BaseModel
         'settings',
     ];
 
-    protected $appends = [
+    protected $hidden = [
+        'id',
+        'settings',
+        'account_id',
+        'company_key',
+        'db',
+        'domain',
+        'ip',
     ];
 
     protected $casts = [

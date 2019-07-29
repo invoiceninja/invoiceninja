@@ -49,7 +49,7 @@ class InvoiceController extends Controller
                     return '<a href="/client/invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
                 })
                 ->addColumn('checkbox', function ($invoice){
-                    return '<input type="checkbox" name="bulk" value="'. $invoice->hashed_id .'"/>';
+                    return '<input type="checkbox" name="hashed_ids[]" value="'. $invoice->hashed_id .'"/>';
                 })
                 ->rawColumns(['checkbox', 'action'])
                 ->make(true);
