@@ -14,6 +14,8 @@ namespace App\Filters;
 use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * InvoiceFilters
@@ -21,6 +23,44 @@ use Illuminate\Database\Eloquent\Builder;
 class InvoiceFilters extends QueryFilters
 {
 
+    /**
+     * Filter based on client status
+     *
+     * Statuses we need to handle
+     * 
+     * - all
+     * - paid
+     * - unpaid
+     * - overdue
+     * - reversed
+     * 
+     * @param      string client_status The invoice status as seen by the client
+     * @return     Illuminate\Database\Query\Builder
+     *
+     */
+    
+    public function client_status(string $value = '') :Builder
+    {
+        if(strlen($value) == 0)
+            return $this->builder;
+
+        $status_parameters = explode(",", $value);
+
+        if (in_array('all', $status_parameters)) 
+            return $this->builder;
+        
+        if(in_array('paid', $status_parameters))
+            $this->builder->where('status_id', Invoice::STATUS_PAID);
+
+        if(in_array('unpaid', $status_parameters))
+            $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
+
+        if(in_array('overdue', $status_parameters))
+            $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                            ->where('due_date', '<', Carbon::now());
+
+        return $this->builder;
+    }
 
     /**
      * Filter based on search text
@@ -45,7 +85,7 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * Filters the list based on the status
-     * archived, active, deleted
+     * archived, active, deleted - legacy from V1
      * 
      * @param  string filter
      * @return Illuminate\Database\Query\Builder

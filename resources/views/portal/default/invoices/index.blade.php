@@ -51,7 +51,11 @@
 @section('footer')
 <script>
 
+/*global json payload*/
 var data;
+
+/*status filter variable - comma separated*/
+var client_statuses;
 
 $(function() {
 
@@ -68,7 +72,13 @@ $(function() {
 	        loadingRecords: "{{ trans('texts.loading') }}",
 	        zeroRecords:    "{{ trans('texts.no_records_found') }}"
     	},
-        ajax: '{!! route('client.invoices.index') !!}',
+        ajax: {
+        	url: '{!! route('client.invoices.index') !!}',
+	        data: function(data) { 
+	        	data.client_status = 'paid'; 
+	        } 
+
+        },
         drawCallback: function(settings){
 
            data = this.api().ajax.json().data;
