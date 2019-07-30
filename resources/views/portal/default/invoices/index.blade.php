@@ -94,12 +94,15 @@ $(function() {
 
 $(document).ready(function() {
 
+    $('.pay_invoices').attr("disabled", true);
+    $('.download_invoices').attr("disabled", true);
+
     $("#datatable").on('change', 'input[type=checkbox]', function() {
         var selected = [];
         $.each($("input[name='hashed_ids[]']:checked"), function(){            
             selected.push($(this).val());
         });
-        alert("Selected hashed_ids: " + selected.join(", "));
+        
     });
 
     $('#table_filter').on('keyup', function(){
