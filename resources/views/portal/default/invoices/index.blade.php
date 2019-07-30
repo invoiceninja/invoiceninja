@@ -75,7 +75,7 @@ $(function() {
         ajax: {
         	url: '{!! route('client.invoices.index') !!}',
 	        data: function(data) { 
-	        	data.client_status = 'paid'; 
+	        	data.client_status = client_statuses; 
 	        } 
 
         },
