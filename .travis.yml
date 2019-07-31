@@ -64,11 +64,7 @@ before_script:
   - php artisan migrate --database=db-ninja-01 --seed --no-interaction
   - php artisan migrate --database=db-ninja-02 --seed --no-interaction
   - php artisan optimize
-  - npm install -g npm-install-peers
-  - npm-install-peers
   - npm install
-  - npm-install-peers
-  - npm install @types/bluebird @types/core-js@0.9.36
   - npm run production
   # migrate and seed the database
   # Start webserver on ninja.test:8000
