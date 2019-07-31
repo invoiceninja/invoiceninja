@@ -34,24 +34,24 @@ class MultiDBUserTest extends TestCase
 
         $ac = factory(\App\Models\Account::class)->make();
 
+        $ac->setHidden(['hashed_id']);
+
         $account = Account::on('db-ninja-01')->create($ac->toArray());
         $account2 = Account::on('db-ninja-02')->create($ac->toArray());
 
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
-                        'domain' => 'ninja.test',
-
+            'domain' => 'ninja.test',
         ]);
 
         $company2 = factory(\App\Models\Company::class)->make([
             'account_id' => $account2->id,
-                        'domain' => 'ninja.test',
-
+            'domain' => 'ninja.test',
         ]);
 
 
-        $company->setHidden(['settings', 'settings_object']);
-        $company2->setHidden(['settings', 'settings_object']);
+        $company->setHidden(['settings', 'settings_object', 'hashed_id']);
+        $company2->setHidden(['settings', 'settings_object', 'hashed_id']);
         
         Company::on('db-ninja-01')->create($company->toArray());
         Company::on('db-ninja-02')->create($company2->toArray());
