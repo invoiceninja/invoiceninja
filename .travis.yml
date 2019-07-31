@@ -67,6 +67,7 @@ before_script:
   - npm install -g npm-install-peers
   - npm-install-peers
   - npm install
+  - npm-install-peers
   - npm install @types/bluebird @types/core-js@0.9.36
   - npm run production
   # migrate and seed the database
