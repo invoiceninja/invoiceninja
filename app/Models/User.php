@@ -49,6 +49,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public $company;
 
+    protected $appends = [
+        'hashed_id'
+    ];
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
+    
     /**
      * The attributes that are mass assignable.
      *

@@ -42,6 +42,15 @@ class ClientContact extends Authenticatable
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
+    protected $appends = [
+        'hashed_id'
+    ];
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
+    
     protected $hidden = [
         'password', 
         'remember_token',

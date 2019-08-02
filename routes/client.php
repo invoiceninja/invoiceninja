@@ -14,6 +14,8 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 
 	Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 	Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index'); // name = (dashboard. index / create / show / update / destroy / edit
+	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
+	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');
 
 	Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 
