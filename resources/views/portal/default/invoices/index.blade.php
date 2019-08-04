@@ -1,10 +1,10 @@
 @extends('portal.default.layouts.master')
-
 @section('header')
 	@parent
-	<link href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+    <link href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/vendors/css/select2.min.css" rel="stylesheet">
 @stop
-
 @section('body')
     <main class="main">
         <div class="container-fluid">
@@ -42,12 +42,11 @@
     </main>
 </body>
 @endsection
-
 @push('scripts')
 	<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/vendors/js/select2.min.js"></script>
 @endpush
-
 @section('footer')
 <script>
 

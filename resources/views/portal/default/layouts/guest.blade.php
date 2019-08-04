@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Error: {{ session('error') }} -->
-
     @if (config('services.analytics.tracking_id'))
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
         <script>
@@ -44,9 +42,6 @@
   <link href="/vendors/css/coreui.min.css" rel="stylesheet">
     @yield('head')
 </head>
-
 @section('body')
-
 @yield('body')
-
 </html>

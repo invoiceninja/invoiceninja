@@ -10,9 +10,7 @@
 <script src="/vendors/js/bootstrap.bundle.min.js"></script>
 <script src="/vendors/js/perfect-scrollbar.min.js"></script>
 <script src="/vendors/js/coreui.min.js"></script>
-
 @stack('scripts')
-
 <script>
 $('#ui-view').ajaxLoad();
 </script>

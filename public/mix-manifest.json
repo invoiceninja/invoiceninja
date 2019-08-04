@@ -6,5 +6,7 @@
     "/vendors/js/coreui.min.js": "/vendors/js/coreui.min.js?id=0fa9ac379e62c48d26e6",
     "/vendors/js/bootstrap.bundle.min.js": "/vendors/js/bootstrap.bundle.min.js?id=a454220fc07088bf1fdd",
     "/vendors/js/jquery.min.js": "/vendors/js/jquery.min.js?id=220afd743d9e9643852e",
-    "/vendors/js/perfect-scrollbar.min.js": "/vendors/js/perfect-scrollbar.min.js?id=4a10bcfa0a9c9fa9d503"
+    "/vendors/js/perfect-scrollbar.min.js": "/vendors/js/perfect-scrollbar.min.js?id=4a10bcfa0a9c9fa9d503",
+    "/vendors/css/select2.min.css": "/vendors/css/select2.min.css?id=8e44c39add2364bdb469",
+    "/vendors/js/select2.min.js": "/vendors/js/select2.min.js?id=0a96cf2d3a193019a91b"
 }
