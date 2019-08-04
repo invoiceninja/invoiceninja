@@ -24,7 +24,7 @@
 					<div id="top_right_buttons" class="pull-right">
 
 						<input id="table_filter" type="text" style="width:180px;background-color: white !important"
-					        class="form-control pull-left" placeholder="Filter" value=""/>
+					        class="form-control pull-left" placeholder="{{ trans('texts.filter')}}" value=""/>
 					</div>
 
 					<div class="animated fadeIn">
@@ -57,9 +57,13 @@ var data;
 /*status filter variable - comma separated*/
 var client_statuses;
 
+var table_filter;
+
+var data_table;
+
 $(function() {
 
-    $('#datatable').DataTable({
+    data_table = $('#datatable').DataTable({
         processing: true,
         serverSide: true,
         searching: false,
@@ -76,6 +80,8 @@ $(function() {
         	url: '{!! route('client.invoices.index') !!}',
 	        data: function(data) { 
 	        	data.client_status = client_statuses; 
+               // data.filter = table_filter;
+                data.search.value = table_filter;
 	        } 
 
         },
@@ -104,6 +110,8 @@ $(function() {
 
 $(document).ready(function() {
 
+    var searchTimeout = false;
+
     $('.pay_invoices').attr("disabled", true);
     $('.download_invoices').attr("disabled", true);
 
@@ -116,7 +124,12 @@ $(document).ready(function() {
     });
 
     $('#table_filter').on('keyup', function(){
-        alert('filter');
+        if (searchTimeout) {
+            window.clearTimeout(searchTimeout);
+        }
+        searchTimeout = setTimeout(function() {
+            filterTable();
+        }, 500);
     });
 
     $('.select_all').change(function() {
@@ -133,6 +146,12 @@ $(document).ready(function() {
 
 });  
 
+
+function filterTable() {
+
+    table_filter = $('#table_filter').val();
+    data_table.ajax.reload();
+}
 </script>
 @endsection
 

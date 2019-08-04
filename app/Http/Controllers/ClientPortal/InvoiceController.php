@@ -40,7 +40,7 @@ class InvoiceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(InvoiceFilters $filters, Builder $builder)
-    {
+    {Log::error(request());
         $invoices = Invoice::filter($filters);
 
         if (request()->ajax()) {
