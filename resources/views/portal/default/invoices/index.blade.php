@@ -80,8 +80,8 @@ $(function() {
         	url: '{!! route('client.invoices.index') !!}',
 	        data: function(data) { 
 	        	data.client_status = client_statuses; 
-               // data.filter = table_filter;
-                data.search.value = table_filter;
+                data.filter = table_filter;
+              //  data.search.value = table_filter;
 	        } 
 
         },

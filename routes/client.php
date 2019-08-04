@@ -1,6 +1,6 @@
 <?php
 
-Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.login');
+Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.login'); //catch all
 
 Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login');
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
