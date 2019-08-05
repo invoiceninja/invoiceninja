@@ -18,7 +18,7 @@
                             {!! Former::dark_button(ctrans('texts.download'))->addClass('download_invoices') !!}
                             {!! Former::success_button(ctrans('texts.pay_now'))->addClass('pay_invoices') !!}
 
-                            <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
+                        <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
                               <option value="paid">{{ ctrans('texts.status_paid') }}</option>
                               <option value="unpaid">{{ ctrans('texts.status_unpaid') }}</option>
                             </select>

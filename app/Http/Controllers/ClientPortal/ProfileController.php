@@ -37,7 +37,7 @@ class ProfileController extends Controller
      */
     public function edit(ClientContact $client_contact)
     {
-        dd($client_contact);
+        return view('portal.default.profile.index');
     }
 
     /**

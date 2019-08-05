@@ -15,6 +15,7 @@
     "@coreui/icons": "^0.3.0",
     "bootstrap": "^4.3.1",
     "cross-env": "^5.2.0",
+    "dropzone": "^5.5.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "laravel-mix": "^4.1.2",
