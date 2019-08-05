@@ -19,7 +19,6 @@
                             {!! Former::success_button(ctrans('texts.pay_now'))->addClass('pay_invoices') !!}
 
                             <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
-                              <option value="all" selected="selected">{{ ctrans('texts.status_all') }}</option>
                               <option value="paid">{{ ctrans('texts.status_paid') }}</option>
                               <option value="unpaid">{{ ctrans('texts.status_unpaid') }}</option>
                             </select>
@@ -175,6 +174,18 @@ $('#statuses').select2({
         }
         return data.text;
     }
+}).on('change', function() {
+    
+    client_statuses = $('#statuses').val();
+
+    if (client_statuses) {
+        client_statuses = client_statuses.join(',');
+    } else {
+        client_statuses = '';
+    }
+
+    data_table.ajax.reload();
+
 });
 
 
