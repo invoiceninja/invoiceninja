@@ -31,7 +31,9 @@ class TaxRateReport extends AbstractReport
                         ->withArchived()
                         ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) {
-                            $query->with('invoice_items')
+                            $query
+                                ->with('account', 'client')
+                                ->with('invoice_items')
                                 ->withArchived()
                                 ->invoices()
                                 ->where('is_public', '=', true);
