@@ -18,6 +18,12 @@
                             {!! Former::dark_button(ctrans('texts.download'))->addClass('download_invoices') !!}
                             {!! Former::success_button(ctrans('texts.pay_now'))->addClass('pay_invoices') !!}
 
+                            <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
+                              <option value="all" selected="selected">{{ ctrans('texts.status_all') }}</option>
+                              <option value="paid">{{ ctrans('texts.status_paid') }}</option>
+                              <option value="unpaid">{{ ctrans('texts.status_unpaid') }}</option>
+                            </select>
+
                     </div>
 
 					<!-- Filters / Buttons in here.-->
@@ -143,6 +149,7 @@ $(document).ready(function() {
         alert('download');
     }); 
 
+
 });  
 
 
@@ -151,6 +158,26 @@ function filterTable() {
     table_filter = $('#table_filter').val();
     data_table.ajax.reload();
 }
+
+// Setup status filter
+$('#statuses').select2({
+    placeholder: "{{ ctrans('texts.status') }}",
+    //allowClear: true,
+    templateSelection: function(data, container) {
+        if (data.id == 'paid') {
+            $(container).css('color', '#fff');
+            $(container).css('background-color', '#f0ad4e');
+            $(container).css('border-color', '#eea236');
+        } else if (data.id == 'unpaid') {
+            $(container).css('color', '#fff');
+            $(container).css('background-color', '#d9534f');
+            $(container).css('border-color', '#d43f3a');
+        }
+        return data.text;
+    }
+});
+
+
 </script>
 @endsection
 

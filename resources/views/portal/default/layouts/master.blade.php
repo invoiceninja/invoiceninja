@@ -44,17 +44,12 @@
   <link href="/vendors/css/coreui.min.css" rel="stylesheet">
     @yield('head')
 </head>
-
 @include('portal.default.header')
 @yield('header')
-
 @include('portal.default.sidebar')
 @yield('sidebar')
-
 @section('body')
 @yield('body')
-
 @include('portal.default.footer')
 @yield('footer')
-
 </html>
