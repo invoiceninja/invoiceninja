@@ -8,5 +8,7 @@
     "/vendors/js/jquery.min.js": "/vendors/js/jquery.min.js?id=220afd743d9e9643852e",
     "/vendors/js/perfect-scrollbar.min.js": "/vendors/js/perfect-scrollbar.min.js?id=4a10bcfa0a9c9fa9d503",
     "/vendors/css/select2.min.css": "/vendors/css/select2.min.css?id=8e44c39add2364bdb469",
-    "/vendors/js/select2.min.js": "/vendors/js/select2.min.js?id=0a96cf2d3a193019a91b"
+    "/vendors/js/select2.min.js": "/vendors/js/select2.min.js?id=0a96cf2d3a193019a91b",
+    "/vendors/css/dropzone.min.css": "/vendors/css/dropzone.min.css?id=2f735dbf472afcd77604",
+    "/vendors/js/dropzone.min.js": "/vendors/js/dropzone.min.js?id=33148c7d5e055ea74714"
 }
