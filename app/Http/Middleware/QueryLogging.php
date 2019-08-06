@@ -47,7 +47,7 @@ class QueryLogging
                 $count = count($queries);
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
-                //Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
+                Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
                 
                 if($count > 16)
                     Log::info($queries);

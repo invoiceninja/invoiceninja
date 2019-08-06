@@ -26,6 +26,7 @@ mix.copyDirectory('node_modules/select2/dist/css/select2.min.css', 'public/vendo
 mix.copyDirectory('node_modules/select2/dist/js/select2.full.min.js', 'public/vendors/js/select2.min.js');
 
 mix.copyDirectory('node_modules/dropzone/dist/min/dropzone.min.css', 'public/vendors/css/dropzone.min.css');
+mix.copyDirectory('node_modules/dropzone/dist/min/basic.min.css', 'public/vendors/css/dropzone-basic.min.css');
 mix.copyDirectory('node_modules/dropzone/dist/min/dropzone.min.js', 'public/vendors/js/dropzone.min.js');
 
 
