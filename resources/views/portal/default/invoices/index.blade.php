@@ -2,7 +2,6 @@
 @section('header')
 	@parent
     <link href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-    <link href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
     <link href="/vendors/css/select2.min.css" rel="stylesheet">
 @stop
 @section('body')
