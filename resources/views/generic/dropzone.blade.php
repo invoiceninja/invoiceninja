@@ -76,9 +76,12 @@
 	function handleDocumentError(file, responseText) {
 	    dropzone.removeFile(file);
 	 //   window.countUploadingDocuments--;
-	    
-	    
-	    swal(responseText);
+             for (var error in responseText.errors) {
+
+                swal({title: '{{ctrans('texts.error')}}', text: responseText.errors[error]});
+
+              }
+           
 	}
     </script>
 @endpush

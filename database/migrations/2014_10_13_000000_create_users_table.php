@@ -262,6 +262,8 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
             $table->string('website')->nullable();
             $table->text('private_notes')->nullable();
+            $table->text('client_hash')->nullable();
+
             $table->decimal('balance', 13, 2)->nullable();
             $table->decimal('paid_to_date', 13, 2)->nullable();
             $table->timestamp('last_login')->nullable();

@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\StoreDocumentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
@@ -47,7 +48,34 @@ class DocumentController extends Controller
      */
     public function store(StoreDocumentRequest $request)
     {
+        $contact = auth()->user();
+
         Log::error($request->all());
+        
+        Storage::makeDirectory(public_path() . $contact->client->client_hash, 0755);
+
+        $path = Storage::putFile($contact->client->client_hash, $request->file('file'));
+
+        $url = Storage::url($path);
+
+        Log::error($path);
+        Log::error($url);
+
+        /*
+        [2019-08-07 05:50:23] local.ERROR: array (
+          '_token' => '7KoEVRjB2Fq8XBVFRUFbhQFjKm4rY9h0AGSlpdj3',
+          'is_avatar' => '1',
+          'q' => '/client/document',
+          'file' => 
+          Illuminate\Http\UploadedFile::__set_state(array(
+             'test' => false,
+             'originalName' => 'family.jpg',
+             'mimeType' => 'image/jpeg',
+             'error' => 0,
+             'hashName' => NULL,
+          )),
+        )  
+         */
     }
 
     /**

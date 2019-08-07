@@ -28,6 +28,8 @@ class ClientFactory
 		$client->paid_to_date = 0;
 		$client->country_id = 4;
 		$client->is_deleted = 0;
+		$client->client_hash = str_random(40);
+		
 		$client->settings = new ClientSettings(ClientSettings::defaults());
 		
 		$client_contact = ClientContactFactory::create($company_id, $user_id);
