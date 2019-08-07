@@ -11,5 +11,7 @@
     "/vendors/js/select2.min.js": "/vendors/js/select2.min.js?id=0a96cf2d3a193019a91b",
     "/vendors/css/dropzone.min.css": "/vendors/css/dropzone.min.css?id=2f735dbf472afcd77604",
     "/vendors/css/dropzone-basic.min.css": "/vendors/css/dropzone-basic.min.css?id=960bcd6d5cb8351ac0d0",
-    "/vendors/js/dropzone.min.js": "/vendors/js/dropzone.min.js?id=33148c7d5e055ea74714"
+    "/vendors/js/dropzone.min.js": "/vendors/js/dropzone.min.js?id=33148c7d5e055ea74714",
+    "/vendors/css/sweetalert.css": "/vendors/css/sweetalert.css?id=0862d17907b9cc4e4374",
+    "/vendors/js/sweetalert.min.js": "/vendors/js/sweetalert.min.js?id=0e2613ca4d17a624d7e9"
 }

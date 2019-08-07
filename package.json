@@ -14,6 +14,7 @@
     "@coreui/coreui": "^2.1.12",
     "@coreui/icons": "^0.3.0",
     "bootstrap": "^4.3.1",
+    "bootstrap-sweetalert": "^1.0.1",
     "cross-env": "^5.2.0",
     "dropzone": "^5.5.1",
     "font-awesome": "^4.7.0",

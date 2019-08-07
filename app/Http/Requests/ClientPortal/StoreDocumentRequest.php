@@ -12,6 +12,7 @@
 namespace App\Http\Requests\ClientPortal;
 
 use App\Http\Requests\Request;
+use Zend\Diactoros\Response\JsonResponse;
 
 class StoreDocumentRequest extends Request
 {
@@ -37,6 +38,11 @@ class StoreDocumentRequest extends Request
         return [
             'file' => 'required|max:10000|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx'
         ];
+    }
+
+    public function response(array $errors)
+    {
+        return new JsonResponse(['error' => $errors], 400);
     }
 
 }

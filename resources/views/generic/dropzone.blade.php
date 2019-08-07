@@ -2,6 +2,7 @@
     @parent
     <link href="/vendors/css/dropzone.min.css" rel="stylesheet">
     <link href="/vendors/css/dropzone-basic.min.css" rel="stylesheet">
+    <link href="/vendors/css/sweetalert.css" rel="stylesheet">
     <style>
         .dropzone {
             background: white;
@@ -23,6 +24,7 @@
 </div>
 @push('scripts')
     <script src="/vendors/js/dropzone.min.js"></script>
+    <script src="/vendors/js/sweetalert.min.js"></script>
     <script>
     	Dropzone.autoDiscover = false;
 		window.countUploadingDocuments = 0;
@@ -59,5 +61,24 @@
 	            this.on("error", function(file){if (!file.accepted) this.removeFile(file);});
 	        },
 		});
+
+
+		if (dropzone instanceof Dropzone) {
+		    
+		    //dropzone.on('addedfile', handleDocumentAdded);
+		    //dropzone.on('removedfile', handleDocumentRemoved);
+		    //dropzone.on('success', handleDocumentUploaded);
+		    //dropzone.on('canceled', handleDocumentCanceled);
+		    dropzone.on('error', handleDocumentError);
+
+		}
+
+	function handleDocumentError(file, responseText) {
+	    dropzone.removeFile(file);
+	 //   window.countUploadingDocuments--;
+	    
+	    
+	    swal(responseText);
+	}
     </script>
 @endpush

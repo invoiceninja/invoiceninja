@@ -29,6 +29,8 @@ mix.copyDirectory('node_modules/dropzone/dist/min/dropzone.min.css', 'public/ven
 mix.copyDirectory('node_modules/dropzone/dist/min/basic.min.css', 'public/vendors/css/dropzone-basic.min.css');
 mix.copyDirectory('node_modules/dropzone/dist/min/dropzone.min.js', 'public/vendors/js/dropzone.min.js');
 
+mix.copyDirectory('node_modules/bootstrap-sweetalert/dist/sweetalert.css', 'public/vendors/css/sweetalert.css');
+mix.copyDirectory('node_modules/bootstrap-sweetalert/dist/sweetalert.min.js', 'public/vendors/js/sweetalert.min.js');
 
 mix.copyDirectory('node_modules/font-awesome/fonts', 'public/vendors/fonts');
 
