@@ -19,6 +19,8 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
 	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');
 
+	Route::post('document', 'ClientPortal\DocumentController@store')->name('document.store');
+	
 	Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 
 });

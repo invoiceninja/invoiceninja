@@ -147,9 +147,7 @@ $(document).ready(function() {
         alert('download');
     }); 
 
-
 });  
-
 
 function filterTable() {
 
@@ -186,7 +184,6 @@ $('#statuses').select2({
     data_table.ajax.reload();
 
 });
-
 
 </script>
 @endsection

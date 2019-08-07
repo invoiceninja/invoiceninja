@@ -37,7 +37,15 @@ class ProfileController extends Controller
      */
     public function edit(ClientContact $client_contact)
     {
-        return view('portal.default.profile.index');
+        $data = [
+            'params' => [
+                'is_avatar' => TRUE,
+            ],
+            'url' => '/client/document',
+            'multi_upload' => FALSE,
+        ];
+        
+        return view('portal.default.profile.index', $data);
     }
 
     /**
