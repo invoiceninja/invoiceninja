@@ -49,21 +49,19 @@ class DocumentController extends Controller
     public function store(StoreDocumentRequest $request)
     {
         $contact = auth()->user();
-
-        Log::error($request->all());
         
         Storage::makeDirectory('public/' . $contact->client->client_hash, 0755);
 
         $path = Storage::putFile('public/' . $contact->client->client_hash, $request->file('file'));
-        $url = Storage::url($path);
-        $size = $request->file('file')->getSize();
-        $type = $request->file('file')->getClientOriginalExtension();
 
         $contact = auth()->user();
-        $contact->avatar_size = $size;
-        $contact->avatar_type = $type;
-        $contact->avatar = $url;
+        $contact->avatar_size = $request->file('file')->getSize();
+        $contact->avatar_type = $request->file('file')->getClientOriginalExtension();
+        $contact->avatar = Storage::url($path);
         $contact->save();
+        
+        return response()->json($contact);
+
 
         /*
         [2019-08-07 05:50:23] local.ERROR: array (
@@ -80,9 +78,6 @@ class DocumentController extends Controller
           )),
         )  
          */
-        
-        return response()->json($contact);
-
     }
 
     /**
@@ -122,7 +117,6 @@ class DocumentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy()
@@ -132,9 +126,7 @@ class DocumentController extends Controller
         $file = basename($contact->avatar);
         $image_path = 'public/' . $contact->client->client_hash . '/' . $file;
 
-        Log::error($image_path);
         Storage::delete($image_path);
-
         
         $contact->avatar = '';
         $contact->avatar_type = '';

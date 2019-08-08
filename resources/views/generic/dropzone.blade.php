@@ -80,15 +80,7 @@
 		    //dropzone.on('canceled', handleDocumentCanceled);
 		    dropzone.on('error', handleDocumentError);
 
-            var mockFile = {
-                name: contact.avatar,
-                size: contact.avatar_size,
-                type: contact.avatar_type,
-                status: Dropzone.SUCCESS,
-                accepted: true,
-                url: contact.avatar,
-                mock: true
-            };
+            var mockFile = makeMockFile();
 
             if(contact.avatar) {
                 dropzone.emit('addedfile', mockFile);
@@ -108,14 +100,30 @@
 
 		}
 
+    function makeMockFile()
+    {
+        var mockFile = {
+            name: contact.avatar,
+            size: contact.avatar_size,
+            type: contact.avatar_type,
+            status: Dropzone.SUCCESS,
+            accepted: true,
+            url: contact.avatar,
+            mock: true
+        };
+
+        return mockFile;
+    }
+
 	function handleDocumentError(file, responseText) {
-	    dropzone.removeFile(file);
-	 //   window.countUploadingDocuments--;
-             for (var error in responseText.errors) {
+	    
+        dropzone.removeFile(file);
 
-                swal({title: '{{ctrans('texts.error')}}', text: responseText.errors[error]});
+        for (var error in responseText.errors) {
 
-              }
+            swal({title: '{{ctrans('texts.error')}}', text: responseText.errors[error]});
+
+        }
            
 	}
 
@@ -137,15 +145,7 @@
         contact = response;
         dropzone.files = [];
 
-        var mockFile = {
-            name: contact.avatar,
-            size: contact.avatar_size,
-            type: contact.avatar_type,
-            status: Dropzone.SUCCESS,
-            accepted: true,
-            url: contact.avatar,
-            mock: true
-        };
+        var mockFile = makeMockFile();
 
         if(contact.avatar) {
             dropzone.emit('complete', mockFile);

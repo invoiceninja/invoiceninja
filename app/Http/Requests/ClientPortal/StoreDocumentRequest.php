@@ -24,11 +24,7 @@ class StoreDocumentRequest extends Request
 
     public function authorize() : bool
     {
-        if( request('is_avatar') )
-            return request('is_avatar') == true;
-        else 
-            return false;
-        
+        return true;
     }
 
     public function rules()
@@ -36,7 +32,8 @@ class StoreDocumentRequest extends Request
         //$this->sanitize();
 
         return [
-            'file' => 'required|max:10000|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx'
+//            'file' => 'required|max:10000|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx'
+            'file' => 'required|max:10000|mimes:png,svg,jpeg,gif,jpg,bmp'
         ];
     }
 
