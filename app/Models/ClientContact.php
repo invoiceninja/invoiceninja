@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Support\Facades\Log;
 
 
 class ClientContact extends Authenticatable
@@ -80,12 +81,14 @@ class ClientContact extends Authenticatable
         return $this->encodePrimaryKey($this->id);
     }
 
-    public function setAvatarAttribute()
+    public function setAvatarAttribute($value)
     {
-        if(!filter_var($this->attributes['avatar'], FILTER_VALIDATE_URL))
-            return url('/') . $this->attributes['avatar'];
+
+        if(!filter_var($value, FILTER_VALIDATE_URL))
+            $this->attributes['avatar'] = url('/') . $value;
         else
-            return $this->attributes['avatar'];
+            $this->attributes['avatar'] = $value;
+    
     }
 
     public function client()

@@ -61,9 +61,11 @@ class DocumentController extends Controller
         Log::error($path);
         Log::error($url);
 
-        tap((auth()->user())->update([
+        $contact = auth()->user();
+
+        tap($contact)->update([
             'avatar' => $url,
-        ]));
+        ]);
 
         /*
         [2019-08-07 05:50:23] local.ERROR: array (
