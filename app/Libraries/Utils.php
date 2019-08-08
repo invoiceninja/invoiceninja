@@ -22,6 +22,8 @@ use Nwidart\Modules\Facades\Module;
 
 class Utils
 {
+    protected static $cacheValues = [];
+
     private static $weekdayNames = [
         'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
     ];
@@ -555,6 +557,9 @@ class Utils
 
     public static function getFromCache($id, $type)
     {
+        if (!empty(static::$cacheValues[$type]) && !empty(static::$cacheValues[$type][$id])) {
+            return static::$cacheValues[$type][$id];
+        }
         $cache = Cache::get($type);
 
         if (! $cache) {
@@ -567,7 +572,11 @@ class Utils
             return $item->id == $id;
         });
 
-        return $data->first();
+        $res = $data->first();
+        if (!empty($res)) {
+            static::$cacheValues[$type][$id] = $res;
+        }
+        return $res;
     }
 
     public static function formatNumber($value, $currencyId = false, $precision = 0)
