@@ -37,6 +37,7 @@ class ProfileController extends Controller
      */
     public function edit(ClientContact $client_contact)
     {
+        /* Dropzone configuration */
         $data = [
             'params' => [
                 'is_avatar' => TRUE,

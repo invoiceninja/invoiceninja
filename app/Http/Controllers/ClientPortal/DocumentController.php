@@ -52,14 +52,18 @@ class DocumentController extends Controller
 
         Log::error($request->all());
         
-        Storage::makeDirectory(public_path() . $contact->client->client_hash, 0755);
+        Storage::makeDirectory('public/' . $contact->client->client_hash, 0755);
 
-        $path = Storage::putFile($contact->client->client_hash, $request->file('file'));
+        $path = Storage::putFile('public/' . $contact->client->client_hash, $request->file('file'));
 
         $url = Storage::url($path);
 
         Log::error($path);
         Log::error($url);
+
+        tap((auth()->user())->update([
+            'avatar' => $url,
+        ]));
 
         /*
         [2019-08-07 05:50:23] local.ERROR: array (

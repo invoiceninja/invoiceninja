@@ -17,8 +17,6 @@
 
                         <div class="card-body">
 
-                            <i class="fa fa-user fa-5x"></i>
-
                             @include('generic.dropzone')
 
                         </div>

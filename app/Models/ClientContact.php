@@ -68,7 +68,7 @@ class ClientContact extends Authenticatable
         'email',
         'avatar',
     ];
-
+    
     /**/
     public function getRouteKeyName()
     {
@@ -78,6 +78,14 @@ class ClientContact extends Authenticatable
     public function getContactIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
+    }
+
+    public function setAvatarAttribute()
+    {
+        if(!filter_var($this->attributes['avatar'], FILTER_VALIDATE_URL))
+            return url('/') . $this->attributes['avatar'];
+        else
+            return $this->attributes['avatar'];
     }
 
     public function client()

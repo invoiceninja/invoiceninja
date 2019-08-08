@@ -13,6 +13,10 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .dropzone .dz-preview .dz-image {
+          width: 250px;
+          height: 250px;
+        }
     </style>
 @stop
 <div id="dropzone">
@@ -37,6 +41,8 @@
         		'{!! $key !!}' : '{!! $value !!}', 
     			@endforeach
 		    },
+            thumbnailWidth: 250,
+            thumbnailHeight: 250,
 		    addRemoveLinks: true,
 		    dictRemoveFileConfirmation: "{{ctrans('texts.are_you_sure')}}",
             dictDefaultMessage : "{{ctrans('texts.dropzone_default_message')}}",

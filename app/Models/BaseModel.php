@@ -36,12 +36,11 @@ class BaseModel extends Model
     ];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
-
+    
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
-
 
     public function __call($method, $params)
     {
