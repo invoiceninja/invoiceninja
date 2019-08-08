@@ -30,6 +30,9 @@
     <script src="/vendors/js/dropzone.min.js"></script>
     <script src="/vendors/js/sweetalert.min.js"></script>
     <script>
+
+        var contact = {!! auth()->user() !!};
+
     	Dropzone.autoDiscover = false;
 		window.countUploadingDocuments = 0;
 
@@ -70,12 +73,38 @@
 
 
 		if (dropzone instanceof Dropzone) {
-		    
-		    //dropzone.on('addedfile', handleDocumentAdded);
-		    //dropzone.on('removedfile', handleDocumentRemoved);
-		    //dropzone.on('success', handleDocumentUploaded);
+
+		    dropzone.on('addedfile', handleDocumentAdded);
+		    dropzone.on('removedfile', handleDocumentRemoved);
+		    dropzone.on('success', handleDocumentUploaded);
 		    //dropzone.on('canceled', handleDocumentCanceled);
 		    dropzone.on('error', handleDocumentError);
+
+            var mockFile = {
+                name: contact.avatar,
+                size: contact.avatar_size,
+                type: contact.avatar_type,
+                status: Dropzone.SUCCESS,
+                accepted: true,
+                url: contact.avatar,
+                mock: true
+            };
+
+            if(contact.avatar) {
+                dropzone.emit('addedfile', mockFile);
+                dropzone.emit('complete', mockFile);
+            }
+            var documentType = contact.avatar_type;
+            var previewUrl = contact.avatar;
+            var documentUrl = contact.avatar;
+
+            if (contact && previewUrl) {
+                dropzone.emit('thumbnail', mockFile, previewUrl);
+            } else if (documentType == 'jpeg' || documentType == 'png' || documentType == 'svg') {
+                dropzone.emit('thumbnail', mockFile, documentUrl);
+            }
+
+            dropzone.files.push(mockFile);
 
 		}
 
@@ -89,5 +118,66 @@
               }
            
 	}
+
+    function handleDocumentAdded(file){
+
+        if (contact.avatar) {
+            file.previewElement.addEventListener("click", function() {
+                window.open(contact.avatar, '_blank');
+            });
+        }
+        if(file.mock)return;
+        if (window.addDocument) {
+            addDocument(file);
+        }
+    }
+
+    function handleDocumentUploaded(file, response){
+
+        contact = response;
+        dropzone.files = [];
+
+        var mockFile = {
+            name: contact.avatar,
+            size: contact.avatar_size,
+            type: contact.avatar_type,
+            status: Dropzone.SUCCESS,
+            accepted: true,
+            url: contact.avatar,
+            mock: true
+        };
+
+        if(contact.avatar) {
+            dropzone.emit('complete', mockFile);
+        }
+        var documentType = contact.avatar_type;
+        var previewUrl = contact.avatar;
+        var documentUrl = contact.avatar;
+
+        if (contact && previewUrl) {
+            dropzone.emit('thumbnail', mockFile, previewUrl);
+        } else if (documentType == 'jpeg' || documentType == 'png' || documentType == 'svg') {
+            dropzone.emit('thumbnail', mockFile, documentUrl);
+        }
+
+        dropzone.files.push(mockFile);
+
+    }
+
+    function handleDocumentRemoved(file){
+        if (window.deleteDocument) {
+            deleteDocument(file);
+        }
+        $.ajax({
+            url: '{!! $url !!}',
+            type: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(result) {
+                // Do something with the result
+            }
+        });
+    }
     </script>
 @endpush

@@ -55,6 +55,14 @@ class ClientContact extends Authenticatable
     protected $hidden = [
         'password', 
         'remember_token',
+        'user_id',
+        'company_id',
+        'client_id',
+        'google_2fa_secret',
+        'id',
+        'oauth_provider_id',
+        'oauth_user_id',
+        'token',
     ];
 
 
@@ -84,7 +92,7 @@ class ClientContact extends Authenticatable
     public function setAvatarAttribute($value)
     {
 
-        if(!filter_var($value, FILTER_VALIDATE_URL))
+        if(!filter_var($value, FILTER_VALIDATE_URL) && $value)
             $this->attributes['avatar'] = url('/') . $value;
         else
             $this->attributes['avatar'] = $value;

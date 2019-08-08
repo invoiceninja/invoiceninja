@@ -55,17 +55,15 @@ class DocumentController extends Controller
         Storage::makeDirectory('public/' . $contact->client->client_hash, 0755);
 
         $path = Storage::putFile('public/' . $contact->client->client_hash, $request->file('file'));
-
         $url = Storage::url($path);
-
-        Log::error($path);
-        Log::error($url);
+        $size = $request->file('file')->getSize();
+        $type = $request->file('file')->getClientOriginalExtension();
 
         $contact = auth()->user();
-
-        tap($contact)->update([
-            'avatar' => $url,
-        ]);
+        $contact->avatar_size = $size;
+        $contact->avatar_type = $type;
+        $contact->avatar = $url;
+        $contact->save();
 
         /*
         [2019-08-07 05:50:23] local.ERROR: array (
@@ -82,6 +80,9 @@ class DocumentController extends Controller
           )),
         )  
          */
+        
+        return response()->json($contact);
+
     }
 
     /**
@@ -124,8 +125,22 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy()
     {
-        //
+        $contact = auth()->user();
+
+        $file = basename($contact->avatar);
+        $image_path = 'public/' . $contact->client->client_hash . '/' . $file;
+
+        Log::error($image_path);
+        Storage::delete($image_path);
+
+        
+        $contact->avatar = '';
+        $contact->avatar_type = '';
+        $contact->avatar_size = '';
+        $contact->save();
+
+        return response()->json($contact);
     }
 }

@@ -329,9 +329,8 @@ class CreateUsersTable extends Migration
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
             $table->string('avatar', 255)->nullable();
-            $table->unsignedInteger('avatar_width')->nullable();
-            $table->unsignedInteger('avatar_height')->nullable();
-            $table->unsignedInteger('avatar_size')->nullable();
+            $table->string('avatar_type',255)->nullable();
+            $table->string('avatar_size',255)->nullable();
             $table->string('password');
             $table->string('token')->nullable();
             $table->boolean('is_locked')->default(false);

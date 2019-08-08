@@ -20,6 +20,7 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');
 
 	Route::post('document', 'ClientPortal\DocumentController@store')->name('document.store');
+	Route::delete('document', 'ClientPortal\DocumentController@destroy')->name('document.destroy');
 	
 	Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 
