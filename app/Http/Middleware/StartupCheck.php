@@ -40,6 +40,7 @@ class StartupCheck
         if (Input::has('clear_cache')) {
             Session::flash('message', 'Cache cleared');
         }
+        
         foreach ($cached_tables as $name => $class) {
             if (Input::has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending

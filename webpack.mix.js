@@ -25,6 +25,9 @@ mix.copyDirectory('node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js'
 mix.copyDirectory('node_modules/select2/dist/css/select2.min.css', 'public/vendors/css/select2.min.css');
 mix.copyDirectory('node_modules/select2/dist/js/select2.full.min.js', 'public/vendors/js/select2.min.js');
 
+mix.copyDirectory('node_modules/@danielfarrell/bootstrap-combobox/css/bootstrap-combobox.css', 'public/vendors/css/bootstrap-combobox.css');
+mix.copyDirectory('node_modules/@danielfarrell/bootstrap-combobox/js/bootstrap-combobox.js', 'public/vendors/js/bootstrap-combobox.js');
+
 mix.copyDirectory('node_modules/dropzone/dist/min/dropzone.min.css', 'public/vendors/css/dropzone.min.css');
 mix.copyDirectory('node_modules/dropzone/dist/min/basic.min.css', 'public/vendors/css/dropzone-basic.min.css');
 mix.copyDirectory('node_modules/dropzone/dist/min/dropzone.min.js', 'public/vendors/js/dropzone.min.js');

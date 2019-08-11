@@ -11,6 +11,7 @@
 
 namespace App\Http\ViewComposers;
 
+use App\Utils\TranslationHelper;
 use Illuminate\View\View;
 
 /**
@@ -28,7 +29,9 @@ class PortalComposer
      */
     public function compose(View $view) :void
     {
-       $view->with('portal', $this->portalData());
+
+       $view->with($this->portalData());
+
     }
 
     /**
@@ -36,15 +39,17 @@ class PortalComposer
      */
     private function portalData() :array
     {
+
         if(!auth()->user())
             return [];
 
         $data['sidebar'] = $this->sidebarMenu();
         $data['header'] = [];
         $data['footer'] = [];
-
+        $data['countries'] = TranslationHelper::getCountries();
         
         return $data;
+
     }
 
     private function sidebarMenu() :array
@@ -56,6 +61,7 @@ class PortalComposer
         $data[] = [ 'title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'fa fa-file-pdf-o fa-fw fa-2x'];
 
         return $data;
+        
     }
 
 }

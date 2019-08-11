@@ -13,6 +13,7 @@
   "dependencies": {
     "@coreui/coreui": "^2.1.12",
     "@coreui/icons": "^0.3.0",
+    "@danielfarrell/bootstrap-combobox": "^1.1.8",
     "bootstrap": "^4.3.1",
     "bootstrap-sweetalert": "^1.0.1",
     "cross-env": "^5.2.0",

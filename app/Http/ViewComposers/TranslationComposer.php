@@ -31,6 +31,7 @@ class TranslationComposer
      */
     public function compose(View $view) :void
     {
+        
         $view->with('industries', TranslationHelper::getIndustries());
 
         $view->with('countries', TranslationHelper::getCountries());
