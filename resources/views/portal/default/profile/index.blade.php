@@ -1,8 +1,16 @@
 @extends('portal.default.layouts.master')
-@section('header')
-    @parent
-    <link href="/vendors/css/bootstrap-combobox.css" rel="stylesheet">
-@stop
+@push('css')
+    <link href="/vendors/css/select2.min.css" rel="stylesheet">
+    <link href="/vendors/css/select2-bootstrap4.css" rel="stylesheet">
+    <style>    
+      select {border: 1px solid  !important;}
+      .select2-container--bootstrap4 .select2-selection--single 
+      {
+        border: 1px solid #e4e7ea !important;
+      }
+
+    </style>
+@endpush
 @section('body')
     <main class="main">
         <div class="container-fluid">
@@ -57,11 +65,14 @@
                         {!! Former::text('state')->placeholder( ctrans('texts.state'))->label('') !!}
                         {!! Former::text('postal_code')->placeholder( ctrans('texts.postal_code'))->label('') !!}
 
+
                         {!! Former::select('country_id')
                             ->addOption('','')
                             ->autocomplete('off')
                             ->label('')
                             ->fromQuery($countries, 'name', 'id') !!}
+
+                
 
                         {!! Former::text('shipping_address1')->placeholder( ctrans('texts.shipping_address1'))->label('') !!}
                         {!! Former::text('shipping_address2')->placeholder( ctrans('texts.shipping_address2'))->label('') !!}
@@ -115,22 +126,35 @@
 </body>
 @endsection
 @push('scripts')
-    <script src="/vendors/js/bootstrap-combobox.js"></script>
+    <script src="/vendors/js/select2.min.js"></script>
 @endpush
 
 @section('footer')
 
 <script>
 
-$(function() {
-    $('#country_id, #shipping_country_id').combobox();
-
-    });
 
 $(document).ready(function() {
 
-});  
+  $('#shipping_country_id').select2({
+    placeholder: "{{ ctrans('texts.country') }}",
+    //allowClear: true,
+    theme: "bootstrap4",
+}).on('change', function() {
+    
+});
 
+
+  $('#country_id').each(function () {
+    $(this).select2({
+      placeholder: "{{ ctrans('texts.country') }}",
+      theme: 'bootstrap4',
+      width: 'style',
+      allowClear: Boolean($(this).data('allow-clear')),
+    });
+  });
+
+});
 </script>
 
 @endsection

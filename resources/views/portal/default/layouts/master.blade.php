@@ -42,6 +42,8 @@
   <!-- Main styles for this application-->
   <link href="/vendors/css/bootstrap.min.css" rel="stylesheet">
   <link href="/vendors/css/coreui.min.css" rel="stylesheet">
+  @stack('css')
+
     @yield('head')
 </head>
 @include('portal.default.header')
