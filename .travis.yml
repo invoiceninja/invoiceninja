@@ -1,5 +1,8 @@
 language: php
 
+services:
+  - mysql
+
 sudo: true
 
 # Prevent tests from taking more than 50 minutes
@@ -40,7 +43,7 @@ install:
 
 before_script:
   # prevent MySQL went away error
-  #- mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
+  - mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
   # copy configuration files
   - cp .env.travis .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
@@ -82,6 +85,7 @@ script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
@@ -91,7 +95,6 @@ script:
   #- php ./vendor/codeception/codeception/codecept run --debug run acceptance GoProCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
 
 after_script:
   - php artisan ninja:check-data --no-interaction --database='db-ninja-1'
