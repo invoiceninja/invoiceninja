@@ -1,111 +1,108 @@
 @extends('portal.default.layouts.master')
 @push('css')
-    <link href="/vendors/css/select2.min.css" rel="stylesheet">
-    <link href="/vendors/css/select2-bootstrap4.css" rel="stylesheet">
-    <style>    
-      select {border: 1px solid  !important;}
-      .select2-container--bootstrap4 .select2-selection--single 
-      {
-        border: 1px solid #e4e7ea !important;
-      }
+  <link href="/vendors/css/select2.min.css" rel="stylesheet">
+  <link href="/vendors/css/select2-bootstrap4.css" rel="stylesheet">
+  <style>    
+    select {border: 1px solid  !important;}
+    .select2-container--bootstrap4 .select2-selection--single 
+    {
+      border: 1px solid #e4e7ea !important;
+    }
 
-    </style>
+  </style>
 @endpush
 @section('body')
-    <main class="main">
+  <main class="main">
 
-        <div class="container-fluid">
+      <div class="container-fluid">
 
-			<div class="row" style="padding-top: 30px;">
-			
-				<div class="col-sm-3" style="padding-bottom: 10px;">
+		    <div class="row" style="padding-top: 30px;">
+		
+          <div class="col-sm-3" style="padding-bottom: 10px;">
 
-                    {!! Former::framework('TwitterBootstrap4'); !!}
+              {!! Former::framework('TwitterBootstrap4'); !!}
 
-                    {!! Former::horizontal_open()
-                          ->id('update_contact')
-                          ->route('client.profile.update', auth()->user()->hashed_id)
-                          ->method('PUT');	!!}
-                    
-                    @csrf
+              {!! Former::vertical_open_for_files()
+                    ->id('update_contact')
+                    ->route('client.profile.update', auth()->user()->hashed_id)
+                    ->method('PUT');	!!}
+              
+              @csrf
 
-                    <div class="card">
+              <div class="card">
 
-                        <div class="card-header">
-                        
-                            <strong>{{ ctrans('texts.avatar') }}</strong>
+                  <div class="card-header">
+                  
+                      <strong>{{ ctrans('texts.avatar') }}</strong>
 
-                        </div>
+                  </div>
 
-                        <div class="card-body align-items-center">
+                  <div class="card-body align-items-center">
 
-                            @if(auth()->user()->avatar)
-                            <img src="{{ auth()->user()->avatar }}">
-                            @else
-                            <i class="fa fa-user fa-5x"></i>
-                            @endif
+                      @if(auth()->user()->avatar)
+                      <img src="{{ auth()->user()->avatar }}" class="img-fluid">
+                      @else
+                      <i class="fa fa-user fa-5x"></i>
+                      @endif
 
+                      {!! Former::file('avatar')
+                          ->max(2, 'MB')
+                          ->accept('image')
+                          ->label('')
+                          ->inlineHelp(trans('texts.logo_help')) !!}
 
-                {!! Former::file('avatar')
-                    ->max(2, 'MB')
-                    ->accept('image')
-                    ->label(trans('texts.avatar'))
-                    ->inlineHelp(trans('texts.logo_help')) !!}
+                  </div>
 
-                        </div>
+                  <div class="card-footer">
+                  </div>
 
-                        <div class="card-footer">
+              </div>
 
+          </div>
 
-                        </div>
+          <div class="col-sm-6" style="padding-bottom: 10px;">
+              
+              <div class="card">
 
-                    </div>
+                  <div class="card-header">
+                  
+                      <strong> {{ ctrans('texts.user_details') }}</strong>
 
-                </div>
+                  </div>
 
-                <div class="col-sm-6" style="padding-bottom: 10px;">
-                    
-                    <div class="card">
+                  <div class="card-body">
+                  
+                  {!! Former::text('first_name')->placeholder( ctrans('texts.first_name'))->label('')->value(auth()->user()->first_name)!!}
 
-                        <div class="card-header">
-                        
-                            <strong> {{ ctrans('texts.user_details') }}</strong>
+                  {!! Former::text('last_name')->placeholder( ctrans('texts.last_name'))->label('')->value(auth()->user()->last_name) !!}
 
-                        </div>
+                  {!! Former::text('email')->placeholder( ctrans('texts.email'))->label('')->value(auth()->user()->email) !!}
 
-                        <div class="card-body">
-                        
-                        {!! Former::text('first_name')->placeholder( ctrans('texts.first_name'))->label('')->value(auth()->user()->first_name)!!}
+                  {!! Former::text('phone')->placeholder( ctrans('texts.phone'))->label('')->value(auth()->user()->phone) !!}
 
-                        {!! Former::text('last_name')->placeholder( ctrans('texts.last_name'))->label('')->value(auth()->user()->last_name) !!}
+                  {!! Former::password('password')->placeholder( ctrans('texts.password'))->label('') !!}
 
-                        {!! Former::text('email')->placeholder( ctrans('texts.email'))->label('')->value(auth()->user()->email) !!}
+                  {!! Former::password('password_confirmed')->placeholder( ctrans('texts.confirm_password'))->label('') !!}
 
-                        {!! Former::text('phone')->placeholder( ctrans('texts.phone'))->label('')->value(auth()->user()->phone) !!}
+                  </div>
 
-                        {!! Former::password('password')->placeholder( ctrans('texts.password'))->label('') !!}
+                  <div class="card-footer">
 
-                        {!! Former::password('password_confirmed')->placeholder( ctrans('texts.confirm_password'))->label('') !!}
+                      <button class="btn btn-primary pull-right">{{ ctrans('texts.save') }}</button>
 
-                        </div>
+                  </div>
 
-                        <div class="card-footer">
+              </div>
 
-                            <button class="btn btn-primary pull-right">Save</button>
+              {!! Former::close() !!}
 
-                        </div>
+          </div>
 
-                    </div>
+		    </div>
 
-                    {!! Former::close() !!}
+    </div>
 
-                </div>
-
-			</div>
-
-        </div>
-
-    </main>
+  </main>
 
 </body>
 @endsection

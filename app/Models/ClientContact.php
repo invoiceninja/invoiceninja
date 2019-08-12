@@ -75,7 +75,6 @@ class ClientContact extends Authenticatable
         'custom_value3',
         'custom_value4',
         'email',
-        'avatar',
     ];
     
     /**/

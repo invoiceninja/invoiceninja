@@ -13,8 +13,11 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\UpdateContactRequest;
+use App\Jobs\Util\UploadAvatar;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -59,10 +62,31 @@ class ProfileController extends Controller
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {
-        //dd($client_contact);
-        tap($client_contact)->update($request->all());
 
-        return view('portal.default.profile.index');
+        $client_contact->fill($request->all());
+
+        //update password if needed
+        if($request->input('password'))
+            $client_contact->password = Hash::make($request->input('password'));
+
+        //update avatar if needed
+        if($request->file('avatar')) 
+        {
+            $path = UploadAvatar::dispatchNow($request->file('avatar'), auth()->user()->client->client_hash);
+
+            if($path)
+            {
+                $client_contact->avatar = $path;
+                $client_contact->avatar_size = $request->file('avatar')->getSize();
+                $client_contact->avatar_type = $request->file('avatar')->getClientOriginalExtension();
+            }
+        }
+
+        $client_contact->save();
+
+       // auth()->user()->fresh();
+
+        return back();
     }
 
 }
