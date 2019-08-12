@@ -47,6 +47,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    install
    configure
    update
+   digital_ocean
    mobile_apps
    api
    developer_guide

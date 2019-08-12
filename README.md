@@ -37,6 +37,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
 * [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
+* [Lando](https://github.com/invoiceninja/invoiceninja/issues/2880)
 
 ## Recommended Providers
 * [Stripe](https://stripe.com/)
