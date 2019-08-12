@@ -40,7 +40,7 @@ install:
 
 before_script:
   # prevent MySQL went away error
-  - mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
+  #- mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
   # copy configuration files
   - cp .env.travis .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
