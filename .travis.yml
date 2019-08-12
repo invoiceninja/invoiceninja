@@ -8,6 +8,9 @@ group: deprecated-2017Q4
 php:
   - 7.2
 
+services:
+  - mysql
+
 addons:
   hosts:
     - www.ninja.test
