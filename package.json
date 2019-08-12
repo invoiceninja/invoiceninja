@@ -13,6 +13,7 @@
   "dependencies": {
     "@coreui/coreui": "^2.1.12",
     "@coreui/icons": "^0.3.0",
+    "@ttskch/select2-bootstrap4-theme": "^1.2.3",
     "bootstrap": "^4.3.1",
     "bootstrap-sweetalert": "^1.0.1",
     "cross-env": "^5.2.0",

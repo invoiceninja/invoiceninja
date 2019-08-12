@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\UpdateContactRequest;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;
 
@@ -56,9 +57,12 @@ class ProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ClientContact $client_contact)
+    public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {
-        dd($client_contact);
+        //dd($client_contact);
+        tap($client_contact)->update($request->all());
+
+        return view('portal.default.profile.index');
     }
 
 }

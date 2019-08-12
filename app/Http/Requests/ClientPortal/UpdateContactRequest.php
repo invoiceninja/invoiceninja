@@ -14,7 +14,7 @@ namespace App\Http\Requests\ClientPortal;
 use App\Http\Requests\Request;
 use Zend\Diactoros\Response\JsonResponse;
 
-class StoreDocumentRequest extends Request
+class UpdateContactRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,15 +31,16 @@ class StoreDocumentRequest extends Request
     {
 
         return [
-            'file' => 'required|max:10000|mimes:png,svg,jpeg,gif,jpg,bmp'
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email',
+            'password' => 'sometimes|nullable|min:6|confirmed',
+            'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp'
         ];
-        
+
     }
 
-    public function response(array $errors)
-    {
-        return new JsonResponse(['error' => $errors], 400);
-    }
+    
 
 }
 

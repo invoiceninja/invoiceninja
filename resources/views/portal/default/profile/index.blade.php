@@ -13,6 +13,7 @@
 @endpush
 @section('body')
     <main class="main">
+
         <div class="container-fluid">
 
 			<div class="row" style="padding-top: 30px;">
@@ -25,16 +26,35 @@
                           ->id('update_contact')
                           ->route('client.profile.update', auth()->user()->hashed_id)
                           ->method('PUT');	!!}
+                    
+                    @csrf
 
                     <div class="card">
 
                         <div class="card-header">
                         
                             <strong>{{ ctrans('texts.avatar') }}</strong>
+
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body align-items-center">
 
+                            @if(auth()->user()->avatar)
+                            <img src="{{ auth()->user()->avatar }}">
+                            @else
+                            <i class="fa fa-user fa-5x"></i>
+                            @endif
+
+
+                {!! Former::file('avatar')
+                    ->max(2, 'MB')
+                    ->accept('image')
+                    ->label(trans('texts.avatar'))
+                    ->inlineHelp(trans('texts.logo_help')) !!}
+
+                        </div>
+
+                        <div class="card-footer">
 
 
                         </div>
@@ -43,54 +63,8 @@
 
                 </div>
 
-                <div class="col-sm-9" style="padding-bottom: 10px;">
+                <div class="col-sm-6" style="padding-bottom: 10px;">
                     
-                    <div class="card">
-
-                        <div class="card-header">
-                        
-                            <strong> {{ ctrans('texts.client_information') }}</strong>
-
-                        </div>
-
-                        <div class="card-body">
-                        
-                        {!! Former::text('name')->placeholder( ctrans('texts.first_name'))->label('') !!}
-                        {!! Former::text('phone')->placeholder( ctrans('texts.phone'))->label('') !!}
-                        {!! Former::text('website')->placeholder( ctrans('texts.website'))->label('') !!}
-
-                        {!! Former::text('address1')->placeholder( ctrans('texts.address1'))->label('') !!}
-                        {!! Former::text('address2')->placeholder( ctrans('texts.address2'))->label('') !!}
-                        {!! Former::text('city')->placeholder( ctrans('texts.city'))->label('') !!}
-                        {!! Former::text('state')->placeholder( ctrans('texts.state'))->label('') !!}
-                        {!! Former::text('postal_code')->placeholder( ctrans('texts.postal_code'))->label('') !!}
-
-
-                        {!! Former::select('country_id')
-                            ->addOption('','')
-                            ->autocomplete('off')
-                            ->label('')
-                            ->fromQuery($countries, 'name', 'id') !!}
-
-                
-
-                        {!! Former::text('shipping_address1')->placeholder( ctrans('texts.shipping_address1'))->label('') !!}
-                        {!! Former::text('shipping_address2')->placeholder( ctrans('texts.shipping_address2'))->label('') !!}
-                        {!! Former::text('shipping_city')->placeholder( ctrans('texts.shipping_city'))->label('') !!}
-                        {!! Former::text('shipping_state')->placeholder( ctrans('texts.shipping_state'))->label('') !!}
-                        {!! Former::text('shipping_postal_code')->placeholder( ctrans('texts.shipping_postal_code'))->label('') !!}
-
-                        {!! Former::select('shipping_country_id')
-                            ->addOption('','')
-                            ->autocomplete('off')
-                            ->label('')
-                            ->fromQuery($countries, 'name', 'id') !!}
-
-                        </div>
-
-
-                    </div>
-
                     <div class="card">
 
                         <div class="card-header">
@@ -101,17 +75,25 @@
 
                         <div class="card-body">
                         
+                        {!! Former::text('first_name')->placeholder( ctrans('texts.first_name'))->label('')->value(auth()->user()->first_name)!!}
 
-                        {!! Former::text('first_name')->placeholder( ctrans('texts.first_name'))->label('') !!}
+                        {!! Former::text('last_name')->placeholder( ctrans('texts.last_name'))->label('')->value(auth()->user()->last_name) !!}
 
-                        {!! Former::text('last_name')->placeholder( ctrans('texts.last_name'))->label('') !!}
+                        {!! Former::text('email')->placeholder( ctrans('texts.email'))->label('')->value(auth()->user()->email) !!}
 
-                        {!! Former::text('email')->placeholder( ctrans('texts.email'))->label('') !!}
+                        {!! Former::text('phone')->placeholder( ctrans('texts.phone'))->label('')->value(auth()->user()->phone) !!}
 
-                        {!! Former::text('phone')->placeholder( ctrans('texts.phone'))->label('') !!}
+                        {!! Former::password('password')->placeholder( ctrans('texts.password'))->label('') !!}
+
+                        {!! Former::password('password_confirmed')->placeholder( ctrans('texts.confirm_password'))->label('') !!}
 
                         </div>
 
+                        <div class="card-footer">
+
+                            <button class="btn btn-primary pull-right">Save</button>
+
+                        </div>
 
                     </div>
 
@@ -122,39 +104,8 @@
 			</div>
 
         </div>
+
     </main>
+
 </body>
-@endsection
-@push('scripts')
-    <script src="/vendors/js/select2.min.js"></script>
-@endpush
-
-@section('footer')
-
-<script>
-
-
-$(document).ready(function() {
-
-  $('#shipping_country_id').select2({
-    placeholder: "{{ ctrans('texts.country') }}",
-    //allowClear: true,
-    theme: "bootstrap4",
-}).on('change', function() {
-    
-});
-
-
-  $('#country_id').each(function () {
-    $(this).select2({
-      placeholder: "{{ ctrans('texts.country') }}",
-      theme: 'bootstrap4',
-      width: 'style',
-      allowClear: Boolean($(this).data('allow-clear')),
-    });
-  });
-
-});
-</script>
-
 @endsection
