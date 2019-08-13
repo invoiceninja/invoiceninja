@@ -4,11 +4,8 @@
   <link href="/vendors/css/select2-bootstrap4.css" rel="stylesheet">
   <style>    
     select {border: 1px solid  !important;}
-    .select2-container--bootstrap4 .select2-selection--single 
-    {
-      border: 1px solid #e4e7ea !important;
-    }
-
+    .select2-container--bootstrap4 .select2-selection--single {border: 1px solid #e4e7ea !important;}
+    .control-label {text-align:right;}
   </style>
 @endpush
 @section('body')
@@ -23,7 +20,7 @@
 
                     {!! Former::framework('TwitterBootstrap4'); !!}
 
-                    {!! Former::vertical_open_for_files()
+                    {!! Former::horizontal_open_for_files()
                           ->id('update_contact')
                           ->route('client.profile.update', auth()->user()->hashed_id)
                           ->method('PUT');  !!}
@@ -33,7 +30,7 @@
               <div class="card-body">
 
                 <div class="row">
-                  <div class="col-sm-3">
+                  <div class="col-sm-4">
                     <div class="card">
                       <div class="card-body align-items-center">
                         @if(auth()->user()->avatar)
@@ -50,21 +47,20 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-sm-6">
+                  <div class="col-sm-8">
                     <div class="card">
                       <div class="card-body">
-                        {!! Former::text('first_name')->placeholder( ctrans('texts.first_name'))->label('')->value(auth()->user()->first_name)!!}
+                        {!! Former::text('first_name')->label( ctrans('texts.first_name'))->value(auth()->user()->first_name) !!}
 
-                        {!! Former::text('last_name')->placeholder( ctrans('texts.last_name'))->label('')->value(auth()->user()->last_name) !!}
+                        {!! Former::text('last_name')->placeholder('')->label( ctrans('texts.last_name'))->value(auth()->user()->last_name) !!}
 
-                        {!! Former::text('email')->placeholder( ctrans('texts.email'))->label('')->value(auth()->user()->email) !!}
+                        {!! Former::text('email')->placeholder('')->label(ctrans('texts.email'))->value(auth()->user()->email) !!}
 
-                        {!! Former::text('phone')->placeholder( ctrans('texts.phone'))->label('')->value(auth()->user()->phone) !!}
+                        {!! Former::text('phone')->placeholder('')->label(ctrans('texts.phone'))->value(auth()->user()->phone) !!}
 
-                        {!! Former::password('password')->placeholder( ctrans('texts.password'))->label('') !!}
+                        {!! Former::password('password')->placeholder('')->label(ctrans('texts.password')) !!}
 
-                        {!! Former::password('password_confirmation')->placeholder( ctrans('texts.confirm_password'))->label('') !!}
-
+                        {!! Former::password('password_confirmation')->placeholder('')->label(ctrans('texts.confirm_password')) !!}
 
                         <div>
                           <button class="btn btn-primary pull-right">{{ ctrans('texts.save') }}</button>

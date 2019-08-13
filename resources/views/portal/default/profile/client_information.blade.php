@@ -1,6 +1,6 @@
 <div class="row">
 
-  <div class="col-sm-9" style="padding-bottom: 10px;">
+  <div class="col-sm-12">
 
   {!! Former::framework('TwitterBootstrap4'); !!}
 
@@ -18,11 +18,7 @@
       </div>
 
       <div class="card-body">
-      </div>
-
-      <div class="card-footer">
-
-        <button class="btn btn-primary pull-right">{{ ctrans('texts.save') }}</button>
+                <button class="btn btn-primary pull-right">{{ ctrans('texts.save') }}</button>
 
       </div>
   
