@@ -13,9 +13,8 @@ namespace App\Http\Requests\ClientPortal;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Zend\Diactoros\Response\JsonResponse;
 
-class UpdateContactRequest extends Request
+class UpdateSettingsRequest extends Request
 {
     use MakesHash;
     
@@ -34,12 +33,6 @@ class UpdateContactRequest extends Request
     {
 
         return [
-            'first_name' => 'required',
-            'last_name' => 'required',
-            //'email' => 'required|email',
-            'email' => 'required|email|unique:client_contacts,email,' . auth()->user()->id,
-            'password' => 'sometimes|nullable|min:6|confirmed',
-            'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp'
         ];
 
     }

@@ -13,6 +13,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\UpdateContactRequest;
+use App\Http\Requests\ClientPortal\UpdateSettingsRequest;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;
@@ -89,4 +90,14 @@ class ProfileController extends Controller
         return back();
     }
 
+    public function settings()
+    {
+        return view('portal.default.settings.index');   
+    }
+
+    public function updateSettings(UpdateSettingsRequest $request)
+    {
+
+        return back();
+    }
 }
