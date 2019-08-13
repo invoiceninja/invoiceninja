@@ -82,7 +82,7 @@
 
                   {!! Former::password('password')->placeholder( ctrans('texts.password'))->label('') !!}
 
-                  {!! Former::password('password_confirmed')->placeholder( ctrans('texts.confirm_password'))->label('') !!}
+                  {!! Former::password('password_confirmation')->placeholder( ctrans('texts.confirm_password'))->label('') !!}
 
                   </div>
 

@@ -39,7 +39,11 @@
 
         <li class="nav-item dropdown" style="padding-right: 20px;">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <img class="img-avatar" src="/images/logo.png" alt=""> {{ auth()->user()->present()->name() }}
+                @if(auth()->user()->avatar)
+                <img class="img-avatar" src="{{ auth()->user()->avatar }}" alt="" class="img-fluid"> {{ auth()->user()->present()->name() }}
+                @else
+                <img class="img-avatar" src="/images/logo.png" alt="" class="img-fluid"> {{ auth()->user()->present()->name() }}
+                @endif
             </a>
             <div class="dropdown-menu dropdown-menu-sm">
                 <div class="dropdown-header text-center">
