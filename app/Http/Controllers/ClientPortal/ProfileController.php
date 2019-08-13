@@ -90,14 +90,9 @@ class ProfileController extends Controller
         return back();
     }
 
-    public function settings()
+    public function updateClient(UpdateSettingsRequest $request, ClientContact $client_contact)
     {
-        return view('portal.default.settings.index');   
-    }
-
-    public function updateSettings(UpdateSettingsRequest $request)
-    {
-
+dd("hi");
         return back();
     }
 }

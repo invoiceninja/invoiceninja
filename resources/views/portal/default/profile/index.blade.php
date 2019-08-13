@@ -100,6 +100,8 @@
 
 		    </div>
 
+      @include('portal.default.profile.client_information')
+      
     </div>
 
   </main>

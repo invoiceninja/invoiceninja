@@ -77,16 +77,16 @@ class Handler extends ExceptionHandler
         {
             return response()->json(['message'=>'Fatal error', 500]);
         }
-/*        else if ($exception instanceof \Illuminate\Session\TokenMismatchException)
+        else if ($exception instanceof \Illuminate\Session\TokenMismatchException)
         {
             return redirect()
                     ->back()
-                    ->withInput($request->except('password'))
+                    ->withInput($request->except('password', 'password_confirmation', '_token'))
                     ->with([
                         'message' => ctrans('texts.token_expired'),
                         'message-type' => 'danger']);
         }   
-*/
+
         return parent::render($request, $exception);
 
     }
