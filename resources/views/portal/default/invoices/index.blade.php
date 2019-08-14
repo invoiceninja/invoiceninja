@@ -20,6 +20,7 @@
                         <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
                               <option value="paid">{{ ctrans('texts.status_paid') }}</option>
                               <option value="unpaid">{{ ctrans('texts.status_unpaid') }}</option>
+                              <option value="overdue">{{ ctrans('texts.overdue') }}</option>
                         </select>
 
                     </div>
@@ -162,12 +163,16 @@ $('#statuses').select2({
     templateSelection: function(data, container) {
         if (data.id == 'paid') {
             $(container).css('color', '#fff');
-            $(container).css('background-color', '#f0ad4e');
-            $(container).css('border-color', '#eea236');
+            $(container).css('background-color', '#00c979');
+            $(container).css('border-color', '#00a161');
         } else if (data.id == 'unpaid') {
             $(container).css('color', '#fff');
+            $(container).css('background-color', '#f0ad4e');
+            $(container).css('border-color', '#eea236');
+        } else if (data.id == 'overdue') {
+            $(container).css('color', '#fff');
             $(container).css('background-color', '#d9534f');
-            $(container).css('border-color', '#d43f3a');
+            $(container).css('border-color', '#d43f3a');            
         }
         return data.text;
     }

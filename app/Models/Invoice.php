@@ -18,6 +18,7 @@ use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class Invoice extends BaseModel
 {
@@ -78,6 +79,11 @@ class Invoice extends BaseModel
         'client',
     ];
 
+    protected $appends = [
+        'hashed_id',
+        'status'
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
     const STATUS_PARTIAL = 3;
@@ -88,6 +94,23 @@ class Invoice extends BaseModel
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
 
+    
+    public function getStatusAttribute()
+    {
+
+        if($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now())
+            return Invoice::STATUS_UNPAID;
+        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now())
+            return Invoice::STATUS_UNPAID;
+        else if($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now())
+            return Invoice::STATUS_OVERDUE;
+        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now())
+            return Invoice::STATUS_OVERDUE;
+        else
+            return $this->status_id;
+
+    }
+    
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -172,4 +195,36 @@ class Invoice extends BaseModel
         $this->last_viewed = Carbon::now()->format('Y-m-d H:i');
     }
     
+    public static function badgeForStatus(int $status)
+    {
+        switch ($status) {
+            case Invoice::STATUS_DRAFT:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
+                break;
+            case Invoice::STATUS_SENT:
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h4>';
+                break;
+            case Invoice::STATUS_PARTIAL:
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h4>';
+                break;
+            case Invoice::STATUS_PAID:
+                return '<h4><span class="badge badge-success">'.ctrans('texts.paid').'</span></h4>';
+                break;
+            case Invoice::STATUS_CANCELLED:
+                return '<h4><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h4>';
+                break;
+            case Invoice::STATUS_OVERDUE:
+                return '<h4><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h4>';
+                break;
+            case Invoice::STATUS_UNPAID:
+                return '<h4><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h4>';
+                break;      
+            case Invoice::STATUS_REVERSED:
+                return '<h4><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h4>';
+                break;           
+            default:
+                # code...
+                break;
+        }
+    }
 }

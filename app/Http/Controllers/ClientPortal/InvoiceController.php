@@ -40,18 +40,22 @@ class InvoiceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(InvoiceFilters $filters, Builder $builder)
-    {//Log::error(request());
+    {//
         $invoices = Invoice::filter($filters);
 
         if (request()->ajax()) {
 
             return DataTables::of(Invoice::filter($filters))->addColumn('action', function ($invoice) {
-                    return '<a href="/client/invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                    return '<a href="/client/invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })
                 ->addColumn('checkbox', function ($invoice){
                     return '<input type="checkbox" name="hashed_ids[]" value="'. $invoice->hashed_id .'"/>';
                 })
-                ->rawColumns(['checkbox', 'action'])
+                ->editColumn('status_id', function ($invoice){
+                    Log::error($invoice->status);
+                    return Invoice::badgeForStatus($invoice->status);
+                })
+                ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);
         
         }
@@ -67,7 +71,7 @@ class InvoiceController extends Controller
             ['data' => 'amount', 'name' => 'amount', 'title' => trans('texts.total'), 'visible'=> true],
             ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
             ['data' => 'due_date', 'name' => 'due_date', 'title' => trans('texts.due_date'), 'visible'=> true],
-            ['data' => 'status_id', 'name' => 'status_id', 'title' => trans('texts.status'), 'visible'=> true],
+            ['data' => 'status', 'name' => 'status', 'title' => trans('texts.status'), 'visible'=> true],
             ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
         ]);
 
