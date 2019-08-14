@@ -13,7 +13,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\UpdateContactRequest;
-use App\Http\Requests\ClientPortal\UpdateSettingsRequest;
+use App\Http\Requests\ClientPortal\UpdateClientRequest;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;
@@ -90,9 +90,14 @@ class ProfileController extends Controller
         return back();
     }
 
-    public function updateClient(UpdateSettingsRequest $request, ClientContact $client_contact)
+    public function updateClient(UpdateClientRequest $request, ClientContact $client_contact)
     {
-dd("hi");
+
+        $client = $client_contact->client;
+
+        $client->fill($request->all());
+        $client->save();
+
         return back();
     }
 }

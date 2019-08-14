@@ -35,23 +35,23 @@ class ClientContact extends Authenticatable
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
-    /* Deprecated TODO remove*/
-    protected $presenter = 'App\Models\Presenters\ClientContactPresenter';
-
-    protected $dates = ['deleted_at'];
-    
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
+    protected $presenter = 'App\Models\Presenters\ClientContactPresenter';
+
+    protected $dates = [
+        'deleted_at'
+    ];
+    
     protected $appends = [
         'hashed_id'
     ];
 
-    public function getHashedIdAttribute()
-    {
-        return $this->encodePrimaryKey($this->id);
-    }
-    
+    protected $with = [
+        'client'
+    ];
+
     protected $hidden = [
         'password', 
         'remember_token',
@@ -65,7 +65,6 @@ class ClientContact extends Authenticatable
         'token',
     ];
 
-
     protected $fillable = [
         'first_name',
         'last_name',
@@ -76,6 +75,11 @@ class ClientContact extends Authenticatable
         'custom_value4',
         'email',
     ];
+    
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
     
     /**/
     public function getRouteKeyName()

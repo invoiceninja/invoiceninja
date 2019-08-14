@@ -14,7 +14,7 @@ namespace App\Http\Requests\ClientPortal;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 
-class UpdateSettingsRequest extends Request
+class UpdateClientRequest extends Request
 {
     use MakesHash;
     
@@ -33,6 +33,7 @@ class UpdateSettingsRequest extends Request
     {
 
         return [
+            'name' => 'required'
         ];
 
     }

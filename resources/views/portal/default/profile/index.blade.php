@@ -1,12 +1,12 @@
 @extends('portal.default.layouts.master')
 @push('css')
-  <link href="/vendors/css/select2.min.css" rel="stylesheet">
-  <link href="/vendors/css/select2-bootstrap4.css" rel="stylesheet">
-  <style>    
-    select {border: 1px solid  !important;}
-    .select2-container--bootstrap4 .select2-selection--single {border: 1px solid #e4e7ea !important;}
-    .control-label {text-align:right;}
-  </style>
+    <link href="/vendors/css/select2.min.css" rel="stylesheet">
+    <link href="/vendors/css/select2-bootstrap4.css" rel="stylesheet">
+    <style>    
+      select {border: 1px solid  !important;}
+      .select2-container--bootstrap4 .select2-selection--single {border: 1px solid #e4e7ea !important;}
+      .control-label {text-align:right;}
+    </style>
 @endpush
 @section('body')
   <main class="main">
@@ -31,8 +31,8 @@
 
                 <div class="row">
                   <div class="col-sm-4">
-                    <div class="card">
-                      <div class="card-body align-items-center">
+                    <div class="card align-items-center">
+                      <div class="card-body">
                         @if(auth()->user()->avatar)
                         <img src="{{ auth()->user()->avatar }}" class="img-fluid">
                         @else
@@ -77,8 +77,9 @@
                         {!! Former::close() !!}
 
         @include('portal.default.profile.client_information')
-
       </div>
   </main>
 </body>
+@endsection
+@section('footer')
 @endsection

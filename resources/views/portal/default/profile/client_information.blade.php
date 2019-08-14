@@ -6,25 +6,111 @@
 
   {!! Former::horizontal_open()
         ->id('update_settings')
-        ->route('client.profile.update_settings', auth()->user()->hashed_id)
+        ->route('client.profile.edit_client', auth()->user()->hashed_id)
         ->method('PUT');	!!}
   
+  {!! Former::populate(auth()->user()->client) !!}
+
   @csrf
 
     <div class="card">
 
       <div class="card-header">
-        {{ ctrans('texts.client_information') }}
+        <strong> {{ ctrans('texts.client_information') }} </strong>
       </div>
 
       <div class="card-body">
-                <button class="btn btn-primary pull-right">{{ ctrans('texts.save') }}</button>
+          
+          <div class="row">
+            <div class="col-sm-6  pull-left">
+              {!! Former::text('name')->label( ctrans('texts.name')) !!}
+              {!! Former::text('website')->label( ctrans('texts.website')) !!}
+            </div>
+          </div>
+
+                <div class="row">
+
+                  <div class="col-sm-6">
+                    <div class="card">
+                      <div class="card-header">
+                        <strong> {{ ctrans('texts.address') }} </strong>
+                      </div>
+                      <div class="card-body">
+
+                        {!! Former::text('address1')->label( ctrans('texts.address1')) !!}
+                        {!! Former::text('address2')->label( ctrans('texts.address2')) !!}
+                        {!! Former::text('city')->label( ctrans('texts.city')) !!}
+                        {!! Former::text('state')->label( ctrans('texts.state')) !!}
+                        {!! Former::text('postal_code')->label( ctrans('texts.postal_code')) !!}
+
+                        {!! Former::select('country_id')
+                            ->addOption('','')
+                            ->autocomplete('off')
+                            ->label(ctrans('texts.country'))
+                            ->fromQuery($countries, 'name', 'id') !!}
+
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div class="col-sm-6">
+                    <div class="card">
+                      <div class="card-header">
+                        <strong> {{ ctrans('texts.shipping_address') }} </strong>
+                      </div>
+                      <div class="card-body">      
+
+                        {!! Former::text('shipping_address1')->label( ctrans('texts.shipping_address1')) !!}
+                        {!! Former::text('shipping_address2')->label( ctrans('texts.shipping_address2')) !!}
+                        {!! Former::text('shipping_city')->label(ctrans('texts.shipping_city')) !!}
+                        {!! Former::text('shipping_state')->label(ctrans('texts.shipping_state')) !!}
+                        {!! Former::text('shipping_postal_code')->label(ctrans('texts.shipping_postal_code')) !!}
+
+                        {!! Former::select('shipping_country_id')
+                            ->addOption('','')
+                            ->autocomplete('off')
+                            ->label(ctrans('texts.shipping_country'))
+                            ->fromQuery($countries, 'name', 'id') !!}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+          <button class="btn btn-primary pull-right">{{ ctrans('texts.save') }}</button>
 
       </div>
   
   {!! Former::close() !!}
 
     </div>
+@push('scripts')
+<script src="/vendors/js/select2.min.js"></script>
+<script>
+  $(document).ready(function() {
+
+    $('#shipping_country_id').each(function () {
+      $(this).select2({
+        placeholder: "{{ ctrans('texts.country') }}",
+        theme: 'bootstrap4',
+        width: 'style',
+        allowClear: Boolean($(this).data('allow-clear')),
+      }).on('change', function() {
+      
+      });
+    });
 
 
-          
+    $('#country_id').each(function () {
+      $(this).select2({
+        placeholder: "{{ ctrans('texts.country') }}",
+        theme: 'bootstrap4',
+        width: 'style',
+        allowClear: Boolean($(this).data('allow-clear')),
+      });
+    });
+
+  });
+</script>  
+@endpush
