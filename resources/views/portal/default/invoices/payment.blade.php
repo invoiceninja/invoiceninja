@@ -7,7 +7,7 @@
     <div class="container-fluid">
 		<div class="row" style="padding-top: 30px;">
             <div class="col d-flex justify-content-center">
-                <div class="card">
+                <div class="card w-50 p-10">
                     <div class="card-header">
                         {{ ctrans('texts.payment')}}
                     </div>
@@ -16,7 +16,7 @@
                             @foreach($invoices as $invoice)
                                 <a class="list-group-item list-group-item-action flex-column align-items-start" href="javascript:void(0);">
                                     <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"># {{ $invoice->invoice_number }}</h5>
+                                    <h5 class="mr-4"># {{ $invoice->invoice_number }}</h5>
                                     <small>{{$invoice->due_date}}</small>
                                     </div>
                                 <p class="mb-1 pull-right">${{ $invoice->balance }}</p>
@@ -39,7 +39,7 @@
                                 <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.subtotal')}}
                                     <span class="badge badge-primary badge-pill">$314.00</span>
                                 </li>
-                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.tax')}}
+                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.taxes')}}
                                     <span class="badge badge-primary badge-pill">$19.00</span>
                                 </li>
                                 <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.fees')}}
