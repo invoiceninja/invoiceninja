@@ -14,8 +14,16 @@
 					
                     <div class="pull-left">
 
-                            {!! Former::dark_button(ctrans('texts.download'))->addClass('download_invoices') !!}
-                            {!! Former::success_button(ctrans('texts.pay_now'))->addClass('pay_invoices') !!}
+                        <div class="btn-group">
+                          <button type="button" class="btn btn-success" id="pay_invoices">{{ ctrans('texts.pay_now') }}</button>
+                          <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" id="pay_invoices_drop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="sr-only">Toggle Dropdown</span>
+                          </button>
+                          <div class="dropdown-menu">
+                            <a class="dropdown-item" id="download_invoices" href="#">{{ctrans('texts.download')}}</a>
+                          </div>
+                        </div>
+
 
                         <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
                               <option value="paid">{{ ctrans('texts.status_paid') }}</option>
@@ -111,20 +119,21 @@ $(function() {
 </script>
 
 <script>
+    var searchTimeout = false;
+    var selected = [];   
 
 $(document).ready(function() {
 
-    var searchTimeout = false;
-
-    $('.pay_invoices').attr("disabled", true);
-    $('.download_invoices').attr("disabled", true);
+    toggleButtonGroup();
 
     $("#datatable").on('change', 'input[type=checkbox]', function() {
-        var selected = [];
-        $.each($("input[name='hashed_ids[]']:checked"), function(){            
+        selected = []; 
+        $.each($("input[name='hashed_ids[]']:checked"), function(){  
+                     
             selected.push($(this).val());
         });
         
+        toggleButtonGroup();
     });
 
     $('#table_filter').on('keyup', function(){
@@ -140,7 +149,7 @@ $(document).ready(function() {
         $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
     }); 
 
-    $('.pay_invoices').click(function() {
+    $('.btn .btn-success .pay_invoices').click(function() {
         alert('pay');
     }); 
 
@@ -148,7 +157,25 @@ $(document).ready(function() {
         alert('download');
     }); 
 
-});  
+ 
+}); 
+
+function toggleButtonGroup()
+{
+    if(selected.length == 0)
+    {
+        $('#pay_invoices').addClass('disabled');
+        $('#pay_invoices_drop').addClass('disabled');
+        $('#download_invoices').addClass('disabled');
+
+    }
+    else 
+    {
+        $('#pay_invoices').removeClass('disabled');
+        $('#pay_invoices_drop').removeClass('disabled');
+        $('#download_invoices').removeClass('disabled');
+    }
+}
 
 function filterTable() {
 

@@ -52,7 +52,6 @@ class InvoiceController extends Controller
                     return '<input type="checkbox" name="hashed_ids[]" value="'. $invoice->hashed_id .'"/>';
                 })
                 ->editColumn('status_id', function ($invoice){
-                    Log::error($invoice->status);
                     return Invoice::badgeForStatus($invoice->status);
                 })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
