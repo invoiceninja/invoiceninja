@@ -195,6 +195,11 @@ class Invoice extends BaseModel
         $this->last_viewed = Carbon::now()->format('Y-m-d H:i');
     }
     
+    public function isPayable()
+    {
+        return ($this->status === Invoice::STATUS_UNPAID || $this->status === Invoice::STATUS_OVERDUE);
+    }
+
     public static function badgeForStatus(int $status)
     {
         switch ($status) {

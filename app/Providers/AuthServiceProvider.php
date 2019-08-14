@@ -61,7 +61,7 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
-
+/*
         Auth::provider('users', function ($app, array $config) {
             return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
         });
@@ -70,7 +70,7 @@ class AuthServiceProvider extends ServiceProvider
             return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
 
         });
-
+*/
         Gate::define('view-list', function ($user, $entity) {
 
             $entity = strtolower(class_basename($entity));

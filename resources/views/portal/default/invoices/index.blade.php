@@ -20,7 +20,7 @@
                             <span class="sr-only">Toggle Dropdown</span>
                           </button>
                           <div class="dropdown-menu">
-                            <a class="dropdown-item" id="download_invoices" href="#">{{ctrans('texts.download')}}</a>
+                            <a class="dropdown-item" id="download_invoices">{{ctrans('texts.download_pdf')}}</a>
                           </div>
                         </div>
 
@@ -149,11 +149,30 @@ $(document).ready(function() {
         $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
     }); 
 
-    $('.btn .btn-success .pay_invoices').click(function() {
-        alert('pay');
+    $('#pay_invoices').click(function() {
+
+        $('#pay_invoices').addClass('disabled');
+        $('#pay_invoices_drop').addClass('disabled');
+        $('#download_invoices').addClass('disabled');
+        
+        $.ajax({
+            url: "{{ route('client.invoices.payment')}}",
+            type: "post",
+            data: {
+                _token: '{{ csrf_token() }}', 
+                hashed_ids: selected
+            },
+            success: function (response) {
+
+               // You will get response from your PHP page (what you echo or print)
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+               console.log(textStatus, errorThrown);
+            }
+        });
     }); 
 
-    $('.download_invoices').click(function() {
+    $('#download_invoices').click(function() {
         alert('download');
     }); 
 

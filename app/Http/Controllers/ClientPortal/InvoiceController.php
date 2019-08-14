@@ -59,28 +59,7 @@ class InvoiceController extends Controller
         
         }
 
-        $builder->addAction();
-        $builder->addCheckbox();
-        
-        /**todo this is redundant, but keep in case we want to build this serverside*/
-        $html = $builder->columns([
-            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '', 'searchable' => false, 'orderable' => false],
-            ['data' => 'invoice_number', 'name' => 'invoice_number', 'title' => trans('texts.invoice_number'), 'visible'=> true],
-            ['data' => 'invoice_date', 'name' => 'invoice_date', 'title' => trans('texts.invoice_date'), 'visible'=> true],
-            ['data' => 'amount', 'name' => 'amount', 'title' => trans('texts.total'), 'visible'=> true],
-            ['data' => 'balance', 'name' => 'balance', 'title' => trans('texts.balance'), 'visible'=> true],
-            ['data' => 'due_date', 'name' => 'due_date', 'title' => trans('texts.due_date'), 'visible'=> true],
-            ['data' => 'status', 'name' => 'status', 'title' => trans('texts.status'), 'visible'=> true],
-            ['data' => 'action', 'name' => 'action', 'title' => '', 'searchable' => false, 'orderable' => false],
-        ]);
-
-        $builder->ajax([
-            'url' => route('client.invoices.index'),
-            'type' => 'GET',
-            'data' => 'function(d) { d.key = "value"; }',
-        ]);
-
-        $data['html'] = $html;
+        $data['html'] = $builder;
       
         return view('portal.default.invoices.index', $data);
 
@@ -100,14 +79,29 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Pay one or more invoices
      * 
-     * @return Collection
+     * @return View
      */
-    public function bulk()
+    public function payment()
     {
 
+        $transformed_ids = $this->transformKeys(request()->input('hashed_ids'));
+
+        $invoices = Invoice::whereIn('id', $transformed_ids)
+                            ->whereClientId(auth()->user()->client->id)
+                            ->get()
+                            ->filter(function ($invoice){
+                                return $invoice->isPayable();
+                            });
+
+
+        $data = [
+            'invoices' => $invoices,
+        ];
         
+        return view('portal.default.invoices.payment', $data);
+                
     }
 
 

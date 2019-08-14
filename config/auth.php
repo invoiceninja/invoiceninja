@@ -73,11 +73,14 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => env('USER_AUTH_PROVIDER', 'eloquent'),
+            'driver' => 'eloquent',
+            //'driver' => env('USER_AUTH_PROVIDER', 'eloquent'),
             'model' => App\Models\User::class,
         ],
         'contacts' => [
-            'driver' => env('CONTACT_AUTH_PROVIDER', 'eloquent'),
+            'driver' => 'eloquent',
+
+//            'driver' => env('CONTACT_AUTH_PROVIDER', 'eloquent'),
             'model' => App\Models\ClientContact::class,
         ],
 
