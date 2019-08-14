@@ -8,7 +8,19 @@
     <main class="main">
         <div class="container-fluid">
 
-			<div class="row" style="padding-top: 30px;">
+    {!! Former::framework('TwitterBootstrap4'); !!}
+
+    {!! Former::horizontal_open()
+        ->id('payment_form')
+        ->route('client.invoices.bulk')
+        ->method('POST');    !!}
+
+    {!! Former::hidden('hashed_ids')->id('hashed_ids') !!}
+    {!! Former::hidden('action')->id('action') !!}
+    
+    {!! Former::close() !!}
+	
+    		<div class="row" style="padding-top: 30px;">
 			
 				<div class="col-lg-12" style="padding-bottom: 10px;">
 					
@@ -155,21 +167,11 @@ $(document).ready(function() {
         $('#pay_invoices_drop').addClass('disabled');
         $('#download_invoices').addClass('disabled');
         
-        $.ajax({
-            url: "{{ route('client.invoices.payment')}}",
-            type: "post",
-            data: {
-                _token: '{{ csrf_token() }}', 
-                hashed_ids: selected
-            },
-            success: function (response) {
 
-               // You will get response from your PHP page (what you echo or print)
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-               console.log(textStatus, errorThrown);
-            }
-        });
+        $('#hashed_ids').val(selected);
+        $('#action').val('pay');
+
+        $('#payment_form').submit();
     }); 
 
     $('#download_invoices').click(function() {

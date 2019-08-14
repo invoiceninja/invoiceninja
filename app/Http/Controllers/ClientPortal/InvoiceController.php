@@ -83,10 +83,11 @@ class InvoiceController extends Controller
      * 
      * @return View
      */
-    public function payment()
+    public function bulk()
     {
+Log::error(request()->input('hashed_ids'));
 
-        $transformed_ids = $this->transformKeys(request()->input('hashed_ids'));
+        $transformed_ids = $this->transformKeys(explode(",",request()->input('hashed_ids')));
 
         $invoices = Invoice::whereIn('id', $transformed_ids)
                             ->whereClientId(auth()->user()->client->id)
@@ -95,11 +96,12 @@ class InvoiceController extends Controller
                                 return $invoice->isPayable();
                             });
 
+Log::error($invoices);
 
         $data = [
             'invoices' => $invoices,
         ];
-        
+
         return view('portal.default.invoices.payment', $data);
                 
     }
