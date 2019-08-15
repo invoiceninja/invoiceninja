@@ -31,9 +31,9 @@ class RecurringInvoice extends BaseModel
      */
     const STATUS_DRAFT = 2;
     const STATUS_ACTIVE = 3;
+    const STATUS_CANCELLED = 4;
     const STATUS_PENDING = -1;
     const STATUS_COMPLETED = -2;
-    const STATUS_CANCELLED = -3;
 
 
     /**
@@ -85,9 +85,9 @@ class RecurringInvoice extends BaseModel
         'line_items' => 'object',
     ];
 
-    protected $with = [
-   //     'client',
-   //     'company',
+    protected $appends = [
+        'hashed_id',
+        'status'
     ];
 
     public function company()
@@ -110,30 +110,42 @@ class RecurringInvoice extends BaseModel
         $this->morphMany(RecurringInvoiceInvitation::class);
     }
 
+    public function getStatusAttribute()
+    {
+
+        if($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->start_date > Carbon::now()) //marked as active, but yet to fire first cycle
+            return RecurringInvoice::STATUS_PENDING;
+        else if($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->next_send_date > Carbon::now())
+            return RecurringInvoice::STATUS_COMPLETED;
+        else
+            return $this->status_id;
+
+    }
+
     public function nextSendDate() :?Carbon
     {
 
         switch ($this->frequency_id) 
         {
-            case FREQUENCY_WEEKLY:
+            case RecurringInvoice::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date->addWeek());
-            case FREQUENCY_TWO_WEEKS:
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
                 return Carbon::parse($this->next_send_date->addWeeks(2));
-            case FREQUENCY_FOUR_WEEKS:
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
                 return Carbon::parse($this->next_send_date->addWeeks(4));
-            case FREQUENCY_MONTHLY:
+            case RecurringInvoice::FREQUENCY_MONTHLY:
                 return Carbon::parse($this->next_send_date->addMonth());
-            case FREQUENCY_TWO_MONTHS:
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonths(2));
-            case FREQUENCY_THREE_MONTHS:
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonths(3));
-            case FREQUENCY_FOUR_MONTHS:
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonths(4));
-            case FREQUENCY_SIX_MONTHS:
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonths(6));
-            case FREQUENCY_ANNUALLY:
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
                 return Carbon::parse($this->next_send_date->addYear());
-            case FREQUENCY_TWO_YEARS:
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
                 return Carbon::parse($this->next_send_date->addYears(2));
             default:
                 return null;
@@ -160,4 +172,71 @@ class RecurringInvoice extends BaseModel
         $this->save();
 
     }
+
+    public static function badgeForStatus(int $status)
+    {
+        switch ($status) {
+            case RecurringInvoice::STATUS_DRAFT:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
+                break;
+            case RecurringInvoice::STATUS_PENDING:
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h4>';
+                break;
+            case RecurringInvoice::STATUS_ACTIVE:
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h4>';
+                break;
+            case RecurringInvoice::STATUS_COMPLETED:
+                return '<h4><span class="badge badge-success">'.ctrans('texts.status_completed').'</span></h4>';
+                break;
+            case RecurringInvoice::STATUS_CANCELLED:
+                return '<h4><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h4>';
+                break;       
+            default:
+                # code...
+                break;
+        }
+    }
+
+    public static function frequencyForKey(int $frequency_id) :string
+    {
+        switch ($frequency_id) {
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                return ctrans('texts.freq_weekly');
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                return ctrans('texts.freq_two_weeks');
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                return ctrans('texts.freq_four_weeks');
+                break;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                return ctrans('texts.freq_monthly');
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                return ctrans('texts.freq_two_months');
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                return ctrans('texts.freq_three_months');
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                return ctrans('texts.freq_four_months');
+                break;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                return ctrans('texts.freq_six_months');
+                break;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                return ctrans('texts.freq_annually');
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                return ctrans('texts.freq_two_years');
+                break;            
+            case RecurringInvoice::RECURS_INDEFINITELY:
+                return ctrans('texts.freq_indefinitely');
+                break;  
+            default:
+                # code...
+                break;
+        }
+    }
+
 }

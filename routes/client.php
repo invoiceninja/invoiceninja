@@ -15,9 +15,13 @@ Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset'
 Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
+
 	Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index'); 
-	Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index'); 
 	Route::post('invoices/payment', 'ClientPortal\InvoiceController@bulk')->name('invoices.bulk');
+
+	Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index'); 
+
+
 	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
 	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');
 	Route::put('profile/{client_contact}/edit_client', 'ClientPortal\ProfileController@updateClient')->name('profile.edit_client');

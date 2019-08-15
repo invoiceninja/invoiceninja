@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Filters\InvoiceFilters;
 use App\Http\Controllers\Controller;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
@@ -37,19 +36,24 @@ class RecurringInvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(InvoiceFilters $filters, Builder $builder)
+    public function index(Builder $builder)
     {
-        $invoices = Invoice::filter($filters);
+        $invoices = RecurringInvoice::whereClientId(auth()->user()->client->id)
+                                    ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])
+                                    ->orderBy('status_id', 'asc')
+                                    ->get();
 
         if (request()->ajax()) {
 
             return DataTables::of($invoices)->addColumn('action', function ($invoice) {
                     return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+                })->addColumn('frequency_id', function ($invoice) {
+                    return RecurringInvoice::frequencyForKey($invoice->frequency_id);
                 })
                 ->editColumn('status_id', function ($invoice){
-                    return Invoice::badgeForStatus($invoice->status);
+                    return RecurringInvoice::badgeForStatus($invoice->status);
                 })
-                ->rawColumns(['checkbox', 'action', 'status_id'])
+                ->rawColumns(['action', 'status_id'])
                 ->make(true);
         
         }

@@ -6,7 +6,7 @@ use Faker\Generator as Faker;
 
 $factory->define(App\Models\RecurringInvoice::class, function (Faker $faker) {
     return [
-		'status_id' => App\Models\RecurringInvoice::STATUS_PENDING,
+		'status_id' => App\Models\RecurringInvoice::STATUS_ACTIVE,
 		'discount' => $faker->numberBetween(1,10),
 		'is_amount_discount' => $faker->boolean(),
 		'tax_name1' => 'GST',
@@ -28,5 +28,7 @@ $factory->define(App\Models\RecurringInvoice::class, function (Faker $faker) {
 		'last_sent_date' => $faker->date(),
 		'next_send_date' => $faker->date(),
 		'remaining_cycles' => $faker->numberBetween(1,10),
+		'amount' => $faker->randomFloat(2, $min = 1, $max = 1000) // 48.8932
+
     ];
 });

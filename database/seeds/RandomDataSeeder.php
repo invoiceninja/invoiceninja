@@ -98,11 +98,16 @@ class RandomDataSeeder extends Seeder
         /** Invoice Factory */
         factory(\App\Models\Invoice::class,500)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
+        /** Recurring Invoice Factory */
+        factory(\App\Models\RecurringInvoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+
+
         $clients = Client::all();
 
         foreach($clients as $client)
         {
-            $client->getNextClientNumber($client);
+            //$client->getNextClientNumber($client);
+            $client->id_number = $client->getNextClientNumber($client);
             $client->save();
         }
 

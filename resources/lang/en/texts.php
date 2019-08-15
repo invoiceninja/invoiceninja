@@ -3105,6 +3105,9 @@ $LANG = array(
     'email_already_register' => 'This email is already linked to an account',
     'create_account' => 'Create Account',
     'locations' => 'Locations',
+    'freq_indefinitely' => 'Indefinitely',
+    'next_send_date' => 'Next send date',
+    'cycles_remaining' => 'Cycles remaining',
 );
 
 return $LANG;

@@ -468,7 +468,7 @@ class CreateUsersTable extends Migration
             $t->datetime('last_viewed')->nullable();
 
             $t->unsignedInteger('frequency_id');
-            $t->date('start_date')->nullable();
+            $t->datetime('start_date')->nullable();
             $t->datetime('last_sent_date')->nullable();
             $t->datetime('next_send_date')->nullable();
             $t->unsignedInteger('remaining_cycles')->nullable();
