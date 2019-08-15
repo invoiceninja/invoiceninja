@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Filters\InvoiceFilters;
 use App\Http\Controllers\Controller;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
@@ -37,12 +38,12 @@ class RecurringInvoiceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(InvoiceFilters $filters, Builder $builder)
-    {//
+    {
         $invoices = Invoice::filter($filters);
 
         if (request()->ajax()) {
 
-            return DataTables::of(Invoice::filter($filters))->addColumn('action', function ($invoice) {
+            return DataTables::of($invoices)->addColumn('action', function ($invoice) {
                     return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })
                 ->editColumn('status_id', function ($invoice){

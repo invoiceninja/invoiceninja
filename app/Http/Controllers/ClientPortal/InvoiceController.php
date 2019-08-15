@@ -46,7 +46,7 @@ class InvoiceController extends Controller
 
         if (request()->ajax()) {
 
-            return DataTables::of(Invoice::filter($filters))->addColumn('action', function ($invoice) {
+            return DataTables::of($invoices)->addColumn('action', function ($invoice) {
                     return '<a href="/client/invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })
                 ->addColumn('checkbox', function ($invoice){
