@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
+use Barracuda\ArchiveStream\Archive;
 
 /**
  * Class InvoiceController
@@ -85,27 +86,59 @@ class InvoiceController extends Controller
      */
     public function bulk()
     {
-Log::error(request()->input('hashed_ids'));
 
         $transformed_ids = $this->transformKeys(explode(",",request()->input('hashed_ids')));
 
-        $invoices = Invoice::whereIn('id', $transformed_ids)
+        if(request()->input('action') == 'payment')
+            return $this->makePayment($transformed_ids);
+        else if(request()->input('action') == 'download')
+            return $this->downloadInvoicePDF($transformed_ids);
+                
+    }
+
+
+    private function makePayment(array $ids)
+    {
+
+        $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
                             ->get()
                             ->filter(function ($invoice){
                                 return $invoice->isPayable();
                             });
 
-Log::error($invoices);
-
         $data = [
             'invoices' => $invoices,
         ];
 
         return view('portal.default.invoices.payment', $data);
-                
+
     }
 
+    private function downloadInvoicePDF(array $ids)
+    {
+        $invoices = Invoice::whereIn('id', $ids)
+                            ->whereClientId(auth()->user()->client->id)
+                            ->get()
+                            ->filter(function ($invoice){
+                                return $invoice->isPayable();
+                            });
 
+        //generate pdf's of invoices locally
+        
+
+        //if only 1 pdf, output to buffer for download
+        
+        
+        //if multiple pdf's, output to zip stream using Barracuda lib
+        
+
+/*       
+    $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
+    $zip->add_file($name, $document->getRaw());
+    $zip->finish();
+*/ 
+    }
     
+
 }

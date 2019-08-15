@@ -59,6 +59,7 @@ class PortalComposer
 
         $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'fa fa-tachometer fa-fw fa-2x'];
         $data[] = [ 'title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'fa fa-file-pdf-o fa-fw fa-2x'];
+        $data[] = [ 'title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'fa fa-files-o fa-fw fa-2x'];
 
         return $data;
         

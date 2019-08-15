@@ -169,7 +169,7 @@ $(document).ready(function() {
         
 
         $('#hashed_ids').val(selected);
-        $('#action').val('pay');
+        $('#action').val('payment');
 
         $('#payment_form').submit();
     }); 
