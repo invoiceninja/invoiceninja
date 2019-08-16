@@ -35,7 +35,9 @@ class PaymentFilters extends QueryFilters
             return $this->builder;
 
         return  $this->builder->where(function ($query) use ($filter) {
-                    $query->where('payments.custom_value1', 'like', '%'.$filter.'%')
+                    $query->where('payments.amount', 'like', '%'.$filter.'%')
+                          ->orWhere('payments.payment_date', 'like', '%'.$filter.'%')
+                          ->orWhere('payments.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('payments.custom_value2', 'like' , '%'.$filter.'%')
                           ->orWhere('payments.custom_value3', 'like' , '%'.$filter.'%')
                           ->orWhere('payments.custom_value4', 'like' , '%'.$filter.'%');
@@ -113,8 +115,26 @@ class PaymentFilters extends QueryFilters
      public function entityFilter()
     {
         
-        return $this->builder->whereCompanyId(auth()->user()->company()->id);
-
+        if(auth('contact')->user())
+            return $this->contactViewFilter();
+        else
+            return $this->builder->whereCompanyId(auth()->user()->company()->id);
     }
 
+
+
+    /**
+     * We need additional filters when showing invoices for the
+     * client portal. Need to automatically exclude drafts and cancelled invoices
+     * 
+     * @return Illuminate\Database\Query\Builder
+     */
+    private function contactViewFilter() : Builder
+    {
+        
+        return $this->builder
+                    ->whereCompanyId(auth('contact')->user()->company->id)
+                    ->whereIsDeleted(false);
+
+    }
 }

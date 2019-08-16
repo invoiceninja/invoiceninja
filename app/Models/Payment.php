@@ -64,4 +64,22 @@ class Payment extends BaseModel
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
+
+    public static function typeForId(int $payment_type_id)
+    {
+
+    }
+
+    public static function badgeForStatus(int $status)
+    {
+        switch ($status) {
+            case 'value':
+                # code...
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+    }
 }

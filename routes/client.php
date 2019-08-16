@@ -20,6 +20,8 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::post('invoices/payment', 'ClientPortal\InvoiceController@bulk')->name('invoices.bulk');
 
 	Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index'); 
+	
+	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index'); 
 
 
 	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
