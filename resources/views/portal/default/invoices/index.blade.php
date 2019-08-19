@@ -117,12 +117,12 @@ $(function() {
         columns: [
 
             {data: 'checkbox', name: 'checkbox', title: '<input type="checkbox" class="select_all">', searchable: false, orderable: false},
-            {data: 'invoice_number', name: 'invoice_number', title: '{{trans('texts.invoice_number')}}', visible: true},
-            {data: 'invoice_date', name: 'invoice_date', title: '{{trans('texts.invoice_date')}}', visible: true},
-            {data: 'amount', name: 'amount', title: '{{trans('texts.total')}}', visible: true},
-            {data: 'balance', name: 'balance', title: '{{trans('texts.balance')}}', visible: true},
-            {data: 'due_date', name: 'due_date', title: '{{trans('texts.due_date')}}', visible: true},
-            {data: 'status_id', name: 'status_id', title: '{{trans('texts.status')}}', visible: true},
+            {data: 'invoice_number', name: 'invoice_number', title: '{{ctrans('texts.invoice_number')}}', visible: true},
+            {data: 'invoice_date', name: 'invoice_date', title: '{{ctrans('texts.invoice_date')}}', visible: true},
+            {data: 'amount', name: 'amount', title: '{{ctrans('texts.total')}}', visible: true},
+            {data: 'balance', name: 'balance', title: '{{ctrans('texts.balance')}}', visible: true},
+            {data: 'due_date', name: 'due_date', title: '{{ctrans('texts.due_date')}}', visible: true},
+            {data: 'status_id', name: 'status_id', title: '{{ctrans('texts.status')}}', visible: true},
             {data: 'action', name: 'action', title: '', searchable: false, orderable: false},
         ]
     });

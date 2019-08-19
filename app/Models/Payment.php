@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\BaseModel;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,21 @@ class Payment extends BaseModel
     const STATUS_COMPLETED = 4;
     const STATUS_PARTIALLY_REFUNDED = 5;
     const STATUS_REFUNDED = 6;
+
+    const TYPE_CREDIT_CARD = 1;
+    const TYPE_BANK_TRANSFER = 2;
+    const TYPE_PAYPAL = 3;
+    const TYPE_BITCOIN = 4;
+    const TYPE_DWOLLA = 5;
+    const TYPE_CUSTOM1 = 6;
+    const TYPE_ALIPAY = 7;
+    const TYPE_SOFORT = 8;
+    const TYPE_SEPA = 9;
+    const TYPE_GOCARDLESS = 10;
+    const TYPE_APPLE_PAY = 11;
+    const TYPE_CUSTOM2 = 12;
+    const TYPE_CUSTOM3 = 13;
+    const TYPE_TOKEN = 'token';
 
     protected $fillable = [
 		'client_id',
@@ -65,18 +81,32 @@ class Payment extends BaseModel
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-    public static function typeForId(int $payment_type_id)
+    public function type()
     {
-
+        return $this->hasOne(PaymentType::class,'id','payment_type_id');
     }
 
     public static function badgeForStatus(int $status)
     {
         switch ($status) {
-            case 'value':
-                # code...
+            case self::STATUS_PENDING:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_1').'</span></h4>';
                 break;
-            
+            case self::STATUS_VOIDED:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_2').'</span></h4>';
+                break;
+            case self::STATUS_FAILED:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_3').'</span></h4>';
+                break;
+            case self::STATUS_COMPLETED:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_4').'</span></h4>';
+                break;
+            case self::STATUS_PARTIALLY_REFUNDED:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_5').'</span></h4>';
+                break;
+            case self::STATUS_REFUNDED:
+                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_6').'</span></h4>';
+                break;         
             default:
                 # code...
                 break;

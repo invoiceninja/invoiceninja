@@ -54,7 +54,7 @@ $(function() {
 	        zeroRecords:    "{{ trans('texts.no_records_found') }}"
     	},
         ajax: {
-        	url: '{!! route('client.recurring_invoices.index') !!}',
+        	url: '{!! route('client.payments.index') !!}',
 	        data: function(data) { 
 	        } 
 
@@ -62,16 +62,16 @@ $(function() {
         drawCallback: function(settings){
 
            data = this.api().ajax.json().data;
-
+           console.log(data);
         },
         columns: [
 
-            {data: 'payment_date', name: 'payment_date', title: '{{trans('texts.payment_date')}}', visible: true},
-            {data: 'payment_type_id', name: 'payment_type_id', title: '{{trans('texts.payment_type_id')}}', visible: true},
-            {data: 'amount', name: 'amount', title: '{{trans('texts.amount')}}', visible: true},
-            {data: 'status_id', name: 'status_id', title: '{{trans('texts.status')}}', visible: true},
-            {data: 'transaction_reference', name: 'transaction_reference', title: '{{trans('texts.transaction_reference')}}', visible: true},
-            {data: 'action', name: 'action', title: '', searchable: false, orderable: false},
+            {data: 'payment_date', name: 'payment_date', title: '{{ctrans('texts.payment_date')}}', visible: true},
+            {data: 'payment_type_id', name: 'payment_type_id', title: '{{ctrans('texts.payment_type_id')}}', visible: true},
+            {data: 'amount', name: 'amount', title: '{{ctrans('texts.amount')}}', visible: true},
+            {data: 'transaction_reference', name: 'transaction_reference', title: '{{ctrans('texts.transaction_reference')}}', visible: true},
+            {data: 'status_id', name: 'status_id', title: '{{ctrans('texts.status')}}', visible: true},
+            {data: 'action', name: 'action', title: '', searchable: false, orderable: false}
 
         ]
     });

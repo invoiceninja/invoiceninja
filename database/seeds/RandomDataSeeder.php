@@ -101,6 +101,8 @@ class RandomDataSeeder extends Seeder
         /** Recurring Invoice Factory */
         factory(\App\Models\RecurringInvoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
+        factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+
 
         $clients = Client::all();
 

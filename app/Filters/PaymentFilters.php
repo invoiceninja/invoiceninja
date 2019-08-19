@@ -13,6 +13,7 @@ namespace App\Filters;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 /**
  * PaymentFilters
@@ -30,7 +31,8 @@ class PaymentFilters extends QueryFilters
      *     
      */
     public function filter(string $filter = '') : Builder
-    {
+    {Log::error('ewwo');
+    Log::error($filter);
         if(strlen($filter) == 0)
             return $this->builder;
 

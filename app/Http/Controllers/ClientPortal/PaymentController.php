@@ -39,19 +39,19 @@ class PaymentController extends Controller
      */
     public function index(PaymentFilters $filters, Builder $builder)
     {
-        $payments = Payment::filter($filters);
-
+        //$payments = Payment::filter($filters);
+        $payments = Payment::all();
         if (request()->ajax()) {
 
             return DataTables::of($payments)->addColumn('action', function ($payment) {
                     return '<a href="/client/payments/'. $payment->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })->editColumn('payment_type_id', function ($payment) {
-                    return Payment::typeForKey($payment->payment_type_id);
+                    return $payment->type->name;
                 })
                 ->editColumn('status_id', function ($payment){
-                    return Payment::badgeForStatus($invoice->status);
+                    return Payment::badgeForStatus($payment->status_id);
                 })
-                ->rawColumns(['action', 'status_id'])
+                ->rawColumns(['action', 'status_id','payment_type_id'])
                 ->make(true);
         
         }
