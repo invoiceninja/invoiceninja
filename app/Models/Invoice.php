@@ -204,28 +204,28 @@ class Invoice extends BaseModel
     {
         switch ($status) {
             case Invoice::STATUS_DRAFT:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
+                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
                 break;
             case Invoice::STATUS_SENT:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h4>';
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
                 break;
             case Invoice::STATUS_PARTIAL:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h4>';
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h5>';
                 break;
             case Invoice::STATUS_PAID:
-                return '<h4><span class="badge badge-success">'.ctrans('texts.paid').'</span></h4>';
+                return '<h5><span class="badge badge-success">'.ctrans('texts.paid').'</span></h5>';
                 break;
             case Invoice::STATUS_CANCELLED:
-                return '<h4><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h4>';
+                return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
                 break;
             case Invoice::STATUS_OVERDUE:
-                return '<h4><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h4>';
+                return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
                 break;
             case Invoice::STATUS_UNPAID:
-                return '<h4><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h4>';
+                return '<h5><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h5>';
                 break;      
             case Invoice::STATUS_REVERSED:
-                return '<h4><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h4>';
+                return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
                 break;           
             default:
                 # code...

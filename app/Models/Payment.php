@@ -90,22 +90,22 @@ class Payment extends BaseModel
     {
         switch ($status) {
             case self::STATUS_PENDING:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_1').'</span></h4>';
+                return '<h6><span class="badge badge-secondary">'.ctrans('texts.payment_status_1').'</span></h6>';
                 break;
             case self::STATUS_VOIDED:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_2').'</span></h4>';
+                return '<h6><span class="badge badge-warning">'.ctrans('texts.payment_status_2').'</span></h6>';
                 break;
             case self::STATUS_FAILED:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_3').'</span></h4>';
+                return '<h6><span class="badge badge-danger">'.ctrans('texts.payment_status_3').'</span></h6>';
                 break;
             case self::STATUS_COMPLETED:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_4').'</span></h4>';
+                return '<h6><span class="badge badge-info">'.ctrans('texts.payment_status_4').'</span></h6>';
                 break;
             case self::STATUS_PARTIALLY_REFUNDED:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_5').'</span></h4>';
+                return '<h6><span class="badge badge-success">'.ctrans('texts.payment_status_5').'</span></h6>';
                 break;
             case self::STATUS_REFUNDED:
-                return '<h4><span class="badge badge-light">'.ctrans('texts.payment_status_6').'</span></h4>';
+                return '<h6><span class="badge badge-primary">'.ctrans('texts.payment_status_6').'</span></h6>';
                 break;         
             default:
                 # code...
