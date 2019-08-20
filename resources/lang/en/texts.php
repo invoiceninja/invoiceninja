@@ -3177,6 +3177,8 @@ $LANG = array(
     'expense_status_1' => 'Logged',
     'expense_status_2' => 'Pending',
     'expense_status_3' => 'Invoiced',
+    'no_record_selected' => 'No record selected',
+    'error_unsaved_changes' => 'Please save or cancel your changes',
 );
 
 return $LANG;
