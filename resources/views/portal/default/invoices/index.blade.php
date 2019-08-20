@@ -5,74 +5,72 @@
     <link href="/vendors/css/select2.min.css" rel="stylesheet">
 @stop
 @section('body')
-    <main class="main">
-        <div class="container-fluid">
+<main class="main">
+    <div class="container-fluid">
 
-    {!! Former::framework('TwitterBootstrap4'); !!}
+{!! Former::framework('TwitterBootstrap4'); !!}
 
-    {!! Former::horizontal_open()
-        ->id('payment_form')
-        ->route('client.invoices.bulk')
-        ->method('POST');    !!}
+{!! Former::horizontal_open()
+    ->id('payment_form')
+    ->route('client.invoices.bulk')
+    ->method('POST');    !!}
 
-    {!! Former::hidden('hashed_ids')->id('hashed_ids') !!}
-    {!! Former::hidden('action')->id('action') !!}
-    
-    {!! Former::close() !!}
-	
-    		<div class="row" style="padding-top: 30px;">
-			
-				<div class="col-lg-12" style="padding-bottom: 10px;">
-					
-                    <div class="pull-left">
+{!! Former::hidden('hashed_ids')->id('hashed_ids') !!}
+{!! Former::hidden('action')->id('action') !!}
 
-                        <div class="btn-group">
-                          <button type="button" class="btn btn-success" id="pay_invoices">{{ ctrans('texts.pay_now') }}</button>
-                          <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" id="pay_invoices_drop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
-                          </button>
-                          <div class="dropdown-menu">
-                            <a class="dropdown-item" id="download_invoices">{{ctrans('texts.download_pdf')}}</a>
-                          </div>
-                        </div>
+{!! Former::close() !!}
 
+		<div class="row" style="padding-top: 30px;">
+		
+			<div class="col-lg-12" style="padding-bottom: 10px;">
+				
+                <div class="pull-left">
 
-                        <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
-                              <option value="paid">{{ ctrans('texts.status_paid') }}</option>
-                              <option value="unpaid">{{ ctrans('texts.status_unpaid') }}</option>
-                              <option value="overdue">{{ ctrans('texts.overdue') }}</option>
-                        </select>
-
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-success" id="pay_invoices">{{ ctrans('texts.pay_now') }}</button>
+                      <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" id="pay_invoices_drop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                      </button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item" id="download_invoices">{{ctrans('texts.download_pdf')}}</a>
+                      </div>
                     </div>
 
-					<!-- Filters / Buttons in here.-->
-					<div id="top_right_buttons" class="pull-right">
 
-						<input id="table_filter" type="text" style="width:180px;background-color: white !important"
-					        class="form-control pull-left" placeholder="{{ trans('texts.filter')}}" value=""/>
-					</div>
+                    <select class="form-control" style="width: 220px;" id="statuses" name="client_status[]" multiple="multiple">
+                          <option value="paid">{{ ctrans('texts.status_paid') }}</option>
+                          <option value="unpaid">{{ ctrans('texts.status_unpaid') }}</option>
+                          <option value="overdue">{{ ctrans('texts.overdue') }}</option>
+                    </select>
 
-					<div class="animated fadeIn">
-	                    <div class="col-md-12 card">
+                </div>
 
-    					{!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'datatable'], true) !!}
+				<!-- Filters / Buttons in here.-->
+				<div id="top_right_buttons" class="pull-right">
 
-	                    </div>
-	                </div>
+					<input id="table_filter" type="text" style="width:180px;background-color: white !important"
+				        class="form-control pull-left" placeholder="{{ trans('texts.filter')}}" value=""/>
 				</div>
 
+				<div class="animated fadeIn">
+                    <div class="col-md-12 card">
+
+					{!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'datatable'], true) !!}
+
+                    </div>
+                </div>
 			</div>
 
-        </div>
-    </main>
+		</div>
+
+    </div>
+</main>
 </body>
 @endsection
 @push('scripts')
 	<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
     <script src="/vendors/js/select2.min.js"></script>
-@endpush
-@section('footer')
 <script>
 
 /*global json payload*/
@@ -239,5 +237,5 @@ $('#statuses').select2({
 });
 
 </script>
-@endsection
+@endpush
 

@@ -42,6 +42,9 @@
   <!-- Main styles for this application-->
   <link href="/vendors/css/bootstrap.min.css" rel="stylesheet">
   <link href="/vendors/css/coreui.min.css" rel="stylesheet">
+  <style type="text/css">
+    .nav {min-height: calc(100% - 55px);}
+  </style>
   @stack('css')
 
     @yield('head')

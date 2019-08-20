@@ -1,18 +1,15 @@
 @extends('portal.default.layouts.master')
 
 @section('body')
-    <main class="main">
-        <div class="container-fluid">
-
-			<div class="row">
-			
-				<div class="col-lg-12">
-					<div class="col-lg-6">test</div>
-					<div class="col-lg-6">test2</div>
-				</div>
+<main class="main">
+    <div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="col-lg-6">test</div>
+				<div class="col-lg-6">test2</div>
 			</div>
-
-        </div>
-    </main>
+		</div>
+    </div>
+</main>
 </body>
 @endsection

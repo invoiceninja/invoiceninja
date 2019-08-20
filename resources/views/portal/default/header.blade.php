@@ -7,10 +7,10 @@
         <img class="navbar-brand-full" src="/images/logo.png" width="50" height="50" alt="Invoice Ninja Logo">
         <img class="navbar-brand-minimized" src="/images/logo.png" width="30" height="30" alt="Invoice Ninja Logo">
     </a>
-    <button class="sidebar-minimizer brand-minimizer" type="button">
-        <span class="navbar-toggler-icon"></span>
-    </button>
 
+  <button class="navbar-toggler sidebar-toggler sidebar-minimizer" type="button" data-toggle="sidebar-show">
+    <span class="navbar-toggler-icon"></span>
+  </button>
     <ul class="nav navbar-nav ml-auto">
         <li class="nav-item dropdown d-md-down-none" style="padding-left:20px; padding-right: 20px;">
             <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
