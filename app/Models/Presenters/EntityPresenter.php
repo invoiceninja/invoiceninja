@@ -97,4 +97,37 @@ class EntityPresenter extends Presenter
 
     }
 
+    public function getCityState()
+    {
+        $client = $this->entity;
+        $swap = $client->country && $client->country->swap_postal_code;
+
+        $city = e($client->city);
+        $state = e($client->state);
+        $postalCode = e($client->postal_code);
+
+        if ($city || $state || $postalCode) {
+            return $this->cityStateZip($city, $state, $postalCode, $swap);
+        } else {
+            return false;
+        }
+    }
+
+    public function cityStateZip($city, $state, $postalCode, $swap)
+    {
+        $str = $city;
+
+        if ($state) {
+            if ($str) {
+                $str .= ', ';
+            }
+            $str .= $state;
+        }
+
+        if ($swap) {
+            return $postalCode . ' ' . $str;
+        } else {
+            return $str . ' ' . $postalCode;
+        }
+    }
 }
