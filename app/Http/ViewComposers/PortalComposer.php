@@ -47,7 +47,9 @@ class PortalComposer
         $data['header'] = [];
         $data['footer'] = [];
         $data['countries'] = TranslationHelper::getCountries();
-        
+        $data['company'] = auth()->user()->company;
+        $data['client'] = auth()->user()->client;
+
         return $data;
 
     }

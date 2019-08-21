@@ -68,6 +68,8 @@ class Company extends BaseModel
         'db',
         'domain',
         'ip',
+        'industry_id',
+        'size_id',
     ];
 
     protected $casts = [

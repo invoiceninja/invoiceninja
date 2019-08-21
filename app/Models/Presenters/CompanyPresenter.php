@@ -26,4 +26,9 @@ class CompanyPresenter extends EntityPresenter
         return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
+    public function address()
+    {
+    	
+    }
+
 }

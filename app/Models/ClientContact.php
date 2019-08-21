@@ -49,7 +49,8 @@ class ClientContact extends Authenticatable
     ];
 
     protected $with = [
-        'client'
+        'client',
+        'company'
     ];
 
     protected $hidden = [

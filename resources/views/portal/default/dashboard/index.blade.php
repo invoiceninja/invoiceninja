@@ -40,6 +40,38 @@
 				</div>
 			</div>
 		</div>
+		<!-- client and supplier information -->
+		<div class="row">
+			<div class="col-sm-6 col-md-6">
+				<div class="card">
+				<div class="card-header">{{ctrans('texts.client_information')}}</div>
+					<div class="card-body">
+						<h2>{{ $client->present()->name() }}</h2>
+						<br>
+						{!! $client->present()->address() !!}
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-6 col-md-6">
+				<div class="card">
+				<div class="card-header">{{ctrans('texts.contact_us')}}</div>
+					<div class="card-body">
+						
+					@if ($company->logo)
+					    {!! HTML::image($company->logo) !!}
+					@else
+					    <h2>{{ $company->present()->name() }}</h2>
+					@endif
+					<br>
+					{!! $company->present()->address() !!}
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+
 		<!-- update payment methods -->
 		<div class="row" style="margin-top: 30px;">
 			<div class="col-sm-6 col-lg-3">
@@ -55,9 +87,6 @@
 						</div>
 						<div class="w-50 p-0"><img class="card-img embed-responsive-item" src="/images/visa.png" alt="Visa Card"></div>
 						<div>{{ ctrans('texts.expires')}}: 10/20</div>
-						<div class="progress progress-white progress-xs my-2">
-							<div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-						</div>
 						<small class="text-value">Mr Joe Citizen - ({{ctrans('texts.default')}})</small>
 					</div>
 				</div>
