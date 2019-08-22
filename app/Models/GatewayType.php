@@ -11,11 +11,16 @@
 
 namespace App\Models;
 
+use App\Models\Gateway;
 use Illuminate\Database\Eloquent\Model;
 
-class Gateway extends Model
+class GatewayType extends Model
 {
 
+	public function gateway()
+	{
+		return $this->belongsTo(Gateway::class);
+	}
 }
 
 

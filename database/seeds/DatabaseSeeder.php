@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->call('CountriesSeeder');
         $this->call('IndustrySeeder');
         $this->call('PaymentTypesSeeder');
+        $this->call('GatewaySeeder');
 
     }
 }
