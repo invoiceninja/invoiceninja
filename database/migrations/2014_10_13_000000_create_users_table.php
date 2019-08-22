@@ -879,6 +879,11 @@ class CreateUsersTable extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
         });
 
+        Schema::create('gateway_types', function ($table) {
+            $table->increments('id');
+            $table->string('alias');
+            $table->string('name');
+        });
     }
   
     /**

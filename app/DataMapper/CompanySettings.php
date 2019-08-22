@@ -111,6 +111,7 @@ class CompanySettings extends BaseSettings
 	public $reset_counter_date;
 	public $counter_padding;
 
+	public $default_gateway;
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned

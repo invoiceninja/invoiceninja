@@ -13,8 +13,8 @@ namespace App\Models;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Account;
-use App\Models\AccountGateway;
 use App\Models\Client;
+use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
 use App\Models\Country;
 use App\Models\Currency;
@@ -122,9 +122,9 @@ class Company extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function account_gateways()
+    public function company_gateways()
     {
-        return $this->hasMany(AccountGateway::class);
+        return $this->hasMany(CompanyGateway::class);
     }
 
     /**

@@ -12,6 +12,8 @@
 namespace App\Models;
 
 use App\Models\Company;
+use App\Models\Gateway;
+use App\Models\GatewayType;
 use Illuminate\Database\Eloquent\Model;
 
 class CompanyGateway extends Model
@@ -28,5 +30,15 @@ class CompanyGateway extends Model
     public function company()
     {
     	return $this->belongsTo(Company::class);
+    }
+
+    public function gateway()
+    {
+    	return $this->hasOne(Gateway::class);
+    }
+
+    public function type()
+    {
+    	return $this->hasOne(GatewayType::class);
     }
 }
