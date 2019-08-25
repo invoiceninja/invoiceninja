@@ -54,9 +54,9 @@ class CreateUser
      */
     public function handle() : ?User
     {
-        $x = mt_rand(1,10000);//todo
+      //  $x = mt_rand(1,10000);//todo
         
-        $email = 'turbo124+'. $x .'@gmail.com'; //todo
+      //  $email = 'turbo124+'. $x .'@gmail.com'; //todo
 
         $user = new User();
        // $user->account_id = $this->account->id;
@@ -64,7 +64,7 @@ class CreateUser
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));
         $user->fill($this->request);
-        $user->email = $email;//todo need to remove this in production
+        $user->email = $this->request(['email']);//todo need to remove this in production
         $user->save();
 
         $user->companies()->attach($this->company->id, [

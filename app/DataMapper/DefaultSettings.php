@@ -12,6 +12,7 @@
 namespace App\DataMapper;
 
 use App\Models\Client;
+use App\Models\User;
 
 /**
  * Class DefaultSettings
@@ -27,21 +28,24 @@ class DefaultSettings extends BaseSettings
 
 	/**
 	 * @return \stdClass
+	 *
+	 * //todo user specific settings / preferences.
      */
 	public static function userSettings() : \stdClass
 	{
 		return (object)[
-	        class_basename(Client::class) => self::clientSettings(),
+	        class_basename(User::class) => self::userSettings(),
 	    ];
 	}
 
 	/**
 	 * @return \stdClass
      */
-	private static function clientSettings() : \stdClass
+	private static function userSettings() : \stdClass
 	{
 		
 		return (object)[
+			'per_page' => self::$per_page,
 		];
 
 	}
