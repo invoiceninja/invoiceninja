@@ -64,7 +64,7 @@ class CreateUser
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));
         $user->fill($this->request);
-        $user->email = $this->request(['email']);//todo need to remove this in production
+        $user->email = $this->request['email'];//todo need to remove this in production
         $user->save();
 
         $user->companies()->attach($this->company->id, [
