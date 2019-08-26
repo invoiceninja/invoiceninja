@@ -15,7 +15,7 @@
           <div class="col-sm-12">
             <div class="card">
               <div class="card-header">
-                  <strong> {{ ctrans('texts.user_details') }}</strong>
+                  <strong> {{ ctrans('texts.details') }}</strong>
               </div>
 
                     {!! Former::framework('TwitterBootstrap4'); !!}
@@ -30,23 +30,6 @@
               <div class="card-body">
 
                 <div class="row">
-                  <div class="col-sm-4">
-                    <div class="card align-items-center">
-                      <div class="card-body">
-                        @if(auth()->user()->avatar)
-                        <img src="{{ auth()->user()->avatar }}" class="img-fluid">
-                        @else
-                        <i class="fa fa-user fa-5x"></i>
-                        @endif
-
-                        {!! Former::file('avatar')
-                            ->max(2, 'MB')
-                            ->accept('image')
-                            ->label('')
-                            ->inlineHelp(trans('texts.logo_help')) !!}
-                      </div>
-                    </div>
-                  </div>
                   <div class="col-sm-8">
                     <div class="card">
                       <div class="card-body">

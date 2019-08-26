@@ -4,7 +4,7 @@
 
   {!! Former::framework('TwitterBootstrap4'); !!}
 
-  {!! Former::horizontal_open()
+  {!! Former::horizontal_open_for_files()
         ->id('update_settings')
         ->route('client.profile.edit_client', auth()->user()->hashed_id)
         ->method('PUT');	!!}
@@ -22,9 +22,28 @@
       <div class="card-body">
           
           <div class="row">
+            <div class="col-sm-4">
+              <div class="card align-items-center">
+                <div class="card-body">
+                  @if(auth()->user()->client->logo)
+                  <img src="{{ auth()->user()->client->logo }}" class="img-fluid">
+                  @else
+                  <i class="fa fa-user fa-5x"></i>
+                  @endif
+
+                  {!! Former::file('logo')
+                      ->max(2, 'MB')
+                      ->accept('image')
+                      ->label('')
+                      ->inlineHelp(trans('texts.logo_help')) !!}
+                </div>
+              </div>
+            </div>
             <div class="col-sm-6  pull-left">
-              {!! Former::text('name')->label( ctrans('texts.name')) !!}
-              {!! Former::text('website')->label( ctrans('texts.website')) !!}
+              <div class="card card-body">
+                {!! Former::text('name')->label( ctrans('texts.name')) !!}
+                {!! Former::text('website')->label( ctrans('texts.website')) !!}
+              </div>
             </div>
           </div>
 
