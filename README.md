@@ -27,3 +27,8 @@ PHP >= 7.3 allows the return type Nullable so there should be no circumstance a 
 `public function doThat() ?:string`
 
 To improve chances of PRs being merged please include teststo ensure your code works well and integrates with the rest of the project.
+
+
+# Documentation
+
+API documentation is hosted using Swagger and can be found [HERE](https://app.swaggerhub.com/apis-docs/InvoiceNinja/InvoiceNinjaV2/1.0.3)
