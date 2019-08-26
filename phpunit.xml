@@ -38,6 +38,14 @@
                 <directory suffix=".php">./app/Observers</directory>
                 <directory suffix=".php">./app/Policies</directory>
                 <directory suffix=".php">./app/Jobs</directory>
+                <directory suffix=".php">./app/Factory</directory>
+                <directory suffix=".php">./app/Helpers</directory>
+                <directory suffix=".php">./app/Libraries</directory>
+                <directory suffix=".php">./app/Listeners</directory>
+                <directory suffix=".php">./app/Mail</directory>
+                <directory suffix=".php">./app/Notifications</directory>
+                <directory suffix=".php">./app/Providers</directory>
+                <directory suffix=".php">./app/Repositories</directory>
                 <directory suffix=".php">./app/Filters</directory>
               <file>./app/Console/Kernel.php</file>
                 <file>./app/Constants.php</file>
