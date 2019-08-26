@@ -16,8 +16,6 @@ use App\Utils\Traits\MakesHash;
 
 /**
  * Class ContactTransformer.
- *
- * @SWG\Definition(definition="ClientContact", @SWG\Xml(name="ClientContact"))
  */
 class ClientContactLoginTransformer extends EntityTransformer
 {

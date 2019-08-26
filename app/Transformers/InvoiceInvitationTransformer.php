@@ -15,9 +15,6 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 
-/**
- * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
- */
 class InvoiceInvitationTransformer extends EntityTransformer
 {
     use MakesHash;

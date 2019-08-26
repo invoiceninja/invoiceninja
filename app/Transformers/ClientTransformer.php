@@ -16,14 +16,12 @@ use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
 
 /**
- * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
+ * class ClientTransformer
  */
 class ClientTransformer extends EntityTransformer
 {
     use MakesHash;
-    /**
-     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     */
+
     protected $defaultIncludes = [
         'contacts',
     ];

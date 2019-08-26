@@ -16,9 +16,6 @@ use App\Models\Product;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 
-/**
- * @SWG\Definition(definition="Product", @SWG\Xml(name="Product"))
- */
 class ProductTransformer extends EntityTransformer
 {
     use MakesHash;
