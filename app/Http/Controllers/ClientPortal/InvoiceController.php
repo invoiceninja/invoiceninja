@@ -55,6 +55,9 @@ class InvoiceController extends Controller
                 ->editColumn('status_id', function ($invoice){
                     return Invoice::badgeForStatus($invoice->status);
                 })
+                ->editColumn('invoice_date', function ($invoice){
+                    return 
+                })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);
         
