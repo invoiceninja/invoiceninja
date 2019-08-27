@@ -13,6 +13,7 @@ namespace App\Jobs\Invoice;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentTerm;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
@@ -85,7 +86,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
 
             if(!$this->invoice->due_date)
-                $this->invoice->due_date = Carbon::now()->addDays($this->invoice->settings->payment_terms)->format(config('ninja.date_format'));
+                $this->invoice->due_date = Carbon::now()->addDays(PaymentTerm::find($this->invoice->settings->payment_terms)->num_days)->format(config('ninja.date_format'));
 
         }        
 

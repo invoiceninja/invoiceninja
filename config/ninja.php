@@ -48,7 +48,7 @@ return [
         'datetime_moment_format' => env('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a'),
         'locale' => env('DEFAULT_LOCALE', 'en'),
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
-        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 7),
+        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 1),
         'military_time' => env('MILITARY_TIME', 0),
         'start_of_week' => env('START_OF_WEEK',1),
         'financial_year_start' => env('FINANCIAL_YEAR_START', '2000-01-01')

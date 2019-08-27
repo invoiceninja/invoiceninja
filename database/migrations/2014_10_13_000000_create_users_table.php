@@ -291,7 +291,7 @@ class CreateUsersTable extends Migration
             $table->text('settings');
 
             $table->boolean('is_deleted')->default(false);
-            $table->string('payment_terms')->nullable();  //todo type? depends how we are storing this
+            $table->integer('payment_terms')->nullable();  
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
 

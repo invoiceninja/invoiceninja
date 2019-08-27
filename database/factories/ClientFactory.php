@@ -15,7 +15,7 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'id_number' => $faker->text(20),
         'custom_value1' => $faker->text(20),
         'custom_value2' => $faker->text(20),
-        'payment_terms' => $faker->text(40),
+        'payment_terms' => 1,
         'address1' => $faker->buildingNumber,
         'address2' => $faker->streetAddress,
         'city' => $faker->city,
