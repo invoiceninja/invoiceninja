@@ -27,10 +27,6 @@ class CompanyTransformer extends EntityTransformer
 {
     use MakesHash;
 
-	/**
-     * @SWG\Property(property="account_key", type="string", example="123456")
-     */
-
     /**
      * @var array
      */
@@ -77,8 +73,6 @@ class CompanyTransformer extends EntityTransformer
             'work_phone' => $company->work_phone,
             'work_email' => $company->work_email,
             'country_id' => (int) $company->country_id,
-            'domain' => $company->domain,
-            'db' => $company->db,
             'vat_number' => $company->vat_number,
             'id_number' => $company->id_number,
             'size_id' => (int) $company->size_id,

@@ -27,9 +27,6 @@ use App\Utils\Traits\MakesHash;
 class AccountTransformer extends EntityTransformer
 {
     use MakesHash;
-	/**
-     * @SWG\Property(property="account_key", type="string", example="123456")
-     */
 
     /**
      * @var array

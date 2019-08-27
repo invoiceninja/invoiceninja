@@ -38,7 +38,6 @@ class UpdateContactRequest extends Request
             'last_name' => 'required',
             'email' => 'required|email|unique:client_contacts,email,' . auth()->user()->id,
             'password' => 'sometimes|nullable|min:6|confirmed',
-            'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp'
         ];
 
     }

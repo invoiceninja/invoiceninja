@@ -17,9 +17,6 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyTokenTransformer;
 
-/**
- * @SWG\Definition(definition="CompanyUser", @SWG\Xml(name="CompanyUser"))
- */
 class CompanyUserTransformer extends EntityTransformer
 {
     

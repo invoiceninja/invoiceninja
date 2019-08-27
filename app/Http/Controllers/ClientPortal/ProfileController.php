@@ -70,19 +70,6 @@ class ProfileController extends Controller
         if($request->input('password'))
             $client_contact->password = Hash::make($request->input('password'));
 
-        //update avatar if needed
-        if($request->file('avatar')) 
-        {
-            $path = UploadAvatar::dispatchNow($request->file('avatar'), auth()->user()->client->client_hash);
-
-            if($path)
-            {
-                $client_contact->avatar = $path;
-                $client_contact->avatar_size = $request->file('avatar')->getSize();
-                $client_contact->avatar_type = $request->file('avatar')->getClientOriginalExtension();
-            }
-        }
-
         $client_contact->save();
 
        // auth()->user()->fresh();
@@ -94,6 +81,16 @@ class ProfileController extends Controller
     {
 
         $client = $client_contact->client;
+
+        //update avatar if needed
+        if($request->file('logo')) 
+        {
+            $path = UploadAvatar::dispatchNow($request->file('logo'), auth()->user()->client->client_hash);
+
+            if($path)
+                $client->logo = $path;
+            
+        }
 
         $client->fill($request->all());
         $client->save();
