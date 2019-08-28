@@ -28,8 +28,7 @@ trait MakesDates
 	 */
 	public function createClientDate($utc_date , $timezone)
 	{
-Log::error($utc_date. ' '. $timezone);
-
+		
 		if(is_string($utc_date))
 			$utc_date = $this->convertToDateObject($utc_date);
 

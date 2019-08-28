@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\NumberHelper
+ * @covers  App\Utils\Number
  */
 class CompareCollectionTest extends TestCase
 {

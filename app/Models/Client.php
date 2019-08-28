@@ -16,6 +16,7 @@ use App\DataMapper\CompanySettings;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
+use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\Timezone;
 use App\Utils\Traits\GeneratesCounter;
@@ -129,6 +130,11 @@ class Client extends BaseModel
     public function datetime_format()
     {
         return $this->getMergedSettings()->datetime_format;
+    }
+
+    public function currency()
+    {
+        return Currency::find($this->getMergedSettings()->currency_id);
     }
 
     public function getMergedSettings()

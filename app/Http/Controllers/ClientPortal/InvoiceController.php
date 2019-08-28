@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
+use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Barracuda\ArchiveStream\Archive;
@@ -55,11 +56,14 @@ class InvoiceController extends Controller
                 })
                 ->editColumn('status_id', function ($invoice){
                     return Invoice::badgeForStatus($invoice->status);
-                })
-                ->editColumn('invoice_date', function ($invoice){
+                })->editColumn('invoice_date', function ($invoice){
                     return $this->createClientDate($invoice->invoice_date, $invoice->client->timezone()->name)->format($invoice->client->date_format());
                 })->editColumn('due_date', function ($invoice){
                     return $this->createClientDate($invoice->due_date, $invoice->client->timezone()->name)->format($invoice->client->date_format());
+                })->editColumn('balance', function ($invoice) {
+                    return Number::formatMoney($invoice->balance, $invoice->client->currency(), $invoice->client->country, $invoice->client->getMergedSettings());
+                })->editColumn('amount', function ($invoice) {
+                    return Number::formatMoney($invoice->amount, $invoice->client->currency(), $invoice->client->country, $invoice->client->getMergedSettings());
                 })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);
