@@ -67,7 +67,7 @@ class RandomDataSeeder extends Seeder
         ClientContact::create([
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
-            'email' => $faker->email,
+            'email' => config('ninja.testvars.username'),
             'company_id' => $company->id,
             'password' => Hash::make(config('ninja.testvars.password')),
             'email_verified_at' => now(),

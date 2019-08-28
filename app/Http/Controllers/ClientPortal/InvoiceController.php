@@ -44,7 +44,7 @@ class InvoiceController extends Controller
      */
     public function index(InvoiceFilters $filters, Builder $builder)
     {//
-        $invoices = Invoice::filter($filters);
+        $invoices = Invoice::filter($filters)->with('client', 'client.country');
 
         if (request()->ajax()) {
 
@@ -57,9 +57,9 @@ class InvoiceController extends Controller
                 ->editColumn('status_id', function ($invoice){
                     return Invoice::badgeForStatus($invoice->status);
                 })->editColumn('invoice_date', function ($invoice){
-                    return $this->createClientDate($invoice->invoice_date, $invoice->client->timezone()->name)->format($invoice->client->date_format());
+                    return $this->formatDate($invoice->invoice_date, $invoice->client->date_format());
                 })->editColumn('due_date', function ($invoice){
-                    return $this->createClientDate($invoice->due_date, $invoice->client->timezone()->name)->format($invoice->client->date_format());
+                    return $this->formatDate($invoice->due_date, $invoice->client->date_format());
                 })->editColumn('balance', function ($invoice) {
                     return Number::formatMoney($invoice->balance, $invoice->client->currency(), $invoice->client->country, $invoice->client->getMergedSettings());
                 })->editColumn('amount', function ($invoice) {
