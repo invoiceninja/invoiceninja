@@ -33,8 +33,8 @@ class ClientSettings extends BaseSettings
 	 * Settings which also have a parent company setting
 	 */
 	public $timezone_id;
-	public $date_format_id;
-	public $datetime_format_id;
+	public $date_format;
+	public $datetime_format;
 	public $military_time;
 	public $start_of_week;
 	public $financial_year_start;

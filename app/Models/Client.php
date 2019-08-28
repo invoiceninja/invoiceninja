@@ -121,6 +121,16 @@ class Client extends BaseModel
         return Timezone::find($this->getMergedSettings()->timezone_id);
     }
 
+    public function date_format()
+    {
+        return $this->getMergedSettings()->date_format;
+    }
+
+    public function datetime_format()
+    {
+        return $this->getMergedSettings()->datetime_format;
+    }
+
     public function getMergedSettings()
     {
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));

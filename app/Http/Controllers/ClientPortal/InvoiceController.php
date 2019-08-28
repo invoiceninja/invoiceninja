@@ -57,7 +57,9 @@ class InvoiceController extends Controller
                     return Invoice::badgeForStatus($invoice->status);
                 })
                 ->editColumn('invoice_date', function ($invoice){
-                    return $this->createClientDate($invoice->due_date, $invoice->client->timezone()->name)->format('MM-dd-YYYY');
+                    return $this->createClientDate($invoice->invoice_date, $invoice->client->timezone()->name)->format($invoice->client->date_format());
+                })->editColumn('due_date', function ($invoice){
+                    return $this->createClientDate($invoice->due_date, $invoice->client->timezone()->name)->format($invoice->client->date_format());
                 })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);

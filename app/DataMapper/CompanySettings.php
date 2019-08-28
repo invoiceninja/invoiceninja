@@ -20,8 +20,8 @@ class CompanySettings extends BaseSettings
 {
 
 	public $timezone_id;
-	public $date_format_id;
-	public $datetime_format_id;
+	public $date_format;
+	public $datetime_format;
 	public $military_time;
 	public $start_of_week;
 	public $financial_year_start;
@@ -139,9 +139,9 @@ class CompanySettings extends BaseSettings
 			'currency_id' => config('ninja.i18n.currency_id'),
 			'precision' => 2,
 			'payment_terms' => config('ninja.i18n.payment_terms'),
-			'datetime_format_id' => config('ninja.i18n.datetime_format'),
+			'datetime_format' => config('ninja.i18n.datetime_format'),
 			'military_time' => config('ninja.i18n.military_time'),
-			'date_format_id' => config('ninja.i18n.date_format'),
+			'date_format' => config('ninja.i18n.date_format'),
 			'start_of_week' => config('ninja.i18n.start_of_week'),
 			'financial_year_start' => config('ninja.i18n.financial_year_start'),
 			'default_task_rate' => 0,
