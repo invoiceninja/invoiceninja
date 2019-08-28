@@ -16,12 +16,13 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Barracuda\ArchiveStream\Archive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
-use Barracuda\ArchiveStream\Archive;
 
 /**
  * Class InvoiceController
@@ -32,7 +33,7 @@ class InvoiceController extends Controller
 {
 
     use MakesHash;
-
+    use MakesDates;
     /**
      * Show the list of Invoices
      *
@@ -56,7 +57,7 @@ class InvoiceController extends Controller
                     return Invoice::badgeForStatus($invoice->status);
                 })
                 ->editColumn('invoice_date', function ($invoice){
-                    return 
+                    return $this->createClientDate($invoice->due_date, $invoice->client->timezone()->name)->format('MM-dd-YYYY');
                 })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);
