@@ -60,8 +60,6 @@ class Number
      */
     public static function formatMoney($value, $currency, $country, $settings)
     {
-Log::error('code = '.$settings->show_currency_code);
-Log::error('symbol = '.$settings->show_currency_symbol);
 
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;

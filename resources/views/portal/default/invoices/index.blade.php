@@ -114,7 +114,7 @@ $(function() {
         },
         columns: [
 
-            {data: 'checkbox', name: 'checkbox', title: '<input type="checkbox" class="select_all">', searchable: false, orderable: false},
+            {data: 'checkbox', name: 'checkbox', title: '<input type="checkbox" class="select_all" >', searchable: false, orderable: false},
             {data: 'invoice_number', name: 'invoice_number', title: '{{ctrans('texts.invoice_number')}}', visible: true},
             {data: 'invoice_date', name: 'invoice_date', title: '{{ctrans('texts.invoice_date')}}', visible: true},
             {data: 'amount', name: 'amount', title: '{{ctrans('texts.total')}}', visible: true},
@@ -136,14 +136,19 @@ $(document).ready(function() {
 
     toggleButtonGroup();
 
-    $("#datatable").on('change', 'input[type=checkbox]', function() {
-        selected = []; 
-        $.each($("input[name='hashed_ids[]']:checked"), function(){  
-                     
-            selected.push($(this).val());
-        });
+
+    $('#datatable').on('click', '.odd, .even' ,function(e) {
+
+        if($(e.target).is(':checkbox')) return; //ignore when click on the checkbox
         
-        toggleButtonGroup();
+        var $cb= $(this).find('input[type="checkbox"]');
+        $cb.prop('checked', !$cb.is(':checked'));
+
+        buildCheckboxArray();
+    });
+
+    $("#datatable").on('change', 'input[type=checkbox]', function() {
+        buildCheckboxArray();
     });
 
     $('#table_filter').on('keyup', function(){
@@ -178,6 +183,17 @@ $(document).ready(function() {
 
  
 }); 
+
+function buildCheckboxArray()
+{
+    selected = []; 
+    $.each($("input[name='hashed_ids[]']:checked"), function(){  
+                 
+        selected.push($(this).val());
+    });
+    
+    toggleButtonGroup();
+}
 
 function toggleButtonGroup()
 {
