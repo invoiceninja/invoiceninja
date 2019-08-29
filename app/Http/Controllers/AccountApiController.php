@@ -298,12 +298,8 @@ class AccountApiController extends BaseAPIController
         $timestamp = $request->timestamp;
         $productId = $request->product_id;
 
-        if (Company::where('app_store_order_id', '=', $orderId)->first()) {
-            return 'Order Id has already been used';
-        }
-
         if (Carbon::createFromTimestamp($timestamp) < Carbon::now()->subYear()) {
-            return 'The order is expired';
+            return '{"message":"The order is expired"}';
         }
 
         if ($productId == 'v1_pro_yearly') {
@@ -336,6 +332,6 @@ class AccountApiController extends BaseAPIController
         $company->trial_plan = null;
         $company->save();
 
-        return RESULT_SUCCESS;
+        return '{"message":"success"}';
     }
 }
