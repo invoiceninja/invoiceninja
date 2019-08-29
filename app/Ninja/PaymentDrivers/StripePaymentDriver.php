@@ -222,18 +222,21 @@ class StripePaymentDriver extends BasePaymentDriver
             // Need to use Stripe's new Payment Intent API.
             $this->prepareStripeAPI();
 
+            // Get information about the currency we're using.
+            $currency = Cache::get('currencies')->where('code', strtoupper($data['currency']))->first();
+
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
                 $intent = PaymentIntent::retrieve($data['payment_intent']);
 
-                if ( ! $intent->amount == $data['amount'] * 100) {
+                if ( ! $intent->amount == $data['amount'] * pow(10, $currency['precision'])) {
                     // Make sure that the provided payment intent matches the invoice amount.
                     throw new Exception('Incorrect PaymentIntent amount.');
                 }
                 $intent->confirm();
             } elseif ( ! empty($data['token']) || ! empty($data['payment_method'])) {
                 $params = [
-                    'amount'              => $data['amount'] * 100,
+                    'amount'              => $data['amount'] * pow(10, $currency['precision']),
                     'currency'            => $data['currency'],
                     'confirmation_method' => 'manual',
                     'confirm'             => true,
