@@ -90,7 +90,7 @@ class ClientSettings extends BaseSettings
 	public $industry_id;
 	public $size_id;
 
-
+	public $design;
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned

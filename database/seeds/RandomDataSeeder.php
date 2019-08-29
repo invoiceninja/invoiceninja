@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
@@ -8,6 +9,7 @@ use App\Models\CompanyToken;
 use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 
 class RandomDataSeeder extends Seeder
 {
@@ -101,8 +103,7 @@ class RandomDataSeeder extends Seeder
         /** Recurring Invoice Factory */
         factory(\App\Models\RecurringInvoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
-
+        factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
         $clients = Client::all();
 

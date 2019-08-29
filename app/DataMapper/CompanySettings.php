@@ -112,6 +112,8 @@ class CompanySettings extends BaseSettings
 	public $counter_padding;
 
 	public $default_gateway;
+
+	public $design;
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned
@@ -165,6 +167,7 @@ class CompanySettings extends BaseSettings
 			'credit_number_prefix' => '',
 			'client_number_prefix' => '',
 			'auto_archive_invoice' => 'FALSE',
+			'design' => 'pdf.design1',
 			
 			'translations' => (object) [],
 		];

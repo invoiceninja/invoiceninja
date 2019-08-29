@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 /**
@@ -35,15 +36,14 @@ class CompareObjectTest extends TestCase
 				$this->client_settings->{$key} = $this->company_settings->{$key};
 		}
 
-
 		return $this->client_settings;
 	}
 
 
 	public function testProperties()
 	{
-		$build_client_settings = $this->buildClientSettings();
 
+		$build_client_settings = $this->buildClientSettings();
 
 		$this->assertEquals($build_client_settings->timezone_id, 15);
 		$this->assertEquals($build_client_settings->currency_id, 1);

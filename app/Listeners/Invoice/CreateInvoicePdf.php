@@ -14,6 +14,7 @@ namespace App\Listeners\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
@@ -39,49 +40,54 @@ class CreateInvoicePdf
     {
 
         $invoice = $event->invoice;
-        $path = $invoice->client->client_hash . '/invoices/'; 
+        $path = 'public/' . $invoice->client->client_hash . '/invoices/'; 
         $file = $path . $invoice->invoice_number . '.pdf';
+
+        Log::error($file);
         //get invoice template
 
-        $html = $this->generateInvoiceHtml($invoice->settings->template, $invoice)
+        $html = $this->generateInvoiceHtml($invoice->design(), $invoice);
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
-        Storage::makeDirectory('public/' . $path, 0755);
+        Storage::makeDirectory($path, 0755);
 
         //create pdf
-        $this->makePdf(null,null,$html,$file)
+        $pdf = $this->makePdf(null,null,$html, $file);
         
+       // $path = Storage::putFile($file, $pdf);
+
         //store pdf
         //$path = Storage::putFile('public/' . $path, $this->file);
         //$url = Storage::url($path);
     }
 
 
-    private function makePdf($header, $footer, $html, $pdf) : void
+    private function makePdf($header, $footer, $html, $pdf) 
     {
-            Browsershot::html($html)
+            return Browsershot::html($html)
             //->showBrowserHeaderAndFooter()
             //->headerHtml($header)
             //->footerHtml($footer)
             ->waitUntilNetworkIdle()
             //->margins(10,10,10,10)
-            ->savePdf($pdf);
+            ->savePdf('test.pdf');
     }
 
     /**
      * Generate the HTML invoice parsing variables 
      * and generating the final invoice HTML
      *     
-     * @param  string $template either the path to the design template, OR the full design template string
+     * @param  string $design either the path to the design template, OR the full design template string
      * @param  Collection $invoice  The invoice object
      * @return string           The invoice string in HTML format
      */
-    private function generateInvoiceHtml($template, $invoice) :string
+    private function generateInvoiceHtml($design, $invoice) :string
     {
         //swap labels
-        
-        $html = view(.$template, $invoice)->render();
+        $data['invoice'] = $invoice;
 
-        return view('pdf.stub', $html);
+        return view($design, $data)->render();
+
+        //return view('pdf.stub', $html)->render();
     }
 }

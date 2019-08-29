@@ -236,4 +236,15 @@ class Invoice extends BaseModel
                 break;
         }
     }
+
+    /**
+     * Returns the template for the invoice
+     * 
+     * @return string Either the template view, OR the template HTML stirng
+     */
+    public function design() :string
+    {
+        return $this->settings->design ?: 'pdf.design1';
+    }
+
 }

@@ -36,7 +36,7 @@ class InvoicePresenter extends EntityPresenter
 		return $this->client->present()->address();
 	}
 
-	pubic function shipping_address()
+	public function shipping_address()
 	{
 		return $this->client->present()->shipping_address();
 	}
