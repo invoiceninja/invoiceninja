@@ -47,6 +47,27 @@ class ClientPresenter extends EntityPresenter
         return $str;
     }
 
+    public function shipping_address()
+    {
+        $str = '';
+        $client = $this->entity;
+
+        if ($address1 = $client->shipping_address1) {
+            $str .= e($address1) . '<br/>';
+        }
+        if ($address2 = $client->shipping_address2) {
+            $str .= e($address2) . '<br/>';
+        }
+        if ($cityState = $this->getCityState()) {
+            $str .= e($cityState) . '<br/>';
+        }
+        if ($country = $client->country) {
+            $str .= e($country->name) . '<br/>';
+        }
+
+        return $str;
+    }
+
 
 
 }

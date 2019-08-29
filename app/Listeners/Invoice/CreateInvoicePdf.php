@@ -57,7 +57,7 @@ class CreateInvoicePdf
     }
 
 
-    private function makePdf($header, $footer, $html, $pdf)
+    private function makePdf($header, $footer, $html, $pdf) : void
     {
             Browsershot::html($html)
             //->showBrowserHeaderAndFooter()
@@ -68,8 +68,20 @@ class CreateInvoicePdf
             ->savePdf($pdf);
     }
 
-    private function generateInvoiceHtml($template, $invoice)
+    /**
+     * Generate the HTML invoice parsing variables 
+     * and generating the final invoice HTML
+     *     
+     * @param  string $template either the path to the design template, OR the full design template string
+     * @param  Collection $invoice  The invoice object
+     * @return string           The invoice string in HTML format
+     */
+    private function generateInvoiceHtml($template, $invoice) :string
     {
+        //swap labels
+        
+        $html = view(.$template, $invoice)->render();
 
+        return view('pdf.stub', $html);
     }
 }
