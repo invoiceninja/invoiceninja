@@ -40,4 +40,15 @@ class InvoicePresenter extends EntityPresenter
 	{
 		return $this->client->present()->shipping_address();
 	}
+
+	public function company_logo()
+	{
+		return $this->company->logo;
+	}
+
+	public function client_logo()
+	{
+		return $this->client->logo;
+	}
+	
 }
