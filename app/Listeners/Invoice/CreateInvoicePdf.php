@@ -41,36 +41,40 @@ class CreateInvoicePdf
 
         $invoice = $event->invoice;
         $path = 'public/' . $invoice->client->client_hash . '/invoices/'; 
-        $file = $path . $invoice->invoice_number . '.pdf';
+        $file_path = $path . $invoice->invoice_number . '.pdf';
 
-        Log::error($file);
-        //get invoice template
-
+        //get invoice design
         $html = $this->generateInvoiceHtml($invoice->design(), $invoice);
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
         //create pdf
-        $pdf = $this->makePdf(null,null,$html, $file);
-        
-       // $path = Storage::putFile($file, $pdf);
+        $pdf = $this->makePdf(null,null,$html);
 
-        //store pdf
-        //$path = Storage::putFile('public/' . $path, $this->file);
-        //$url = Storage::url($path);
+        $path = Storage::put($file_path, $pdf);
+
+
     }
 
-
-    private function makePdf($header, $footer, $html, $pdf) 
+    /**
+     * Returns a PDF stream
+     * 
+     * @param  string $header Header to be included in PDF
+     * @param  string $footer Footer to be included in PDF
+     * @param  string $html   The HTML object to be converted into PDF
+     * 
+     * @return string        The PDF string
+     */
+    private function makePdf($header, $footer, $html) 
     {
             return Browsershot::html($html)
             //->showBrowserHeaderAndFooter()
             //->headerHtml($header)
             //->footerHtml($footer)
-            ->waitUntilNetworkIdle()
+            ->waitUntilNetworkIdle()->pdf();
             //->margins(10,10,10,10)
-            ->savePdf('test.pdf');
+            //->savePdf('test.pdf');
     }
 
     /**
@@ -79,15 +83,15 @@ class CreateInvoicePdf
      *     
      * @param  string $design either the path to the design template, OR the full design template string
      * @param  Collection $invoice  The invoice object
+     * 
      * @return string           The invoice string in HTML format
      */
     private function generateInvoiceHtml($design, $invoice) :string
     {
-        //swap labels
+        
         $data['invoice'] = $invoice;
 
         return view($design, $data)->render();
 
-        //return view('pdf.stub', $html)->render();
     }
 }
