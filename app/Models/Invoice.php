@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Laracasts\Presenter\PresentableTrait;
 
 class Invoice extends BaseModel
 {
@@ -26,6 +27,9 @@ class Invoice extends BaseModel
     use Filterable;
     use NumberFormatter;
     use MakesDates;
+    use PresentableTrait;
+
+    protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
     protected $hidden = [
         'id',

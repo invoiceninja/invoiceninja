@@ -13,6 +13,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\InvoiceFilters;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\ShowInvoiceRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Repositories\BaseRepository;
@@ -83,10 +84,13 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Invoice $invoice)
+    public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
-
-
+        $data = [
+            'invoice' => $invoice
+        ];
+        
+        return view('portal.default.invoices.show', $invoice);
     }
 
     /**

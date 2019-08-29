@@ -17,4 +17,13 @@ class Country extends Model
 {
     public $timestamps = false;
 
+    /**
+     * Localizes the country name for the clients language.
+     * 	
+     * @return string The translated country name
+     */
+    public function getName() :string
+    {
+        return trans('texts.country_' . $this->name);
+    }
 }
