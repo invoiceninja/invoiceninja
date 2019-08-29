@@ -269,9 +269,9 @@ class StripePaymentDriver extends BasePaymentDriver
                 $payment = $this->createPayment($ref, $paymentMethod);
 
                 if ($this->invitation->invoice->account->isNinjaAccount()) {
-                    Session::flash('trackEventCategory', '/account');
-                    Session::flash('trackEventAction', '/buy_pro_plan');
-                    Session::flash('trackEventAmount', $payment->amount);
+                    \Session::flash('trackEventCategory', '/account');
+                    \Session::flash('trackEventAction', '/buy_pro_plan');
+                    \Session::flash('trackEventAmount', $payment->amount);
                 }
 
                 if ($intent->setup_future_usage == 'off_session') {
