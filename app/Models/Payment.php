@@ -51,6 +51,10 @@ class Payment extends BaseModel
         'transaction_reference'
 	];
 
+    protected $casts = [
+        'settings' => 'object'
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class);

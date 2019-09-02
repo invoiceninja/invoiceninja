@@ -139,6 +139,23 @@
                                 John Doe<br>
                                 john@example.com
                             </td>
+
+                            <td>
+            {{$client_name}}<br>
+            {{$address1}}<br>
+            {{$address2}}<br>
+            {{$id_number}}<br>
+            {{$vat_number}}<br>
+            {{$city_state_postal}}<br>
+            {{$postal_city_state}}<br>
+            {{$country}}<br>
+            {{$email}}<br>
+            {{$contact_name}}<br>
+            {{$company_name}}<br>
+            {{$website}}<br>
+            {{$phone}}<br>
+            {{$terms}}<br>
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -168,71 +185,7 @@
                     $300.00
                 </td>
             </tr>
-                        <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
-                <td>
-                    Website design
-                </td>
-                
-                <td>
-                    $300.00
-                </td>
-            </tr>            <tr class="item">
+           <tr class="item">
                 <td>
                     Website design
                 </td>

@@ -151,3 +151,4 @@ trait MakesInvoiceLabels
 
     	return $data;
     }
+}

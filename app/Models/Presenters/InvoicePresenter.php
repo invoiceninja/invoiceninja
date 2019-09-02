@@ -53,7 +53,7 @@ class InvoicePresenter extends EntityPresenter
 
 	public function companyName()
 	{
-		return $this->company->present()->name()
+		return $this->company->present()->name();
 	}
 
 	public function companyAddress()

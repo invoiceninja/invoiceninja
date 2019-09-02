@@ -91,7 +91,9 @@ class CreateInvoicePdf
         
         $data['invoice'] = $invoice;
 
-        return view($design, $data)->render();
+        $template_variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
+
+        return view($design, array_merge($data, $template_variables))->render();
 
     }
 }

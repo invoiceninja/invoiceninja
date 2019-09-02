@@ -26,6 +26,11 @@ class ClientPresenter extends EntityPresenter
         return $this->entity->name ?: $this->entity->primary_contact->first()->first_name . ' '. $this->entity->primary_contact->first()->last_name;
     }
 
+    public function primary_contact_name()
+    {
+        return $this->entity->primary_contact->first()->first_name . ' '. $this->entity->primary_contact->first()->last_name;;   
+    }
+
     public function address()
     {
         $str = '';
