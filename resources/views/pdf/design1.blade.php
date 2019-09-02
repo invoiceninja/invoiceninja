@@ -161,6 +161,16 @@
                 </td>
             </tr>
     </table>
+        {{-- 
+            column variables:
+                item
+                description
+                cost
+                quantity
+                taxes
+                subtotal
+        --}}
+        {{ $invoice->table(['item','description','cost','quantity', 'taxes', 'subtotal']) }}
 
     <table cellpadding="0" cellspacing="0">
 

@@ -15,7 +15,6 @@ use App\Models\Currency;
 use App\Models\Filterable;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesInvoiceLabels;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\Model;
@@ -32,7 +31,6 @@ class Invoice extends BaseModel
     use MakesDates;
     use PresentableTrait;
     use MakesInvoiceValues;
-    use MakesInvoiceLabels;
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
     protected $hidden = [

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
-class CreateInvoicePdf
+class CreateInvoicePdf implements ShouldQueue
 {
     protected $activity_repo;
     /**
@@ -89,11 +89,7 @@ class CreateInvoicePdf
     private function generateInvoiceHtml($design, $invoice) :string
     {
         
-        $data['invoice'] = $invoice;
-
-        $template_variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
-
-        return view($design, array_merge($data, $template_variables))->render();
+        return view($design, array_merge($invoice->makeLabels(), $invoice->makeValues()))->render();
 
     }
 }
