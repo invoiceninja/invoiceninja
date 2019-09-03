@@ -14,7 +14,7 @@ namespace App\DataMapper;
 class InvoiceItem
 {
 
-    private $qty;
+    private $quantity;
 
     private $cost;
 
@@ -37,6 +37,16 @@ class InvoiceItem
     private $sort_id;
 
     private $line_total;
+
+    private $date;
+
+    private $custom_value1;
+
+    private $custom_value2;
+
+    private $custom_value3;
+
+    private $custom_value4;
 
 
 }

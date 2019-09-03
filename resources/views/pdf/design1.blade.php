@@ -163,14 +163,22 @@
     </table>
         {{-- 
             column variables:
+
+                date
+                discount
+                product_key
                 item
-                description
+                notes
                 cost
                 quantity
-                taxes
-                subtotal
+                taxes (tax_name1, tax_name2, tax_rate1, tax_rate2)
+                line_total
+                custom_label1 ( will show as the following parameter as its value -> custom_invoice_value1 )
+                custom_label2 ( will show as the following parameter as its value -> custom_invoice_value2 )
+                custom_label3 ( will show as the following parameter as its value -> custom_invoice_value3 )
+                custom_label4 ( will show as the following parameter as its value -> custom_invoice_value4 )
         --}}
-        {{ $invoice->table(['item','description','cost','quantity', 'taxes', 'subtotal']) }}
+        {{ $invoice->table(['item','description','cost','quantity', 'tax_name1', 'line_total']) }}
 
     <table cellpadding="0" cellspacing="0">
 

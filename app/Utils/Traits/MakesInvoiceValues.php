@@ -226,6 +226,8 @@ trait MakesInvoiceValues
      */
     public function table(array $columns) :string
     {
+    	//need to transform taxes and custom labels between the header column and value columns
+
     	$data = '<table class="table table-hover table-striped">';
 
     	$data .= '<thead><tr class="heading">';
@@ -233,17 +235,30 @@ trait MakesInvoiceValues
     		foreach($columns as $column)
     			$data .= '<td>' . ctrans('texts.column') . '</td>';
 
-    	$data .= '</tr></thead>';
+    		$data .= '</tr></thead>';
+
+    		$columns = str_replace(['custom_invoice_label1', 
+    			'custom_invoice_label2', 
+    			'custom_invoice_label3',
+    			'custom_invoice_label4'], 
+    			['custom_invoice_value1',
+    			'custom_invoice_value2',
+    			'custom_invoice_value3',
+    			'custom_invoice_value4'], 
+    			$columns);
 
     		foreach($this->line_items as $item)
     		{	
+	    	
 	    	$data .= '<tr class="item">';
 
     			foreach($columns as $column)
-    				$data .= '<td>{$item->column}</td>';
+    				$data .= '<td>'. $item->{$column} . '</td>';
 
 	    	$data .= '</tr>';
+	    	
 	    	}
+
     	$data .= '</table>';
     }
 
