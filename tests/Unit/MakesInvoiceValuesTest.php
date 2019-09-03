@@ -28,7 +28,7 @@ class MakesInvoiceValuesTest extends TestCase
 
 
     	$this->assertTrue(in_array("custom_invoice_value3", $columns));
-
+    	$this->assertFalse(in_array("custom_invoice_value1", $columns));
 	}
 
 

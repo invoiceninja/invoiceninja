@@ -226,7 +226,6 @@ trait MakesInvoiceValues
      */
     public function table(array $columns) :string
     {
-    	//need to transform taxes and custom labels between the header column and value columns
 
     	$data = '<table class="table table-hover table-striped">';
 
@@ -237,17 +236,11 @@ trait MakesInvoiceValues
 
     		$data .= '</tr></thead>';
 
-    		$columns = str_replace(['custom_invoice_label1', 
-    			'custom_invoice_label2', 
-    			'custom_invoice_label3',
-    			'custom_invoice_label4'], 
-    			['custom_invoice_value1',
-    			'custom_invoice_value2',
-    			'custom_invoice_value3',
-    			'custom_invoice_value4'], 
-    			$columns);
+    		$columns = $this->transformColumns($columns);
 
-    		foreach($this->line_items as $item)
+    		$items = $this->transformLineItems($this->line_items);
+
+    		foreach($items as $item)
     		{	
 	    	
 	    	$data .= '<tr class="item">';
@@ -262,4 +255,35 @@ trait MakesInvoiceValues
     	$data .= '</table>';
     }
 
+    /**
+     * Transform the column headers into invoice variables
+     * @param  array  $columns The column header values
+     * @return array          The invoice variables
+     */
+    private function transformColumns(array $columns) :array
+    {
+    	return str_replace(['custom_invoice_label1', 
+    			'custom_invoice_label2', 
+    			'custom_invoice_label3',
+    			'custom_invoice_label4',
+    			'tax_name1',
+    			'tax_name2'], 
+    			['custom_invoice_value1',
+    			'custom_invoice_value2',
+    			'custom_invoice_value3',
+    			'custom_invoice_value4',
+    			'tax_rate1',
+    			'tax_rate2'], 
+    			$columns);
+    }
+
+    /**
+     * Formats the line items for display
+     * @param  array  $items The array of invoice items
+     * @return array        The formatted array of invoice items
+     */
+    private function transformLineItems(array $items) :array
+    {
+
+    }
 }

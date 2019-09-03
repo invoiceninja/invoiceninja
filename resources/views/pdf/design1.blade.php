@@ -171,7 +171,8 @@
                 notes
                 cost
                 quantity
-                taxes (tax_name1, tax_name2, tax_rate1, tax_rate2)
+                tax_name1 
+                tax_name2
                 line_total
                 custom_label1 ( will show as the following parameter as its value -> custom_invoice_value1 )
                 custom_label2 ( will show as the following parameter as its value -> custom_invoice_value2 )
