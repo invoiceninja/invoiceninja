@@ -20,6 +20,24 @@ use Illuminate\Support\Facades\Log;
  */
 trait MakesInvoiceValues
 {
+
+
+    private static $master_columns = [
+        'date',
+        'discount',
+        'product_key',
+        'notes',
+        'cost',
+        'quantity',
+        'tax_name1',
+        'tax_name2',
+        'line_total',
+        'custom_label1',
+        'custom_label2',
+        'custom_label3',
+        'custom_label4',
+    ];
+
 	private static $labels = [
             'invoice',
             'invoice_date',
@@ -115,7 +133,7 @@ trait MakesInvoiceValues
     	$data = [];
 
     	foreach(self::$labels as $label)
-    		$data[][$label . '_label'] = ctrans('texts'.$label);
+    		$data[$label . '_label'] = ctrans('texts.'.$label);
 
     	return $data;
     }  
@@ -177,8 +195,8 @@ trait MakesInvoiceValues
             $data['email'] = isset($this->client->primary_contact()->first()->email) ?: 'no primary contact set';
             $data['contact_name'] = $this->client->present()->primary_contact_name();
             $data['company_name'] = $this->company->name;
-            $data['website'] = $this->client->website;
-            $data['phone'] = $this->client->primary_contact->first()->phone;
+            $data['website'] = $this->client->present()->website();
+            $data['phone'] = $this->client->present()->phone();
             //$data['blank'] = ;
             //$data['surcharge'] = ;
             /*
@@ -224,45 +242,82 @@ trait MakesInvoiceValues
      * 
      * @return string[HTML string
      */
-    public function table(array $columns) :string
+    public function table(array $columns) :?string
     {
 
     	$data = '<table class="table table-hover table-striped">';
 
     	$data .= '<thead><tr class="heading">';
 
-    		foreach($columns as $column)
-    			$data .= '<td>' . ctrans('texts.column') . '</td>';
+        $column_headers = $this->transformColumnsForHeader($columns);
+
+    		foreach($column_headers as $column)
+    			$data .= '<td>' . ctrans('texts.'.$column.'') . '</td>';
 
     		$data .= '</tr></thead>';
 
-    		$columns = $this->transformColumns($columns);
+    		$columns = $this->transformColumnsForLineItems($columns);
 
     		$items = $this->transformLineItems($this->line_items);
 
     		foreach($items as $item)
     		{	
-	    	
-	    	$data .= '<tr class="item">';
 
-    			foreach($columns as $column)
-    				$data .= '<td>'. $item->{$column} . '</td>';
+    	    	$data .= '<tr class="item">';
 
-	    	$data .= '</tr>';
+        			foreach($columns as $column)
+        			{
+
+                	   $data .= '<td>'. $item->{$column} . '</td>';
+
+                    }
+    	    	$data .= '</tr>';
 	    	
 	    	}
 
     	$data .= '</table>';
+
+        return $data;
     }
 
+
     /**
+     * 
+     * Transform the column headers into translated header values
+     * 
+     * @param  array  $columns The column header values
+     * @return array          The new column header variables
+     */
+    private function transformColumnsForHeader(array $columns) :array
+    {
+    
+        $columns = array_intersect(self::$master_columns, $columns);
+
+        return str_replace([
+                'tax_name1',
+                'tax_name2'
+            ], 
+            [
+                'tax',
+                'tax',
+            ], 
+            $columns);
+    
+    }
+
+
+    /**
+     * 
      * Transform the column headers into invoice variables
+     * 
      * @param  array  $columns The column header values
      * @return array          The invoice variables
      */
-    private function transformColumns(array $columns) :array
+    private function transformColumnsForLineItems(array $columns) :array
     {
-    
+        /* Removes any invalid columns the user has entered. */
+        $columns = array_intersect(self::$master_columns, $columns);
+
     	return str_replace([
                 'custom_invoice_label1', 
     			'custom_invoice_label2', 
@@ -294,18 +349,18 @@ trait MakesInvoiceValues
         foreach($items as $item)
         {
 
-            $item->cost = Number::formatMoney($item->cost, $this->client->currency(), $this->client->country, $this->client->getMergedSettings);
-            $item->line_total = Number::formatMoney($item->line_total, $this->client->currency(), $this->client->country, $this->client->getMergedSettings);
+            $item->cost = Number::formatMoney($item->cost, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $item->line_total = Number::formatMoney($item->line_total, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
 
             if(isset($item->discount) && $item->discount > 0)
             {
 
                 if($item->is_amount_discount)
-                    $item->discount = Number::formatMoney($item->discount, $this->client->currency(), $this->client->country, $this->client->getMergedSettings);
+                    $item->discount = Number::formatMoney($item->discount, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
                 else
                     $item->discount = $item->discount . '%';
             }
-            
+
         }
     
 

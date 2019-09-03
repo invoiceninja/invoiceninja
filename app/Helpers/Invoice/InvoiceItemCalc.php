@@ -45,7 +45,7 @@ class InvoiceItemCalc
 
 	public function process()
 	{
-		$this->line_total = $this->formatValue($this->item->cost, $this->settings->precision) * $this->formatValue($this->item->qty, $this->settings->precision);
+		$this->line_total = $this->formatValue($this->item->cost, $this->settings->precision) * $this->formatValue($this->item->quantity, $this->settings->precision);
 
 		$this->setDiscount()
 		->calcTaxes();

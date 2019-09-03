@@ -23,7 +23,7 @@ class InvoiceItemTransformer extends EntityTransformer
             'archived_at' => $item->deleted_at,
             'notes' => $item->notes,
             'cost' => (float) $item->cost,
-            'qty' => (float) ($item->qty ?: 0.0),
+            'quantity' => (float) ($item->quantity ?: 0.0),
             'tax_name1' => $item->tax_name1 ? $item->tax_name1 : '',
             'tax_rate1' => (float) ($item->tax_rate1 ?: 0.0),
             'tax_name2' => $item->tax_name2 ? $item->tax_name2 : '',

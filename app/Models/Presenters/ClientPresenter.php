@@ -28,7 +28,7 @@ class ClientPresenter extends EntityPresenter
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first()->first_name . ' '. $this->entity->primary_contact->first()->last_name;;   
+        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name . ' '. $this->entity->primary_contact->first()->last_name : 'No primary contact set';
     }
 
     public function address()
@@ -73,6 +73,13 @@ class ClientPresenter extends EntityPresenter
         return $str;
     }
 
+    public function phone()
+    {
+        return $this->entity->phone ?: '';
+    }
 
-
+    public function website()
+    {
+        return $this->entity->website ?: '';
+    }
 }
