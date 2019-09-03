@@ -262,19 +262,25 @@ trait MakesInvoiceValues
      */
     private function transformColumns(array $columns) :array
     {
-    	return str_replace(['custom_invoice_label1', 
+    
+    	return str_replace([
+                'custom_invoice_label1', 
     			'custom_invoice_label2', 
     			'custom_invoice_label3',
     			'custom_invoice_label4',
     			'tax_name1',
-    			'tax_name2'], 
-    			['custom_invoice_value1',
-    			'custom_invoice_value2',
-    			'custom_invoice_value3',
-    			'custom_invoice_value4',
-    			'tax_rate1',
-    			'tax_rate2'], 
-    			$columns);
+    			'tax_name2'
+            ], 
+			[
+                'custom_invoice_value1',
+                'custom_invoice_value2',
+                'custom_invoice_value3',
+                'custom_invoice_value4',
+                'tax_rate1',
+                'tax_rate2'
+            ], 
+			$columns);
+    
     }
 
     /**
@@ -285,5 +291,24 @@ trait MakesInvoiceValues
     private function transformLineItems(array $items) :array
     {
 
+        foreach($items as $item)
+        {
+
+            $item->cost = Number::formatMoney($item->cost, $this->client->currency(), $this->client->country, $this->client->getMergedSettings);
+            $item->line_total = Number::formatMoney($item->line_total, $this->client->currency(), $this->client->country, $this->client->getMergedSettings);
+
+            if(isset($item->discount) && $item->discount > 0)
+            {
+
+                if($item->is_amount_discount)
+                    $item->discount = Number::formatMoney($item->discount, $this->client->currency(), $this->client->country, $this->client->getMergedSettings);
+                else
+                    $item->discount = $item->discount . '%';
+            }
+            
+        }
+    
+
+        return $items;    
     }
 }

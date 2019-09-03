@@ -12,6 +12,7 @@
 namespace App\Factory;
 
 use Illuminate\Support\Carbon;
+//use Faker\Generator as Faker;
 
 class InvoiceItemFactory
 {
@@ -39,4 +40,38 @@ class InvoiceItemFactory
 		return $item;
 
 	}
+
+	/**
+	 * Generates an array of dummy data for invoice items
+	 * @param  int    $items Number of line items to create
+	 * @return array        array of objects
+	 */
+	public static function generate(int $items = 1) :array
+	{
+		$faker = \Faker\Factory::create();
+
+		$data = [];
+
+		for($x=0; $x<$items; $x++)
+		{
+
+			$item = self::create();
+			$item->quantity = $faker->numberBetween(1,10);
+			$item->cost = $faker->randomFloat(2, 1, 1000);
+			$item->line_total = $item->quantity * $item->cost;
+			$item->is_amount_discount = $faker->boolean();
+			$item->discount = $faker->numberBetween(1,10);
+			$item->notes = $faker->realText(20);
+			$item->product_key = $faker->word();
+			$item->custom_value1 = $faker->realText(10);
+			$item->custom_value2 = $faker->realText(10);
+			$item->custom_value3 = $faker->realText(10);
+			$item->custom_value4 = $faker->realText(10);
+
+			$data[] = $item;
+		}
+		
+		return $data;
+	}
+
 }

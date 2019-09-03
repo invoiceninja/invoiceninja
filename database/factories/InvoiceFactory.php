@@ -2,6 +2,7 @@
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceItemFactory;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Invoice::class, function (Faker $faker) {
@@ -22,7 +23,7 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
 		'po_number' => $faker->text(10),
 		'invoice_date' => $faker->date(),
 		'due_date' => $faker->date(),
-		'line_items' => false,
+		'line_items' => InvoiceItemFactory::generate(5),
 		'backup' => '', 
     ];
 });
