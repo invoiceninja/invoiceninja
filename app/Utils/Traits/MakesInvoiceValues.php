@@ -163,7 +163,6 @@ trait MakesInvoiceValues
             $data['$due_date'] = $this->due_date;
             $data['$invoice_number'] = $this->invoice_number;
             $data['$po_number'] = $this->po_number;
-            $data['$discount'] = $this->calc()->getTotalDiscount();
             $data['$line_taxes'] = $this->makeLineTaxes();
             // $data['$tax'] = ;
             // $data['$item'] = ;
@@ -172,12 +171,13 @@ trait MakesInvoiceValues
             // $data['$quantity'] = ;
             // $data['$line_total'] = ;
     //        $data['$paid_to_date'] = ;
-            $data['$subtotal'] = $subtotal = $this->calc()->getSubTotal(); Number::formatMoney($subtotal, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
             $data['$balance_due'] = Number::formatMoney($this->balance, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
             $data['$partial_due'] = Number::formatMoney($this->partial, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$total'] = $total = $this->calc()->getTotal(); Number::formatMoney($total, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$balance'] = $balance = $this->calc()->getBalance(); Number::formatMoney($balance, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$taxes'] = $taxes = $this->calc()->getTotalTaxes(); Number::formatMoney($taxes, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$taxes'] = Number::formatMoney($this->calc()->getTotalTaxes(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
             $data['$terms'] = $this->terms;
             // $data['$your_invoice'] = ;
             // $data['$quote'] = ;
@@ -204,7 +204,7 @@ trait MakesInvoiceValues
             $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, FALSE);
             $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, TRUE);
             $data['$country'] = $this->client->country->name;
-            $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no primary contact set';
+            $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
             $data['$contact_name'] = $this->client->present()->primary_contact_name();
             $data['$company_name'] = $this->company->present()->name();
             $data['$company_address'] = $this->company->present()->address();
@@ -245,7 +245,6 @@ trait MakesInvoiceValues
             $data['$amount'] = ;
             $data['$amount_paid'] =;
         	*/
-
         return $data;
     }
 
@@ -259,7 +258,7 @@ trait MakesInvoiceValues
     public function table(array $columns) :?string
     {
 
-    	$data = '<table class="table table-hover table-striped">';
+    	$data = '<table class="table table-striped items">';
 
     	$data .= '<thead><tr class="heading">';
 

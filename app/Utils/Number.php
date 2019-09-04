@@ -74,9 +74,9 @@ class Number
             if ($country->decimal_separator) 
                 $decimal = $country->decimal_separator;
             
-
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
+        
         if ($settings->show_currency_code == "TRUE") {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {

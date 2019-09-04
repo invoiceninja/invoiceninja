@@ -3,158 +3,91 @@
 <head>
     <meta charset="utf-8">
     <title>$invoice_number</title>
-    <!--<link href="{{asset('/vendors/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{asset('/vendors/css/coreui.min.css') }}" rel="stylesheet">-->
+    <link href="{{asset('/vendors/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{asset('/vendors/css/coreui.min.css') }}" rel="stylesheet">
     <style>
 
     html {
       -webkit-print-color-adjust: exact;
+      font-size: 24px;
+      font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+
     }
-    .invoice-box {
-        max-width: 800px;
-        margin: auto;
-        padding: 30px;
-        border: 1px solid #eee;
-        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-        font-size: 16px;
-        line-height: 24px;
-        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-        color: #555;
+
+    .totals td {
+        text-align: right;
     }
-    
-    .invoice-box table {
-        width: 100%;
-        line-height: inherit;
-        text-align: left;
+
+    table { 
+        border-collapse: collapse; 
+        border:0;
     }
-    
-    .invoice-box table td {
-        padding: 5px;
-        vertical-align: top;
+
+    table.items thead{
+        background-color:yellow!important;
+        border-collapse: collapse; 
+        font-weight:bold;
+        overflow: auto;
+        border:0;
+           -webkit-print-color-adjust: exact; 
+
     }
-    
-    .invoice-box table tr td {
+    .items td {
         text-align: center;
     }
-    
-    .invoice-box table tr.top table td {
-        padding-bottom: 20px;
+
+    table.items.heading {
+        background-color:#000;
+                border-collapse: collapse; 
+
     }
-    
-    .invoice-box table tr.top table td.title {
-        font-size: 45px;
-        line-height: 45px;
-        color: #333;
-    }
-    
-    .invoice-box table tr.information table td {
-        padding-bottom: 40px;
-    }
-    
-    .invoice-box table tr.heading td {
-        background: #eee;
-        border-bottom: 1px solid #ddd;
-        font-weight: bold;
-    }
-    
-    .invoice-box table tr.details td {
-        padding-bottom: 20px;
-    }
-    
-    .invoice-box table tr.item td{
-        border-bottom: 1px solid #eee;
-    }
-    
-    .invoice-box table tr.item.last td {
-        border-bottom: none;
-    }
-    
-    .invoice-box table tr.total td:nth-child(2) {
-        border-top: 0px solid #eee;
-        font-weight: bold;
-    }
-    
-    table.totals tr td {
-        text-align: right;
-    }
-    @media only screen and (max-width: 600px) {
-        .invoice-box table tr.top table td {
-            width: 100%;
-            display: block;
-            text-align: center;
-        }
-        
-        .invoice-box table tr.information table td {
-            width: 100%;
-            display: block;
-            text-align: center;
-        }
-    }
-    
-    /** RTL **/
-    .rtl {
-        direction: rtl;
-        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-    }
-    
-    .rtl table {
-        text-align: right;
-    }
-    
-    .rtl table tr td:nth-child(2) {
+
+    .heading {
+
+        background-color: rgb(255,0,0);;
+        overflow: auto;
         text-align: left;
+        color: #000;
     }
+
     </style>
 </head>
 
 <body>
-    <div class="invoice-box">
-        <table>
-            <tr class="top">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                <img src="$company_logo" style="width:100%; max-width:150px;">
-                            </td>
-                            
-                            <td>
-                                $invoice_number_label:  $invoice_number <br>
-                                $invoice_date_label:  $invoice_date <br>
-                                $invoice_due_date_label:  $due_date 
-                                
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            
-            <tr class="information">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td>
-                                $client_name<br>
-                                $address1<br>
-                                $address2<br>
-                                $city_state_postal<br>
-                                $country<br>
-                                $vat_number<br>
+    <div class="container-fluid">
+        <div class="row mt-4">
 
-                            </td>
-                            
-                            <td>
-                                $company_name<br>
-                                $company_address<br>
-                                $phone<br>
-                                $email<br>
-                            </td>
+                <div class="col-md-4">
+                    <img src="$company_logo" style="width:100%; max-width:150px;">
+                </div>
 
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-    </table>
+                <div class="col-md-4 ml-auto">
+                $invoice_number_label:  $invoice_number <br>
+                $invoice_date_label:  $invoice_date <br>
+                $invoice_due_date_label:  $due_date 
+                </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <b>Client:</b><br>
+                $client_name<br>
+                $address1<br>
+                $address2<br>
+                $city_state_postal<br>
+                $country<br>
+                $vat_number<br>
+            </div>
+
+            <div class="col-md-4 ml-auto">
+                $company_name<br>
+                $company_address<br>
+                $phone<br>
+                $email<br>
+            </div>
+
+        </div>
+                        
         {{-- 
             column variables:
 
@@ -174,36 +107,37 @@
         --}}
         {!! $invoice->table(['product_key', 'notes', 'cost','quantity', 'discount', 'tax_name1', 'line_total']) !!}
 
-        <div class="d-flex justify-content-end">
-            <table class="totals">         
-                <tr class="subtotal">
-                    <td>$subtotal_label:</td>
-                    <td>$subtotal</td>
-                </tr>
-                <tr class="taxes">
-                    <td>$taxes_label:</td>
-                    <td>$taxes</td>
-                </tr>
+        <div class="row">
+            <div class="d-flex justify-content-end ml-auto mr-4">
+                <table class="totals" border="0" cellpadding="5">         
+                    <tr class="subtotal">
+                        <td>$subtotal_label:</td>
+                        <td>$subtotal</td>
+                    </tr>
+                    <tr class="taxes">
+                        <td>$taxes_label:</td>
+                        <td>$taxes</td>
+                    </tr>
 
-                {{-- line_taxes html is populated server side, with a class of line_items,  you can customise your CSS here to override the defaults--}}
-                
-                $line_taxes
+                    {{-- line_taxes html is populated server side, with a class of line_items,  you can customise your CSS here to override the defaults--}}
+                    
+                    $line_taxes
 
-                <tr class="discount">
-                    <td>$discount_label:</td>
-                    <td>$discount</td>
-                </tr>
-                <tr class="total">
-                    <td>$total_label:</td>
-                    <td>$total</td>
-                </tr>
+                    <tr class="discount">
+                        <td>$discount_label:</td>
+                        <td>$discount</td>
+                    </tr>
+                    <tr class="total">
+                        <td>$total_label:</td>
+                        <td>$total</td>
+                    </tr>
 
-                <tr class="balance">
-                    <td>$balance_label:</td>
-                    <td>$balance</td>
-                </tr>
-
-            </table>
+                    <tr class="balance">
+                        <td>$balance_label:</td>
+                        <td>$balance</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </body>
