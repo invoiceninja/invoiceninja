@@ -59,7 +59,7 @@
 					<div class="card-body">
 						
 					@if ($company->logo)
-					    {!! HTML::image($company->logo) !!}
+					    {!! Html::image($company->logo) !!}
 					@else
 					    <h2>{{ $company->present()->name() }}</h2>
 					@endif

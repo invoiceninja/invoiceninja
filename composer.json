@@ -42,7 +42,8 @@
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/postmark-php": "^2.6",
         "yajra/laravel-datatables-html": "^4.0",
-        "yajra/laravel-datatables-oracle": "~9.0"
+        "yajra/laravel-datatables-oracle": "~9.0",
+        "laravelcollective/html": "5.8.*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
