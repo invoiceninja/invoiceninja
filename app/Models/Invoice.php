@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Models\Currency;
 use App\Models\Filterable;
@@ -246,6 +247,7 @@ class Invoice extends BaseModel
      * Returns the template for the invoice
      * 
      * @return string Either the template view, OR the template HTML string
+     * @todo  this needs attention, invoice->settings needs clarification
      */
     public function design() :string
     {
@@ -264,5 +266,18 @@ class Invoice extends BaseModel
         
         return $invoice_calc->build();
 
+    }
+
+    public function pdf_url()
+    {
+        $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
+
+        $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
+
+        if(!Storage::exists($storage_path)) {
+            event(new InvoiceWasUpdated($this));
+        }
+
+        return $public_path;
     }
 }

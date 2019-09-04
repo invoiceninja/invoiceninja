@@ -29,6 +29,7 @@
         "laravel/framework": "5.8.*",
         "laravel/socialite": "^3.1",
         "laravel/tinker": "^1.0",
+        "laravelcollective/html": "5.8.*",
         "league/fractal": "^0.17.0",
         "league/omnipay": "^3",
         "nwidart/laravel-modules": "^4.0",
@@ -42,8 +43,7 @@
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/postmark-php": "^2.6",
         "yajra/laravel-datatables-html": "^4.0",
-        "yajra/laravel-datatables-oracle": "~9.0",
-        "laravelcollective/html": "5.8.*"
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",

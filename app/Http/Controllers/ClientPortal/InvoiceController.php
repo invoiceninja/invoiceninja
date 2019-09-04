@@ -50,7 +50,7 @@ class InvoiceController extends Controller
         if (request()->ajax()) {
 
             return DataTables::of($invoices)->addColumn('action', function ($invoice) {
-                    return '<a href="/client/invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+                    return '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })
                 ->addColumn('checkbox', function ($invoice){
                     return '<input type="checkbox" name="hashed_ids[]" value="'. $invoice->hashed_id .'"/>';
@@ -90,7 +90,7 @@ class InvoiceController extends Controller
             'invoice' => $invoice
         ];
         
-        return view('portal.default.invoices.show', $invoice);
+        return view('portal.default.invoices.show', $data);
     }
 
     /**
