@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Invoice\InvoiceCalc;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Utils\Number;
@@ -251,4 +252,17 @@ class Invoice extends BaseModel
         return File::exists(resource_path($this->settings->design)) ? File::get(resource_path($this->settings->design)) : File::get(resource_path('views/pdf/design1.blade.php'));
     }
 
+    /**
+     * Access the invoice calculator object
+     * 
+     * @return object The invoice calculator object getters
+     */
+    public function calc()
+    {
+
+        $invoice_calc = new InvoiceCalc($this, $this->client->getMergedSettings());
+        
+        return $invoice_calc->build();
+
+    }
 }

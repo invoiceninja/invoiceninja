@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class CreateInvoicePdf implements ShouldQueue
 {
@@ -136,7 +137,7 @@ class CreateInvoicePdf implements ShouldQueue
                 ob_end_clean();
             }
 
-            throw new \FatalThrowableError($e);
+            throw new FatalThrowableError($e);
         }
 
         return ob_get_clean();

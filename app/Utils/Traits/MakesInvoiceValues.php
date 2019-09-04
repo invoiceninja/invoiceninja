@@ -163,30 +163,31 @@ trait MakesInvoiceValues
             $data['$due_date'] = $this->due_date;
             $data['$invoice_number'] = $this->invoice_number;
             $data['$po_number'] = $this->po_number;
-            // $data['$discount'] = ;
-            // $data['$taxes'] = ;
+            $data['$discount'] = $this->calc()->getTotalDiscount();
+            $data['$taxes'] = $this->calc()->getTotalTaxes();
+            $data['$line_taxes'] = $this->calc()->getTaxMap();
             // $data['$tax'] = ;
             // $data['$item'] = ;
             // $data['$description'] = ;
             // $data['$unit_cost'] = ;
             // $data['$quantity'] = ;
             // $data['$line_total'] = ;
-            // $data['$subtotal'] = ;
     //        $data['$paid_to_date'] = ;
+            $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client->currency(), $this->client->country, $this->client->settings);
             $data['$balance_due'] = Number::formatMoney($this->balance, $this->client->currency(), $this->client->country, $this->client->settings);
             $data['$partial_due'] = Number::formatMoney($this->partial, $this->client->currency(), $this->client->country, $this->client->settings);
+            $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client->currency(), $this->client->country, $this->client->settings);
+            $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client->currency(), $this->client->country, $this->client->settings);
             $data['$terms'] = $this->terms;
             // $data['$your_invoice'] = ;
             // $data['$quote'] = ;
             // $data['$your_quote'] = ;
             // $data['$quote_date'] = ;
             // $data['$quote_number'] = ;
-            $data['$total'] = Number::formatMoney($this->amount, $this->client->currency(), $this->client->country, $this->client->settings);
             // $data['$invoice_issued_to'] = ;
             // $data['$quote_issued_to'] = ;
             // $data['$rate'] = ;
             // $data['$hours'] = ;
-            // $data['$balance'] = ;
             // $data['$from'] = ;
             // $data['$to'] = ;
             // $data['$invoice_to'] = ;
@@ -303,8 +304,8 @@ trait MakesInvoiceValues
      */
     private function transformColumnsForHeader(array $columns) :array
     {
-    
-        $columns = array_intersect(self::$master_columns, $columns);
+        $pre_columns = $columns;
+        $columns = array_intersect($columns, self::$master_columns);
 
         return str_replace([
                 'tax_name1',
@@ -329,7 +330,7 @@ trait MakesInvoiceValues
     private function transformColumnsForLineItems(array $columns) :array
     {
         /* Removes any invalid columns the user has entered. */
-        $columns = array_intersect(self::$master_columns, $columns);
+        $columns = array_intersect($columns, self::$master_columns);
 
     	return str_replace([
                 'custom_invoice_label1', 

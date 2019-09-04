@@ -168,17 +168,47 @@
                 custom_label3 ( will show as the following parameter as its value -> custom_invoice_value3 )
                 custom_label4 ( will show as the following parameter as its value -> custom_invoice_value4 )
         --}}
-        {!! $invoice->table(['product_key', 'notes', 'cost','quantity', 'line_total']) !!}
+        {!! $invoice->table(['product_key', 'notes', 'cost','quantity', 'discount', 'tax_name1', 'line_total']) !!}
 
    
         <table>         
-            <tr class="total">
+            <tr class="subtotal">
                 <td></td>
-                
                 <td>
-                   Total: $385.00
+                    $subtotal_label: $subtotal
                 </td>
             </tr>
+            <tr class="taxes">
+                <td></td>
+                <td>
+                    $taxes_label: $taxes
+                </td>
+            </tr>
+            <tr class="line_taxes">
+                <td>
+                    $taxes_label: $line_taxes
+                </td>
+            </tr>
+            <tr class="discount">
+                <td></td>
+                <td>
+                    $discount_label: $discount
+                </td>
+            </tr>
+            <tr class="total">
+                <td></td>
+                <td>
+                   $total_label: $total
+                </td>
+            </tr>
+
+            <tr class="balance">
+                <td></td>
+                <td>
+                   $balance_label: $balance
+                </td>
+            </tr>
+
         </table>
     </div>
 </body>
