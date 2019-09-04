@@ -56,9 +56,9 @@ class Number
      * @param  object $currency The client currency object
      * @param  object $country The client country
      * 
-     * @return float           The formatted value
+     * @return string           The formatted value
      */
-    public static function formatMoney($value, $currency, $country, $settings)
+    public static function formatMoney($value, $currency, $country, $settings) :string
     {
 
         $thousand = $currency->thousand_separator;
