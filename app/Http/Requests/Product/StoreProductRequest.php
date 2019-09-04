@@ -33,7 +33,7 @@ class StoreProductRequest extends Request
             'product_key' => 'required|unique:products,product_key,null,null,company_id,'.auth()->user()->companyId(),
             'cost' => 'numeric',
             'price' => 'numeric',
-            'qty' => 'numeric',
+            'quantity' => 'numeric',
         ];
     }
 

@@ -164,8 +164,7 @@ trait MakesInvoiceValues
             $data['$invoice_number'] = $this->invoice_number;
             $data['$po_number'] = $this->po_number;
             $data['$discount'] = $this->calc()->getTotalDiscount();
-            $data['$taxes'] = $this->calc()->getTotalTaxes();
-            $data['$line_taxes'] = $this->calc()->getTaxMap();
+            $data['$line_taxes'] = $this->makeLineTaxes();
             // $data['$tax'] = ;
             // $data['$item'] = ;
             // $data['$description'] = ;
@@ -173,11 +172,12 @@ trait MakesInvoiceValues
             // $data['$quantity'] = ;
             // $data['$line_total'] = ;
     //        $data['$paid_to_date'] = ;
-            $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client->currency(), $this->client->country, $this->client->settings);
-            $data['$balance_due'] = Number::formatMoney($this->balance, $this->client->currency(), $this->client->country, $this->client->settings);
-            $data['$partial_due'] = Number::formatMoney($this->partial, $this->client->currency(), $this->client->country, $this->client->settings);
-            $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client->currency(), $this->client->country, $this->client->settings);
-            $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client->currency(), $this->client->country, $this->client->settings);
+            $data['$subtotal'] = $subtotal = $this->calc()->getSubTotal(); Number::formatMoney($subtotal, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$balance_due'] = Number::formatMoney($this->balance, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$partial_due'] = Number::formatMoney($this->partial, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$total'] = $total = $this->calc()->getTotal(); Number::formatMoney($total, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$balance'] = $balance = $this->calc()->getBalance(); Number::formatMoney($balance, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$taxes'] = $taxes = $this->calc()->getTotalTaxes(); Number::formatMoney($taxes, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
             $data['$terms'] = $this->terms;
             // $data['$your_invoice'] = ;
             // $data['$quote'] = ;
@@ -379,5 +379,31 @@ trait MakesInvoiceValues
     
 
         return $items;    
+    }
+
+    /**
+     * Due to the way we are compiling the blade template we 
+     * have no ability to iterate, so in the case
+     * of line taxes where there are multiple rows, 
+     * we use this function to format a section of rows
+     * 
+     * @return string a collection of <tr> rows with line item 
+     * aggregate data
+     */
+    private function makeLineTaxes() :string
+    {
+ 
+        $tax_map = $this->calc()->getTaxMap();
+        
+        $data = '';
+
+        foreach($tax_map as $tax)
+        {
+            $data .= '<tr class="line_taxes">';
+            $data .= '<td>'. $tax['name'] .'</td>';
+            $data .= '<td>'. Number::formatMoney($tax['total'], $this->client->currency(), $this->client->country, $this->client->getMergedSettings()) .'</td></tr>';
+        }
+
+        return $data;
     }
 }

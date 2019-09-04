@@ -77,13 +77,11 @@ class Number
 
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
-
         if ($settings->show_currency_code == "TRUE") {
-            Log::error('in code regardless');
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);
-        } elseif ($settings->show_currency_symbol === "TRUE") {
+        } elseif ($settings->show_currency_symbol == "TRUE") {
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);

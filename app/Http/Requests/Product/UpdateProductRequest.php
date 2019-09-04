@@ -38,7 +38,7 @@ class UpdateProductRequest extends Request
             'product_key' => 'unique:products,product_key,'.$this->product->id.',id,company_id,'.auth()->user()->companyId(),
             'cost' => 'numeric',
             'price' => 'numeric',
-            'qty' => 'numeric',
+            'quantity' => 'numeric',
         ];
     }
 

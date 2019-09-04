@@ -245,9 +245,38 @@ class InvoiceCalc
 		return $this;
 	}
 	
+	/**
+	 * Sums and reduces the line item taxes 
+	 * 
+	 * @return array The array of tax names and tax totals
+	 */
 	public function getTaxMap()
 	{
-		return $this->tax_map;
+
+        $keys = $this->tax_map->collapse()->pluck('key')->unique();
+
+        $values = $this->tax_map->collapse();
+
+        $tax_array = [];
+
+        foreach($keys as $key)
+        {
+
+            $tax_name = $values->filter(function ($value, $k) use($key){
+                return $value['key'] == $key;
+            })->pluck('tax_name')->first();
+
+            $total_line_tax = $values->filter(function ($value, $k) use($key){
+                return $value['key'] == $key;
+            })->sum('total');
+        
+            $tax_array[] = ['name' => $tax_name, 'total' => $total_line_tax];
+
+        }
+
+        return $tax_array;
+    
+
 	}
 
 	public function setTaxMap($value)
@@ -279,6 +308,11 @@ class InvoiceCalc
 		$this->total_taxes = $value;
 
 		return $this;
+	}
+
+	public function getTotalLineTaxes()
+	{
+
 	}
 
 	public function getTotal()

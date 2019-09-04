@@ -46,7 +46,7 @@ class MarkInvoicePaidTest extends TestCase
 
         foreach($invoice->payments as $payment) {
             //Log::error($payment);
-            $this->assertEquals(10, $payment->amount);
+            $this->assertEquals($this->invoice->amount, $payment->amount);
         }
 
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);

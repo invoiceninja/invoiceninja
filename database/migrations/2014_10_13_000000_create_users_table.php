@@ -657,7 +657,7 @@ class CreateUsersTable extends Migration
             $t->text('notes');
             $t->decimal('cost', 13, 2);
             $t->decimal('price', 13, 2);
-            $t->decimal('qty', 13, 2)->nullable();
+            $t->decimal('quantity', 13, 2)->nullable();
 
             $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3);

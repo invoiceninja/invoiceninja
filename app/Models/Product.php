@@ -31,7 +31,7 @@ class Product extends BaseModel
         'notes',
         'cost',
         'price',
-        'qty',
+        'quantity',
         'tax_name1',
         'tax_name2',
         'tax_rate1',

@@ -47,13 +47,13 @@ class InvoiceTest extends TestCase
 		$line_items = [];
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 
 		$line_items[] = $item;
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 
 		$line_items[] = $item;
@@ -156,7 +156,7 @@ class InvoiceTest extends TestCase
 		$line_items = [];
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->tax_rate1 = 10;
 		$item->tax_name1 = 10;
@@ -164,7 +164,7 @@ class InvoiceTest extends TestCase
 		$line_items[] = $item;
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->tax_rate1 = 10;
 		$item->tax_name1 = 10;
@@ -184,7 +184,7 @@ class InvoiceTest extends TestCase
 		$this->assertEquals($this->invoice_calc->getTotal(), 20);
 		$this->assertEquals($this->invoice_calc->getBalance(), 20);
 		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 0);
-		$this->assertEquals($this->invoice_calc->getTaxMap()->count(), 2);
+		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
 	}
 
 	public function testLineItemTaxRatesExclusiveTaxes()
@@ -193,7 +193,7 @@ class InvoiceTest extends TestCase
 		$line_items = [];
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->tax_rate1 = 10;
 		$item->tax_name1 = 10;
@@ -201,7 +201,7 @@ class InvoiceTest extends TestCase
 		$line_items[] = $item;
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->tax_rate1 = 10;
 		$item->tax_name1 = 10;
@@ -223,7 +223,7 @@ class InvoiceTest extends TestCase
 		$this->assertEquals($this->invoice_calc->getTotal(), 26);
 		$this->assertEquals($this->invoice_calc->getBalance(), 26);
 		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 6);
-		$this->assertEquals($this->invoice_calc->getTaxMap()->count(), 2);
+		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
 	}
 
 }

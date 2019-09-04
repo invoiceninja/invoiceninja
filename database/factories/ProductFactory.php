@@ -8,7 +8,7 @@ $factory->define(App\Models\Product::class, function (Faker $faker) {
         'notes' => $faker->text(20),
         'cost' => $faker->numberBetween(1,1000),
         'price' => $faker->numberBetween(1,1000),
-        'qty' => $faker->numberBetween(1,100),
+        'quantity' => $faker->numberBetween(1,100),
         'tax_name1' => 'GST',
         'tax_rate1' => 10,
         'tax_name2' => 'VAT',

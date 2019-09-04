@@ -25,7 +25,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimple()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 
@@ -42,7 +42,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimpleWithDiscount()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2;
@@ -59,7 +59,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecision()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
@@ -77,7 +77,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleInclusiveTax()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
@@ -96,7 +96,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleExclusiveTax()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
@@ -115,7 +115,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleInclusiveTax()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;
@@ -135,7 +135,7 @@ class InvoiceItemTest extends TestCase
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleExclusiveTax()
 	{
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
 		$item->discount = 2.521254522145214511;

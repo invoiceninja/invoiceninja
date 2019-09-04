@@ -2,13 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>A simple, clean, and responsive HTML invoice template</title>
-    
+    <title>$invoice_number</title>
+    <!--<link href="{{asset('/vendors/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{asset('/vendors/css/coreui.min.css') }}" rel="stylesheet">-->
     <style>
 
-        html {
-  -webkit-print-color-adjust: exact;
-}
+    html {
+      -webkit-print-color-adjust: exact;
+    }
     .invoice-box {
         max-width: 800px;
         margin: auto;
@@ -32,8 +33,8 @@
         vertical-align: top;
     }
     
-    .invoice-box table tr td:nth-child(2) {
-        text-align: right;
+    .invoice-box table tr td {
+        text-align: center;
     }
     
     .invoice-box table tr.top table td {
@@ -69,10 +70,13 @@
     }
     
     .invoice-box table tr.total td:nth-child(2) {
-        border-top: 2px solid #eee;
+        border-top: 0px solid #eee;
         font-weight: bold;
     }
     
+    table.totals tr td {
+        text-align: right;
+    }
     @media only screen and (max-width: 600px) {
         .invoice-box table tr.top table td {
             width: 100%;
@@ -105,7 +109,7 @@
 
 <body>
     <div class="invoice-box">
-        <table cellpadding="0" cellspacing="0">
+        <table>
             <tr class="top">
                 <td colspan="2">
                     <table>
@@ -170,46 +174,37 @@
         --}}
         {!! $invoice->table(['product_key', 'notes', 'cost','quantity', 'discount', 'tax_name1', 'line_total']) !!}
 
-   
-        <table>         
-            <tr class="subtotal">
-                <td></td>
-                <td>
-                    $subtotal_label: $subtotal
-                </td>
-            </tr>
-            <tr class="taxes">
-                <td></td>
-                <td>
-                    $taxes_label: $taxes
-                </td>
-            </tr>
-            <tr class="line_taxes">
-                <td>
-                    $taxes_label: $line_taxes
-                </td>
-            </tr>
-            <tr class="discount">
-                <td></td>
-                <td>
-                    $discount_label: $discount
-                </td>
-            </tr>
-            <tr class="total">
-                <td></td>
-                <td>
-                   $total_label: $total
-                </td>
-            </tr>
+        <div class="d-flex justify-content-end">
+            <table class="totals">         
+                <tr class="subtotal">
+                    <td>$subtotal_label:</td>
+                    <td>$subtotal</td>
+                </tr>
+                <tr class="taxes">
+                    <td>$taxes_label:</td>
+                    <td>$taxes</td>
+                </tr>
 
-            <tr class="balance">
-                <td></td>
-                <td>
-                   $balance_label: $balance
-                </td>
-            </tr>
+                {{-- line_taxes html is populated server side, with a class of line_items,  you can customise your CSS here to override the defaults--}}
+                
+                $line_taxes
 
-        </table>
+                <tr class="discount">
+                    <td>$discount_label:</td>
+                    <td>$discount</td>
+                </tr>
+                <tr class="total">
+                    <td>$total_label:</td>
+                    <td>$total</td>
+                </tr>
+
+                <tr class="balance">
+                    <td>$balance_label:</td>
+                    <td>$balance</td>
+                </tr>
+
+            </table>
+        </div>
     </div>
 </body>
 </html>

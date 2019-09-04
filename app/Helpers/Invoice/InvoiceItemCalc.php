@@ -14,6 +14,7 @@ namespace App\Helpers\Invoice;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceItemCalc
 {
@@ -179,7 +180,7 @@ class InvoiceItemCalc
 	}
 
 	public function getGroupedTaxes()
-	{
+	{ 
 		return $this->tax_collection;
 	}
 
