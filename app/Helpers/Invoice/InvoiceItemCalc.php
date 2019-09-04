@@ -123,7 +123,7 @@ class InvoiceItemCalc
 
 		$key = str_replace(" ", "", $tax_name.$tax_rate);
 
-		$group_tax = [$key => ['total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate.'%']]; 
+		$group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate.'%']; 
 
 		$this->tax_collection->push(collect($group_tax));
 		

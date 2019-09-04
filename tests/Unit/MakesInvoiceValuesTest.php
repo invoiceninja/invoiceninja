@@ -74,22 +74,9 @@ class MakesInvoiceValuesTest extends TestCase
 
         }
 
-        $this->assertEquals("GST10.00", print_r($tax_array));
- //       $this->assertEquals("GST10.00", $keys->keys());
+        //$this->assertEquals("GST10.00", print_r($tax_array));
+        $this->assertEquals(100, $tax_array[0]['total']);
 
-        foreach($keys as $key)
-        {
-
-            $this->assertEquals("GST10.00", $key);
-
-            $tax_group = $taxes->groupBy($key);
-   
-            $this->assertEquals('hi', $tax_group);
-            $tax_group->sum('total');
-
-            $this->assertEquals(100, $tax_group->sum('total'));
-
-        }
 
 
 
