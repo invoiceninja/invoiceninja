@@ -12,7 +12,6 @@
 namespace App\Utils\Traits;
 
 use App\Utils\Number;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class MakesInvoiceValues
@@ -20,8 +19,11 @@ use Illuminate\Support\Facades\Log;
  */
 trait MakesInvoiceValues
 {
-
-
+	/**
+	 * Master list of columns used 
+	 * for invoice tables
+	 * @var array
+	 */
     private static $master_columns = [
         'date',
         'discount',
@@ -38,6 +40,10 @@ trait MakesInvoiceValues
         'custom_label4',
     ];
 
+    /**
+     * Master list of invoice labels
+     * @var array
+     */
 	private static $labels = [
         'invoice_date',
         'due_date',
@@ -122,23 +128,11 @@ trait MakesInvoiceValues
         'amount_paid',
     ];
 
-    public function makeInvoiceTemplateKeys()
-    {
-        $data = [];
-
-        foreach(self::$labels as $label)
-            $data[] = '$'.$label.'_label';
-
-        foreach(self::$labels as $label)
-            $data[] = '$'.$label;
-
-        return $data;
-    }
-
 	/**
      * Iterates and translates all labels
      *
-     * @return array returns an array of keyed labels (appended with _label)
+     * @return array returns an array of 
+     * keyed labels (appended with _label)
      */
     public function makeLabels() :array
     {
@@ -151,9 +145,11 @@ trait MakesInvoiceValues
     }  
 
 	/**
-     * Transforms all placeholders to invoice values
+     * Transforms all placeholders 
+     * to invoice values
      * 
-     * @return array returns an array of keyed labels (appended with _label)
+     * @return array returns an array 
+     * of keyed labels (appended with _label)
      */
     public function makeValues() :array
     {
@@ -197,20 +193,31 @@ trait MakesInvoiceValues
             // $data['$quote_no'] = ;
             // $data['$valid_until'] = ;
             $data['$client_name'] = $this->present()->clientName();
+            $data['$client_address'] = $this->present()->address();
             $data['$address1'] = $this->client->address1;
             $data['$address2'] = $this->client->address2;
             $data['$id_number'] = $this->client->id_number;
             $data['$vat_number'] = $this->client->vat_number;
+            $data['$website'] = $this->client->present()->website();
+            $data['$phone'] = $this->client->present()->phone();
             $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, FALSE);
             $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, TRUE);
             $data['$country'] = $this->client->country->name;
             $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
             $data['$contact_name'] = $this->client->present()->primary_contact_name();
             $data['$company_name'] = $this->company->present()->name();
+            $data['$company_address1'] = $this->company->address1;
+            $data['$company_address2'] = $this->company->address2;
+            $data['$company_city'] = $this->company->city;
+            $data['$company_state'] = $this->company->state;
+            $data['$company_postal_code'] = $this->company->postal_code;
+            $data['$company_country'] = $this->company->country->name;
+            $data['$company_phone'] = $this->company->work_phone;
+            $data['$company_email'] = $this->company->work_email;
+            $data['$company_vat_number'] = $this->company->vat_number;
+            $data['$company_id_number'] = $this->company->id_number;
             $data['$company_address'] = $this->company->present()->address();
             $data['$company_logo'] = $this->company->present()->logo();
-            $data['$website'] = $this->client->present()->website();
-            $data['$phone'] = $this->client->present()->phone();
             //$data['$blank'] = ;
             //$data['$surcharge'] = ;
             /*
@@ -259,7 +266,6 @@ trait MakesInvoiceValues
     {
 
     	$data = '<table class="table table-striped items">';
-
     	$data .= '<thead><tr class="heading">';
 
         $column_headers = $this->transformColumnsForHeader($columns);
@@ -280,9 +286,7 @@ trait MakesInvoiceValues
 
         			foreach($columns as $column)
         			{
-
                 	   $data .= '<td>'. $item->{$column} . '</td>';
-
                     }
     	    	$data .= '</tr>';
 	    	
@@ -295,7 +299,6 @@ trait MakesInvoiceValues
 
 
     /**
-     * 
      * Transform the column headers into translated header values
      * 
      * @param  array  $columns The column header values
@@ -303,6 +306,7 @@ trait MakesInvoiceValues
      */
     private function transformColumnsForHeader(array $columns) :array
     {
+
         $pre_columns = $columns;
         $columns = array_intersect($columns, self::$master_columns);
 
@@ -317,7 +321,6 @@ trait MakesInvoiceValues
             $columns);
     
     }
-
 
     /**
      * 
