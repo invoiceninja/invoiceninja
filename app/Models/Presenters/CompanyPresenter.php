@@ -26,6 +26,11 @@ class CompanyPresenter extends EntityPresenter
         return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
+    public function logo()
+    {
+        return strlen($this->entity->logo > 0) ? $this->entity->logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+    }
+
     public function address()
     {
         $str = '';

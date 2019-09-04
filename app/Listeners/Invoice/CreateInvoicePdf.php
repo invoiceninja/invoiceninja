@@ -14,6 +14,7 @@ namespace App\Listeners\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
@@ -72,7 +73,7 @@ class CreateInvoicePdf implements ShouldQueue
             //->showBrowserHeaderAndFooter()
             //->headerHtml($header)
             //->footerHtml($footer)
-            ->waitUntilNetworkIdle()->pdf();
+            ->waitUntilNetworkIdle(false)->pdf();
             //->margins(10,10,10,10)
             //->savePdf('test.pdf');
     }
@@ -88,8 +89,57 @@ class CreateInvoicePdf implements ShouldQueue
      */
     private function generateInvoiceHtml($design, $invoice) :string
     {
-        
-        return view($design, array_merge($invoice->makeLabels(), $invoice->makeValues()))->render();
+
+        $variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
+        $design = str_replace(array_keys($variables), array_values($variables), $design);
+//
+        $data['invoice'] = $invoice;
+
+        return $this->renderView($design, $data);
+
+        //return view($design, $data)->render();
 
     }
+
+    /**
+     * Parses the blade file string and processes the template variables
+     * 
+     * @param  string $string The Blade file string
+     * @param  array $data   The array of template variables
+     * @return string         The return HTML string
+     * 
+     */
+    private function renderView($string, $data) :string
+    {
+        if (!$data) {
+        $data = [];
+        }
+
+        $data['__env'] = app(\Illuminate\View\Factory::class);
+
+        $php = Blade::compileString($string);
+
+        $obLevel = ob_get_level();
+        ob_start();
+        extract($data, EXTR_SKIP);
+
+        try {
+            eval('?' . '>' . $php);
+        } catch (\Exception $e) {
+            while (ob_get_level() > $obLevel) {
+                ob_end_clean();
+            }
+
+            throw $e;
+        } catch (\Throwable $e) {
+            while (ob_get_level() > $obLevel) {
+                ob_end_clean();
+            }
+
+            throw new \FatalThrowableError($e);
+        }
+
+        return ob_get_clean();
+    }
+
 }

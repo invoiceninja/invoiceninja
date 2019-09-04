@@ -167,7 +167,7 @@ class CompanySettings extends BaseSettings
 			'credit_number_prefix' => '',
 			'client_number_prefix' => '',
 			'auto_archive_invoice' => 'FALSE',
-			'design' => 'pdf.design1',
+			'design' => 'views/pdf/design1.blade.php',
 			
 			'translations' => (object) [],
 		];

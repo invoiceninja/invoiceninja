@@ -111,13 +111,14 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="https://www.sparksuite.com/images/logo.png" style="width:100%; max-width:300px;">
+                                <img src="$company_logo" style="width:100%; max-width:150px;">
                             </td>
                             
                             <td>
-                                {{$invoice_number_label}}: {{ $invoice->invoice_number }}<br>
-                                {{$invoice_date_label}}: {{ $invoice->invoice_date }}<br>
-                                {{$invoice_due_date_label}}: {{ $invoice->due_date }}
+                                $invoice_number_label:  $invoice_number <br>
+                                $invoice_date_label:  $invoice_date <br>
+                                $invoice_due_date_label:  $due_date 
+                                
                             </td>
                         </tr>
                     </table>
@@ -129,19 +130,20 @@
                     <table>
                         <tr>
                             <td>
-                                {{$client_name}}<br>
-                                {{$address1}}<br>
-                                {{$address2}}<br>
-                                {{$city_state_postal}}<br>
-                                {{$country}}<br>
-                                {{$vat_number}}<br>
+                                $client_name<br>
+                                $address1<br>
+                                $address2<br>
+                                $city_state_postal<br>
+                                $country<br>
+                                $vat_number<br>
 
                             </td>
                             
                             <td>
-                                {{$company_name}}<br>
-                                {{$phone}}<br>
-                                {{$email}}<br>
+                                $company_name<br>
+                                $company_address<br>
+                                $phone<br>
+                                $email<br>
                             </td>
 
                         </tr>

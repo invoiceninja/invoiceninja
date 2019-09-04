@@ -18,5 +18,6 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'country_id' => 4,
         'work_phone' => $faker->phoneNumber,
         'work_email' => $faker->safeEmail,
+        'logo' => 'https://www.invoiceninja.com/wp-content/themes/invoice-ninja/images/logo.png',
     ];
 });

@@ -20,7 +20,9 @@ use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Laracasts\Presenter\PresentableTrait;
 
 class Invoice extends BaseModel
@@ -242,11 +244,11 @@ class Invoice extends BaseModel
     /**
      * Returns the template for the invoice
      * 
-     * @return string Either the template view, OR the template HTML stirng
+     * @return string Either the template view, OR the template HTML string
      */
     public function design() :string
     {
-        return $this->settings->design ?: 'pdf.design1';
+        return File::exists(resource_path($this->settings->design)) ? File::get(resource_path($this->settings->design)) : File::get(resource_path('views/pdf/design1.blade.php'));
     }
 
 }
