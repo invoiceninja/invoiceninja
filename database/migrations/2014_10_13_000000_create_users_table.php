@@ -345,7 +345,7 @@ class CreateUsersTable extends Migration
         });
 
 
-        Schema::create('account_gateways', function($table)
+        Schema::create('company_gateways', function($table)
         {
             $table->increments('id');
             $table->unsignedInteger('company_id')->unique();

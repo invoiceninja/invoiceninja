@@ -11,7 +11,39 @@
 
 namespace App\PaymentDrivers;
 
+use Stripe\Stripe;
+
 class StripePaymentDriver extends BasePaymentDriver
 {
+
+	/**
+	 * Methods in this class are divided into
+	 * two separate streams
+	 * 
+	 * 1. Omnipay Specific
+	 * 2. Stripe Specific
+	 * 
+	 * Our Stripe integration is deeper than 
+	 * other gateways and therefore
+	 * relies on direct calls to the API
+	 */
+
+
+
+	/************************************** Omnipay API methods **********************************************************/
+
+
+
+
+
+
+
+
+	/************************************** Stripe API methods **********************************************************/
+
+	public function init($api_key)
+	{
+        Stripe::setApiKey($api_key);
+	}
 
 }

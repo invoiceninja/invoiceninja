@@ -12,9 +12,40 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Omnipay\Omnipay;
 
 class Gateway extends Model
 {
+
+    /**
+     * @return mixed
+     */
+    public function getFields()
+    {
+
+        if ($this->isCustom()) 
+        {
+            return [
+                'name' => '',
+                'text' => '',
+            ];
+        } else 
+        {
+            return Omnipay::create($this->provider)->getDefaultParameters();
+        }
+
+    }
+
+    /**
+     * Test if gateway is custom
+     * @return boolean TRUE|FALSE
+     */
+    public function isCustom() :bool
+    {
+
+        return in_array($this->id, [62, 67, 68]); //static table ids of the custom gateways
+
+    }
 
 }
 

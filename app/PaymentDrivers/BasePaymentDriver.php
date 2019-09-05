@@ -11,13 +11,43 @@
 
 namespace App\PaymentDrivers;
 
+use App\Models\CompanyGateway;
+use Omnipay\Omnipay;
+
 
 /**
  * Class BasePaymentDriver
  * @package App\PaymentDrivers
  */
-abstract class BasePaymentDriver
+class BasePaymentDriver
 {
+
+	protected $company_gateway;
+
+	protected $gateway;
+
+    public function __construct(CompanyGateway $company_gateway)
+    {
+        $this->company_gateway = $company_gateway;
+        //$this->invitation = $invitation;
+        //$this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
+    }
+
+	/**
+	 * Returns the Omnipay driver
+	 * @return object Omnipay initialized object
+	 */
+	protected function gateway()
+    {
+        if ($this->gateway) 
+            return $this->gateway;
+        
+        $this->gateway = Omnipay::create($this->company_gateway->gateway->provider);
+        $this->gateway->initialize((array) $this->company_gateway->getConfig());
+
+        return $this->gateway;
+    
+	}
 
 	/**
 	 * Returns whether refunds are possible with the gateway
@@ -32,9 +62,8 @@ abstract class BasePaymentDriver
 	public function hasTokenBilling() :bool {}
 
 	/**
-	 * Returns the Omnipay driver
-	 * @return object Omnipay initialized object
+	 * Refunds a given payment
+	 * @return void 
 	 */
-	public function gateway() {}
-	
+	public function refundPayment() {}
 }

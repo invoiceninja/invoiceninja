@@ -41,4 +41,81 @@ class CompanyGateway extends Model
     {
     	return $this->hasOne(GatewayType::class);
     }
+
+    /* This is the public entry point into the payment superclass */
+    public function driver()
+    {
+        $class = static::driver_class();
+
+        return new $class($this);
+    }
+
+    private function driver_class()
+    {
+        $class = 'App\\PaymentDrivers\\' . $this->gateway->provider . 'PaymentDriver';
+        $class = str_replace('\\', '', $class);
+        $class = str_replace('_', '', $class);
+
+        if (class_exists($class)) {
+            return $class;
+        } else {
+            return 'App\\PaymentDrivers\\BasePaymentDriver';
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAchEnabled()
+    {
+        return ! empty($this->getConfigField('enableAch'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getApplePayEnabled()
+    {
+        return ! empty($this->getConfigField('enableApplePay'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAlipayEnabled()
+    {
+        return ! empty($this->getConfigField('enableAlipay'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSofortEnabled()
+    {
+        return ! empty($this->getConfigField('enableSofort'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSepaEnabled()
+    {
+        return ! empty($this->getConfigField('enableSepa'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getBitcoinEnabled()
+    {
+        return ! empty($this->getConfigField('enableBitcoin'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPayPalEnabled()
+    {
+        return ! empty($this->getConfigField('enablePayPal'));
+    }
 }
