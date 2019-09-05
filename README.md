@@ -23,13 +23,10 @@ The self-host zip includes all third party libraries whereas downloading the cod
 ## Referral Program
 * Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 
-## Mobile Apps
-* Current: [github.com/invoiceninja/flutter-mobile](https://github.com/invoiceninja/flutter-mobile)
-    * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
-    * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.flutter)
-* Legacy
-    * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1220337560?ls=1&mt=8)
-    * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
+## Mobile App
+* [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
+* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.flutter)
+* [Source Code](https://github.com/invoiceninja/flutter-mobile)
 
 ## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
