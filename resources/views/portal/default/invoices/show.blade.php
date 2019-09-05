@@ -3,15 +3,32 @@
 <main class="main">
     <div class="container-fluid">
 
-    	<div class="col-md-12 mt-4">
+{!! Former::framework('TwitterBootstrap4'); !!}
 
-    		<div class="float-right">
-    			<button class="btn btn-primary">{{ ctrans('texts.pay_now') }}</button>
-    		</div>
+{!! Former::horizontal_open()
+    ->id('payment_form')
+    ->route('client.invoices.bulk')
+    ->method('POST');    !!}
 
+{!! Former::hidden('hashed_ids')->id('hashed_ids')->value( $invoice->hashed_id ) !!}
+{!! Former::hidden('action')->id('action')->value('payment') !!}
+
+
+
+    	<div class="row mt-4">
+	    	<div class="col-md-12">
+
+	    		<div class="float-right">
+	    			<button class="btn btn-primary">{{ ctrans('texts.pay_now') }}</button>
+	    		</div>
+
+	    	</div>
     	</div>
 
-    	<div class="col-md-12 mt-4">
+{!! Former::close() !!}
+
+    	<div class="row mt-4">
+	    	<div class="col-md-12">
 
 			<embed src="{{ asset($invoice->pdf_url()) }}#toolbar=1&navpanes=1&scrollbar=1" type="application/pdf" width="100%" height="1180px" />
 

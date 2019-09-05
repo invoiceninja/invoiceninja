@@ -116,13 +116,26 @@ class InvoiceController extends Controller
 
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
-                            ->get()
-                            ->filter(function ($invoice){
-                                return $invoice->isPayable();
-                            });
+                            ->get();
+
+        $total = $invoices->sum('balance');
+                 
+        $invoices->filter(function ($invoice){
+            return $invoice->isPayable();
+        })->map(function ($invoice){
+            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client->currency(), $invoice->client->country, $invoice->client->getMergedSettings());
+            $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+
+            return $invoice;
+        });
+
+
+        $formatted_total = Number::formatMoney($total, auth()->user()->client->currency(), auth()->user()->client->country, auth()->user()->client->getMergedSettings());
 
         $data = [
             'invoices' => $invoices,
+            'formatted_total' => $formatted_total,
+            'total' =>  $total,
         ];
 
         return view('portal.default.invoices.payment', $data);

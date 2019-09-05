@@ -17,9 +17,9 @@
                                 <a class="list-group-item list-group-item-action flex-column align-items-start" href="javascript:void(0);">
                                     <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mr-4"># {{ $invoice->invoice_number }}</h5>
-                                    <small>{{$invoice->due_date}}</small>
+                                    <small>{{ $invoice->due_date }}</small>
                                     </div>
-                                <p class="mb-1 pull-right">${{ $invoice->balance }}</p>
+                                <p class="mb-1 pull-right">{{ $invoice->balance }}</p>
                                 <small>
                                     @if($invoice->po_number)
                                     {{ $invoice->po_number }}
@@ -36,16 +36,8 @@
 
                         <div class="py-md-5">
                             <ul class="list-group">
-                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.subtotal')}}
-                                    <span class="badge badge-primary badge-pill">$314.00</span>
-                                </li>
-                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.taxes')}}
-                                    <span class="badge badge-primary badge-pill">$19.00</span>
-                                </li>
-                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center">{{ ctrans('texts.fees')}}
-                                    <span class="badge badge-primary badge-pill">$2</span>
                                 <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"><strong>{{ ctrans('texts.total')}}</strong>
-                                    <span class="badge badge-primary badge-pill"><strong>$335.00</strong></span>
+                                    <h3><span class="badge badge-primary badge-pill"><strong>{{ $formatted_total }}</strong></span></h3>
                                 </li>
                             </ul>
                         </div>

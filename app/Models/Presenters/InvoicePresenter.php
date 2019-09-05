@@ -11,6 +11,9 @@
 
 namespace App\Models\Presenters;
 
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
+
 /**
  * Class InvoicePresenter
  *
@@ -25,6 +28,7 @@ namespace App\Models\Presenters;
  */
 class InvoicePresenter extends EntityPresenter
 {
+	use MakesDates;
 
 	public function clientName()
 	{
@@ -60,6 +64,5 @@ class InvoicePresenter extends EntityPresenter
 	{
 		return $this->company->present()->address();
 	}
-
 
 }

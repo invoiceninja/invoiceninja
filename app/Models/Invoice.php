@@ -35,6 +35,7 @@ class Invoice extends BaseModel
     use MakesDates;
     use PresentableTrait;
     use MakesInvoiceValues;
+    
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
     protected $hidden = [
