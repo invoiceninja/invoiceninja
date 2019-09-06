@@ -15,7 +15,17 @@ use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
+	protected $refundable = true;
 
+	protected $token_billing = true;
+
+	protected $customer_reference = 'customerReferenceParam';
+
+	public function boot()
+	{
+    	$this->setRefundable($this->refundable);
+    	$this->setTokenBilling($this->token_billing);
+	}
 	/**
 	 * Methods in this class are divided into
 	 * two separate streams
@@ -31,7 +41,6 @@ class StripePaymentDriver extends BasePaymentDriver
 
 
 	/************************************** Omnipay API methods **********************************************************/
-
 
 
 

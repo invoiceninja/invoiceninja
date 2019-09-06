@@ -38,7 +38,8 @@ class BasePaymentDriver
         //$this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
-    /* Stubbed in parent, but should never be initialized
+    /* Stubbed in parent.
+     *
 	 * The boot method should be used in the superclass
 	 * to initialize all the member variables for the 
 	 * given driver / payment gateway
@@ -46,8 +47,7 @@ class BasePaymentDriver
 	 * ie.
 	 *
 	 * ->gateway()
-	 * ->setRefundable(true)
-	 * ->setTokenBilling(true)
+	 * ->boot()
 	 *
 	 * @return Instance
      */
@@ -108,4 +108,39 @@ class BasePaymentDriver
 	{
 
 	}
+
+	/************************************* Omnipay ******************************************
+		authorize($options) - authorize an amount on the customer's card
+		completeAuthorize($options) - handle return from off-site gateways after authorization
+		capture($options) - capture an amount you have previously authorized
+		purchase($options) - authorize and immediately capture an amount on the customer's card
+		completePurchase($options) - handle return from off-site gateways after purchase
+		refund($options) - refund an already processed transaction
+		void($options) - generally can only be called up to 24 hours after submitting a transaction
+		acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
+	*/
+
+	public function purchase($data, $items)
+	{
+		$response = $this->gateway
+  						 ->purchase($data)
+						 ->setItems($items)
+						 ->send();
+
+
+		if ($response->isRedirect()) {
+		    // redirect to offsite payment gateway
+		    $response->redirect();
+		} elseif ($response->isSuccessful()) {
+		    // payment was successful: update database
+		    print_r($response);
+		} else {
+		    // payment failed: display message to customer
+		    echo $response->getMessage();
+
+
+		/*
+		$this->purchaseResponse = (array)$response->getData();*/
+	}
+	        
 }
