@@ -104,5 +104,6 @@ class Kernel extends HttpKernel
         'contact_token_auth' => \App\Http\Middleware\ContactTokenAuth::class,
         'contact_db' => \App\Http\Middleware\ContactSetDb::class,
         'domain_db' => \App\Http\Middleware\SetDomainNameDb::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
     ];
 }

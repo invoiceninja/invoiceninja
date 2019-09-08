@@ -12,6 +12,7 @@
 namespace App\PaymentDrivers;
 
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use Omnipay\Omnipay;
 
 
@@ -27,14 +28,17 @@ class BasePaymentDriver
 	/* The Omnipay payment driver instance*/
 	protected $gateway;
 
+	/* The Invitation */
+	protected $invitation;
+
 	/* Member variables */
 	protected $refundable = false;
 	protected $token_billing = false;
 
-    public function __construct(CompanyGateway $company_gateway)
+    public function __construct(CompanyGateway $company_gateway, $invitation = false)
     {
         $this->company_gateway = $company_gateway;
-        //$this->invitation = $invitation;
+        $this->invitation = $invitation;
         //$this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
@@ -67,6 +71,35 @@ class BasePaymentDriver
     
 	}
 
+	public function invoice()
+	{
+		return $this->invitation->invoice;
+	}
+
+	public function contact()
+	{
+		return $this->invitation->contact;
+	}
+
+	public function client()
+	{
+		return $this->contact()->client;
+	}
+
+	public function company()
+	{
+		return $this->invitation->company;
+	}
+
+	/**
+	 * Returns the default gateway type
+	 */
+    public function gatewayTypes()
+    {
+        return [
+            GatewayType::CREDIT_CARD,
+        ];
+    }
 
 	public function setRefundable($value)
 	{

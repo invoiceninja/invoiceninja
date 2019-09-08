@@ -35,7 +35,7 @@ class PaymentMethodController extends Controller
      */
     public function create()
     {
-        //
+        echo 'hello';
     }
 
     /**

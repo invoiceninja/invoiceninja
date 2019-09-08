@@ -154,7 +154,15 @@ class Client extends BaseModel
 
     public function getPaymentMethods()
     {
-        
+        $settings = $this->getMergedSettings();
+
+        /* If we have a single default gateway - pass this back now.*/
+        if($settings->default_company_gateway_id);
+            return $settings->default_company_gateway_id;
+
+        /* If there is no default, then we pass back the Collection of gateways */
+
+        $gateways = $this->company->company_gateways;
     }
 
 

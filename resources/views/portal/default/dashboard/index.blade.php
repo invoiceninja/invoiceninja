@@ -95,7 +95,7 @@
 			<div class="col-sm-6 col-lg-3">
 				<div class="card text-white bg-secondary h-100">
 					<div class="card-body align-items-center d-flex justify-content-center">
-						<button class="btn btn-primary btn-lg"><i class="fa fa-plus" style="" aria-hidden="true"></i> {{ ctrans('texts.add_payment_method')}}</button>
+						<a class="btn btn-primary btn-lg" href="{{ route('client.payment_methods.create') }}"><i class="fa fa-plus" style="" aria-hidden="true"></i> {{ ctrans('texts.add_payment_method')}}</a>
 					</div>
 				</div>
 			</div>

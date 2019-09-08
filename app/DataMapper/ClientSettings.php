@@ -90,6 +90,8 @@ class ClientSettings extends BaseSettings
 	public $size_id;
 
 	public $design;
+
+	public $default_company_gateway_id;
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned
