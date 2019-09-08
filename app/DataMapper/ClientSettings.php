@@ -82,7 +82,6 @@ class ClientSettings extends BaseSettings
 	public $recurring_invoice_number_prefix;
 	
 	public $counter_padding;
-	public $default_gateway;
 
 	/**
 	 * Settings which which are unique to client settings

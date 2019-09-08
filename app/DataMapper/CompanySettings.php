@@ -111,8 +111,6 @@ class CompanySettings extends BaseSettings
 	public $reset_counter_date;
 	public $counter_padding;
 
-	public $default_gateway;
-
 	public $design;
 	/**
 	 * Cast object values and return entire class
@@ -168,7 +166,7 @@ class CompanySettings extends BaseSettings
 			'client_number_prefix' => '',
 			'auto_archive_invoice' => 'FALSE',
 			'design' => 'views/pdf/design1.blade.php',
-			
+
 			'translations' => (object) [],
 		];
 	}

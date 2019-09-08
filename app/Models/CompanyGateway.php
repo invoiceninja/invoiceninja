@@ -16,10 +16,9 @@ use App\Models\Gateway;
 use App\Models\GatewayType;
 use Illuminate\Database\Eloquent\Model;
 
-class CompanyGateway extends Model
+class CompanyGateway extends BaseModel
 {
-    public static $creditCards = 
-    	[
+    public static $credit_cards = [
             1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
             2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
             4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
@@ -63,12 +62,22 @@ class CompanyGateway extends Model
         }
     }
 
+    public function getConfigAttribute()
+    {
+        return decrypt($this->config);
+    }
+
+    public function setConfigAttribute($value)
+    {
+        $this->attributes['config'] = encrypt(json_encode($value));
+    }
+
     /**
      * @return bool
      */
     public function getAchEnabled()
     {
-        return ! empty($this->getConfigField('enableAch'));
+        return ! empty($this->config('enableAch'));
     }
 
     /**
@@ -76,7 +85,7 @@ class CompanyGateway extends Model
      */
     public function getApplePayEnabled()
     {
-        return ! empty($this->getConfigField('enableApplePay'));
+        return ! empty($this->config('enableApplePay'));
     }
 
     /**
@@ -84,7 +93,7 @@ class CompanyGateway extends Model
      */
     public function getAlipayEnabled()
     {
-        return ! empty($this->getConfigField('enableAlipay'));
+        return ! empty($this->config('enableAlipay'));
     }
 
     /**
@@ -92,7 +101,7 @@ class CompanyGateway extends Model
      */
     public function getSofortEnabled()
     {
-        return ! empty($this->getConfigField('enableSofort'));
+        return ! empty($this->config('enableSofort'));
     }
 
     /**
@@ -100,7 +109,7 @@ class CompanyGateway extends Model
      */
     public function getSepaEnabled()
     {
-        return ! empty($this->getConfigField('enableSepa'));
+        return ! empty($this->config('enableSepa'));
     }
 
     /**
@@ -108,7 +117,7 @@ class CompanyGateway extends Model
      */
     public function getBitcoinEnabled()
     {
-        return ! empty($this->getConfigField('enableBitcoin'));
+        return ! empty($this->config('enableBitcoin'));
     }
 
     /**
@@ -116,6 +125,6 @@ class CompanyGateway extends Model
      */
     public function getPayPalEnabled()
     {
-        return ! empty($this->getConfigField('enablePayPal'));
+        return ! empty($this->config('enablePayPal'));
     }
 }

@@ -92,6 +92,11 @@ class Client extends BaseModel
         'settings' => 'object'
     ];
 
+    public function gateway_tokens()
+    {
+        return $this->hasMany(ClientGatewayToken::class);
+    }
+
     public function contacts()
     {
         return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');
@@ -147,7 +152,10 @@ class Client extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-
+    public function getPaymentMethods()
+    {
+        
+    }
 
 
 }
