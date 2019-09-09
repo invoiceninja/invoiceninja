@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\DataMapper\Group
+ * @covers  App\Utils\Traits\CompanyGatewaySettings
  */
 class GroupTest extends TestCase
 {
@@ -17,17 +17,15 @@ class GroupTest extends TestCase
     public function setUp() :void
     {
     
-    parent::setUp();
+    	parent::setUp();
 	
-   // $this->settings = new ClientSettings(ClientSettings::defaults());
     	$this->settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
 
 	}
 
 	public function testGroupsPropertiesExistsResponses()
 	{
-		//$this->assertEquals(print_r($this->settings));
- 
+	
 		$this->assertTrue(property_exists($this->settings->groups, 'company_gateways'));
 
 		$this->assertTrue(property_exists($this->settings, 'groups'));

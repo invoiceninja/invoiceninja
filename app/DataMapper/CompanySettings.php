@@ -115,7 +115,7 @@ class CompanySettings extends BaseSettings
 
 	public $design;
 
-	public $payment_gateways;
+	public $company_gateways;
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned
