@@ -127,4 +127,19 @@ class CompanyGateway extends BaseModel
     {
         return ! empty($this->config('enablePayPal'));
     }
+
+    /**
+     * Returns the formatted fee amount for the gateway
+     *     
+     * @param  float $amount    The payment amount
+     * @param  Client $client   The client object
+     * @return string           The fee amount formatted in the client currency
+     */
+    public function calcGatewayFee($amount, Client $client) :string
+    {
+
+        $fee = '';
+
+    }
+    
 }
