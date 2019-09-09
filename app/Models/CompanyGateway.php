@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Models\Company;
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\Utils\Number;
 use Illuminate\Database\Eloquent\Model;
 
 class CompanyGateway extends BaseModel
@@ -128,6 +129,11 @@ class CompanyGateway extends BaseModel
         return ! empty($this->config('enablePayPal'));
     }
 
+    public function feesEnabled()
+    {
+        return floatval($this->fee_amount) || floatval($this->fee_percent);
+    }
+
     /**
      * Returns the formatted fee amount for the gateway
      *     
@@ -135,11 +141,44 @@ class CompanyGateway extends BaseModel
      * @param  Client $client   The client object
      * @return string           The fee amount formatted in the client currency
      */
-    public function calcGatewayFee($amount, Client $client) :string
+    public function calcGatewayFeeLabel($amount, Client $client) :string
     {
+        $label = '';
 
-        $fee = '';
+        if(!$this->feesEnabled())
+            return $label;
 
+        $fee = $this->calcGatewayFee($amount);
+
+        if($fee > 0 ){
+            $fee = Number::formatMoney(round($fee, 2), $client->currency(), $client->country(), $client->getMergedSettings());
+            $label = ' - ' . $fee . ' ' . ctrans('texts.fee');
+        }
+
+        return $label;
     }
-    
+
+    public function calcGatewayFee($amount)
+    {
+        $fee = 0;
+
+        if ($this->fee_amount) 
+            $fee += $this->fee_amount;
+        
+        if ($this->fee_percent)
+            $fee += $amount * $this->fee_percent / 100;
+        
+        $pre_tax_fee = $fee;
+
+        if ($this->fee_tax_rate1) 
+            $fee += $pre_tax_fee * $this->fee_tax_rate1 / 100;
+        
+
+        if ($this->fee_tax_rate2) 
+            $fee += $pre_tax_fee * $this->fee_tax_rate2 / 100;
+            
+        
+        return $fee;
+    }
+
 }

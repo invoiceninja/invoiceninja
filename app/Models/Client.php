@@ -181,19 +181,20 @@ class Client extends BaseModel
 
         //** Reduce gateways so that only one TYPE is present in the list ie. cannot have multiple credit card options
         $payment_methods_collections = collect($payment_methods);
+
         $payment_methods_intersect = $payment_methods_collections->intersectByKeys( $payment_methods_collections->flatten(1)->unique() );
 
         $payment_list = $payment_methods_intersect->map(function ($value, $key) {
 
             $gateway = $gateways->where('id', $key)->first();
 
-            $fee_label = $gateway->calcGatewayFee($amount, $this);
+            $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
             return [
                 'company_gateway_id' => $key,
                 'payment_method_id' => $value,
-                'url' => $label
-                'label' => ctrans('texts.'$gateway->type->alias) . $fee_label,
+                'url' => $label,
+                'label' => ctrans('texts.' . $gateway->type->alias) . $fee_label,
             ];
 
         });
