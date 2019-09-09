@@ -28,7 +28,7 @@ class PaymentFactory
 		$payment->client_id = 0;
 		$payment->client_contact_id = null;
 		$payment->invitation_id = null;
-		$payment->account_gateway_id = null;
+		$payment->company_gateway_id = null;
 		$payment->payment_type_id = null;
 		$payment->is_deleted = false;
 		$payment->amount = 0;

@@ -81,6 +81,41 @@ class CollectionMergingTest extends TestCase
         $this->assertEquals($term['num_days'], 90);
     }
 
+    public function testUniqueValues()
+    {
+        $methods[] = [1 => 1];
+        $methods[] = [1 => 2];
+        $methods[] = [1 => 3];
+        $methods[] = [1 => 4];
+        $methods[] = [1 => 5];
+        $methods[] = [1 => 6];
+
+        $other_methods[] = [2 => 1];
+        $other_methods[] = [2 => 7];
+        $other_methods[] = [2 => 8];
+        $other_methods[] = [2 => 9];
+        $other_methods[] = [2 => 10];
+
+        $array = array_merge($methods, $other_methods);
+
+        $this->assertEquals(11, count($array));
+
+        $collection = collect($array);
+
+        $intersect = $collection->intersectByKeys( $collection->flatten(1)->unique() );
+
+        $this->assertEquals(10,$intersect->count());
+
+        $third_methods[] = [3 => 1];
+        $third_methods[] = [2 => 11];
+
+        $array = array_merge($array, $third_methods);
+
+        $collection = collect($array);
+        $intersect = $collection->intersectByKeys( $collection->flatten(1)->unique() );
+        $this->assertEquals(11,$intersect->count());
+
+    }
 
 
 }

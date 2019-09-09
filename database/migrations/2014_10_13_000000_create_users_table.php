@@ -351,6 +351,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->unique();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('gateway_id');
+            $table->unsignedInteger('gateway_type_id')->nullable();
             $table->unsignedInteger('accepted_credit_cards');
             $table->boolean('require_cvv')->default(true);
             $table->boolean('show_address')->default(true)->nullable();
@@ -358,6 +359,17 @@ class CreateUsersTable extends Migration
             $table->boolean('update_details')->default(false)->nullable();
             $table->text('config');
             $table->unsignedInteger('sort_id')->default(0);
+
+            $table->decimal('min_limit', 13, 2)->nullable();
+            $table->decimal('max_limit', 13, 2)->nullable();
+            $table->decimal('fee_amount', 13, 2)->nullable();
+            $table->decimal('fee_percent', 13, 2)->nullable();
+            $table->decimal('fee_tax_name1', 13, 2)->nullable();
+            $table->decimal('fee_tax_name2', 13, 2)->nullable();
+            $table->decimal('fee_tax_rate1', 13, 2)->nullable();
+            $table->decimal('fee_tax_rate2', 13, 2)->nullable();
+            $table->unsignedInteger('fee_cap')->default(0);
+            $table->boolean('adjust_fee_percent');
 
             $table->timestamps(6);
             $table->softDeletes();
@@ -682,23 +694,23 @@ class CreateUsersTable extends Migration
         Schema::create('payments', function ($t) {
             $t->increments('id');
             //$t->unsignedInteger('invoice_id')->nullable()->index(); //todo handle payments where there is no invoice OR we are paying MULTIPLE invoices
+            //                                                        *** this is handled by the use of the paymentables table. in here we store the
+            //                                                        entities which have been registered payments against
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('client_id')->index();
+            $t->unsignedInteger('user_id')->nullable();
             $t->unsignedInteger('client_contact_id')->nullable();
             $t->unsignedInteger('invitation_id')->nullable();
-            $t->unsignedInteger('user_id')->nullable();
             $t->unsignedInteger('company_gateway_id')->nullable();
             $t->unsignedInteger('payment_type_id')->nullable();
             $t->unsignedInteger('status_id')->index();
-
-            $t->timestamps(6);
-            $t->softDeletes();
-
-            $t->boolean('is_deleted')->default(false);
             $t->decimal('amount', 13, 2);
             $t->datetime('payment_date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
+            $t->timestamps(6);
+            $t->softDeletes();
+            $t->boolean('is_deleted')->default(false);
 
             //$t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -711,7 +723,7 @@ class CreateUsersTable extends Migration
 
         });
 
-        Schema::create('paymentables', function ($table) {
+        Schema::create('paymentables', function ($table) { //allows multiple invoices to one payment
             $table->unsignedInteger('payment_id');
             $table->unsignedInteger('paymentable_id');
             $table->string('paymentable_type');
@@ -903,28 +915,6 @@ class CreateUsersTable extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
         });
 
-
-        Schema::create('company_gateway_settings', function ($table){
-            $table->increments('id');
-            $table->unsignedInteger('company_id');
-            $table->unsignedInteger('company_gateway_id')->nullable();
-            $table->unsignedInteger('gateway_type_id')->nullable();
-            $table->unsignedInteger('user_id')->nullable();
-            $table->decimal('min_limit', 13, 2)->nullable();
-            $table->decimal('max_limit', 13, 2)->nullable();
-            $table->decimal('fee_amount', 13, 2)->nullable();
-            $table->decimal('fee_percent', 13, 2)->nullable();
-            $table->decimal('fee_tax_name1', 13, 2)->nullable();
-            $table->decimal('fee_tax_name2', 13, 2)->nullable();
-            $table->decimal('fee_tax_rate1', 13, 2)->nullable();
-            $table->decimal('fee_tax_rate2', 13, 2)->nullable();
-            $table->unsignedInteger('fee_cap')->default(0);
-            $table->boolean('adjust_fee_percent');
-
-            $table->timestamps(6);
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
-            $table->foreign('company_gateway_id')->references('id')->on('company_gateways')->onDelete('cascade');
-        });
     }
   
     /**

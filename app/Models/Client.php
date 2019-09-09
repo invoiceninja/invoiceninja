@@ -152,17 +152,41 @@ class Client extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function getPaymentMethods()
+    public function getPaymentMethods($amount)
     {
         $settings = $this->getMergedSettings();
 
         /* If we have a single default gateway - pass this back now.*/
-        if($settings->default_company_gateway_id);
-            return $settings->default_company_gateway_id;
+        if($settings->payment_gateways){
+            $gateways =  $this->company->company_gateways->whereIn('id', $settings->payment_gateways);
+        }
+        else
+            $gateways = $this->company->company_gateways;
 
-        /* If there is no default, then we pass back the Collection of gateways */
+        //** Filter gateways based on limits
+        $gateways->filter(function ($method) use ($amount){
+            if($method->min_limit !==  null && $amount < $method->min_limit)
+                return false;
 
-        $gateways = $this->company->company_gateways;
+            if($method->max_limit !== null && $amount > $method->min_limit)
+                return false;
+        }); 
+
+        //** Get Payment methods from each gateway
+        $payment_methods = [];
+
+        foreach($gateways as $gateway)
+            foreach($gateway->driver()->gatewayTypes() as $type)
+                $payment_methods[] = [$gateway->id => $type];
+
+        //** Reduce gateways so that only one TYPE is present in the list ie. cannot have multiple credit card options
+        $payment_methods_collections = collect($payment_methods);
+        $payment_methods_intersect = $payment_methods_collections->intersectByKeys( $payment_methods_collections->flatten(1)->unique() );
+
+        $multiplied = $collection->map(function ($item, $key) {
+            return $item * 2;
+        });
+        
     }
 
 

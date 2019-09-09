@@ -86,8 +86,10 @@ class InvoiceController extends Controller
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
+
+
         $data = [
-            'invoice' => $invoice
+            'invoice' => $invoice,
         ];
         
         return view('portal.default.invoices.show', $data);
@@ -131,6 +133,10 @@ class InvoiceController extends Controller
 
 
         $formatted_total = Number::formatMoney($total, auth()->user()->client->currency(), auth()->user()->client->country, auth()->user()->client->getMergedSettings());
+
+        $payment_methods = auth()->user()->client->getPaymentMethods($total);
+
+
 
         $data = [
             'invoices' => $invoices,

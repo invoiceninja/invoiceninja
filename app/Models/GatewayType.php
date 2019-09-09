@@ -32,7 +32,7 @@ class GatewayType extends Model
     const APPLE_PAY = 11;
     const CUSTOM2 = 12;
     const CUSTOM3 = 13;
-    const TOKEN = 'token');
+    const TOKEN = 'token';
 
 	public function gateway()
 	{
