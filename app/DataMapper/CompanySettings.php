@@ -84,6 +84,8 @@ class CompanySettings extends BaseSettings
 	public $inclusive_taxes;
 
 	public $translations;
+	public $group_selectors;
+	public $groups;
 
 	/**
 	 * Counter Variables
@@ -170,6 +172,34 @@ class CompanySettings extends BaseSettings
 			'design' => 'views/pdf/design1.blade.php',
 			
 			'translations' => (object) [],
+			'group_selectors' => self::groupSelectors(),
+			'groups' => self::groupObjects(),
+		];
+	}
+
+	/**
+	 * Implements App\DataMapper\Group objects
+	 * in order to customise grouped option behaviour
+	 * @return object Settings objects
+	 */
+	private static function groupObjects()
+	{
+		return (object)[
+			'company_gateways' => NULL,
+			'invoice_designs' => NULL
+		];
+	}
+
+
+	/**
+	 * Storage point for ALL Group options
+	 * @return object Settings objects
+	 */
+	private static function groupSelectors()
+	{
+		return (object)[
+			'company_gateways' => NULL,
+			'invoice_designs' => NULL
 		];
 	}
 }

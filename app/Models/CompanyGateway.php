@@ -173,7 +173,6 @@ class CompanyGateway extends BaseModel
         if ($this->fee_tax_rate1) 
             $fee += $pre_tax_fee * $this->fee_tax_rate1 / 100;
         
-
         if ($this->fee_tax_rate2) 
             $fee += $pre_tax_fee * $this->fee_tax_rate2 / 100;
             

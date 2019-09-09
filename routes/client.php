@@ -24,7 +24,7 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index'); 
 	
 	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index'); 
-	Route::get('payments/{company_gateway_id}/{payment_method_id}/{}')->name('payments.process')->signed();
+	Route::get('payments/{company_gateway_id}/{payment_method_id}', 'PaymentController@process')->name('payments.process')->middleware('signed');
 
 	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
 	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');

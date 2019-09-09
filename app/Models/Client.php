@@ -19,6 +19,7 @@ use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\Timezone;
+use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -36,6 +37,7 @@ class Client extends BaseModel
     use SoftDeletes;
     use Filterable;
     use GeneratesCounter;
+    use CompanyGatewaySettings;
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
@@ -173,7 +175,7 @@ class Client extends BaseModel
 
         /* If we have a custom gateway list pass this back first */
         if($settings->payment_gateways)
-            $gateways =  $this->company->company_gateways->whereIn('id', $settings->payment_gateways);
+            $gateways = $this->company->company_gateways->whereIn('id', $settings->payment_gateways);
         else
             $gateways = $this->company->company_gateways;
 
