@@ -136,11 +136,10 @@ class InvoiceController extends Controller
 
         $payment_methods = auth()->user()->client->getPaymentMethods($total);
 
-
-
         $data = [
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
+            'payment_methods' => $payment_methods,
             'total' =>  $total,
         ];
 

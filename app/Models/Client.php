@@ -25,6 +25,7 @@ use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
 
 class Client extends BaseModel
@@ -152,14 +153,27 @@ class Client extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function getPaymentMethods($amount)
+    /**
+     * Generates an array of payment urls per client
+     * for a given amount.
+     *
+     * The route produced will provide the 
+     * company_gateway and payment_type ids
+     *
+     * The invoice/s will need to be injected
+     * upstream of this method as they are not 
+     * included in this logic.
+     * 
+     * @param  float $amount The amount to be charged
+     * @return array         Array of payment labels and urls
+     */
+    public function getPaymentMethods($amount) :array
     {
         $settings = $this->getMergedSettings();
 
-        /* If we have a single default gateway - pass this back now.*/
-        if($settings->payment_gateways){
+        /* If we have a custom gateway list pass this back first */
+        if($settings->payment_gateways)
             $gateways =  $this->company->company_gateways->whereIn('id', $settings->payment_gateways);
-        }
         else
             $gateways = $this->company->company_gateways;
 
@@ -182,24 +196,28 @@ class Client extends BaseModel
         //** Reduce gateways so that only one TYPE is present in the list ie. cannot have multiple credit card options
         $payment_methods_collections = collect($payment_methods);
 
+        //** Plucks the remaining keys into its own collection
         $payment_methods_intersect = $payment_methods_collections->intersectByKeys( $payment_methods_collections->flatten(1)->unique() );
 
+        $payment_urls = [];
+
+        //** Iterate through our list of payment gateways and methods and generate payment URLs
         $payment_list = $payment_methods_intersect->map(function ($value, $key) {
 
             $gateway = $gateways->where('id', $key)->first();
 
             $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
-            return [
-                'company_gateway_id' => $key,
-                'payment_method_id' => $value,
-                'url' => $label,
+            $payment_urls[] = [
                 'label' => ctrans('texts.' . $gateway->type->alias) . $fee_label,
-            ];
+                'url'   =>  URL::signedRoute('payments', [
+                                            'company_gateway_id' => $key,
+                                            'payment_method_id' => $value])
+                            ];
 
         });
 
-
+            return $payment_urls;
     }
 
 
