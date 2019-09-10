@@ -38,7 +38,7 @@ class TranslationHelper
 
 	public static function getPaymentTypes()
 	{
-		return Cache::get('paymentTypes')->each(function ($pType) {
+		return Cache::get('payment_types')->each(function ($pType) {
             $pType->name = ctrans('texts.payment_type_'.$pType->name);
         })->sortBy(function ($pType) {
             return $pType->name;

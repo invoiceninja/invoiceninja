@@ -45,7 +45,6 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->integer('gateway_type_id');
-            $table->timestamps(6);
         });
 
         Schema::create('timezones', function ($table) {

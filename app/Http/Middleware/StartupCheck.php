@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Closure;
 
@@ -34,12 +35,14 @@ class StartupCheck
      */
     public function handle(Request $request, Closure $next)
     {
-      
-        $cached_tables = unserialize(CACHED_TABLES);
+        $start = microtime(true);
+        Log::error('start up check');
 
-        if (Input::has('clear_cache')) {
+        $cached_tables = config('ninja.cached_tables');
+
+        if (Input::has('clear_cache')) 
             Session::flash('message', 'Cache cleared');
-        }
+        
         
         foreach ($cached_tables as $name => $class) {
             if (Input::has('clear_cache') || ! Cache::has($name)) {
@@ -47,7 +50,7 @@ class StartupCheck
                 if (! Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
-                if ($name == 'paymentTerms') {
+                if ($name == 'payment_terms') {
                     $orderBy = 'num_days';
                 } elseif ($name == 'fonts') {
                     $orderBy = 'sort_order';
@@ -63,6 +66,9 @@ class StartupCheck
             }
         }
 
+        $end = microtime(true) - $start;
+        Log::error("middleware cost = {$end} ms");
+        
         $response = $next($request);
 
         return $response;

@@ -108,7 +108,7 @@ class BaseController extends Controller
     public function notFound()
     {
         return response()->json([
-        'message' => '404 | Nothing to see here!'], 404);
+        'message' => '404 | Nothing to see here!'], 404)->header('X-API-VERSION', config('ninja.api_version'));
     }
 
     public function notFoundClient()
@@ -197,6 +197,9 @@ class BaseController extends Controller
 
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
+        if(request()->include_static)
+            $data['static'] = Statics::company();
+
         return $this->response($data);
     }
 
@@ -220,7 +223,7 @@ class BaseController extends Controller
           //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
           //'Access-Control-Allow-Credentials' => 'true',
           'X-Total-Count' => $count,
-          'X-Muudeo-Version' => config('ninja.api_version'),
+          'X-API-VERSION' => config('ninja.api_version'),
           //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
           //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
           //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
@@ -235,9 +238,6 @@ class BaseController extends Controller
         foreach ($included as $include) {
             if ($include == 'clients') {
                 $data[] = 'clients.contacts';
-            } elseif ($include == 'tracks') {
-                $data[] = 'tracks.comments';
-                $data[] = 'tracks.tags';
             } elseif ($include) {
                 $data[] = $include;
             }

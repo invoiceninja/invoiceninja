@@ -10,13 +10,15 @@
  */
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
 
 
 /**
  * Class Size.
  */
-class Size extends BaseModel
+class Size extends Model
 {
+
     /**
      * @var bool
      */

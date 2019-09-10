@@ -49,7 +49,7 @@ class CompanyTransformer extends EntityTransformer
         'language',
         'expenses',
         'payments',
-        'company_user'
+        'company_user',
     ];
 
 

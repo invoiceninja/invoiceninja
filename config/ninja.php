@@ -64,6 +64,58 @@ return [
         'email' => env('MAIL_FROM_ADDRESS'),
         'from_name' => env('MAIL_FROM_NAME'),
     ],
+    'cached_tables' => [
+        'currencies' => 'App\Models\Currency',
+        'sizes' => 'App\Models\Size',
+        'industries' => 'App\Models\Industry',
+        'timezones' => 'App\Models\Timezone',
+        //'dateFormats' => 'App\Models\DateFormat',
+        //'datetimeFormats' => 'App\Models\DatetimeFormat',
+        'languages' => 'App\Models\Language',
+        'payment_types' => 'App\Models\PaymentType',
+        'countries' => 'App\Models\Country',
+        //'invoiceDesigns' => 'App\Models\InvoiceDesign',
+        //'invoiceStatus' => 'App\Models\InvoiceStatus',
+        //'frequencies' => 'App\Models\Frequency',
+        'gateways' => 'App\Models\Gateway',
+        'gateway_types' => 'App\Models\GatewayType',
+        //'fonts' => 'App\Models\Font',
+        'banks' => 'App\Models\Bank',
+    ],
+    'payment_terms' => [
+        [
+            'num_days' => 0,
+            'name' => '',
+        ],
+        [
+            'num_days' => 7,
+            'name' => '',
+        ],
+        [
+            'num_days' => 10,
+            'name' => '',
+        ],
+        [
+            'num_days' => 14,
+            'name' => '',
+        ],
+        [
+            'num_days' => 15,
+            'name' => '',
+        ],
+        [
+            'num_days' => 30,
+            'name' => '',
+        ],
+        [
+            'num_days' => 60,
+            'name' => '',
+        ],
+        [
+            'num_days' => 90,
+            'name' => '',
+        ]
+    ],
 
 
 ];

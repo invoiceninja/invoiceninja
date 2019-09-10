@@ -93,7 +93,7 @@ class LoginController extends BaseController
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
-            return response()->json(['message' => 'Too many login attempts, you are being throttled'], 401);
+            return response()->json(['message' => 'Too many login attempts, you are being throttled'], 401)->header('X-API-VERSION', config('ninja.api_version'));
         }
 
         if ($this->attemptLogin($request))
@@ -102,7 +102,7 @@ class LoginController extends BaseController
 
             $this->incrementLoginAttempts($request);
 
-            return response()->json(['message' => ctrans('texts.invalid_credentials')], 401);
+            return response()->json(['message' => ctrans('texts.invalid_credentials')], 401)->header('X-API-VERSION', config('ninja.api_version'));
         }
 
     }

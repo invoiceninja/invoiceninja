@@ -15,4 +15,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentType extends Model
 {
+    /**
+     * @var bool
+     */
+    public $timestamps = false;
 }

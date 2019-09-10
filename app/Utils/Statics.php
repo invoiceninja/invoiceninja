@@ -9,7 +9,10 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\DataMapper;
+namespace App\Utils;
+
+use = namespace\Cache;
+use Psy\Util\Str;
 
 /**
  * Statics
@@ -56,6 +59,56 @@ class Statics
         ['format' => 'j. F Y g:i a', 'format_moment' => 'DD. MMMM YYYY h:mm:ss a', 'format_dart' => 'd. MMMM yyyy h:mm a'],
     ];
 	
+
+    /**
+     * Company statics
+     * @param  string|boolean $locale The user locale
+     * @return array          Array of statics
+     */
+    public static function company($locale = false) :array
+    {
+
+        $data = [];
+
+        $cached_tables = config('ninja.cached_tables');
+        foreach ($cached_tables as $name => $class) {
+            $data[$name] = Cache::get($name);
+        }
+
+        if ($locale) {
+            $data['industries'] = Cache::get('industries')->each(function ($industry) {
+                $industry->name = ctrans('texts.industry_'.$industry->name);
+            })->sortBy(function ($industry) {
+                return $industry->name;
+            })->values();
+
+            $data['countries'] = Cache::get('countries')->each(function ($country) {
+                $country->name = ctrans('texts.country_'.$country->name);
+            })->sortBy(function ($country) {
+                return $country->name;
+            })->values();
+
+            $data['payment_types'] = Cache::get('payment_types')->each(function ($pType) {
+                $pType->name = ctrans('texts.payment_type_'.$pType->name);
+            })->sortBy(function ($pType) {
+                return $pType->name;
+            })->values();
+
+            $data['languages'] = Cache::get('languages')->each(function ($lang) {
+                $lang->name = ctrans('texts.lang_'.$lang->name);
+            })->sortBy(function ($lang) {
+                return $lang->name;
+            })->values();
+
+            $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
+                $currency->name = ctrans('texts.currency_' . \Str::slug($currency->name, '_'));
+            })->sortBy(function ($currency) {
+                return $currency->name;
+            })->values();
+        }
+
+        return $data;
+    }
 
 }
 

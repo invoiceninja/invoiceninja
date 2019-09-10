@@ -173,6 +173,11 @@ class Company extends BaseModel
         return Language::find($this->settings->language_id);
     }
 
+    public function getLocale()
+    {
+        return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

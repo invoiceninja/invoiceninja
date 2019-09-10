@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class PaymentTerm.
@@ -36,7 +37,8 @@ class PaymentTerm extends BaseModel
 
     public static function getCompanyTerms()
     {
-        $default_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+        //Log::error('getting company terms');
+        $default_terms = collect(config('ninja.payment_terms'));
 
         $terms = self::scope()->get();
 

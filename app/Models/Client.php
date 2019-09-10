@@ -162,7 +162,7 @@ class Client extends BaseModel
             return $this->group_settings->{$setting};
         
         //check company level
-
+        
     
         
     }
