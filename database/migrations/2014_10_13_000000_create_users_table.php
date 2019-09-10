@@ -293,6 +293,7 @@ class CreateUsersTable extends Migration
 
             $table->boolean('is_deleted')->default(false);
             $table->integer('payment_terms')->nullable();  
+            $table->unsignedInteger('group_settings_id')->nullable();  
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
 
@@ -913,6 +914,18 @@ class CreateUsersTable extends Migration
             $table->timestamps(6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+        });
+
+        Schema::create('group_settings', function ($table){
+            $table->increments('id');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name');
+            $table->text('settings');
+            $table->boolean('is_default')->default(false);
+            $table->timestamps(6);  
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });
 
     }

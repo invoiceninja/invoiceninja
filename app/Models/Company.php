@@ -19,6 +19,7 @@ use App\Models\CompanyUser;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
+use App\Models\GroupSetting;
 use App\Models\Industry;
 use App\Models\Invoice;
 use App\Models\Language;
@@ -149,6 +150,11 @@ class Company extends BaseModel
     public function country()
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function group_settings()
+    {
+        return $this->hasMany(GroupSetting::class);
     }
 
     /**

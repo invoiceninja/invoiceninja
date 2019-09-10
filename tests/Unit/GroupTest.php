@@ -26,27 +26,21 @@ class GroupTest extends TestCase
 	public function testGroupsPropertiesExistsResponses()
 	{
 	
-		$this->assertTrue(property_exists($this->settings->groups, 'company_gateways'));
-
-		$this->assertTrue(property_exists($this->settings, 'groups'));
+		$this->assertTrue(property_exists($this->settings, 'design'));
 	}
 
 	public function testPropertyValueAccessors()
 	{
 
-		$this->settings->groups->company_gateways = 'slug';
+		$this->settings->translations = (object) ['hello' => 'world'];
 	
-		$this->assertEquals('slug', $this->settings->groups->company_gateways);
+		$this->assertEquals('world', $this->settings->translations->hello);
 
 	}
 
 	public function testPropertyIsSet()
 	{
-		$this->assertFalse(isset($this->settings->groups->company_gateways));
-
-		$this->settings->groups->company_gateways = 'slug';
-	
-		$this->assertTrue(isset($this->settings->groups->company_gateways));
+		$this->assertFalse(isset($this->settings->translations->nope));
 	}
 
 }

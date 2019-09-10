@@ -1,11 +1,13 @@
 <?php
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyToken;
+use App\Models\GroupSetting;
 use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
@@ -117,6 +119,15 @@ class RandomDataSeeder extends Seeder
             $client->save();
         }
 
+
+        GroupSetting::create([
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+            'is_default' =>true,
+            'settings' =>  ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults())),
+            'name' => 'Default Client Settings',
+        ]);
+        
     }
     
 }

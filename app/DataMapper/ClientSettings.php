@@ -60,8 +60,6 @@ class ClientSettings extends BaseSettings
 	public $auto_bill;
 	public $auto_archive_invoice;
 	
-	public $groups;
-
 	/**
 	 * Counter Variables
 	 *

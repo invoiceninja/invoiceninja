@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Filterable;
+use App\Models\GroupSetting;
 use App\Models\Timezone;
 use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
@@ -153,6 +154,11 @@ class Client extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function group_settings()
+    {
+        return $this->belongsTo(GroupSetting::class);
     }
 
     /**
