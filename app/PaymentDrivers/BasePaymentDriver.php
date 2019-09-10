@@ -170,8 +170,7 @@ class BasePaymentDriver
 		} else {
 		    // payment failed: display message to customer
 		    echo $response->getMessage();
-
-
+		}
 		/*
 		$this->purchaseResponse = (array)$response->getData();*/
 	}
