@@ -125,7 +125,7 @@ class Company extends BaseModel
      */
     public function company_gateways()
     {
-        return $this->hasMany(CompanyGateway::class)->orderBy('sort_id','ASC');
+        return $this->hasMany(CompanyGateway::class)->orderBy('priority_id','ASC');
     }
 
     /**
