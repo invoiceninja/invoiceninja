@@ -151,6 +151,22 @@ class Client extends BaseModel
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
     }
 
+    public function getSetting($setting)
+    {
+        //check client level first
+        if(property_exists($this->settings, $setting) && isset($this->settings->{$setting}))
+            return $this->settings->{$setting};
+
+        //check group level (if a group is assigned)
+        if($this->group_settings && property_exists($this->group_settings, $setting) && isset($this->group_settings->{$setting}))
+            return $this->group_settings->{$setting};
+        
+        //check company level
+
+    
+        
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');

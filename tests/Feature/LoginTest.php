@@ -139,12 +139,12 @@ class LoginTest extends TestCase
         $user = factory(User::class)->create([
          //   'account_id' => $account->id,
             'email' => 'test@example.com',
-            'password' => '123456'
+            'password' => \Hash::make('123456')
         ]);
 
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
-                        'domain' => 'ninja.test',
+            'domain' => 'ninja.test',
 
         ]);
 
