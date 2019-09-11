@@ -72,7 +72,7 @@ before_script:
   # sh -e /etc/init.d/xvfb start
   # sleep 3
   # ./vendor/laravel/dusk/bin/chromedriver-linux &
-  - php artisan dusk:chrome-driver 75
+  - php artisan dusk:chrome-driver 72
   - php artisan serve &
 
 script:
