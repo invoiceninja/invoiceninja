@@ -38,7 +38,6 @@ class Client extends BaseModel
     use SoftDeletes;
     use Filterable;
     use GeneratesCounter;
-    use CompanyGatewaySettings;
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
@@ -128,27 +127,36 @@ class Client extends BaseModel
 
     public function timezone()
     {
-        return Timezone::find($this->getMergedSettings()->timezone_id);
+        return Timezone::find($this->getSetting('timezone_id'));
     }
 
     public function date_format()
     {
-        return $this->getMergedSettings()->date_format;
+        return $this->getSetting('date_format');
     }
 
     public function datetime_format()
     {
-        return $this->getMergedSettings()->datetime_format;
+        return $this->getSetting('datetime_format');
     }
 
     public function currency()
     {
         return $this->belongsTo(Currency::class);
-        //return Currency::find($this->getMergedSettings()->currency_id);
     }
 
     public function getMergedSettings()
     {
+
+        if($this->group_settings !== null)
+        {
+
+            $group_settings = ClientSettings::buildClientSettings(new ClientSettings($this->group_settings()), new ClientSettings($this->settings));
+
+            return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), $group_settings);
+
+        }
+
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
     }
 
@@ -170,7 +178,7 @@ class Client extends BaseModel
             return $this->settings->{$setting};
 
         //check group level (if a group is assigned)
-        if($this->group_settings && isset($this->group_settings->{$setting}) && property_exists($this->group_settings, $setting))
+        if($this->group_settings && isset($this->group_settings->settings->{$setting}) && property_exists($this->group_settings->settings, $setting))
             return $this->group_settings->{$setting};
         
         //check company level
@@ -206,11 +214,11 @@ class Client extends BaseModel
      */
     public function getPaymentMethods($amount) :array
     {
-        $settings = $this->getMergedSettings();
+        $payment_gateways = $this->getSetting('payment_gateways');
 
         /* If we have a custom gateway list pass this back first */
-        if($settings->payment_gateways)
-            $gateways = $this->company->company_gateways->whereIn('id', $settings->payment_gateways);
+        if($settings)
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
         else
             $gateways = $this->company->company_gateways;
 

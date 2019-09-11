@@ -13,14 +13,18 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 
-class GroupSetting extends BaseModel
+class GroupSetting extends Model
 {
+	public $timestamps = false;
+
     protected $casts = [
         'settings' => 'object'
     ];
@@ -33,6 +37,11 @@ class GroupSetting extends BaseModel
 	public function user()
 	{
 		return $this->belongsTo(User::class);
+	}
+
+	public function clients()
+	{
+		return $this->hasMany(Client::class, 'id', 'group_settings_id');
 	}
 
 

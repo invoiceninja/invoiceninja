@@ -920,8 +920,6 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id')->nullable();
             $table->string('name');
             $table->text('settings');
-            $table->boolean('is_default')->default(false);
-            $table->timestamps(6);  
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });

@@ -32,7 +32,10 @@ class ApiSecretCheck
 
             $error['error'] = ['message' => 'Invalid secret'];
 
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403)->header('X-API-VERSION', config('ninja.api_version'));
+            return response()
+            ->json(json_encode($error, JSON_PRETTY_PRINT) ,403)
+            ->header('X-App-Version', config('ninja.app_version'))
+            ->header('X-API-VERSION', config('ninja.api_version'));
         }
 
         

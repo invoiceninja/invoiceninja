@@ -110,7 +110,8 @@ class BaseController extends Controller
     {
 
         return response()->json(['message' => '404 | Nothing to see here!'], 404)
-                         ->header('X-API-VERSION', config('ninja.api_version'));
+                         ->header('X-Api-Version', config('ninja.api_version'))
+                         ->header('X-App-Version', config('ninja.app_version'));
 
     }
 
@@ -239,7 +240,8 @@ class BaseController extends Controller
           //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
           //'Access-Control-Allow-Credentials' => 'true',
           //'X-Total-Count' => $count,
-          'X-API-VERSION' => config('ninja.api_version'),
+          'X-Api-Version' => config('ninja.api_version'),
+          'X-App-Version' => config('ninja.app_version'),
           //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
           //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
           //'X-Rate-Limit-Reset' - The number of seconds left in the current period,

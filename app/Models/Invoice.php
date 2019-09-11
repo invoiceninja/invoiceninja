@@ -169,7 +169,7 @@ class Invoice extends BaseModel
      */
     public function isLocked() : bool
     {
-        return $this->client->getMergedSettings()->lock_sent_invoices;
+        return $this->client->getSetting('lock_sent_invoices');
     }
 
     /**
@@ -252,7 +252,7 @@ class Invoice extends BaseModel
     public function calc()
     {
 
-        $invoice_calc = new InvoiceCalc($this, $this->client->getMergedSettings());
+        $invoice_calc = new InvoiceCalc($this, $this->settings);
         
         return $invoice_calc->build();
 

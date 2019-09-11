@@ -245,7 +245,7 @@ class ClientTest extends TestCase
             $this->assertNotNull($client);
 
             /* Make sure we have a valid settings object*/
-            $this->assertEquals($client->getMergedSettings()->timezone_id, 15);            
+            $this->assertEquals($client->getSetting('timezone_id'), 15);            
 
             /* Make sure we are harvesting valid data */
             $this->assertEquals($client->timezone()->name, 'US/Eastern');

@@ -11,6 +11,7 @@
 
 namespace Tests;
 
+use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
@@ -19,6 +20,7 @@ use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
@@ -65,6 +67,17 @@ trait MockAccountData
 
         $this->client = ClientFactory::create($this->company->id, $this->user->id);
         $this->client->save();
+
+        $gs = new GroupSetting;
+        $gs->name = 'Test';
+        $gs->company_id = $this->client->company_id;
+        $gs->settings = new ClientSettings(ClientSettings::defaults());
+        $gs->save();
+
+        $this->client->group_settings_id = $gs->id;
+        $this->client->save();
+
+
 
         $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
         $this->invoice->client_id = $this->client->id;
