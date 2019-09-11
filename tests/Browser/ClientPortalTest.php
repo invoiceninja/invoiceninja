@@ -94,6 +94,24 @@ class ClientPortalTest extends DuskTestCase
                     ->type('password', config('ninja.testvars.password'))
                     ->press('Login')
                     ->assertPathIs('/client/dashboard');
+
+            $browser->visit('client/invoices')
+                    ->assertSee('Invoice Number');
+
+            $browser->with('.table', function ($table) {
+                $table->assertSee('Invoice Date');
+            });
+
+            $browser->visit('client/payments')
+                ->assertSee('Payment Date');
+
+            $browser->visit('client/recurring_invoices')
+                ->assertSee('Frequency');
+
+            $browser->visit('client/logout')
+                    ->assertPathIs('/client/login');
+
+
         });
 
 
