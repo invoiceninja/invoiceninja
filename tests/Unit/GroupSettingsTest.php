@@ -70,14 +70,6 @@ class GroupSettingsTest extends TestCase
 
     	$this->client->fresh();
 
-//    	\Log::error(print_r($this->client,1));
-    	\Log::error(print_r($this->client->settings,1));
-    	\Log::error(print_r($this->client->settings->timezone_id,1));
-    	\Log::error(print_r($this->client->settings->date_format,1));
-    	\Log::error(print_r($this->client->group_settings->settings->timezone_id,1));
-    	\Log::error(print_r($this->client->group_settings->settings,1));
-    	\Log::error(print_r($this->client->company->settings->timezone_id,1));
-
     	$this->assertEquals($this->client->group_settings->settings->timezone_id, 'SPOCK');
 		$this->assertEquals($this->client->getSetting('timezone_id'), 'SPOCK');
 		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'SPOCK');
@@ -89,14 +81,28 @@ class GroupSettingsTest extends TestCase
 	public function testClientDefaults()
 	{
 		
-		$this->company_settings->timezone_id = NULL;
-		$this->client->group_settings->settings->timezone_id = NULL;
-		$this->client->settings->timezone_id = 'SCOTTY';
-    	$this->client->company->settings = $this->company_settings;
 
-    	$this->client->save();
-    	$this->client->company->save();
+		$cs = $this->client->company->settings;
+		$cs->timezone_id = NULL;
+
+		$this->client->company->settings = $cs;
+
+		$gs = $this->client->group_settings->settings;
+		$gs->timezone_id = NULL;
+
+		$this->client->group_settings->settings = $gs;
+
+		$cls = $this->client->settings;
+		$cls->timezone_id = 'SCOTTY';
+		$cls->date_format = 'sharleen';
+
+    	$this->client->settings = $cls;
+
     	$this->client->group_settings->save();
+    	$this->client->company->save();    	
+    	$this->client->save();
+
+    	$this->client->fresh();
 
     	$this->assertEquals($this->client->settings->timezone_id, 'SCOTTY');
 		$this->assertEquals($this->client->getSetting('timezone_id'), 'SCOTTY');

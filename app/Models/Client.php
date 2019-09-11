@@ -151,7 +151,7 @@ class Client extends BaseModel
         if($this->group_settings !== null)
         {
 
-            $group_settings = ClientSettings::buildClientSettings(new ClientSettings($this->group_settings()), new ClientSettings($this->settings));
+            $group_settings = ClientSettings::buildClientSettings(new ClientSettings($this->group_settings->settings), new ClientSettings($this->settings));
 
             return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), $group_settings);
 
@@ -162,28 +162,20 @@ class Client extends BaseModel
 
     public function getSetting($setting)
     {
-        // Log::error('does prop exist? = ' . property_exists($this->settings, $setting));
-        // Log::error('does prop have val? = ' . isset($this->settings->{str_replace("'","",$setting)}));
-        // Log::error('client');
-        // Log::error(print_r($this,1));
-        // Log::error('company');
-        // Log::error(print_r($this->company,1));
-        // Log::error('company settings');
-        // Log::error(print_r($this->company->settings,1));
-        // Log::error('cli = '.$this->settings->{$setting});
-        // Log::error('co = '.$this->company->settings->{$setting});
- 
+
         //check client level first
         if($this->settings && isset($this->settings->{$setting}) && property_exists($this->settings, $setting))
             return $this->settings->{$setting};
 
         //check group level (if a group is assigned)
         if($this->group_settings && isset($this->group_settings->settings->{$setting}) && property_exists($this->group_settings->settings, $setting))
-            return $this->group_settings->{$setting};
+            return $this->group_settings->settings->{$setting};
+        
         
         //check company level
         if(isset($this->company->settings->{$setting}) && property_exists($this->company->settings, $setting))
             return $this->company->settings->{$setting};
+        
     
         
     }
