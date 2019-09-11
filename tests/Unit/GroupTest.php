@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\CompanyGatewaySettings
  */
 class GroupTest extends TestCase
 {
