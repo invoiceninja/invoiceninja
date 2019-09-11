@@ -17,9 +17,9 @@ class BaseSettingsTest extends TestCase
     public function setUp() :void
     {
     
-    parent::setUp();
-	
-    $this->settings = new ClientSettings(ClientSettings::defaults());
+	    parent::setUp();
+		
+    	$this->settings = new ClientSettings(ClientSettings::defaults());
 
 	}
 

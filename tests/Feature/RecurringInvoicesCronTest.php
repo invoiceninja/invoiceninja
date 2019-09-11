@@ -44,7 +44,7 @@ class RecurringInvoicesCronTest extends TestCase
         //spin up 5 valid and 1 invalid recurring invoices
         $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
 
-        Log::error(Carbon::now()->addMinutes(30)->format(config('ninja.date_time_format')));
+        // Log::error(Carbon::now()->addMinutes(30)->format(config('ninja.date_time_format')));
 
         $recurring_invoices->each(function ($inv, $key) {
 

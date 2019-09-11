@@ -49,7 +49,7 @@ class StoreClientRequest extends Request
 
         }
 
-    Log::error($rules);
+    // Log::error($rules);
 
         return $rules;
             

@@ -58,30 +58,31 @@ class Number
      * 
      * @return string           The formatted value
      */
-    public static function formatMoney($value, $currency, $country, $settings) :string
+    //public static function formatMoney($value, $currency, $country, $settings) :string
+    public static function formatMoney($value, $client) :string
     {
 
-        $thousand = $currency->thousand_separator;
-        $decimal = $currency->decimal_separator;
-        $precision = $currency->precision;
-        $code = $currency->code;
-        $swapSymbol = $country->swap_currency_symbol;
+        $thousand = $client->currency->thousand_separator;
+        $decimal = $client->currency->decimal_separator;
+        $precision = $client->currency->precision;
+        $code = $client->currency->code;
+        $swapSymbol = $client->country->swap_currency_symbol;
 
             /* Country settings override client settings */
-            if ($country->thousand_separator) 
-                $thousand = $country->thousand_separator;
+            if ($client->country->thousand_separator) 
+                $thousand = $client->country->thousand_separator;
             
-            if ($country->decimal_separator) 
-                $decimal = $country->decimal_separator;
+            if ($client->country->decimal_separator) 
+                $decimal = $client->country->decimal_separator;
             
         $value = number_format($value, $precision, $decimal, $thousand);
-        $symbol = $currency->symbol;
+        $symbol = $client->currency->symbol;
         
-        if ($settings->show_currency_code == "TRUE") {
+        if ($client->getSetting('show_currency_code') == "TRUE") {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);
-        } elseif ($settings->show_currency_symbol == "TRUE") {
+        } elseif ($client->getSetting('show_currency_symbol') == "TRUE") {
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);

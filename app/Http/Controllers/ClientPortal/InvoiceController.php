@@ -62,9 +62,9 @@ class InvoiceController extends Controller
                 })->editColumn('due_date', function ($invoice){
                     return $this->formatDate($invoice->due_date, $invoice->client->date_format());
                 })->editColumn('balance', function ($invoice) {
-                    return Number::formatMoney($invoice->balance, $invoice->client->currency, $invoice->client->country, $invoice->client->getMergedSettings());
+                    return Number::formatMoney($invoice->balance, $invoice->client);
                 })->editColumn('amount', function ($invoice) {
-                    return Number::formatMoney($invoice->amount, $invoice->client->currency, $invoice->client->country, $invoice->client->getMergedSettings());
+                    return Number::formatMoney($invoice->amount, $invoice->client);
                 })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);
@@ -125,7 +125,7 @@ class InvoiceController extends Controller
         $invoices->filter(function ($invoice){
             return $invoice->isPayable();
         })->map(function ($invoice){
-            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client->currency, $invoice->client->country, $invoice->client->getMergedSettings());
+            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client;
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
 
             return $invoice;

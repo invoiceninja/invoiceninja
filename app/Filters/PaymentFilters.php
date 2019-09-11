@@ -31,8 +31,7 @@ class PaymentFilters extends QueryFilters
      *     
      */
     public function filter(string $filter = '') : Builder
-    {Log::error('ewwo');
-    Log::error($filter);
+    {
         if(strlen($filter) == 0)
             return $this->builder;
 
