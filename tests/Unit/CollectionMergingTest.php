@@ -34,7 +34,7 @@ class CollectionMergingTest extends TestCase
 
     public function testMergingCollection()
     {
-        $payment_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+        $payment_terms = collect(config('ninja.payment_terms'));
 
     	$new_terms = $this->terms->map(function($term) {
             return $term['num_days'];
@@ -47,7 +47,7 @@ class CollectionMergingTest extends TestCase
 
     public function testSortingCollection()
     {
-        $payment_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+        $payment_terms = collect(config('ninja.payment_terms'));
 
         $new_terms = $this->terms->map(function($term) {
             return $term['num_days'];
@@ -65,7 +65,7 @@ class CollectionMergingTest extends TestCase
 
     public function testSortingCollectionLast()
     {
-        $payment_terms = collect(unserialize(CACHED_PAYMENT_TERMS));
+        $payment_terms = collect(config('ninja.payment_terms'));
 
         $new_terms = $this->terms->map(function($term) {
             return $term['num_days'];

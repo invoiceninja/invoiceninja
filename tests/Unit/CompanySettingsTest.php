@@ -28,13 +28,6 @@ class CompanySettingsTest extends TestCase
 
 	}
 
-	public function testCurrencyId()
-	{
-
-		$this->assertEquals($this->company_settings->currency_id, 1);
-
-	}
-
 	public function testLanguageId()
 	{
 
@@ -52,7 +45,7 @@ class CompanySettingsTest extends TestCase
 	public function testPropertyIsSet()
 	{
 
-		$this->assertTrue(isset($this->company_settings->currency_id));
+		$this->assertTrue(isset($this->company_settings->timezone_id));
 
 	}
 }

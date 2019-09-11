@@ -46,7 +46,6 @@ class CompareObjectTest extends TestCase
 		$build_client_settings = $this->buildClientSettings();
 
 		$this->assertEquals($build_client_settings->timezone_id, 15);
-		$this->assertEquals($build_client_settings->currency_id, 1);
 		$this->assertEquals($build_client_settings->language_id, 1);
 		$this->assertEquals($build_client_settings->payment_terms, 1);
 	}	
@@ -56,7 +55,6 @@ class CompareObjectTest extends TestCase
 		$settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
 
 		$this->assertEquals($settings->timezone_id, 15);
-		$this->assertEquals($settings->currency_id, 1);
 		$this->assertEquals($settings->language_id, 1);
 		$this->assertEquals($settings->payment_terms, 1);
 		$this->assertEquals($settings->custom_taxes1, 'FALSE');

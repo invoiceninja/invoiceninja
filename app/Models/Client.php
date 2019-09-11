@@ -143,7 +143,8 @@ class Client extends BaseModel
 
     public function currency()
     {
-        return Currency::find($this->getMergedSettings()->currency_id);
+        return $this->belongsTo(Currency::class);
+        //return Currency::find($this->getMergedSettings()->currency_id);
     }
 
     public function getMergedSettings()

@@ -40,7 +40,7 @@ return [
     'i18n' => [
         'timezone_id' => env('DEFAULT_TIMEZONE', 15),
         'country_id' => env('DEFAULT_COUNTRY', 840), // United Stated
-        'currency_id' => env('DEFAULT_CURRENCY', 1), //USD
+        'currency_id' => env('DEFAULT_CURRENCY', 1),
         'language_id' => env('DEFAULT_LANGUAGE', 1), //en
         'date_format' => env('DEFAULT_DATE_FORMAT', 'M j, Y'),
         'date_picker_format' => env('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy'),

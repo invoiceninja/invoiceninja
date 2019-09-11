@@ -151,7 +151,7 @@ class CompanyGateway extends BaseModel
         $fee = $this->calcGatewayFee($amount);
 
         if($fee > 0 ){
-            $fee = Number::formatMoney(round($fee, 2), $client->currency(), $client->country(), $client->getMergedSettings());
+            $fee = Number::formatMoney(round($fee, 2), $client->currency, $client->country(), $client->getMergedSettings());
             $label = ' - ' . $fee . ' ' . ctrans('texts.fee');
         }
 

@@ -27,7 +27,7 @@ class CompanySettings extends BaseSettings
 	public $financial_year_start;
 
 	public $language_id;
-	public $currency_id;
+
 	public $precision;
 	public $show_currency_symbol;
 	public $show_currency_code;
@@ -138,7 +138,6 @@ class CompanySettings extends BaseSettings
 			'entity' => Company::class,
 			'timezone_id' => config('ninja.i18n.timezone_id'),
 			'language_id' => config('ninja.i18n.language_id'),
-			'currency_id' => config('ninja.i18n.currency_id'),
 			'precision' => 2,
 			'payment_terms' => config('ninja.i18n.payment_terms'),
 			'datetime_format' => config('ninja.i18n.datetime_format'),

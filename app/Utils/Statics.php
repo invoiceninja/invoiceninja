@@ -71,13 +71,11 @@ class Statics
 
         $data = [];
 
-        $cached_tables = config('ninja.cached_tables');
-
-        foreach ($cached_tables as $name => $class) {
+        foreach (config('ninja.cached_tables') as $name => $class) {
             $data[$name] = Cache::get($name);
         }
 
-Log::error($data);
+// Log::error($data);
 
         if ($locale) {
 

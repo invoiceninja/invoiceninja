@@ -167,13 +167,13 @@ trait MakesInvoiceValues
             // $data['$quantity'] = ;
             // $data['$line_total'] = ;
     //        $data['$paid_to_date'] = ;
-            $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$balance_due'] = Number::formatMoney($this->balance, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$partial_due'] = Number::formatMoney($this->partial, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $data['$taxes'] = Number::formatMoney($this->calc()->getTotalTaxes(), $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $data['$balance_due'] = Number::formatMoney($this->balance, $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $data['$partial_due'] = Number::formatMoney($this->partial, $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $data['$taxes'] = Number::formatMoney($this->calc()->getTotalTaxes(), $this->client->currency, $this->client->country, $this->client->getMergedSettings());
             $data['$terms'] = $this->terms;
             // $data['$your_invoice'] = ;
             // $data['$quote'] = ;
@@ -365,14 +365,14 @@ trait MakesInvoiceValues
         foreach($items as $item)
         {
 
-            $item->cost = Number::formatMoney($item->cost, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
-            $item->line_total = Number::formatMoney($item->line_total, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+            $item->cost = Number::formatMoney($item->cost, $this->client->currency, $this->client->country, $this->client->getMergedSettings());
+            $item->line_total = Number::formatMoney($item->line_total, $this->client->currency, $this->client->country, $this->client->getMergedSettings());
 
             if(isset($item->discount) && $item->discount > 0)
             {
 
                 if($item->is_amount_discount)
-                    $item->discount = Number::formatMoney($item->discount, $this->client->currency(), $this->client->country, $this->client->getMergedSettings());
+                    $item->discount = Number::formatMoney($item->discount, $this->client->currency, $this->client->country, $this->client->getMergedSettings());
                 else
                     $item->discount = $item->discount . '%';
             }
@@ -403,7 +403,7 @@ trait MakesInvoiceValues
         {
             $data .= '<tr class="line_taxes">';
             $data .= '<td>'. $tax['name'] .'</td>';
-            $data .= '<td>'. Number::formatMoney($tax['total'], $this->client->currency(), $this->client->country, $this->client->getMergedSettings()) .'</td></tr>';
+            $data .= '<td>'. Number::formatMoney($tax['total'], $this->client->currency, $this->client->country, $this->client->getMergedSettings()) .'</td></tr>';
         }
 
         return $data;

@@ -173,17 +173,6 @@ class Invoice extends BaseModel
     }
 
     /**
-     * Gets the currency from the settings object.
-     *
-     * @return     Eloquent Model  The currency.
-     */
-    public function getCurrency()
-    {
-        return Currency::find($this->settings->currency_id);
-    }
-
-
-    /**
      * Determines if invoice overdue.
      *
      * @param      float    $balance   The balance

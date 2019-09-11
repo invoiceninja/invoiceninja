@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @test
@@ -142,10 +144,22 @@ class LoginTest extends TestCase
             'password' => \Hash::make('123456')
         ]);
 
-        $company = factory(\App\Models\Company::class)->make([
+        $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
             'domain' => 'ninja.test',
 
+        ]);
+
+        $account->default_company_id = $account->id;
+        $account->save();
+
+
+        $ct = CompanyToken::create([
+            'user_id' => $user->id,
+            'account_id' => $account->id,
+            'token' => str_random(64),
+            'name' => $user->first_name. ' '. $user->last_name,
+            'company_id' => $company->id,
         ]);
 
         $user->companies()->attach($company->id, [
@@ -153,6 +167,13 @@ class LoginTest extends TestCase
             'is_owner' => 1,
             'is_admin' => 1,
         ]);
+
+        $user->fresh();
+
+        $this->assertTrue($user->companies !== null);
+        $this->assertTrue($user->user_companies !== null);
+        $this->assertTrue($user->user_companies->first() !== null);
+        $this->assertTrue($user->user_companies->first()->account !== null);
 
         $data = [
             'email' => 'test@example.com',

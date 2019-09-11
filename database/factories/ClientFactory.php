@@ -21,6 +21,7 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'city' => $faker->city,
         'state' => $faker->state,
         'postal_code' => $faker->postcode,
+        'currency_id' => 1,
         'country_id' => 4,
         'shipping_address1' => $faker->buildingNumber,
         'shipping_address2' => $faker->streetAddress,
