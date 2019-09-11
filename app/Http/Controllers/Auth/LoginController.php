@@ -16,7 +16,9 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
+use App\Models\CompanyUser;
 use App\Models\User;
+use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -41,9 +43,9 @@ class LoginController extends BaseController
     use AuthenticatesUsers;
     use UserSessionAttributes;
 
-    protected $entity_type = User::class;
+    protected $entity_type = CompanyUser::class;
 
-    protected $entity_transformer = UserTransformer::class;
+    protected $entity_transformer = CompanyUserTransformer::class;
 
     /**
      * Where to redirect users after login.
@@ -105,7 +107,10 @@ class LoginController extends BaseController
             
             $user->setCompany($user->user_companies->first()->account->default_company);
 
-            return $this->itemResponse($this->guard()->user());
+            $ct = CompanyUser::whereUserId($user->id);
+
+            return $this->listResponse($ct);
+            //return $this->itemResponse($this->guard()->user());
         }
         else {
 
