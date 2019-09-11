@@ -29,7 +29,7 @@ class CompanyUser extends Pivot
 
     public function account()
     {
-        return $this->hasOne(Account::class);
+        return $this->belongsTo(Account::class);
     }
 
     public function user_pivot()

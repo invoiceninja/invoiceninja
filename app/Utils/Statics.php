@@ -11,8 +11,9 @@
 
 namespace App\Utils;
 
-use = namespace\Cache;
-use Psy\Util\Str;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Statics
@@ -71,16 +72,21 @@ class Statics
         $data = [];
 
         $cached_tables = config('ninja.cached_tables');
+
         foreach ($cached_tables as $name => $class) {
             $data[$name] = Cache::get($name);
         }
 
+Log::error($data);
+
         if ($locale) {
+
             $data['industries'] = Cache::get('industries')->each(function ($industry) {
                 $industry->name = ctrans('texts.industry_'.$industry->name);
             })->sortBy(function ($industry) {
                 return $industry->name;
             })->values();
+
 
             $data['countries'] = Cache::get('countries')->each(function ($country) {
                 $country->name = ctrans('texts.country_'.$country->name);
@@ -101,10 +107,11 @@ class Statics
             })->values();
 
             $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
-                $currency->name = ctrans('texts.currency_' . \Str::slug($currency->name, '_'));
+                $currency->name = ctrans('texts.currency_' . Str::slug($currency->name, '_'));
             })->sortBy(function ($currency) {
                 return $currency->name;
             })->values();
+
         }
 
         return $data;

@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
+use App\Utils\Statics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
@@ -23,19 +24,19 @@ use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
- * 
+ * Class BaseController
  */
 class BaseController extends Controller
 {
+
     /**
      * Passed from the parent when we need to force
      * includes internally rather than externally via 
-     * the REQUEST 'include' variable.
+     * the $_REQUEST 'include' variable.
      * 
      * @var array
      */
     public $forced_includes;
-
 
     /**
      * Passed from the parent when we need to force
@@ -107,22 +108,28 @@ class BaseController extends Controller
      */
     public function notFound()
     {
-        return response()->json([
-        'message' => '404 | Nothing to see here!'], 404)->header('X-API-VERSION', config('ninja.api_version'));
+
+        return response()->json(['message' => '404 | Nothing to see here!'], 404)
+                         ->header('X-API-VERSION', config('ninja.api_version'));
+
     }
 
     public function notFoundClient()
     {
+
         return abort(404);
+
     }
 
     protected function errorResponse($response, $httpErrorCode = 400)
     {
+
         $error['error'] = $response;
         $error = json_encode($error, JSON_PRETTY_PRINT);
         $headers = self::getApiHeaders();
 
         return response()->make($error, $httpErrorCode, $headers);
+
     }
 
 	protected function listResponse($query)
@@ -140,6 +147,7 @@ class BaseController extends Controller
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 
         return $this->response($data);
+
     }
 
     protected function createCollection($query, $transformer, $entity_type)
@@ -163,10 +171,12 @@ class BaseController extends Controller
         }
 
         return $this->manager->createData($resource)->toArray();
+
     }
 
     protected function response($response)
     {
+
         $index = request()->input('index') ?: $this->forced_index;
 
         if ($index == 'none') {
@@ -187,10 +197,12 @@ class BaseController extends Controller
         $headers = self::getApiHeaders();
 
         return response()->make($response, 200, $headers);
+
     }
 
     protected function itemResponse($item)
     {
+
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
@@ -198,40 +210,46 @@ class BaseController extends Controller
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
         if(request()->include_static)
-            $data['static'] = Statics::company();
+            $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
 
         return $this->response($data);
+
     }
 
     protected function createItem($data, $transformer, $entity_type)
     {
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
+
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
             $entity_type = null;
-        }
+        
 
         $resource = new Item($data, $transformer, $entity_type);
 
         return $this->manager->createData($resource)->toArray();
+
     }
 
     public static function getApiHeaders($count = 0)
     {
+
         return [
           'Content-Type' => 'application/json',
           //'Access-Control-Allow-Origin' => '*',
           //'Access-Control-Allow-Methods' => 'GET',
           //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
           //'Access-Control-Allow-Credentials' => 'true',
-          'X-Total-Count' => $count,
+          //'X-Total-Count' => $count,
           'X-API-VERSION' => config('ninja.api_version'),
           //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
           //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
           //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
         ];
+
     }
 
     protected function getRequestIncludes($data)
     {
+
         $included = request()->input('include');
         $included = explode(',', $included);
 
@@ -245,4 +263,5 @@ class BaseController extends Controller
 
         return $data;
     }
+
 }

@@ -74,15 +74,14 @@ class CreateUsersTable extends Migration
         Schema::create('industries', function ($table) {
             $table->increments('id');
             $table->string('name');
-            $table->timestamps(6);
         });
 
         Schema::create('gateways', function ($table) {
             $table->increments('id');
-            $table->timestamps(6);
             $table->string('name');
             $table->string('provider');
             $table->boolean('visible')->default(true);
+            $table->timestamps();
         });
 
         Schema::create('accounts', function ($table) {

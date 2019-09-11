@@ -35,8 +35,8 @@ class StartupCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        $start = microtime(true);
-        Log::error('start up check');
+       // $start = microtime(true);
+       // Log::error('start up check');
 
         $cached_tables = config('ninja.cached_tables');
 
@@ -66,8 +66,8 @@ class StartupCheck
             }
         }
 
-        $end = microtime(true) - $start;
-        Log::error("middleware cost = {$end} ms");
+      //  $end = microtime(true) - $start;
+      //  Log::error("middleware cost = {$end} ms");
         
         $response = $next($request);
 

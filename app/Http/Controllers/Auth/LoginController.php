@@ -96,8 +96,14 @@ class LoginController extends BaseController
             return response()->json(['message' => 'Too many login attempts, you are being throttled'], 401)->header('X-API-VERSION', config('ninja.api_version'));
         }
 
-        if ($this->attemptLogin($request))
+        if ($this->attemptLogin($request)) {
+
+            $user = $this->guard()->user();
+            
+            $user->setCompany($user->user_companies->first()->account->default_company);
+
             return $this->itemResponse($this->guard()->user());
+        }
         else {
 
             $this->incrementLoginAttempts($request);
