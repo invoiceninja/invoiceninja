@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\MakesHash;
+ * @covers  App\Utils\Traits\MakesHash
  */
 class PrimaryKeyTransformationTest extends TestCase
 {
