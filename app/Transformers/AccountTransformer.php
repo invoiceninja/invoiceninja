@@ -33,8 +33,8 @@ class AccountTransformer extends EntityTransformer
      */
     protected $defaultIncludes = [
         //'default_company',
-        'user',
-        'company_users'
+        //'user',
+        //'company_users'
     ];
 
     /**

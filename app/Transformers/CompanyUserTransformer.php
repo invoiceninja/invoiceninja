@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTokenTransformer;
 
 class CompanyUserTransformer extends EntityTransformer
@@ -24,6 +26,7 @@ class CompanyUserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
+        'account',
         'company',
         'user',
         'token'
@@ -35,7 +38,8 @@ class CompanyUserTransformer extends EntityTransformer
     protected $availableIncludes = [
         'user',
         'company',
-        'token'
+        'token',
+        'account',
     ];
 
 
@@ -50,6 +54,14 @@ class CompanyUserTransformer extends EntityTransformer
             'updated_at' => $company_user->updated_at,
             'deleted_at' => $company_user->deleted_at,
         ];
+    }
+
+    public function includeAccount(CompanyUser $company_user)
+    {
+
+        $transformer = new AccountTransformer($this->serializer);
+
+        return $this->includeItem($company_user->account, $transformer, Account::class);
     }
 
     public function includeCompany(CompanyUser $company_user)
