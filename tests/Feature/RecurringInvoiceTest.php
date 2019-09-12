@@ -124,7 +124,6 @@ class RecurringInvoiceTest extends TestCase
             ])->post('/api/v1/signup', $data);
 
         $acc = $response->json();
-Log::error($acc);
         $account = Account::find($this->decodePrimaryKey($acc['data']['id']));        
 
         $company_token = $account->default_company->tokens()->first();

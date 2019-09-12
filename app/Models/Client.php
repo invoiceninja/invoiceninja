@@ -145,6 +145,14 @@ class Client extends BaseModel
         return $this->belongsTo(Currency::class);
     }
 
+    /**
+     * 
+     * Returns the entire filtered set 
+     * of settings which have been merged from
+     * Client > Group > Company levels
+     * 
+     * @return object stdClass object of settings
+     */
     public function getMergedSettings()
     {
 
@@ -160,6 +168,15 @@ class Client extends BaseModel
         return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
     }
 
+    /**
+     * 
+     * Returns a single setting
+     * which cascades from
+     * Client > Group > Company
+     * 
+     * @param  string $setting The Setting parameter
+     * @return mixed          The setting requested
+     */
     public function getSetting($setting)
     {
 
