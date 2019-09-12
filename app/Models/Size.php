@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Size.
  */
-class Size extends Model
+class Size extends StaticModel
 {
 
     /**

@@ -21,7 +21,7 @@ use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
-class GroupSetting extends Model
+class GroupSetting extends StaticModel
 {
 	public $timestamps = false;
 

@@ -13,10 +13,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Timezone extends StaticModel
+class StaticModel extends Model
 {
-    /**
-     * @var bool
-     */
-    public $timestamps = false;
+
+    public function getIdAttribute()
+    {
+        return (string)$this->attributes['id'];
+    }
+
 }

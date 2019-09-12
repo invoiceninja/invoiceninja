@@ -13,7 +13,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Activity extends Model
+class Activity extends StaticModel
 {
 
     const CREATE_CLIENT=1;

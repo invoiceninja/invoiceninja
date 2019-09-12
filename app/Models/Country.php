@@ -13,7 +13,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Country extends Model
+class Country extends StaticModel
 {
     public $timestamps = false;
 

@@ -147,6 +147,9 @@ class BaseController extends Controller
 
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 
+        if(request()->include_static) 
+            $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        
         return $this->response($data);
 
     }
@@ -210,8 +213,9 @@ class BaseController extends Controller
 
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
-        if(request()->include_static)
+        if(request()->include_static) 
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        
 
         return $this->response($data);
 

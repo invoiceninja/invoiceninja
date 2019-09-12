@@ -14,7 +14,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Omnipay\Omnipay;
 
-class Gateway extends Model
+class Gateway extends StaticModel
 {
 
     /**
