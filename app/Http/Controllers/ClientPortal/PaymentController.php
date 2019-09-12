@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 use = namespace\Cache;
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
+use App\Models\CompanyGateway;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -101,19 +102,23 @@ class PaymentController extends Controller
         Cache::put($cache_hash, 'value', now()->addMinutes(10));
 
         //boot the payment gateway
-        
-        //build the gateway specific views
-        
+        $gateway = CompanyGateway::find($company_gateway_id);
 
+        //if there is a gateway fee, now is the time to calculate it 
+        //and add it to the invoice
+        
         $data = [
-            'redirect_url' =>,
+            'cache_hash' => $cache_hash,
             'invoices' => $invoices,
             'amount' => $amount,
-            'gateway_data' =>,
-            'cache_hash' => $cache_hash,
+            'fee' => $gateway->calcGatewayFee($amount),
+            'amount_with_fee' => ($amount + $gateway->calcGatewayFee($amount)),
+            'gateway' => $gateway,
+            'payment_method_id' => $payment_method_id,
+            'token' => auth()->user()->client->gateway_token($gateway->id),
         ];
         
-        return view('', $data);
+        return view($gateway->driver()->viewForType($payment_method_id), $data);
     }
 
 

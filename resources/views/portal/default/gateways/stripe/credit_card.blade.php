@@ -38,15 +38,30 @@
                                 <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"><strong>{{ ctrans('texts.total')}}</strong>
                                     <h3><span class="badge badge-primary badge-pill"><strong>{{ $amount }}</strong></span></h3>
                                 </li>
+                                @if($fee)
+                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"><strong>{{ ctrans('texts.gateway_fee')}}</strong>
+                                    <h3><span class="badge badge-primary badge-pill"><strong>{{ $fee }}</strong></span></h3>
+                                </li>
+                                <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"><strong>{{ ctrans('texts.amount_due')}}</strong>
+                                    <h3><span class="badge badge-primary badge-pill"><strong>{{ $amount_with_fee }}</strong></span></h3>
+                                </li>
+                                @endif
                             </ul>
                         </div>
 
+                        <!-- Stripe Credit Card TOKEN Form-->
+                        @if($token)
+                        
+                        <!-- Stripe Credit Card TOKEN Form-->
+                        
+                        @else
                         <!-- Stripe Credit Card Payment Form-->
                         <div class="py-md-5">
                         
                         </div>
                         <!-- Stripe Credit Card Payment Form-->
-                        
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -56,7 +71,7 @@
 </body>
 @endsection
 @push('scripts')
-
+<script src="https://js.stripe.com/v3/"></script>
 @endpush
 @section('footer')
 @endsection

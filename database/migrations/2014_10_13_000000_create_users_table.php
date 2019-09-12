@@ -908,6 +908,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('client_id')->nullable();
             $table->text('token');
             $table->unsignedInteger('company_gateway_id');
+            $table->unsignedInteger('payment_method_id');
             $table->boolean('is_default');
             $table->timestamps(6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');

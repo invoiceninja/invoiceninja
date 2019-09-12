@@ -100,6 +100,25 @@ class Client extends BaseModel
         return $this->hasMany(ClientGatewayToken::class);
     }
 
+    /**
+     * Retrieves the specific payment token per
+     * gateway - per payment method
+     *
+     * Allows the storage of multiple tokens
+     * per client per gateway per payment_method
+     * 
+     * @param  int $gateway_id          The gateway ID
+     * @param  int $payment_method_id   The payment method ID
+     * @return ClientGatewayToken       The client token record
+     */
+    public function gateway_token($gateway_id, $payment_method_id)
+    {
+        return $this->gateway_tokens
+                    ->whereCompanyGatewayId($gateway_id)
+                    ->wherePaymentMethod_id($payment_method_id)
+                    ->first();
+    }
+
     public function contacts()
     {
         return $this->hasMany(ClientContact::class)->orderBy('is_primary', 'desc');

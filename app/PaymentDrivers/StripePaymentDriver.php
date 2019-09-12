@@ -12,6 +12,7 @@
 namespace App\PaymentDrivers;
 
 use App\Models\GatewayType;
+use Stripe\PaymentIntent;
 use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
@@ -80,7 +81,7 @@ class StripePaymentDriver extends BasePaymentDriver
     			return 'gateways.stripe.credit_card';
     			break;
     		case GatewayType::TOKEN:
-    			return 'gateways.stripe.token';
+    			return 'gateways.stripe.credit_card';
     			break;
     		case GatewayType::SOFORT:
     			return 'gateways.stripe.sofort';
@@ -105,6 +106,16 @@ class StripePaymentDriver extends BasePaymentDriver
     			# code...
     			break;
     	}
+    }
+
+    /**
+     * Creates a new String Payment Intent
+     * @param  array $data The data array to be passed to Stripe
+     * @return PaymentIntent       The Stripe payment intent object
+     */
+    public function createIntent($data)
+    {
+        return PaymentIntent::create($data);
     }
 	/************************************** Omnipay API methods **********************************************************/
 
