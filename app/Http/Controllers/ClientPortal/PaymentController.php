@@ -75,6 +75,38 @@ class PaymentController extends Controller
 
     }
 
+    /**
+     * Presents the payment screen for a given
+     * gateway and payment method.
+     * The request will also contain the amount
+     * and invoice ids for reference
+     * @param  int $company_gateway_id The CompanyGateway ID
+     * @param  int $payment_method_id  The PaymentMethod ID
+     * @return void                     
+     */
+    public function process($company_gateway_id, $payment_method_id)
+    {
+
+        $invoices = request()->input('ids');
+        $amount = request()->input('amount');
+
+        //build a cache record to maintain state
+
+        //boot the payment gateway
+        
+        //build the gateway specific views
+        
+
+        $data = [
+            'redirect_url' =>,
+            'amount' =>,
+            'gateway_data' =>,
+            'cache_hash' =>,
+        ];
+        
+        return view('', $data);
+    }
+
 
 
 }

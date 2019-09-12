@@ -264,7 +264,7 @@ class Client extends BaseModel
 
             $payment_urls[] = [
                 'label' => ctrans('texts.' . $gateway->type->alias) . $fee_label,
-                'url'   =>  URL::signedRoute('payments', [
+                'url'   =>  URL::signedRoute('payments.process', [
                                             'company_gateway_id' => $key,
                                             'payment_method_id' => $value])
                             ];
