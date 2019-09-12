@@ -110,4 +110,86 @@ class GroupSettingsTest extends TestCase
 			
 	}
 
+
+	public function testClientPriority()
+	{
+		$cs = $this->client->company->settings;
+		$cs->timezone_id = 'COMPANY';
+
+		$this->client->company->settings = $cs;
+
+		$gs = $this->client->group_settings->settings;
+		$gs->timezone_id = 'GROUP';
+
+		$this->client->group_settings->settings = $gs;
+
+		$cls = $this->client->settings;
+		$cls->timezone_id = 'CLIENT';
+
+    	$this->client->settings = $cls;
+
+    	$this->client->group_settings->save();
+    	$this->client->company->save();    	
+    	$this->client->save();
+
+    	$this->client->fresh();
+
+		$this->assertEquals($this->client->getSetting('timezone_id'), 'CLIENT');
+		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'CLIENT');
+	}
+
+
+	public function testGroupPriority()
+	{
+		$cs = $this->client->company->settings;
+		$cs->timezone_id = 'COMPANY';
+
+		$this->client->company->settings = $cs;
+
+		$gs = $this->client->group_settings->settings;
+		$gs->timezone_id = 'GROUP';
+
+		$this->client->group_settings->settings = $gs;
+
+		$cls = $this->client->settings;
+		$cls->timezone_id = NULL;
+
+    	$this->client->settings = $cls;
+
+    	$this->client->group_settings->save();
+    	$this->client->company->save();    	
+    	$this->client->save();
+
+    	$this->client->fresh();
+
+		$this->assertEquals($this->client->getSetting('timezone_id'), 'GROUP');
+		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'GROUP');
+	}	
+
+	public function testCompanyFallBackPriority()
+	{
+		$cs = $this->client->company->settings;
+		$cs->timezone_id = 'COMPANY';
+
+		$this->client->company->settings = $cs;
+
+		$gs = $this->client->group_settings->settings;
+		$gs->timezone_id = NULL;
+
+		$this->client->group_settings->settings = $gs;
+
+		$cls = $this->client->settings;
+		$cls->timezone_id = NULL;
+
+    	$this->client->settings = $cls;
+
+    	$this->client->group_settings->save();
+    	$this->client->company->save();    	
+    	$this->client->save();
+
+    	$this->client->fresh();
+
+		$this->assertEquals($this->client->getSetting('timezone_id'), 'COMPANY');
+		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'COMPANY');
+	}	
 }

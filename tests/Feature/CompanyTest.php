@@ -103,7 +103,7 @@ class CompanyTest extends TestCase
         )
         ->assertStatus(302);
 
-        Log::error($company);
+      //  Log::error($company);
 
         $token = CompanyToken::whereCompanyId($company->id)->first()->token;
 
