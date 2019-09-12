@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Models\Client
+ * @coversDefaultClass App\Models\Client
  */
 class GroupSettingsTest extends TestCase
 {
@@ -138,7 +138,9 @@ class GroupSettingsTest extends TestCase
 		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'CLIENT');
 	}
 
-
+    /**
+     * @covers ::getMergedSettings
+     */
 	public function testGroupPriority()
 	{
 		$cs = $this->client->company->settings;
@@ -166,6 +168,9 @@ class GroupSettingsTest extends TestCase
 		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'GROUP');
 	}	
 
+    /**
+     * @covers ::getSetting
+     */
 	public function testCompanyFallBackPriority()
 	{
 		$cs = $this->client->company->settings;
