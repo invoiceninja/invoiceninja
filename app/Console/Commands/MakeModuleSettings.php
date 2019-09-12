@@ -52,7 +52,7 @@ class MakeModuleSettings extends GeneratorCommand
         ]))->render();
     }
 
-    public function fire() {
+    public function handle() {
         $this->info('Creating settings view template for ' . $this->getModuleName());
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
 

@@ -54,7 +54,7 @@ class ProjectController extends BaseController
     {
         $account = auth()->user()->account;
         $project = $request->entity();
-        $chartData = dispatch(new GenerateProjectChartData($project));
+        $chartData = dispatch_now(new GenerateProjectChartData($project));
 
         $data = [
             'account' => auth()->user()->account,

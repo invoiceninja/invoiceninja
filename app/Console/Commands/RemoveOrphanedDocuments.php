@@ -21,7 +21,7 @@ class RemoveOrphanedDocuments extends Command
      */
     protected $description = 'Removes old documents not associated with an expense or invoice';
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r').' Running RemoveOrphanedDocuments...');
 
