@@ -42,21 +42,6 @@ class BasePaymentDriver
         //$this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
-    /* Stubbed in parent.
-     *
-	 * The boot method should be used in the superclass
-	 * to initialize all the member variables for the 
-	 * given driver / payment gateway
-	 *
-	 * ie.
-	 *
-	 * ->gateway()
-	 * ->boot()
-	 *
-	 * @return Instance
-     */
-    public function boot(){}
-
 	/**
 	 * Returns the Omnipay driver
 	 * @return object Omnipay initialized object
@@ -101,13 +86,6 @@ class BasePaymentDriver
         ];
     }
 
-	public function setRefundable($value)
-	{
-		$this->refundable = $value;
-
-		return $this;
-	}
-
 	/**
 	 * Returns whether refunds are possible with the gateway
 	 * @return boolean TRUE|FALSE
@@ -115,13 +93,6 @@ class BasePaymentDriver
 	public function getRefundable()
 	{
 		return $this->refundable;
-	}
-
-	public function setTokenBilling($value)
-	{
-		$this->token_billing = $value;
-
-		return $this;
 	}
 
 	/**

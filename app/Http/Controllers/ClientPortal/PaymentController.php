@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use = namespace\Cache;
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
@@ -79,7 +80,8 @@ class PaymentController extends Controller
      * Presents the payment screen for a given
      * gateway and payment method.
      * The request will also contain the amount
-     * and invoice ids for reference
+     * and invoice ids for reference.
+     * 
      * @param  int $company_gateway_id The CompanyGateway ID
      * @param  int $payment_method_id  The PaymentMethod ID
      * @return void                     
@@ -87,10 +89,16 @@ class PaymentController extends Controller
     public function process($company_gateway_id, $payment_method_id)
     {
 
-        $invoices = request()->input('ids');
+        $invoices = Invoice::whereIn('id', $this->transformKeys(request()->input('invoice_ids')))
+                                ->whereClientId(auth()->user()->client->id)
+                                ->get();
+
         $amount = request()->input('amount');
 
         //build a cache record to maintain state
+        $cache_hash = str_random(config('ninja.key_length'));
+
+        Cache::put($cache_hash, 'value', now()->addMinutes(10));
 
         //boot the payment gateway
         
@@ -99,9 +107,10 @@ class PaymentController extends Controller
 
         $data = [
             'redirect_url' =>,
-            'amount' =>,
+            'invoices' => $invoices,
+            'amount' => $amount,
             'gateway_data' =>,
-            'cache_hash' =>,
+            'cache_hash' => $cache_hash,
         ];
         
         return view('', $data);

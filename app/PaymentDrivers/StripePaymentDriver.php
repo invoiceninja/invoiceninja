@@ -23,11 +23,6 @@ class StripePaymentDriver extends BasePaymentDriver
 	protected $customer_reference = 'customerReferenceParam';
 
 
-	public function boot()
-	{
-    	$this->setRefundable($this->refundable);
-    	$this->setTokenBilling($this->token_billing);
-	}
 	/**
 	 * Methods in this class are divided into
 	 * two separate streams
@@ -76,6 +71,40 @@ class StripePaymentDriver extends BasePaymentDriver
 
         return $types;
 
+    }
+
+    public function viewForType($payment_type)
+    {
+    	switch ($payment_type) {
+    		case GatewayType::CREDIT_CARD:
+    			return 'gateways.stripe.credit_card';
+    			break;
+    		case GatewayType::TOKEN:
+    			return 'gateways.stripe.token';
+    			break;
+    		case GatewayType::SOFORT:
+    			return 'gateways.stripe.sofort';
+    			break;
+    		case GatewayType::BANK_TRANSFER:
+    			return 'gateways.stripe.ach';
+    			break;
+    		case GatewayType::SEPA:
+    			return 'gateways.stripe.sepa';
+    			break;
+    		case GatewayType::BITCOIN:
+    			return 'gateways.stripe.other';
+    			break;
+    		case GatewayType::ALIPAY:
+    			return 'gateways.stripe.other';
+    			break;
+    		case GatewayType::APPLE_PAY:
+    			return 'gateways.stripe.other';
+    			break;
+
+    		default:
+    			# code...
+    			break;
+    	}
     }
 	/************************************** Omnipay API methods **********************************************************/
 

@@ -33,7 +33,7 @@ class AccountTransformer extends EntityTransformer
      */
     protected $defaultIncludes = [
         //'default_company',
-        //'user',
+        'user',
         'company_users'
     ];
 
@@ -85,8 +85,9 @@ class AccountTransformer extends EntityTransformer
     {
     
         $transformer = new UserTransformer($this->serializer);
+        return $this->includeItem(auth()->user(), $transformer, User::class);
 
-        return $this->includeItem($account->default_company->owner(), $transformer, User::class);
+//        return $this->includeItem($account->default_company->owner(), $transformer, User::class);
 
     }
 }
