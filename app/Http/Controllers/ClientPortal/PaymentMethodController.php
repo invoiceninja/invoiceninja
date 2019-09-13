@@ -35,7 +35,12 @@ class PaymentMethodController extends Controller
      */
     public function create()
     {
-        echo 'hello';
+        $data = [
+            'gateway' => $gateway,
+            'token' => false,
+        ];
+
+        return view('portal.default.gateways.authorize', $data);
     }
 
     /**

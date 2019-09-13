@@ -118,7 +118,7 @@ class PaymentController extends Controller
             'token' => auth()->user()->client->gateway_token($gateway->id),
         ];
         
-        return view($gateway->driver()->viewForType($payment_method_id), $data);
+        return view('gateways.pay_now', $data);
     }
 
 

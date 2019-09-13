@@ -15,9 +15,11 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Filterable;
+use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Timezone;
 use App\Utils\Traits\CompanyGatewaySettings;
@@ -227,6 +229,32 @@ class Client extends BaseModel
     }
 
     /**
+     * Returns the first Credit Card Gateway
+     *     
+     * @return NULL|CompanyGateway The Priority Credit Card gateway
+     */
+    public function getCreditCardGateway() :?CompanyGateway
+    {
+        $payment_gateways = $this->getSetting('payment_gateways');
+
+        /* If we have a custom gateway list pass this back first */
+        if($payment_gateways)
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+        else
+            $gateways = $this->company->company_gateways;
+
+        foreach($gateways as $gateway)
+        {
+
+            if(in_array(GatewayType::CREDIT_CARD, $gateway->driver()->gatewayTypes()))
+                return $gateway;
+
+        }
+
+        return null;
+    }
+
+    /**
      * Generates an array of payment urls per client
      * for a given amount.
      *
@@ -245,7 +273,7 @@ class Client extends BaseModel
         $payment_gateways = $this->getSetting('payment_gateways');
 
         /* If we have a custom gateway list pass this back first */
-        if($settings)
+        if($payment_gateways)
             $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
         else
             $gateways = $this->company->company_gateways;

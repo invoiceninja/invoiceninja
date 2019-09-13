@@ -33,6 +33,7 @@ class BasePaymentDriver
 
 	/* Member variables */
 	protected $refundable = false;
+	
 	protected $token_billing = false;
 
     public function __construct(CompanyGateway $company_gateway, $invitation = false)
