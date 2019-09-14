@@ -34,7 +34,7 @@ class CompanyGateway extends BaseModel
 
     public function gateway()
     {
-    	return $this->hasOne(Gateway::class);
+    	return $this->belongsTo(Gateway::class);
     }
 
     public function type()
@@ -53,8 +53,11 @@ class CompanyGateway extends BaseModel
     private function driver_class()
     {
         $class = 'App\\PaymentDrivers\\' . $this->gateway->provider . 'PaymentDriver';
-        $class = str_replace('\\', '', $class);
+        //$class = str_replace('\\', '', $class);
         $class = str_replace('_', '', $class);
+
+        \Log::error($class);
+
 
         if (class_exists($class)) {
             return $class;
@@ -63,22 +66,39 @@ class CompanyGateway extends BaseModel
         }
     }
 
-    public function getConfigAttribute()
+    /**
+     * @param $config
+     */
+    public function setConfig($config)
     {
-        return decrypt($this->config);
+        $this->config = encrypt(json_encode($config));
     }
 
-    public function setConfigAttribute($value)
+    /**
+     * @return mixed
+     */
+    public function getConfig()
     {
-        $this->attributes['config'] = encrypt(json_encode($value));
+        return json_decode(decrypt($this->config));
     }
+
+    /**
+     * @param $field
+     *
+     * @return mixed
+     */
+    public function getConfigField($field)
+    {
+        return object_get($this->getConfig(), $field, false);
+    }
+
 
     /**
      * @return bool
      */
     public function getAchEnabled()
     {
-        return ! empty($this->config('enableAch'));
+        return ! empty($this->getConfigField('enableAch'));
     }
 
     /**
@@ -86,7 +106,7 @@ class CompanyGateway extends BaseModel
      */
     public function getApplePayEnabled()
     {
-        return ! empty($this->config('enableApplePay'));
+        return ! empty($this->getConfigField('enableApplePay'));
     }
 
     /**
@@ -94,7 +114,7 @@ class CompanyGateway extends BaseModel
      */
     public function getAlipayEnabled()
     {
-        return ! empty($this->config('enableAlipay'));
+        return ! empty($this->getConfigField('enableAlipay'));
     }
 
     /**
@@ -102,7 +122,7 @@ class CompanyGateway extends BaseModel
      */
     public function getSofortEnabled()
     {
-        return ! empty($this->config('enableSofort'));
+        return ! empty($this->getConfigField('enableSofort'));
     }
 
     /**
@@ -110,7 +130,7 @@ class CompanyGateway extends BaseModel
      */
     public function getSepaEnabled()
     {
-        return ! empty($this->config('enableSepa'));
+        return ! empty($this->getConfigField('enableSepa'));
     }
 
     /**
@@ -118,7 +138,7 @@ class CompanyGateway extends BaseModel
      */
     public function getBitcoinEnabled()
     {
-        return ! empty($this->config('enableBitcoin'));
+        return ! empty($this->getConfigField('enableBitcoin'));
     }
 
     /**
@@ -126,12 +146,22 @@ class CompanyGateway extends BaseModel
      */
     public function getPayPalEnabled()
     {
-        return ! empty($this->config('enablePayPal'));
+        return ! empty($this->getConfigField('enablePayPal'));
     }
 
     public function feesEnabled()
     {
         return floatval($this->fee_amount) || floatval($this->fee_percent);
+    }
+
+    /**
+     * Get Publishable Key
+     * Only works for STRIPE and PAYMILL
+     * @return string The Publishable key
+     */
+    public function getPublishableKey() :string
+    {
+        return $this->getConfigField('publishableKey');
     }
 
     /**

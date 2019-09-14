@@ -6,7 +6,9 @@ use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
+use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\User;
 use App\Models\UserAccount;
@@ -127,6 +129,29 @@ class RandomDataSeeder extends Seeder
             'name' => 'Default Client Settings',
         ]);
         
+
+            \Log::error("stripe keys?");
+            \Log::error(config('ninja.testvars.stripe'));
+
+        if(config('ninja.testvars.stripe'))
+        {
+            \Log::error("inserting stripe keys");
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_id = 20;
+            $cg->gateway_type_id = GatewayType::CREDIT_CARD;
+            $cg->require_cvv = true;
+            $cg->show_address = true;
+            $cg->show_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(env('STRIPE_KEYS'));
+            $cg->priority_id = 1;
+            $cg->save();
+        }
+
     }
+
+
     
 }

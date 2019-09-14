@@ -1,35 +1,36 @@
-@extends('portal.default.layouts.master')
-@section('header')
+@extends('portal.default.gateways.authorize')
 
-@stop
-@section('body')
-<main class="main">
-    <div class="container-fluid">
-		<div class="row" style="padding-top: 30px;">
-            <div class="col d-flex justify-content-center">
-                <div class="card w-50 p-10">
-                    <div class="card-header">
-                        {{ ctrans('texts.payment')}}
-                    </div>
-                    <div class="card-body">
-                       <h2>{{ ctrans('texts.add_credit_card')}}</h2>
-
-                       @yield('credit_card')
-
-                    </div>
-                </div>
-            </div>
-		</div>
+@section('credit_card')
+<div class="py-md-5 ninja stripe">
+  <div class="row">
+    <div class="field">
+      <div id="card-number" class="input empty"></div>
+      <label for="card-number" data-tid="card_number_label">Card number</label>
+      <div class="baseline"></div>
     </div>
-</main>
-</body>
-@endsection
-@push('scripts')
+  </div>
+  <div class="row">
+    <div class="field half-width">
+      <div id="card-expiry" class="input empty"></div>
+      <label for="card-expiry" data-tid="card_expiry_label">Expiration</label>
+      <div class="baseline"></div>
+    </div>
+    <div class="field half-width">
+      <div id="card-cvc" class="input empty"></div>
+      <label for="card-cvc" data-tid="card_cvc_label">CVC</label>
+      <div class="baseline"></div>
+    </div>
+  </div>
 
-<script type="text/javascript">
+  <div id="card-errors" role="alert"></div>
+</div>
+@endsection
+
+@push('scripts')
+        <script type="text/javascript">
 
             // Create a Stripe client.
-            var stripe = Stripe('{{ $gateway->driver()->getPublishableKey() }}');
+            var stripe = Stripe('{{ $gateway->getPublishableKey() }}');
 
             // Create an instance of Elements.
             var elements = stripe.elements();
@@ -142,7 +143,7 @@
                 };
 
                 @if(request()->capture)
-                stripe.handleCardSetup('{{$driver->getSetupIntent()->client_secret}}', cardNumber, {payment_method_data: options}).then(function (result) {
+                stripe.handleCardSetup('{{$gateway->driver()->getSetupIntent()->client_secret}}', cardNumber, {payment_method_data: options}).then(function (result) {
                     if (result.error) {
                         // Inform the user if there was an error.
                         var errorElement = document.getElementById('card-errors');
@@ -183,12 +184,10 @@
             }
 
         </script>
-
-    <script src="https://js.stripe.com/v3/"></script>
-
 @endpush
+
 @push('css')
-<style>
+        <style>
     .ninja.stripe {
         background-color: #fff;
     }

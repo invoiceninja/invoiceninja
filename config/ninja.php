@@ -58,6 +58,7 @@ return [
         'username' => 'user@example.com',
         'clientname' => 'client@example.com',
         'password' => 'password',
+        'stripe' => env('STRIPE_KEYS',''),
     ],
 
     'contact' => [

@@ -13,6 +13,7 @@ namespace App\PaymentDrivers;
 
 use App\Models\GatewayType;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
@@ -78,34 +79,41 @@ class StripePaymentDriver extends BasePaymentDriver
     {
     	switch ($payment_type) {
     		case GatewayType::CREDIT_CARD:
-    			return 'gateways.stripe.credit_card';
+    			return 'portal.default.gateways.stripe.credit_card';
     			break;
     		case GatewayType::TOKEN:
-    			return 'gateways.stripe.credit_card';
+    			return 'portal.default.gateways.stripe.credit_card';
     			break;
     		case GatewayType::SOFORT:
-    			return 'gateways.stripe.sofort';
+    			return 'portal.default.gateways.stripe.sofort';
     			break;
     		case GatewayType::BANK_TRANSFER:
-    			return 'gateways.stripe.ach';
+    			return 'portal.default.gateways.stripe.ach';
     			break;
     		case GatewayType::SEPA:
-    			return 'gateways.stripe.sepa';
+    			return 'portal.default.gateways.stripe.sepa';
     			break;
     		case GatewayType::BITCOIN:
-    			return 'gateways.stripe.other';
+    			return 'portal.default.gateways.stripe.other';
     			break;
     		case GatewayType::ALIPAY:
-    			return 'gateways.stripe.other';
+    			return 'portal.default.gateways.stripe.other';
     			break;
     		case GatewayType::APPLE_PAY:
-    			return 'gateways.stripe.other';
+    			return 'portal.default.gateways.stripe.other';
     			break;
 
     		default:
     			# code...
     			break;
     	}
+    }
+
+    public function authorizeCreditCardView($data)
+    {
+
+        return view('portal.default.gateways.stripe.create_customer', $data);
+
     }
 
     /**
@@ -116,6 +124,21 @@ class StripePaymentDriver extends BasePaymentDriver
     public function createIntent($data)
     {
         return PaymentIntent::create($data);
+    }
+
+    /**
+     * Returns a setup intent that allows the user to enter card details without initiating a transaction.
+     *
+     * @return \Stripe\SetupIntent
+     */
+    public function getSetupIntent()
+    {
+        return SetupIntent::create();
+    }
+
+    public function getPublishableKey()
+    {
+        return $this->company_gateway->getPublishableKey();
     }
 	/************************************** Omnipay API methods **********************************************************/
 

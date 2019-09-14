@@ -57,6 +57,16 @@ class BasePaymentDriver
     
 	}
 
+	/**
+	 * Return the configuration fields for the
+	 * Gatway
+	 * @return array The configuration fields
+	 */
+	public function getFields()
+	{
+		return $this->gateway->getDefaultParameters();
+	}
+
 	public function invoice()
 	{
 		return $this->invitation->invoice;
@@ -146,5 +156,6 @@ class BasePaymentDriver
 		/*
 		$this->purchaseResponse = (array)$response->getData();*/
 	}
-	        
+    
+
 }

@@ -35,12 +35,15 @@ class PaymentMethodController extends Controller
      */
     public function create()
     {
+        $gateway = auth()->user()->client->getCreditCardGateway();
+
         $data = [
             'gateway' => $gateway,
             'token' => false,
         ];
 
-        return view('portal.default.gateways.authorize', $data);
+        return $gateway->driver()->authorizeCreditCardView($data);
+        //return view('portal.default.gateways.authorize', $data);
     }
 
     /**
