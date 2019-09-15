@@ -25,7 +25,7 @@ class CalendarController extends BaseController
     public function loadEvents()
     {
         if (auth()->user()->account->hasFeature(FEATURE_REPORTS)) {
-            $events = dispatch(new GenerateCalendarEvents());
+            $events = dispatch_now(new GenerateCalendarEvents());
         } else {
             $events = [];
         }

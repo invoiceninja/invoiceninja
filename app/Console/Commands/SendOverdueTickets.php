@@ -30,7 +30,7 @@ class SendOverdueTickets extends Command
 
     }
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Running SendOverdueTickets...');
 
