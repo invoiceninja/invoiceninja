@@ -130,12 +130,9 @@ class RandomDataSeeder extends Seeder
         ]);
         
 
-            \Log::error("stripe keys?");
-            \Log::error(config('ninja.testvars.stripe'));
-
         if(config('ninja.testvars.stripe'))
         {
-            \Log::error("inserting stripe keys");
+
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -145,13 +142,15 @@ class RandomDataSeeder extends Seeder
             $cg->show_address = true;
             $cg->show_shipping_address = true;
             $cg->update_details = true;
-            $cg->config = encrypt(env('STRIPE_KEYS'));
+            $cg->config = encrypt(json_encode(config('ninja.testvars.stripe'),true));
             $cg->priority_id = 1;
             $cg->save();
+
+            \Log::error(decrypt($cg->config));
+
         }
 
     }
 
 
-    
 }

@@ -22,6 +22,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
 	protected $token_billing = true;
 
+    protected $can_authorise_credit_card = true;
+
 	protected $customer_reference = 'customerReferenceParam';
 
 

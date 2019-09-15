@@ -36,6 +36,9 @@ class BasePaymentDriver
 	
 	protected $token_billing = false;
 
+    protected $can_authorise_credit_card = false;
+
+
     public function __construct(CompanyGateway $company_gateway, $invitation = false)
     {
         $this->company_gateway = $company_gateway;

@@ -43,7 +43,6 @@ class PaymentMethodController extends Controller
         ];
 
         return $gateway->driver()->authorizeCreditCardView($data);
-        //return view('portal.default.gateways.authorize', $data);
     }
 
     /**

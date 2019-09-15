@@ -79,6 +79,7 @@ class CompanyGateway extends BaseModel
      */
     public function getConfig()
     {
+        //return decrypt($this->config);
         return json_decode(decrypt($this->config));
     }
 
@@ -161,6 +162,9 @@ class CompanyGateway extends BaseModel
      */
     public function getPublishableKey() :string
     {
+        \Log::error($this->config);
+        \Log::error(json_decode($this->config));
+        \Log::error($this->getConfigField('publishableKey'));
         return $this->getConfigField('publishableKey');
     }
 
