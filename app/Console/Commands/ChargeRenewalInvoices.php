@@ -57,7 +57,7 @@ class ChargeRenewalInvoices extends Command
         $this->paymentService = $paymentService;
     }
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r').' ChargeRenewalInvoices...');
 

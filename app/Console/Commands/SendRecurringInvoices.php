@@ -48,7 +48,7 @@ class SendRecurringInvoices extends Command
         $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Running SendRecurringInvoices...');
 
