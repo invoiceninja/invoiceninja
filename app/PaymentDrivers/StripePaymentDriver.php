@@ -26,6 +26,17 @@ class StripePaymentDriver extends BasePaymentDriver
 
 	protected $customer_reference = 'customerReferenceParam';
 
+/**
+ * Payments
+ * \Stripe\PaymentIntent::create([
+    'payment_method_types' => ['card'],
+    'amount' => 1099,
+    'currency' => 'aud',
+    'customer' => 'cus_Fow2nmVJX1EsQw',
+    'payment_method' => 'card_1FJIAjKmol8YQE9DxWb9kMpR',
+]);
+ */
+
 
 	/**
 	 * Methods in this class are divided into
