@@ -56,9 +56,6 @@ class CompanyGateway extends BaseModel
         //$class = str_replace('\\', '', $class);
         $class = str_replace('_', '', $class);
 
-        \Log::error($class);
-
-
         if (class_exists($class)) {
             return $class;
         } else {
@@ -99,7 +96,7 @@ class CompanyGateway extends BaseModel
      */
     public function getAchEnabled()
     {
-        return ! empty($this->getConfigField('enableAch'));
+        return ! empty($this->getConfigField('enable_ach'));
     }
 
     /**
@@ -107,7 +104,7 @@ class CompanyGateway extends BaseModel
      */
     public function getApplePayEnabled()
     {
-        return ! empty($this->getConfigField('enableApplePay'));
+        return ! empty($this->getConfigField('enable_apple_pay'));
     }
 
     /**
@@ -115,7 +112,7 @@ class CompanyGateway extends BaseModel
      */
     public function getAlipayEnabled()
     {
-        return ! empty($this->getConfigField('enableAlipay'));
+        return ! empty($this->getConfigField('enable_alipay'));
     }
 
     /**
@@ -123,7 +120,7 @@ class CompanyGateway extends BaseModel
      */
     public function getSofortEnabled()
     {
-        return ! empty($this->getConfigField('enableSofort'));
+        return ! empty($this->getConfigField('enable_sofort'));
     }
 
     /**
@@ -131,7 +128,7 @@ class CompanyGateway extends BaseModel
      */
     public function getSepaEnabled()
     {
-        return ! empty($this->getConfigField('enableSepa'));
+        return ! empty($this->getConfigField('enable_sepa'));
     }
 
     /**
@@ -139,7 +136,7 @@ class CompanyGateway extends BaseModel
      */
     public function getBitcoinEnabled()
     {
-        return ! empty($this->getConfigField('enableBitcoin'));
+        return ! empty($this->getConfigField('enable_bitcoin'));
     }
 
     /**
@@ -147,7 +144,7 @@ class CompanyGateway extends BaseModel
      */
     public function getPayPalEnabled()
     {
-        return ! empty($this->getConfigField('enablePayPal'));
+        return ! empty($this->getConfigField('enable_pay_pal'));
     }
 
     public function feesEnabled()
@@ -162,10 +159,7 @@ class CompanyGateway extends BaseModel
      */
     public function getPublishableKey() :string
     {
-        \Log::error($this->config);
-        \Log::error(json_decode($this->config));
-        \Log::error($this->getConfigField('publishableKey'));
-        return $this->getConfigField('publishableKey');
+        return $this->getConfigField('publishable_key');
     }
 
     /**

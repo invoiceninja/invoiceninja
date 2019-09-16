@@ -113,8 +113,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function authorizeCreditCardView($data)
     {
+        $intent['intent'] = $this->getSetupIntent();
 
-        return view('portal.default.gateways.stripe.create_customer', $data);
+
+
+        return view('portal.default.gateways.stripe.create_customer', array_merge($data, $intent));
 
     }
 
@@ -135,6 +138,8 @@ class StripePaymentDriver extends BasePaymentDriver
      */
     public function getSetupIntent()
     {
+        Stripe::setApiKey($this->company_gateway->getConfigField('23_apiKey'));
+
         return SetupIntent::create();
     }
 

@@ -142,11 +142,9 @@ class RandomDataSeeder extends Seeder
             $cg->show_address = true;
             $cg->show_shipping_address = true;
             $cg->update_details = true;
-            $cg->config = encrypt(json_encode(config('ninja.testvars.stripe'),true));
+            $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->priority_id = 1;
             $cg->save();
-
-            \Log::error(decrypt($cg->config));
 
         }
 

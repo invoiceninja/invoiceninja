@@ -122,9 +122,10 @@ class CompanyController extends BaseController
 
         //todo Need to discuss this with Hillel which is the best representation to return
         //when a company is created. Do we send the entire account? Do we only send back the created CompanyUser?
-        $this->entity_transformer = AccountTransformer::class;
-        $this->entity_type = Account::class;
-        return $this->itemResponse($company->account);
+        $this->entity_transformer = CompanyTransformer::class;
+        $this->entity_type = Company::class;
+        
+        return $this->itemResponse($company);
 
     }
 

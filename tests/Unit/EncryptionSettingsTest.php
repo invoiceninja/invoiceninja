@@ -27,7 +27,6 @@ class EncryptionSettingsTest extends TestCase
 
 		$this->settings = encrypt($this->settings);
 
-
 		$this->assertEquals('publish', $this->getConfigField('publishable_key'));
 		$this->assertEquals('client', $this->getConfigField('23_apiKey'));
 		$this->assertEquals(1, $this->getConfigField('enable_ach'));
