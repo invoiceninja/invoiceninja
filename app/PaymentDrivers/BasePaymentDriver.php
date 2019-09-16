@@ -109,10 +109,11 @@ class BasePaymentDriver
 	 * Refunds a given payment
 	 * @return void 
 	 */
-	public function refundPayment() 
-	{
+	public function refundPayment() {}
 
-	}
+	public function authorizeCreditCardView($data) {}
+
+	public function authorizeCreditCardResponse($request) {}
 
 	/************************************* Omnipay ******************************************
 		authorize($options) - authorize an amount on the customer's card

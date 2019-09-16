@@ -115,9 +115,76 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $intent['intent'] = $this->getSetupIntent();
 
-
-
         return view('portal.default.gateways.stripe.create_customer', array_merge($data, $intent));
+
+    }
+
+    public function authorizeCreditCardResponse($request)
+    {
+        /**
+         * {
+              "id": "seti_1FJHmuKmol8YQE9DdhDgFXhT",
+              "object": "setup_intent",
+              "cancellation_reason": null,
+              "client_secret": "seti_1FJHmuKmol8YQE9DdhDgFXhT_secret_FoveetSB7RewVngU7H6IcrH9dlM1BXd",
+              "created": 1568631032,
+              "description": null,
+              "last_setup_error": null,
+              "livemode": false,
+              "next_action": null,
+              "payment_method": "pm_1FJHvQKmol8YQE9DV19fPXXk",
+              "payment_method_types": [
+                "card"
+              ],
+              "status": "succeeded",
+              "usage": "off_session"
+ 
+            }
+
+
+\Stripe\Stripe::setApiKey('sk_test_faU9gVB7Hx19fCTo0e5ggZ0x');
+
+\Stripe\PaymentMethod::retrieve('pm_1EUmzw2xToAoV8choYUtciXR');
+
+
+{
+  "id": "pm_1EUmzw2xToAoV8choYUtciXR",
+  "object": "payment_method",
+  "card": {
+    "brand": "visa",
+    "checks": {
+      "address_line1_check": null,
+      "address_postal_code_check": null,
+      "cvc_check": null
+    },
+    "country": "US",
+    "exp_month": 8,
+    "exp_year": 2020,
+    "fingerprint": "sStRRZt3Xlw0Ec6B",
+    "funding": "credit",
+    "generated_from": null,
+    "last4": "4242",
+    "three_d_secure_usage": {
+      "supported": true
+    },
+    "wallet": null
+  },
+  "created": 1556596276,
+  "customer": "cus_3fAHf0I56s1QFx",
+  "livemode": false,
+  "metadata": {},
+  "type": "card"
+}
+
+         */
+
+
+        //get the customer or create a new one.
+        //get the payment method
+        //attached payment method to customer
+        //store meta data
+
+
 
     }
 

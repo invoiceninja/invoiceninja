@@ -73,6 +73,15 @@
         $("#card-button").attr("disabled", true);
     });
 
+
+    var form = $(document.createElement('form'));
+    $(form).attr("action", "{{ route('client.payment_methods.store') }}");
+    $(form).attr("method", "POST");
+
+    var input = $("<input>").attr("type", "hidden").attr("name", "mydata").val("bla");
+    $(form).append($(input));
+    $(form).submit();
+
 </script>
 
 @endpush
