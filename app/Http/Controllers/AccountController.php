@@ -14,7 +14,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Account\CreateAccountRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
+use App\Models\CompanyUser;
 use App\Transformers\AccountTransformer;
+use App\Transformers\CompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -23,9 +25,9 @@ class AccountController extends BaseController
 {
     use DispatchesJobs;
 
-    protected $entity_type = Account::class;
+    protected $entity_type = CompanyUser::class;
 
-    protected $entity_transformer = AccountTransformer::class;
+    protected $entity_transformer = CompanyUserTransformer::class;
 
     public function __construct()
     {
@@ -65,10 +67,9 @@ class AccountController extends BaseController
     {
 
         $account = CreateAccount::dispatchNow($request->all());
-        
-        $account->load('company_users');
-        
-        return $this->itemResponse($account);
+                
+        $ct = CompanyUser::whereUserId(auth()->user()->id);
+        return $this->listResponse($ct);
 
     }
 

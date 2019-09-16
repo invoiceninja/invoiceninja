@@ -62,7 +62,7 @@ class ProductTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
 
         $token = $account->default_company->tokens->first()->token;
 

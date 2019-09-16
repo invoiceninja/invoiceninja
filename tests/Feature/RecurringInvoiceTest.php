@@ -46,8 +46,8 @@ class RecurringInvoiceTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-                'name' => $this->faker->company,
-        'email' => $this->faker->unique()->safeEmail,
+            'name' => $this->faker->company,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
             'privacy_policy' => 1,
@@ -61,7 +61,7 @@ class RecurringInvoiceTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));        
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -124,7 +124,7 @@ class RecurringInvoiceTest extends TestCase
             ])->post('/api/v1/signup', $data);
 
         $acc = $response->json();
-        $account = Account::find($this->decodePrimaryKey($acc['data']['id']));        
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
