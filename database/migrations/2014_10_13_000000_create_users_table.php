@@ -906,10 +906,11 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('client_id')->nullable();
-            $table->text('token');
+            $table->text('token')->default('');
             $table->unsignedInteger('company_gateway_id');
+            $table->string('gateway_customer_reference')->default('');
             $table->unsignedInteger('payment_method_id');
-            $table->boolean('is_default');
+            $table->boolean('is_default')->default(0);
             $table->timestamps(6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
@@ -919,7 +920,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id')->nullable();
-            $table->string('name');
+            $table->string('name')->default('');
             $table->text('settings');
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');

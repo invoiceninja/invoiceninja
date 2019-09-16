@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\Gateway;
 use App\Models\GatewayType;
@@ -43,11 +44,11 @@ class CompanyGateway extends BaseModel
     }
 
     /* This is the public entry point into the payment superclass */
-    public function driver()
+    public function driver(Client $client)
     {
         $class = static::driver_class();
 
-        return new $class($this);
+        return new $class($this, $client);
     }
 
     private function driver_class()

@@ -49,7 +49,7 @@
                             </ul>
                         </div>
 
-                        @include($gateway->driver()->viewForType($payment_method_id))
+                        @include($gateway->driver(auth()->user()->client)->viewForType($payment_method_id))
 
                     </div>
                 </div>

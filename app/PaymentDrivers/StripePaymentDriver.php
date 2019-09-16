@@ -40,9 +40,9 @@ class StripePaymentDriver extends BasePaymentDriver
 	 */
 	/************************************** Stripe API methods **********************************************************/
 
-	public function init($api_key)
+	public function init()
 	{
-        Stripe::setApiKey($api_key);
+        Stripe::setApiKey($this->company_gateway->getConfigField('23_apiKey'));
 	}
 	/**
 	 * Returns the gateway types
@@ -128,6 +128,7 @@ class StripePaymentDriver extends BasePaymentDriver
      */
     public function createIntent($data)
     {
+        $this->init();
         return PaymentIntent::create($data);
     }
 
@@ -138,8 +139,7 @@ class StripePaymentDriver extends BasePaymentDriver
      */
     public function getSetupIntent()
     {
-        Stripe::setApiKey($this->company_gateway->getConfigField('23_apiKey'));
-
+        $this->init();
         return SetupIntent::create();
     }
 
@@ -147,6 +147,29 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         return $this->company_gateway->getPublishableKey();
     }
+
+    public function findOrCreateCustomer() :?\Stripe\Customer
+    { 
+
+        $customer = null;
+
+        $this->init();
+
+        $client_gateway_token = $this->client->gateway_tokens->whereGatewayId($this->company_gateway->gateway_id)->first();
+
+        if($client_gateway_token->gateway_customer_reference)
+            $customer = \Stripe\Customer::retrieve($client_gateway_token->gateway_customer_reference);
+        else{
+            $customer = \Stripe\Customer::create([
+              "email" => $this->client->present()->email(),
+              "name" => $this->client->present()->name(),
+              "phone" => $this->client->present()->phone(),
+            ]);
+        }
+        return $customer;
+    }
+
+
 	/************************************** Omnipay API methods **********************************************************/
 
 

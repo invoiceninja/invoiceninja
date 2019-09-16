@@ -42,7 +42,7 @@ class PaymentMethodController extends Controller
             'token' => false,
         ];
 
-        return $gateway->driver()->authorizeCreditCardView($data);
+        return $gateway->driver(auth()->user()->client)->authorizeCreditCardView($data);
     }
 
     /**

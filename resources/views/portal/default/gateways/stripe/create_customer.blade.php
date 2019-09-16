@@ -3,12 +3,15 @@
 @section('credit_card')
 
 <div class="py-md-5 ninja stripe">
-    <input id="cardholder-name" type="text">
-    <!-- placeholder for Elements -->
-    <div id="card-element"></div>
-    <button id="card-button" data-secret="<?= $intent->client_secret ?>">
-      Save Card
-    </button>
+    <div class="form-group">
+
+        <input class="form-control" id="cardholder-name" type="text" placeholder="{{ ctrans('texts.name') }}">
+        <!-- placeholder for Elements -->
+        <div id="card-element" class="form-control"></div>
+        <button id="card-button" class="btn btn-primary pull-right" data-secret="{{ $intent->client_secret }}">
+          {{ ctrans('texts.save') }}
+        </button>
+    </div>
 </div>
 
 @endsection
@@ -48,7 +51,33 @@
 
 @push('css')
 <style type="text/css">
+.StripeElement {
+  box-sizing: border-box;
 
+  height: 40px;
+
+  padding: 10px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: white;
+
+  box-shadow: 0 1px 3px 0 #e6ebf1;
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
 
 </style>
  

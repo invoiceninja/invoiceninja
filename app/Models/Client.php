@@ -246,7 +246,7 @@ class Client extends BaseModel
         foreach($gateways as $gateway)
         {
 
-            if(in_array(GatewayType::CREDIT_CARD, $gateway->driver()->gatewayTypes()))
+            if(in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypes()))
                 return $gateway;
 
         }

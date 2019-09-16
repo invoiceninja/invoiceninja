@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use Omnipay\Omnipay;
@@ -39,10 +40,11 @@ class BasePaymentDriver
     protected $can_authorise_credit_card = false;
 
 
-    public function __construct(CompanyGateway $company_gateway, $invitation = false)
+    public function __construct(CompanyGateway $company_gateway, Client $client, $invitation = false)
     {
         $this->company_gateway = $company_gateway;
         $this->invitation = $invitation;
+        $this->client = $client;
         //$this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
@@ -68,26 +70,6 @@ class BasePaymentDriver
 	public function getFields()
 	{
 		return $this->gateway->getDefaultParameters();
-	}
-
-	public function invoice()
-	{
-		return $this->invitation->invoice;
-	}
-
-	public function contact()
-	{
-		return $this->invitation->contact;
-	}
-
-	public function client()
-	{
-		return $this->contact()->client;
-	}
-
-	public function company()
-	{
-		return $this->invitation->company;
 	}
 
 	/**
@@ -116,6 +98,11 @@ class BasePaymentDriver
 	public function getTokenBilling() 
 	{
 		return $this->token_billing;
+	}
+
+	public function canAuthoriseCreditCard()
+	{
+		return $this->can_authorise_credit_card;
 	}
 
 	/**
