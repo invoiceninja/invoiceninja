@@ -9,10 +9,9 @@
             <div class="col d-flex justify-content-center">
                 <div class="card w-50 p-10">
                     <div class="card-header">
-                        {{ ctrans('texts.payment')}}
+                        {{ ctrans('texts.add_payment_method')}}
                     </div>
                     <div class="card-body">
-                       <h2>{{ ctrans('texts.add_credit_card')}}</h2>
 
                        @yield('credit_card')
 

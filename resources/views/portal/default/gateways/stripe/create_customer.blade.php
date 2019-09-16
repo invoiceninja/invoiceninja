@@ -6,12 +6,23 @@
     <div class="form-group">
 
         <input class="form-control" id="cardholder-name" type="text" placeholder="{{ ctrans('texts.name') }}">
+
+    </div>
         <!-- placeholder for Elements -->
+
+    <div class="form-group">
         <div id="card-element" class="form-control"></div>
+    </div>
+
+    <div id="card-errors" role="alert"></div>
+
+    <div class="form-group">
         <button id="card-button" class="btn btn-primary pull-right" data-secret="{{ $intent->client_secret }}">
           {{ ctrans('texts.save') }}
         </button>
     </div>
+
+
 </div>
 
 @endsection
@@ -40,11 +51,28 @@
       ).then(function(result) {
         if (result.error) {
           // Display error.message in your UI.
+          console.log(result.error);
+          console.log(result.error.message);
+
+        $("#card-errors").empty();
+        $("#card-errors").append("<b>" + result.error.message + "</b>");
+
         } else {
           // The setup has succeeded. Display a success message.
+          console.log(result);
         }
       });
     });
+
+    $("#card-button").attr("disabled", true);
+
+    $('#cardholder-name').on('input',function(e){
+      if($("#cardholder-name").val().length >=1)
+        $("#card-button").removeAttr("disabled");
+      else
+        $("#card-button").attr("disabled", true);
+    });
+
 </script>
 
 @endpush
