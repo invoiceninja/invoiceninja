@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
@@ -132,71 +133,43 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function authorizeCreditCardResponse($request)
     {
-        /**
-         * {
-              "id": "seti_1FJHmuKmol8YQE9DdhDgFXhT",
-              "object": "setup_intent",
-              "cancellation_reason": null,
-              "client_secret": "seti_1FJHmuKmol8YQE9DdhDgFXhT_secret_FoveetSB7RewVngU7H6IcrH9dlM1BXd",
-              "created": 1568631032,
-              "description": null,
-              "last_setup_error": null,
-              "livemode": false,
-              "next_action": null,
-              "payment_method": "pm_1FJHvQKmol8YQE9DV19fPXXk",
-              "payment_method_types": [
-                "card"
-              ],
-              "status": "succeeded",
-              "usage": "off_session"
- 
-            }
+        \Log::error($request->all());
+
+        $server_response = json_decode($request->input('gateway_response'));
 
 
-\Stripe\Stripe::setApiKey('sk_test_faU9gVB7Hx19fCTo0e5ggZ0x');
+        $gateway_id = $request->input('gateway_id');
+        $gateway_type_id = $request->input('payment_method_id');
+        $is_default = $request->input('is_default') ?: 0;
 
-\Stripe\PaymentMethod::retrieve('pm_1EUmzw2xToAoV8choYUtciXR');
+        $payment_method = $server_response->payment_method;
 
+        $this->init();
 
-{
-  "id": "pm_1EUmzw2xToAoV8choYUtciXR",
-  "object": "payment_method",
-  "card": {
-    "brand": "visa",
-    "checks": {
-      "address_line1_check": null,
-      "address_postal_code_check": null,
-      "cvc_check": null
-    },
-    "country": "US",
-    "exp_month": 8,
-    "exp_year": 2020,
-    "fingerprint": "sStRRZt3Xlw0Ec6B",
-    "funding": "credit",
-    "generated_from": null,
-    "last4": "4242",
-    "three_d_secure_usage": {
-      "supported": true
-    },
-    "wallet": null
-  },
-  "created": 1556596276,
-  "customer": "cus_3fAHf0I56s1QFx",
-  "livemode": false,
-  "metadata": {},
-  "type": "card"
-}
+        $customer = $this->findOrCreateCustomer();
 
-         */
+        $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
+        $stripe_payment_method->attach(['customer' => $customer->id]);
+
+        $cgt = new ClientGatewayToken;
+        $cgt->company_id = $this->client->company->id;
+        $cgt->client_id = $this->client->id;
+        $cgt->token = $payment_method;
+        $cgt->company_gateway_id = $this->company_gateway->id;
+        $cgt->payment_method_id = $gateway_type_id;
+        $cgt->gateway_customer_reference = $customer->id;
+        $cgt->save();
 
 
-        //get the customer or create a new one.
-        //get the payment method
-        //attached payment method to customer
-        //store meta data
+        if($is_default)
+        {
+            $this->client->gateway_tokens->update(['is_default'=>0]);
 
+            $cgt->is_default = 1;
+            $cgt->save();
+        }
 
-
+        return redirect()->route('client.payment_methods.index');
     }
 
     /**
@@ -233,9 +206,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $this->init();
 
-        $client_gateway_token = $this->client->gateway_tokens->whereGatewayId($this->company_gateway->gateway_id)->first();
+        $client_gateway_token = $this->client->gateway_tokens()->whereCompanyGatewayId($this->company_gateway->gateway_id)->first();
 
-        if($client_gateway_token->gateway_customer_reference)
+        if($client_gateway_token && $client_gateway_token->gateway_customer_reference)
             $customer = \Stripe\Customer::retrieve($client_gateway_token->gateway_customer_reference);
         else{
             $customer = \Stripe\Customer::create([
@@ -244,6 +217,7 @@ class StripePaymentDriver extends BasePaymentDriver
               "phone" => $this->client->present()->phone(),
             ]);
         }
+
         return $customer;
     }
 

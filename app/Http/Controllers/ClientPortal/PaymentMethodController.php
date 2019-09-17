@@ -25,7 +25,7 @@ class PaymentMethodController extends Controller
      */
     public function index()
     {
-
+        echo 'list of payment methods here';
     }
 
     /**
@@ -53,7 +53,6 @@ class PaymentMethodController extends Controller
      */
     public function store(Request $request)
     {
-
         $gateway = auth()->user()->client->getCreditCardGateway();
 
         return $gateway->driver(auth()->user()->client)->authorizeCreditCardResponse($request);

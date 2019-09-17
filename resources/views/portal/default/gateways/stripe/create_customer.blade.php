@@ -2,17 +2,36 @@
 
 @section('credit_card')
 
+                    {!! Former::framework('TwitterBootstrap4'); !!}
+
+                    {!! Former::horizontal_open()
+                          ->id('server_response')
+                          ->route('client.payment_methods.store')
+                          ->method('POST');  !!}
+
+                    {!! Former::hidden('company_gateway_id')->value($gateway->gateway_id) !!}
+                    {!! Former::hidden('payment_method_id')->value($gateway->gateway_type_id) !!}
+                    {!! Former::hidden('gateway_response')->id('gateway_response') !!}
+                    {!! Former::hidden('is_default')->id('is_default') !!}
+
+                    {!! Former::close() !!}
+
+
 <div class="py-md-5 ninja stripe">
     <div class="form-group">
-
         <input class="form-control" id="cardholder-name" type="text" placeholder="{{ ctrans('texts.name') }}">
-
     </div>
         <!-- placeholder for Elements -->
 
     <div class="form-group">
         <div id="card-element" class="form-control"></div>
     </div>
+
+    <div class="form-check form-check-inline mr-1">
+    <input class="form-check-input" id="proxy_is_default" type="checkbox" value="1">
+    <label class="form-check-label" for="proxy_is_default">{{ ctrans('texts.save_as_default') }}</label>
+    </div>
+
 
     <div id="card-errors" role="alert"></div>
 
@@ -54,12 +73,13 @@
           console.log(result.error);
           console.log(result.error.message);
 
-        $("#card-errors").empty();
-        $("#card-errors").append("<b>" + result.error.message + "</b>");
+            $("#card-errors").empty();
+            $("#card-errors").append("<b>" + result.error.message + "</b>");
 
         } else {
           // The setup has succeeded. Display a success message.
           console.log(result);
+          postResult(result);
         }
       });
     });
@@ -73,14 +93,14 @@
         $("#card-button").attr("disabled", true);
     });
 
+    function postResult(result)
+    {
 
-    var form = $(document.createElement('form'));
-    $(form).attr("action", "{{ route('client.payment_methods.store') }}");
-    $(form).attr("method", "POST");
+        $("#gateway_response").val(JSON.stringify(result.setupIntent));
+        $("#is_default").val($("#proxy_is_default").val());
+        $('#server_response').submit();
 
-    var input = $("<input>").attr("type", "hidden").attr("name", "mydata").val("bla");
-    $(form).append($(input));
-    $(form).submit();
+    }
 
 </script>
 

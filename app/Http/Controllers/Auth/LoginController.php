@@ -268,8 +268,11 @@ class LoginController extends BaseController
 
         $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('token'));
 
-        if ($user) 
-            return $this->itemResponse($user);
+        if ($user) {
+            $ct = CompanyUser::whereUserId($user);
+            return $this->listResponse($ct);
+          //  return $this->itemResponse($user);
+        }
         else
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 

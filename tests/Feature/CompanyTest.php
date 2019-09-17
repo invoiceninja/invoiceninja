@@ -87,9 +87,9 @@ class CompanyTest extends TestCase
             ]
         )
         ->assertStatus(200)->decodeResponseJson();
-
+\Log::error($response['data'][0]);
         //$company = Company::find($this->decodePrimaryKey($response['data']['company_users'][0]['company']['id']));        
-        $company = Company::find($this->decodePrimaryKey($response['data']['id']));        
+        $company = Company::find($this->decodePrimaryKey($response['data'][0]['company']['id']));        
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

@@ -43,7 +43,6 @@ class Client extends BaseModel
     
     protected $presenter = 'App\Models\Presenters\ClientPresenter';
 
-
     protected $hidden = [
         'id',
         'private_notes',
