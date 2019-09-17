@@ -17,6 +17,11 @@ use Omnipay\Omnipay;
 class Gateway extends StaticModel
 {
 
+    protected $casts = [
+        'is_offsite' => 'boolean',
+        'is_secure' => 'boolean',
+    ];
+
     /**
      * @return mixed
      */

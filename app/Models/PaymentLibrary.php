@@ -19,6 +19,10 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentLibrary extends BaseModel
 {
 
+    protected $casts = [
+        'visible' => 'boolean',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -26,4 +30,5 @@ class PaymentLibrary extends BaseModel
     {
         return $this->hasMany(Gateway::class, 'payment_library_id');
     }
+
 }

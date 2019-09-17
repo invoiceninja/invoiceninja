@@ -52,10 +52,15 @@ class StripePaymentDriver extends BasePaymentDriver
 	 */
 	/************************************** Stripe API methods **********************************************************/
 
-	public function init()
+    /**
+     * Initializes the Stripe API
+     * @return void
+     */
+	public function init() :void
 	{
         Stripe::setApiKey($this->company_gateway->getConfigField('23_apiKey'));
 	}
+
 	/**
 	 * Returns the gateway types
 	 */

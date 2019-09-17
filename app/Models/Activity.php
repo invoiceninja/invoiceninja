@@ -68,6 +68,9 @@ class Activity extends StaticModel
     const DELETE_USER=51;
     const RESTORE_USER=52;
 
+    protected $casts = [
+        'is_system' => 'boolean',
+    ];
 
     public function backup()
     {

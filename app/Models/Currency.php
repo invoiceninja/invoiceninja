@@ -17,4 +17,8 @@ class Currency extends StaticModel
 {
     public $timestamps = false;
 
+    protected $casts = [
+        'swap_currency_symbol' => 'boolean',
+    ];
+
 }

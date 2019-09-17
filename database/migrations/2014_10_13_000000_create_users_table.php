@@ -213,9 +213,9 @@ class CreateUsersTable extends Migration
             $table->integer('theme_id')->nullable();
             $table->smallInteger('failed_logins')->nullable();
             $table->string('referral_code')->default('');
-            $table->string('oauth_user_id',100)->default('');
-            $table->string('oauth_provider_id')->default('');
-            $table->string('google_2fa_secret')->default('');
+            $table->string('oauth_user_id',100)->nullable();
+            $table->string('oauth_provider_id')->nullable();
+            $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->default('');
             $table->string('avatar', 100)->default('');
             $table->unsignedInteger('avatar_width')->nullable();
@@ -739,7 +739,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('payment_library_id')->default(1);
             $table->unsignedInteger('sort_order')->default(10000);
             $table->boolean('recommended')->default(0);
-            $table->string('site_url', 200)->nullable();
+            $table->string('site_url', 200)->default('');
             $table->boolean('is_offsite')->default(false);
             $table->boolean('is_secure')->default(false);
         });

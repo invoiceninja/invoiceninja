@@ -17,6 +17,12 @@ class Country extends StaticModel
 {
     public $timestamps = false;
 
+    protected $casts = [
+        'eea' => 'boolean',
+        'swap_postal_code' => 'boolean',
+        'swap_currency_symbol' => 'boolean',
+    ];
+    
     /**
      * Localizes the country name for the clients language.
      * 	
@@ -26,4 +32,7 @@ class Country extends StaticModel
     {
         return trans('texts.country_' . $this->name);
     }
+
+
 }
+
