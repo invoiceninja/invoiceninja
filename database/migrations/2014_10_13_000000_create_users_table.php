@@ -389,7 +389,7 @@ class CreateUsersTable extends Migration
 
             $t->unsignedInteger('recurring_invoice_id')->nullable();
 
-            $t->string('invoice_number')->default('');
+            $t->string('invoice_number')->nullable();
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(0);
 
@@ -444,7 +444,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
 
             $t->unsignedInteger('status_id')->index();
-            $t->text('invoice_number')->default('');
+            $t->text('invoice_number')->nullable();
 
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
@@ -507,7 +507,7 @@ class CreateUsersTable extends Migration
 
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
-            $t->string('quote_number')->default('');
+            $t->string('quote_number')->nullable();
 
             $t->string('po_number')->default('');
             $t->date('quote_date')->nullable();
@@ -562,7 +562,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
 
-            $t->string('quote_number')->default('');
+            $t->string('quote_number')->nullable();
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
 
@@ -620,7 +620,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes();
 
-            $t->string('transaction_reference')->default('');
+            $t->string('transaction_reference')->nullable();
             $t->string('message_id')->nullable();
             $t->text('email_error')->default('');
             $t->text('signature_base64')->default('');
@@ -704,7 +704,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('status_id')->index();
             $t->decimal('amount', 13, 2)->default(0);
             $t->datetime('payment_date')->nullable();
-            $t->string('transaction_reference')->default('');
+            $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->default('');
             $t->timestamps(6);
             $t->softDeletes();
