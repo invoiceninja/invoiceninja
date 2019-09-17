@@ -145,7 +145,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $gateway_id = $request->input('gateway_id');
         $gateway_type_id = $request->input('payment_method_id');
-        $is_default = $request->input('is_default') ?: 0;
+        $is_default = $request->input('is_default');
 
         $payment_method = $server_response->payment_method;
 
@@ -166,7 +166,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $cgt->save();
 
 
-        if($is_default)
+        if($is_default == 'true')
         {
             $this->client->gateway_tokens()->update(['is_default'=>0]);
 
@@ -179,31 +179,51 @@ class StripePaymentDriver extends BasePaymentDriver
 
     /**
      * Creates a new String Payment Intent
+     * 
      * @param  array $data The data array to be passed to Stripe
      * @return PaymentIntent       The Stripe payment intent object
      */
-    public function createIntent($data)
+    public function createIntent($data) :?\Stripe\PaymentIntent
     {
+
         $this->init();
+
         return PaymentIntent::create($data);
+
     }
 
     /**
-     * Returns a setup intent that allows the user to enter card details without initiating a transaction.
+     * Returns a setup intent that allows the user 
+     * to enter card details without initiating a transaction.
      *
      * @return \Stripe\SetupIntent
      */
-    public function getSetupIntent()
+    public function getSetupIntent() :\Stripe\SetupIntent
     {
+
         $this->init();
+
         return SetupIntent::create();
+
     }
 
-    public function getPublishableKey()
+
+    /**
+     * Returns the Stripe publishable key
+     * @return NULL|string The stripe publishable key
+     */
+    public function getPublishableKey() :?string
     {
+
         return $this->company_gateway->getPublishableKey();
+
     }
 
+    /**
+     * Finds or creates a Stripe Customer object
+     * 
+     * @return NULL|\Stripe\Customer A Stripe customer object
+     */
     public function findOrCreateCustomer() :?\Stripe\Customer
     { 
 
@@ -213,8 +233,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)->whereCompanyGatewayId($this->company_gateway->id)->first();
 
-        if($client_gateway_token && $client_gateway_token->gateway_customer_reference)
+        if($client_gateway_token && $client_gateway_token->gateway_customer_reference){
+
             $customer = \Stripe\Customer::retrieve($client_gateway_token->gateway_customer_reference);
+
+        }
         else{
 
             $data['name'] = $this->client->present()->name();

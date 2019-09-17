@@ -28,7 +28,7 @@
     </div>
 
     <div class="form-check form-check-inline mr-1">
-    <input class="form-check-input" id="proxy_is_default" type="checkbox" value="1">
+    <input class="form-check-input" id="proxy_is_default" type="checkbox">
     <label class="form-check-label" for="proxy_is_default">{{ ctrans('texts.save_as_default') }}</label>
     </div>
 
@@ -75,6 +75,7 @@
 
             $("#card-errors").empty();
             $("#card-errors").append("<b>" + result.error.message + "</b>");
+            $("#card-button").removeAttr("disabled");
 
         } else {
           // The setup has succeeded. Display a success message.
@@ -97,9 +98,9 @@
     {
 
         $("#gateway_response").val(JSON.stringify(result.setupIntent));
-        $("#is_default").val($("#proxy_is_default").val());
+        $("#is_default").val($('#proxy_is_default').is(":checked"));
+        $("#card-button").attr("disabled", true);
         $('#server_response').submit();
-
     }
 
 </script>
