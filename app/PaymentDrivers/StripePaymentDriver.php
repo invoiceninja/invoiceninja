@@ -163,7 +163,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if($is_default)
         {
-            $this->client->gateway_tokens->update(['is_default'=>0]);
+            $this->client->gateway_tokens()->update(['is_default'=>0]);
 
             $cgt->is_default = 1;
             $cgt->save();
@@ -206,16 +206,20 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $this->init();
 
-        $client_gateway_token = $this->client->gateway_tokens()->whereCompanyGatewayId($this->company_gateway->gateway_id)->first();
+        $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)->whereCompanyGatewayId($this->company_gateway->id)->first();
 
         if($client_gateway_token && $client_gateway_token->gateway_customer_reference)
             $customer = \Stripe\Customer::retrieve($client_gateway_token->gateway_customer_reference);
         else{
-            $customer = \Stripe\Customer::create([
-              "email" => $this->client->present()->email(),
-              "name" => $this->client->present()->name(),
-              "phone" => $this->client->present()->phone(),
-            ]);
+
+            $data['name'] = $this->client->present()->name();
+            $data['phone'] = $this->client->present()->phone();
+
+            if(filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL))
+                $data['email'] = $this->client->present()->email();
+
+            $customer = \Stripe\Customer::create($data);
+
         }
 
         return $customer;
