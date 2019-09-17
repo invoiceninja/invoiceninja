@@ -138,10 +138,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function authorizeCreditCardResponse($request)
     {
-        \Log::error($request->all());
 
         $server_response = json_decode($request->input('gateway_response'));
-
 
         $gateway_id = $request->input('gateway_id');
         $gateway_type_id = $request->input('payment_method_id');
