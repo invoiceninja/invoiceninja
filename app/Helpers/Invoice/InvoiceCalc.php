@@ -151,20 +151,20 @@ class InvoiceCalc
 	{
 
 		// custom fields charged taxes
-        if (isset($this->invoice->custom_value1) && isset($this->settings->custom_taxes1)) {
+        if (isset($this->invoice->custom_value1) && isset($this->settings->custom_invoice_taxes1)) {
             $this->total += $this->invoice->custom_value1;
         }
-        if (isset($this->invoice->custom_value2) && isset($this->settings->custom_taxes2)) {
+        if (isset($this->invoice->custom_value2) && isset($this->settings->custom_invoice_taxes2)) {
             $this->total += $this->invoice->custom_value2;
         }
 
         $this->calcTaxes();
 
         // custom fields not charged taxes
-        if (isset($this->invoice->custom_value1) && ! $this->settings->custom_taxes1) {
+        if (isset($this->invoice->custom_value1) && ! $this->settings->custom_invoice_taxes1) {
             $this->total += $this->invoice->custom_value1;
         }
-        if (isset($this->invoice->custom_value2) && ! $this->settings->custom_taxes2) {
+        if (isset($this->invoice->custom_value2) && ! $this->settings->custom_invoice_taxes2) {
             $this->total += $this->invoice->custom_value2;
         }
 

@@ -346,10 +346,9 @@ class CreateUsersTable extends Migration
         Schema::create('company_gateways', function($table)
         {
             $table->increments('id');
-            $table->unsignedInteger('company_id')->unique();
+            $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('gateway_id');
-            $table->text('gateway_types')->default('');
             $table->unsignedInteger('accepted_credit_cards');
             $table->boolean('require_cvv')->default(true);
             $table->boolean('show_address')->default(true)->nullable();

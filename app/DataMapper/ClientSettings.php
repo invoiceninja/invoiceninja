@@ -53,8 +53,8 @@ class ClientSettings extends BaseSettings
 	public $show_currency_code;
 	public $inclusive_taxes;
 
-	public $custom_taxes1;
-	public $custom_taxes2;
+	public $custom_invoice_taxes1;
+	public $custom_invoice_taxes2;
 	public $lock_sent_invoices;
 	public $auto_bill;
 	public $auto_archive_invoice;
@@ -91,6 +91,24 @@ class ClientSettings extends BaseSettings
 	public $design;
 
 	public $company_gateways;
+
+
+	public $invoice_design_id;
+	public $quote_design_id;
+	public $email_footer;
+	public $email_subject_invoice;
+	public $email_subject_quote;
+	public $email_subject_payment;
+	public $email_template_invoice;
+	public $email_template_quote;
+	public $email_template_payment;
+	public $email_subject_reminder1;
+	public $email_subject_reminder2;
+	public $email_subject_reminder3;
+	public $email_template_reminder1;
+	public $email_template_reminder2;
+	public $email_template_reminder3;
+	
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned

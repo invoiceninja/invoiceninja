@@ -38,9 +38,13 @@ class CompanyGateway extends BaseModel
     	return $this->belongsTo(Gateway::class);
     }
 
-    public function type()
+    public function getTypeAlias($gateway_type_id)
     {
-    	return $this->hasOne(GatewayType::class);
+
+        if($gateway_type_id == 'token')
+            $gateway_type_id = 1;
+        
+    	return GatewayType::find($gateway_type_id)->alias;
     }
 
     /* This is the public entry point into the payment superclass */

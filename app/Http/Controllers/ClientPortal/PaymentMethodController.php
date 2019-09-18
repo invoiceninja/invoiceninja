@@ -66,6 +66,7 @@ class PaymentMethodController extends Controller
 
         $data = [
             'gateway' => $gateway,
+            'gateway_type_id' => 1,
             'token' => false,
         ];
 

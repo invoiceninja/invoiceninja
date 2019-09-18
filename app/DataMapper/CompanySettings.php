@@ -67,8 +67,8 @@ class CompanySettings extends BaseSettings
 	public $custom_expense_label3;
 	public $custom_expense_label4;
 
-	public $custom_taxes1;
-	public $custom_taxes2;
+	public $custom_invoice_taxes1;
+	public $custom_invoice_taxes2;
 
 	public $default_task_rate;
 	public $send_reminders;
@@ -114,6 +114,46 @@ class CompanySettings extends BaseSettings
 	public $design;
 
 	public $company_gateways;
+
+
+	public $invoice_terms;
+	public $quote_terms;
+	public $invoice_taxes;
+	public $invoice_item_taxes;
+	public $invoice_design_id;
+	public $quote_design_id;
+	public $invoice_footer;
+	public $invoice_labels;
+	public $show_item_taxes;
+	public $fill_products;
+	public $tax_name1;
+	public $tax_rate1;
+	public $tax_name2;
+	public $tax_rate2;
+	public $enable_second_tax_rate;
+	public $enable_modules;
+	public $payment_type_id;
+	public $convert_products;
+	public $custom_fields;
+	public $invoice_fields;
+	public $email_footer;
+	public $email_subject_invoice;
+	public $email_subject_quote;
+	public $email_subject_payment;
+	public $email_template_invoice;
+	public $email_template_quote;
+	public $email_template_payment;
+	public $email_subject_reminder1;
+	public $email_subject_reminder2;
+	public $email_subject_reminder3;
+	public $email_template_reminder1;
+	public $email_template_reminder2;
+	public $email_template_reminder3;
+	public $has_custom_design1;
+	public $has_custom_design2;
+	public $has_custom_design3;
+	public $enable_portal_password;
+
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned
@@ -151,8 +191,8 @@ class CompanySettings extends BaseSettings
 			'show_currency_symbol' => 'TRUE',
 			'show_currency_code' => 'FALSE',
 			'inclusive_taxes' => 'TRUE',
-			'custom_taxes1' => 'FALSE',
-			'custom_taxes2' => 'FALSE',
+			'custom_invoice_taxes1' => 'FALSE',
+			'custom_invoice_taxes2' => 'FALSE',
 			'lock_sent_invoices' => 'TRUE',
 			'shared_invoice_quote_counter' => 'FALSE',
 			'invoice_number_counter' => 1,

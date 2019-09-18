@@ -12,6 +12,7 @@
 namespace Tests;
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
@@ -19,6 +20,7 @@ use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
+use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
@@ -162,6 +164,42 @@ trait MockAccountData
         
         $recurring_invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
+
+        $gs = new GroupSetting;
+        $gs->company_id = $this->company->id;
+        $gs->user_id = $this->user->id;
+        $gs->settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
+        $gs->name = 'Default Client Settings';
+        $gs->save();
+
+        if(config('ninja.testvars.stripe'))
+        {
+
+            $cg = new CompanyGateway;
+            $cg->company_id = $this->company->id;
+            $cg->user_id = $this->user->id;
+            $cg->gateway_id = 20;
+            $cg->require_cvv = true;
+            $cg->show_address = true;
+            $cg->show_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.stripe'));
+            $cg->priority_id = 1;
+            $cg->save();
+
+
+            $cg = new CompanyGateway;
+            $cg->company_id = $this->company->id;
+            $cg->user_id = $this->user->id;
+            $cg->gateway_id = 20;
+            $cg->require_cvv = true;
+            $cg->show_address = true;
+            $cg->show_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.stripe'));
+            $cg->priority_id = 2;
+            $cg->save();
+        }
 
 	}
 

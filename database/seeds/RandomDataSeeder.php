@@ -137,7 +137,6 @@ class RandomDataSeeder extends Seeder
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
             $cg->gateway_id = 20;
-            $cg->gateway_type_id = GatewayType::CREDIT_CARD;
             $cg->require_cvv = true;
             $cg->show_address = true;
             $cg->show_shipping_address = true;
@@ -146,6 +145,17 @@ class RandomDataSeeder extends Seeder
             $cg->priority_id = 1;
             $cg->save();
 
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_id = 20;
+            $cg->require_cvv = true;
+            $cg->show_address = true;
+            $cg->show_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.stripe'));
+            $cg->priority_id = 1;
+            $cg->save();
         }
 
     }

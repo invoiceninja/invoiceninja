@@ -43,6 +43,7 @@ class PaymentController extends Controller
     {
         //$payments = Payment::filter($filters);
         $payments = Payment::all();
+
         if (request()->ajax()) {
 
             return DataTables::of($payments)->addColumn('action', function ($payment) {
@@ -87,7 +88,7 @@ class PaymentController extends Controller
      * @param  int $gateway_type_id  The gateway_type_id ID
      * @return void                     
      */
-    public function process($company_gateway_id, $gateway_type_id)
+    public function process($company_gateway_id)
     {
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->input('invoice_ids')))
@@ -114,7 +115,6 @@ class PaymentController extends Controller
             'fee' => $gateway->calcGatewayFee($amount),
             'amount_with_fee' => ($amount + $gateway->calcGatewayFee($amount)),
             'gateway' => $gateway,
-            'gateway_type_id' => $gateway_type_id,
             'token' => auth()->user()->client->gateway_token($gateway->id),
         ];
         

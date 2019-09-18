@@ -57,7 +57,7 @@ class CompareObjectTest extends TestCase
 		$this->assertEquals($settings->timezone_id, 15);
 		$this->assertEquals($settings->language_id, 1);
 		$this->assertEquals($settings->payment_terms, 1);
-		$this->assertEquals($settings->custom_taxes1, 'FALSE');
+		$this->assertEquals($settings->custom_invoice_taxes1, 'FALSE');
 	}
 
 

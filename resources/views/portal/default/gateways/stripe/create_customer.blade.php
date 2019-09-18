@@ -10,7 +10,7 @@
                           ->method('POST');  !!}
 
                     {!! Former::hidden('company_gateway_id')->value($gateway->gateway_id) !!}
-                    {!! Former::hidden('gateway_type_id')->value($gateway->gateway_type_id) !!}
+                    {!! Former::hidden('gateway_type_id')->value(1) !!}
                     {!! Former::hidden('gateway_response')->id('gateway_response') !!}
                     {!! Former::hidden('is_default')->id('is_default') !!}
 

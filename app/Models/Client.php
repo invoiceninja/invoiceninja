@@ -234,11 +234,11 @@ class Client extends BaseModel
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
-        $payment_gateways = $this->getSetting('payment_gateways');
+        $company_gateways = $this->getSetting('company_gateways');
 
         /* If we have a custom gateway list pass this back first */
-        if($payment_gateways)
-            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+        if($company_gateways)
+            $gateways = $this->company->company_gateways->whereIn('id', $company_gateways);
         else
             $gateways = $this->company->company_gateways;
 
@@ -269,15 +269,14 @@ class Client extends BaseModel
      */
     public function getPaymentMethods($amount) :array
     {
-        $payment_gateways = $this->getSetting('payment_gateways');
 
-        /* If we have a custom gateway list pass this back first */
-        if($payment_gateways)
+        $company_gateways = $this->getSetting('company_gateways');
+        
+        if($company_gateways)
             $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
         else
             $gateways = $this->company->company_gateways;
 
-        //** Filter gateways based on limits
         $gateways->filter(function ($method) use ($amount){
             if($method->min_limit !==  null && $amount < $method->min_limit)
                 return false;
@@ -286,14 +285,13 @@ class Client extends BaseModel
                 return false;
         }); 
 
-        //** Get Payment methods from each gateway
         $payment_methods = [];
 
         foreach($gateways as $gateway)
-            foreach($gateway->driver()->gatewayTypes() as $type)
-                $payment_methods[] = [$gateway->id => $type];
+            foreach($gateway->driver($this)->gatewayTypes() as $type)
+                $payment_methods[] = [$gateway->id => $type]; 
+            
 
-        //** Reduce gateways so that only one TYPE is present in the list ie. cannot have multiple credit card options
         $payment_methods_collections = collect($payment_methods);
 
         //** Plucks the remaining keys into its own collection
@@ -301,21 +299,24 @@ class Client extends BaseModel
 
         $payment_urls = [];
 
-        //** Iterate through our list of payment gateways and methods and generate payment URLs
-        $payment_list = $payment_methods_intersect->map(function ($value, $key) {
+        foreach($payment_methods_intersect as $key => $child_array)
+        {
+            foreach($child_array as $gateway_id => $gateway_type_id)
+            {
 
-            $gateway = $gateways->where('id', $key)->first();
+            $gateway = $gateways->where('id', $gateway_id)->first();
 
             $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
             $payment_urls[] = [
-                'label' => ctrans('texts.' . $gateway->type->alias) . $fee_label,
-                'url'   =>  URL::signedRoute('payments.process', [
-                                            'company_gateway_id' => $key,
-                                            'payment_method_id' => $value])
+                'label' => ctrans('texts.' . $gateway->getTypeAlias($gateway_type_id)) . $fee_label,
+                'url'   =>  URL::signedRoute('client.payments.process', [
+                                            'company_gateway_id' => $gateway_id,
+                                            'gateway_type_id' => $gateway_type_id])
                             ];
+            }
 
-        });
+        }
 
             return $payment_urls;
     }

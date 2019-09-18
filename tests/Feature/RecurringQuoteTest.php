@@ -186,7 +186,7 @@ class RecurringQuoteTest extends TestCase
         $this->assertNotNull($RecurringQuote);
         $this->assertNotNull($RecurringQuote->settings);
 
-        $this->assertTrue(property_exists($RecurringQuote->settings, 'custom_taxes1'));
+        $this->assertTrue(property_exists($RecurringQuote->settings, 'custom_invoice_taxes1'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

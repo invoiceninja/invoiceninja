@@ -78,4 +78,9 @@ class Account extends BaseModel
     {
         return $this->hasMany(CompanyUser::class);
     }
+
+    public function getPlan()
+    {
+        return $this->plan ?: '';
+    }
 }
