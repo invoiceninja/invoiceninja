@@ -84,10 +84,10 @@ class PaymentController extends Controller
      * and invoice ids for reference.
      * 
      * @param  int $company_gateway_id The CompanyGateway ID
-     * @param  int $payment_method_id  The PaymentMethod ID
+     * @param  int $gateway_type_id  The gateway_type_id ID
      * @return void                     
      */
-    public function process($company_gateway_id, $payment_method_id)
+    public function process($company_gateway_id, $gateway_type_id)
     {
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->input('invoice_ids')))
@@ -114,7 +114,7 @@ class PaymentController extends Controller
             'fee' => $gateway->calcGatewayFee($amount),
             'amount_with_fee' => ($amount + $gateway->calcGatewayFee($amount)),
             'gateway' => $gateway,
-            'payment_method_id' => $payment_method_id,
+            'gateway_type_id' => $gateway_type_id,
             'token' => auth()->user()->client->gateway_token($gateway->id),
         ];
         

@@ -94,9 +94,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
     }
 
-    public function viewForType($payment_type)
+    public function viewForType($gateway_type_id)
     {
-    	switch ($payment_type) {
+    	switch ($gateway_type_id) {
     		case GatewayType::CREDIT_CARD:
     			return 'portal.default.gateways.stripe.credit_card';
     			break;
@@ -142,25 +142,36 @@ class StripePaymentDriver extends BasePaymentDriver
         $server_response = json_decode($request->input('gateway_response'));
 
         $gateway_id = $request->input('gateway_id');
-        $gateway_type_id = $request->input('payment_method_id');
+        $gateway_type_id = $request->input('gateway_type_id');
         $is_default = $request->input('is_default');
 
         $payment_method = $server_response->payment_method;
 
-        $this->init();
-
         $customer = $this->findOrCreateCustomer();
 
+        $this->init();
         $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
+        $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
         $stripe_payment_method->attach(['customer' => $customer->id]);
+
+        $payment_meta = new \stdClass;
+
+        if($stripe_payment_method_obj['type'] == 'card') {
+            $payment_meta->exp_month = $stripe_payment_method_obj['card']['exp_month'];
+            $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
+            $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
+            $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
+            $payment_meta->type = $stripe_payment_method_obj['type'];
+        }
 
         $cgt = new ClientGatewayToken;
         $cgt->company_id = $this->client->company->id;
         $cgt->client_id = $this->client->id;
         $cgt->token = $payment_method;
         $cgt->company_gateway_id = $this->company_gateway->id;
-        $cgt->payment_method_id = $gateway_type_id;
+        $cgt->gateway_type_id = $gateway_type_id;
         $cgt->gateway_customer_reference = $customer->id;
+        $cgt->meta = $payment_meta;
         $cgt->save();
 
 

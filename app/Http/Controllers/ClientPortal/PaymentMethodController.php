@@ -12,8 +12,10 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientGatewayToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 
 class PaymentMethodController extends Controller
 {
@@ -25,7 +27,32 @@ class PaymentMethodController extends Controller
      */
     public function index()
     {
-        echo 'list of payment methods here';
+        $payment_methods = ClientGatewayToken::whereClientId(auth()->user()->client->id);
+
+        if (request()->ajax()) {
+
+            return DataTables::of($payment_methods)->addColumn('action', function ($invoice) {
+                    return '<a href="/client/payment_methods/'. $payment_methods->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+                })
+                ->editColumn('status_id', function ($invoice){
+                    return Invoice::badgeForStatus($invoice->status);
+                })->editColumn('invoice_date', function ($invoice){
+                    return $this->formatDate($invoice->invoice_date, $invoice->client->date_format());
+                })->editColumn('due_date', function ($invoice){
+                    return $this->formatDate($invoice->due_date, $invoice->client->date_format());
+                })->editColumn('balance', function ($invoice) {
+                    return Number::formatMoney($invoice->balance, $invoice->client);
+                })->editColumn('amount', function ($invoice) {
+                    return Number::formatMoney($invoice->amount, $invoice->client);
+                })
+                ->rawColumns(['action', 'status_id'])
+                ->make(true);
+        
+        }
+
+        $data['html'] = $builder;
+      
+        return view('portal.default.payment_methods.index', $data);
     }
 
     /**

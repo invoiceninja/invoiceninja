@@ -48,7 +48,7 @@ class RecurringInvoicesCronTest extends TestCase
 
         $recurring_invoices->each(function ($inv, $key) {
 
-           Log::error(Carbon::parse($inv->next_send_date)->format(config('ninja.date_time_format')));
+         //  Log::error(Carbon::parse($inv->next_send_date)->format(config('ninja.date_time_format')));
            
         });
 

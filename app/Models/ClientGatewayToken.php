@@ -14,10 +14,15 @@ namespace App\Models;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\User;
 
 class ClientGatewayToken extends BaseModel
 {
+
+	protected $casts = [
+		'meta' => 'object',
+	];
 
 	public function client()
 	{
@@ -28,6 +33,11 @@ class ClientGatewayToken extends BaseModel
 	{
 		return $this->hasOne(CompanyGateway::class);
 	}
+
+	public function gateway_type()
+	{
+		return $this->hasOne(GatewayType::class);
+	}	
 
 	public function company()
 	{

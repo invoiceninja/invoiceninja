@@ -349,7 +349,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->unique();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('gateway_id');
-            $table->unsignedInteger('gateway_type_id')->nullable();
+            $table->text('gateway_types')->default('');
             $table->unsignedInteger('accepted_credit_cards');
             $table->boolean('require_cvv')->default(true);
             $table->boolean('show_address')->default(true)->nullable();
@@ -401,7 +401,7 @@ class CreateUsersTable extends Migration
 
             $t->text('line_items')->default('');
             $t->text('settings')->default('');
-            $t->text('backup')->default('');
+            $t->text('backup')->nullable();
 
             $t->text('footer')->default('');
             $t->text('public_notes')->default('');
@@ -457,7 +457,7 @@ class CreateUsersTable extends Migration
 
             $t->text('line_items')->default('');
             $t->text('settings')->default('');
-            $t->text('backup')->default('');
+            $t->text('backup')->nullable();
 
             $t->text('footer')->default('');
             $t->text('public_notes')->default('');
@@ -517,7 +517,7 @@ class CreateUsersTable extends Migration
 
             $t->text('line_items')->default('');
             $t->text('settings')->default('');
-            $t->text('backup')->default('');
+            $t->text('backup')->nullable();
 
             $t->text('footer')->default('');
             $t->text('public_notes')->default('');
@@ -574,7 +574,7 @@ class CreateUsersTable extends Migration
 
             $t->text('line_items')->default('');
             $t->text('settings')->default('');
-            $t->text('backup')->default('');
+            $t->text('backup')->nullable();
 
             $t->text('footer')->default('');
             $t->text('public_notes')->default('');
@@ -705,7 +705,7 @@ class CreateUsersTable extends Migration
             $t->decimal('amount', 13, 2)->default(0);
             $t->datetime('payment_date')->nullable();
             $t->string('transaction_reference')->nullable();
-            $t->string('payer_id')->default('');
+            $t->string('payer_id')->nullable();
             $t->timestamps(6);
             $t->softDeletes();
             $t->boolean('is_deleted')->default(false);
@@ -867,7 +867,7 @@ class CreateUsersTable extends Migration
         Schema::create('backups', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('activity_id');
-            $table->text('json_backup')->default('');
+            $table->text('json_backup')->nullable();
             $table->timestamps(6);
 
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
@@ -908,8 +908,9 @@ class CreateUsersTable extends Migration
             $table->text('token')->default('');
             $table->unsignedInteger('company_gateway_id');
             $table->string('gateway_customer_reference')->default('');
-            $table->unsignedInteger('payment_method_id');
+            $table->unsignedInteger('gateway_type_id');
             $table->boolean('is_default')->default(0);
+            $table->text('meta')->default('');
             $table->softDeletes();
 
             $table->timestamps(6);
