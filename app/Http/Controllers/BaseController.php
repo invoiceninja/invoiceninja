@@ -147,9 +147,6 @@ class BaseController extends Controller
 
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 
-        if(request()->include_static) 
-            $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
-        
         return $this->response($data);
 
     }
@@ -195,6 +192,10 @@ class BaseController extends Controller
                 $response['meta'] = $meta;
                 unset($response[$index]['meta']);
             }
+
+            if(request()->include_static) 
+                $response['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+ 
         }
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
