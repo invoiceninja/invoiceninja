@@ -61,7 +61,6 @@ class AccountTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($account->id),
             'default_url' => config('ninja.site_url'),
             'plan' => $account->getPlan(),
-            ''
         ];
 
     }
