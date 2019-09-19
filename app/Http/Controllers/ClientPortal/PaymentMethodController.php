@@ -13,39 +13,54 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClientGatewayToken;
+use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class PaymentMethodController extends Controller
 {
+    use MakesDates;
 
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Builder $builder)
     {
         $payment_methods = ClientGatewayToken::whereClientId(auth()->user()->client->id);
+        $payment_methods->with('gateway_type');
 
         if (request()->ajax()) {
 
-            return DataTables::of($payment_methods)->addColumn('action', function ($invoice) {
-                    return '<a href="/client/payment_methods/'. $payment_methods->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+            return DataTables::of($payment_methods)->addColumn('action', function ($payment_method) {
+                    return '<a href="/client/payment_methods/'. $payment_method->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })
-                ->editColumn('status_id', function ($invoice){
-                    return Invoice::badgeForStatus($invoice->status);
-                })->editColumn('invoice_date', function ($invoice){
-                    return $this->formatDate($invoice->invoice_date, $invoice->client->date_format());
-                })->editColumn('due_date', function ($invoice){
-                    return $this->formatDate($invoice->due_date, $invoice->client->date_format());
-                })->editColumn('balance', function ($invoice) {
-                    return Number::formatMoney($invoice->balance, $invoice->client);
-                })->editColumn('amount', function ($invoice) {
-                    return Number::formatMoney($invoice->amount, $invoice->client);
+                ->editColumn('gateway_type_id', function ($payment_method){
+                    return ctrans("texts.{$payment_method->gateway_type->alias}");
+                })->editColumn('created_at', function ($payment_method){
+                    return $this->formatDate($payment_method->created_at, auth()->user()->client->date_format());
+                })->editColumn('is_default', function ($payment_method){
+                    return $payment_method->is_default ? ctrans('texts.default') : '';
+                })->editColumn('meta', function ($payment_method) {
+                    if(isset($payment_method->meta->exp_month) && isset($payment_method->meta->exp_year))
+                        return "{$payment_method->meta->exp_month}/{$payment_method->meta->exp_year}";
+                    else
+                        return "";
+                })->addColumn('last4', function ($payment_method) {
+                    if(isset($payment_method->meta->last4))
+                        return $payment_method->meta->last4;
+                    else
+                        return "";
+                })->addColumn('brand', function ($payment_method) {
+                    if(isset($payment_method->meta->brand))
+                        return $payment_method->meta->brand;
+                    else
+                        return "";
                 })
-                ->rawColumns(['action', 'status_id'])
+                ->rawColumns(['action', 'status_id','last4','brand'])
                 ->make(true);
         
         }

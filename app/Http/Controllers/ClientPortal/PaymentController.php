@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use = namespace\Cache;
+use Cache;
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyGateway;

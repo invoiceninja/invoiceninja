@@ -26,7 +26,7 @@
 
 				<!-- Filters / Buttons in here.-->
 				<div id="top_right_buttons" class="pull-right">
-                      <a href="{{ route('client.payment_methods.create ')}}" class="btn btn-success">{{ ctrans('texts.add_payment_method') }}</button>
+                      <a href="{{ route('client.payment_methods.create')}}" class="btn btn-success">{{ ctrans('texts.add_payment_method') }}</a>
 				</div>
 
 				<div class="animated fadeIn">
@@ -69,25 +69,14 @@ $(function() {
 	        loadingRecords: "{{ trans('texts.loading') }}",
 	        zeroRecords:    "{{ trans('texts.no_records_found') }}"
     	},
-        ajax: {
-        	url: '{!! route('client.payment_methods.index') !!}',
-	        data: function(data) { 
-	        } 
-
-        },
-        drawCallback: function(settings){
-
-           data = this.api().ajax.json().data;
-
-        },
         columns: [
 
-            {data: 'invoice_number', name: 'invoice_number', title: '{{ctrans('texts.invoice_number')}}', visible: true},
-            {data: 'invoice_date', name: 'invoice_date', title: '{{ctrans('texts.invoice_date')}}', visible: true},
-            {data: 'amount', name: 'amount', title: '{{ctrans('texts.total')}}', visible: true},
-            {data: 'balance', name: 'balance', title: '{{ctrans('texts.balance')}}', visible: true},
-            {data: 'due_date', name: 'due_date', title: '{{ctrans('texts.due_date')}}', visible: true},
-            {data: 'status_id', name: 'status_id', title: '{{ctrans('texts.status')}}', visible: true},
+            {data: 'created_at', name: 'created_at', title: '{{ctrans('texts.created_at')}}', visible: true},
+            {data: 'gateway_type_id', name: 'gateway_type_id', title: '{{ctrans('texts.payment_type_id')}}', visible: true},
+            {data: 'brand', name: 'brand', title: '{{ctrans('texts.type')}}', visible: true},
+            {data: 'meta', name: 'meta', title: '{{ctrans('texts.card_expiration')}}', visible: true},
+            {data: 'last4', name: 'last4', title: '{{ctrans('texts.card_number')}}', visible: true},
+            {data: 'is_default', name: 'is_default', title: '{{ctrans('texts.default')}}', visible: true},
             {data: 'action', name: 'action', title: '', searchable: false, orderable: false},
         ]
     });
@@ -96,4 +85,3 @@ $(function() {
 </script>
 
 @endpush
-

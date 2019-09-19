@@ -36,7 +36,7 @@ class ClientGatewayToken extends BaseModel
 
 	public function gateway_type()
 	{
-		return $this->hasOne(GatewayType::class);
+		return $this->hasOne(GatewayType::class, 'id','gateway_type_id');
 	}	
 
 	public function company()

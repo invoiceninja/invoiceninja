@@ -63,6 +63,7 @@ class PortalComposer
         $data[] = [ 'title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'fa fa-file-pdf-o fa-fw fa-2x'];
         $data[] = [ 'title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'fa fa-files-o fa-fw fa-2x'];
         $data[] = [ 'title' => ctrans('texts.payments'), 'url' => 'client.payments.index', 'icon' => 'fa fa-credit-card fa-fw fa-2x'];
+        $data[] = [ 'title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'fa fa-cc-stripe fa-fw fa-2x'];
 
         return $data;
         
