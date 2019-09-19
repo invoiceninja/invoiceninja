@@ -210,14 +210,12 @@ class Client extends BaseModel
 
         //check group level (if a group is assigned)
         if($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)){
-                            \Log::error('returning group '.$this->group_settings->{$setting});
 
            return $this->group_settings->settings->{$setting};
         }
         
         //check company level
         if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
-                                        \Log::error('returning company '.$this->company->{$setting});
 
             return $this->company->settings->{$setting};
         }
