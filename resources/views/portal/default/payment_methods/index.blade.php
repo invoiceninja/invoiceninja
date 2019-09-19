@@ -74,7 +74,7 @@ $(function() {
             {data: 'created_at', name: 'created_at', title: '{{ctrans('texts.created_at')}}', visible: true},
             {data: 'gateway_type_id', name: 'gateway_type_id', title: '{{ctrans('texts.payment_type_id')}}', visible: true},
             {data: 'brand', name: 'brand', title: '{{ctrans('texts.type')}}', visible: true},
-            {data: 'meta', name: 'meta', title: '{{ctrans('texts.card_expiration')}}', visible: true},
+            {data: 'meta', name: 'meta', title: '{{ctrans('texts.expires')}}', visible: true},
             {data: 'last4', name: 'last4', title: '{{ctrans('texts.card_number')}}', visible: true},
             {data: 'is_default', name: 'is_default', title: '{{ctrans('texts.default')}}', visible: true},
             {data: 'action', name: 'action', title: '', searchable: false, orderable: false},
