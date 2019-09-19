@@ -175,7 +175,9 @@ class StripePaymentDriver extends BasePaymentDriver
         $cgt->save();
 
 
-        if($is_default == 'true')
+        \Log::error('number of tokens = '. $this->client->gateway_tokens->count());
+
+        if($is_default == 'true' || $this->client->gateway_tokens->count() == 1)
         {
             $this->client->gateway_tokens()->update(['is_default'=>0]);
 
