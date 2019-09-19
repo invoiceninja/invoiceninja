@@ -13,13 +13,13 @@ namespace App\DataMapper;
 
 class PaymentMethodMeta
 {
-	$exp_month;
+	public $exp_month;
 
-	$exp_year;
+	public $exp_year;
 
-	$brand;
+	public $brand;
 
-	$last4;
+	public $last4;
 
-	$type;
+	public $type;
 }
