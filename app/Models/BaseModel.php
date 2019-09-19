@@ -106,7 +106,7 @@ class BaseModel extends Model
             return $this->getSettings()->{$key};
         }
         else {
-            //Log::error(print_r(new CompanySettings($this->company->settings),1));
+            Log::error(print_r(new CompanySettings($this->company->settings),1));
             return (new CompanySettings($this->company->settings))->{$key};  
         }
 

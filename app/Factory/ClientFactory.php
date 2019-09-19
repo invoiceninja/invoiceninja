@@ -30,7 +30,7 @@ class ClientFactory
 		$client->is_deleted = 0;
 		$client->client_hash = str_random(40);
 		$client->currency_id = config('ninja.i18n.currency_id');		
-		$client->settings = new ClientSettings(ClientSettings::defaults());
+		$client->settings = ClientSettings::defaults();
 		
 		$client_contact = ClientContactFactory::create($company_id, $user_id);
         $client->contacts->add($client_contact);

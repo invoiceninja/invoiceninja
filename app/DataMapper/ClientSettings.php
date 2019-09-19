@@ -29,58 +29,6 @@ use App\Utils\TranslationHelper;
  */
 class ClientSettings extends BaseSettings
 {
-	/**
-	 * Settings which also have a parent company setting
-	 */
-	public $timezone_id;
-	public $date_format;
-	public $datetime_format;
-	public $military_time;
-	public $start_of_week;
-	public $financial_year_start;
-	public $payment_terms;
-
-	public $language_id;
-	public $precision;
-	public $default_task_rate;
-	public $send_reminders;
-	public $show_tasks_in_portal;
-	public $custom_message_dashboard;
-	public $custom_message_unpaid_invoice;
-	public $custom_message_paid_invoice;
-	public $custom_message_unapproved_quote;
-	public $show_currency_symbol;
-	public $show_currency_code;
-	public $inclusive_taxes;
-
-	public $custom_invoice_taxes1;
-	public $custom_invoice_taxes2;
-	public $lock_sent_invoices;
-	public $auto_bill;
-	public $auto_archive_invoice;
-	
-	/**
-	 * Counter Variables
-	 *
-	 * Currently we have only engineered counters to be implemented at the client level
-	 * prefix/patterns and padding are not there yet.
-	 */
-	public $invoice_number_prefix;
-	public $invoice_number_pattern;
-	public $invoice_number_counter;
-
-	public $quote_number_prefix;
-	public $quote_number_pattern;
-	public $quote_number_counter;
-	
-	public $credit_number_prefix;
-	public $credit_number_pattern;
-	public $credit_number_counter;
-
-	public $shared_invoice_quote_counter;
-	public $recurring_invoice_number_prefix;
-	
-	public $counter_padding;
 
 	/**
 	 * Settings which which are unique to client settings
@@ -88,27 +36,71 @@ class ClientSettings extends BaseSettings
 	public $industry_id;
 	public $size_id;
 
-	public $design;
-
-	public $company_gateways;
-
-
-	public $invoice_design_id;
-	public $quote_design_id;
-	public $email_footer;
-	public $email_subject_invoice;
-	public $email_subject_quote;
-	public $email_subject_payment;
-	public $email_template_invoice;
-	public $email_template_quote;
-	public $email_template_payment;
-	public $email_subject_reminder1;
-	public $email_subject_reminder2;
-	public $email_subject_reminder3;
-	public $email_template_reminder1;
-	public $email_template_reminder2;
-	public $email_template_reminder3;
+	public static $casts = [
+		'industry_id' => 'string',
+		'size_id' => 'string',
+	];
 	
+	/*
+
+	public static $casts = [
+		'timezone_id' => 'string',
+		'date_format' => 'string',
+		'datetime_format' => 'string',
+		'military_time' => 'bool',
+		'start_of_week' => 'int',
+		'financial_year_start' => 'int',
+		'payment_terms' => 'int',
+		'language_id' => 'string',
+		'precision' => 'int',
+		'default_task_rate' => 'float',
+		'send_reminders' => 'bool',
+		'show_tasks_in_portal' => 'bool',
+		'custom_message_dashboard' => 'string',
+		'custom_message_unpaid_invoice' => 'string',
+		'custom_message_paid_invoice' => 'string',
+		'custom_message_unapproved_quote' => 'string',
+		'show_currency_symbol' => 'bool',
+		'show_currency_code' => 'bool',
+		'inclusive_taxes' => 'bool',
+		'custom_invoice_taxes1' => 'bool',
+		'custom_invoice_taxes2' => 'bool',
+		'lock_sent_invoices' => 'bool',
+		'auto_bill' => 'bool',
+		'auto_archive_invoice' => 'bool',
+		'invoice_number_prefix' => 'string',
+		'invoice_number_pattern' => 'string',
+		'invoice_number_counter' => 'int',
+		'quote_number_prefix' => 'string',
+		'quote_number_pattern' => 'string',
+		'quote_number_counter' => 'int',
+		'credit_number_prefix' => 'string',
+		'credit_number_pattern' => 'string',
+		'credit_number_counter' => 'int',
+		'shared_invoice_quote_counter' => 'int',
+		'recurring_invoice_number_prefix' => 'string',
+		'counter_padding' => 'int',
+		'industry_id' => 'string',
+		'size_id' => 'string',
+		'design' => 'string',
+		'company_gateways' => 'string',
+		'invoice_design_id' => 'string',
+		'quote_design_id' => 'string',
+		'email_footer' => 'string',
+		'email_subject_invoice' => 'string',
+		'email_subject_quote' => 'string',
+		'email_subject_payment' => 'string',
+		'email_template_invoice' => 'string',
+		'email_template_quote' => 'string',
+		'email_template_payment' => 'string',
+		'email_subject_reminder1' => 'string',
+		'email_subject_reminder2' => 'string',
+		'email_subject_reminder3' => 'string',
+		'email_template_reminder1' => 'string',
+		'email_template_reminder2' => 'string',
+		'email_template_reminder3' => 'string',
+	];
+*/
 	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned
@@ -131,11 +123,13 @@ class ClientSettings extends BaseSettings
 	public static function defaults() : \stdClass
 	{
 
-		return (object)[
-			'entity' => Client::class,
-			'industry_id' => NULL,
-			'size_id' => NULL,
+		$data = (object)[
+			'entity' => (string)Client::class,
+			'industry_id' => '',
+			'size_id' => '',
 		];
+
+		return self::setCasts($data, self::$casts);
 
 	}
 
@@ -151,10 +145,14 @@ class ClientSettings extends BaseSettings
 	{
 
 		
-		foreach($client_settings as $key => $value)
+		foreach($company_settings as $key => $value)
 		{
-
-			if(!isset($client_settings->{$key}) && property_exists($company_settings, $key)) {
+			/* pseudo code
+				if the property exists and is a string BUT has no length, treat it as TRUE
+			*/
+			if( ( (property_exists($client_settings, $key) && is_string($client_settings->{$key}) && (iconv_strlen($client_settings->{$key}) <1))) 
+				|| !isset($client_settings->{$key}) 
+				&& property_exists($company_settings, $key)) {
 				$client_settings->{$key} = $company_settings->{$key};
 			}
 

@@ -19,7 +19,7 @@ class BaseSettingsTest extends TestCase
     
 	    parent::setUp();
 		
-    	$this->settings = new ClientSettings(ClientSettings::defaults());
+    	$this->settings = ClientSettings::defaults();
 
 	}
 
@@ -29,7 +29,7 @@ class BaseSettingsTest extends TestCase
 
 		$updated_object = $this->migrate($blank_object);
 
-		$this->assertTrue(property_exists($updated_object, 'language_id'));
+		$this->assertTrue(property_exists($updated_object, 'size_id'));
 	}
 
 	public function testPropertyNamesNotExist()

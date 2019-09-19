@@ -101,7 +101,6 @@ class InvoiceTest extends TestCase
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 
-
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);

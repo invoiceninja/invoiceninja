@@ -9,7 +9,7 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'company_key' => strtolower(str_random(config('ninja.key_length'))),
         'ip' => $faker->ipv4,
         'db' => config('database.default'),
-        'settings' => new CompanySettings(CompanySettings::defaults()),
+        'settings' => CompanySettings::defaults(),
         'address1' => $faker->secondaryAddress,
         'address2' => $faker->address,
         'city' => $faker->city,

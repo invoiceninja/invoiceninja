@@ -34,7 +34,7 @@ class RecurringInvoiceFactory
 		$invoice->partial_due_date = null;
 		$invoice->is_deleted = false;
 		$invoice->line_items = json_encode([]);
-		$invoice->settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults())); //todo need to embed the settings here
+		$invoice->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()); //todo need to embed the settings here
 		$invoice->backup = json_encode([]);
 		$invoice->tax_name1 = '';
 		$invoice->tax_rate1 = 0;

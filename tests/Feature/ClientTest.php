@@ -108,7 +108,7 @@ class ClientTest extends TestCase
 
         $token = $company_token->token;
         $company = $company_token->company;
-
+        
         $user = $company_token->user;
 
         //$company_user = $company->company_users()->first();

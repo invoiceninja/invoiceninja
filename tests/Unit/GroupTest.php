@@ -18,7 +18,7 @@ class GroupTest extends TestCase
     
     	parent::setUp();
 	
-    	$this->settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
+    	$this->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
 
 	}
 

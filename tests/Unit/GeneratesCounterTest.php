@@ -224,10 +224,12 @@ class GeneratesCounterTest extends TestCase
     public function testClientNumberPattern()
     {
         $settings = $this->client->company->settings;
-        $settings->client_number_prefix = null;
+        $settings->client_number_prefix = '';
         $settings->client_number_pattern = '{$year}-{$user_id}-{$counter}';
         $this->client->company->settings = $settings;
-        $this->client->company->save();    
+        $this->client->company->save();  
+        $this->client->save();
+        $this->client->fresh();  
 
         $client_number = $this->getNextClientNumber($this->client);
     

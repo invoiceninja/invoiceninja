@@ -26,7 +26,7 @@ class CompanyFactory
         $company->name = '';
         $company->account_id = $account_id;
         $company->company_key = $this->createHash();
-        $company->settings = new CompanySettings(CompanySettings::defaults());
+        $company->settings = CompanySettings::defaults();
         $company->db = config('database.default');
         $company->domain = '';
         

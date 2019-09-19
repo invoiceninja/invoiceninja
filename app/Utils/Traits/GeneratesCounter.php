@@ -16,6 +16,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Timezone;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -151,9 +152,9 @@ trait GeneratesCounter
         //Reset counters if enabled
 		$this->resetCounters($client);
 
-        $counter = $client->company->getSettingsByKey( 'client_number_counter' );
+        $counter = $client->getSetting('client_number_counter' );
 
-		$client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->company->settings->counter_padding, $client->company->settings->client_number_prefix, $client->company->settings->client_number_pattern);
+		$client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_prefix'), $client->getSetting('client_number_pattern'));
 
 		$this->incrementCounter($client->company, 'client_number_counter');
 
@@ -266,11 +267,11 @@ trait GeneratesCounter
 	private function resetCounters(Client $client)
     {
 
-        $timezone = $client->company->timezone()->name;
+        $timezone = Timezone::find($client->getSetting('timezone_id'));
 
-        $reset_date = Carbon::parse($client->company->settings->reset_counter_date, $timezone);
+        $reset_date = Carbon::parse($client->getSetting('reset_counter_date'), $timezone->name);
 
-        if (! $reset_date->isToday() || ! $client->company->settings->reset_counter_date) 
+        if (! $reset_date->isToday() || ! $client->getSetting('reset_counter_date'))
             return false;
 
         switch ($client->company->reset_counter_frequency_id) {

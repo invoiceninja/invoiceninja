@@ -73,7 +73,7 @@ trait MockAccountData
         $gs = new GroupSetting;
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;
-        $gs->settings = new ClientSettings(ClientSettings::defaults());
+        $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
         $gs->save();
 
         $this->client->group_settings_id = $gs->id;
@@ -86,7 +86,7 @@ trait MockAccountData
 
 		$this->invoice->line_items = $this->buildLineItems();
 		
-		$this->settings = $this->client->settings;
+		$this->settings = $this->client->getMergedSettings();
 
 		$this->settings->custom_taxes1 = false;
 		$this->settings->custom_taxes2 = false;
@@ -168,7 +168,7 @@ trait MockAccountData
         $gs = new GroupSetting;
         $gs->company_id = $this->company->id;
         $gs->user_id = $this->user->id;
-        $gs->settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
+        $gs->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
         $gs->name = 'Default Client Settings';
         $gs->save();
 

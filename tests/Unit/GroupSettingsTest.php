@@ -26,7 +26,7 @@ class GroupSettingsTest extends TestCase
 	    $this->makeTestData();
 
 	    $this->company_settings = CompanySettings::defaults();
-	    $this->client->settings = new ClientSettings(ClientSettings::defaults());
+	    $this->client_settings = ClientSettings::buildClientSettings($this->company_settings, ClientSettings::defaults());
 
 
 	}
@@ -36,39 +36,44 @@ class GroupSettingsTest extends TestCase
 	{
 		
 		$this->company_settings->timezone_id = 'fluffy';
-    	$this->client->company->settings = $this->company_settings;
+    	$this->company->settings = $this->company_settings;
+    	$this->company->save();
 
-		$this->assertEquals($this->client->company->settings->timezone_id, 'fluffy');
-		$this->assertEquals($this->client->getSetting('timezone_id'), 'fluffy');
-		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'fluffy');
+    	$this->client_settings->timezone_id = '1';
+    	$this->client->settings = $this->client_settings;
+    	$this->client->save();
+
+		$this->assertEquals($this->client->settings->timezone_id, '1');
+		$this->assertEquals($this->client->getSetting('timezone_id'), '1');
+		$this->assertEquals($this->client->getMergedSettings()->timezone_id, '1');
 			
+		$this->assertEquals($this->company->settings->timezone_id, 'fluffy');
+
 	}
 
 
 	public function testGroupDefaults()
 	{
 
-		$cs = $this->client->company->settings;
-		$cs->timezone_id = NULL;
+		$cs = $this->company->settings;
+		$cs->timezone_id = '';
 
-		$this->client->company->settings = $cs;
+		$this->company->settings = $cs;
 
 		$gs = $this->client->group_settings->settings;
 		$gs->timezone_id = 'SPOCK';
 
 		$this->client->group_settings->settings = $gs;
+		$this->client->save();
 
 		$cls = $this->client->settings;
-		$cls->timezone_id = NULL;
+		$cls->timezone_id = '';
 		$cls->date_format = 'sharleen';
-
     	$this->client->settings = $cls;
-
-    	$this->client->group_settings->save();
-    	$this->client->company->save();    	
     	$this->client->save();
 
-    	$this->client->fresh();
+    	$this->client->company->save();    	
+    	$this->client->save();
 
     	$this->assertEquals($this->client->group_settings->settings->timezone_id, 'SPOCK');
 		$this->assertEquals($this->client->getSetting('timezone_id'), 'SPOCK');

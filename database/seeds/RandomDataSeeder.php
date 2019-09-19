@@ -125,7 +125,7 @@ class RandomDataSeeder extends Seeder
         GroupSetting::create([
             'company_id' => $company->id,
             'user_id' => $user->id,
-            'settings' =>  ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults())),
+            'settings' =>  ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()),
             'name' => 'Default Client Settings',
         ]);
         

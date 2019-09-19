@@ -70,7 +70,7 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
-		//Log::error(print_r($this->invoice,1));
+		//\Log::error(var_dump($this->settings));
 
 		$this->calcLineItems()
 			->calcDiscount()

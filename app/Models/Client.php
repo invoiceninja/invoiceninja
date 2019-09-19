@@ -179,13 +179,13 @@ class Client extends BaseModel
         if($this->group_settings !== null)
         {
 
-            $group_settings = ClientSettings::buildClientSettings(new ClientSettings($this->group_settings->settings), new ClientSettings($this->settings));
+            $group_settings = ClientSettings::buildClientSettings($this->group_settings->settings, $this->settings);
 
-            return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), $group_settings);
+            return ClientSettings::buildClientSettings($this->company->settings, $group_settings);
 
         }
 
-        return ClientSettings::buildClientSettings(new CompanySettings($this->company->settings), new ClientSettings($this->settings));
+        return ClientSettings::buildClientSettings($this->company->settings, $this->settings);
     }
 
     /**
@@ -199,19 +199,30 @@ class Client extends BaseModel
      */
     public function getSetting($setting)
     {
-
         //check client level first
-        if($this->settings && isset($this->settings->{$setting}) && property_exists($this->settings, $setting))
-            return $this->settings->{$setting};
+        if($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false) ){
+
+            /*need to catch empt string here*/
+            if(is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)){
+                return $this->settings->{$setting};
+            }
+        }
 
         //check group level (if a group is assigned)
-        if($this->group_settings && isset($this->group_settings->settings->{$setting}) && property_exists($this->group_settings->settings, $setting))
-            return $this->group_settings->settings->{$setting};
-        
+        if($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)){
+                            \Log::error('returning group '.$this->group_settings->{$setting});
+
+           return $this->group_settings->settings->{$setting};
+        }
         
         //check company level
-        if(isset($this->company->settings->{$setting}) && property_exists($this->company->settings, $setting))
+        if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
+                                        \Log::error('returning company '.$this->company->{$setting});
+
             return $this->company->settings->{$setting};
+        }
+        
+        throw new \Exception("Settings corrupted", 1);
         
     
         

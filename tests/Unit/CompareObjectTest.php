@@ -19,9 +19,9 @@ class CompareObjectTest extends TestCase
     
     parent::setUp();
 	
-    $this->client_settings = new ClientSettings(ClientSettings::defaults());
+    $this->client_settings = ClientSettings::defaults();
 
-    $this->company_settings = new CompanySettings(CompanySettings::defaults());
+    $this->company_settings = CompanySettings::defaults();
 
 	}
 
@@ -29,7 +29,7 @@ class CompareObjectTest extends TestCase
 	public function buildClientSettings()
 	{
 
-		foreach($this->client_settings as $key => $value)
+		foreach($this->company_settings as $key => $value)
 		{
 
 			if(!isset($this->client_settings->{$key}) && property_exists($this->company_settings, $key))
@@ -52,12 +52,12 @@ class CompareObjectTest extends TestCase
 
 	public function testDirectClientSettingsBuild()
 	{
-		$settings = ClientSettings::buildClientSettings(new CompanySettings(CompanySettings::defaults()), new ClientSettings(ClientSettings::defaults()));
+		$settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
 
 		$this->assertEquals($settings->timezone_id, 15);
 		$this->assertEquals($settings->language_id, 1);
 		$this->assertEquals($settings->payment_terms, 1);
-		$this->assertEquals($settings->custom_invoice_taxes1, 'FALSE');
+		$this->assertFalse($settings->custom_invoice_taxes1);
 	}
 
 

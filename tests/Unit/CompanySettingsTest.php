@@ -35,10 +35,10 @@ class CompanySettingsTest extends TestCase
 
 	}
 
-	public function testPropertyIsNotset()
+	public function testPropertyIssetOk()
 	{
 
-		$this->assertFalse(isset($this->company_settings->custom_label1));
+		$this->assertTrue(isset($this->company_settings->custom_label1));
 
 	}
 
