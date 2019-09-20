@@ -72,7 +72,7 @@
 
 		</div>
 
-		<!-- update payment methods -->
+		<!-- update payment methods 
 		<div class="row" style="margin-top: 30px;">
 			<div class="col-sm-6 col-lg-3">
 				<div class="card text-white bg-warning h-100">
@@ -100,7 +100,7 @@
 				</div>
 			</div>
 		</div>
-
+		-->
     </div>
 </main>
 </body>

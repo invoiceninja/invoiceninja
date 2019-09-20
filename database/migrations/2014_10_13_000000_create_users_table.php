@@ -239,9 +239,9 @@ class CreateUsersTable extends Migration
 
         Schema::create('company_tokens', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('account_id');
-            $table->unsignedInteger('user_id')->index();
+            $table->unsignedInteger('user_id');
             $table->string('token')->nullable();
             $table->string('name')->default('');
 

@@ -278,7 +278,12 @@ class Client extends BaseModel
      */
     public function getPaymentMethods($amount) :array
     {
-
+//this method will get all the possible gateways a client can pay with
+//but we also need to consider payment methods that are already stored
+//so we MUST filter the company gateways and remove duplicates.
+//
+//Also need to harvest the list of client gateway tokens and present these
+//for instant payment
         $company_gateways = $this->getSetting('company_gateways');
         
         if($company_gateways)

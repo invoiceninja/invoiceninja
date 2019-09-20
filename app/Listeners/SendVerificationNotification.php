@@ -17,7 +17,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
-class SendVerificationNotification
+class SendVerificationNotification implements ShouldQueue
 {
     /**
      * Create the event listener.

@@ -3,6 +3,8 @@
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\Events\Invoice\InvoiceWasUpdated;
+use App\Helpers\Invoice\InvoiceCalc;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -10,6 +12,7 @@ use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Database\Seeder;
@@ -104,6 +107,17 @@ class RandomDataSeeder extends Seeder
         /** Invoice Factory */
         factory(\App\Models\Invoice::class,500)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
+        $invoices = Invoice::all();
+
+        $invoices->each(function ($invoice){
+            
+                $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
+
+                $invoice = $invoice_calc->build()->getInvoice();
+                
+                $invoice->save();
+        });
+        
         /** Recurring Invoice Factory */
         factory(\App\Models\RecurringInvoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 

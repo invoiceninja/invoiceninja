@@ -132,7 +132,7 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $intent['intent'] = $this->getSetupIntent();
 
-        return view('portal.default.gateways.stripe.create_customer', array_merge($data, $intent));
+        return view('portal.default.gateways.stripe.add_credit_card', array_merge($data, $intent));
 
     }
 

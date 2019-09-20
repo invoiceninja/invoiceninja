@@ -130,7 +130,6 @@ class InvoiceController extends Controller
             return $invoice;
         });
 
-
         $formatted_total = Number::formatMoney($total, auth()->user()->client);
 
         $payment_methods = auth()->user()->client->getPaymentMethods($total);

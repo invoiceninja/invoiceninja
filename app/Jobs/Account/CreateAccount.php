@@ -58,6 +58,7 @@ class CreateAccount
          * Create company
          */
         $company = CreateCompany::dispatchNow($this->request, $account);
+        $company->load('account');
         /*
          * Set default company
          */

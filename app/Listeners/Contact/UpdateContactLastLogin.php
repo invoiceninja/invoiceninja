@@ -16,7 +16,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class UpdateContactLastLogin
+class UpdateContactLastLogin implements ShouldQueue
 {
     /**
      * Create the event listener.

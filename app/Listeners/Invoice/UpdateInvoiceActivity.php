@@ -20,7 +20,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class UpdateInvoiceActivity
+class UpdateInvoiceActivity implements ShouldQueue
 {
     protected $activity_repo;
     /**

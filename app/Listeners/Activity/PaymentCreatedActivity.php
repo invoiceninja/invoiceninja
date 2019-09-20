@@ -18,7 +18,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class PaymentCreatedActivity
+class PaymentCreatedActivity implements ShouldQueue
 {
     protected $activityRepo;
     /**
