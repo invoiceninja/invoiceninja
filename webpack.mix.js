@@ -20,6 +20,9 @@ mix.copyDirectory('node_modules/@coreui/coreui/dist/js/coreui.min.js', 'public/v
 mix.copyDirectory('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js', 'public/vendors/js/bootstrap.bundle.min.js');
 mix.copyDirectory('node_modules/jquery/dist/jquery.min.js', 'public/vendors/js/jquery.min.js');
 mix.copyDirectory('node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js', 'public/vendors/js/perfect-scrollbar.min.js');
+mix.copyDirectory('node_modules/jsignature/libs/jSignature.min.js', 'public/vendors/js/jSignature.min.js');
+mix.copyDirectory('node_modules/jsignature/libs/flashcanvas.min.js', 'public/vendors/js/flashcanvas.min.js');
+mix.copyDirectory('node_modules/jsignature/libs/flashcanvas.swf', 'public/vendors/js/flashcanvas.swf');
 
 
 mix.copyDirectory('node_modules/select2/dist/css/select2.min.css', 'public/vendors/css/select2.min.css');

@@ -122,6 +122,7 @@ class InvoiceController extends Controller
 
         $total = $invoices->sum('balance');
                  
+                 
         $invoices->filter(function ($invoice){
             return $invoice->isPayable();
         })->map(function ($invoice){
@@ -129,6 +130,8 @@ class InvoiceController extends Controller
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             return $invoice;
         });
+
+
 
         $formatted_total = Number::formatMoney($total, auth()->user()->client);
 
