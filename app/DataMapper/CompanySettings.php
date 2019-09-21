@@ -156,8 +156,12 @@ class CompanySettings extends BaseSettings
 	public $enable_portal_password = false;
 	public $show_accept_invoice_terms = false;
 	public $show_accept_quote_terms = false;
+	public $require_invoice_signature = false;
+	public $require_quote_signature = false;
 
 	public static $casts = [
+		'require_invoice_signature' => 'false',
+		'require_quote_signature' => 'false',
 		'show_accept_quote_terms' => 'false',
 		'show_accept_invoice_terms' => 'false',
 		'timezone_id' => 'string',
@@ -289,7 +293,7 @@ class CompanySettings extends BaseSettings
 		foreach($company_settings as $key => $value)
 		{
 
-			if(!property_exists($data, $key))
+			if(!property_exists($settings, $key))
 				$settings->{$key} = self::castAttribute($key, $company_settings->{$key});
 			
 		}

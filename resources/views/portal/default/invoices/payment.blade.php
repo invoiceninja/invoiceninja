@@ -124,17 +124,14 @@ var terms_accepted = false;
 
 $('#pay_now').on('click', function(e) {
     //check if terms must be accepted
-    
-    @if(App\DataMapper\CompanySettings::duh())
-    @endif
 
     @if($settings->show_accept_invoice_terms)
-    $('#terms_modal').modal('show');
+        $('#terms_modal').modal('show');
     @endif
 
-    //check if signature required
-    getSignature();
-
+    @if($settings->require_invoice_signature)
+        getSignature();
+    @endif
 });
 
 $('#terms_accepted').on('click', function(e){
