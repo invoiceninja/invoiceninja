@@ -97,7 +97,7 @@
                 <div id="signature"></div><br/>
       </div>
       <div class="modal-footer">
-        <button id="modalPayNowButton" type="button" class="btn btn-success" onclick="onModalPayNowClick()" disabled="">
+        <button id="modal_pay_now_button" type="button" class="btn btn-success" onclick="onModalPayNowClick()" disabled="">
             {{ ctrans('texts.pay_now') }}
         </button>
       </div>
@@ -120,27 +120,64 @@
 
 <script type="text/javascript">
 
+var terms_accepted = false;
+
 $('#pay_now').on('click', function(e) {
     //check if terms must be accepted
-    $('#terms_modal').modal('show');
+    
+    @if(App\DataMapper\CompanySettings::duh())
+    @endif
 
-    //push to signature check
+    @if($settings->show_accept_invoice_terms)
+    $('#terms_modal').modal('show');
+    @endif
+
+    //check if signature required
+    getSignature();
+
 });
 
 $('#terms_accepted').on('click', function(e){
 
+        terms_accepted = true;
+
         $('#terms_modal').modal('hide');
 
-    //check in signature is required 
-        $("#signature").jSignature({ 'UndoButton': true, }).bind('change', function(e) {});
-        $("#signature").resize();
 
-        $("#signature").jSignature('reset');
-        $('#signature_modal').modal();
     //push to payment
     
 
 });
+
+$("#modal_pay_now_button").on('click', function(e){
+    
+    //disable to prevent firing twice
+    $("#modal_pay_now_button").attr("disabled", true);
+
+
+});
+
+    function getSignature()
+    {
+        //check in signature is required 
+        $("#signature").jSignature({ 'UndoButton': true, }).bind('change', function(e) {
+
+            if( $("#signature").jSignature('getData', 'native').length >= 1) {
+                
+                $("#modal_pay_now_button").removeAttr("disabled");
+
+            } else {
+                $("#modal_pay_now_button").attr("disabled", true);
+
+            }
+
+        });
+
+        $("#signature").resize();
+
+        $("#signature").jSignature('reset');
+        $('#signature_modal').modal();
+    }
 
     function onModalPayNowClick() {
             var data = {

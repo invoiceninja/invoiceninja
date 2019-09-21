@@ -70,8 +70,8 @@
       ).then(function(result) {
         if (result.error) {
           // Display error.message in your UI.
-          console.log(result.error);
-          console.log(result.error.message);
+          // console.log(result.error);
+          // console.log(result.error.message);
 
             $("#card-errors").empty();
             $("#card-errors").append("<b>" + result.error.message + "</b>");

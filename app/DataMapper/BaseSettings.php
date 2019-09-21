@@ -57,4 +57,9 @@ class BaseSettings
 		}
 	}
 
+	public static function castSingleAttribute($key, $data)
+	{
+		
+	}
+
 }

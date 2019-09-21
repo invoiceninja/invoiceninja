@@ -173,7 +173,7 @@ class Client extends BaseModel
      * 
      * @return object stdClass object of settings
      */
-    public function getMergedSettings()
+    public function getMergedSettings() :object
     {
 
         if($this->group_settings !== null)
@@ -185,7 +185,7 @@ class Client extends BaseModel
 
         }
 
-        return ClientSettings::buildClientSettings($this->company->settings, $this->settings);
+        return CompanySettings::setProperties(ClientSettings::buildClientSettings($this->company->settings, $this->settings));
     }
 
     /**

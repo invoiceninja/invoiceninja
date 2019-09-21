@@ -122,7 +122,7 @@ class InvoiceController extends Controller
 
         $total = $invoices->sum('balance');
                  
-                 
+
         $invoices->filter(function ($invoice){
             return $invoice->isPayable();
         })->map(function ($invoice){
@@ -138,6 +138,7 @@ class InvoiceController extends Controller
         $payment_methods = auth()->user()->client->getPaymentMethods($total);
 
         $data = [
+            'settings' => auth()->user()->client->getMergedSettings(),
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,

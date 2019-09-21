@@ -154,8 +154,12 @@ class CompanySettings extends BaseSettings
 	public $has_custom_design2 = '';
 	public $has_custom_design3 = '';
 	public $enable_portal_password = false;
+	public $show_accept_invoice_terms = false;
+	public $show_accept_quote_terms = false;
 
 	public static $casts = [
+		'show_accept_quote_terms' => 'false',
+		'show_accept_invoice_terms' => 'false',
 		'timezone_id' => 'string',
 		'date_format' => 'string',
 		'datetime_format' => 'string',
@@ -250,6 +254,7 @@ class CompanySettings extends BaseSettings
 	 */
 	public static function defaults() : \stdClass
 	{
+		
 		$config = json_decode(config('ninja.settings'));
 		
 		$data = (object)get_class_vars(CompanySettings::class);
@@ -266,6 +271,29 @@ class CompanySettings extends BaseSettings
 		$data->translations = (object) [];
 		
 		return self::setCasts($data, self::$casts);
+
+	}
+
+	/**
+	 * In case we update the settings object in the future we
+	 * need to provide a fallback catch on old settings objects which will
+	 * set new properties to the object prior to being returned.
+	 * 
+	 * @param object $data The settings object to be checked
+	 */
+	public static function setProperties($settings) :\stdClass
+	{
+
+		$company_settings = (object)get_class_vars(CompanySettings::class);
+
+		foreach($company_settings as $key => $value)
+		{
+
+			if(!property_exists($data, $key))
+				$settings->{$key} = self::castAttribute($key, $company_settings->{$key});
+			
+		}
+		return $settings;
 	}
 
 }
