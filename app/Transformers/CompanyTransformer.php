@@ -16,8 +16,10 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyUser;
+use App\Models\GroupSetting;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
+use App\Transformers\GroupSettingTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -50,6 +52,7 @@ class CompanyTransformer extends EntityTransformer
         'expenses',
         'payments',
         'company_user',
+        'groups'
     ];
 
 
@@ -88,7 +91,6 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new CompanyUserTransformer($this->serializer);
 
         return $this->includeItem($company->company_users->where('user_id', auth()->user()->id)->first(), $transformer, CompanyUser::class);
-
     }
 
     public function includeUsers(Company $company)
@@ -103,6 +105,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new ClientTransformer($this->serializer);
 
         return $this->includeCollection($company->clients, $transformer, Client::class);
+    }
+
+    public function includeGroups(Company $company)
+    {
+        $transformer = new GroupSettingTransformer($this->serializer);
+
+        return $this->includeCollection($company->groups, $transformer, GroupSetting::class);        
     }
 
     public function includeInvoices(Company $company)

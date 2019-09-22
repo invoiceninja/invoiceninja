@@ -112,6 +112,11 @@ class Company extends BaseModel
         return $this->hasMany(ClientContact::class);
     }
 
+    public function groups()
+    {
+        return $this->hasMany(GroupSetting::class);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

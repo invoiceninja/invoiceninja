@@ -85,7 +85,6 @@ class Statics
                 return $industry->name;
             })->values();
 
-
             $data['countries'] = Cache::get('countries')->each(function ($country) {
                 $country->name = ctrans('texts.country_'.$country->name);
             })->sortBy(function ($country) {
