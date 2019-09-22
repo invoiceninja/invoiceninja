@@ -308,7 +308,7 @@ trait GeneratesCounter
         }
 
         $settings = $client->company->settings;
-        $settings->reset_counter_date = $reset_date->format(config('ninja.date_format'));
+        $settings->reset_counter_date = $reset_date->format($client->date_format());
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;

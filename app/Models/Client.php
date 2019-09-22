@@ -18,6 +18,8 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\DateFormat;
+use App\Models\DatetimeFormat;
 use App\Models\Filterable;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
@@ -151,13 +153,13 @@ class Client extends BaseModel
     }
 
     public function date_format()
-    {
-        return $this->getSetting('date_format');
+    {        
+        return DateFormat::find($this->getSetting('date_format_id'))->format;
     }
 
     public function datetime_format()
     {
-        return $this->getSetting('datetime_format');
+        return DatetimeFormat::find($this->getSetting('datetime_format_id'))->format;
     }
 
     public function currency()

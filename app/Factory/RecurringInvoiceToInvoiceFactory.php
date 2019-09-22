@@ -30,7 +30,7 @@ class recurring_invoiceToInvoiceFactory
 		$invoice->terms = $recurring_invoice->terms;
 		$invoice->public_notes = $recurring_invoice->public_notes;
 		$invoice->private_notes = $recurring_invoice->private_notes;
-		$invoice->invoice_date = date_create()->format(config('ninja.date_format'));
+		$invoice->invoice_date = date_create()->format($client->date_format());
 		$invoice->due_date = $recurring_invoice->due_date; //todo calculate based on terms
 		$invoice->is_deleted = $recurring_invoice->is_deleted;
 		$invoice->line_items = $recurring_invoice->line_items;

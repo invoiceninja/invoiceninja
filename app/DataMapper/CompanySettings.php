@@ -164,8 +164,8 @@ class CompanySettings extends BaseSettings
 		'show_accept_quote_terms' => 'false',
 		'show_accept_invoice_terms' => 'false',
 		'timezone_id' => 'string',
-		'date_format' => 'string',
-		'datetime_format' => 'string',
+		'date_format_id' => 'string',
+		'datetime_format_id' => 'string',
 		'military_time' => 'bool',
 		'start_of_week' => 'string',
 		'financial_year_start' => 'string',
@@ -266,9 +266,9 @@ class CompanySettings extends BaseSettings
 		$data->timezone_id = (string)config('ninja.i18n.timezone_id');
 		$data->language_id = (string)config('ninja.i18n.language_id');
 		$data->payment_terms = (string)config('ninja.i18n.payment_terms');
-		$data->datetime_format = (string)config('ninja.i18n.datetime_format');
+		$data->datetime_format_id = (string)config('ninja.i18n.datetime_format_id');
 		$data->military_time = (bool )config('ninja.i18n.military_time');
-		$data->date_format = (string)config('ninja.i18n.date_format');
+		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
 		$data->start_of_week = (int) config('ninja.i18n.start_of_week');
 		$data->financial_year_start = (int)config('ninja.i18n.financial_year_start');
 		$data->translations = (object) [];
