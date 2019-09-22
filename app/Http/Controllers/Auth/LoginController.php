@@ -42,7 +42,7 @@ class LoginController extends BaseController
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
-
+    
     protected $entity_type = CompanyUser::class;
 
     protected $entity_transformer = CompanyUserTransformer::class;
