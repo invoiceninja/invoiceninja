@@ -42,10 +42,8 @@ return [
         'country_id' => env('DEFAULT_COUNTRY', 840), // United Stated
         'currency_id' => env('DEFAULT_CURRENCY', 1),
         'language_id' => env('DEFAULT_LANGUAGE', 1), //en
-        'date_format' => env('DEFAULT_DATE_FORMAT', 'M j, Y'),
-        'date_picker_format' => env('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy'),
-        'datetime_format' => env('DEFAULT_DATETIME_FORMAT', 'F j, Y g:i a'),
-        'datetime_moment_format' => env('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a'),
+        'date_format_id' => env('DEFAULT_DATE_FORMAT_ID', '1'),
+        'datetime_format_id' => env('DEFAULT_DATETIME_FORMAT_ID', '1'),
         'locale' => env('DEFAULT_LOCALE', 'en'),
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
         'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 1),

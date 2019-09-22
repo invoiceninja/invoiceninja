@@ -927,6 +927,21 @@ class CreateUsersTable extends Migration
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });
 
+
+        Schema::create('date_formats', function ($table) {
+            $table->increments('id');
+            $table->string('format');
+            $table->string('picker_format');
+            $table->string('format_moment');
+            $table->string('format_dart');
+        });
+
+        Schema::create('datetime_formats', function ($table) {
+            $table->increments('id');
+            $table->string('format');
+            $table->string('format_moment');
+            $table->string('format_dart');
+        });
     }
   
     /**

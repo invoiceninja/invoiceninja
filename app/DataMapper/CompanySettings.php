@@ -21,8 +21,8 @@ class CompanySettings extends BaseSettings
 {
 
 	public $timezone_id = '';
-	public $date_format = '';
-	public $datetime_format = '';
+	public $date_format_id = '';
+	public $datetime_format_id = '';
 	public $military_time = false;
 	public $start_of_week = '';
 	public $financial_year_start = '';
@@ -115,7 +115,6 @@ class CompanySettings extends BaseSettings
 	public $design = 'views/pdf/design1.blade.php';
 
 	public $company_gateways = '';
-
 
 	public $invoice_terms = '';
 	public $quote_terms = '';
