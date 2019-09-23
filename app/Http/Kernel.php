@@ -71,7 +71,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\StartupCheck::class,
             \App\Http\Middleware\QueryLogging::class,
         ],
-        'db' => [
+        'api_db' => [
             \App\Http\Middleware\SetDb::class,
         ],
         'web_db' => [

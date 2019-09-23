@@ -29,9 +29,10 @@ Route::group(['api_secret_check','domain_db'], function () {
 
   Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
   Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.reset');
+  
 });
 
-Route::group(['middleware' => ['db','api_secret_check','token_auth'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
 
   Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
 

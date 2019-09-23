@@ -39,7 +39,7 @@ class RandomDataSeeder extends Seeder
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
-            'domain' => 'ninja.test:8000',
+            'domain' => config('ninja.site_url'),
         ]);
 
         $account->default_company_id = $company->id;

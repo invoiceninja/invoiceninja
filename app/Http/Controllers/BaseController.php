@@ -197,9 +197,12 @@ class BaseController extends Controller
                 $response['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
  
         }
+        
+        ksort($response);
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
         $headers = self::getApiHeaders();
+        
 
         return response()->make($response, 200, $headers);
 

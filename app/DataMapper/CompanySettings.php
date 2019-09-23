@@ -20,20 +20,21 @@ use App\Models\Company;
 class CompanySettings extends BaseSettings
 {
 
+	public $start_of_week = '';
+	public $financial_year_start = '';
+	public $enable_modules = false;
+
 	public $timezone_id = '';
 	public $date_format_id = '';
 	public $datetime_format_id = '';
 	public $military_time = false;
-	public $start_of_week = '';
-	public $financial_year_start = '';
 
 	public $language_id = '';
-
 	public $precision = 2;
 	public $show_currency_symbol = true;
 	public $show_currency_code = false;
 
-	public $payment_terms; 
+	public $payment_terms_id = 1; 
 
 	public $custom_label1 = '';
 	public $custom_value1 = '';
@@ -127,11 +128,10 @@ class CompanySettings extends BaseSettings
 	public $show_item_taxes = false;
 	public $fill_products = false;
 	public $tax_name1 = '';
-	public $tax_rate1 = '';
+	public $tax_rate1 = 0;
 	public $tax_name2 = '';
-	public $tax_rate2 = '';
+	public $tax_rate2 = 0;
 	public $enable_second_tax_rate = false;
-	public $enable_modules = false;
 	public $payment_type_id = '';
 	public $convert_products = false;
 	public $custom_fields = '';
@@ -149,9 +149,9 @@ class CompanySettings extends BaseSettings
 	public $email_template_reminder1 = '';
 	public $email_template_reminder2 = '';
 	public $email_template_reminder3 = '';
-	public $has_custom_design1 = '';
-	public $has_custom_design2 = '';
-	public $has_custom_design3 = '';
+	public $has_custom_design1 = false;
+	public $has_custom_design2 = false;
+	public $has_custom_design3 = false;
 	public $enable_portal_password = false;
 	public $show_accept_invoice_terms = false;
 	public $show_accept_quote_terms = false;
@@ -159,10 +159,15 @@ class CompanySettings extends BaseSettings
 	public $require_quote_signature = false;
 
 	public static $casts = [
-		'require_invoice_signature' => 'false',
-		'require_quote_signature' => 'false',
-		'show_accept_quote_terms' => 'false',
-		'show_accept_invoice_terms' => 'false',
+		'has_custom_design1' => 'bool',
+		'has_custom_design2' => 'bool',
+		'has_custom_design3' => 'bool',
+		'tax_rate1' => 'float',
+		'tax_rate2' => 'float',
+		'require_invoice_signature' => 'bool',
+		'require_quote_signature' => 'bool',
+		'show_accept_quote_terms' => 'bool',
+		'show_accept_invoice_terms' => 'bool',
 		'timezone_id' => 'string',
 		'date_format_id' => 'string',
 		'datetime_format_id' => 'string',
@@ -173,7 +178,7 @@ class CompanySettings extends BaseSettings
 		'precision' => 'int',
 		'show_currency_symbol' => 'bool',
 		'show_currency_code' => 'bool',
-		'payment_terms' => 'int', 
+		'payment_terms_id' => 'string', 
 		'custom_label1' => 'string',
 		'custom_value1' => 'string',
 		'custom_label2' => 'string',
