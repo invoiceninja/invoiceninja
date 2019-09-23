@@ -3,6 +3,7 @@
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Models\Account;
@@ -110,12 +111,14 @@ class RandomDataSeeder extends Seeder
         $invoices = Invoice::all();
 
         $invoices->each(function ($invoice){
-            
+                
                 $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
                 $invoice = $invoice_calc->build()->getInvoice();
                 
                 $invoice->save();
+
+                event(new InvoiceWasMarkedSent($invoice));
         });
         
         /** Recurring Invoice Factory */

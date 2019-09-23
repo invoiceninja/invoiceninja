@@ -23,7 +23,7 @@ use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\CreateInvoiceActivity;
-use App\Listeners\Invoice\CreateInvoiceInvitations;
+use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\SendVerificationNotification;
@@ -73,7 +73,7 @@ class EventServiceProvider extends ServiceProvider
         //Invoices
         
         InvoiceWasMarkedSent::class => [
-            CreateInvoiceInvitations::class,
+            CreateInvoiceInvitation::class,
         ],
         InvoiceWasUpdated::class => [
             UpdateInvoiceActivity::class,

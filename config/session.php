@@ -122,10 +122,7 @@ return [
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        str_slug(env('APP_NAME', 'laravel'), '_').'_session'
-    ),
+    'cookie' => 'ninja_session',
 
     /*
     |--------------------------------------------------------------------------

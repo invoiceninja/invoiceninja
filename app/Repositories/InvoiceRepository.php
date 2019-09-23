@@ -57,8 +57,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->save();
 
-        if(array_key_exists('invitations', $data))
-            $this->saveInvitations($data['invitations'], $invoice);
+        event(new CreateInvoiceInvitation($invoice));
 
         $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
@@ -106,48 +105,15 @@ class InvoiceRepository extends BaseRepository
      */
     private function markInvitationsSent(Invoice $invoice) :void
     {
-        $invoice->invitations->each(function($invitation, $key) {
+        $invoice->invitations->each(function($invitation) {
 
             if(!isset($invitation->sent_date))
             {
-
-                $invitation->sent_date = Carbon::now()->format(config('ninja.date_time_format'));
-
+                $invitation->sent_date = Carbon::now();
                 $invitation->save();
-                
             }
 
         });
-    }
-
-
-    /**
-     * Saves invitations.
-     *
-     * @param      array                        $invitations  The invitations
-     * @param      \App\Models\Invoice          $invoice      The invoice
-     *
-     * @return     Invoice|\App\Models\Invoice  Return the invoice object
-     */
-    private function saveInvitations(array $invitations, Invoice $invoice) :Invoice
-    {
-
-        foreach($invitations as $invitation)
-        {
-            //only insert new invitations
-            if(! array_key_exists('id', $invitation) || strlen($invitation['id']) == 0)
-            {
-
-                $invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-                $invitation->client_contact_id = $invitation['client_contact_id'];
-                $invitation->invoice_id = $invoice->id;
-                $invitation->save();
-
-            }
-            
-        }
-
-        return $invoice;
     }
 
 }
