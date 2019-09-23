@@ -72,7 +72,7 @@ class InvoiceInvitation extends BaseModel
 
     public function getName()
     {
-
+        return $this->invitation_key;
     }
 
     public function getLink()

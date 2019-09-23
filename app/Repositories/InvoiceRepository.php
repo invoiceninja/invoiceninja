@@ -16,8 +16,10 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -26,7 +28,7 @@ use Illuminate\Support\Carbon;
  */
 class InvoiceRepository extends BaseRepository
 {
-
+    use MakesHash;
     /**
      * Gets the class name.
      *
@@ -56,6 +58,19 @@ class InvoiceRepository extends BaseRepository
         $invoice->fill($data);
 
         $invoice->save();
+
+        if(isset($data['client_contacts']))
+        {
+            foreach($data['client_contacts'] as $contact)
+            {
+                if($contact['send_invoice'] == 1)
+                {
+                    $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
+                    $client_contact->send_invoice = true;
+                    $client_contact->save();
+                }
+            }
+        }
 
         event(new CreateInvoiceInvitation($invoice));
 

@@ -12,6 +12,8 @@
 namespace App\Transformers;
 
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Transformers\InvoiceInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
 class InvoiceTransformer extends EntityTransformer
@@ -23,12 +25,18 @@ class InvoiceTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-    //    'invitations',
+        'invitations',
     //    'payments',
     //    'client',
     //    'documents',
     ];
 
+    public function includeInvitations(Invoice $invoice)
+    {
+        $transformer = new InvoiceInvitationTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->invitations, $transformer, InvoiceInvitation::class);
+    }
 /*
     public function includeInvoiceItems(Invoice $invoice)
     {
@@ -37,12 +45,7 @@ class InvoiceTransformer extends EntityTransformer
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
 
-    public function includeInvitations(Invoice $invoice)
-    {
-        $transformer = new InvitationTransformer($this->account, $this->serializer);
 
-        return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
-    }
 
     public function includePayments(Invoice $invoice)
     {
@@ -112,7 +115,7 @@ class InvoiceTransformer extends EntityTransformer
             'has_expenses' => (bool) $invoice->has_expenses,
             'custom_text_value1' => $invoice->custom_text_value1 ?: '',
             'custom_text_value2' => $invoice->custom_text_value2 ?: '',
-            'line_items' => $invoice->line_items,
+            'line_items' => $invoice->line_items ?: '',
             'backup' => $invoice->backup ?: '',
             'settings' => $invoice->settings,
 
