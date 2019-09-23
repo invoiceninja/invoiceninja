@@ -40,4 +40,11 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 
 });
 
+Route::group(['middleware' => ['domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+
+	/*Invitation catches*/
+	Route::get('invoice/{invitation_id}','ClientPortal\InvitationController@invoiceRouter');
+
+});
+
 Route::fallback('BaseController@notFoundClient');

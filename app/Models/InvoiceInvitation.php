@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class InvoiceInvitation extends BaseModel
 {
@@ -78,5 +79,11 @@ class InvoiceInvitation extends BaseModel
     public function getLink()
     {
         
+    }
+
+    public function markViewed()
+    {
+        $this->viewed_date = Carbon::now();
+        $this->save();
     }
 }
