@@ -28,7 +28,11 @@ class ContactSetDb
     public function handle($request, Closure $next)
     {
 
-        $error['error'] = ['message' => 'Database could not be set'];
+
+        $error = [
+                'message' => 'Invalid Token',
+                'errors' => []
+            ];
 
         // we must have a token passed, that matched a token in the db, and multiDB is enabled.
         // todo i don't think we can call the DB prior to setting it???? i think this if statement needs to be rethought

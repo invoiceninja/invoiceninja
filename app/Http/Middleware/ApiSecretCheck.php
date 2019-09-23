@@ -30,8 +30,10 @@ class ApiSecretCheck
             return $next($request);
         else {
 
-            $error['error'] = ['message' => 'Invalid secret'];
-
+            $error = [
+                'message' => 'Invalid secret',
+                'errors' => []
+            ];
             return response()
             ->json(json_encode($error, JSON_PRETTY_PRINT) ,403)
             ->header('X-App-Version', config('ninja.app_version'))

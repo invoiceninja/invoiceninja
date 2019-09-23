@@ -17,6 +17,7 @@ class SetWebDb
      */
     public function handle($request, Closure $next)
     {
+        
         if (config('ninja.db.multi_db_enabled'))
         {
 

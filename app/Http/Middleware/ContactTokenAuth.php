@@ -32,14 +32,24 @@ class ContactTokenAuth
         if( $request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company'])->whereRaw("BINARY `token`= ?",[$request->header('X-API-TOKEN')])->first() ) ) 
         {
             
+            $error = [
+                'message' => 'Authentication disabled for user.',
+                'errors' => []
+            ];
+
             //client_contact who once existed, but has been soft deleted   
             if(!$client_contact)
-                return response()->json(json_encode(['message' => 'Authentication disabled for user.'], JSON_PRETTY_PRINT) ,403); 
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403); 
 
+
+            $error = [
+                'message' => 'Access is locked.',
+                'errors' => []
+            ];
 
             //client_contact who has been disabled
             if($client_contact->is_locked)
-                return response()->json(json_encode(['message' => 'Access is locked.'], JSON_PRETTY_PRINT) ,403); 
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403); 
 
             //stateless, don't remember the contact.
             auth()->guard('contact')->login($client_contact, false); 
@@ -49,7 +59,12 @@ class ContactTokenAuth
         }
         else {
 
-            return response()->json(json_encode(['message' => 'Invalid token'], JSON_PRETTY_PRINT) ,403);
+            $error = [
+                'message' => 'Invalid token',
+                'errors' => []
+            ];
+
+            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
         }
 
         return $next($request);

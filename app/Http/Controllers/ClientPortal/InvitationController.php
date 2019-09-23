@@ -32,8 +32,8 @@ class InvitationController extends Controller
     public function invoiceRouter(string $invitation_key)
     {
 
-    	$invitation = InvoiceInvitation::whereInvitationKey($invitation_key)->first();
-//        $invitation = InvoiceInvitation::whereRaw("BINARY `invitation_key`= ?", [$invitation_key])->first();
+//    	$invitation = InvoiceInvitation::whereInvitationKey($invitation_key)->first();
+        $invitation = InvoiceInvitation::whereRaw("BINARY `invitation_key`= ?", [$invitation_key])->first();
 
     	if($invitation){
     		$invitation->markViewed();

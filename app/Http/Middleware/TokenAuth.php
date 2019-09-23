@@ -33,9 +33,14 @@ class TokenAuth
 
             $user = $company_token->user;
             
+
+            $error = [
+                'message' => 'User inactive',
+                'errors' => []
+            ];
             //user who once existed, but has been soft deleted
             if(!$user)
-                return response()->json(json_encode(['message' => 'User inactive'], JSON_PRETTY_PRINT) ,403); 
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403); 
 
             /*
             |
@@ -47,8 +52,15 @@ class TokenAuth
             $user->setCompany($company_token->company); 
 
             //user who once existed, but has been soft deleted   
-            if($user->user_company()->is_locked)
-                return response()->json(json_encode(['message' => 'User access locked'], JSON_PRETTY_PRINT) ,403); 
+            if($user->user_company()->is_locked){
+
+                $error = [
+                    'message' => 'User access locked',
+                    'errors' => []
+                ];
+
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403); 
+            }
    
             //stateless, don't remember the user.
             auth()->login($user, false); 
@@ -58,7 +70,12 @@ class TokenAuth
         }
         else {
 
-            return response()->json(json_encode(['message' => 'Invalid token'], JSON_PRETTY_PRINT) ,403);
+            $error = [
+                'message' => 'Invalid token',
+                'errors' => []
+            ];
+
+            return response()->json(json_encode($error, JinvoicelspSON_PRETTY_PRINT) ,403);
         }
 
         return $next($request);

@@ -26,8 +26,11 @@ class SetDomainNameDb
     
     public function handle($request, Closure $next)
     {
-        $error['error'] = ['message' => 'Database could not be set'];
 
+            $error = [
+                'message' => 'Invalid token',
+                'errors' => []
+            ];
         /* 
          * Use the host name to set the active DB
          **/
