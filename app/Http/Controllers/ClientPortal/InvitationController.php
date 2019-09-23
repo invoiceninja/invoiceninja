@@ -33,6 +33,7 @@ class InvitationController extends Controller
     {
 
     	$invitation = InvoiceInvitation::whereInvitationKey($invitation_key)->first();
+//        $invitation = InvoiceInvitation::whereRaw("BINARY `invitation_key`= ?", [$invitation_key])->first();
 
     	if($invitation){
     		$invitation->markViewed();

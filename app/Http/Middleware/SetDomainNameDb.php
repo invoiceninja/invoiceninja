@@ -26,13 +26,12 @@ class SetDomainNameDb
     
     public function handle($request, Closure $next)
     {
-
         $error['error'] = ['message' => 'Database could not be set'];
 
         /* 
          * Use the host name to set the active DB
          **/
-        if( $request->getHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByDomain($request->getHttpHost())) 
+        if( $request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByDomain($request->getSchemeAndHttpHost())) 
         {
             if(request()->json)
                 return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
