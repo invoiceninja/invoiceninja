@@ -43,7 +43,8 @@ class CompanySettings extends BaseSettings
 	public $custom_label3 = '';
 	public $custom_value3 = '';
 	public $custom_label4 = '';
-	public $custom_value5 = '';
+	public $custom_value4 = '';
+	
 	public $custom_client_label1 = '';
 	public $custom_client_label2 = '';
 	public $custom_client_label3 = '';
