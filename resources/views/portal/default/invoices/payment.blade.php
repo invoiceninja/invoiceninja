@@ -42,7 +42,25 @@
                             </ul>
                         </div>
 
-                        <button class="btn btn-primary pull-right" id="pay_now">{{ ctrans('texts.pay_now') }}</button>
+
+<div class="btn-group pull-right" role="group">
+<button class="btn btn-primary dropdown-toggle" id="pay_now" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ ctrans('texts.pay_now') }}</button>
+<div class="dropdown-menu" aria-labelledby="pay_now">
+<a class="dropdown-item" href="#">Dropdown link</a>
+<a class="dropdown-item" href="#">Dropdown link</a>
+</div>
+</div>
+
+                        <div class="btn-group pull-right">
+                          <button type="button" class="btn btn-primary" id="pay_now">{{ ctrans('texts.pay_now') }}</button>
+                          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" id="pay_now_drop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="sr-only">Toggle Dropdown</span>
+                          </button>
+                          <div class="dropdown-menu">
+                            <a class="dropdown-item" id="download_invoices">{{ctrans('texts.download_pdf')}}</a>
+                          </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
