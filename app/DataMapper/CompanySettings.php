@@ -20,10 +20,6 @@ use App\Models\Company;
 class CompanySettings extends BaseSettings
 {
 
-	public $start_of_week = '';
-	public $financial_year_start = '';
-	public $enable_modules = false;
-
 	public $timezone_id = '';
 	public $date_format_id = '';
 	public $datetime_format_id = '';
@@ -37,14 +33,9 @@ class CompanySettings extends BaseSettings
 	public $payment_terms_id = 1; 
 
 	public $custom_label1 = '';
-	public $custom_value1 = '';
 	public $custom_label2 = '';
-	public $custom_value2 = '';
 	public $custom_label3 = '';
-	public $custom_value3 = '';
 	public $custom_label4 = '';
-	public $custom_value4 = '';
-	public $custom_value5 = '';
 	
 	public $custom_client_label1 = '';
 	public $custom_client_label2 = '';
@@ -174,21 +165,15 @@ class CompanySettings extends BaseSettings
 		'date_format_id' => 'string',
 		'datetime_format_id' => 'string',
 		'military_time' => 'bool',
-		'start_of_week' => 'string',
-		'financial_year_start' => 'string',
 		'language_id' => 'string',
 		'precision' => 'int',
 		'show_currency_symbol' => 'bool',
 		'show_currency_code' => 'bool',
 		'payment_terms_id' => 'string', 
 		'custom_label1' => 'string',
-		'custom_value1' => 'string',
 		'custom_label2' => 'string',
-		'custom_value2' => 'string',
 		'custom_label3' => 'string',
-		'custom_value3' => 'string',
 		'custom_label4' => 'string',
-		'custom_value5' => 'string',
 		'custom_client_label1' => 'string',
 		'custom_client_label2' => 'string',
 		'custom_client_label3' => 'string',

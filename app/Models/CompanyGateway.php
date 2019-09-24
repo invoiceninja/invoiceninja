@@ -35,7 +35,7 @@ class CompanyGateway extends BaseModel
 
     public function gateway()
     {
-    	return $this->belongsTo(Gateway::class);
+    	return $this->belongsTo(Gateway::class, 'gateway_key', 'key');
     }
 
     public function getTypeAlias($gateway_type_id)

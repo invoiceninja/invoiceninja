@@ -54,8 +54,6 @@ class UserTransformer extends EntityTransformer
             'deleted_at' => $user->deleted_at,
             'phone' => $user->phone,
             'email_verified_at' => $user->email_verified_at,
-            'oauth_user_id' => $user->oauth_user_id,
-            'oauth_provider_id' => $user->oauth_provider_id,
             'signature' => $user->signature,
         ];
     }

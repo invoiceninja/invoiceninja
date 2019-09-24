@@ -70,7 +70,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'signature',
         'avatar',
-        'accepted_terms_version'
+        'accepted_terms_version',
+        'oauth_user_id',
+        'oauth_provider_id',
     ];
 
     /**
@@ -80,8 +82,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $hidden = [
         'remember_token',
-        'oauth_user_id',
-        'oauth_provider_id',
         'google_2fa_secret',
         'google_2fa_phone',
         'remember_2fa_token',

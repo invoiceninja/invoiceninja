@@ -42,7 +42,7 @@ class SetDb
             if(! MultiDB::findAndSetDb($request->header('X-API-TOKEN')))
             {
 
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
 
             }
         

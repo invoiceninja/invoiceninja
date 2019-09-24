@@ -79,6 +79,7 @@ class CreateUsersTable extends Migration
         Schema::create('gateways', function ($table) {
             $table->increments('id');
             $table->string('name')->default('');
+            $table->string('key')->unique();
             $table->string('provider')->default('');
             $table->boolean('visible')->default(true);
             $table->timestamps();
@@ -145,7 +146,9 @@ class CreateUsersTable extends Migration
             $table->string('vat_number')->default('');
             $table->string('id_number')->default('');
             $table->unsignedInteger('size_id')->nullable();
-            
+            $table->string('start_of_week')->default('');
+            $table->string('financial_year_start')->default('');
+            $table->smallInteger('enable_modules')->default(0);
             $table->text('settings');
             
             $table->timestamps(6);
@@ -349,7 +352,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('gateway_id');
+            $table->string('gateway_key');
             $table->unsignedInteger('accepted_credit_cards');
             $table->boolean('require_cvv')->default(true);
             $table->boolean('show_address')->default(true)->nullable();
@@ -374,7 +377,7 @@ class CreateUsersTable extends Migration
 
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
-            $table->foreign('gateway_id')->references('id')->on('gateways');
+            $table->foreign('gateway_key')->references('key')->on('gateways');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
         });
