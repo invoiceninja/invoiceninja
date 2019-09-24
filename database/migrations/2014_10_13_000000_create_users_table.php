@@ -745,6 +745,7 @@ class CreateUsersTable extends Migration
             $table->string('site_url', 200)->default('');
             $table->boolean('is_offsite')->default(false);
             $table->boolean('is_secure')->default(false);
+            $table->text('fields')->default('');
         });
 
         DB::table('gateways')->update(['payment_library_id' => 1]);
