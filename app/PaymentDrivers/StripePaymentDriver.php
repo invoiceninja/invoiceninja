@@ -375,7 +375,8 @@ class StripePaymentDriver extends BasePaymentDriver
 //mark all invitations with transaction reference
 $invoices->each(function ($invoice) use($payment) {
 
-  $invoice->update(['status_id' => Payment::STATUS_COMPLETED]);
+  $invoice->status_id = Payment::STATUS_COMPLETED;
+  $invoice->save();
   $invoice->invitations()->update(['transaction_reference' => $payment->transaction_reference]);
 
 });
