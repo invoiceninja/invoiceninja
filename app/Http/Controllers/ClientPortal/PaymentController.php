@@ -124,13 +124,20 @@ class PaymentController extends Controller
             'amount_with_fee' => $amount + $gateway->calcGatewayFee($amount),
             'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
             'payment_method_id' => $payment_method_id,
+            'hashed_ids' => explode(",",request()->input('hashed_ids')),
         ];
         
         
-        return $gateway->driver(auth()->user()->client)->processPayment($data);
+        return $gateway->driver(auth()->user()->client)->processPaymentView($data);
 
     }
 
+    public function response(Request $request)
+    {
+        $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
+        return $gateway->driver(auth()->user()->client)->processPaymentResponse($request);
+
+    }
 
 }

@@ -2,17 +2,27 @@
 
 @section('pay_now')
 
+{!! Former::framework('TwitterBootstrap4'); !!}
+
+{!! Former::horizontal_open()
+      ->id('server_response')
+      ->route('client.payments.response')
+      ->method('POST');  !!}
+
+{!! Former::hidden('gateway_response')->id('gateway_response') !!}
+{!! Former::hidden('store_card')->id('store_card') !!}
+{!! Former::hidden('hashed_ids')->value($hashed_ids) !!}
+{!! Former::hidden('company_gateway_id')->value($payment_method_id) !!}
+{!! Former::hidden('payment_method_id')->value($gateway->getCompanyGatewayId()) !!}
+{!! Former::close() !!}
+
+
 @if($token)
 <div class="py-md-5 ninja stripe">
+
   <div class="form-group">
-    <input class="form-control" id="cardholder-name" type="text"  placeholder="{{ ctrans('texts.name') }}">
-  </div>
-  <div class="form-group">
-    <div id="card-element"></div>
-  </div>
-  <div class="form-group">
-    <button id="card-button" data-secret="{{ $intent->client_secret }}">
-      Submit Payment
+    <button id="card-button" class="btn btn-primary pull-right" data-secret="{{ $intent->client_secret }}">
+          {{ ctrans('texts.pay_now') }} - {{ $token->meta->brand }} - {{ $token ->meta->last4}}
     </button>
   </div>
 </div>
@@ -29,8 +39,8 @@
     </div>
 
     <div class="form-check form-check-inline mr-1">
-    <input class="form-check-input" id="proxy_is_default" type="checkbox">
-    <label class="form-check-label" for="proxy_is_default">{{ ctrans('texts.save_as_default') }}</label>
+    <input class="form-check-input" id="token_billing_checkbox" type="checkbox">
+    <label class="form-check-label" for="token_billing_checkbox">{{ ctrans('texts.token_billing_checkbox') }}</label>
     </div>
 
 
@@ -38,7 +48,7 @@
 
     <div class="form-group">
         <button id="card-button" class="btn btn-primary pull-right" data-secret="{{ $intent->client_secret }}">
-          {{ ctrans('texts.pay_now') }}
+          {{ ctrans('texts.pay_now') }} 
         </button>
     </div>
 </div>
@@ -53,9 +63,6 @@
     var stripe = Stripe('{{ $gateway->getPublishableKey() }}');
 
     var elements = stripe.elements();
-    var cardElement = elements.create('card');
-    cardElement.mount('#card-element');
-
 
     var cardholderName = document.getElementById('cardholder-name');
     var cardButton = document.getElementById('card-button');
@@ -65,7 +72,7 @@
     cardButton.addEventListener('click', function(ev) {
       stripe.handleCardPayment(
         clientSecret, {
-          payment_method: {{$token->token}},
+          payment_method: '{{$token->token}}',
         }
       ).then(function(result) {
         if (result.error) {
@@ -82,6 +89,10 @@
       });
     });
 @else
+
+    var cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+
     cardButton.addEventListener('click', function(ev) {
       stripe.handleCardPayment(
         clientSecret, cardElement, {
@@ -103,7 +114,7 @@
         }
       });
     });
-@endif
+
     $("#card-button").attr("disabled", true);
 
     $('#cardholder-name').on('input',function(e){
@@ -112,12 +123,13 @@
       else
         $("#card-button").attr("disabled", true);
     });
+@endif
 
     function postResult(result)
     {
 
-        $("#gateway_response").val(JSON.stringify(result.setupIntent));
-        $("#is_default").val($('#proxy_is_default').is(":checked"));
+        $("#gateway_response").val(JSON.stringify(result.paymentIntent));
+        $("#store_card").val($('#token_billing_checkbox').is(":checked"));
         $("#card-button").attr("disabled", true);
         $('#server_response').submit();
     }

@@ -128,7 +128,7 @@ class StripePaymentDriver extends BasePaymentDriver
     	}
     }
 
-    public function authorizeCreditCardView($data)
+    public function authorizeCreditCardView(array $data)
     {
 
         $intent['intent'] = $this->getSetupIntent();
@@ -195,22 +195,24 @@ class StripePaymentDriver extends BasePaymentDriver
      * @var         amount_with_fee
      * @var         token
      * @var         payment_method_id
+     * @var         hashed_ids
+     * 
      * @param  array  $data variables required to build payment page
      * @return view   Gateway and payment method specific view
      */
-    public function processPayment(array $data)
+    public function processPaymentView(array $data)
     {
         $payment_intent_data = [
             'amount' => $data['amount_with_fee']*100,
             'currency' => $this->client->getCurrencyCode(),
             'customer' => $this->findOrCreateCustomer(),
-            'description' => $data['invoices']->pluck('id'),
+            'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
         ];
 
         if($data['token'])
             $payment_intent_data['payment_method'] = $data['token']->token;
         else{
-//            $payment_intent_data['setup_future_usage']  = 'off_session';
+            $payment_intent_data['setup_future_usage']  = 'off_session';
 //            $payment_intent_data['save_payment_method'] = true;
 //            $payment_intent_data['confirm'] = true;
         }
@@ -218,12 +220,88 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $data['intent'] = $this->createPaymentIntent($payment_intent_data);
         $data['gateway'] = $this;
-        
+
         return view($this->viewForType($data['payment_method_id']), $data);
 
     }
 
+    /**
+     * Payment Intent Reponse looks like this
+      +"id": "pi_1FMR7JKmol8YQE9DuC4zMeN3"
+      +"object": "payment_intent"
+      +"allowed_source_types": array:1 [▼
+        0 => "card"
+      ]
+      +"amount": 2372484
+      +"canceled_at": null
+      +"cancellation_reason": null
+      +"capture_method": "automatic"
+      +"client_secret": "pi_1FMR7JKmol8YQE9DuC4zMeN3_secret_J3yseWJG6uV0MmsrAT1FlUklV"
+      +"confirmation_method": "automatic"
+      +"created": 1569381877
+      +"currency": "usd"
+      +"description": "[3]"
+      +"last_payment_error": null
+      +"livemode": false
+      +"next_action": null
+      +"next_source_action": null
+      +"payment_method": "pm_1FMR7ZKmol8YQE9DQWqPuyke"
+      +"payment_method_types": array:1 [▶]
+      +"receipt_email": null
+      +"setup_future_usage": "off_session"
+      +"shipping": null
+      +"source": null
+      +"status": "succeeded"
+    */
+    public function processPaymentResponse($request)
+    {
+        $server_response = json_decode($request->input('gateway_response'));
 
+        $payment_method = $server_response->payment_method;
+        $payment_status = $server_response->status;
+        $save_card = $request->input('store_card');
+        $gateway_type_id = $request->input('gateway_type_id');
+
+        $this->init()
+        $payment_intent = \Stripe\PaymentIntent::retrieve($server_response->id);
+        $customer = $payment_intent->customer;
+
+        if($save_card)
+        {
+            $this->init()
+            $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
+            $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
+            $stripe_payment_method->attach(['customer' => $customer]);
+
+            $payment_meta = new \stdClass;
+
+            if($stripe_payment_method_obj['type'] == 'card') {
+                $payment_meta->exp_month = $stripe_payment_method_obj['card']['exp_month'];
+                $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
+                $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
+                $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
+                $payment_meta->type = $stripe_payment_method_obj['type'];
+            }
+
+                $cgt = new ClientGatewayToken;
+                $cgt->company_id = $this->client->company->id;
+                $cgt->client_id = $this->client->id;
+                $cgt->token = $payment_method;
+                $cgt->company_gateway_id = $this->company_gateway->id;
+                $cgt->gateway_type_id = $gateway_type_id;
+                $cgt->gateway_customer_reference = $customer;
+                $cgt->meta = $payment_meta;
+                $cgt->save();
+
+                if($is_default == 'true' || $this->client->gateway_tokens->count() == 1)
+                {
+                    $this->client->gateway_tokens()->update(['is_default'=>0]);
+
+                    $cgt->is_default = 1;
+                    $cgt->save();
+                }  
+        }
+    }
 
     /**
      * Creates a new String Payment Intent

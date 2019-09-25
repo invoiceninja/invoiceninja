@@ -25,6 +25,7 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	
 	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index'); 
 	Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
+	Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
 
 	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
 	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');

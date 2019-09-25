@@ -82,6 +82,10 @@ class BasePaymentDriver
         ];
     }
 
+    public function getCompanyGatewayId()
+    {
+    	return $this->company_gateway->id;
+    }
 	/**
 	 * Returns whether refunds are possible with the gateway
 	 * @return boolean TRUE|FALSE
@@ -111,9 +115,13 @@ class BasePaymentDriver
 	 */
 	public function refundPayment() {}
 
-	public function authorizeCreditCardView($data) {}
+	public function authorizeCreditCardView(array $data) {}
 
 	public function authorizeCreditCardResponse($request) {}
+
+	public function processPaymentView(array $data) {}
+	
+	public function processPaymentResponse($request) {}
 
 	/************************************* Omnipay ******************************************
 		authorize($options) - authorize an amount on the customer's card
