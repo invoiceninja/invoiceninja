@@ -24,6 +24,7 @@ use App\Models\Filterable;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Timezone;
+use App\Models\User;
 use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
@@ -135,6 +136,11 @@ class Client extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function country()

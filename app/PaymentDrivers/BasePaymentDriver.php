@@ -12,8 +12,10 @@
 namespace App\PaymentDrivers;
 
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use Illuminate\Support\Facades\Auth;
 use Omnipay\Omnipay;
 
 
@@ -122,6 +124,16 @@ class BasePaymentDriver
 	public function processPaymentView(array $data) {}
 	
 	public function processPaymentResponse($request) {}
+
+	public function getContact()
+	{
+		if($this->invitation)
+			return ClientContact::find($this->invitation->client_contact_id);
+		elseif(auth()->guard('contact')->user())
+			return auth()->user();
+		else
+			return false;
+	}
 
 	/************************************* Omnipay ******************************************
 		authorize($options) - authorize an amount on the customer's card

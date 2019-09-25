@@ -11,33 +11,30 @@
 
 namespace App\PaymentDrivers;
 
+use App\Factory\PaymentFactory;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
+  use MakesHash;
+
 	protected $refundable = true;
 
 	protected $token_billing = true;
 
-    protected $can_authorise_credit_card = true;
+  protected $can_authorise_credit_card = true;
 
 	protected $customer_reference = 'customerReferenceParam';
-
-/**
- * Payments
- * \Stripe\PaymentIntent::create([
-    'payment_method_types' => ['card'],
-    'amount' => 1099,
-    'currency' => 'aud',
-    'customer' => 'cus_Fow2nmVJX1EsQw',
-    'payment_method' => 'card_1FJIAjKmol8YQE9DxWb9kMpR',
-]);
- */
-
 
 	/**
 	 * Methods in this class are divided into
@@ -128,6 +125,14 @@ class StripePaymentDriver extends BasePaymentDriver
     	}
     }
 
+    /**
+     * 
+     * Authorises a credit card for future use
+     * @param  array  $data Array of variables needed for the view
+     * 
+     * @return view       The gateway specific partial to be rendered
+     * 
+     */
     public function authorizeCreditCardView(array $data)
     {
 
@@ -137,6 +142,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
     }
 
+    /**
+     * Processes the gateway response for credti card authorization
+     * @param  Request $request The returning request object
+     * @return view          Returns the user to payment methods screen.
+     */
     public function authorizeCreditCardResponse($request)
     {
 
@@ -203,7 +213,7 @@ class StripePaymentDriver extends BasePaymentDriver
     public function processPaymentView(array $data)
     {
         $payment_intent_data = [
-            'amount' => $data['amount_with_fee']*100,
+            'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency->precision),
             'currency' => $this->client->getCurrencyCode(),
             'customer' => $this->findOrCreateCustomer(),
             'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
@@ -260,18 +270,40 @@ class StripePaymentDriver extends BasePaymentDriver
         $payment_method = $server_response->payment_method;
         $payment_status = $server_response->status;
         $save_card = $request->input('store_card');
-        $gateway_type_id = $request->input('gateway_type_id');
 
-        $this->init()
+        $gateway_type_id = $request->input('payment_method_id');
+        $hashed_ids = $request->input('hashed_ids');
+        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",",$hashed_ids)))
+                                ->whereClientId($this->client->id)
+                                ->get();
+        /**
+         * Potential statuses that can be returned
+         * 
+         * requires_action
+         * processing
+         * canceled
+         * requires_action
+         * requires_confirmation
+         * requires_payment_method 
+         * 
+         */
+        
+        if($this->getContact()){
+          $client_contact = $this->getContact();
+        }
+        else{
+          $client_contact = $invoices->first()->invitations->first()->contact;
+        }
+
+        $this->init();
         $payment_intent = \Stripe\PaymentIntent::retrieve($server_response->id);
         $customer = $payment_intent->customer;
 
-        if($save_card)
+        if($payment_status == 'succeeded')
         {
-            $this->init()
+            $this->init();
             $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
             $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
-            $stripe_payment_method->attach(['customer' => $customer]);
 
             $payment_meta = new \stdClass;
 
@@ -281,8 +313,15 @@ class StripePaymentDriver extends BasePaymentDriver
                 $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
                 $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
                 $payment_meta->type = $stripe_payment_method_obj['type'];
+
+                $payment_type = PaymentType::parseCardType($stripe_payment_method_obj['card']['brand']);
             }
 
+            if($save_card == 'true')
+            {
+
+                $stripe_payment_method->attach(['customer' => $customer]);
+                
                 $cgt = new ClientGatewayToken;
                 $cgt->company_id = $this->client->company->id;
                 $cgt->client_id = $this->client->id;
@@ -293,16 +332,46 @@ class StripePaymentDriver extends BasePaymentDriver
                 $cgt->meta = $payment_meta;
                 $cgt->save();
 
-                if($is_default == 'true' || $this->client->gateway_tokens->count() == 1)
+                if($this->client->gateway_tokens->count() == 1)
                 {
                     $this->client->gateway_tokens()->update(['is_default'=>0]);
 
                     $cgt->is_default = 1;
                     $cgt->save();
                 }  
+            }
+        
+            //todo need to fix this to support payment types other than credit card.... sepa etc etc
+            if(!$payment_type)
+              $payment_type = PaymentType::CREDIT_CARD_OTHER;
+
+            $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
+            $payment->client_id = $this->client->id;
+            $payment->client_contact_id = $client_contact->id;
+            $payment->company_gateway_id = $this->company_gateway->id;
+            $payment->status_id = Payment::STATUS_COMPLETED;
+            $payment->amount = $this->convertFromStripeAmount($server_response->amount, $this->client->currency->precision);
+            $payment->payment_date = Carbon::now();
+            $payment->payment_type_id = $payment_type;
+            $payment->transaction_reference = $payment_method;
+            $payment->save();
+
+            $payment->invoices()->sync($invoices);
+            $payment->save();
+
         }
+
     }
 
+    private function convertFromStripeAmount($amount, $precision)
+    {
+      return $amount / pow(10, $precision);
+    }
+
+    private function convertToStripeAmount($amount, $precision)
+    {
+      return $amount * pow(10, $precision);
+    }
     /**
      * Creates a new String Payment Intent
      * 
@@ -377,7 +446,7 @@ class StripePaymentDriver extends BasePaymentDriver
         }
 
         if(!$customer)
-            throw Exception('Unable to create gateway customer');
+            throw new Exception('Unable to create gateway customer');
 
         return $customer;
     }

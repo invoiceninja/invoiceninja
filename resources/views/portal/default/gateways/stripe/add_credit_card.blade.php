@@ -76,8 +76,7 @@
             $("#card-button").removeAttr("disabled");
 
         } else {
-          // The setup has succeeded. Display a success message.
-          console.log(result);
+          The card has been successfullly stored.
           postResult(result);
         }
       });

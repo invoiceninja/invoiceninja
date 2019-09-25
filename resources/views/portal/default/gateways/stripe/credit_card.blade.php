@@ -80,6 +80,7 @@
             $("#card-errors").empty();
             $("#card-errors").append("<b>" + result.error.message + "</b>");
             $("#card-button").removeAttr("disabled");
+            $("#store_card").val(0);
 
         } else {
           // The setup has succeeded. Display a success message.
