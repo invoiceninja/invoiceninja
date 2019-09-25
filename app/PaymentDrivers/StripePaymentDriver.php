@@ -359,6 +359,28 @@ class StripePaymentDriver extends BasePaymentDriver
             $payment->invoices()->sync($invoices);
             $payment->save();
 
+
+//mark all invoices as paid
+//$invoices->update(['status_id' => Payment::STATUS_COMPLETED]);
+
+  // foreach($invoices as $invoice){
+  //   \Log::error('invite count = '.$invoices->invitations->count());
+  //   foreach($invoice->invitations as $invitation)
+  //   {
+  //     \Log::error($invitation);
+  //     $invitations->update(['transaction_reference' => $payment->transaction_reference]);
+  //   }
+  // }
+
+//mark all invitations with transaction reference
+$invoices->each(function ($invoice) use($payment) {
+
+  $invoice->update(['status_id' => Payment::STATUS_COMPLETED]);
+  $invoice->invitations()->update(['transaction_reference' => $payment->transaction_reference]);
+
+});
+            return redirect()->route('client.payments.show', ['id' => $this->encodePrimaryKey($payment->id)]);
+
         }
 
     }

@@ -76,9 +76,14 @@ class PaymentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(RecurringInvoice $invoice)
+    public function show(Request $request, Payment $payment)
     {
+        $payment->load('invoices');
 
+        $data['payment'] = $payment;
+
+        print_r($payment->toArray());
+        //return view('portal.default.payments.show', $data);
 
     }
 

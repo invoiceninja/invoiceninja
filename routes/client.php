@@ -24,6 +24,7 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index'); 
 	
 	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index'); 
+	Route::get('payments/{payment}', 'ClientPortal\PaymentController@show')->name('payments.show'); 
 	Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
 	Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
 

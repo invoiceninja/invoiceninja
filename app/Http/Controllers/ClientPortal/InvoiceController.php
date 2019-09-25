@@ -86,8 +86,6 @@ class InvoiceController extends Controller
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
-
-
         $data = [
             'invoice' => $invoice,
         ];
