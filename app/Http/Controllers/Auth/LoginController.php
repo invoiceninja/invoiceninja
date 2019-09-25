@@ -123,6 +123,12 @@ class LoginController extends BaseController
 
     }
 
+    public function refresh(Request $request)
+    {
+         $ct = CompanyUser::whereUserId(auth()->user()->id);
+            return $this->listResponse($ct);
+    }
+
     /**
      * Redirect the user to the provider authentication page
      *

@@ -72,6 +72,7 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 
   Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
 
+  Route::post('refresh', 'Auth\LoginController@refresh');
 /*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
   
