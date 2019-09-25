@@ -22,6 +22,9 @@ class ClientGatewayToken extends BaseModel
 
 	protected $casts = [
 		'meta' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
 	];
 
 	public function client()

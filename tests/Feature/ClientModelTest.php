@@ -62,14 +62,14 @@ class ClientModelTest extends TestCase
             foreach($gateway->driver($this->client)->gatewayTypes() as $type)
                 $payment_methods[] = [$gateway->id => $type]; 
             
-        $this->assertEquals(10, count($payment_methods));
+        $this->assertEquals(8, count($payment_methods));
 
         $payment_methods_collections = collect($payment_methods);
 
         //** Plucks the remaining keys into its own collection
         $payment_methods_intersect = $payment_methods_collections->intersectByKeys( $payment_methods_collections->flatten(1)->unique() );
 
-        $this->assertEquals(5, $payment_methods_intersect->count());
+        $this->assertEquals(4, $payment_methods_intersect->count());
 
         $payment_urls = [];
 
@@ -95,7 +95,7 @@ class ClientModelTest extends TestCase
         }
 
 
-        $this->assertEquals(5, count($payment_urls));
+        $this->assertEquals(4, count($payment_urls));
 	}
 	
 

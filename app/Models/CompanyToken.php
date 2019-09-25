@@ -29,6 +29,12 @@ class CompanyToken extends Model
     //    'company',
     ];
 
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+    
     public function account()
     {
         return $this->belongsTo(Account::class);

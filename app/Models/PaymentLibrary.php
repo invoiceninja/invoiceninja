@@ -21,6 +21,9 @@ class PaymentLibrary extends BaseModel
 
     protected $casts = [
         'visible' => 'boolean',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     /**

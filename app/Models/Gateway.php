@@ -20,6 +20,9 @@ class Gateway extends StaticModel
     protected $casts = [
         'is_offsite' => 'boolean',
         'is_secure' => 'boolean',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     /**

@@ -96,7 +96,10 @@ class Client extends BaseModel
     ];
     */
     protected $casts = [
-        'settings' => 'object'
+        'settings' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     public function gateway_tokens()

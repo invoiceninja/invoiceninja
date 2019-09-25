@@ -70,6 +70,9 @@ class Activity extends StaticModel
 
     protected $casts = [
         'is_system' => 'boolean',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     public function backup()

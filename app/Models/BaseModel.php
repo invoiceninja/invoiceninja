@@ -35,6 +35,12 @@ class BaseModel extends Model
         'hashed_id'
     ];
 
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+    
     protected $dateFormat = 'Y-m-d H:i:s.u';
     
     public function getHashedIdAttribute()

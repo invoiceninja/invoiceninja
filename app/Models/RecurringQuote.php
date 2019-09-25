@@ -79,7 +79,10 @@ class RecurringQuote extends BaseModel
     ];
 
     protected $casts = [
-        'settings' => 'object'
+        'settings' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     protected $with = [

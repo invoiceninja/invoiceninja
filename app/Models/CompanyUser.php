@@ -25,6 +25,9 @@ class CompanyUser extends Pivot
     protected $casts = [
         'settings' => 'object',
         'permissions' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     public function account()

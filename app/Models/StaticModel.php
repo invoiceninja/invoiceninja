@@ -16,6 +16,12 @@ use Illuminate\Database\Eloquent\Model;
 class StaticModel extends Model
 {
 
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+    
     public function getIdAttribute()
     {
         return (string)$this->attributes['id'];

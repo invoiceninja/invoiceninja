@@ -19,6 +19,9 @@ class Currency extends StaticModel
 
     protected $casts = [
         'swap_currency_symbol' => 'boolean',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
 }

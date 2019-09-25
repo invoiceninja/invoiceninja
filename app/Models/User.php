@@ -52,11 +52,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $appends = [
         'hashed_id'
     ];
-
-    public function getHashedIdAttribute()
-    {
-        return $this->encodePrimaryKey($this->id);
-    }
     
     /**
      * The attributes that are mass assignable.
@@ -91,7 +86,15 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'settings' => 'object',
         'permissions' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
 
     /**
      * Returns a account.
