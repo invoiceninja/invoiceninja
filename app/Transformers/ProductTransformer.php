@@ -63,6 +63,7 @@ class ProductTransformer extends EntityTransformer
             'product_key' => $product->product_key,
             'notes' => $product->notes,
             'cost' => (float) $product->cost,
+            'price' => (float) $product->price,
             'quantity' => (float) ($product->quantity ?: 0.0),
             'tax_name1' => $product->tax_name1 ?: '',
             'tax_rate1' => (float) $product->tax_rate1,
@@ -72,8 +73,8 @@ class ProductTransformer extends EntityTransformer
             'archived_at' => $product->deleted_at,
             'custom_value1' => $product->custom_value1 ?: '',
             'custom_value2' => $product->custom_value2 ?: '',
-            'custom_value3' => $product->custom_value2 ?: '',
-            'custom_value4' => $product->custom_value2 ?: '',
+            'custom_value3' => $product->custom_value3 ?: '',
+            'custom_value4' => $product->custom_value4 ?: '',
             'is_deleted' => (bool) $product->is_deleted,
         ];
     }
