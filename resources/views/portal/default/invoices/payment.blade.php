@@ -5,6 +5,19 @@
 @section('body')
 <main class="main">
     <div class="container-fluid">
+{!! Former::framework('TwitterBootstrap4'); !!}
+
+{!! Former::horizontal_open()
+    ->id('payment_form')
+    ->route('client.payments.process')
+    ->method('POST');    !!}
+
+{!! Former::hidden('hashed_ids')->id('hashed_ids')->value($hashed_ids) !!}
+{!! Former::hidden('company_gateway_id')->id('company_gateway_id') !!}
+{!! Former::hidden('payment_method_id')->id('payment_method_id') !!}
+
+{!! Former::close() !!}
+
 		<div class="row" style="padding-top: 30px;">
             <div class="col d-flex justify-content-center">
                 <div class="card w-50 p-10">
@@ -43,22 +56,13 @@
                         </div>
 
 
-<div class="btn-group pull-right" role="group">
-<button class="btn btn-primary dropdown-toggle" id="pay_now" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ ctrans('texts.pay_now') }}</button>
-<div class="dropdown-menu" aria-labelledby="pay_now">
-<a class="dropdown-item" href="#">Dropdown link</a>
-<a class="dropdown-item" href="#">Dropdown link</a>
-</div>
-</div>
-
-                        <div class="btn-group pull-right">
-                          <button type="button" class="btn btn-primary" id="pay_now">{{ ctrans('texts.pay_now') }}</button>
-                          <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" id="pay_now_drop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
-                          </button>
-                          <div class="dropdown-menu">
-                            <a class="dropdown-item" id="download_invoices">{{ctrans('texts.download_pdf')}}</a>
-                          </div>
+                        <div class="btn-group pull-right" role="group">
+                        <button class="btn btn-primary dropdown-toggle" id="pay_now" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ ctrans('texts.pay_now') }}</button>
+                        <div class="dropdown-menu" aria-labelledby="pay_now">
+                            @foreach($payment_methods as $payment_method)
+                                <a class="dropdown-item" onClick="paymentMethod({{ $payment_method['company_gateway_id'] }}, {{ $payment_method['gateway_type_id'] }})">{{$payment_method['label']}}</a>
+                            @endforeach
+                        </div>
                         </div>
 
                     </div>
@@ -171,6 +175,15 @@ $("#modal_pay_now_button").on('click', function(e){
 
 
 });
+
+    function paymentMethod(company_gateway_id, payment_method_id)
+    {
+        $('#company_gateway_id').val(company_gateway_id);
+        $('#payment_method_id').val(payment_method_id);
+        $('#payment_form').submit();
+
+    }
+
 
     function getSignature()
     {

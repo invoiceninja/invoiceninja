@@ -68,7 +68,7 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $types = [
             GatewayType::CREDIT_CARD,
-            GatewayType::TOKEN,
+            //GatewayType::TOKEN,
         ];
         
         if($this->company_gateway->getSofortEnabled() && $this->invitation && $this->client() && isset($this->client()->country) && in_array($this->client()->country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP']))
@@ -130,6 +130,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function authorizeCreditCardView($data)
     {
+
         $intent['intent'] = $this->getSetupIntent();
 
         return view('portal.default.gateways.stripe.add_credit_card', array_merge($data, $intent));
@@ -186,12 +187,51 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
+     * Processes the payment with this gateway
+     *             
+     * @var         invoices
+     * @var         amount
+     * @var         fee
+     * @var         amount_with_fee
+     * @var         token
+     * @var         payment_method_id
+     * @param  array  $data variables required to build payment page
+     * @return view   Gateway and payment method specific view
+     */
+    public function processPayment(array $data)
+    {
+        $payment_intent_data = [
+            'amount' => $data['amount_with_fee']*100,
+            'currency' => $this->client->getCurrencyCode(),
+            'customer' => $this->findOrCreateCustomer(),
+            'description' => $data['invoices']->pluck('id'),
+        ];
+
+        if($data['token'])
+            $payment_intent_data['payment_method'] = $data['token']->token;
+        else{
+//            $payment_intent_data['setup_future_usage']  = 'off_session';
+//            $payment_intent_data['save_payment_method'] = true;
+//            $payment_intent_data['confirm'] = true;
+        }
+
+
+        $data['intent'] = $this->createPaymentIntent($payment_intent_data);
+        $data['gateway'] = $this;
+        
+        return view($this->viewForType($data['payment_method_id']), $data);
+
+    }
+
+
+
+    /**
      * Creates a new String Payment Intent
      * 
      * @param  array $data The data array to be passed to Stripe
      * @return PaymentIntent       The Stripe payment intent object
      */
-    public function createIntent($data) :?\Stripe\PaymentIntent
+    public function createPaymentIntent($data) :?\Stripe\PaymentIntent
     {
 
         $this->init();
@@ -257,6 +297,9 @@ class StripePaymentDriver extends BasePaymentDriver
             $customer = \Stripe\Customer::create($data);
 
         }
+
+        if(!$customer)
+            throw Exception('Unable to create gateway customer');
 
         return $customer;
     }

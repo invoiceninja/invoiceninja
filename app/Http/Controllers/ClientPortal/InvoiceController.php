@@ -120,8 +120,7 @@ class InvoiceController extends Controller
                             ->whereClientId(auth()->user()->client->id)
                             ->get();
 
-        $total = $invoices->sum('balance');
-                 
+        $total = $invoices->sum('balance');     
 
         $invoices->filter(function ($invoice){
             return $invoice->isPayable();
@@ -130,8 +129,6 @@ class InvoiceController extends Controller
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             return $invoice;
         });
-
-
 
         $formatted_total = Number::formatMoney($total, auth()->user()->client);
 
@@ -142,6 +139,7 @@ class InvoiceController extends Controller
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,
+            'hashed_ids' => $ids,
             'total' =>  $total,
         ];
 

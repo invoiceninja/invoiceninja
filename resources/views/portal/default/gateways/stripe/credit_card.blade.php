@@ -1,22 +1,23 @@
-@extends('portal.default.gateways.authorize')
+@extends('portal.default.gateways.pay_now')
 
-@section('credit_card')
+@section('pay_now')
 
-                    {!! Former::framework('TwitterBootstrap4'); !!}
+@if($token)
+<div class="py-md-5 ninja stripe">
+  <div class="form-group">
+    <input class="form-control" id="cardholder-name" type="text"  placeholder="{{ ctrans('texts.name') }}">
+  </div>
+  <div class="form-group">
+    <div id="card-element"></div>
+  </div>
+  <div class="form-group">
+    <button id="card-button" data-secret="{{ $intent->client_secret }}">
+      Submit Payment
+    </button>
+  </div>
+</div>
 
-                    {!! Former::horizontal_open()
-                          ->id('server_response')
-                          ->route('client.payment_methods.store')
-                          ->method('POST');  !!}
-
-                    {!! Former::hidden('company_gateway_id')->value($gateway->gateway_id) !!}
-                    {!! Former::hidden('gateway_type_id')->value(1) !!}
-                    {!! Former::hidden('gateway_response')->id('gateway_response') !!}
-                    {!! Former::hidden('is_default')->id('is_default') !!}
-
-                    {!! Former::close() !!}
-
-
+@else
 <div class="py-md-5 ninja stripe">
     <div class="form-group">
         <input class="form-control" id="cardholder-name" type="text" placeholder="{{ ctrans('texts.name') }}">
@@ -37,12 +38,14 @@
 
     <div class="form-group">
         <button id="card-button" class="btn btn-primary pull-right" data-secret="{{ $intent->client_secret }}">
-          {{ ctrans('texts.save') }}
+          {{ ctrans('texts.pay_now') }}
         </button>
     </div>
 </div>
+@endif
 
 @endsection
+
 @push('scripts')
 <script src="https://js.stripe.com/v3/"></script>
 
@@ -59,7 +62,7 @@
     var clientSecret = cardButton.dataset.secret;
 
     cardButton.addEventListener('click', function(ev) {
-      stripe.handleCardSetup(
+      stripe.handleCardPayment(
         clientSecret, cardElement, {
           payment_method_data: {
             billing_details: {name: cardholderName.value}

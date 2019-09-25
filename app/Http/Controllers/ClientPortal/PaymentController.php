@@ -11,26 +11,30 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use Cache;
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyGateway;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
 /**
- * Class InvoiceController
- * @package App\Http\Controllers\ClientPortal\InvoiceController
+ * Class PaymentController
+ * @package App\Http\Controllers\ClientPortal\PaymentController
  */
 
 class PaymentController extends Controller
 {
 
     use MakesHash;
+    use MakesDates;
 
     /**
      * Show the list of Invoices
@@ -84,41 +88,47 @@ class PaymentController extends Controller
      * The request will also contain the amount
      * and invoice ids for reference.
      * 
-     * @param  int $company_gateway_id The CompanyGateway ID
-     * @param  int $gateway_type_id  The gateway_type_id ID
      * @return void                     
      */
-    public function process($company_gateway_id)
+    public function process()
     {
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(request()->input('invoice_ids')))
+        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",",request()->input('hashed_ids'))))
                                 ->whereClientId(auth()->user()->client->id)
                                 ->get();
 
-        $amount = request()->input('amount');
+        $amount = $invoices->sum('balance');     
 
-        //build a cache record to maintain state
-        $cache_hash = str_random(config('ninja.key_length'));
+        $invoices->filter(function ($invoice){
+            return $invoice->isPayable();
+        })->map(function ($invoice){
+            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
+            $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+            return $invoice;
+        });
 
-        Cache::put($cache_hash, 'value', now()->addMinutes(10));
+        $payment_methods = auth()->user()->client->getPaymentMethods($amount);
 
         //boot the payment gateway
-        $gateway = CompanyGateway::find($company_gateway_id);
+        $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
+
+        $payment_method_id = request()->input('payment_method_id');
 
         //if there is a gateway fee, now is the time to calculate it 
         //and add it to the invoice
         
         $data = [
-            'cache_hash' => $cache_hash,
             'invoices' => $invoices,
             'amount' => $amount,
             'fee' => $gateway->calcGatewayFee($amount),
-            'amount_with_fee' => ($amount + $gateway->calcGatewayFee($amount)),
-            'gateway' => $gateway,
-            'token' => auth()->user()->client->gateway_token($gateway->id),
+            'amount_with_fee' => $amount + $gateway->calcGatewayFee($amount),
+            'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
+            'payment_method_id' => $payment_method_id,
         ];
         
-        return view('gateways.pay_now', $data);
+        
+        return $gateway->driver(auth()->user()->client)->processPayment($data);
+
     }
 
 

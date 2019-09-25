@@ -49,8 +49,8 @@
                             </ul>
                         </div>
 
-                        @include($gateway->driver(auth()->user()->client)->viewForType($gateway_type_id))
-
+                        @yield('pay_now')
+                        
                     </div>
                 </div>
             </div>

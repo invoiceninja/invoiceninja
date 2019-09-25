@@ -110,15 +110,15 @@ class Client extends BaseModel
      * Allows the storage of multiple tokens
      * per client per gateway per payment_method
      * 
-     * @param  int $gateway_id          The gateway ID
+     * @param  int $company_gateway_id  The company gateway ID
      * @param  int $payment_method_id   The payment method ID
      * @return ClientGatewayToken       The client token record
      */
-    public function gateway_token($gateway_id, $payment_method_id)
+    public function gateway_token($company_gateway_id, $payment_method_id)
     {
-        return $this->gateway_tokens
-                    ->whereCompanyGatewayId($gateway_id)
-                    ->wherePaymentMethod_id($payment_method_id)
+        return $this->gateway_tokens()
+                    ->whereCompanyGatewayId($company_gateway_id)
+                    ->whereGatewayTypeId($payment_method_id)
                     ->first();
     }
 
@@ -264,6 +264,14 @@ class Client extends BaseModel
         return null;
     }
 
+    public function getCurrencyCode()
+    {
+        if ($this->currency) {
+            return $this->currency->code;
+        }
+
+        return 'USD';
+    }
     /**
      * Generates an array of payment urls per client
      * for a given amount.
@@ -324,11 +332,10 @@ class Client extends BaseModel
 
             $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
-            $payment_urls[] = [
-                'label' => ctrans('texts.' . $gateway->getTypeAlias($gateway_type_id)) . $fee_label,
-                'url'   =>  URL::signedRoute('client.payments.process', [
-                                            'company_gateway_id' => $gateway_id,
-                                            'gateway_type_id' => $gateway_type_id])
+                $payment_urls[] = [
+                    'label' => ctrans('texts.' . $gateway->getTypeAlias($gateway_type_id)) . $fee_label,
+                    'company_gateway_id'  => $gateway_id,
+                    'gateway_type_id' => $gateway_type_id
                             ];
             }
 
