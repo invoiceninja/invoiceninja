@@ -69,6 +69,10 @@ $(function() {
 	        loadingRecords: "{{ trans('texts.loading') }}",
 	        zeroRecords:    "{{ trans('texts.no_records_found') }}"
     	},
+        ajax: {
+            url: '{!! route('client.payment_methods.index') !!}'
+
+        },
         columns: [
 
             {data: 'created_at', name: 'created_at', title: '{{ctrans('texts.created_at')}}', visible: true},

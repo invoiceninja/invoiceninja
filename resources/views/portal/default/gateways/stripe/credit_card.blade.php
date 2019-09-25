@@ -61,18 +61,14 @@
     var cardButton = document.getElementById('card-button');
     var clientSecret = cardButton.dataset.secret;
 
+@if($token)
     cardButton.addEventListener('click', function(ev) {
       stripe.handleCardPayment(
-        clientSecret, cardElement, {
-          payment_method_data: {
-            billing_details: {name: cardholderName.value}
-          }
+        clientSecret, {
+          payment_method: {{$token->token}},
         }
       ).then(function(result) {
         if (result.error) {
-          // Display error.message in your UI.
-          // console.log(result.error);
-          // console.log(result.error.message);
 
             $("#card-errors").empty();
             $("#card-errors").append("<b>" + result.error.message + "</b>");
@@ -85,7 +81,29 @@
         }
       });
     });
+@else
+    cardButton.addEventListener('click', function(ev) {
+      stripe.handleCardPayment(
+        clientSecret, cardElement, {
+          payment_method_data: {
+            billing_details: {name: cardholderName.value}
+          }
+        }
+      ).then(function(result) {
+        if (result.error) {
 
+            $("#card-errors").empty();
+            $("#card-errors").append("<b>" + result.error.message + "</b>");
+            $("#card-button").removeAttr("disabled");
+
+        } else {
+          // The setup has succeeded. Display a success message.
+          console.log(result);
+          postResult(result);
+        }
+      });
+    });
+@endif
     $("#card-button").attr("disabled", true);
 
     $('#cardholder-name').on('input',function(e){

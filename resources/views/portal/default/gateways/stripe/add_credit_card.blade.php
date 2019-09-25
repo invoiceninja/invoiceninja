@@ -2,19 +2,19 @@
 
 @section('credit_card')
 
-                    {!! Former::framework('TwitterBootstrap4'); !!}
+{!! Former::framework('TwitterBootstrap4'); !!}
 
-                    {!! Former::horizontal_open()
-                          ->id('server_response')
-                          ->route('client.payment_methods.store')
-                          ->method('POST');  !!}
+{!! Former::horizontal_open()
+      ->id('server_response')
+      ->route('client.payment_methods.store')
+      ->method('POST');  !!}
 
-                    {!! Former::hidden('company_gateway_id')->value($gateway->gateway_id) !!}
-                    {!! Former::hidden('gateway_type_id')->value(1) !!}
-                    {!! Former::hidden('gateway_response')->id('gateway_response') !!}
-                    {!! Former::hidden('is_default')->id('is_default') !!}
+{!! Former::hidden('company_gateway_id')->value($gateway->gateway_id) !!}
+{!! Former::hidden('gateway_type_id')->value(1) !!}
+{!! Former::hidden('gateway_response')->id('gateway_response') !!}
+{!! Former::hidden('is_default')->id('is_default') !!}
 
-                    {!! Former::close() !!}
+{!! Former::close() !!}
 
 
 <div class="py-md-5 ninja stripe">
