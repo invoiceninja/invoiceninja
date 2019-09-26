@@ -19,7 +19,7 @@
             </a>
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
                 <div class="dropdown-header text-center">
-                    <strong>@lang('texts.notifications')</strong>
+                    <strong>{{ ('texts.notifications')}}</strong>
                 </div>
                 <a class="dropdown-item" href="#">
                     <div class="small mb-1">Mr Miyagi todos
@@ -32,7 +32,7 @@
                         </span>
                 </a>
                 <a class="dropdown-item text-center" href="#">
-                    <strong>@lang('texts.more')</strong>
+                    <strong>{{ ('texts.more')}}</strong>
                 </a>
             </div>
         </li>
@@ -47,14 +47,14 @@
             </a>
             <div class="dropdown-menu dropdown-menu-sm">
                 <div class="dropdown-header text-center">
-                    <strong>@lang('texts.settings')</strong>
+                    <strong>{{ ('texts.settings')}} </strong>
                 </div>
                 <a class="dropdown-item" href="{{ route('client.profile.edit', ['id' => auth()->user()->hashed_id])}}">
-                    <i class="fa fa-user"></i> @lang('texts.profile')</a>
+                    <i class="fa fa-user"></i> @lang::get('texts.profile')</a>
 
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{ route('client.logout') }}">
-                    <i class="fa fa-lock"></i> @lang('texts.logout')</a>
+                    <i class="fa fa-lock"></i> @lang::get('texts.logout')</a>
             </div>
         </li>
     </ul>

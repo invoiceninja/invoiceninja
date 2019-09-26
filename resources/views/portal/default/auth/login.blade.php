@@ -29,7 +29,7 @@
                             @endif
                             <form method="POST" action="{{ route('client.login') }}">
                                 @csrf
-                                <h1>@lang('texts.account_login')</h1>
+                                <h1>{{ ('texts.account_login') }}</h1>
                                     @if (Session::has('error'))
                                         <div class="alert alert-danger">
                                             <li>{!! Session::get('error') !!}</li>
@@ -42,7 +42,7 @@
                                           <i class="icon-user"></i>
                                         </span>
                                     </div>
-                                    <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="@lang('texts.email')" required autofocus>
+                                    <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="{{ ('texts.email') }}" required autofocus>
 
                                     @if ($errors->has('email'))
                                         <span class="invalid-feedback" role="alert">
@@ -57,7 +57,7 @@
                                           <i class="icon-lock"></i>
                                         </span>
                                     </div>
-                                    <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="@lang('texts.password')" required>
+                                    <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="{{ ('texts.password') }}" required>
 
                                     @if ($errors->has('password'))
                                         <span class="invalid-feedback" role="alert">
@@ -68,7 +68,7 @@
 
                                 <div class="row">
                                     <div class="col-6">
-                                        <button class="btn btn-primary px-4" type="submit">@lang('texts.login')</button>
+                                        <button class="btn btn-primary px-4" type="submit">{{ trans('texts.login') }}</button>
                                     </div>
                                     <div class="col-6 text-right">
                                         <a class="btn btn-link" href="{{ route('client.password.request') }}">
