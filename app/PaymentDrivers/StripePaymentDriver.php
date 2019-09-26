@@ -373,6 +373,7 @@ class StripePaymentDriver extends BasePaymentDriver
   // }
 
 //mark all invitations with transaction reference
+//TODO move this to to be called from an event... doesn't belong here
 $invoices->each(function ($invoice) use($payment) {
 
   $invoice->status_id = Payment::STATUS_COMPLETED;

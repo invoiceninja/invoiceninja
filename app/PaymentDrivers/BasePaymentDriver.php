@@ -22,6 +22,20 @@ use Omnipay\Omnipay;
 /**
  * Class BasePaymentDriver
  * @package App\PaymentDrivers
+ *
+ *  Minimum dataset required for payment gateways
+ *
+ *  $data = [
+        'amount' => $invoice->getRequestedAmount(),
+        'currency' => $invoice->getCurrencyCode(),
+        'returnUrl' => $completeUrl,
+        'cancelUrl' => $this->invitation->getLink(),
+        'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
+        'transactionId' => $invoice->invoice_number,
+        'transactionType' => 'Purchase',
+        'clientIp' => Request::getClientIp(),
+    ];
+
  */
 class BasePaymentDriver
 {
@@ -145,6 +159,32 @@ class BasePaymentDriver
 		void($options) - generally can only be called up to 24 hours after submitting a transaction
 		acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
 	*/
+
+    protected function paymentDetails($paymentMethod = false)
+    {
+        $gatewayTypeAlias = $this->gatewayType == GatewayType::TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
+        $completeUrl = $this->invitation->getLink('complete', true) . '/' . $gatewayTypeAlias;
+
+        $data = [
+            'currency' => $this->client->getCurrencyCode(),
+            'transactionId' => $invoice->invoice_number,
+            'transactionType' => 'Purchase',
+            'clientIp' => request()->getClientIp(),
+        ];
+
+        if ($paymentMethod) {
+            if ($this->customerReferenceParam) {
+                $data[$this->customerReferenceParam] = $paymentMethod->account_gateway_token->token;
+            }
+            $data[$this->sourceReferenceParam] = $paymentMethod->source_reference;
+        } elseif ($this->input) {
+            $data['card'] = new CreditCard($this->paymentDetailsFromInput($this->input));
+        } else {
+            $data['card'] = new CreditCard($this->paymentDetailsFromClient());
+        }
+
+        return $data;
+    }
 
 	public function purchase($data, $items)
 	{

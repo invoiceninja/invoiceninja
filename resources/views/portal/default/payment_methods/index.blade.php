@@ -28,17 +28,16 @@
 				<div id="top_right_buttons" class="pull-right">
                       <a href="{{ route('client.payment_methods.create')}}" class="btn btn-success">{{ ctrans('texts.add_payment_method') }}</a>
 				</div>
+            </div>
+        </div>
 
-				<div class="animated fadeIn">
-                    <div class="col-md-12 card">
 
+        <div class="row">
+            <div class="animated fadeIn col-lg-12 card mt-10">
 					{!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'datatable'], true) !!}
-
-                    </div>
-                </div>
-			</div>
-
+            </div>
 		</div>
+
 
     </div>
 </main>

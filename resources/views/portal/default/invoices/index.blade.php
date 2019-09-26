@@ -51,17 +51,17 @@
 					<input id="table_filter" type="text" style="width:180px;background-color: white !important"
 				        class="form-control pull-left" placeholder="{{ trans('texts.filter')}}" value=""/>
 				</div>
-
-				<div class="animated fadeIn">
-                    <div class="col-md-12 card">
-
-					{!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'datatable'], true) !!}
-
-                    </div>
-                </div>
-			</div>
+            </div>
 
 		</div>
+
+        <div class="row">
+            <div class="animated fadeIn col-lg-12 card mt-10">
+
+            {!! $html->table(['class' => 'table table-hover table-striped', 'id' => 'datatable'], true) !!}
+
+            </div>
+        </div>
 
     </div>
 </main>

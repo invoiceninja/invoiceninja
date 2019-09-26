@@ -31,7 +31,7 @@
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "5.8.*",
         "league/fractal": "^0.17.0",
-        "league/omnipay": "^3",
+        "league/omnipay": "^3.0",
         "nwidart/laravel-modules": "^4.0",
         "omnipay/paypal": "^3.0",
         "omnipay/stripe": "^3.0",
