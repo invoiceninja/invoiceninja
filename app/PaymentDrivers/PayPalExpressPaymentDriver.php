@@ -37,6 +37,20 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         ];
     }
 
+    /**
+     * Processes the payment with this gateway
+     *             
+     * @var $data['invoices']
+     * @var $data['amount']
+     * @var $data['fee']
+     * @var $data['amount_with_fee']
+     * @var $data['token']
+     * @var $data['payment_method_id']
+     * @var $data['hashed_ids']
+     * 
+     * @param  array  $data variables required to build payment page
+     * @return view   Gateway and payment method specific view
+     */
     public function processPaymentView(array $data)
     {
 
@@ -47,9 +61,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails()
     {
         $data = parent::paymentDetails();
+
+        $data['amount'] = $invoice->getRequestedAmount();
+        $data['returnUrl'] = $completeUrl;
+        $data['cancelUrl'] = $this->invitation->getLink();
+        $data['description'] = trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}";
+        $data['transactionId'] = $invoice->invoice_number;
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
         $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
@@ -58,3 +78,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 }
+
+            'currency' => $this->client->getCurrencyCode(),
+            'transactionType' => 'Purchase',
+            'clientIp' => request()->getClientIp(),
