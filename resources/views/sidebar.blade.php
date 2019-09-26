@@ -4,63 +4,63 @@
 
             <li class="nav-item ">
                 <a class="nav-link" href="{{ route('dashboard.index') }}">
-                    <i class="nav-icon icon-speedometer"></i> @lang::get('texts.dashboard')
+                    <i class="nav-icon icon-speedometer"></i> @lang('texts.dashboard')
                 </a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="/clients">
-                    <i class="nav-icon icon-user"></i> @lang::get('texts.clients')</a>
+                    <i class="nav-icon icon-user"></i> @lang('texts.clients')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('invoices.index') }}">
-                    <i class="nav-icon icon-notebook"></i> @lang::get('texts.invoices')</a>
+                    <i class="nav-icon icon-notebook"></i> @lang('texts.invoices')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-wallet"></i> @lang::get('texts.payments')</a>
+                    <i class="nav-icon icon-wallet"></i> @lang('texts.payments')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-docs"></i> @lang::get('texts.recurring')</a>
+                    <i class="nav-icon icon-docs"></i> @lang('texts.recurring')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-badge"></i> @lang::get('texts.credits')</a>
+                    <i class="nav-icon icon-badge"></i> @lang('texts.credits')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-vector"></i> @lang::get('texts.quotes')</a>
+                    <i class="nav-icon icon-vector"></i> @lang('texts.quotes')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-wrench"></i> @lang::get('texts.projects')</a>
+                    <i class="nav-icon icon-wrench"></i> @lang('texts.projects')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-grid"></i> @lang::get('texts.tasks')</a>
+                    <i class="nav-icon icon-grid"></i> @lang('texts.tasks')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-envelope-open"></i> @lang::get('texts.expenses')</a>
+                    <i class="nav-icon icon-envelope-open"></i> @lang('texts.expenses')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-bell"></i> @lang::get('texts.vendors')</a>
+                    <i class="nav-icon icon-bell"></i> @lang('texts.vendors')</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="typography.html">
-                    <i class="nav-icon icon-printer"></i> @lang::get('texts.reports')</a>
+                    <i class="nav-icon icon-printer"></i> @lang('texts.reports')</a>
             </li>
         </ul>
     </nav>

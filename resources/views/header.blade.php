@@ -83,7 +83,7 @@
             </a>
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
                 <div class="dropdown-header text-center">
-                    <strong>@lang::get('texts.manage_companies')</strong>
+                    <strong>trans('texts.manage_companies')</strong>
                 </div>
 
                 @foreach($companies as $company) <!-- List all remaining companies here-->
@@ -103,7 +103,7 @@
                 <!-- Add Company-->
                 @if(count($companies) < 5)
                 <a class="dropdown-item" href="{{ route('user.logout') }}">
-                    <i class="fa fa-plus"></i> @lang::get('texts.add_company')</a>
+                    <i class="fa fa-plus"></i> trans('texts.add_company')</a>
                 @endif
             </div>
         </li>
@@ -119,7 +119,7 @@
                 <a class="dropdown-item" href="#">
                     <i class="fa fa-user"></i> Profile</a>
                 <a class="dropdown-item" href="{{  route('user.settings') }}">
-                    <i class="fa fa-wrench"></i> @lang::get('texts.settings')</a>
+                    <i class="fa fa-wrench"></i> trans('texts.settings')</a>
 
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{ route('user.logout') }}">

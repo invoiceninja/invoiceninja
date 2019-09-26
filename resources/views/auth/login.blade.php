@@ -10,7 +10,7 @@
                         <div class="card-body">
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
-                                <h1>@lang::get('texts.account_login')</h1>
+                                <h1>@lang('texts.account_login')</h1>
                                     @if (Session::has('error'))
                                         <div class="alert alert-danger">
                                             <li>{!! Session::get('error') !!}</li>
@@ -23,7 +23,7 @@
                                           <i class="icon-user"></i>
                                         </span>
                                     </div>
-                                    <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="@lang::get('texts.email')" required autofocus>
+                                    <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="@lang('texts.email')" required autofocus>
 
                                     @if ($errors->has('email'))
                                         <span class="invalid-feedback" role="alert">
@@ -38,7 +38,7 @@
                                           <i class="icon-lock"></i>
                                         </span>
                                     </div>
-                                    <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="@lang::get('texts.password')" required>
+                                    <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="@lang('texts.password')" required>
 
                                     @if ($errors->has('password'))
                                         <span class="invalid-feedback" role="alert">
@@ -49,11 +49,11 @@
 
                                 <div class="row">
                                     <div class="col-6">
-                                        <button class="btn btn-primary px-4" type="submit">@lang::get('texts.login')</button>
+                                        <button class="btn btn-primary px-4" type="submit">@lang('texts.login')</button>
                                     </div>
                                     <div class="col-6 text-right">
                                         <a class="btn btn-link" href="{{ route('password.request') }}">
-                                            @lang::get('texts.forgot_password')
+                                            @lang('texts.forgot_password')
                                         </a>
                                     </div>
                                 </div>
@@ -91,9 +91,9 @@
                     <div class="card text-white bg-primary py-5 d-md-down-none" style="width:44%">
                         <div class="card-body text-center">
                             <div>
-                                <h2>@lang::get('texts.sign_up_now')</h2>
-                                <p>@lang::get('texts.not_a_member_yet')</p>
-                                <a class="btn btn-primary active mt-3" href="{{route('signup') }}">@lang::get('texts.login_create_an_account')</a>
+                                <h2>@lang('texts.sign_up_now')</h2>
+                                <p>@lang('texts.not_a_member_yet')</p>
+                                <a class="btn btn-primary active mt-3" href="{{route('signup') }}">@lang('texts.login_create_an_account')</a>
                             </div>
                         </div>
                     </div>

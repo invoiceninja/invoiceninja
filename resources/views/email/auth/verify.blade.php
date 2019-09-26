@@ -9,10 +9,10 @@ Header Title
 
 {{-- Body --}}
 {{ $user }}
-@lang::get('texts.confirmation_message')
+trans('texts.confirmation_message')
 
 @component('mail::button', ['url' => url("/user/confirm/{$user->confirmation_code}")])
-@lang::get('texts.confirm')
+trans('texts.confirm')
 @endcomponent
 
 {{-- Subcopy --}}
