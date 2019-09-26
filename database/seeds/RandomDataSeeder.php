@@ -56,7 +56,7 @@ class RandomDataSeeder extends Seeder
             'company_id' => $company->id,
             'account_id' => $account->id,
             'name' => 'test token',
-            'token' => str_random(64),
+            'token' => \Illuminate\Support\Str::random(64),
         ]);
 
         $user->companies()->attach($company->id, [

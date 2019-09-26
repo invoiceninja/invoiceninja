@@ -72,7 +72,7 @@
                                     </div>
                                     <div class="col-6 text-right">
                                         <a class="btn btn-link" href="{{ route('client.password.request') }}">
-                                            @lang('texts.forgot_password')
+                                            @lang::get('texts.forgot_password')
                                         </a>
                                     </div>
                                 </div>
@@ -85,9 +85,9 @@
                     <!--<div class="card text-white bg-primary py-5 d-md-down-none" style="width:44%">
                         <div class="card-body text-center">
                             <div>
-                                <h2>@lang('texts.sign_up_now')</h2>
-                                <p>@lang('texts.not_a_member_yet')</p>
-                                <a class="btn btn-primary active mt-3" href="{{route('signup') }}">@lang('texts.login_create_an_account')</a>
+                                <h2>@lang::get('texts.sign_up_now')</h2>
+                                <p>@lang::get('texts.not_a_member_yet')</p>
+                                <a class="btn btn-primary active mt-3" href="{{route('signup') }}">@lang::get('texts.login_create_an_account')</a>
                             </div>
                         </div>
                     </div>

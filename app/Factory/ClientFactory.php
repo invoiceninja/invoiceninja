@@ -13,6 +13,7 @@ namespace App\Factory;
 
 use App\DataMapper\ClientSettings;
 use App\Models\Client;
+use Illuminate\Support\Str;
 
 class ClientFactory
 {
@@ -28,7 +29,7 @@ class ClientFactory
 		$client->paid_to_date = 0;
 		$client->country_id = 4;
 		$client->is_deleted = 0;
-		$client->client_hash = str_random(40);
+		$client->client_hash = Str::random(40);
 		$client->currency_id = config('ninja.i18n.currency_id');		
 		$client->settings = ClientSettings::defaults();
 		

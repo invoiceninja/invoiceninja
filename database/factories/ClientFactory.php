@@ -30,6 +30,6 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'shipping_postal_code' => $faker->postcode,
         'shipping_country_id' => 4,
         'settings' => new ClientSettings(ClientSettings::defaults()),
-        'client_hash' => str_random(40),
+        'client_hash' => \Illuminate\Support\Str::random(40),
     ];
 });

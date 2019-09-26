@@ -15,7 +15,7 @@ use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
 use App\Utils\Statics;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Log;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;

@@ -26,7 +26,7 @@ trait MakesHash
      */
     public function createHash() : string
     {
-        return str_random(config('ninja.key_length'));
+        return \Illuminate\Support\Str::random(config('ninja.key_length'));
     }
 
     /**
@@ -37,7 +37,7 @@ trait MakesHash
      */
     public function createDbHash($db) : string
     {
-        return  $this->getDbCode($db) . '-' . str_random(config('ninja.key_length'));
+        return  $this->getDbCode($db) . '-' . \Illuminate\Support\Str::random(config('ninja.key_length'));
     }
 
     /**

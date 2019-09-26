@@ -21,8 +21,8 @@ $factory->define(App\Models\ClientContact::class, function (Faker $faker) {
         'email_verified_at' => now(),
         'email' => $faker->unique()->safeEmail,
         'password' => bcrypt('password'),
-        'remember_token' => str_random(10),
-        'token' => str_random(64),
+        'remember_token' => \Illuminate\Support\Str::random(10),
+        'token' => \Illuminate\Support\Str::random(64),
     ];
 
 });

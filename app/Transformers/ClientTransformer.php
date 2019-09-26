@@ -68,6 +68,7 @@ class ClientTransformer extends EntityTransformer
             'state' => $client->state ?: '',
             'postal_code' => $client->postal_code ?: '',
             'country_id' => $client->country_id ?: '',
+            'industry_id' => $client->industry_id ?: '',
             'custom_value1' => $client->custom_value1 ?: '',
             'custom_value2' => $client->custom_value2 ?: '',
             'custom_value3' => $client->custom_value3 ?: '',

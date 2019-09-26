@@ -157,7 +157,7 @@ class LoginTest extends TestCase
         $ct = CompanyToken::create([
             'user_id' => $user->id,
             'account_id' => $account->id,
-            'token' => str_random(64),
+            'token' => \Illuminate\Support\Str::random(64),
             'name' => $user->first_name. ' '. $user->last_name,
             'company_id' => $company->id,
         ]);

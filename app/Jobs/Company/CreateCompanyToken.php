@@ -19,6 +19,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 class CreateCompanyToken implements ShouldQueue
 {
@@ -51,7 +52,7 @@ class CreateCompanyToken implements ShouldQueue
         $ct = CompanyToken::create([
             'user_id' => $this->user->id,
             'account_id' => $this->company->account->id,
-            'token' => str_random(64),
+            'token' => Str::random(64),
             'name' => $this->user->first_name. ' '. $this->user->last_name,
             'company_id' => $this->company->id,
         ]);

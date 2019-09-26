@@ -12,6 +12,7 @@
 namespace App\Factory;
 
 use App\Models\InvoiceInvitation;
+use Illuminate\Support\Str;
 
 class InvoiceInvitationFactory
 {
@@ -23,7 +24,7 @@ class InvoiceInvitationFactory
             $ii->user_id = $user_id;
             $ii->client_contact_id = null;
             $ii->invoice_id = null;
-            $ii->invitation_key = str_random(config('ninja.key_length'));
+            $ii->invitation_key = Str::random(config('ninja.key_length'));
             $ii->transaction_reference = null;
             $ii->message_id = null;
             $ii->email_error = '';
