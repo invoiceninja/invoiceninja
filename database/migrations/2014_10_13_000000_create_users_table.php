@@ -936,7 +936,6 @@ class CreateUsersTable extends Migration
         Schema::create('date_formats', function ($table) {
             $table->increments('id');
             $table->string('format');
-            $table->string('picker_format');
             $table->string('format_moment');
             $table->string('format_dart');
         });
