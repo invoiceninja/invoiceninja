@@ -167,7 +167,6 @@ class BasePaymentDriver
 
         $data = [
             'currency' => $this->client->getCurrencyCode(),
-            'transactionId' => $invoice->invoice_number,
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
         ];

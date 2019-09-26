@@ -16,24 +16,24 @@ class CreateUsersTable extends Migration
 
         Schema::create('languages', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
-            $table->string('locale')->default('');
+            $table->string('name');
+            $table->string('locale');
         });
 
         Schema::create('countries', function ($table) {
             $table->increments('id');
             $table->string('capital', 255)->nullable();
             $table->string('citizenship', 255)->nullable();
-            $table->string('country_code', 3)->default('');
+            $table->string('country_code', 3)->nullable();
             $table->string('currency', 255)->nullable();
             $table->string('currency_code', 255)->nullable();
             $table->string('currency_sub_unit', 255)->nullable();
             $table->string('full_name', 255)->nullable();
-            $table->string('iso_3166_2', 2)->default('');
-            $table->string('iso_3166_3', 3)->default('');
-            $table->string('name', 255)->default('');
-            $table->string('region_code', 3)->default('');
-            $table->string('sub_region_code', 3)->default('');
+            $table->string('iso_3166_2', 2)->nullable();
+            $table->string('iso_3166_3', 3)->nullable();
+            $table->string('name', 255)->nullable();
+            $table->string('region_code', 3)->nullable();
+            $table->string('sub_region_code', 3)->nullable();
             $table->boolean('eea')->default(0);
             $table->boolean('swap_postal_code')->default(0);
             $table->boolean('swap_currency_symbol')->default(false);
@@ -43,44 +43,44 @@ class CreateUsersTable extends Migration
 
         Schema::create('payment_types', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
+            $table->string('name');
             $table->integer('gateway_type_id')->nullable();
         });
 
         Schema::create('timezones', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
-            $table->string('location')->default('');
+            $table->string('name');
+            $table->string('location');
             $table->integer('utc_offset')->default(0);
         });
 
         Schema::create('currencies', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
-            $table->string('symbol')->default('');
-            $table->string('precision')->default('');
-            $table->string('thousand_separator')->default('');
-            $table->string('decimal_separator')->default('');
-            $table->string('code')->default('');
+            $table->string('name');
+            $table->string('symbol');
+            $table->string('precision');
+            $table->string('thousand_separator');
+            $table->string('decimal_separator');
+            $table->string('code');
             $table->boolean('swap_currency_symbol')->default(false);
 
         });
 
         Schema::create('sizes', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
+            $table->string('name');
         });
 
         Schema::create('industries', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
+            $table->string('name');
         });
 
         Schema::create('gateways', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
+            $table->string('name');
             $table->string('key')->unique();
-            $table->string('provider')->default('');
+            $table->string('provider');
             $table->boolean('visible')->default(true);
             $table->timestamps();
         });
@@ -127,27 +127,27 @@ class CreateUsersTable extends Migration
         
         Schema::create('companies', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->nullable()->default('');
+            $table->string('name')->nullable();
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('industry_id')->nullable();
-            $table->string('ip')->default('');
+            $table->string('ip')->nullable();
             $table->string('company_key',100)->unique();
-            $table->string('logo')->default('');
-            $table->string('address1')->default('');
-            $table->string('address2')->default('');
-            $table->string('city')->default('');
-            $table->string('state')->default('');
-            $table->string('postal_code')->default('');
-            $table->string('work_phone')->default('');
-            $table->string('work_email')->default('');
+            $table->string('logo')->nullable();
+            $table->string('address1')->nullable();
+            $table->string('address2')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
+            $table->string('work_phone')->nullable();
+            $table->string('work_email')->nullable();
             $table->unsignedInteger('country_id')->nullable();
-            $table->string('domain')->default('');
-            $table->string('db')->default('');
-            $table->string('vat_number')->default('');
-            $table->string('id_number')->default('');
+            $table->string('domain')->nullable();
+            $table->string('db')->nullable();
+            $table->string('vat_number')->nullable();
+            $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
-            $table->string('start_of_week')->default('');
-            $table->string('financial_year_start')->default('');
+            $table->string('start_of_week')->nullable();
+            $table->string('financial_year_start')->nullable();
             $table->smallInteger('enable_modules')->default(0);
             $table->text('settings');
             
@@ -168,8 +168,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id')->index();
-            $table->text('permissions')->default('');
-            $table->text('settings')->default('');
+            $table->text('permissions')->nullable();
+            $table->text('settings')->nullable();
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_locked')->default(false); // locks user out of account
@@ -185,12 +185,12 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('company_id')->index();
-            $table->string('path')->default('');
-            $table->string('preview')->default('');
-            $table->string('name')->default('');
-            $table->string('type')->default('');
-            $table->string('disk')->default('');
-            $table->string('hash', 100)->default('');
+            $table->string('path')->nullable();
+            $table->string('preview')->nullable();
+            $table->string('name')->nullable();
+            $table->string('type')->nullable();
+            $table->string('disk')->nullable();
+            $table->string('hash', 100)->nullable();
             $table->unsignedInteger('size')->nullable();
             $table->unsignedInteger('width')->nullable();
             $table->unsignedInteger('height')->nullable();
@@ -207,25 +207,25 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
 
             $table->increments('id');
-            $table->string('first_name')->default('');
-            $table->string('last_name')->default('');
-            $table->string('phone')->default('');
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('phone')->nullable();
             $table->string('email',100)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('confirmation_code')->default('');
+            $table->string('confirmation_code')->nullable();
             $table->integer('theme_id')->nullable();
             $table->smallInteger('failed_logins')->nullable();
-            $table->string('referral_code')->default('');
+            $table->string('referral_code')->nullable();
             $table->string('oauth_user_id',100)->nullable();
             $table->string('oauth_provider_id')->nullable();
             $table->string('google_2fa_secret')->nullable();
-            $table->string('accepted_terms_version')->default('');
-            $table->string('avatar', 100)->default('');
+            $table->string('accepted_terms_version')->nullable();
+            $table->string('avatar', 100)->nullable();
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
             $table->timestamp('last_login')->nullable();
-            $table->text('signature')->default('');
+            $table->text('signature')->nullable();
             $table->string('password');
             $table->rememberToken();
             
@@ -246,7 +246,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
             $table->string('token')->nullable();
-            $table->string('name')->default('');
+            $table->string('name')->nullable();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -259,11 +259,11 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('user_id')->index();
 
-            $table->string('name')->default('');
-            $table->string('website')->default('');
-            $table->text('private_notes')->default('');
-            $table->text('client_hash')->default('');
-            $table->string('logo', 255)->default('');
+            $table->string('name')->nullable();
+            $table->string('website')->nullable();
+            $table->text('private_notes')->nullable();
+            $table->text('client_hash')->nullable();
+            $table->string('logo', 255)->nullable();
 
             $table->decimal('balance', 13, 2)->default(0);
             $table->decimal('paid_to_date', 13, 2)->default(0);
@@ -272,30 +272,30 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('size_id')->nullable();
             $table->unsignedInteger('currency_id')->nullable();
 
-            $table->string('address1')->default('');
-            $table->string('address2')->default('');
-            $table->string('city')->default('');
-            $table->string('state')->default('');
-            $table->string('postal_code')->default('');
+            $table->string('address1')->nullable();
+            $table->string('address2')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('postal_code')->nullable();
             $table->unsignedInteger('country_id')->nullable();
-            $table->string('custom_value1')->default('');
-            $table->string('custom_value2')->default('');
-            $table->string('custom_value3')->default('');
-            $table->string('custom_value4')->default('');
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
 
-            $table->string('shipping_address1')->default('');
-            $table->string('shipping_address2')->default('');
-            $table->string('shipping_city')->default('');
-            $table->string('shipping_state')->default('');
-            $table->string('shipping_postal_code')->default('');
+            $table->string('shipping_address1')->nullable();
+            $table->string('shipping_address2')->nullable();
+            $table->string('shipping_city')->nullable();
+            $table->string('shipping_state')->nullable();
+            $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
-            $table->text('settings')->default('');
+            $table->text('settings')->nullable();
 
             $table->boolean('is_deleted')->default(false);
             $table->integer('payment_terms')->nullable();  
             $table->unsignedInteger('group_settings_id')->nullable();  
-            $table->string('vat_number')->default('');
-            $table->string('id_number')->default('');
+            $table->string('vat_number')->nullable();
+            $table->string('id_number')->nullable();
 
             $table->timestamps(6);
             $table->softDeletes();
@@ -312,14 +312,14 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('client_id')->index();
             $table->unsignedInteger('user_id')->index();
-            $table->string('first_name')->default('');
-            $table->string('last_name')->default('');
-            $table->string('phone')->default('');
-            $table->string('custom_value1')->default('');
-            $table->string('custom_value2')->default('');
-            $table->string('custom_value3')->default('');
-            $table->string('custom_value4')->default('');
-            $table->string('email',100)->default('');
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+            $table->string('email',100)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
             $table->boolean('is_primary')->default(false);
@@ -329,10 +329,10 @@ class CreateUsersTable extends Migration
             $table->string('oauth_user_id',100)->nullable()->unique();
             $table->unsignedInteger('oauth_provider_id')->nullable()->unique();
             $table->string('google_2fa_secret')->nullable();
-            $table->string('accepted_terms_version')->default('');
-            $table->string('avatar', 255)->default('');
-            $table->string('avatar_type',255)->default('');
-            $table->string('avatar_size',255)->default('');
+            $table->string('accepted_terms_version')->nullable();
+            $table->string('avatar', 255)->nullable();
+            $table->string('avatar_type',255)->nullable();
+            $table->string('avatar_size',255)->nullable();
             $table->string('password');
             $table->string('token')->nullable();
             $table->boolean('is_locked')->default(false);
@@ -396,32 +396,32 @@ class CreateUsersTable extends Migration
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(0);
 
-            $t->string('po_number')->default('');
+            $t->string('po_number')->nullable();
             $t->date('invoice_date')->nullable();
             $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->text('line_items')->default('');
-            $t->text('settings')->default('');
+            $t->text('line_items')->nullable();
+            $t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
-            $t->text('footer')->default('');
-            $t->text('public_notes')->default('');
-            $t->text('private_notes')->default('');
-            $t->text('terms')->default('');
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
 
 
-            $t->string('tax_name1')->default('');
+            $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
-            $t->string('tax_name2')->default('');
+            $t->string('tax_name2')->nullable();
             $t->decimal('tax_rate2', 13, 3)->default(0);
 
-            $t->string('custom_value1')->default('');
-            $t->string('custom_value2')->default('');
-            $t->string('custom_value3')->default('');
-            $t->string('custom_value4')->default('');
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
 
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
@@ -452,32 +452,32 @@ class CreateUsersTable extends Migration
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
 
-            $t->string('po_number')->default('');
+            $t->string('po_number')->nullable();
             $t->date('invoice_date')->nullable();
             $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->text('line_items')->default('');
-            $t->text('settings')->default('');
+            $t->text('line_items')->nullable();
+            $t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
-            $t->text('footer')->default('');
-            $t->text('public_notes')->default('');
-            $t->text('private_notes')->default('');
-            $t->text('terms')->default('');
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
 
 
-            $t->string('tax_name1')->default('');
+            $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
-            $t->string('tax_name2')->default('');
+            $t->string('tax_name2')->nullable();
             $t->decimal('tax_rate2', 13, 3)->default(0);
 
-            $t->string('custom_value1')->default('');
-            $t->string('custom_value2')->default('');
-            $t->string('custom_value3')->default('');
-            $t->string('custom_value4')->default('');
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
 
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
@@ -512,31 +512,31 @@ class CreateUsersTable extends Migration
             $t->boolean('is_amount_discount')->default(false);
             $t->string('quote_number')->nullable();
 
-            $t->string('po_number')->default('');
+            $t->string('po_number')->nullable();
             $t->date('quote_date')->nullable();
             $t->datetime('valid_until')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->text('line_items')->default('');
-            $t->text('settings')->default('');
+            $t->text('line_items')->nullable();
+            $t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
-            $t->text('footer')->default('');
-            $t->text('public_notes')->default('');
-            $t->text('private_notes')->default('');
-            $t->text('terms')->default('');
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
 
-            $t->string('tax_name1')->default('');
+            $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
-            $t->string('tax_name2')->default('');
+            $t->string('tax_name2')->nullable();
             $t->decimal('tax_rate2', 13, 3)->default(0);
 
-            $t->string('custom_value1')->default('');
-            $t->string('custom_value2')->default('');
-            $t->string('custom_value3')->default('');
-            $t->string('custom_value4')->default('');
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
 
             $t->decimal('amount', 13, 2)->default(0);
             $t->decimal('balance', 13, 2)->default(0);
@@ -569,32 +569,32 @@ class CreateUsersTable extends Migration
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
 
-            $t->string('po_number')->default('');
+            $t->string('po_number')->nullable();
             $t->date('quote_date')->nullable();
             $t->datetime('valid_until')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->text('line_items')->default('');
-            $t->text('settings')->default('');
+            $t->text('line_items')->nullable();
+            $t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
-            $t->text('footer')->default('');
-            $t->text('public_notes')->default('');
-            $t->text('private_notes')->default('');
-            $t->text('terms')->default('');
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
 
 
-            $t->string('tax_name1')->default('');
+            $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
-            $t->string('tax_name2')->default('');
+            $t->string('tax_name2')->nullable();
             $t->decimal('tax_rate2', 13, 3)->default(0);
 
-            $t->string('custom_value1')->default('');
-            $t->string('custom_value2')->default('');
-            $t->string('custom_value3')->default('');
-            $t->string('custom_value4')->default('');
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
 
             $t->decimal('amount', 13, 2)->default(0);
             $t->decimal('balance', 13, 2)->default(0);
@@ -625,8 +625,8 @@ class CreateUsersTable extends Migration
 
             $t->string('transaction_reference')->nullable();
             $t->string('message_id')->nullable();
-            $t->text('email_error')->default('');
-            $t->text('signature_base64')->default('');
+            $t->text('email_error')->nullable();
+            $t->text('signature_base64')->nullable();
             $t->datetime('signature_date')->nullable();
 
             $t->datetime('sent_date')->nullable();
@@ -665,20 +665,20 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('user_id');
 
-            $t->string('custom_value1')->default('');
-            $t->string('custom_value2')->default('');
-            $t->string('custom_value3')->default('');
-            $t->string('custom_value4')->default('');
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
 
-            $t->string('product_key')->default('');
-            $t->text('notes')->default('');
+            $t->string('product_key')->nullable();
+            $t->text('notes')->nullable();
             $t->decimal('cost', 13, 2)->default(0);
             $t->decimal('price', 13, 2)->default(0);
             $t->decimal('quantity', 13, 2)->default(0);
 
-            $t->string('tax_name1')->default('');
+            $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
-            $t->string('tax_name2')->default('');
+            $t->string('tax_name2')->nullable();
             $t->decimal('tax_rate2', 13, 3)->default(0);
 
             $t->boolean('is_deleted')->default(false);
@@ -734,7 +734,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->timestamps(6);
 
-            $t->string('name')->default('');
+            $t->string('name')->nullable();
             $t->boolean('visible')->default(true);
         });
 
@@ -742,10 +742,10 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('payment_library_id')->default(1);
             $table->unsignedInteger('sort_order')->default(10000);
             $table->boolean('recommended')->default(0);
-            $table->string('site_url', 200)->default('');
+            $table->string('site_url', 200)->nullable();
             $table->boolean('is_offsite')->default(false);
             $table->boolean('is_secure')->default(false);
-            $table->text('fields')->default('');
+            $table->text('fields')->nullable();
         });
 
         DB::table('gateways')->update(['payment_library_id' => 1]);
@@ -763,13 +763,13 @@ class CreateUsersTable extends Migration
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->string('custom_value1')->default('');
-            $table->string('custom_value2')->default('');
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
 
-            $table->string('description')->default('');
+            $table->string('description')->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->boolean('is_running')->default(false);
-            $table->text('time_log')->default('');
+            $table->text('time_log')->nullable();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -780,10 +780,10 @@ class CreateUsersTable extends Migration
 
         Schema::create('banks', function ($table) {
             $table->increments('id');
-            $table->string('name')->default('');
-            $table->string('remote_id')->default('');
+            $table->string('name')->nullable();
+            $table->string('remote_id')->nullable();
             $table->integer('bank_library_id')->default(1);
-            $table->text('config')->default('');
+            $table->text('config')->nullable();
         });
 
         Schema::create('bank_companies', function ($table) {
@@ -791,7 +791,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('bank_id');
             $table->unsignedInteger('user_id');
-            $table->string('username')->default('');
+            $table->string('username')->nullable();
 
             $table->timestamps(6);
             $table->softDeletes();
@@ -809,8 +809,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('bank_company_id');
 
-            $table->string('account_name')->default('');
-            $table->string('account_number')->default('');
+            $table->string('account_name')->nullable();
+            $table->string('account_number')->nullable();
 
             $table->timestamps(6);
             $table->softDeletes();
@@ -824,7 +824,7 @@ class CreateUsersTable extends Migration
         Schema::create('payment_terms', function ($table) {
             $table->increments('id');
             $table->integer('num_days');
-            $table->string('name')->default('');
+            $table->string('name')->nullable();
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
             $table->timestamps(6);
@@ -887,8 +887,8 @@ class CreateUsersTable extends Migration
 
             $table->decimal('adjustment', 13, 2)->nullable();
             $table->decimal('balance', 13, 2)->nullable(); //this is the clients balance carried forward
-            $table->text('notes')->default('');
-            $table->text('hash')->default('');
+            $table->text('notes')->nullable();
+            $table->text('hash')->nullable();
 
             $table->unsignedInteger('company_ledgerable_id');
             $table->string('company_ledgerable_type');
@@ -900,8 +900,8 @@ class CreateUsersTable extends Migration
 
         Schema::create('gateway_types', function ($table) {
             $table->increments('id');
-            $table->string('alias')->default('');
-            $table->string('name')->default('');
+            $table->string('alias')->nullable();
+            $table->string('name')->nullable();
         });
 
 
@@ -909,12 +909,12 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('client_id')->nullable();
-            $table->text('token')->default('');
+            $table->text('token')->nullable();
             $table->unsignedInteger('company_gateway_id');
-            $table->string('gateway_customer_reference')->default('');
+            $table->string('gateway_customer_reference')->nullable();
             $table->unsignedInteger('gateway_type_id');
             $table->boolean('is_default')->default(0);
-            $table->text('meta')->default('');
+            $table->text('meta')->nullable();
             $table->softDeletes();
 
             $table->timestamps(6);
@@ -926,8 +926,8 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id')->nullable();
-            $table->string('name')->default('');
-            $table->text('settings')->default('');
+            $table->string('name')->nullable();
+            $table->text('settings')->nullable();
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });

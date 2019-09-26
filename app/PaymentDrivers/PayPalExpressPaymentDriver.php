@@ -78,7 +78,3 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 }
-
-            'currency' => $this->client->getCurrencyCode(),
-            'transactionType' => 'Purchase',
-            'clientIp' => request()->getClientIp(),
