@@ -24,8 +24,8 @@ class InvoiceInvitationTransformer extends EntityTransformer
 
         return [
             'id' => $this->encodePrimaryKey($invitation->id),
-            'key' => $invitation->getName(),
-            'link' => $invitation->getLink(),
+            'key' => $invitation->getName() ?: '',
+            'link' => $invitation->getLink() ?: '',
             'sent_date' => $invitation->sent_date ?: '',
             'viewed_date' => $invitation->sent_date ?: '',
             'opened_date' => $invitation->opened_date ?: '',

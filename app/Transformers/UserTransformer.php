@@ -46,15 +46,15 @@ class UserTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($user->id),
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'last_login' => $user->last_login,
+            'first_name' => $user->first_name ?: '',
+            'last_name' => $user->last_name ?: '',
+            'email' => $user->email ?: '',
+            'last_login' => $user->last_login ?: '',
             'updated_at' => $user->updated_at,
             'deleted_at' => $user->deleted_at,
-            'phone' => $user->phone,
-            'email_verified_at' => $user->email_verified_at,
-            'signature' => $user->signature,
+            'phone' => $user->phone ?: '',
+            'email_verified_at' => $user->email_verified_at ?: '',
+            'signature' => $user->signature ?: '',
         ];
     }
 

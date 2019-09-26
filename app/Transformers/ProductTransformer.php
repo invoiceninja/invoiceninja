@@ -60,10 +60,10 @@ class ProductTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($product->id),
-            'product_key' => $product->product_key,
-            'notes' => $product->notes,
-            'cost' => (float) $product->cost,
-            'price' => (float) $product->price,
+            'product_key' => $product->product_key ?: '',
+            'notes' => $product->notes ?: '',
+            'cost' => (float) $product->cost ?: '',
+            'price' => (float) $product->price ?: '',
             'quantity' => (float) ($product->quantity ?: 0.0),
             'tax_name1' => $product->tax_name1 ?: '',
             'tax_rate1' => (float) $product->tax_rate1,

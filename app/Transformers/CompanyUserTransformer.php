@@ -46,8 +46,8 @@ class CompanyUserTransformer extends EntityTransformer
     public function transform(CompanyUser $company_user)
     {
         return [
-            'permissions' => $company_user->permissions,
-            'settings' => $company_user->settings,
+            'permissions' => $company_user->permissions ?: '',
+            'settings' => $company_user->settings ?: '',
             'is_owner' => (bool) $company_user->is_owner,
             'is_admin' => (bool) $company_user->is_admin,
             'is_locked' => (bool) $company_user->is_locked,

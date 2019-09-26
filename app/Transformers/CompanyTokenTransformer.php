@@ -42,11 +42,8 @@ class CompanyTokenTransformer extends EntityTransformer
     public function transform(CompanyToken $company_token)
     {
         return [
-       //     'id' => $this->encodePrimaryKey($company_token->id),
             'token' => $company_token->token,
-            'name' => $company_token->name,
-       //     'user_id' => $company_token->user_id,
-       //     'company_id' => $company_token->company_id,
+            'name' => $company_token->name ?: '',
         ];
     }
 
