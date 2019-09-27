@@ -11,12 +11,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
 use App\Utils\Statics;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request as Input;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -144,6 +145,16 @@ class BaseController extends Controller
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
+
+
+        if (auth()->user()->cannot('view_'.$this->entity_type)) 
+        {
+            if ($this->entity_type == User::class) {
+                $query->where('id', '=', auth()->user()->id);
+            } else {
+                $query->where('user_id', '=', auth()->user()->id);
+            }
+        }
 
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 

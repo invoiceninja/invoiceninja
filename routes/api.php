@@ -34,6 +34,8 @@ Route::group(['api_secret_check','domain_db'], function () {
 
 Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
 
+  Route::resource('activities', 'ActivityController'); // name = (clients. index / create / show / update / destroy / edit
+  
   Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
 
   Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');

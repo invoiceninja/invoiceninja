@@ -130,4 +130,8 @@ class Activity extends StaticModel
         return $this->belongsTo(Expense::class)->withTrashed();
     }
 
+    public function company()
+    {
+        return $this->belongsTo(Company::class)->withTrashed();
+    }
 }

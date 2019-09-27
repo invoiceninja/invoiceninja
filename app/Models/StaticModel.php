@@ -22,6 +22,8 @@ class StaticModel extends Model
         'deleted_at' => 'timestamp',
     ];
     
+	protected $dateFormat = 'Y-m-d H:i:s.u';
+
     public function getIdAttribute()
     {
         return (string)$this->attributes['id'];
