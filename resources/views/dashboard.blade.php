@@ -253,6 +253,7 @@
 	@include('partials/white_label_expired')
 @endif
 
+@if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">
@@ -370,7 +371,6 @@
     </div>
 </div>
 
-@if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-12">
         <div id="progress-div" class="progress">
@@ -389,7 +389,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
-                    @if ($invoicesSent)
+                    @if (Auth::user()->hasPermission('admin') && $invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
 							@if ($invoicesSent == 1)
 								{{ trans('texts.invoice_sent', ['count' => $invoicesSent]) }}
@@ -415,16 +415,18 @@
         <div class="panel panel-default dashboard" style="height:320px;">
             <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                 <h3 class="panel-title" style="color: black !important">
-                    @if ($showExpenses && count($averageInvoice))
-                        <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
-                            @foreach ($averageInvoice as $item)
-                                <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
-                                    {{ trans('texts.average_invoice') }}
-                                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }} |
-                                </span>
-                            @endforeach
-                            <span class="average-div" style="color:#337ab7"/>
-                        </div>
+					@if (Auth::user()->hasPermission('admin'))
+	                    @if ($showExpenses && count($averageInvoice))
+	                        <div class="pull-right" style="font-size:14px;padding-top:4px;font-weight:bold">
+	                            @foreach ($averageInvoice as $item)
+	                                <span class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
+	                                    {{ trans('texts.average_invoice') }}
+	                                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }} |
+	                                </span>
+	                            @endforeach
+	                            <span class="average-div" style="color:#337ab7"/>
+	                        </div>
+						@endif
                     @endif
                     <i class="glyphicon glyphicon-ok-sign"></i> {{ trans('texts.recent_payments') }}
                 </h3>
