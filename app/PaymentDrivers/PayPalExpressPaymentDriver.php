@@ -53,7 +53,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
-
+        $this->purchase();
     }
 
     public function processPaymentResponse($request)
@@ -76,5 +76,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $data['transactionId'] = $data['transactionId'] . '-' . time();
 
         return $data;
+    }
+
+    private function buildReturnUrl()
+    {
+        $url = $this->client->company->domain . "/payment_hook/{$this->company_gateway->id}/{GatewayType::PAYPAL}";
     }
 }

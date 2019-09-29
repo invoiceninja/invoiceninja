@@ -46,6 +46,7 @@ Route::group(['middleware' => ['domain_db'], 'prefix' => 'client', 'as' => 'clie
 
 	/*Invitation catches*/
 	Route::get('invoice/{invitation_id}','ClientPortal\InvitationController@invoiceRouter');
+	Route::get('payment_hook/{invitation_id}','ClientPortal\PaymentHookController@process');
 
 });
 
