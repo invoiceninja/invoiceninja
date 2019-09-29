@@ -15,6 +15,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Omnipay\Common\Item;
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
@@ -53,7 +54,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
-        $this->purchase();
+        $this->offsitePurchase($this->paymentDetails($data), $this->paymentItems($data));
     }
 
     public function processPaymentResponse($request)
@@ -61,15 +62,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     }
 
-    protected function paymentDetails()
+    protected function paymentDetails($input)
     {
-        $data = parent::paymentDetails();
+        $data = parent::paymentDetails($input);
 
-        $data['amount'] = $invoice->getRequestedAmount();
-        $data['returnUrl'] = $completeUrl;
-        $data['cancelUrl'] = $this->invitation->getLink();
-        $data['description'] = trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}";
-        $data['transactionId'] = $invoice->invoice_number;
+        $data['amount'] = $input['amount_with_fee'];
+        $data['returnUrl'] = $this->buildReturnUrl($input);
+        $data['cancelUrl'] = $this->buildCancelUrl($input);
+        $data['description'] = $this->buildDescription($input);
+        $data['transactionId'] = $this->buildTransactionId($input);
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
         $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
@@ -78,8 +79,81 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    private function buildReturnUrl()
+    private function buildReturnUrl($input)
     {
-        $url = $this->client->company->domain . "/payment_hook/{$this->company_gateway->id}/{GatewayType::PAYPAL}";
+        $url = $this->client->company->domain . "/payment_hook/{$this->company_gateway->id}/{GatewayType::PAYPAL}/";
+        $url .= "?hashed_ids=" . implode(",", $input['hashed_ids']); 
+        $url .= "&amount=".$input['amount'];
+        $url .= "&fee=".$input['fee'];
+
+        return $url;
     }
+
+    private function buildCancelUrl($input)
+    {
+        $url = $this->client->company->domain . '/client/invoices';
+
+        return $url;
+    }
+
+    private function buildDescription($input)
+    {
+        $invoice_numbers = "";
+        
+        foreach($input['invoices'] as $invoice)
+        {
+            $invoice_numbers .= $invoice->invoice_number." ";
+        }
+
+        return ctrans('texts.invoice_number'). ": {$invoice_numbers}";
+
+    }
+
+    private function buildTransactionId($input)
+    {
+        return implode(",", $input['hashed_ids']);    
+    }
+
+    private function paymentItems($input) : array
+    {
+
+        $items = [];
+        $total = 0;
+
+        foreach ($input['invoices'] as $invoice) 
+        {
+            foreach($invoice->line_items as $invoiceItem)
+            {
+                // Some gateways require quantity is an integer
+                if (floatval($invoiceItem->quantity) != intval($invoiceItem->quantity)) {
+                    return null;
+                }
+
+                $item = new Item([
+                    'name' => $invoiceItem->product_key,
+                    'description' => substr($invoiceItem->notes, 0, 100),
+                    'price' => $invoiceItem->cost,
+                    'quantity' => $invoiceItem->quantity,
+                ]);
+
+                $items[] = $item;
+
+                $total += $invoiceItem->cost * $invoiceItem->quantity;
+            }
+        }
+
+        if ($total != $input['amount_with_fee']) {
+            $item = new Item([
+                'name' => trans('texts.taxes_and_fees'),
+                'description' => '',
+                'price' => $input['amount_with_fee'] - $total,
+                'quantity' => 1,
+            ]);
+
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+    
 }

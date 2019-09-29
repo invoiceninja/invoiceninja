@@ -70,7 +70,7 @@ class BasePaymentDriver
 	 */
 	protected function gateway()
     {
-
+\Log::error("booting {$this->company_gateway->gateway->provider}");
         $this->gateway = Omnipay::create($this->company_gateway->gateway->provider);
         $this->gateway->initialize((array) $this->company_gateway->getConfig());
 
@@ -160,17 +160,16 @@ class BasePaymentDriver
 		acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
 	*/
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($input)
     {
-        $gatewayTypeAlias = $this->gatewayType == GatewayType::TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
-        $completeUrl = $this->invitation->getLink('complete', true) . '/' . $gatewayTypeAlias;
+       // $gatewayTypeAlias = $this->gatewayType == GatewayType::TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
 
         $data = [
             'currency' => $this->client->getCurrencyCode(),
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
         ];
-
+/*
         if ($paymentMethod) {
             if ($this->customerReferenceParam) {
                 $data[$this->customerReferenceParam] = $paymentMethod->account_gateway_token->token;
@@ -181,14 +180,16 @@ class BasePaymentDriver
         } else {
             $data['card'] = new CreditCard($this->paymentDetailsFromClient());
         }
-
+*/
         return $data;
     }
 
-	public function purchase($data, $items)
+	public function offsitePurchase($data, $items)
 	{
-		$response = $this->gateway
-  						 ->purchase($data)
+		$this->gateway();
+
+		$response =    	$this->gateway
+						 ->purchase($data)
 						 ->setItems($items)
 						 ->send();
 

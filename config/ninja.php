@@ -57,6 +57,7 @@ return [
         'clientname' => 'client@example.com',
         'password' => 'password',
         'stripe' => env('STRIPE_KEYS',''),
+        'paypal' => env('PAYPAL_KEYS', ''),
     ],
 
     'contact' => [

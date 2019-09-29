@@ -171,7 +171,22 @@ class RandomDataSeeder extends Seeder
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->priority_id = 1;
+            $cg->priority_id = 2;
+            $cg->save();
+        }
+
+        if(config('ninja.testvars.paypal'))
+        {
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = '38f2c48af60c7dd69e04248cbb24c36e';
+            $cg->require_cvv = true;
+            $cg->show_address = true;
+            $cg->show_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.paypal'));
+            $cg->priority_id = 3;
             $cg->save();
         }
 
