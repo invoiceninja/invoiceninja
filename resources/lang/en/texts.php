@@ -1456,6 +1456,7 @@ $LANG = array(
     'payment_type_SEPA' => 'SEPA Direct Debit',
     'payment_type_Bitcoin' => 'Bitcoin',
     'payment_type_GoCardless' => 'GoCardless',
+    'payment_type_Zelle' => 'Zelle',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
