@@ -42,7 +42,7 @@ class AuthController extends Controller
      */
     public function oauthLogin($provider, Request $request)
     {
-        return $this->authService->execute($provider, $request->has('code'));
+        return $this->authService->execute($provider, $request->filled('code'));
     }
 
     /**

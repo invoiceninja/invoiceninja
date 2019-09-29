@@ -67,7 +67,7 @@ class CheckData extends Command
     protected $log = '';
     protected $isValid = true;
 
-    public function fire()
+    public function handle()
     {
         $this->logMessage(date('Y-m-d h:i:s') . ' Running CheckData...');
 
