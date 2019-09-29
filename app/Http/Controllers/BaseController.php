@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
@@ -146,12 +147,16 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-
         if (auth()->user()->cannot('view_'.$this->entity_type)) 
         {
-            if ($this->entity_type == User::class) {
+
+            if($this->entity_type == Company::class){
+                //no user keys exist on the company table, so we need to skip
+            }
+            else if ($this->entity_type == User::class) {
                 $query->where('id', '=', auth()->user()->id);
-            } else {
+            } 
+             else {
                 $query->where('user_id', '=', auth()->user()->id);
             }
         }
