@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::get('payments/{payment}', 'ClientPortal\PaymentController@show')->name('payments.show'); 
 	Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
 	Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
+	Route::get('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response.get');
 
 	Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
 	Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');
@@ -46,7 +47,7 @@ Route::group(['middleware' => ['domain_db'], 'prefix' => 'client', 'as' => 'clie
 
 	/*Invitation catches*/
 	Route::get('invoice/{invitation_id}','ClientPortal\InvitationController@invoiceRouter');
-	Route::get('payment_hook/{invitation_id}','ClientPortal\PaymentHookController@process');
+	Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}','ClientPortal\PaymentHookController@process');
 
 });
 

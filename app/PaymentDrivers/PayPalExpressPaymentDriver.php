@@ -60,6 +60,17 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     public function processPaymentResponse($request)
     {
 
+        $response = $this->completePurchase($request->all());
+
+        $paymentRef = $response->getTransactionReference() ?: $transRef;
+
+        if ($response->isCancelled()) {
+            return false;
+        } elseif (! $response->isSuccessful()) {
+            throw new Exception($response->getMessage());
+        }
+
+        dd($response);
     }
 
     protected function paymentDetails($input)
@@ -81,8 +92,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     private function buildReturnUrl($input)
     {
-        $url = $this->client->company->domain . "/payment_hook/{$this->company_gateway->id}/{GatewayType::PAYPAL}/";
-        $url .= "?hashed_ids=" . implode(",", $input['hashed_ids']); 
+        $url = $this->client->company->domain . "client/payments/process/response";
+        $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
+        $url .= "&hashed_ids=" . implode(",", $input['hashed_ids']); 
         $url .= "&amount=".$input['amount'];
         $url .= "&fee=".$input['fee'];
 

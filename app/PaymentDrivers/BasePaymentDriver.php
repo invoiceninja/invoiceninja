@@ -208,5 +208,13 @@ class BasePaymentDriver
 		$this->purchaseResponse = (array)$response->getData();*/
 	}
     
+	public function completePurchase($data)
+	{
+		$this->gateway();
+
+		return $this->gateway
+					->completePurchase($data)
+					->send();
+	}
 
 }
