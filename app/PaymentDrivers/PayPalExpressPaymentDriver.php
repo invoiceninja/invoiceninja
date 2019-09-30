@@ -54,7 +54,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
-        $this->offsitePurchase($this->paymentDetails($data), $this->paymentItems($data));
+        $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
     }
 
     public function processPaymentResponse($request)
@@ -62,7 +62,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $response = $this->completePurchase($request->all());
 
-        $paymentRef = $response->getTransactionReference() ?: $transRef;
+        $transaction_reference = $response->getTransactionReference() ?: $request->input('token');
 
         if ($response->isCancelled()) {
             return false;
@@ -168,4 +168,8 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $items;
     }
     
+    private function createPayment($data)
+    {
+        
+    }
 }

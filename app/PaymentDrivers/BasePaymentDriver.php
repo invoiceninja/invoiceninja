@@ -48,11 +48,13 @@ class BasePaymentDriver
 	/* The Invitation */
 	protected $invitation;
 
-	/* Member variables */
+	/* Gateway capabilities */
 	protected $refundable = false;
 	
+	/* Token billing */
 	protected $token_billing = false;
 
+	/* Authorise payment methods */
     protected $can_authorise_credit_card = false;
 
 
@@ -61,7 +63,6 @@ class BasePaymentDriver
         $this->company_gateway = $company_gateway;
         $this->invitation = $invitation;
         $this->client = $client;
-        //$this->gatewayType = $gatewayType ?: $this->gatewayTypes()[0];
     }
 
 	/**
@@ -70,7 +71,7 @@ class BasePaymentDriver
 	 */
 	protected function gateway()
     {
-\Log::error("booting {$this->company_gateway->gateway->provider}");
+
         $this->gateway = Omnipay::create($this->company_gateway->gateway->provider);
         $this->gateway->initialize((array) $this->company_gateway->getConfig());
 
@@ -91,14 +92,14 @@ class BasePaymentDriver
 	/**
 	 * Returns the default gateway type
 	 */
-    public function gatewayTypes()
+    public function gatewayTypes() 
     {
         return [
             GatewayType::CREDIT_CARD,
         ];
     }
 
-    public function getCompanyGatewayId()
+    public function getCompanyGatewayId() :int
     {
     	return $this->company_gateway->id;
     }
@@ -106,7 +107,7 @@ class BasePaymentDriver
 	 * Returns whether refunds are possible with the gateway
 	 * @return boolean TRUE|FALSE
 	 */
-	public function getRefundable()
+	public function getRefundable() :bool
 	{
 		return $this->refundable;
 	}
@@ -115,12 +116,17 @@ class BasePaymentDriver
 	 * Returns whether token billing is possible with the gateway
 	 * @return boolean TRUE|FALSE
 	 */
-	public function getTokenBilling() 
+	public function getTokenBilling() :bool
 	{
 		return $this->token_billing;
 	}
 
-	public function canAuthoriseCreditCard()
+	/**
+	 * Returns whether gateway can 
+	 * authorise and credit card.
+	 * @return [type] [description]
+	 */
+	public function canAuthoriseCreditCard() :bool
 	{
 		return $this->can_authorise_credit_card;
 	}
@@ -139,6 +145,11 @@ class BasePaymentDriver
 	
 	public function processPaymentResponse($request) {}
 
+	/**
+	 * Return the contact if possible
+	 * 
+	 * @return ClientContact The ClientContact object
+	 */
 	public function getContact()
 	{
 		if($this->invitation)
@@ -184,7 +195,7 @@ class BasePaymentDriver
         return $data;
     }
 
-	public function offsitePurchase($data, $items)
+	public function purchase($data, $items)
 	{
 		$this->gateway();
 
