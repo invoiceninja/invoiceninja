@@ -73,7 +73,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 //\Log::error(print_r($response->getData()));
 \Log::error($response->getData());
 //dd($response);
-        $payment = $this->createPayment($response);
+        $payment = $this->createPayment($response->getData());
 
 
     }
@@ -95,7 +95,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    private function buildReturnUrl($input)
+    private function buildReturnUrl($input) : string
     {
         $url = $this->client->company->domain . "client/payments/process/response";
         $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
@@ -106,14 +106,14 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $url;
     }
 
-    private function buildCancelUrl($input)
+    private function buildCancelUrl($input) : string
     {
         $url = $this->client->company->domain . '/client/invoices';
 
         return $url;
     }
 
-    private function buildDescription($input)
+    private function buildDescription($input) : string
     {
         $invoice_numbers = "";
         
@@ -126,7 +126,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     }
 
-    private function buildTransactionId($input)
+    private function buildTransactionId($input) : string
     {
         return implode(",", $input['hashed_ids']);    
     }
@@ -181,7 +181,6 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $payment->payment_type_id = PaymentType::PAYPAL;
         $payment->transaction_reference = $payment_method;
         $payment->client_contact_id = $this->getContact();
-
 
     }
 }
