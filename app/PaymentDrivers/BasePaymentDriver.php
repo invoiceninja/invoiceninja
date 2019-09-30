@@ -11,10 +11,12 @@
 
 namespace App\PaymentDrivers;
 
+use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Omnipay\Omnipay;
 
@@ -228,4 +230,15 @@ class BasePaymentDriver
 					->send();
 	}
 
+	public function createPayment($data) 
+	{
+
+		$payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
+		$payment->client_id = $this->client->id;
+		$payment->company_gateway_id = $this->company_gateway->id;
+		$payment->status_id = Payment::STATUS_COMPLETED;
+		$payment->payment_date = Carbon::now();
+		return $payment;
+
+	}
 }

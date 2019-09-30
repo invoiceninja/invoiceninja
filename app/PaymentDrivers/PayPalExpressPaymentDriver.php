@@ -61,7 +61,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     {
 
         $response = $this->completePurchase($request->all());
-
+\Log::error($request->all());
         $transaction_reference = $response->getTransactionReference() ?: $request->input('token');
 
         if ($response->isCancelled()) {
@@ -69,8 +69,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         } elseif (! $response->isSuccessful()) {
             throw new Exception($response->getMessage());
         }
+//\Log::error(print_r($response,1));
+//\Log::error(print_r($response->getData()));
+\Log::error($response->getData());
+//dd($response);
+        $payment = $this->createPayment($response);
 
-        dd($response);
+
     }
 
     protected function paymentDetails($input)
@@ -168,8 +173,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $items;
     }
     
-    private function createPayment($data)
+    public function createPayment($data)
     {
-        
+        $payment = parent::createPayment($data);
+
+        $payment->amount = $this->convertFromStripeAmount($server_response->amount, $this->client->currency->precision);
+        $payment->payment_type_id = PaymentType::PAYPAL;
+        $payment->transaction_reference = $payment_method;
+        $payment->client_contact_id = $this->getContact();
+
+
     }
 }
