@@ -11,6 +11,7 @@
 
 namespace App\Observers;
 
+use App\Events\Payment\PaymentWasCreated;
 use App\Models\Payment;
 
 class PaymentObserver
@@ -23,7 +24,7 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-
+        event(new PaymentWasCreated($payment));
     }
 
     /**

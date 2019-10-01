@@ -51,6 +51,7 @@
 </head>
 @include('portal.default.header')
 @yield('header')
+@include('portal.default.flash-message')
 @include('portal.default.sidebar')
 @yield('sidebar')
 @section('body')

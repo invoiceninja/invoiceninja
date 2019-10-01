@@ -257,6 +257,7 @@ class Invoice extends BaseModel
 
     }
 
+    /** TODO// DOCUMENT THIS FUNCTIONALITY */
     public function pdf_url()
     {
         $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
@@ -268,5 +269,57 @@ class Invoice extends BaseModel
         }
 
         return $public_path;
+    }
+
+    /**
+     * @param bool $save
+     */
+    public function updatePaidStatus($paid = false, $save = true) : bool
+    {
+        $status_id = false;
+        if ($paid && $this->balance == 0) {
+            $status_id = self::STATUS_PAID;
+        } elseif ($paid && $this->balance > 0 && $this->balance < $this->amount) {
+            $status_id = self::STATUS_PARTIAL;
+        } elseif ($this->isPartial() && $this->balance > 0) {
+            $status_id = ($this->balance == $this->amount ? self::STATUS_SENT : self::STATUS_PARTIAL);
+        }
+
+        if ($status_id && $status_id != $this->status_id) {
+            $this->status_id = $status_id;
+            if ($save) {
+                $this->save();
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPartial() : bool
+    {
+        return ($this->partial && $this->partial > 0) === true;
+        //return $this->status_id >= self::STATUS_PARTIAL;
+    }
+
+    /**
+     * @param float $balance_adjustment
+     */
+    public function updateBalance($balance_adjustment)
+    {
+
+        if ($this->is_deleted) 
+            return;
+        
+        $balance_adjustment = floatval($balance_adjustment);
+        
+        $this->balance = $this->balance + $balance_adjustment;
+
+        if($this->balance == 0)
+            $this->status_id = self::STATUS_PAID;
+
+        $this->save();
+
+
     }
 }

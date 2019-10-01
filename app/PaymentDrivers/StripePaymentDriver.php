@@ -356,8 +356,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $payment->transaction_reference = $payment_method;
             $payment->save();
 
-            $payment->invoices()->sync($invoices);
-            $payment->save();
+            $this->attachInvoices($payment, $hashed_ids);
 
 
               /**

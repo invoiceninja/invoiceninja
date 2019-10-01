@@ -13,9 +13,44 @@ namespace App\PaymentDrivers;
 
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Omnipay\Common\Item;
+
+/**
+ * Response array
+ * (
+  'TOKEN' => 'EC-50V302605X606694D',
+  'SUCCESSPAGEREDIRECTREQUESTED' => 'false',
+  'TIMESTAMP' => '2019-09-30T22:21:21Z',
+  'CORRELATIONID' => '9e0da63193090',
+  'ACK' => 'SuccessWithWarning',
+  'VERSION' => '119.0',
+  'BUILD' => '53688488',
+  'L_ERRORCODE0' => '11607',
+  'L_SHORTMESSAGE0' => 'Duplicate Request',
+  'L_LONGMESSAGE0' => 'A successful transaction has already been completed for this token.',
+  'L_SEVERITYCODE0' => 'Warning',
+  'INSURANCEOPTIONSELECTED' => 'false',
+  'SHIPPINGOPTIONISDEFAULT' => 'false',
+  'PAYMENTINFO_0_TRANSACTIONID' => '5JE20141KL116573G',
+  'PAYMENTINFO_0_TRANSACTIONTYPE' => 'expresscheckout',
+  'PAYMENTINFO_0_PAYMENTTYPE' => 'instant',
+  'PAYMENTINFO_0_ORDERTIME' => '2019-09-30T22:20:57Z',
+  'PAYMENTINFO_0_AMT' => '31260.37',
+  'PAYMENTINFO_0_TAXAMT' => '0.00',
+  'PAYMENTINFO_0_CURRENCYCODE' => 'USD',
+  'PAYMENTINFO_0_EXCHANGERATE' => '0.692213615971749',
+  'PAYMENTINFO_0_PAYMENTSTATUS' => 'Pending',
+  'PAYMENTINFO_0_PENDINGREASON' => 'unilateral',
+  'PAYMENTINFO_0_REASONCODE' => 'None',
+  'PAYMENTINFO_0_PROTECTIONELIGIBILITY' => 'Ineligible',
+  'PAYMENTINFO_0_PROTECTIONELIGIBILITYTYPE' => 'None',
+  'PAYMENTINFO_0_ERRORCODE' => '0',
+  'PAYMENTINFO_0_ACK' => 'Success',
+)  
+ */
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
@@ -61,20 +96,21 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     {
 
         $response = $this->completePurchase($request->all());
-\Log::error($request->all());
+
         $transaction_reference = $response->getTransactionReference() ?: $request->input('token');
 
         if ($response->isCancelled()) {
-            return false;
+            return redirect()->route('client.invoices.index')->with('warning',ctrans('texts.status_voided'));
         } elseif (! $response->isSuccessful()) {
             throw new Exception($response->getMessage());
         }
-//\Log::error(print_r($response,1));
-//\Log::error(print_r($response->getData()));
+
 \Log::error($response->getData());
-//dd($response);
         $payment = $this->createPayment($response->getData());
 
+        $this->attachInvoices($payment, $request->input('hashed_ids'));
+
+        return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
 
     }
 
@@ -175,12 +211,19 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     
     public function createPayment($data)
     {
+
         $payment = parent::createPayment($data);
 
-        $payment->amount = $this->convertFromStripeAmount($server_response->amount, $this->client->currency->precision);
+        $client_contact = $this->getContact();
+        $client_contact_id = $client_contact ? $client_contact->id : null;
+
+        $payment->amount = $data['PAYMENTINFO_0_AMT'];
         $payment->payment_type_id = PaymentType::PAYPAL;
-        $payment->transaction_reference = $payment_method;
-        $payment->client_contact_id = $this->getContact();
+        $payment->transaction_reference = $data['PAYMENTINFO_0_TRANSACTIONID'];
+        $payment->client_contact_id = $client_contact_id;
+        $payment->save();
+
+        return $payment;
 
     }
 }

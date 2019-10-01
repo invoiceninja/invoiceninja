@@ -16,7 +16,9 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Omnipay\Omnipay;
 
@@ -241,4 +243,17 @@ class BasePaymentDriver
 		return $payment;
 
 	}
+
+	 
+    public function attachInvoices(Payment $payment, $hashed_ids)
+    {
+        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",",$hashed_ids)))
+                        ->whereClientId($this->client->id)
+                        ->get();
+
+		$payment->invoices()->sync($invoices);
+        $payment->save();
+
+        return $payment;
+  	}
 }

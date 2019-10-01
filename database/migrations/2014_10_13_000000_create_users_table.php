@@ -693,10 +693,7 @@ class CreateUsersTable extends Migration
 
 
         Schema::create('payments', function ($t) {
-            $t->increments('id');
-            //$t->unsignedInteger('invoice_id')->nullable()->index(); //todo handle payments where there is no invoice OR we are paying MULTIPLE invoices
-            //                                                        *** this is handled by the use of the paymentables table. in here we store the
-            //                                                        entities which have been registered payments against
+            $t->increments('id');                                             
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id')->nullable();
@@ -713,7 +710,6 @@ class CreateUsersTable extends Migration
             $t->softDeletes();
             $t->boolean('is_deleted')->default(false);
 
-            //$t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
@@ -945,6 +941,21 @@ class CreateUsersTable extends Migration
             $table->string('format');
             $table->string('format_moment');
             $table->string('format_dart');
+        });
+
+        Schema::create('system_log', function ($table){
+            $table->increments('id');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedInteger('client_id')->nullable();
+            $table->unsignedInteger('category_id')->nullable();
+            $table->unsignedInteger('event_id')->nullable();
+            $table->text('log');
+            $table->timestamps(6);
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+
         });
     }
   

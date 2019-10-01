@@ -16,6 +16,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Support\Arr;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class Handler extends ExceptionHandler
@@ -99,7 +100,7 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        $guard = array_get($exception->guards(), 0);
+        $guard = Arr::get($exception->guards(), 0);
 
         switch ($guard) {
            case 'contact':

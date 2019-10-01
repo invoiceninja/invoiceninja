@@ -26,6 +26,7 @@ use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
+use App\Listeners\Invoice\UpdateInvoicePayment;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -54,6 +55,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentWasCreated::class => [
             PaymentCreatedActivity::class,
+            UpdateInvoicePayment::class,
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
