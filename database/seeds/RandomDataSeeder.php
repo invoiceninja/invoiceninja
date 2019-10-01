@@ -19,7 +19,6 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
 
 class RandomDataSeeder extends Seeder
 {
@@ -31,6 +30,7 @@ class RandomDataSeeder extends Seeder
      */
     public function run()
     {
+
 
         $this->command->info('Running RandomDataSeeder');
 
