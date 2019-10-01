@@ -16,8 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 class SystemLog extends Model
 {
     /* Category IDs */
-    const PAYMENT_RESPONSE = 1;
-    const GATEWAY_RESPONSE = 2;
+    const GATEWAY_RESPONSE = 1;
 
     /* Event IDs*/
     const PAYMENT_RECONCILIATION_FAILURE = 10;

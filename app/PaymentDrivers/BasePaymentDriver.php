@@ -64,9 +64,13 @@ class BasePaymentDriver
 
     public function __construct(CompanyGateway $company_gateway, Client $client, $invitation = false)
     {
+
         $this->company_gateway = $company_gateway;
+
         $this->invitation = $invitation;
+
         $this->client = $client;
+
     }
 
 	/**
@@ -175,27 +179,16 @@ class BasePaymentDriver
 		acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
 	*/
 
-    protected function paymentDetails($input)
+    protected function paymentDetails($input) : array
     {
-       // $gatewayTypeAlias = $this->gatewayType == GatewayType::TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
 
         $data = [
             'currency' => $this->client->getCurrencyCode(),
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
         ];
-/*
-        if ($paymentMethod) {
-            if ($this->customerReferenceParam) {
-                $data[$this->customerReferenceParam] = $paymentMethod->account_gateway_token->token;
-            }
-            $data[$this->sourceReferenceParam] = $paymentMethod->source_reference;
-        } elseif ($this->input) {
-            $data['card'] = new CreditCard($this->paymentDetailsFromInput($this->input));
-        } else {
-            $data['card'] = new CreditCard($this->paymentDetailsFromClient());
-        }
-*/
+
+
         return $data;
     }
 
@@ -208,17 +201,7 @@ class BasePaymentDriver
 						 ->setItems($items)
 						 ->send();
 
-
-		if ($response->isRedirect()) {
-		    // redirect to offsite payment gateway
-		    $response->redirect();
-		} elseif ($response->isSuccessful()) {
-		    // payment was successful: update database
-		    print_r($response);
-		} else {
-		    // payment failed: display message to customer
-		    echo $response->getMessage();
-		}
+		return $response;
 		/*
 		$this->purchaseResponse = (array)$response->getData();*/
 	}
@@ -232,7 +215,7 @@ class BasePaymentDriver
 					->send();
 	}
 
-	public function createPayment($data) 
+	public function createPayment($data) : Payment
 	{
 
 		$payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
@@ -246,7 +229,7 @@ class BasePaymentDriver
 	}
 
 	 
-    public function attachInvoices(Payment $payment, $hashed_ids)
+    public function attachInvoices(Payment $payment, $hashed_ids) : Payment
     {
         $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",",$hashed_ids)))
                         ->whereClientId($this->client->id)

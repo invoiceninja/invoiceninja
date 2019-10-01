@@ -46,8 +46,7 @@ class UpdateCompanyLedgerWithInvoice
      */
     public function handle() 
     {
-        \Log::error('in update company ledger with invoice');
-
+        
         $balance = 0;
 
         $ledger = CompanyLedger::whereClientId($this->invoice->client_id)
@@ -60,7 +59,6 @@ class UpdateCompanyLedgerWithInvoice
 
         $adjustment = $balance + $this->adjustment;
         
-        \Log::error("adjusting balance {$balance} to {$adjustment}");
 
         $company_ledger = CompanyLedgerFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $company_ledger->client_id = $this->invoice->client_id;

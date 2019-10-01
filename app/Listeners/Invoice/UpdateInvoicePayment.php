@@ -14,11 +14,14 @@ namespace App\Listeners\Invoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\SystemLog;
+use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
 class UpdateInvoicePayment implements ShouldQueue
 {
+    use SystemLogTrait;
+
     /**
      * Create the event listener.
      *
@@ -44,17 +47,17 @@ class UpdateInvoicePayment implements ShouldQueue
         /* Simplest scenario*/
         if($invoices_total == $payment->amount)
         {
-            \Log::error("invoice totals match payment amount");
             $invoices->each(function ($invoice) use($payment){
-                //$invoice->updateBalance($invoice->balance*-1);
-               //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($invoice->balance*-1));
+                
                 UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($invoice->balance*-1));
+                $invoice->clearPartial();
                 $invoice->updateBalance($invoice->balance*-1);
+            
             });
 
         }
         else {
-            \Log::error("invoice totals don't match, search for partials");
+            
             $total = 0;
 
             foreach($invoice as $invoice)
@@ -71,12 +74,29 @@ class UpdateInvoicePayment implements ShouldQueue
             /* test if there is a batch of partial invoices that have been paid */
             if($payment->amount == $total)
             {
-                    //process invoices and update balance depending on
-                    //whether the invoice balance or partial amount was
-                    //paid
+                
+                $invoices->each(function ($invoice) use($payment){
+
+                    if($invoice->isPartial()) {
+
+                        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($invoice->partial*-1));
+                        $invoice->updateBalance($invoice->partial*-1);
+                        $invoice->clearPartial();
+                        $invoice->setDueDate();
+                        //todo do we need to mark it as a partial?
+                    }
+                    else
+                    {
+                        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($invoice->balance*-1));
+                        $invoice->clearPartial();
+                        $invoice->updateBalance($invoice->balance*-1);
+                    }
+
+                });
+
             }
             else {
-                \Log::error("no matches, fail");
+
                 $data = [
                     'payment' => $payment,
                     'invoices' => $invoices,
@@ -85,16 +105,8 @@ class UpdateInvoicePayment implements ShouldQueue
                     'partial_check_amount' => $total,
                 ];
 
-                $sl = [
-                    'client_id' => $payment->client_id,
-                    'user_id' => $payment->user_id,
-                    'company_id' => $payment->company_id,
-                    'log' => $data,
-                    'category_id' => SystemLog::PAYMENT_RESPONSE,
-                    'event_id' => SystemLog::PAYMENT_RECONCILIATION_FAILURE,
-                ];
 
-                SystemLog::create($sl);
+                $this->sysLog($data, SystemLog::GATEWAY_RESPONSE, SystemLog::PAYMENT_RECONCILIATION_FAILURE);
 
                 throw new Exception('payment amount does not match invoice totals');
             }

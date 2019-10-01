@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 use App\Events\Payment\PaymentWasCreated;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -90,7 +91,28 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
-        $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
+        $response = $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
+
+
+        if ($response->isRedirect()) {
+            // redirect to offsite payment gateway
+            $response->redirect();
+        } elseif ($response->isSuccessful()) {
+            // payment was successful: update database
+            /* for this driver this method wont be hit*/ 
+        } else {
+            // payment failed: display message to customer
+
+            $log = [
+              'server_response' => $response->getData(),
+              'data' => $data
+            ];
+
+            $this->sysLog($log);
+
+            throw new Exception("Error Processing Payment", 1);
+            
+        }
     }
 
     public function processPaymentResponse($request)
@@ -103,6 +125,14 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         if ($response->isCancelled()) {
             return redirect()->route('client.invoices.index')->with('warning',ctrans('texts.status_voided'));
         } elseif (! $response->isSuccessful()) {
+            
+            $data = [
+              'request' => $request->all(),
+              'server_response' => $response->getData()
+            ];
+            
+            $this->sysLog($data);
+
             throw new Exception($response->getMessage());
         }
 
@@ -211,7 +241,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $items;
     }
     
-    public function createPayment($data)
+    public function createPayment($data) : Payment
     {
 
         $payment = parent::createPayment($data);

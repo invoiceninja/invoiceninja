@@ -18,7 +18,6 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -231,6 +230,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
 
         $data['intent'] = $this->createPaymentIntent($payment_intent_data);
+        
         $data['gateway'] = $this;
 
         return view($this->viewForType($data['payment_method_id']), $data);
@@ -362,17 +362,6 @@ class StripePaymentDriver extends BasePaymentDriver
 
             event(new PaymentWasCreated($payment));
 
-              /**
-               * Move this into an event
-               */
-              $invoices->each(function ($invoice) use($payment) {
-
-                $invoice->status_id = Invoice::STATUS_PAID;
-                $invoice->save();
-                $invoice->invitations()->update(['transaction_reference' => $payment->transaction_reference]);
-
-              });
-
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
@@ -386,16 +375,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'invoices' => $invoices,
           ];
 
-          $sl = [
-            'company_id' => $this->client->company->id,
-            'client_id' => $this->client->id,
-            'user_id' => $this->client->user_id,
-            'log' => $log,
-            'category_id' => SystemLog::GATEWAY_RESPONSE,
-            'event_id' => SystemLog::GATEWAY_FAILURE,
-          ];
-
-          SystemLog::create($sl);
+          $this->sysLog($log);
 
           throw new Exception("Failed to process payment", 1);
           

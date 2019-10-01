@@ -15,6 +15,7 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Models\Currency;
 use App\Models\Filterable;
+use App\Models\PaymentTerm;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
@@ -303,6 +304,17 @@ class Invoice extends BaseModel
     }
 
     /**
+     * Clear partial fields
+     * @return void 
+     */
+    public function clearPartial() : void
+    {
+        $this->partial = null;
+        $this->partial_due_date = null;
+        $this->save();
+    }
+
+    /**
      * @param float $balance_adjustment
      */
     public function updateBalance($balance_adjustment)
@@ -321,5 +333,12 @@ class Invoice extends BaseModel
 
         $this->save();
         \Log::error('finished updatingoice balance');
+    }
+
+    public function setDueDate()
+    {
+
+        $this->due_date = Carbon::now()->addDays(PaymentTerm::find($this->company->settings->payment_terms_id)->num_days);
+        $this->save();
     }
 }
