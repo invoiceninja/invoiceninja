@@ -6,6 +6,7 @@ use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceCalc;
+use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
@@ -122,6 +123,8 @@ class RandomDataSeeder extends Seeder
             $invoice->save();
 
             event(new CreateInvoiceInvitation($invoice));
+            
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
 
             $invoice_repo->markSent($invoice);
 

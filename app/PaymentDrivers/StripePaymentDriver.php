@@ -11,12 +11,14 @@
 
 namespace App\PaymentDrivers;
 
+use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -345,19 +347,20 @@ class StripePaymentDriver extends BasePaymentDriver
             if(!$payment_type)
               $payment_type = PaymentType::CREDIT_CARD_OTHER;
 
-            $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
-            $payment->client_id = $this->client->id;
-            $payment->client_contact_id = $client_contact->id;
-            $payment->company_gateway_id = $this->company_gateway->id;
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->amount = $this->convertFromStripeAmount($server_response->amount, $this->client->currency->precision);
-            $payment->payment_date = Carbon::now();
-            $payment->payment_type_id = $payment_type;
-            $payment->transaction_reference = $payment_method;
-            $payment->save();
 
+            $data = [
+              'payment_method' => $payment_method,
+              'payment_type' => $payment_type,
+              'amount' => $server_response->amount,
+            ];
+
+            /* Create payment*/
+            $payment = $this->createPayment($data);
+
+            /* Link invoices to payment*/
             $this->attachInvoices($payment, $hashed_ids);
 
+            event(new PaymentWasCreated($payment));
 
               /**
                * Move this into an event
@@ -371,9 +374,50 @@ class StripePaymentDriver extends BasePaymentDriver
               });
 
 
-            return redirect()->route('client.payments.show', ['id' => $this->encodePrimaryKey($payment->id)]);
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         }
+        else
+        {
+          /*Fail and log*/
+
+          $log = [
+            'server_response' => $server_response,
+            'invoices' => $invoices,
+          ];
+
+          $sl = [
+            'company_id' => $this->client->company->id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->client->user_id,
+            'log' => $log,
+            'category_id' => SystemLog::GATEWAY_RESPONSE,
+            'event_id' => SystemLog::GATEWAY_FAILURE,
+          ];
+
+          SystemLog::create($sl);
+
+          throw new Exception("Failed to process payment", 1);
+          
+        }
+
+    }
+
+    public function createPayment($data)
+    {
+
+        $payment = parent::createPayment($data);
+
+        $client_contact = $this->getContact();
+        $client_contact_id = $client_contact ? $client_contact->id : null;
+
+        $payment->amount = $this->convertFromStripeAmount($data['amount'], $this->client->currency->precision);
+        $payment->payment_type_id = $data['payment_type'];
+        $payment->transaction_reference = $data['payment_method'];
+        $payment->client_contact_id = $client_contact_id;
+        $payment->save();
+
+        return $payment;
 
     }
 

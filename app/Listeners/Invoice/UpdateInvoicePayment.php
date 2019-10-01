@@ -12,6 +12,7 @@
 namespace App\Listeners\Invoice;
 
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\SystemLog;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -43,15 +44,17 @@ class UpdateInvoicePayment implements ShouldQueue
         /* Simplest scenario*/
         if($invoices_total == $payment->amount)
         {
-
-            $invoices->each(function ($invoice){
+            \Log::error("invoice totals match payment amount");
+            $invoices->each(function ($invoice) use($payment){
+                //$invoice->updateBalance($invoice->balance*-1);
+               //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($invoice->balance*-1));
+                UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($invoice->balance*-1));
                 $invoice->updateBalance($invoice->balance*-1);
-                UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($invoice->balance*-1));
             });
 
         }
         else {
-
+            \Log::error("invoice totals don't match, search for partials");
             $total = 0;
 
             foreach($invoice as $invoice)
@@ -62,6 +65,7 @@ class UpdateInvoicePayment implements ShouldQueue
                 else
                     $total += $invoice->balance;
 
+                Log::error("total = {$total}");
             }
 
             /* test if there is a batch of partial invoices that have been paid */
@@ -72,7 +76,7 @@ class UpdateInvoicePayment implements ShouldQueue
                     //paid
             }
             else {
-
+                \Log::error("no matches, fail");
                 $data = [
                     'payment' => $payment,
                     'invoices' => $invoices,
