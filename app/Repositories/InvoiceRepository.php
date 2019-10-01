@@ -108,6 +108,8 @@ class InvoiceRepository extends BaseRepository
         $this->markInvitationsSent();
 
         $invoice->save();
+\Log::error("marking sent");
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->balance);
 
         return $invoice;
 

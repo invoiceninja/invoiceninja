@@ -42,8 +42,6 @@ class PaymentCreatedActivity implements ShouldQueue
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
-
-        \Log::error($invoices->count());
         
         $fields = new \stdClass;
 

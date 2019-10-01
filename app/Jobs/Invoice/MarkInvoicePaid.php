@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace Jobs\Invoice;
+namespace App\Jobs\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
@@ -23,7 +23,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class MarkInvoicePaid implements ShouldQueue
 {
@@ -68,6 +67,6 @@ class MarkInvoicePaid implements ShouldQueue
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, $payment->amount);
         
-        return $invoice;
+        return $this->invoice;
     }
 }

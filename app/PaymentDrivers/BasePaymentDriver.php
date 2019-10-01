@@ -252,13 +252,8 @@ class BasePaymentDriver
                         ->whereClientId($this->client->id)
                         ->get();
 
-        \Log::error($hashed_ids);
-        \Log::error($invoices->count());
-
 		$payment->invoices()->sync($invoices);
         $payment->save();
-
-        \Log::error(print_r($payment,1));
 
         return $payment;
   	}

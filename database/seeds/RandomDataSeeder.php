@@ -6,6 +6,7 @@ use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceCalc;
+use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -16,6 +17,7 @@ use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 
@@ -109,16 +111,21 @@ class RandomDataSeeder extends Seeder
         factory(\App\Models\Invoice::class,500)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
         $invoices = Invoice::all();
+        $invoice_repo = new InvoiceRepository();
 
-        $invoices->each(function ($invoice){
+        $invoices->each(function ($invoice) use($invoice_repo){
                 
-                $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
+            $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
-                $invoice = $invoice_calc->build()->getInvoice();
-                
-                $invoice->save();
+            $invoice = $invoice_calc->build()->getInvoice();
+            
+            $invoice->save();
 
-                event(new InvoiceWasMarkedSent($invoice));
+            event(new CreateInvoiceInvitation($invoice));
+
+            $invoice_repo->markSent($invoice);
+
+            event(new InvoiceWasMarkedSent($invoice));
         });
         
         /** Recurring Invoice Factory */
