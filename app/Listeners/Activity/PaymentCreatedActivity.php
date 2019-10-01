@@ -39,12 +39,12 @@ class PaymentCreatedActivity implements ShouldQueue
      */
     public function handle($event)
     {
-        $data = $event->data;
+        $payment = $event->payment;
 
-        $payment = Payment::find($data['payment_id']);
+        $invoices = $payment->invoices;
 
-        $invoices = Invoice::find($data['invoice_ids']);
-
+        \Log::error($invoices->count());
+        
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;
@@ -55,6 +55,7 @@ class PaymentCreatedActivity implements ShouldQueue
 
         foreach($invoices as $invoice) //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
         {
+
             $fields->invoice_id = $invoice->id;
 
             $this->activityRepo->save($fields, $invoice);

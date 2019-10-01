@@ -240,6 +240,7 @@ class BasePaymentDriver
 		$payment->company_gateway_id = $this->company_gateway->id;
 		$payment->status_id = Payment::STATUS_COMPLETED;
 		$payment->payment_date = Carbon::now();
+		
 		return $payment;
 
 	}
@@ -251,8 +252,13 @@ class BasePaymentDriver
                         ->whereClientId($this->client->id)
                         ->get();
 
+        \Log::error($hashed_ids);
+        \Log::error($invoices->count());
+
 		$payment->invoices()->sync($invoices);
         $payment->save();
+
+        \Log::error(print_r($payment,1));
 
         return $payment;
   	}

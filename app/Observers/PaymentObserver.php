@@ -24,7 +24,6 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-        event(new PaymentWasCreated($payment));
     }
 
     /**

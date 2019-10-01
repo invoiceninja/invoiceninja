@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Invoice;
+namespace Jobs\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
@@ -57,23 +57,14 @@ class MarkInvoicePaid implements ShouldQueue
         $payment->amount = $this->invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
-
+        /* Create a payment relationship to the invoice entity */
+        $payment->save();
+        $payment->invoices()->save($this->invoice);
         $payment->save();
 
-        /* Create a payment relationship to the invoice entity */
-        $payment->invoices()->save($this->invoice);
-
-        $data = [
-            'payment_id' => $payment->id,
-            'invoice_ids' => [
-                $this->invoice->id
-            ]
-        ];
-
-        event(new PaymentWasCreated($data));
-
         /* Update Invoice balance */
-        $invoice = ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
+        //$invoice = ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
+        event(new PaymentWasCreated($payment));
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, $payment->amount);
         

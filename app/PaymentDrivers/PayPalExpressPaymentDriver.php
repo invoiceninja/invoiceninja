@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Events\Payment\PaymentWasCreated;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
@@ -105,10 +106,11 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             throw new Exception($response->getMessage());
         }
 
-\Log::error($response->getData());
         $payment = $this->createPayment($response->getData());
 
         $this->attachInvoices($payment, $request->input('hashed_ids'));
+
+        event(new PaymentWasCreated($payment));
 
         return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
 

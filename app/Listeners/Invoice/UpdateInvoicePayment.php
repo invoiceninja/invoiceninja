@@ -88,7 +88,7 @@ class UpdateInvoicePayment implements ShouldQueue
                     'log' => $data,
                     'category_id' => SystemLog::PAYMENT_RESPONSE,
                     'event_id' => SystemLog::PAYMENT_RECONCILIATION_FAILURE,
-                ]
+                ];
 
                 SystemLog::create($sl);
 
