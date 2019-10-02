@@ -22,6 +22,7 @@ use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\RegisterNewAccount;
+use App\Jobs\Util\UploadAvatar;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
@@ -103,6 +104,17 @@ class CompanyController extends BaseController
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
+        if($request->file('logo')) 
+        {
+            $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
+
+            if($path){
+                $company->logo = $path;
+                $company->save();
+            }
+            
+        }
+
         auth()->user()->companies()->attach($company->id, [
             'account_id' => $company->account->id,
             'is_owner' => 1,
@@ -170,6 +182,17 @@ class CompanyController extends BaseController
     public function update(UpdateCompanyRequest $request, Company $company)
     {
         $company = $this->company_repo->save($request->all(), $company);
+
+        if($request->file('logo')) 
+        {
+            $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
+
+            if($path){
+                $company->logo = $path;
+                $company->save();
+            }
+            
+        }
 
         return $this->itemResponse($company);
     }
