@@ -57,7 +57,7 @@ class ClientContactRepository extends BaseRepository
 				$update_contact->client_id = $client->id;
 				$update_contact->company_id = $client->company_id;
 				$update_contact->user_id = $client->user_id;
-
+				$update_contact->contact_key = Str::random(40);
 			}
 
 			$update_contact->fill($contact);
