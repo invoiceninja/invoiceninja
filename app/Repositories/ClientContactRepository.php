@@ -39,7 +39,7 @@ class ClientContactRepository extends BaseRepository
 		$contacts->first(function($contact){
 
 			$contact['is_primary'] = true;
-			$contact->save();
+		//	$contact->save();
 
 		});
 
