@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompanyGateway extends BaseModel
 {
+
+    protected $fillable = [
+    ];
+    
     public static $credit_cards = [
             1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
             2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

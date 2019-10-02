@@ -18,6 +18,7 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Omnipay\Omnipay;
@@ -43,6 +44,8 @@ use Omnipay\Omnipay;
  */
 class BasePaymentDriver
 {
+	use SystemLogTrait;
+	
 	/* The company gateway instance*/
 	protected $company_gateway;
 
