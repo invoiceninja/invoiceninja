@@ -230,7 +230,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
 
         $data['intent'] = $this->createPaymentIntent($payment_intent_data);
-        
+
         $data['gateway'] = $this;
 
         return view($this->viewForType($data['payment_method_id']), $data);
@@ -362,7 +362,6 @@ class StripePaymentDriver extends BasePaymentDriver
 
             event(new PaymentWasCreated($payment));
 
-
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         }
@@ -383,7 +382,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     }
 
-    public function createPayment($data)
+    public function createPayment($data) :Payment
     {
 
         $payment = parent::createPayment($data);

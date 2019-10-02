@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Models\Invoice;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 

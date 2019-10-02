@@ -146,7 +146,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     }
 
-    protected function paymentDetails($input)
+    protected function paymentDetails($input) :array
     {
         $data = parent::paymentDetails($input);
 
