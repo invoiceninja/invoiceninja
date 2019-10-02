@@ -50,7 +50,7 @@ class ClientSettings extends BaseSettings
 		'military_time' => 'bool',
 		'start_of_week' => 'int',
 		'financial_year_start' => 'int',
-		'payment_terms' => 'int',
+		'payment_terms' => 'string',
 		'language_id' => 'string',
 		'precision' => 'int',
 		'default_task_rate' => 'float',

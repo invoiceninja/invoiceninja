@@ -30,7 +30,7 @@ class CompanySettings extends BaseSettings
 	public $show_currency_symbol = true;
 	public $show_currency_code = false;
 
-	public $payment_terms_id = 1; 
+	public $payment_terms = 1; 
 
 	public $custom_label1 = '';
 	public $custom_label2 = '';
@@ -169,7 +169,7 @@ class CompanySettings extends BaseSettings
 		'precision' => 'int',
 		'show_currency_symbol' => 'bool',
 		'show_currency_code' => 'bool',
-		'payment_terms_id' => 'string', 
+		'payment_terms' => 'int', 
 		'custom_label1' => 'string',
 		'custom_label2' => 'string',
 		'custom_label3' => 'string',
@@ -257,7 +257,7 @@ class CompanySettings extends BaseSettings
 
 		$data->timezone_id = (string)config('ninja.i18n.timezone_id');
 		$data->language_id = (string)config('ninja.i18n.language_id');
-		$data->payment_terms = (string)config('ninja.i18n.payment_terms');
+		$data->payment_terms = (int)config('ninja.i18n.payment_terms');
 		$data->datetime_format_id = (string)config('ninja.i18n.datetime_format_id');
 		$data->military_time = (bool )config('ninja.i18n.military_time');
 		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
