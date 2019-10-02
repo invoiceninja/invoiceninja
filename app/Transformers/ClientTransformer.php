@@ -81,7 +81,7 @@ class ClientTransformer extends EntityTransformer
             'shipping_country_id' => $client->shipping_country_id ?: '',
             'settings' => $client->settings ?: '',
             'is_deleted' => (bool) $client->is_deleted,
-            'payment_terms' => $client->payment_terms ?: '',
+            'payment_terms' => (int) $client->payment_terms,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',
         ];
