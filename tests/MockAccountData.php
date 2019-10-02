@@ -13,6 +13,7 @@ namespace Tests;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
@@ -21,6 +22,7 @@ use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
@@ -49,14 +51,14 @@ trait MockAccountData
 
 	public $client;
 
-
+    public $token;
 
 	public function makeTestData()
 	{
         $this->account = factory(\App\Models\Account::class)->create();
         $this->company = factory(\App\Models\Company::class)->create([
             'account_id' => $this->account->id,
-            'domain' => 'ninja.test',
+            'domain' => 'ninja.test:8000',
         ]);
 
         $this->account->default_company_id = $this->company->id;
@@ -65,6 +67,25 @@ trait MockAccountData
         $this->user = factory(\App\Models\User::class)->create([
         //    'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default'))
+        ]);
+
+        $this->token = \Illuminate\Support\Str::random(64);
+
+        $company_token = CompanyToken::create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'account_id' => $this->account->id,
+            'name' => 'test token',
+            'token' => $this->token,
+        ]);
+
+        $this->user->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => json_encode([]),
+            'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
         $this->client = ClientFactory::create($this->company->id, $this->user->id);
