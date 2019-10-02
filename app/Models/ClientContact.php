@@ -53,6 +53,12 @@ class ClientContact extends Authenticatable
         'company'
     ];
 
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+
     protected $hidden = [
         'password', 
         'remember_token',
