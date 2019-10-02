@@ -45,15 +45,20 @@ class ClientContactRepository extends BaseRepository
 
 		//loop and update/create contacts
 		$contacts->each(function ($contact) use ($client){ 
+			
+			$update_contact = null;
 
-			$update_contact = ClientContact::firstOrNew(
-				['id' => $contact['id']],
-				[
-					'client_id' => $client->id, 
-					'company_id' => $client->company_id,
-					'user_id' => auth()->user()->id
-				]
-			);
+			if(isset($contact['id']))
+				$update_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
+
+			if(!$update_contact){
+			
+				$update_contact = new ClientContact;
+				$update_contact->client_id = $client->id;
+				$update_contact->company_id = $client->company_id;
+				$update_contact->user_id = $client->user_id;
+
+			}
 
 			$update_contact->fill($contact);
 
