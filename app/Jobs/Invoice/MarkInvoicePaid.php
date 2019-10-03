@@ -63,11 +63,9 @@ class MarkInvoicePaid implements ShouldQueue
         $payment->save();
 
         /* Update Invoice balance */
-        //$invoice = ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
         event(new PaymentWasCreated($payment));
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1));
-        $this->invoice->updateBalance(($payment->amount*-1));
 
         return $this->invoice;
     }
