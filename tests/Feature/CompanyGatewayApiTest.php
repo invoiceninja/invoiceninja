@@ -92,19 +92,12 @@ class CompanyGatewayApiTest extends TestCase
             'config' => 'changed',
         ];
 
-        \Log::error('the id = '.$cg_id);
+
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->put("/api/v1/company_gateways/{$cg_id}", $data);
-
-        $response->assertStatus(200);
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
-            ])->put("/api/v1/company_gateways/{$cg_id}", $data);
+            ])->put("/api/v1/company_gateways/".$cg_id, $data);
 
 
         $response->assertStatus(200);

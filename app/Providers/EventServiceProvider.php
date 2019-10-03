@@ -56,7 +56,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentWasCreated::class => [
             PaymentCreatedActivity::class,
-            UpdateInvoicePayment::class,
+            //UpdateInvoicePayment::class,
             UpdateInvoiceInvitations::class,
         ],
         'App\Events\ClientWasArchived' => [

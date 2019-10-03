@@ -56,6 +56,7 @@ class MarkInvoicePaid implements ShouldQueue
         $payment->amount = $this->invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
+        $payment->transaction_reference = ctrans('texts.manual_entry');
         /* Create a payment relationship to the invoice entity */
         $payment->save();
         $payment->invoices()->save($this->invoice);
@@ -65,8 +66,9 @@ class MarkInvoicePaid implements ShouldQueue
         //$invoice = ApplyPaymentToInvoice::dispatchNow($payment, $this->invoice);
         event(new PaymentWasCreated($payment));
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($payment, $payment->amount);
-        
+        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1));
+        $this->invoice->updateBalance(($payment->amount*-1));
+
         return $this->invoice;
     }
 }

@@ -326,7 +326,6 @@ class Invoice extends BaseModel
      */
     public function updateBalance($balance_adjustment)
     {
-        \Log::error('updating invoice balance');
 
         if ($this->is_deleted) 
             return;
@@ -339,7 +338,6 @@ class Invoice extends BaseModel
             $this->status_id = self::STATUS_PAID;
 
         $this->save();
-        \Log::error('finished updatingoice balance');
     }
 
     public function setDueDate()

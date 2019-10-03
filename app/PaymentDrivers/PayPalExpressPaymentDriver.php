@@ -103,12 +103,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         } else {
             // payment failed: display message to customer
 
-            $log = [
+            $this->sysLog([
               'server_response' => $response->getData(),
               'data' => $data
-            ];
-
-            $this->sysLog($log);
+            ]);
 
             throw new Exception("Error Processing Payment", 1);
             
@@ -126,12 +124,11 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             return redirect()->route('client.invoices.index')->with('warning',ctrans('texts.status_voided'));
         } elseif (! $response->isSuccessful()) {
             
-            $data = [
+            
+            $this->sysLog([
               'request' => $request->all(),
               'server_response' => $response->getData()
-            ];
-            
-            $this->sysLog($data);
+            ]);
 
             throw new Exception($response->getMessage());
         }
