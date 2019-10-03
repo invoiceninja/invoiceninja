@@ -29,4 +29,5 @@ class CreateCompanyGatewayRequest extends Request
 
     }
 
+
 }

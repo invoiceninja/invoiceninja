@@ -107,6 +107,11 @@ class CompanyGateway extends BaseModel
         return json_decode(decrypt($this->config));
     }
 
+    public function getConfigTransformed()
+    {
+        return $this->config ? decrypt($this->config) : '';
+    }
+
     /**
      * @param $field
      *

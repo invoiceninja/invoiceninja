@@ -131,7 +131,10 @@ class CompanyGatewayController extends BaseController
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    //public function update(CompanyGateway $company_gateway)
     {
+                \Log::error('wooppee');
+        \Log::error(print_r($company_gateway,1));
 
         $company_gateway->fill($request->all());
         $company_gateway->save();

@@ -31,7 +31,9 @@ class UpdateCompanyGatewayRequest extends Request
     {
         $this->sanitize();
 
-        $rules = [];
+        $rules = [
+            'gateway_key' => 'required',
+        ];
         
         return $rules;
     }

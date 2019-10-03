@@ -58,7 +58,7 @@ class UploadLogoTest extends TestCase
         $response->assertStatus(200);
         
         $acc = $response->json();
-        $logo = $acc['data']['logo'];                
+        $logo = $acc['data']['logo_url'];                
 
         $logo_file = Storage::url($logo);
 

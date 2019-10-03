@@ -29,6 +29,7 @@ class CompanyGatewayApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+
     public function setUp() :void
     {
         parent::setUp();
@@ -40,52 +41,84 @@ class CompanyGatewayApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
     }
 
 
-    public function testCompanyGatewayPost()
+    public function testCompanyGatewayEndPoints()
     {
         $data = [
             'config' => 'random config',
+            'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
         ];
 
-
+        /* POST */
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
             ])->post('/api/v1/company_gateways', $data);
 
+        $cg = $response->json();
+
+        $cg_id = $cg['data']['id'];
+
+        $this->assertNotNull($cg_id);
 
         $response->assertStatus(200);
-    }
 
-    public function testCompanyGatewayPut()
-    {
+
+
+        /* GET */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->get("/api/v1/company_gateways/{$cg_id}");
+
+
+        $response->assertStatus(200);
+
+
+        /* GET CREATE */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->get('/api/v1/company_gateways/create');
+
+
+        $response->assertStatus(200);
+
+        /* PUT */
         $data = [
             'config' => 'changed',
         ];
 
+        \Log::error('the id = '.$cg_id);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->put('/api/v1/company_gateways/'.$this->encodePrimaryKey($this->client->id), $data);
-
+            ])->put("/api/v1/company_gateways/{$cg_id}", $data);
 
         $response->assertStatus(200);
-    }
-
-    public function testCompanyGatewayGet()
-    {
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->get('/api/v1/company_gateways/'.$this->encodePrimaryKey($this->client->id));
+            ])->put("/api/v1/company_gateways/{$cg_id}", $data);
 
 
         $response->assertStatus(200);
+      
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->delete("/api/v1/company_gateways/{$cg_id}", $data);
+
+
+        $response->assertStatus(200);
+      
+
 
     }
     
