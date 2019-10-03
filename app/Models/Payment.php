@@ -12,8 +12,10 @@
 namespace App\Models;
 
 use App\Models\BaseModel;
+use App\Models\DateFormat;
 use App\Models\Filterable;
 use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,6 +23,7 @@ class Payment extends BaseModel
 {
     use MakesHash;
     use Filterable;
+    use MakesDates;
 
     const STATUS_PENDING = 1;
     const STATUS_VOIDED = 2;
@@ -97,6 +100,13 @@ class Payment extends BaseModel
     public function formattedAmount()
     {
         return Number::formatMoney($this->amount, $this->client);
+    }
+
+    public function clientPaymentDate()
+    {
+        $date_format = DateFormat::find($this->client->getSetting('date_format_id'));
+
+        return $this->createClientDate($this->payment_date, $this->client->timezone()->name)->format($date_format->format);
     }
 
     public static function badgeForStatus(int $status)

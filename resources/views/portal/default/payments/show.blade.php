@@ -13,7 +13,7 @@
                     </div>
                     <div class="card-body">
                         <table class="table table-responsive-sm table-bordered">
-                        	<tr><td style="text-align: right;">{{ctrans('texts.payment_date')}}</td><td>{{$payment->payment_date}}</td></tr>
+                        	<tr><td style="text-align: right;">{{ctrans('texts.payment_date')}}</td><td>{!! $payment->clientPaymentDate() !!}</td></tr>
                         	<tr><td style="text-align: right;">{{ctrans('texts.transaction_reference')}}</td><td>{{$payment->transaction_reference}}</td></tr>
                         	<tr><td style="text-align: right;">{{ctrans('texts.method')}}</td><td>{{$payment->type->name}}</td></tr>
                         	<tr><td style="text-align: right;">{{ctrans('texts.amount')}}</td><td>{{$payment->formattedAmount()}}</td></tr>
