@@ -51,7 +51,7 @@ class PaymentController extends Controller
         if (request()->ajax()) {
 
             return DataTables::of($payments)->addColumn('action', function ($payment) {
-                    return '<a href="/client/payments/'. $payment->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+                    return '<a href="/client/payments/'. $payment->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })->editColumn('payment_type_id', function ($payment) {
                     return $payment->type->name;
                 })
@@ -82,8 +82,7 @@ class PaymentController extends Controller
 
         $data['payment'] = $payment;
 
-        print_r($payment->toArray());
-        //return view('portal.default.payments.show', $data);
+        return view('portal.default.payments.show', $data);
 
     }
 

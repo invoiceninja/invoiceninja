@@ -92,6 +92,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
+      
         $response = $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
 
 

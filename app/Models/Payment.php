@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Models\BaseModel;
 use App\Models\Filterable;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
@@ -91,6 +92,11 @@ class Payment extends BaseModel
     public function type()
     {
         return $this->hasOne(PaymentType::class,'id','payment_type_id');
+    }
+
+    public function formattedAmount()
+    {
+        return Number::formatMoney($this->amount, $this->client);
     }
 
     public static function badgeForStatus(int $status)
