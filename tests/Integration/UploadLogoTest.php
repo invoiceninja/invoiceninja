@@ -67,4 +67,44 @@ class UploadLogoTest extends TestCase
 
 
 
+    public function testLogoUploadfailure()
+    {
+
+        Storage::fake('avatars');
+
+        $data = [
+            'logo' => "",
+            'name' => 'TestCompany'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
+        
+        $response->assertStatus(302);
+
+        //Log::error(print_r($response->json(),1));
+    }
+
+
+    public function testLogoUploadNoAttribute()
+    {
+
+        Storage::fake('avatars');
+
+        $data = [
+            'name' => 'TestCompany'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
+        
+        $response->assertStatus(200);
+
+        //Log::error(print_r($response->json(),1));
+    }
+
 }

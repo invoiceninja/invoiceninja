@@ -23,7 +23,7 @@ use Tests\TestCase;
 /**
  * @test
  */
-class ClientApiTest extends TestCase
+class CompanyGatewayApiTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
