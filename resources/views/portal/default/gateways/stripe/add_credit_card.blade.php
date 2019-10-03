@@ -76,7 +76,7 @@
             $("#card-button").removeAttr("disabled");
 
         } else {
-          The card has been successfullly stored.
+ //         The card has been successfullly stored.
           postResult(result);
         }
       });

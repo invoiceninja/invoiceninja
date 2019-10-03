@@ -41,7 +41,7 @@ class PaymentMethodController extends Controller
                 ->editColumn('gateway_type_id', function ($payment_method){
                     return ctrans("texts.{$payment_method->gateway_type->alias}");
                 })->editColumn('created_at', function ($payment_method){
-                    return $this->formatDate($payment_method->created_at, auth()->user()->client->date_format());
+                    return $this->formatDateTimestamp($payment_method->created_at, auth()->user()->client->date_format());
                 })->editColumn('is_default', function ($payment_method){
                     return $payment_method->is_default ? ctrans('texts.default') : '';
                 })->editColumn('meta', function ($payment_method) {

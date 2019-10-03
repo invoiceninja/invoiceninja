@@ -266,7 +266,7 @@ class StripePaymentDriver extends BasePaymentDriver
       +"source": null
       +"status": "succeeded"
     */
-    public function processPaymentResponse($request)
+    public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
     {
         $server_response = json_decode($request->input('gateway_response'));
 
