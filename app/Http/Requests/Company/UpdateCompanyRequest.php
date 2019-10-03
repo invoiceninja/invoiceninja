@@ -33,6 +33,8 @@ class UpdateCompanyRequest extends Request
 
     public function rules()
     {
+        \Log::error($this->all());
+        
         return [
             'logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
             'industry_id' => 'integer|nullable',

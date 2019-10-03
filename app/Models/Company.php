@@ -186,6 +186,11 @@ class Company extends BaseModel
         return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
+    public function getLogo()
+    {
+        return $this->logo ? config('ninja.site_url').$this->logo : '';
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

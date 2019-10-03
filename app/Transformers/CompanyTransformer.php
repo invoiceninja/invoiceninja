@@ -66,7 +66,7 @@ class CompanyTransformer extends EntityTransformer
         return [
             'id' => $this->encodePrimaryKey($company->id),
             'name' => $company->name ?: '',
-            'logo' => $company->logo ?: '',
+            'logo' => $company->getLogo(),
             'company_key' => $company->company_key ?: '',
             'address1' => $company->address1 ?: '',
             'address2' => $company->address2 ?: '',
