@@ -22,8 +22,26 @@ class CompanyGateway extends BaseModel
 {
 
     protected $fillable = [
+        'gateway_key',
+        'accepted_credit_cards',
+        'require_cvv',
+        'show_address',
+        'show_shipping_address',
+        'update_details',
+        'config',
+        'priority_id',
+        'min_limit',
+        'max_limit',
+        'fee_amount',
+        'fee_percent',
+        'fee_tax_name1',
+        'fee_tax_name2',
+        'fee_tax_rate1',
+        'fee_tax_rate2',
+        'fee_cap',
+        'adjust_fee_percent',
     ];
-    
+
     public static $credit_cards = [
             1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
             2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

@@ -63,7 +63,7 @@ class UpdateInvoicePayment implements ShouldQueue
             foreach($invoice as $invoice)
             {
 
-                if($invoice->isPartial())
+                if($invoice->hasPartial())
                     $total += $invoice->partial;
                 else
                     $total += $invoice->balance;
@@ -77,7 +77,7 @@ class UpdateInvoicePayment implements ShouldQueue
                 
                 $invoices->each(function ($invoice) use($payment){
 
-                    if($invoice->isPartial()) {
+                    if($invoice->hasPartial()) {
 
                         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($invoice->partial*-1));
                         $invoice->updateBalance($invoice->partial*-1);

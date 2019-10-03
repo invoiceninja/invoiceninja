@@ -56,6 +56,7 @@ class UploadLogoTest extends TestCase
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
         
         $response->assertStatus(200);
+        
         $acc = $response->json();
         $logo = $acc['data']['logo'];                
 

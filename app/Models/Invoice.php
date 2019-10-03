@@ -282,7 +282,7 @@ class Invoice extends BaseModel
             $status_id = self::STATUS_PAID;
         } elseif ($paid && $this->balance > 0 && $this->balance < $this->amount) {
             $status_id = self::STATUS_PARTIAL;
-        } elseif ($this->isPartial() && $this->balance > 0) {
+        } elseif ($this->hasPartial() && $this->balance > 0) {
             $status_id = ($this->balance == $this->amount ? self::STATUS_SENT : self::STATUS_PARTIAL);
         }
 
@@ -297,10 +297,17 @@ class Invoice extends BaseModel
     /**
      * @return bool
      */
-    public function isPartial() : bool
+    public function hasPartial() : bool
     {
         return ($this->partial && $this->partial > 0) === true;
-        //return $this->status_id >= self::STATUS_PARTIAL;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPartial() : bool
+    {
+        return $this->status_id >= self::STATUS_PARTIAL;
     }
 
     /**
