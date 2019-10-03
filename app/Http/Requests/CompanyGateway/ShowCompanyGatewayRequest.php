@@ -24,7 +24,7 @@ class ShowCompanyGatewayRequest extends Request
 
     public function authorize()
     {
-        return auth()->user()->can('view', $this->company_gateway);
+        return auth()->user()->isAdmin();
     }
 
     public function rules()

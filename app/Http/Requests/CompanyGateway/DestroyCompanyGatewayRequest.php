@@ -24,7 +24,7 @@ class DestroyCompanyGatewayRequest extends Request
 
     public function authorize()
     {
-        return auth()->user()->can('edit', $this->company_gateway);
+        return auth()->user()->isAdmin();
     }
 
     public function rules()
