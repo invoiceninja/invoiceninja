@@ -12,6 +12,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -77,6 +78,10 @@ class Handler extends ExceptionHandler
         else if($exception instanceof FatalThrowableError)
         {
             return response()->json(['message'=>'Fatal error', 500]);
+        }
+        else if($exception instanceof AuthorizationException)
+        {
+            return response()->json(['message'=>'You are not authorized to view or perform this action',401]);
         }
         else if ($exception instanceof \Illuminate\Session\TokenMismatchException)
         {

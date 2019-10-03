@@ -106,6 +106,7 @@ class CompanyController extends BaseController
 
         if($request->file('logo')) 
         {
+            \Log::error('logo exists');
             $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
 
             if($path){
@@ -185,6 +186,7 @@ class CompanyController extends BaseController
 
         if($request->file('logo')) 
         {
+            \Log::error('logo exists');
             $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
 
             if($path){
