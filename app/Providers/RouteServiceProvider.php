@@ -11,13 +11,14 @@
 
 namespace App\Providers;
 
+use App\Models\GroupSetting;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -123,6 +124,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('proposal', function ($value) {
             return \App\Models\Proposal::where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
+
+        Route::bind('groupo_setting', function ($value) {
+            return \App\Models\GroupSetting::where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
 

@@ -32,6 +32,10 @@ class GroupSetting extends StaticModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $fillable = [
+    	'settings'
+    ]
+
 	public function company()
 	{
 		return $this->belongsTo(Company::class);

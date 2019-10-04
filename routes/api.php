@@ -76,6 +76,8 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 
   Route::resource('company_gateways', 'CompanyGatewayController');
 
+  Route::resource('group_settings', 'GroupSettingController');
+
   Route::post('refresh', 'Auth\LoginController@refresh');
 /*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit

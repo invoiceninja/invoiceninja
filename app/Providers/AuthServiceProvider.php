@@ -14,6 +14,8 @@ namespace App\Providers;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
@@ -23,7 +25,9 @@ use App\Models\RecurringQuote;
 use App\Models\User;
 use App\Policies\ActivityPolicy;
 use App\Policies\ClientPolicy;
+use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
+use App\Policies\GroupSettingPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\ProductPolicy;
@@ -53,6 +57,8 @@ class AuthServiceProvider extends ServiceProvider
         RecurringQuote::class => RecurringQuotePolicy::class,
         Quote::class => QuotePolicy::class,
         User::class => UserPolicy::class,
+        GroupSetting::class => GroupSettingPolicy::class,
+        CompanyGateway::class => CompanyGatewayPolicy::class,
     ];
 
     /**
