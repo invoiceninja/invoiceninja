@@ -377,7 +377,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'invoices' => $invoices,
           ]);
 
-          throw new Exception("Failed to process payment", 1);
+          throw new \Exception("Failed to process payment", 1);
           
         }
 
@@ -484,7 +484,7 @@ class StripePaymentDriver extends BasePaymentDriver
         }
 
         if(!$customer)
-            throw new Exception('Unable to create gateway customer');
+            throw new \Exception('Unable to create gateway customer');
 
         return $customer;
     }

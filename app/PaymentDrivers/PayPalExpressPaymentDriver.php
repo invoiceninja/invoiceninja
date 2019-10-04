@@ -110,7 +110,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
               'data' => $data
             ]);
 
-            throw new Exception("Error Processing Payment", 1);
+            throw new \Exception("Error Processing Payment", 1);
             
         }
     }
@@ -132,7 +132,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
               'server_response' => $response->getData()
             ]);
 
-            throw new Exception($response->getMessage());
+            throw new \Exception($response->getMessage());
         }
 
         $payment = $this->createPayment($response->getData());

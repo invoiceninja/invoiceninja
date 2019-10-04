@@ -46,12 +46,12 @@ class UpdateInvoicePayment implements ShouldQueue
     public function handle()
     {
 
-        $invoices = $this->payment->invoices();
+        $invoices = $this->payment->invoices()->get();
 
         $invoices_total = $invoices->sum('balance');
 
         /* Simplest scenario*/
-        if($invoices_total == $this->payment->amount)
+        if(strval($invoices_total) === strval($this->payment->amount))
         {
             $invoices->each(function ($invoice){
                 
@@ -66,7 +66,8 @@ class UpdateInvoicePayment implements ShouldQueue
             
             $total = 0;
 
-            foreach($invoice as $invoice)
+
+            foreach($invoices as $invoice)
             {
 
                 if($invoice->hasPartial())
@@ -74,7 +75,6 @@ class UpdateInvoicePayment implements ShouldQueue
                 else
                     $total += $invoice->balance;
 
-                Log::error("total = {$total}");
             }
 
             /* test if there is a batch of partial invoices that have been paid */
@@ -103,15 +103,16 @@ class UpdateInvoicePayment implements ShouldQueue
             }
             else {
 
+/*
                 $this->sysLog([
                     'payment' => $this->payment,
                     'invoices' => $invoices,
                     'invoices_total' => $invoices_total,
                     'payment_amount' => $this->payment->amount,
                     'partial_check_amount' => $total,
-                ], SystemLog::GATEWAY_RESPONSE, SystemLog::PAYMENT_RECONCILIATION_FAILURE);
-
-                throw new Exception('payment amount does not match invoice totals');
+                ], SystemLog::GATEWAY_RESPONSE, SystemLog::PAYMENT_RECONCILIATION_FAILURE, $this->payment->client);
+*/
+                throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total}");
             }
 
 

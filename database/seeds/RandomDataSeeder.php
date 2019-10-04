@@ -5,8 +5,10 @@ use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Events\Payment\PaymentWasCreated;
 use App\Helpers\Invoice\InvoiceCalc;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
@@ -16,6 +18,7 @@ use App\Models\CompanyToken;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
+use App\Models\PaymentType;
 use App\Models\User;
 use App\Models\UserAccount;
 use App\Repositories\InvoiceRepository;
@@ -114,7 +117,7 @@ class RandomDataSeeder extends Seeder
         $invoices = Invoice::all();
         $invoice_repo = new InvoiceRepository();
 
-        $invoices->each(function ($invoice) use($invoice_repo){
+        $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
                 
             $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
 
@@ -129,6 +132,22 @@ class RandomDataSeeder extends Seeder
             $invoice_repo->markSent($invoice);
 
             event(new InvoiceWasMarkedSent($invoice));
+
+            $payment = App\Models\Payment::create([
+                'user_id' => $user->id, 
+                'company_id' => $company->id, 
+                'client_id' => $client->id,
+                'amount' => $invoice->balance,
+                'transaction_reference' => rand(0,500),
+                'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+            ]);
+
+            $payment->invoices()->save($invoice);
+
+            event(new PaymentWasCreated($payment));
+
+            UpdateInvoicePayment::dispatchNow($payment);
+
         });
         
         /** Recurring Invoice Factory */
@@ -136,7 +155,6 @@ class RandomDataSeeder extends Seeder
 
        // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
-        factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
 
         $clients = Client::all();

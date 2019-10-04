@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Models\Client;
 use App\Models\SystemLog;
 
 /**
@@ -20,8 +21,11 @@ use App\Models\SystemLog;
 trait SystemLogTrait
 {
 
-	public function sysLog($log, $category_id = SystemLog::GATEWAY_RESPONSE, $event_id = SystemLog::GATEWAY_FAILURE)
+	public function sysLog($log, $category_id = SystemLog::GATEWAY_RESPONSE, $event_id = SystemLog::GATEWAY_FAILURE, Client $client = null)
 	{
+
+		if($client != null)
+			$this->client = $client;
 
 		$sl = [
 			'client_id' => $this->client->id,
