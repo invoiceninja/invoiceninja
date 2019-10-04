@@ -211,7 +211,7 @@ trait MakesInvoiceValues
             $data['$company_city'] = $this->company->city;
             $data['$company_state'] = $this->company->state;
             $data['$company_postal_code'] = $this->company->postal_code;
-            $data['$company_country'] = $this->company->country ? $this->company->country->name : '';
+            $data['$company_country'] = $this->company->country() ? $this->company->country()->name : '';
             $data['$company_phone'] = $this->company->phone;
             $data['$company_email'] = $this->company->email;
             $data['$company_vat_number'] = $this->company->vat_number;

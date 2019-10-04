@@ -127,24 +127,25 @@ class CreateUsersTable extends Migration
         
         Schema::create('companies', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->nullable();
+            //$table->string('name')->nullable();
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('industry_id')->nullable();
             $table->string('ip')->nullable();
             $table->string('company_key',100)->unique();
             $table->string('logo')->nullable();
-            $table->string('address1')->nullable();
-            $table->string('address2')->nullable();
-            $table->string('city')->nullable();
-            $table->string('state')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->unsignedInteger('country_id')->nullable();
+            // $table->string('website')->nullable();
+            // $table->string('address1')->nullable();
+            // $table->string('address2')->nullable();
+            // $table->string('city')->nullable();
+            // $table->string('state')->nullable();
+            // $table->string('postal_code')->nullable();
+            // $table->string('phone')->nullable();
+            // $table->string('email')->nullable();
+            // $table->unsignedInteger('country_id')->nullable();
             $table->string('domain')->nullable();
             $table->string('db')->nullable();
-            $table->string('vat_number')->nullable();
-            $table->string('id_number')->nullable();
+            // $table->string('vat_number')->nullable();
+            // $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->string('start_of_week')->nullable();
             $table->string('financial_year_start')->nullable();
@@ -154,7 +155,7 @@ class CreateUsersTable extends Migration
             $table->timestamps(6);
             $table->softDeletes();
             
-            $table->foreign('country_id')->references('id')->on('countries');
+            //$table->foreign('country_id')->references('id')->on('countries');
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

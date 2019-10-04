@@ -36,26 +36,43 @@ class CompanyPresenter extends EntityPresenter
         $str = '';
         $company = $this->entity;
 
-        if ($address1 = $company->address1) {
+        if ($address1 = $company->settings->address1) {
             $str .= e($address1) . '<br/>';
         }
-        if ($address2 = $company->address2) {
+        if ($address2 = $company->settings->address2) {
             $str .= e($address2) . '<br/>';
         }
-        if ($cityState = $this->getCityState()) {
+        if ($cityState = $this->getCompanyCityState()) {
             $str .= e($cityState) . '<br/>';
         }
-        if ($country = $company->country) {
+        if ($country = $company->country()) {
             $str .= e($country->name) . '<br/>';
         }
-        if ($company->phone) {
-            $str .= ctrans('texts.work_phone') . ": ". e($company->phone) .'<br/>';
+        if ($company->settings->phone) {
+            $str .= ctrans('texts.work_phone') . ": ". e($company->settings->phone) .'<br/>';
         }
-        if ($company->email) {
-            $str .= ctrans('texts.work_email') . ": ". e($company->email) .'<br/>';
+        if ($company->settings->email) {
+            $str .= ctrans('texts.work_email') . ": ". e($company->settings->email) .'<br/>';
         }
 
         return $str;
+    }
+
+    public function getCompanyCityState()
+    {
+        $company = $this->entity;
+
+        $swap = $company->country() && $company->country()->swap_postal_code;
+
+        $city = e($company->settings->city);
+        $state = e($company->settings->state);
+        $postalCode = e($company->settings->postal_code);
+
+        if ($city || $state || $postalCode) {
+            return $this->cityStateZip($city, $state, $postalCode, $swap);
+        } else {
+            return false;
+        }
     }
 
 }

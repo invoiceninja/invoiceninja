@@ -43,20 +43,20 @@ class Company extends BaseModel
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $fillable = [
-        'name',
-        'logo',
+        // 'name',
+        // 'logo',
         'industry_id',
-        'address1',
-        'address2',
-        'city',
-        'state',
-        'postal_code',
-        'phone',
-        'email',
-        'country_id',
+        // 'address1',
+        // 'address2',
+        // 'city',
+        // 'state',
+        // 'postal_code',
+        // 'phone',
+        // 'email',
+        // 'country_id',
         'domain',
-        'vat_number',
-        'id_number',
+        // 'vat_number',
+        // 'id_number',
         'size_id',
         'settings',
     ];
@@ -157,7 +157,8 @@ class Company extends BaseModel
      */
     public function country()
     {
-        return $this->belongsTo(Country::class);
+        //return $this->belongsTo(Country::class);
+        return Country::find($this->settings->country_id);
     }
 
     public function group_settings()

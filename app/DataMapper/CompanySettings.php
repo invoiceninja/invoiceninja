@@ -151,7 +151,37 @@ class CompanySettings extends BaseSettings
 	public $require_invoice_signature = false;
 	public $require_quote_signature = false;
 
+
+	/* Company Meta data that we can use to build sub companies*/
+
+	public $name;
+	public $logo_url;
+	public $website;
+	public $address1;
+	public $address2;
+	public $city;
+	public $state;
+	public $postal_code;
+	public $phone;
+	public $email;
+	public $country_id;
+	public $vat_number;
+	public $id_number;
+
 	public static $casts = [
+		'name' => 'string',
+		'logo_url' => 'string',
+		'website' => 'string',
+		'address1' => 'string',
+		'address2' => 'string',
+		'city' => 'string',
+		'state' => 'string',
+		'postal_code' => 'string',
+		'phone' => 'string',
+		'email' => 'string',
+		'country_id' => 'string',
+		'vat_number' => 'string',
+		'id_number' => 'string',
 		'has_custom_design1' => 'bool',
 		'has_custom_design2' => 'bool',
 		'has_custom_design3' => 'bool',
@@ -263,6 +293,7 @@ class CompanySettings extends BaseSettings
 		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
 		$data->start_of_week = (int) config('ninja.i18n.start_of_week');
 		$data->financial_year_start = (int)config('ninja.i18n.financial_year_start');
+		$data->country_id = (int)config('ninja.i18n.country_id');
 		$data->translations = (object) [];
 		
 		return self::setCasts($data, self::$casts);
@@ -288,7 +319,9 @@ class CompanySettings extends BaseSettings
 				$settings->{$key} = self::castAttribute($key, $company_settings->{$key});
 			
 		}
+
 		return $settings;
+
 	}
 
 }

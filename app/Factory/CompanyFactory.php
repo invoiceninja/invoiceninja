@@ -23,7 +23,7 @@ class CompanyFactory
 	{
 
         $company = new Company;
-        $company->name = '';
+//        $company->name = '';
         $company->account_id = $account_id;
         $company->company_key = $this->createHash();
         $company->settings = CompanySettings::defaults();
