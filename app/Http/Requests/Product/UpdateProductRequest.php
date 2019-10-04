@@ -33,6 +33,7 @@ class UpdateProductRequest extends Request
     public function rules()
     {
             //when updating you need to ignore the column ID
+        $this->sanitize();
 
         return [
             //'product_key' => 'unique:products,product_key,'.$this->product->id.',id,company_id,'.auth()->user()->companyId(),
@@ -42,5 +43,17 @@ class UpdateProductRequest extends Request
         ];
     }
 
+
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        if($input['quantity'] < 1)
+            $input['quantity'] = 1;
+
+        $this->replace($input);
+
+        return $this->all();
+    }
 }
 
