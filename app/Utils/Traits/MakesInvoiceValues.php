@@ -109,7 +109,7 @@ trait MakesInvoiceValues
         'credit_issued_to',
         'credit_to',
         'your_credit',
-        'work_phone',
+        'phone',
         'invoice_total',
         'outstanding',
         'invoice_due_date',
@@ -212,8 +212,8 @@ trait MakesInvoiceValues
             $data['$company_state'] = $this->company->state;
             $data['$company_postal_code'] = $this->company->postal_code;
             $data['$company_country'] = $this->company->country ? $this->company->country->name : '';
-            $data['$company_phone'] = $this->company->work_phone;
-            $data['$company_email'] = $this->company->work_email;
+            $data['$company_phone'] = $this->company->phone;
+            $data['$company_email'] = $this->company->email;
             $data['$company_vat_number'] = $this->company->vat_number;
             $data['$company_id_number'] = $this->company->id_number;
             $data['$company_address'] = $this->company->present()->address();
@@ -234,7 +234,7 @@ trait MakesInvoiceValues
             $data['$credit_issued_to'] = ;
             $data['$credit_to'] = ;
             $data['$your_credit'] = ;
-            $data['$work_phone'] = ;
+            $data['$phone'] = ;
             $data['$invoice_total'] = ;
             $data['$outstanding'] = ;
             $data['$invoice_due_date'] = ;

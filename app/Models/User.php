@@ -61,8 +61,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'first_name',
         'last_name',
-        'email',
-        'phone',
+     //   'email',
+     //   'phone',
         'signature',
         'avatar',
         'accepted_terms_version',
@@ -89,6 +89,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'last_login' => 'timestamp',
     ];
 
     public function getHashedIdAttribute()

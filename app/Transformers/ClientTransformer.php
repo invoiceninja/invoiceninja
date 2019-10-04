@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Invoice Ninja (https://invoiceninja.com)
@@ -61,7 +62,7 @@ class ClientTransformer extends EntityTransformer
             'balance' => (float) $client->balance,
             'currency_id' => (string)$client->currency_id ?: '',
             'paid_to_date' => (float) $client->paid_to_date,
-            'last_login' => $client->last_login ?: '',
+            'last_login' => (int)$client->last_login,
             'address1' => $client->address1 ?: '',
             'address2' => $client->address2 ?: '',
             'city' => $client->city ?: '',
@@ -81,7 +82,6 @@ class ClientTransformer extends EntityTransformer
             'shipping_country_id' => $client->shipping_country_id ?: '',
             'settings' => $client->settings ?: '',
             'is_deleted' => (bool) $client->is_deleted,
-            'payment_terms' => (int) $client->payment_terms,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',
             'updated_at' => $client->updated_at,

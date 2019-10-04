@@ -51,8 +51,8 @@ class Company extends BaseModel
         'city',
         'state',
         'postal_code',
-        'work_phone',
-        'work_email',
+        'phone',
+        'email',
         'country_id',
         'domain',
         'vat_number',
@@ -188,7 +188,7 @@ class Company extends BaseModel
 
     public function getLogo()
     {
-        return $this->logo ? config('ninja.site_url').$this->logo : '';
+        return $this->logo ? config('ninja.site_url').$this->logo : null;
     }
 
     /**

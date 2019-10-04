@@ -138,8 +138,8 @@ class CreateUsersTable extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('postal_code')->nullable();
-            $table->string('work_phone')->nullable();
-            $table->string('work_email')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
             $table->unsignedInteger('country_id')->nullable();
             $table->string('domain')->nullable();
             $table->string('db')->nullable();
@@ -807,6 +807,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('bank_company_id');
 
             $table->string('account_name')->nullable();
+            $table->string('website')->nullable();
             $table->string('account_number')->nullable();
 
             $table->timestamps(6);

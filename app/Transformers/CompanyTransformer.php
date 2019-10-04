@@ -66,6 +66,7 @@ class CompanyTransformer extends EntityTransformer
         return [
             'id' => (string)$this->encodePrimaryKey($company->id),
             'name' => (string)$company->name ?: '',
+            'website' => (string)$company->website ?: '',
             'logo_url' => (string)$company->getLogo(),
             'company_key' => (string)$company->company_key ?: '',
             'address1' => (string)$company->address1 ?: '',
@@ -73,8 +74,8 @@ class CompanyTransformer extends EntityTransformer
             'city' => (string)$company->city ?: '',
             'state' => (string)$company->state ?: '',
             'postal_code' => (string)$company->postal_code ?: '',
-            'work_phone' => (string)$company->work_phone ?: '',
-            'work_email' => (string)$company->work_email ?: '',
+            'phone' => (string)$company->phone ?: '',
+            'email' => (string)$company->email ?: '',
             'country_id' => (string) $company->country_id ?: '',
             'vat_number' => (string)$company->vat_number ?: '',
             'id_number' => (string)$company->id_number ?: '',

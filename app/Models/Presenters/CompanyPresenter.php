@@ -48,11 +48,11 @@ class CompanyPresenter extends EntityPresenter
         if ($country = $company->country) {
             $str .= e($country->name) . '<br/>';
         }
-        if ($company->work_phone) {
-            $str .= ctrans('texts.work_phone') . ": ". e($company->work_phone) .'<br/>';
+        if ($company->phone) {
+            $str .= ctrans('texts.work_phone') . ": ". e($company->phone) .'<br/>';
         }
-        if ($company->work_email) {
-            $str .= ctrans('texts.work_email') . ": ". e($company->work_email) .'<br/>';
+        if ($company->email) {
+            $str .= ctrans('texts.work_email') . ": ". e($company->email) .'<br/>';
         }
 
         return $str;
