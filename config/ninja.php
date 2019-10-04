@@ -58,6 +58,7 @@ return [
         'password' => 'password',
         'stripe' => env('STRIPE_KEYS',''),
         'paypal' => env('PAYPAL_KEYS', ''),
+        'travis' => env('TRAVIS', false),
     ],
 
     'contact' => [
