@@ -25,7 +25,7 @@ class ProductFactory
 		$product->notes = '';
 		$product->cost = 0;
 		$product->price = 0;
-		$product->quantity = 0;
+		$product->quantity = 1;
 		$product->tax_name1 = '';
 		$product->tax_rate1 = 0;
 		$product->tax_name2 = '';

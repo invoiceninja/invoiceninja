@@ -23,6 +23,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
@@ -89,13 +90,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'last_login' => 'timestamp',
+        //'last_login' => 'timestamp',
     ];
 
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
+
 
     /**
      * Returns a account.
@@ -311,5 +313,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function getEmailVerifiedAt()
+    {
+        if($this->email_verified_at)
+            return Carbon::parse($user->email_verified_at)->timestamp;
+        else
+            return null;
+
     }
 }

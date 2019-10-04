@@ -65,6 +65,7 @@ class CreateUser
         $user->confirmation_code = $this->createDbHash(config('database.default'));
         $user->fill($this->request);
         $user->email = $this->request['email'];//todo need to remove this in production
+        $user->last_login = now();
         $user->save();
 
         $user->companies()->attach($this->company->id, [

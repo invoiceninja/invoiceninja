@@ -20,6 +20,7 @@ use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CompanyTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Carbon;
 
 class UserTransformer extends EntityTransformer
 {
@@ -44,16 +45,17 @@ class UserTransformer extends EntityTransformer
 
     public function transform(User $user)
     {
+
         return [
             'id' => $this->encodePrimaryKey($user->id),
             'first_name' => $user->first_name ?: '',
             'last_name' => $user->last_name ?: '',
             'email' => $user->email ?: '',
-            'last_login' => $user->last_login ?: '',
+            'last_login' => Carbon::parse($user->last_login)->timestamp,
             'updated_at' => $user->updated_at,
             'deleted_at' => $user->deleted_at,
             'phone' => $user->phone ?: '',
-            'email_verified_at' => $user->email_verified_at ?: '',
+            'email_verified_at' => $user->getEmailVerifiedAt(),
             'signature' => $user->signature ?: '',
         ];
     }
