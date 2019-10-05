@@ -155,19 +155,19 @@ class CompanySettings extends BaseSettings
 
 	/* Company Meta data that we can use to build sub companies*/
 
-	public $name;
-	public $logo_url;
-	public $website;
-	public $address1;
-	public $address2;
-	public $city;
-	public $state;
-	public $postal_code;
-	public $phone;
-	public $email;
+	public $name = '';
+	public $logo_url = '';
+	public $website = '';
+	public $address1 = '';
+	public $address2 = '';
+	public $city = '';
+	public $state = '';
+	public $postal_code = '';
+	public $phone = '';
+	public $email = '';
 	public $country_id;
-	public $vat_number;
-	public $id_number;
+	public $vat_number = '';
+	public $id_number = '';
 
 	public static $casts = [
 		'name' => 'string',
@@ -298,7 +298,7 @@ class CompanySettings extends BaseSettings
 		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
 		$data->start_of_week = (int) config('ninja.i18n.start_of_week');
 		$data->financial_year_start = (int)config('ninja.i18n.financial_year_start');
-		$data->country_id = (int)config('ninja.i18n.country_id');
+		$data->country_id = (string)config('ninja.i18n.country_id');
 		$data->translations = (object) [];
 		
 		return self::setCasts($data, self::$casts);

@@ -186,10 +186,10 @@ class CompanyController extends BaseController
     public function update(UpdateCompanyRequest $request, Company $company)
     {
         $company = $this->company_repo->save($request->all(), $company);
-
+\Log::error($request->all());
         if($request->file('logo')) 
         {
-
+            \Log::error('logo present');
             $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
 
             if($path){
