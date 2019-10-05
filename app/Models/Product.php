@@ -34,8 +34,10 @@ class Product extends BaseModel
         'quantity',
         'tax_name1',
         'tax_name2',
+        'tax_name3',
         'tax_rate1',
         'tax_rate2',
+        'tax_rate3',
     ];
 
     public function company()

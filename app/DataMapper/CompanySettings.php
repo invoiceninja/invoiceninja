@@ -124,6 +124,8 @@ class CompanySettings extends BaseSettings
 	public $tax_rate1 = 0;
 	public $tax_name2 = '';
 	public $tax_rate2 = 0;
+	public $tax_name3 = '';
+	public $tax_rate3 = 0;
 	public $enable_second_tax_rate = false;
 	public $payment_type_id = '';
 	public $convert_products = false;
@@ -184,8 +186,12 @@ class CompanySettings extends BaseSettings
 		'has_custom_design1' => 'bool',
 		'has_custom_design2' => 'bool',
 		'has_custom_design3' => 'bool',
+		'tax_name1' => 'string',
+		'tax_name2' => 'string',
+		'tax_name3' => 'string',
 		'tax_rate1' => 'float',
 		'tax_rate2' => 'float',
+		'tax_rate3' => 'float',
 		'require_invoice_signature' => 'bool',
 		'require_quote_signature' => 'bool',
 		'show_accept_quote_terms' => 'bool',

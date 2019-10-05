@@ -33,6 +33,7 @@ trait MakesInvoiceValues
         'quantity',
         'tax_name1',
         'tax_name2',
+        'tax_name3',
         'line_total',
         'custom_label1',
         'custom_label2',

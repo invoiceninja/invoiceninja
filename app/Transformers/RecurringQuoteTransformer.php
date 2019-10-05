@@ -99,6 +99,8 @@ class RecurringQuoteTransformer extends EntityTransformer
             'tax_rate1' => (float) $quote->tax_rate1 ?: '',
             'tax_name2' => $quote->tax_name2 ? $quote->tax_name2 : '',
             'tax_rate2' => (float) $quote->tax_rate2 ?: '',
+            'tax_name3' => $quote->tax_name3 ? $quote->tax_name3 : '',
+            'tax_rate3' => (float) $quote->tax_rate3 ?: '',
             'is_amount_discount' => (bool) ($quote->is_amount_discount ?: false),
             'quote_footer' => $quote->quote_footer ?: '',
             'partial' => (float) ($quote->partial ?: 0.0),

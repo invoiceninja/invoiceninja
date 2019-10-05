@@ -63,6 +63,8 @@ class Invoice extends BaseModel
         'tax_rate1',
         'tax_name2',
         'tax_rate2',
+        'tax_name3',
+        'tax_rate3',
         'is_amount_discount',
         'invoice_footer',
         'partial',

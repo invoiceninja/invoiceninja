@@ -13,6 +13,8 @@ $factory->define(App\Models\Product::class, function (Faker $faker) {
         'tax_rate1' => 10,
         'tax_name2' => 'VAT',
         'tax_rate2' => 17.5,
+        'tax_name3' => 'THIRDTAX',
+        'tax_rate3' => 5,
         'custom_value1' => $faker->text(20),
         'custom_value2' => $faker->text(20),
         'custom_value3' => $faker->text(20),
