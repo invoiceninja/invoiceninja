@@ -11,14 +11,15 @@
 
 namespace App\Jobs\Util;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\File;
+use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 
 class UploadAvatar implements ShouldQueue
 {
@@ -40,8 +41,11 @@ class UploadAvatar implements ShouldQueue
     	//make dir
     	Storage::makeDirectory('public/' . $this->directory, 0755);
 
-    	//upload file
-    	$path = Storage::putFile('public/' . $this->directory, $this->file);
+        $tmp_file = sha1(time()).".png";
+
+        $file_png = imagepng( imagecreatefromstring(file_get_contents($this->file)) , sys_get_temp_dir().'/'.$tmp_file);
+    	
+    	$path = Storage::putFile('public/' . $this->directory, new File( sys_get_temp_dir().'/'.$tmp_file ));
 
         $url = Storage::url($path);
         
