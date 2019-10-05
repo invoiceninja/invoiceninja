@@ -13,8 +13,8 @@ group: deprecated-2017Q4
 
 php:
   - 7.3
-  - 7.4snapshot
-  - nightly
+#  - 7.4snapshot
+#  - nightly
 
 addons:
   apt:

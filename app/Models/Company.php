@@ -189,7 +189,7 @@ class Company extends BaseModel
 
     public function getLogo()
     {
-        return $this->logo ? config('ninja.site_url').$this->logo : null;
+        return $this->settings->logo ? config('ninja.site_url').$this->settings->logo : null;
     }
 
     /**

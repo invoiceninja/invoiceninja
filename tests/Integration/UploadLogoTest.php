@@ -15,6 +15,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
@@ -37,6 +38,8 @@ class UploadLogoTest extends TestCase
         parent::setUp();
 
         $this->makeTestData();
+
+        Company::reguard();
     }
 
 
@@ -58,7 +61,7 @@ class UploadLogoTest extends TestCase
         $response->assertStatus(200);
         
         $acc = $response->json();
-        $logo = $acc['data']['logo_url'];                
+        $logo = $acc['data']['settings']['logo_url'];                
 
         $logo_file = Storage::url($logo);
 
@@ -82,11 +85,11 @@ class UploadLogoTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
         
-        $response->assertStatus(302);
-        
         //$acc = $response->json();
 
-        //\Log::error(print_r($acc,1));
+        $response->assertStatus(302);
+        
+
     }
 
 

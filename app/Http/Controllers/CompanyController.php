@@ -106,11 +106,14 @@ class CompanyController extends BaseController
 
         if($request->file('logo')) 
         {
-            \Log::error('logo exists');
+
             $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
 
             if($path){
-                $company->logo = $path;
+
+                $settings = $company->settings;
+                $settings->logo_url = config('ninja.site_url').$path;
+                $company->settings = $settings;
                 $company->save();
             }
             
@@ -186,11 +189,15 @@ class CompanyController extends BaseController
 
         if($request->file('logo')) 
         {
-            \Log::error('logo exists');
+
             $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
 
             if($path){
-                $company->logo = $path;
+    //            $company->logo = $path;
+    //          
+                $settings = $company->settings;
+                $settings->logo_url = config('ninja.site_url').$path;
+                $company->settings = $settings;
                 $company->save();
             }
             

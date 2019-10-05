@@ -34,7 +34,7 @@ class GroupSetting extends StaticModel
 
     protected $fillable = [
     	'settings'
-    ]
+    ];
 
 	public function company()
 	{

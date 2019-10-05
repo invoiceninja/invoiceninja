@@ -49,13 +49,15 @@ class CreateCompany
      */
     public function handle() : ?Company
     {
+        $settings = CompanySettings::defaults();
+        $settings->name = isset($this->request['name']) ? $this->request['name'] : $this->request['first_name'] . ' ' . $this->request['last_name'];
 
         $company = new Company();
-        $company->name = isset($this->request['name']) ? $this->request['name'] : $this->request['first_name'] . ' ' . $this->request['last_name'];
+        //$company->name = isset($this->request['name']) ? $this->request['name'] : $this->request['first_name'] . ' ' . $this->request['last_name'];
         $company->account_id = $this->account->id;
         $company->company_key = $this->createHash();
         $company->ip = request()->ip();
-        $company->settings = CompanySettings::defaults();
+        $company->settings = $settings;
         $company->db = config('database.default');
         $company->save();
 

@@ -318,7 +318,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getEmailVerifiedAt()
     {
         if($this->email_verified_at)
-            return Carbon::parse($user->email_verified_at)->timestamp;
+            return Carbon::parse($this->email_verified_at)->timestamp;
         else
             return null;
 
