@@ -126,7 +126,7 @@ class RouteServiceProvider extends ServiceProvider
             return \App\Models\Proposal::where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
-        Route::bind('groupo_setting', function ($value) {
+        Route::bind('group_setting', function ($value) {
             return \App\Models\GroupSetting::where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 

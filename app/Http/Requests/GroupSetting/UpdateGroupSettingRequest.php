@@ -32,8 +32,8 @@ class UpdateGroupSettingRequest extends Request
     {
 
         return [
-            'settings' => 'json'
-        ]
+            'settings' => 'json',
+        ];
 
     }
 

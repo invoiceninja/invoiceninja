@@ -21,7 +21,7 @@ class GroupSettingFactory
 
         $gs = new GroupSetting;
         $gs->name = '';
-        $gs->account_id = $company_id;
+        $gs->company_id = $company_id;
         $gs->user_id = $user_id;
         $gs->settings = json_encode([]);
         

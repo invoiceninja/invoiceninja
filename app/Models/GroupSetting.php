@@ -33,6 +33,7 @@ class GroupSetting extends StaticModel
     ];
 
     protected $fillable = [
+    	'name',
     	'settings'
     ];
 
