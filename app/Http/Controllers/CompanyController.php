@@ -193,8 +193,7 @@ class CompanyController extends BaseController
             $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
 
             if($path){
-    //            $company->logo = $path;
-    //          
+
                 $settings = $company->settings;
                 $settings->logo_url = config('ninja.site_url').$path;
                 $company->settings = $settings;
