@@ -230,7 +230,7 @@ class Client extends BaseModel
 
             return $this->company->settings->{$setting};
         }
-        
+
         throw new \Exception("Settings corrupted", 1);
         
     

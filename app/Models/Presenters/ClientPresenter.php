@@ -11,6 +11,8 @@
 
 namespace App\Models\Presenters;
 
+use App\Models\Country;
+
 /**
  * Class ClientPresenter
  * @package App\Models\Presenters
@@ -93,5 +95,63 @@ class ClientPresenter extends EntityPresenter
     public function website()
     {
         return $this->entity->website ?: '';
+    }
+
+    /**
+     * Calculated company data fields 
+     * using settings
+     */
+    public function company_name()
+    {
+
+        $settings = $this->entity->getMergedSettings();
+
+        return $settings->name ?: ctrans('texts.untitled_account');
+    }
+
+    public function company_address()
+    {
+
+        $settings = $this->entity->getMergedSettings();
+
+        $str = '';
+        
+        if ($settings->address1) {
+            $str .= e($settings->address1) . '<br/>';
+        }
+        if ($settings->address2) {
+            $str .= e($settings->address2) . '<br/>';
+        }
+        if ($cityState = $this->getCityState()) {
+            $str .= e($cityState) . '<br/>';
+        }
+        if ($country = Country::find($settings->country_id)) {
+            $str .= e($country->name) . '<br/>';
+        }
+
+        return $str;
+
+    }
+
+    public function getCityState()
+    {
+        $settings = $this->entity->getMergedSettings();
+
+        $country = false;
+
+        if($settings->country_id)
+            $country = Country::find($settings->country_id);
+
+        $swap = $country && $country->swap_postal_code;
+
+        $city = e($settings->city ?: '');
+        $state = e($settings->state ?: '');
+        $postalCode = e($settings->postal_code ?: '');
+
+        if ($city || $state || $postalCode) {
+            return $this->cityStateZip($city, $state, $postalCode, $swap);
+        } else {
+            return false;
+        }
     }
 }

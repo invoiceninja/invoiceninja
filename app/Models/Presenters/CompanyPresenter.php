@@ -28,7 +28,7 @@ class CompanyPresenter extends EntityPresenter
 
     public function logo()
     {
-        return strlen($this->entity->logo > 0) ? $this->entity->logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        return strlen($this->entity->getLogo() > 0) ? $this->entity->getLogo() : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
     }
 
     public function address()

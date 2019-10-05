@@ -151,7 +151,6 @@ class CompanySettings extends BaseSettings
 	public $require_invoice_signature = false;
 	public $require_quote_signature = false;
 
-
 	/* Company Meta data that we can use to build sub companies*/
 
 	public $name;
