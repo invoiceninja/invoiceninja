@@ -67,6 +67,40 @@ class ClientController extends BaseController
     }
 
     /**
+     *      @OA\Get(
+     *      path="/api/v1/clients",
+     *      operationId="getClients",
+     *      tags={"clients"},
+     *      summary="Gets a list of clients",
+     *      description="Lists clients, search and filters allow fine grained lists to be generated.
+
+        Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A list of clients",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Client"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function index(ClientFilters $filters)
     {

@@ -293,7 +293,6 @@ class CreateUsersTable extends Migration
             $table->text('settings')->nullable();
 
             $table->boolean('is_deleted')->default(false);
-            $table->integer('payment_terms')->nullable();  
             $table->unsignedInteger('group_settings_id')->nullable();  
             $table->string('vat_number')->nullable();
             $table->string('id_number')->nullable();
