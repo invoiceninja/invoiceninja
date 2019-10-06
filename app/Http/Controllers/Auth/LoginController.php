@@ -96,9 +96,8 @@ class LoginController extends BaseController
      * @param      \Illuminate\Http\Request  $request  The request
      *
      * @return     Response|User Process user login.
-     */
-    
-    /**
+     *
+     * 
      * @OA\Post(
      *      path="/api/v1/login",
      *      operationId="postLogin",
@@ -192,6 +191,46 @@ class LoginController extends BaseController
 
     }
 
+    /**
+     * Refreshes the data feed with the current Company User
+     *     
+     * @return     CompanyUser Refresh Feed.
+     *
+     * 
+     * @OA\Post(
+     *      path="/api/v1/refresh",
+     *      operationId="refresh",
+     *      tags={"refresh"},
+     *      summary="Refreshes the dataset",
+     *      description="Refreshes the dataset",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/include_static"),
+     *      @OA\Parameter(ref="#/components/parameters/clear_cache"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Company User response",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
     public function refresh(Request $request)
     {
          $ct = CompanyUser::whereUserId(auth()->user()->id);
