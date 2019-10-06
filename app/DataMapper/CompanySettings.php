@@ -144,9 +144,6 @@ class CompanySettings extends BaseSettings
 	public $email_template_reminder1 = '';
 	public $email_template_reminder2 = '';
 	public $email_template_reminder3 = '';
-	public $has_custom_design1 = false;
-	public $has_custom_design2 = false;
-	public $has_custom_design3 = false;
 	public $enable_portal_password = false;
 	public $show_accept_invoice_terms = false;
 	public $show_accept_quote_terms = false;
@@ -183,9 +180,6 @@ class CompanySettings extends BaseSettings
 		'country_id' => 'string',
 		'vat_number' => 'string',
 		'id_number' => 'string',
-		'has_custom_design1' => 'bool',
-		'has_custom_design2' => 'bool',
-		'has_custom_design3' => 'bool',
 		'tax_name1' => 'string',
 		'tax_name2' => 'string',
 		'tax_name3' => 'string',
@@ -296,8 +290,6 @@ class CompanySettings extends BaseSettings
 		$data->datetime_format_id = (string)config('ninja.i18n.datetime_format_id');
 		$data->military_time = (bool )config('ninja.i18n.military_time');
 		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
-		$data->start_of_week = (int) config('ninja.i18n.start_of_week');
-		$data->financial_year_start = (int)config('ninja.i18n.financial_year_start');
 		$data->country_id = (string)config('ninja.i18n.country_id');
 		$data->translations = (object) [];
 		

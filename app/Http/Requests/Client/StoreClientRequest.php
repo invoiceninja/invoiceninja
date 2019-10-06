@@ -46,7 +46,7 @@ class StoreClientRequest extends Request
 
             for ($i = 0; $i < count($contacts); $i++) {
                 //$rules['contacts.' . $i . '.email'] = 'required|email|unique:client_contacts,email,' . isset($contacts[$i]['id']);
-                $rules['contacts.' . $i . '.email'] = 'email';
+                $rules['contacts.' . $i . '.email'] = 'nullable|email';
             }
 
         }

@@ -9,29 +9,16 @@
  *       @OA\Property(property="is_owner", type="boolean", example=true, description="Determines whether the user owns this company"),
  *       @OA\Property(property="is_locked", type="boolean", example=true, description="Determines whether the users access to this company has been locked"),
  *       @OA\Property(property="updated_at", type="int", example="1231232312321", description="The last time the record was modified"),
- *       @OA\Property(property="deleted_at", type="int", example="1231232312321", description="Timestamp when the user was archived"),
- *     )
+ *       @OA\Property(property="deleted_at", type="int", example="12312312321", description="Timestamp when the user was archived"),
+ *     ),
+ *     @OA\Schema(ref="#/components/schema/Company"),
+ *     @OA\Schema(ref="#/components/schema/User"),
+ *     @OA\Schema(ref="#/components/schema/Account"),
+ *     @OA\Schema(ref="#/components/schema/CompanyToken"),
  *   }
  * )
  */
 
-
-        :
-          type: 
-          properties:
-            per_page:
-              type: integer
-              example: 25
-              description: 'Used for the default number of items to be displayed in list views'
-
-
-
-
-        company:
-          $ref: '#/components/schemas/Company'
-        user:
-          $ref: '#/components/schemas/User'
-        account:
-          $ref: '#/components/schemas/Account'
-        company_token:
-          $ref: '#/components/schemas/CompanyToken'
+/**
+ * 
+ */
