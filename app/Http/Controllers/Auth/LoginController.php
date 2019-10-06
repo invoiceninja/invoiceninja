@@ -139,7 +139,7 @@ class LoginController extends BaseController
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-
+     *          ),
      *       ),
      *       @OA\Response(
      *          response=422,
