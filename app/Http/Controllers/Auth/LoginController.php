@@ -153,14 +153,6 @@ class LoginController extends BaseController
      *       ),
      *     )
      *
-     * @OA\Response(
-     *     response=200,
-     *     description="Successful Authentication",
-     *     @OA\MediaType(
-     *         mediaType="application/json",
-     *         @OA\Schema(ref="#/components/schemas/Company"),
-     *     )
-     * ),
      */
 
     public function apiLogin(Request $request)
