@@ -1455,6 +1455,7 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'payment_type_SEPA' => 'SEPA Direkt betalning',
     'payment_type_Bitcoin' => 'Bitcoin',
     'payment_type_GoCardless' => 'GoCardless',
+    'payment_type_Zelle' => 'Zelle',
 
     // Industries
     'industry_Accounting & Legal' => 'Redovisning & Legala',
@@ -3184,6 +3185,26 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'expense_status_1' => 'Logged',
     'expense_status_2' => 'Pending',
     'expense_status_3' => 'Invoiced',
+    'no_record_selected' => 'No record selected',
+    'error_unsaved_changes' => 'Please save or cancel your changes',
+    'thank_you_for_your_purchase' => 'Thank you for your purchase!',
+    'redeem' => 'Redeem',
+    'back' => 'Back',
+    'past_purchases' => 'Past Purchases',
+    'annual_subscription' => 'Annual Subscription',
+    'pro_plan' => 'Pro Plan',
+    'enterprise_plan' => 'Enterprise Plan',
+    'count_users' => ':count users',
+    'upgrade' => 'Upgrade',
+    'please_enter_a_first_name' => 'Please enter a first name',
+    'please_enter_a_last_name' => 'Please enter a last name',
+    'please_agree_to_terms_and_privacy' => 'Please agree to the terms of service and privacy policy to create an account.',
+    'i_agree_to_the' => 'I agree to the',
+    'terms_of_service_link' => 'terms of service',
+    'privacy_policy_link' => 'privacy policy',
+    'view_website' => 'View Website',
+    'create_account' => 'Create Account',
+    'email_login' => 'Email Login',
 );
 
 return $LANG;

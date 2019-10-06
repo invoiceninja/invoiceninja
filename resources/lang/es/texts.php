@@ -251,7 +251,7 @@ $LANG = array(
     'invoice_link_message' => 'Para visualizar la factura de cliente, haz clic en el enlace a continuación:',
     'notification_invoice_paid_subject' => 'La factura :invoice ha sido pagada por el cliente :client',
     'notification_invoice_sent_subject' => 'La factura :invoice ha sido enviada a el cliente :client',
-    'notification_invoice_viewed_subject' => 'La factura :invoice ha sido visualizado por el cliente:client',
+    'notification_invoice_viewed_subject' => 'La factura :invoice ha sido visualizada por el cliente:client',
     'notification_invoice_paid' => 'Un pago por importe de :amount ha sido realizado por el cliente :client correspondiente a la factura :invoice.',
     'notification_invoice_sent' => 'La factura :invoice por importe de :amount fue enviada al cliente :cliente.',
     'notification_invoice_viewed' => 'La factura :invoice por importe de :amount fue visualizada por el cliente :client.',
@@ -1454,6 +1454,7 @@ $LANG = array(
     'payment_type_SEPA' => 'Débito Directo SEPA',
     'payment_type_Bitcoin' => 'Bitcoin',
     'payment_type_GoCardless' => 'GoCardless',
+    'payment_type_Zelle' => 'Zelle',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -3175,6 +3176,26 @@ $LANG = array(
     'expense_status_1' => 'Logged',
     'expense_status_2' => 'Pending',
     'expense_status_3' => 'Invoiced',
+    'no_record_selected' => 'No record selected',
+    'error_unsaved_changes' => 'Please save or cancel your changes',
+    'thank_you_for_your_purchase' => 'Thank you for your purchase!',
+    'redeem' => 'Redeem',
+    'back' => 'Back',
+    'past_purchases' => 'Past Purchases',
+    'annual_subscription' => 'Annual Subscription',
+    'pro_plan' => 'Pro Plan',
+    'enterprise_plan' => 'Enterprise Plan',
+    'count_users' => ':count users',
+    'upgrade' => 'Upgrade',
+    'please_enter_a_first_name' => 'Please enter a first name',
+    'please_enter_a_last_name' => 'Please enter a last name',
+    'please_agree_to_terms_and_privacy' => 'Please agree to the terms of service and privacy policy to create an account.',
+    'i_agree_to_the' => 'I agree to the',
+    'terms_of_service_link' => 'terms of service',
+    'privacy_policy_link' => 'privacy policy',
+    'view_website' => 'View Website',
+    'create_account' => 'Create Account',
+    'email_login' => 'Email Login',
 );
 
 return $LANG;
