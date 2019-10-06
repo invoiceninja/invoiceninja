@@ -38,7 +38,7 @@ class UpdateClientRequest extends Request
         $rules['currency_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
-        $rules['settings'] = 'json';
+//        $rules['settings'] = 'json';
 
         $contacts = request('contacts');
 

@@ -35,7 +35,7 @@ class StoreGroupSettingRequest extends Request
 
         return [
             'name' => 'required',
-            'settings' => 'json',
+      //      'settings' => 'json',
         ];
 
     }
