@@ -10,11 +10,10 @@
  *         	@OA\Property(
  *          	property="value", 
  *          	type="array",
-	     *           @OA\Items(
-	     *               type="string",
-	     *           ),
-	     *      
-	 *       ),
-	 * ),
+ *              	@OA\Items(
+ *                  type="string",
+ *                  ),
+ *          ),
+ *      ),
  * )
  */
