@@ -141,10 +141,11 @@ class LoginController extends BaseController
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
 
      *       ),
-     *       @OA\Response(response=400, description="Bad request"),
-     *       security={
-     *           {"": {}}
-     *       }
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
      *     )
      *
      * @OA\Response(
