@@ -39,6 +39,17 @@ class LoginController extends BaseController
     | to conveniently provide its functionality to your applications.
     |
     */
+   
+   /**
+     * @OA\Tag(
+     *     name="login",
+     *     description="Authentication",
+     *     @OA\ExternalDocumentation(
+     *         description="Find out more",
+     *         url="http://docs.invoiceninja.com"
+     *     )
+     * )
+     */
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
@@ -86,6 +97,66 @@ class LoginController extends BaseController
      *
      * @return     Response|User Process user login.
      */
+    
+    /**
+     * @OA\Post(
+     *      path="/api/v1/login",
+     *      operationId="postLogin",
+     *      tags={"login"},
+     *      summary="Attempts authentication",
+     *      description="Returns a CompanyUser object on success",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/include_static"),
+     *      @OA\Parameter(ref="#/components/parameters/clear_cache"),
+     *      @OA\RequestBody(
+     *         description="User credentials",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="The user email address",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     example="1234567",
+     *                     description="The user password must meet minimum criteria ~ >6 characters",
+     *                     type="string"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Company User response",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+
+     *       ),
+     *       @OA\Response(response=400, description="Bad request"),
+     *       security={
+     *           {"": {}}
+     *       }
+     *     )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Successful Authentication",
+     *     @OA\MediaType(
+     *         mediaType="application/json",
+     *         @OA\Schema(ref="#/components/schemas/Company"),
+     *     )
+     * ),
+     */
+
     public function apiLogin(Request $request)
     {
         $this->forced_includes = ['company_users'];
