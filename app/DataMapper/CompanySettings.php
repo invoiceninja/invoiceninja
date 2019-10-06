@@ -36,6 +36,11 @@ class CompanySettings extends BaseSettings
 	public $custom_label2 = '';
 	public $custom_label3 = '';
 	public $custom_label4 = '';
+
+	public $custom_value1 = '';
+	public $custom_value2 = '';
+	public $custom_value3 = '';
+	public $custom_value4 = '';
 	
 	public $custom_client_label1 = '';
 	public $custom_client_label2 = '';
@@ -203,6 +208,10 @@ class CompanySettings extends BaseSettings
 		'custom_label2' => 'string',
 		'custom_label3' => 'string',
 		'custom_label4' => 'string',
+		'custom_value1' => 'string',
+		'custom_value2' => 'string',
+		'custom_value3' => 'string',
+		'custom_value4' => 'string',
 		'custom_client_label1' => 'string',
 		'custom_client_label2' => 'string',
 		'custom_client_label3' => 'string',
