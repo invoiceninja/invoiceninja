@@ -63,6 +63,8 @@ class StoreClientRequest extends Request
     {
         $input = $this->all();
 
+        $input['settings'] = new \stdClass;
+        
         $this->replace($input);   
 
     }

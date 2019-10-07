@@ -24,14 +24,15 @@ class ClientModelTest extends TestCase
 		
 	    $this->makeTestData();
 
+        if(config('ninja.testvars.travis') == FALSE)
+            $this->markTestSkipped('Skip test for Travis');
 	}
 
 
 	public function testPaymentMethods()
 	{
 
-        if(config('ninja.testvars.travis'))
-            $this->markTestSkipped('Skip test for Travis');
+
 
 		$amount = 40;
 
