@@ -395,7 +395,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-        event(new InvoiceWasUpdated($invoice));
+        event(new InvoiceWasUpdated($invoice->with('client,client.currency')));
 
         return $this->itemResponse($invoice);
 

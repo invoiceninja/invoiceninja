@@ -32,8 +32,6 @@ class ClientModelTest extends TestCase
 	public function testPaymentMethods()
 	{
 
-
-
 		$amount = 40;
 
         $company_gateways = $this->client->getSetting('company_gateways');

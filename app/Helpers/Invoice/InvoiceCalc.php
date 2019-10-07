@@ -201,7 +201,7 @@ class InvoiceCalc
 
 		foreach($this->invoice->line_items as $item) {
 
-			$item_calc = new InvoiceItemCalc($item, $this->settings);
+			$item_calc = new InvoiceItemCalc($item, $this->settings, $this->invoice);
 			$item_calc->process();
 
 

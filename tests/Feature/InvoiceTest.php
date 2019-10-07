@@ -139,7 +139,7 @@ class InvoiceTest extends TestCase
         $this->assertNotNull($company);
         //$this->assertNotNull($user->token->company);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'currency_id' => 1])->each(function ($c) use ($user, $company){
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $user->id,
@@ -179,7 +179,6 @@ class InvoiceTest extends TestCase
         $response->assertStatus(200);
 
         $invoice_update = [
-            'client_id' => $invoice->client_id,
             'status_id' => Invoice::STATUS_PAID
         ];
 
@@ -187,7 +186,7 @@ class InvoiceTest extends TestCase
         $this->assertNotNull($invoice->settings);
 
         $this->assertTrue(property_exists($invoice->settings, 'custom_invoice_taxes1'));
-        
+
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,

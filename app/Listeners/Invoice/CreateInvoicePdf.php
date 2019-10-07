@@ -93,7 +93,7 @@ class CreateInvoicePdf implements ShouldQueue
 
         $variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
         $design = str_replace(array_keys($variables), array_values($variables), $design);
-//
+
         $data['invoice'] = $invoice;
 
         return $this->renderView($design, $data);

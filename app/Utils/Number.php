@@ -61,7 +61,7 @@ class Number
     //public static function formatMoney($value, $currency, $country, $settings) :string
     public static function formatMoney($value, $client) :string
     {
-
+//\Log::error(debug_backtrace()[1]['function']);
         $thousand = $client->currency->thousand_separator;
         $decimal = $client->currency->decimal_separator;
         $precision = $client->currency->precision;

@@ -154,6 +154,11 @@ trait MakesInvoiceValues
      */
     public function makeValues() :array
     {
+        if(!$this->client->currency || !$this->client){
+            throw new Exception(debug_backtrace()[1]['function'], 1);
+            exit;
+        }
+            
         $data = [];
 
             $data['$invoice_date'] = $this->invoice_date;
