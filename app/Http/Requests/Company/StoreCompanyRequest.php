@@ -34,7 +34,7 @@ class StoreCompanyRequest extends Request
 
         return [
             'name' => 'required',
-            'logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
+            'company_logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
       //     'settings' => 'json',
       //      'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];

@@ -205,10 +205,10 @@ class CompanyController extends BaseController
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
-        if($request->file('logo')) 
+        if($request->file('company_logo')) 
         {
 
-            $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
+            $path = UploadAvatar::dispatchNow($request->file('company_logo'), $company->company_key);
 
             if($path){
 
@@ -420,10 +420,10 @@ class CompanyController extends BaseController
     {
         $company = $this->company_repo->save($request->all(), $company);
 
-        if($request->file('logo')) 
+        if($request->file('company_logo')) 
         {
             \Log::error('logo present');
-            $path = UploadAvatar::dispatchNow($request->file('logo'), $company->company_key);
+            $path = UploadAvatar::dispatchNow($request->file('company_logo'), $company->company_key);
 
             if($path){
 

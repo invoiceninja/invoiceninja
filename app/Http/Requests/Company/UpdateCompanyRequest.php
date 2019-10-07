@@ -35,7 +35,7 @@ class UpdateCompanyRequest extends Request
     {
         
         return [
-            'logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
+            'company_logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
             'industry_id' => 'integer|nullable',
             'size_id' => 'integer|nullable',
             'country_id' => 'integer|nullable',

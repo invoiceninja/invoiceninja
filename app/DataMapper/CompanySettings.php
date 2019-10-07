@@ -157,7 +157,7 @@ class CompanySettings extends BaseSettings
 	/* Company Meta data that we can use to build sub companies*/
 
 	public $name = '';
-	public $logo_url = '';
+	public $company_logo_url = '';
 	public $website = '';
 	public $address1 = '';
 	public $address2 = '';
@@ -172,7 +172,7 @@ class CompanySettings extends BaseSettings
 
 	public static $casts = [
 		'name' => 'string',
-		'logo_url' => 'string',
+		'company_logo_url' => 'string',
 		'website' => 'string',
 		'address1' => 'string',
 		'address2' => 'string',
