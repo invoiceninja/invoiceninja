@@ -6,6 +6,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceCalc;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -14,6 +15,8 @@ use Tests\TestCase;
  */
 class InvoiceTest extends TestCase
 {
+	use MockAccountData;
+	use DatabaseTransactions;
 
 	public $invoice;
 
@@ -25,15 +28,8 @@ class InvoiceTest extends TestCase
     {
     
     	parent::setUp();
-	//append a client here - otherwise tests are broken.
-		$this->invoice = InvoiceFactory::create(1,1);//stub the company and user_id
-
-        $client = factory(\App\Models\Client::class)->create([
-            'user_id' => 1,
-            'company_id' => 1,
-        ]);
-
-        $this->invoice->client_id = $client->id;
+	
+		$this->makeTestData();
 
 		$this->invoice->line_items = $this->buildLineItems();
 		
