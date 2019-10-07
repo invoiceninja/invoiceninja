@@ -11,6 +11,8 @@
 
 namespace App\Utils\Traits;
 
+use App\Jobs\Util\UploadAvatar;
+
 
 /**
  * Class Uploadable

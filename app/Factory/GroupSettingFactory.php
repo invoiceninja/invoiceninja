@@ -23,7 +23,7 @@ class GroupSettingFactory
         $gs->name = '';
         $gs->company_id = $company_id;
         $gs->user_id = $user_id;
-        $gs->settings = json_encode([]);
+        $gs->settings = new \stdClass;
         
         return $gs;
         
