@@ -89,7 +89,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A list of recurring_quotes",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -138,7 +138,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A blank RecurringQuote object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -188,7 +188,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved RecurringQuote object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -249,7 +249,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the RecurringQuote object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -308,7 +308,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the RecurringQuote object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -367,7 +367,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the RecurringQuote object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -428,7 +428,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *       ),
@@ -489,7 +489,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The RecurringQuote response",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
@@ -580,7 +580,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the RecurringQuote object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),

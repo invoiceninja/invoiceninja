@@ -41,7 +41,66 @@ class ForgotPasswordController extends Controller
         $this->middleware('guest');
     }
 
-        public function sendResetLinkEmail(Request $request)
+    /**
+     * Password Reset
+     *
+     * 
+     * @OA\Post(
+     *      path="/api/v1/reset_password",
+     *      operationId="reset_password",
+     *      tags={"reset_password"},
+     *      summary="Attempts to reset the users password",
+     *      description="Resets a users email password",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\RequestBody(
+     *         description="Password reset email",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="The user email address",
+     *                     type="string",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="The Reset response",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(
+     *              @OA\Items(
+     *              type="string",
+     *              example="Reset link send to your email.",
+     *              )
+     *          ),
+     *       ),
+     *       @OA\Response(
+     *          response=401,
+     *          description="Validation error",
+     *          @OA\JsonContent(
+     *          @OA\Items(
+     *              type="string",
+     *              example="Unable to send password reset link",
+     *              ),
+     *          ),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function sendResetLinkEmail(Request $request)
     {
         $this->validateEmail($request);
 

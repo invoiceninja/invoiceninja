@@ -1,7 +1,7 @@
 <?php
 /**
  * @OA\Header(
- *     header="X-API-TOKEN",
+ *     header="X-API-Version",
  *     description="The API version",
  *     @OA\Schema( type="number" )
  * ),

@@ -134,7 +134,7 @@ class LoginController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Company User response",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
@@ -212,7 +212,7 @@ class LoginController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Company User response",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),

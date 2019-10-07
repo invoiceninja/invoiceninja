@@ -83,7 +83,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A list of clients",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
@@ -142,7 +142,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the company object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
@@ -199,7 +199,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the company object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
@@ -258,7 +258,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the company object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
@@ -306,7 +306,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A blank company object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
@@ -355,7 +355,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved company object",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
@@ -416,7 +416,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *       ),
@@ -476,7 +476,7 @@ class ClientController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Client User response",
-     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Client"),
