@@ -472,7 +472,7 @@ class RecurringQuoteController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="User credentials",
+     *         description="Hashed ids",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -488,11 +488,11 @@ class RecurringQuoteController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The RecurringQuote User response",
+     *          description="The RecurringQuote response",
      *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/RecurringQuoteUser"),
+     *          @OA\JsonContent(ref="#/components/schemas/RecurringQuote"),
      *       ),
      *       @OA\Response(
      *          response=422,

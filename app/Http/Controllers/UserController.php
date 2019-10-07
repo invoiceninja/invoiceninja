@@ -471,7 +471,7 @@ class UserController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="User credentials",
+     *         description="Hashed ids",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -487,11 +487,11 @@ class UserController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The User User response",
+     *          description="The User response",
      *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/UserUser"),
+     *          @OA\JsonContent(ref="#/components/schemas/User"),
      *       ),
      *       @OA\Response(
      *          response=422,

@@ -488,11 +488,11 @@ class PaymentController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The Payment User response",
+     *          description="The Payment response",
      *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/PaymentUser"),
+     *          @OA\JsonContent(ref="#/components/schemas/Payment"),
      *       ),
      *       @OA\Response(
      *          response=422,

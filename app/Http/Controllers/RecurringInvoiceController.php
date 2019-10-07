@@ -474,7 +474,7 @@ class RecurringInvoiceController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="User credentials",
+     *         description="Hashed IDs",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -490,11 +490,11 @@ class RecurringInvoiceController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The RecurringInvoice User response",
+     *          description="The RecurringInvoice response",
      *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/RecurringInvoiceUser"),
+     *          @OA\JsonContent(ref="#/components/schemas/RecurringInvoice"),
      *       ),
      *       @OA\Response(
      *          response=422,

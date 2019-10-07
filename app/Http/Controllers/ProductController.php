@@ -427,7 +427,7 @@ class ProductController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="User credentials",
+     *         description="Hashed IDs",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -443,11 +443,11 @@ class ProductController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The Product User response",
+     *          description="The Product response",
      *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/ProductUser"),
+     *          @OA\JsonContent(ref="#/components/schemas/Product"),
      *       ),
      *       @OA\Response(
      *          response=422,
