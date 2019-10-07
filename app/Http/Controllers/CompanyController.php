@@ -213,7 +213,7 @@ class CompanyController extends BaseController
             if($path){
 
                 $settings = $company->settings;
-                $settings->logo_url = config('ninja.site_url').$path;
+                $settings->company_logo_url = $company->domain . $path;
                 $company->settings = $settings;
                 $company->save();
             }
@@ -428,7 +428,7 @@ class CompanyController extends BaseController
             if($path){
 
                 $settings = $company->settings;
-                $settings->logo_url = config('ninja.site_url').$path;
+                $settings->company_logo_url = $company->domain . $path;
                 $company->settings = $settings;
                 $company->save();
             }

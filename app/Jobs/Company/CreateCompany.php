@@ -59,6 +59,7 @@ class CreateCompany
         $company->ip = request()->ip();
         $company->settings = $settings;
         $company->db = config('database.default');
+        $company->domain = isset($this->request['domain']) ? $this->request['domain'] : config('ninja.site_url');
         $company->save();
 
 

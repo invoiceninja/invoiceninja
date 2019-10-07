@@ -189,7 +189,7 @@ class Company extends BaseModel
 
     public function getLogo()
     {
-        return $this->settings->logo_url ?: null;
+        return $this->settings->company_logo_url ?: null;
     }
 
     /**

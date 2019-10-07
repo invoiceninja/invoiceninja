@@ -23,6 +23,7 @@ use App\Http\Requests\Client\UpdateClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
 use App\Jobs\Entity\ActionEntity;
+use App\Jobs\Util\UploadAvatar;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
@@ -281,6 +282,22 @@ class ClientController extends BaseController
     {
 
         $client = $this->client_repo->save($request->all(), $client);
+
+        if($request->file('company_logo')) 
+        {
+            \Log::error('settings logo present');
+
+            $path = UploadAvatar::dispatchNow($request->file('company_logo'), $client->company->company_key);
+
+            if($path){
+
+                $settings = $client->settings;
+                $settings->company_logo_url = $client->company->domain . $path;
+                $client->settings = $settings;
+                $client->save();
+            }
+            
+        }
 
         return $this->itemResponse($client);
 

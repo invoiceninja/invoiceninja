@@ -354,7 +354,7 @@ class GroupSettingController extends BaseController
 
        $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
         
-        return $this->itemResponse($group_setting);
+       return $this->itemResponse($group_setting);
 
     }
 

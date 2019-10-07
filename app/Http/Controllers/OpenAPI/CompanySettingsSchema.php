@@ -8,6 +8,7 @@
  *       @OA\Property(property="datetime_format_id", type="string", example="15", description="____________"),
  *       @OA\Property(property="financial_year_start", type="string", example="2000-01-01", description="____________"),
  *       @OA\Property(property="language_id", type="string", example="1", description="____________"),
+ *       @OA\Property(property="company_logo_url", type="string", example="https://example.com/logo.png", description="The URL to the company Logo"),
  *       @OA\Property(property="custom_label1", type="string", example="Custom Label", description="____________"),
  *       @OA\Property(property="custom_label2", type="string", example="Custom Label", description="____________"),
  *       @OA\Property(property="custom_label3", type="string", example="Custom Label", description="____________"),
@@ -53,3 +54,4 @@
  *       @OA\Property(property="reset_counter_date", type="string", example="2019-01-01", description="The explicit date which is used to reset counters"),
  * )
  */
+ * 
