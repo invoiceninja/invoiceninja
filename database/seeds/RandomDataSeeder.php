@@ -133,21 +133,23 @@ class RandomDataSeeder extends Seeder
 
             event(new InvoiceWasMarkedSent($invoice));
 
-            $payment = App\Models\Payment::create([
-                'user_id' => $user->id, 
-                'company_id' => $company->id, 
-                'client_id' => $client->id,
-                'amount' => $invoice->balance,
-                'transaction_reference' => rand(0,500),
-                'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
-            ]);
+            if(rand(0, 1)) {
+                $payment = App\Models\Payment::create([
+                    'user_id' => $user->id, 
+                    'company_id' => $company->id, 
+                    'client_id' => $client->id,
+                    'amount' => $invoice->balance,
+                    'transaction_reference' => rand(0,500),
+                    'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+                ]);
 
-            $payment->invoices()->save($invoice);
+                $payment->invoices()->save($invoice);
 
-            event(new PaymentWasCreated($payment));
+                event(new PaymentWasCreated($payment));
 
-            UpdateInvoicePayment::dispatchNow($payment);
-
+                UpdateInvoicePayment::dispatchNow($payment);
+            }
+            
         });
         
         /** Recurring Invoice Factory */
