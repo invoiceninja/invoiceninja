@@ -82,7 +82,7 @@ class Number
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);
-        } elseif ($client->getSetting('show_currency_symbol') == "TRUE") {
+        } elseif ($client->getSetting('show_currency_code') == "FALSE") {
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);

@@ -27,7 +27,6 @@ class CompanySettings extends BaseSettings
 
 	public $language_id = '';
 	public $precision = 2;
-	public $show_currency_symbol = true;
 	public $show_currency_code = false;
 
 	public $payment_terms = 1; 
@@ -201,7 +200,6 @@ class CompanySettings extends BaseSettings
 		'military_time' => 'bool',
 		'language_id' => 'string',
 		'precision' => 'int',
-		'show_currency_symbol' => 'bool',
 		'show_currency_code' => 'bool',
 		'payment_terms' => 'int', 
 		'custom_label1' => 'string',
