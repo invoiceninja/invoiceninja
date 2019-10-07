@@ -31,6 +31,7 @@ use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,7 @@ class CompanyController extends BaseController
 {
     use DispatchesJobs;
     use MakesHash;
+    use Uploadable;
 
     protected $entity_type = Company::class;
 
@@ -205,20 +207,7 @@ class CompanyController extends BaseController
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
-        if($request->file('company_logo')) 
-        {
-
-            $path = UploadAvatar::dispatchNow($request->file('company_logo'), $company->company_key);
-
-            if($path){
-
-                $settings = $company->settings;
-                $settings->company_logo_url = $company->domain . $path;
-                $company->settings = $settings;
-                $company->save();
-            }
-            
-        }
+        $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         auth()->user()->companies()->attach($company->id, [
             'account_id' => $company->account->id,
@@ -420,20 +409,7 @@ class CompanyController extends BaseController
     {
         $company = $this->company_repo->save($request->all(), $company);
 
-        if($request->file('company_logo')) 
-        {
-            \Log::error('logo present');
-            $path = UploadAvatar::dispatchNow($request->file('company_logo'), $company->company_key);
-
-            if($path){
-
-                $settings = $company->settings;
-                $settings->company_logo_url = $company->domain . $path;
-                $company->settings = $settings;
-                $company->save();
-            }
-            
-        }
+        $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         return $this->itemResponse($company);
     }

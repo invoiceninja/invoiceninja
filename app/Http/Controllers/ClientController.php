@@ -33,6 +33,7 @@ use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -45,7 +46,8 @@ use Illuminate\Support\Facades\Log;
 class ClientController extends BaseController
 {
     use MakesHash;
-
+    use Uploadable;
+    
     protected $entity_type = Client::class;
 
     protected $entity_transformer = ClientTransformer::class;
@@ -283,21 +285,7 @@ class ClientController extends BaseController
 
         $client = $this->client_repo->save($request->all(), $client);
 
-        if($request->file('company_logo')) 
-        {
-            \Log::error('settings logo present');
-
-            $path = UploadAvatar::dispatchNow($request->file('company_logo'), $client->company->company_key);
-
-            if($path){
-
-                $settings = $client->settings;
-                $settings->company_logo_url = $client->company->domain . $path;
-                $client->settings = $settings;
-                $client->save();
-            }
-            
-        }
+        $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
         return $this->itemResponse($client);
 
@@ -397,6 +385,8 @@ class ClientController extends BaseController
         $client = $this->client_repo->save($request->all(), ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
+
+        $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
         return $this->itemResponse($client);
 

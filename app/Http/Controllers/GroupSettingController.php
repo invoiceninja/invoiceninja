@@ -22,12 +22,14 @@ use App\Http\Requests\GroupSetting\UpdateGroupSettingRequest;
 use App\Models\GroupSetting;
 use App\Repositories\GroupSettingRepository;
 use App\Transformers\GroupSettingTransformer;
+use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
 class GroupSettingController extends BaseController
 {
     use DispatchesJobs;
+    use Uploadable;
 
     protected $entity_type = GroupSetting::class;
 
@@ -184,6 +186,8 @@ class GroupSettingController extends BaseController
 
         $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
         
+        $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
+
         return $this->itemResponse($group_setting);
 
     }
@@ -352,8 +356,10 @@ class GroupSettingController extends BaseController
     public function update(UpdateGroupSettingRequest $request, GroupSetting $group_setting)
     {
 
-       $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
-        
+        $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
+    
+        $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
+
        return $this->itemResponse($group_setting);
 
     }
