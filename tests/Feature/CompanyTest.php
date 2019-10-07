@@ -95,7 +95,7 @@ class CompanyTest extends TestCase
         ])->post('/api/v1/companies/', 
             [
                 'name' => 'A New Company',
-                'logo' => UploadedFile::fake()->create('avatar.pdf',100)
+                'company_logo' => UploadedFile::fake()->create('avatar.pdf',100)
             ]
         )
         ->assertStatus(302);

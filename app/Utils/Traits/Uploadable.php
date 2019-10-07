@@ -20,10 +20,10 @@ trait Uploadable
 {
 	public function uploadLogo($file, $company, $entity)
 	{
-		if(($file) 
+		if($file) 
         {
 
-            $path = UploadAvatar::dispatchNow(($file, $company->company_key);
+            $path = UploadAvatar::dispatchNow($file, $company->company_key);
 
             if($path){
 
