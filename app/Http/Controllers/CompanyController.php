@@ -69,6 +69,40 @@ class CompanyController extends BaseController
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * @OA\Get(
+     *      path="/api/v1/companies",
+     *      operationId="getCompanies",
+     *      tags={"companies"},
+     *      summary="Gets a list of companies",
+     *      description="Lists companies, search and filters allow fine grained lists to be generated.
+
+        Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A list of companies",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function index()
     {
@@ -83,6 +117,40 @@ class CompanyController extends BaseController
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * 
+     * 
+     * @OA\Get(
+     *      path="/api/v1/companies/create",
+     *      operationId="getCompaniesCreate",
+     *      tags={"companies"},
+     *      summary="Gets a new blank company object",
+     *      description="Returns a blank object with default values",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A blank company object",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function create(CreateCompanyRequest $request)
     {
@@ -97,6 +165,39 @@ class CompanyController extends BaseController
      *
      * @param  \App\Http\Requests\SignupRequest $request
      * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/companies",
+     *      operationId="storeCompany",
+     *      tags={"companies"},
+     *      summary="Adds a company",
+     *      description="Adds an company to the system",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved company object",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function store(StoreCompanyRequest $request)
     {
@@ -155,6 +256,50 @@ class CompanyController extends BaseController
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/companies/{id}",
+     *      operationId="showCompany",
+     *      tags={"companies"},
+     *      summary="Shows an company",
+     *      description="Displays an company by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Company Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the company object",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function show(ShowCompanyRequest $request, Company $company)
     {
@@ -168,6 +313,50 @@ class CompanyController extends BaseController
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     *
+     * 
+     * @OA\Get(
+     *      path="/api/v1/companies/{id}/edit",
+     *      operationId="editCompany",
+     *      tags={"companies"},
+     *      summary="Shows an company for editting",
+     *      description="Displays an company by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Company Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the company object",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function edit(EditCompanyRequest $request, Company $company)
     {
@@ -182,11 +371,55 @@ class CompanyController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     *
+     * 
+     * @OA\Put(
+     *      path="/api/v1/companies/{id}",
+     *      operationId="updateCompany",
+     *      tags={"companies"},
+     *      summary="Updates an company",
+     *      description="Handles the updating of an company by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Company Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the company object",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
         $company = $this->company_repo->save($request->all(), $company);
-\Log::error($request->all());
+
         if($request->file('logo')) 
         {
             \Log::error('logo present');
@@ -210,6 +443,49 @@ class CompanyController extends BaseController
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     *
+     * 
+     * @OA\Delete(
+     *      path="/api/v1/companies/{id}",
+     *      operationId="deleteCompany",
+     *      tags={"companies"},
+     *      summary="Deletes a company",
+     *      description="Handles the deletion of an company by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Company Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns a HTTP status",
+     *          @OA\Header(header="X-API-TOKEN", ref="#/components/headers/X-API-TOKEN"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
