@@ -86,15 +86,15 @@ class Client extends BaseModel
         'id_number',
     ];
     
-    /*
+    
     protected $with = [
-        'contacts', 
-        'primary_contact', 
-        'country', 
-        'shipping_country', 
-        'company'
+        //'currency', 
+        // 'primary_contact', 
+        // 'country', 
+        // 'shipping_country', 
+        // 'company'
     ];
-    */
+    
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',

@@ -11,6 +11,7 @@
 
 namespace App\Utils;
 
+use App\Models\Currency;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -61,7 +62,7 @@ class Number
     //public static function formatMoney($value, $currency, $country, $settings) :string
     public static function formatMoney($value, $client) :string
     {
-//\Log::error(debug_backtrace()[1]['function']);
+
         $thousand = $client->currency->thousand_separator;
         $decimal = $client->currency->decimal_separator;
         $precision = $client->currency->precision;
@@ -78,14 +79,14 @@ class Number
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $client->currency->symbol;
         
-        if ($client->getSetting('show_currency_code') == "TRUE") {
+        if ($client->getSetting('show_currency_code') === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);
-        } elseif ($client->getSetting('show_currency_code') == "FALSE") {
+        } elseif ($client->getSetting('show_currency_code') === false) {
             return "{$symbol}{$value}";
         } else {
-            return self::formatValue($value, $currency);
+            return self::formatValue($value, $client->currency);
         }
     }
 }
