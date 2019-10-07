@@ -32,7 +32,7 @@ trait MakesDates
 		
 		if(is_string($utc_date))
 			$utc_date = $this->convertToDateObject($utc_date);
-
+		
 		return $utc_date->setTimezone(new \DateTimeZone($timezone));
 
 	}
@@ -79,7 +79,7 @@ trait MakesDates
 	public function formatDateTimestamp($timestamp, string $format) :string
 	{
 		
-		return Carbon::createFromTimestamp($date)->format($format);
+		return Carbon::createFromTimestamp($timestamp)->format($format);
 
 	}
 

@@ -104,6 +104,9 @@ class Payment extends BaseModel
 
     public function clientPaymentDate()
     {
+        if(!$this->payment_date)
+            return '';
+
         $date_format = DateFormat::find($this->client->getSetting('date_format_id'));
 
         return $this->createClientDate($this->payment_date, $this->client->timezone()->name)->format($date_format->format);
