@@ -84,6 +84,7 @@ class Client extends BaseModel
         'payment_terms',
         'vat_number',
         'id_number',
+        'group_settings_id',
     ];
     
     

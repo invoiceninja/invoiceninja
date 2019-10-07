@@ -31,7 +31,7 @@ class UpdateClientRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
-        $rules['name'] = 'required';
+//        $rules['name'] = 'required';
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
 
@@ -48,7 +48,7 @@ class UpdateClientRequest extends Request
             {
                 for ($i = 0; $i < count($contacts); $i++) {
                     //$rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . $contacts[$i]['id'];
-                    $rules['contacts.' . $i . '.email'] = 'email';
+                    $rules['contacts.' . $i . '.email'] = 'nullable|email';
                 }
             }
             return $rules;

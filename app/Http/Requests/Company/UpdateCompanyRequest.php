@@ -40,7 +40,7 @@ class UpdateCompanyRequest extends Request
             'size_id' => 'integer|nullable',
             'country_id' => 'integer|nullable',
             'work_email' => 'email|nullable',
-            'settings' => 'json',
+           // 'settings' => 'json',
         ];
     }
     
