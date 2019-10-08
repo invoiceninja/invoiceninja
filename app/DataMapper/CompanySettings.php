@@ -199,7 +199,6 @@ class CompanySettings extends BaseSettings
 		'datetime_format_id' => 'string',
 		'military_time' => 'bool',
 		'language_id' => 'string',
-		'precision' => 'int',
 		'show_currency_code' => 'bool',
 		'payment_terms' => 'int', 
 		'custom_label1' => 'string',
@@ -268,6 +267,16 @@ class CompanySettings extends BaseSettings
 	];
 
 	/**
+	 * Array of variables which
+	 * cannot be modified client side
+	 */
+	public static $protected = [
+		'credit_number_counter',
+		'invoice_number_counter',
+		'quote_number_counter',
+	];
+
+	/**
 	 * Cast object values and return entire class
 	 * prevents missing properties from not being returned
 	 * and always ensure an up to date class is returned
@@ -290,6 +299,7 @@ class CompanySettings extends BaseSettings
 		
 		$data = (object)get_class_vars(CompanySettings::class);
 		unset($data->casts);
+		unset($data->protected);
 
 		$data->timezone_id = (string)config('ninja.i18n.timezone_id');
 		$data->language_id = (string)config('ninja.i18n.language_id');

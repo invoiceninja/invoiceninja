@@ -211,31 +211,51 @@ class Client extends BaseModel
      */
     public function getSetting($setting)
     {
-        //check client level first
+        /*Client Settings*/
         if($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false) ){
 
-            /*need to catch empt string here*/
+            /*need to catch empty string here*/
             if(is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)){
                 return $this->settings->{$setting};
             }
         }
 
-        //check group level (if a group is assigned)
+        /*Group Settings*/
         if($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)){
-
            return $this->group_settings->settings->{$setting};
         }
         
-        //check company level
+        /*Company Settings*/
         if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
-
             return $this->company->settings->{$setting};
         }
 
         throw new \Exception("Settings corrupted", 1);
         
-    
-        
+    }
+
+    public function getSettingEntity($setting)
+    {
+        /*Client Settings*/
+        if($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false) ){
+            /*need to catch empty string here*/
+            if(is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)){
+                return $this;
+            }
+        }
+
+        /*Group Settings*/
+        if($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)){
+           return $this->group_settings;
+        }
+
+        /*Company Settings*/
+        if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
+            return $this->company;
+        }
+
+        throw new \Exception("Could not find a settings object", 1);
+
     }
 
     public function documents()

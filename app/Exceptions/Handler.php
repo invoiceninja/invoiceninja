@@ -19,6 +19,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Arr;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -81,7 +83,7 @@ class Handler extends ExceptionHandler
         }
         else if($exception instanceof AuthorizationException)
         {
-            return response()->json(['message'=>'You are not authorized to view or perform this action',401]);
+            return response()->json(['message'=>'You are not authorized to view or perform this action'],401);
         }
         else if ($exception instanceof \Illuminate\Session\TokenMismatchException)
         {
@@ -92,6 +94,12 @@ class Handler extends ExceptionHandler
                         'message' => ctrans('texts.token_expired'),
                         'message-type' => 'danger']);
         }   
+        else if ($exception instanceof NotFoundHttpException) {
+            return response()->json(['message'=>'Route does not exist'],404);
+        }
+        else if($exception instanceof MethodNotAllowedHttpException){
+            return response()->json(['message'=>'Method not support for this route'],404);
+        }
 
         return parent::render($request, $exception);
 

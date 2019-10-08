@@ -153,10 +153,11 @@ trait GeneratesCounter
 		$this->resetCounters($client);
 
         $counter = $client->getSetting('client_number_counter' );
+        $setting_entity = $client->getSettingEntity('client_number_counter');
 
 		$client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_prefix'), $client->getSetting('client_number_pattern'));
 
-		$this->incrementCounter($client->company, 'client_number_counter');
+		$this->incrementCounter($setting_entity, 'client_number_counter');
 
 		return $client_number;
 	}

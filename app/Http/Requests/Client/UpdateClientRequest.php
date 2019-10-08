@@ -40,6 +40,10 @@ class UpdateClientRequest extends Request
         $rules['currency_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
+        //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
+        $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
+
+
 //        $rules['settings'] = 'json';
 
         $contacts = request('contacts');
@@ -66,5 +70,13 @@ class UpdateClientRequest extends Request
         ];
     }
 
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        //        $this->replace($input);
+
+        return $this->all();
+    }
 
 }
