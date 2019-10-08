@@ -18,9 +18,11 @@
     	<div class="row mt-4">
 	    	<div class="col-md-12">
 
+	    		@if($invoice->isPayable())
 	    		<div class="float-right">
 	    			<button class="btn btn-primary">{{ ctrans('texts.pay_now') }}</button>
 	    		</div>
+	    		@endif
 
 	    	</div>
     	</div>
