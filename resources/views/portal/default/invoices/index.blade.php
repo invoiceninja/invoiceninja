@@ -21,7 +21,8 @@
 {!! Former::close() !!}
 
 		<div class="row" style="padding-top: 30px;">
-		
+        @include('portal.default.flash-message')
+
 			<div class="col-lg-12" style="padding-bottom: 10px;">
 				
                 <div class="pull-left">

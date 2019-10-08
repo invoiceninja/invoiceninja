@@ -120,9 +120,14 @@ class InvoiceController extends Controller
 
         $total = $invoices->sum('balance');     
 
-        $invoices->filter(function ($invoice){
+        $invoices = $invoices->filter(function ($invoice){
             return $invoice->isPayable();
-        })->map(function ($invoice){
+        });
+
+        if($invoices->count() == 0)
+            return back()->with(['warning' => 'No payable invoices selected']);
+
+        $invoices->map(function ($invoice){
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             return $invoice;

@@ -192,14 +192,25 @@ class Invoice extends BaseModel
         return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
     }
 
-    public function markViewed()
+    public function markViewed() :void
     {
         $this->last_viewed = Carbon::now()->format('Y-m-d H:i');
+        $this->save();
     }
     
-    public function isPayable()
+    public function isPayable() : bool
     {
-        return ($this->status === Invoice::STATUS_UNPAID || $this->status === Invoice::STATUS_OVERDUE);
+
+        if($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now())
+            return true;
+        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now())
+            return true;
+        else if($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now())
+            return true;
+        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now())
+            return true;
+        else
+            return false;
     }
 
     public static function badgeForStatus(int $status)
