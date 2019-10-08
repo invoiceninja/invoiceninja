@@ -44,7 +44,7 @@ class InvoiceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(InvoiceFilters $filters, Builder $builder)
-    {//
+    {
         $invoices = Invoice::filter($filters)->with('client', 'client.country');
 
         if (request()->ajax()) {
@@ -68,7 +68,6 @@ class InvoiceController extends Controller
                 })
                 ->rawColumns(['checkbox', 'action', 'status_id'])
                 ->make(true);
-        
         }
 
         $data['html'] = $builder;
@@ -82,8 +81,10 @@ class InvoiceController extends Controller
         $buttons = '<div>';
 
         if($invoice->isPayable()){
-            $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.pay_now').'</a>';
+            $buttons .= "<button type=\"button\" class=\"btn btn-sm btn-info\" onclick=\"payInvoice('".$invoice->hashed_id."')\"><i class=\"glyphicon glyphicon-edit\"></i>".ctrans('texts.pay_now')."</button>";
+        //    $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.pay_now').'</a>';
         }
+
         $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
 
         $buttons .="</div>";

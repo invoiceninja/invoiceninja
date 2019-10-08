@@ -218,6 +218,18 @@ function filterTable() {
     data_table.ajax.reload();
 }
 
+function payInvoice(hashed_id) {
+
+    $('#pay_invoices_drop').addClass('disabled');
+    $('#download_invoices').addClass('disabled');
+    
+    $('#hashed_ids').val(hashed_id);
+    $('#action').val('payment');
+
+    $('#payment_form').submit();
+
+}
+
 // Setup status filter
 $('#statuses').select2({
     placeholder: "{{ ctrans('texts.status') }}",
@@ -251,7 +263,6 @@ $('#statuses').select2({
     data_table.ajax.reload();
 
 });
-
 </script>
 @endpush
 
