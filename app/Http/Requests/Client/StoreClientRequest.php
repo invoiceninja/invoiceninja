@@ -36,7 +36,7 @@ class StoreClientRequest extends Request
 
         /* Ensure we have a client name, and that all emails are unique*/
         $rules['name'] = 'required|min:1';
-        $rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
+        $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         //$rules['settings'] = 'json';
         
         $contacts = request('contacts');
