@@ -142,7 +142,7 @@ class InvoiceController extends Controller
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,
-            'hashed_ids' => $ids,
+            'hashed_ids' => $invoices->pluck('hashed_ids'),
             'total' =>  $total,
         ];
 
