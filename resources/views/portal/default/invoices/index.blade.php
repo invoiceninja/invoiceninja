@@ -121,7 +121,7 @@ $(function() {
             {data: 'balance', name: 'balance', title: '{{ctrans('texts.balance')}}', visible: true},
             {data: 'due_date', name: 'due_date', title: '{{ctrans('texts.due_date')}}', visible: true},
             {data: 'status_id', name: 'status_id', title: '{{ctrans('texts.status')}}', visible: true},
-            {data: 'action', name: 'action', title: '', searchable: false, orderable: false},
+            {data: 'action', name: 'action', title: '', searchable: false, orderable: false, width: '10%'},
         ]
     });
 });

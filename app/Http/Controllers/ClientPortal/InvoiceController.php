@@ -50,7 +50,7 @@ class InvoiceController extends Controller
         if (request()->ajax()) {
 
             return DataTables::of($invoices)->addColumn('action', function ($invoice) {
-                    return '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+                    return $this->buildClientButtons($invoice);
                 })
                 ->addColumn('checkbox', function ($invoice){
                     return '<input type="checkbox" name="hashed_ids[]" value="'. $invoice->hashed_id .'"/>';
@@ -77,6 +77,19 @@ class InvoiceController extends Controller
 
     }
 
+    private function buildClientButtons($invoice)
+    {
+        $buttons = '<div>';
+
+        if($invoice->isPayable()){
+            $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.pay_now').'</a>';
+        }
+        $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+
+        $buttons .="</div>";
+
+        return $buttons;
+    }
     /**
      * Display the specified resource.
      *
