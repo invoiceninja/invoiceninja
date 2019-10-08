@@ -1,5 +1,5 @@
 
-Route::group(['middleware' => ['web', 'lookup:user', 'auth:user'], 'namespace' => 'Modules\$MODULE_NAME\Http\Controllers'], function()
+Route::group(['middleware' => ['web', 'lookup:user', 'auth:user'], 'namespace' => 'Modules\$MODULE_NAME$\Http\Controllers'], function()
 {
     Route::get('settings/$LOWER_NAME$', function() {
             return view('$LOWER_NAME$::settings');
