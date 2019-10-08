@@ -363,13 +363,13 @@ trait GeneratesCounter
         $replace[] = $client->custom_value1;
 
         $search[] = '{$custom2}';
-        $replace[] = $client->custom_value1;
+        $replace[] = $client->custom_value2;
 
         $search[] = '{$custom3}';
-        $replace[] = $client->custom_value1;
+        $replace[] = $client->custom_value3;
 
         $search[] = '{$custom4}';
-        $replace[] = $client->custom_value1;
+        $replace[] = $client->custom_value4;
 
         $search[] = '{$id_number}';
         $replace[] = $client->id_number;

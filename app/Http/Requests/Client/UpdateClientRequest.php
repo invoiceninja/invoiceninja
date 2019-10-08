@@ -31,10 +31,8 @@ class UpdateClientRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
-//        $rules['name'] = 'required';
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
-
         $rules['industry_id'] = 'integer|nullable';
         $rules['size_id'] = 'integer|nullable';
         $rules['currency_id'] = 'integer|nullable';

@@ -32,7 +32,6 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
-//        $this->sanitize();
 
         /* Ensure we have a client name, and that all emails are unique*/
         $rules['name'] = 'required|min:1';
@@ -51,11 +50,8 @@ class StoreClientRequest extends Request
 
         }
 
-    // Log::error($rules);
-
         return $rules;
             
-
     }
 
 

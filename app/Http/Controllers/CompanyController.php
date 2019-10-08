@@ -409,6 +409,8 @@ class CompanyController extends BaseController
     {
         $company = $this->company_repo->save($request->all(), $company);
 
+        $company->saveSettings($request->input('settings'));
+
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         return $this->itemResponse($company);

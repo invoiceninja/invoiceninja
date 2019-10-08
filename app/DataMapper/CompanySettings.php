@@ -270,7 +270,7 @@ class CompanySettings extends BaseSettings
 	 * Array of variables which
 	 * cannot be modified client side
 	 */
-	public static $protected = [
+	public static $protected_fields = [
 		'credit_number_counter',
 		'invoice_number_counter',
 		'quote_number_counter',
@@ -299,7 +299,7 @@ class CompanySettings extends BaseSettings
 		
 		$data = (object)get_class_vars(CompanySettings::class);
 		unset($data->casts);
-		unset($data->protected);
+		unset($data->protected_fields);
 
 		$data->timezone_id = (string)config('ninja.i18n.timezone_id');
 		$data->language_id = (string)config('ninja.i18n.language_id');
