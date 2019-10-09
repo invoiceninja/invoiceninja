@@ -49,7 +49,7 @@ class UploadLogoTest extends TestCase
         Storage::fake('avatars');
 
         $data = [
-            'logo' => UploadedFile::fake()->image('avatar.jpg'),
+            'company_logo' => UploadedFile::fake()->image('avatar.jpg'),
             'name' => 'TestCompany'
         ];
 

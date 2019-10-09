@@ -21,7 +21,7 @@ trait CompanySettingsSaver
 {
 
 	public function saveSettings($settings)
-	{
+	{var_dump($settings);
 		$company_settings = $this->settings;
 
 		//unset protected properties.
