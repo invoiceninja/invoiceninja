@@ -12,7 +12,9 @@
             var items = {!! $items !!};
             var secondaryItemLabel = '{!! $secondaryItemLabel !!}';
             var secondaryItemLabelType = '{!! empty($secondaryItemLabelType) ? "field" : $secondaryItemLabelType !!}';
-            var defaultValue = {!! $defaultValue !!};
+            
+            var defaultValue = {!! empty($defaultValue) ? "''" : $defaultValue !!};
+            
 
             var itemMap = {};
             var $itemSelect = $('select#{!! $selectId !!}');
