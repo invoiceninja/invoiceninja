@@ -234,7 +234,7 @@ class CompanyController extends BaseController
         $this->entity_type = CompanyUser::class;
         
         //return $this->itemResponse($company);
-        $ct = CompanyUser::whereUserId(auth()->user()->id);
+        $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
         
         return $this->listResponse($ct);
 

@@ -55,9 +55,12 @@ class CompanyUser extends Pivot
         return $this->hasOne(Company::class, 'id', 'company_id');
     }
 
+    /*todo monitor this function - may fail under certain conditions*/
     public function token()
     {
+        return $this->belongsTo(CompanyToken::class, 'user_id','user_id');
 
+        /*
         return $this->hasOneThrough(
             CompanyToken::class,
             CompanyUser::class,
@@ -66,6 +69,6 @@ class CompanyUser extends Pivot
             'user_id', // Local key on CompanyToken table...
             'company_id' // Local key on CompanyUser table...
         );
-
+        */
     }
 }
