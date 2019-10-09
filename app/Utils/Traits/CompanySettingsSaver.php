@@ -35,8 +35,7 @@ trait CompanySettingsSaver
 		//make sure the inbound settings have the correct casts!
 		//$settings = CompanySettings::setCasts($settings, CompanySettings::$casts);
 
-//todo checks are here
-//		$settings = $this->checkSettingType($settings, CompanySettings::$casts);
+		$settings = $this->checkSettingType($settings, CompanySettings::$casts);
 
 		//iterate through set properties with new values;
 		foreach($settings as $key => $value)
@@ -53,38 +52,37 @@ trait CompanySettingsSaver
 
 		foreach ($casts as $key => $value){
 
-		\Log::error("the gettype of {$key} = ". gettype($settings->{$key}));
-
-			if(substr($key, -3) == '_id'){
+			/*Separate loop if it is a _id field which is an integer cast as a string*/
+			if(substr($key, -3) == '_id' || substr($key, -8) == '_counter'){
 				$value = "integer";
 				
-				if($this->checkAttribute($value, (int)$settings->{$key})){
-					//throw new \Exception($settings->{$key}. " " . $key . " is not type ". $value);
-					\Log::error($settings->{$key}. " " . $key . " is type ". $value);
+				if($this->checkAttribute($value, $settings->{$key})){
+					\Log::error("System says true {$key} a {$value} = ".$settings->{$key});
 				}
 				else {
-					\Log::error($settings->{$key}. " " . $key . " is nottype ". $value);
+					\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
+					unset($settings->{$key});
 				}
+
 				continue;
 			}
 
+			/* Handles unset settings or blank strings */
 			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''){
-				\Log::error("skipping ".$settings->{$key}. " " . $key . " is type ". $value);
 
 				continue;
 			}
 
-			\Log::error("checking ".$settings->{$key}. " " . $key . " is type ". $value);
-
+			/*Catch all filter */
 			if($this->checkAttribute($value, $settings->{$key})){
-				//throw new \Exception($settings->{$key}. " " . $key . " is not type ". $value);
-				\Log::error($settings->{$key}. " " . $key . " is type ". $value);
 			}
 			else {
-				\Log::error($settings->{$key}. " " . $key . " is nottype ". $value);
+				unset($settings->{$key});
 			}
 
 		}
+		\Log::error(print_r($settings,1));
+		return $settings;
 	}
 	
 
@@ -94,7 +92,9 @@ trait CompanySettingsSaver
 		{
 			case 'int':
 			case 'integer':
-				return is_int($value);
+				//return is_int($value);
+				//return  strval($value) === strval(intval($value)) ;
+				return ctype_digit(strval($value));
 			case 'real':
 			case 'float':
 			case 'double':

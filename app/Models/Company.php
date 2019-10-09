@@ -60,7 +60,7 @@ class Company extends BaseModel
         // 'vat_number',
         // 'id_number',
         'size_id',
-        'settings',
+        //'settings',
     ];
 
     protected $hidden = [

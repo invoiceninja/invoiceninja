@@ -70,6 +70,7 @@ class CompanySettingsTest extends TestCase
         $settings = $this->company->settings;
 
         $settings->client_number_counter = "a";
+        $settings->invoice_number_counter = 1000;
 
         $this->company->settings = $settings;
 
@@ -78,12 +79,12 @@ class CompanySettingsTest extends TestCase
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
-
         $response->assertStatus(200);    
 
         $arr = $response->json();
-        //\Log::error($arr);
+        \Log::error($arr);
 
-       // $this->assertEquals($arr['data']['settings']['client_number_counter'],1);
+        $this->assertEquals($arr['data']['settings']['client_number_counter'],1);
+        $this->assertEquals($arr['data']['settings']['invoice_number_counter'],1000);
     }
 }
