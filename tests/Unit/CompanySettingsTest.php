@@ -48,4 +48,5 @@ class CompanySettingsTest extends TestCase
 		$this->assertTrue(isset($this->company_settings->timezone_id));
 
 	}
+
 }

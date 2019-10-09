@@ -41,7 +41,7 @@ class Company extends BaseModel
     use PresentableTrait;
     use MakesHash;
     use CompanySettingsSaver;
-    
+
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $fillable = [
@@ -65,14 +65,14 @@ class Company extends BaseModel
 
     protected $hidden = [
         'id',
-        'settings',
-        'account_id',
-        'company_key',
+      //  'settings',
+      //  'account_id',
+      //  'company_key',
         'db',
-        'domain',
+      //  'domain',
         'ip',
-        'industry_id',
-        'size_id',
+      //  'industry_id',
+      //  'size_id',
     ];
 
     protected $casts = [

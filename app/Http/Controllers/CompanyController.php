@@ -406,7 +406,7 @@ class CompanyController extends BaseController
      *
      */
     public function update(UpdateCompanyRequest $request, Company $company)
-    {\Log::error($request->all());
+    {
         $company = $this->company_repo->save($request->all(), $company);
 
         $company->saveSettings($request->input('settings'));

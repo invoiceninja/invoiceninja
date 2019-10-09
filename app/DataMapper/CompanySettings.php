@@ -26,7 +26,6 @@ class CompanySettings extends BaseSettings
 	public $military_time = false;
 
 	public $language_id = '';
-	public $precision = 2;
 	public $show_currency_code = false;
 
 	public $payment_terms = 1; 
@@ -200,7 +199,7 @@ class CompanySettings extends BaseSettings
 		'military_time' => 'bool',
 		'language_id' => 'string',
 		'show_currency_code' => 'bool',
-		'payment_terms' => 'int', 
+		'payment_terms' => 'integer', 
 		'custom_label1' => 'string',
 		'custom_label2' => 'string',
 		'custom_label3' => 'string',
@@ -247,21 +246,21 @@ class CompanySettings extends BaseSettings
 		'inclusive_taxes' => 'bool',
 		'invoice_number_prefix' => 'string',
 		'invoice_number_pattern' => 'string',
-		'invoice_number_counter' => 'int',
+		'invoice_number_counter' => 'integer',
 		'quote_number_prefix' => 'string',
 		'quote_number_pattern' => 'string',
-		'quote_number_counter' => 'int',
+		'quote_number_counter' => 'integer',
 		'client_number_prefix' => 'string',
 		'client_number_pattern' => 'string',
-		'client_number_counter' => 'int',
+		'client_number_counter' => 'integer',
 		'credit_number_prefix' => 'string',
 		'credit_number_pattern' => 'string',
-		'credit_number_counter' => 'int',
+		'credit_number_counter' => 'integer',
 		'shared_invoice_quote_counter' => 'bool',
 		'recurring_invoice_number_prefix' => 'string',
-		'reset_counter_frequency_id' => 'int',
+		'reset_counter_frequency_id' => 'integer',
 		'reset_counter_date' => 'string',
-		'counter_padding' => 'int',
+		'counter_padding' => 'integer',
 		'design' => 'string',
 		'company_gateways' => 'string',
 	];
@@ -271,9 +270,9 @@ class CompanySettings extends BaseSettings
 	 * cannot be modified client side
 	 */
 	public static $protected_fields = [
-		'credit_number_counter',
-		'invoice_number_counter',
-		'quote_number_counter',
+	//	'credit_number_counter',
+	//	'invoice_number_counter',
+	//	'quote_number_counter',
 	];
 
 	/**
