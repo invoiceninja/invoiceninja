@@ -207,6 +207,8 @@ class CompanyController extends BaseController
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
+        $company->saveSettings($request->input('settings'));
+
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         auth()->user()->companies()->attach($company->id, [

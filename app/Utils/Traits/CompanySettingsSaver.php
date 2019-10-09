@@ -41,6 +41,8 @@ trait CompanySettingsSaver
 		foreach($settings as $key => $value)
 			$company_settings->{$key} = $value;
 
+		//$company_settings = CompanySettings::setCasts($company_settings, CompanySettings::$casts);
+
 		$this->settings = $company_settings;
 		$this->save();
 	}
@@ -57,10 +59,9 @@ trait CompanySettingsSaver
 				$value = "integer";
 				
 				if($this->checkAttribute($value, $settings->{$key})){
-					\Log::error("System says true {$key} a {$value} = ".$settings->{$key});
+					settype($settings->{$key}, $value);
 				}
 				else {
-					\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
 					unset($settings->{$key});
 				}
 
@@ -69,20 +70,18 @@ trait CompanySettingsSaver
 
 			/* Handles unset settings or blank strings */
 			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''){
-
 				continue;
 			}
 
 			/*Catch all filter */
 			if($this->checkAttribute($value, $settings->{$key})){
-				\Log::error("System says true {$key} a {$value} = ".$settings->{$key});
+				settype($settings->{$key}, $value);
 			}
 			else {
 				unset($settings->{$key});
 			}
 
 		}
-		\Log::error(print_r($settings,1));
 		return $settings;
 	}
 	
@@ -93,8 +92,6 @@ trait CompanySettingsSaver
 		{
 			case 'int':
 			case 'integer':
-				//return is_int($value);
-				//return  strval($value) === strval(intval($value)) ;
 				return ctype_digit(strval($value));
 			case 'real':
 			case 'float':
@@ -104,7 +101,8 @@ trait CompanySettingsSaver
 				return method_exists($value, '__toString' ) || is_null($value) || is_string($value);
 			case 'bool':
 			case 'boolean':
-				return is_bool($value);
+			//\Log::error("is {$value} boolean ? = ".is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN));
+				return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
 			case 'object':
 				return is_object($value);
 			case 'array':
@@ -117,13 +115,7 @@ trait CompanySettingsSaver
 		}
 	}
 
-
-
-
-
-
-
-
-
+//	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
+//	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
 
 }

@@ -22,6 +22,7 @@ use Tests\TestCase;
 
 /**
  * @test
+ * @covers App\Utils\Traits\CompanySettingsSaver
  */
 class CompanySettingsTest extends TestCase
 {
@@ -117,5 +118,32 @@ class CompanySettingsTest extends TestCase
         $this->assertEquals($arr['data']['settings']['tax_rate3'],10.5);
     }
 
+    public function testBoolEdgeCases()
+    {
+        $settings = $this->company->settings;
+
+        $settings->require_invoice_signature = true;
+        $settings->require_quote_signature = true;
+        $settings->show_accept_quote_terms = false;
+        $settings->show_accept_invoice_terms = "TRUE";
+        $settings->show_tasks_in_portal = "FALSE";
+
+        $this->company->settings = $settings;
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-Token' => $this->token,
+            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+
+        $response->assertStatus(200);    
+
+        $arr = $response->json();
+
+        $this->assertEquals($arr['data']['settings']['require_invoice_signature'],1);
+        $this->assertEquals($arr['data']['settings']['require_quote_signature'],1);
+        $this->assertEquals($arr['data']['settings']['show_accept_quote_terms'],0);
+        $this->assertEquals($arr['data']['settings']['show_accept_invoice_terms'],1);
+        $this->assertEquals($arr['data']['settings']['show_tasks_in_portal'],0);
+    }
     
 }
