@@ -75,6 +75,7 @@ trait CompanySettingsSaver
 
 			/*Catch all filter */
 			if($this->checkAttribute($value, $settings->{$key})){
+				\Log::error("System says true {$key} a {$value} = ".$settings->{$key});
 			}
 			else {
 				unset($settings->{$key});
@@ -98,7 +99,7 @@ trait CompanySettingsSaver
 			case 'real':
 			case 'float':
 			case 'double':
-				return is_float($value);
+				return is_float($value) || is_numeric(strval($value));
 			case 'string':
 				return method_exists($value, '__toString' ) || is_null($value) || is_string($value);
 			case 'bool':
