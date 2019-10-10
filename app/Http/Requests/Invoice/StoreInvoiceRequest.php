@@ -14,9 +14,12 @@ namespace App\Http\Requests\Invoice;
 use App\Http\Requests\Request;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Utils\Traits\MakesHash;
 
 class StoreInvoiceRequest extends Request
 {
+    use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -30,7 +33,7 @@ class StoreInvoiceRequest extends Request
 
     public function rules()
     {
-        //$this->sanitize();
+        $this->sanitize();
 
         return [
             'client_id' => 'required',
@@ -40,5 +43,15 @@ class StoreInvoiceRequest extends Request
         ];
     }
 
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+
+        $this->replace($input);
+
+        return $this->all();
+    }
 }
 

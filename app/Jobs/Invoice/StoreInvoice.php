@@ -65,7 +65,7 @@ class StoreInvoice implements ShouldQueue
         $payment = false;
 
         /* Test if we should auto-bill the invoice */
-        if((bool)$this->invoice->settings->auto_bill)
+        if(property_exists($this->invoice->settings, 'auto_bill') && (bool)$this->invoice->settings->auto_bill)
         {
 
            $this->invoice = $invoice_repo->markSent($this->invoice);

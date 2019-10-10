@@ -85,7 +85,7 @@ class InvoiceTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($invoice->id),
             'amount' => (float) $invoice->amount ?: '',
             'balance' => (float) $invoice->balance ?: '',
-            'client_id' => (string) $invoice->client_id,
+            'client_id' => (string) $this->encodePrimaryKey($invoice->client_id),
             'status_id' => (string) ($invoice->status_id ?: 1),
             'updated_at' => $invoice->updated_at,
             'archived_at' => $invoice->deleted_at,

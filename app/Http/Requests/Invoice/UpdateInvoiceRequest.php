@@ -33,6 +33,9 @@ class UpdateInvoiceRequest extends Request
 
     public function rules()
     {
+
+        //$this->sanitize();
+
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
             //'client_id' => 'required|integer',
@@ -40,4 +43,21 @@ class UpdateInvoiceRequest extends Request
         ];
     }
     
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        //        $this->replace($input);
+
+        return $this->all();
+    }
+
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        $this->replace($input);
+
+        return $this->all();
+    }
 }
