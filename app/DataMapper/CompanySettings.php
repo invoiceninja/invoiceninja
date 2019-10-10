@@ -22,11 +22,11 @@ class CompanySettings extends BaseSettings
 
 	public $timezone_id = '';
 	public $date_format_id = '';
-	public $datetime_format_id = '';
 	public $military_time = false;
 
 	public $language_id = '';
 	public $show_currency_code = false;
+	public $currency_id = '1';
 
 	public $payment_terms = 1; 
 
@@ -180,6 +180,7 @@ class CompanySettings extends BaseSettings
 		'phone' => 'string',
 		'email' => 'string',
 		'country_id' => 'string',
+		'currency_id' => 'string',
 		'vat_number' => 'string',
 		'id_number' => 'string',
 		'tax_name1' => 'string',
@@ -194,7 +195,6 @@ class CompanySettings extends BaseSettings
 		'show_accept_invoice_terms' => 'bool',
 		'timezone_id' => 'string',
 		'date_format_id' => 'string',
-		'datetime_format_id' => 'string',
 		'military_time' => 'bool',
 		'language_id' => 'string',
 		'show_currency_code' => 'bool',
@@ -300,10 +300,10 @@ class CompanySettings extends BaseSettings
 		unset($data->protected_fields);
 
 		$data->timezone_id = (string)config('ninja.i18n.timezone_id');
+		$data->currency_id = (string)config('ninja.i18n.currency_id');
 		$data->language_id = (string)config('ninja.i18n.language_id');
 		$data->payment_terms = (int)config('ninja.i18n.payment_terms');
-		$data->datetime_format_id = (string)config('ninja.i18n.datetime_format_id');
-		$data->military_time = (bool )config('ninja.i18n.military_time');
+		$data->military_time = (bool)config('ninja.i18n.military_time');
 		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
 		$data->country_id = (string)config('ninja.i18n.country_id');
 		$data->translations = (object) [];

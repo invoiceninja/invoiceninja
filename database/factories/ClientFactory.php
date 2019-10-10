@@ -22,7 +22,6 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'city' => $faker->city,
         'state' => $faker->state,
         'postal_code' => $faker->postcode,
-        'currency_id' => 1,
         'country_id' => 4,
         'shipping_address1' => $faker->buildingNumber,
         'shipping_address2' => $faker->streetAddress,
@@ -30,7 +29,7 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'shipping_state' => $faker->state,
         'shipping_postal_code' => $faker->postcode,
         'shipping_country_id' => 4,
-        'settings' => new ClientSettings(ClientSettings::defaults()),
+        'settings' => ClientSettings::defaults(),
         'client_hash' => \Illuminate\Support\Str::random(40),
     ];
 });

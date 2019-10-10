@@ -154,7 +154,7 @@ trait MakesInvoiceValues
      */
     public function makeValues() :array
     {
-        if(!$this->client->currency || !$this->client){
+        if(!$this->client->currency() || !$this->client){
             throw new Exception(debug_backtrace()[1]['function'], 1);
             exit;
         }

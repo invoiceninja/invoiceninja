@@ -21,7 +21,6 @@
  *       @OA\Property(property="client_hash", type="string", example="", description="________"),
  *       @OA\Property(property="industry_id", type="string", example="", description="________"),
  *       @OA\Property(property="size_id", type="string", example="", description="________"),
- *       @OA\Property(property="currency_id", type="string", example="", description="________"),
  *       @OA\Property(property="address1", type="string", example="", description="________"),
  *       @OA\Property(property="address2", type="string", example="", description="________"),
  *       @OA\Property(property="city", type="string", example="", description="________"),

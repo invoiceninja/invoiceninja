@@ -63,7 +63,7 @@ class Client extends BaseModel
         'private_notes',
         'industry_id',
         'size_id',
-        'currency_id',
+//        'currency_id',
         'address1',
         'address2',
         'city',
@@ -167,14 +167,10 @@ class Client extends BaseModel
         return DateFormat::find($this->getSetting('date_format_id'))->format;
     }
 
-    public function datetime_format()
-    {
-        return DatetimeFormat::find($this->getSetting('datetime_format_id'))->format;
-    }
-
     public function currency()
     {
-        return $this->belongsTo(Currency::class);
+        return Currency::find($this->getSetting('currency_id'));
+        //return $this->belongsTo(Currency::class);
     }
 
     /**
@@ -226,6 +222,8 @@ class Client extends BaseModel
         }
         
         /*Company Settings*/
+    //    \Log::error($setting);
+  //      \Log::error(print_r($this->company->settings,1));
         if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
             return $this->company->settings->{$setting};
         }
@@ -296,8 +294,8 @@ class Client extends BaseModel
 
     public function getCurrencyCode()
     {
-        if ($this->currency) {
-            return $this->currency->code;
+        if ($this->currency()) {
+            return $this->currency()->code;
         }
 
         return 'USD';

@@ -35,7 +35,7 @@ class UpdateClientRequest extends Request
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
         $rules['size_id'] = 'integer|nullable';
-        $rules['currency_id'] = 'integer|nullable';
+        //$rules['currency_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;

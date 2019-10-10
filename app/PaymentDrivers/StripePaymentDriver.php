@@ -215,8 +215,8 @@ class StripePaymentDriver extends BasePaymentDriver
     public function processPaymentView(array $data)
     {
         $payment_intent_data = [
-            'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency->precision),
-            'currency' => $this->client->getCurrencyCode(),
+            'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency()->precision),
+            '->currency()' => $this->client->getCurrencyCode(),
             'customer' => $this->findOrCreateCustomer(),
             'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
         ];
@@ -252,7 +252,7 @@ class StripePaymentDriver extends BasePaymentDriver
       +"client_secret": "pi_1FMR7JKmol8YQE9DuC4zMeN3_secret_J3yseWJG6uV0MmsrAT1FlUklV"
       +"confirmation_method": "automatic"
       +"created": 1569381877
-      +"currency": "usd"
+      +"->currency()": "usd"
       +"description": "[3]"
       +"last_payment_error": null
       +"livemode": false
@@ -391,7 +391,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $client_contact = $this->getContact();
         $client_contact_id = $client_contact ? $client_contact->id : null;
 
-        $payment->amount = $this->convertFromStripeAmount($data['amount'], $this->client->currency->precision);
+        $payment->amount = $this->convertFromStripeAmount($data['amount'], $this->client->currency()->precision);
         $payment->payment_type_id = $data['payment_type'];
         $payment->transaction_reference = $data['payment_method'];
         $payment->client_contact_id = $client_contact_id;

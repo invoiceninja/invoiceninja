@@ -43,7 +43,7 @@ class CreateInvoicePdf implements ShouldQueue
 
         $invoice = $event->invoice;
 
-        $invoice->load('client', 'client.currency');
+        $invoice->load('client');
         $path = 'public/' . $invoice->client->client_hash . '/invoices/'; 
         $file_path = $path . $invoice->invoice_number . '.pdf';
 

@@ -63,10 +63,10 @@ class Number
     public static function formatMoney($value, $client) :string
     {
 
-        $thousand = $client->currency->thousand_separator;
-        $decimal = $client->currency->decimal_separator;
-        $precision = $client->currency->precision;
-        $code = $client->currency->code;
+        $thousand = $client->currency()->thousand_separator;
+        $decimal = $client->currency()->decimal_separator;
+        $precision = $client->currency()->precision;
+        $code = $client->currency()->code;
         $swapSymbol = $client->country->swap_currency_symbol;
 
             /* Country settings override client settings */
@@ -77,7 +77,7 @@ class Number
                 $decimal = $client->country->decimal_separator;
             
         $value = number_format($value, $precision, $decimal, $thousand);
-        $symbol = $client->currency->symbol;
+        $symbol = $client->currency()->symbol;
         
         if ($client->getSetting('show_currency_code') === true) {
             return "{$value} {$code}";
@@ -86,7 +86,7 @@ class Number
         } elseif ($client->getSetting('show_currency_code') === false) {
             return "{$symbol}{$value}";
         } else {
-            return self::formatValue($value, $client->currency);
+            return self::formatValue($value, $client->currency());
         }
     }
 }

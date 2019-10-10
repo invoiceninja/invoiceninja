@@ -59,7 +59,7 @@ class ClientTransformer extends EntityTransformer
             'website' => $client->website ?: '',
             'private_notes' => $client->private_notes ?: '',
             'balance' => (float) $client->balance,
-            'currency_id' => (string)$client->currency_id ?: '',
+//            'currency_id' => (string)$client->currency_id ?: '',
             'group_settings_id' => (string)$client->group_settings_id ?: '',
             'paid_to_date' => (float) $client->paid_to_date,
             'last_login' => (int)$client->last_login,
