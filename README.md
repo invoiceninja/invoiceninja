@@ -17,6 +17,7 @@ Curently the client portal and API are of alpha quality, to get started:
 ```bash
 git clone https://github.com/invoiceninja/invoiceninja.git
 git checkout v2
+cp .env.example .env
 composer update
 npm i
 npm run production
