@@ -32,7 +32,7 @@ trait CompanySettingsSaver
 		foreach(CompanySettings::$protected_fields as $field)
 			unset($settings[$field]);
 
-		$settings = $this->checkSettingType($settings, CompanySettings::$casts);
+		$settings = $this->checkSettingType($settings);
 
 		//iterate through set properties with new values;
 		foreach($settings as $key => $value)
@@ -75,10 +75,11 @@ trait CompanySettingsSaver
 		return true;
 	}
 
-	private function checkSettingType($settings, $casts)
+	private function checkSettingType($settings)
 	{
 		$settings = (object)$settings;
-
+		$casts = CompanySettings::$casts;
+		
 		foreach ($casts as $key => $value){
 
 			/*Separate loop if it is a _id field which is an integer cast as a string*/
@@ -143,6 +144,6 @@ trait CompanySettingsSaver
 
 //	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
 //	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
-//	\Log::error("integer testing {$key} - {$value} - ".$settings->{$key});
+//	s\Log::error("integer testing {$key} - {$value} - ".$settings->{$key});
 
 }
