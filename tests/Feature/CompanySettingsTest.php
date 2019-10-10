@@ -82,9 +82,11 @@ class CompanySettingsTest extends TestCase
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
+        $arr = $response->json();
+        \Log::error(print_r($arr,1));
+
         $response->assertStatus(200);    
 
-        $arr = $response->json();
 
         $this->assertEquals($arr['data']['settings']['client_number_counter'],1);
         $this->assertEquals($arr['data']['settings']['quote_number_counter'],1);

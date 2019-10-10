@@ -18,9 +18,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -99,6 +100,9 @@ class Handler extends ExceptionHandler
         }
         else if($exception instanceof MethodNotAllowedHttpException){
             return response()->json(['message'=>'Method not support for this route'],404);
+        }
+        else if ($exception instanceof ValidationException) {
+            return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         }
 
         return parent::render($request, $exception);

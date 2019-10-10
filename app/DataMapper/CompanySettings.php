@@ -105,7 +105,7 @@ class CompanySettings extends BaseSettings
 	public $shared_invoice_quote_counter = false;
 
 	public $recurring_invoice_number_prefix = 'R';
-	public $reset_counter_frequency_id = '';
+	public $reset_counter_frequency_id = '0';
 	public $reset_counter_date = '';
 	public $counter_padding = 0;
 

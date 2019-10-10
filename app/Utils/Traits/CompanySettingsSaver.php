@@ -32,21 +32,48 @@ trait CompanySettingsSaver
 		foreach(CompanySettings::$protected_fields as $field)
 			unset($settings[$field]);
 
-		//make sure the inbound settings have the correct casts!
-		//$settings = CompanySettings::setCasts($settings, CompanySettings::$casts);
-
 		$settings = $this->checkSettingType($settings, CompanySettings::$casts);
 
 		//iterate through set properties with new values;
 		foreach($settings as $key => $value)
 			$company_settings->{$key} = $value;
 
-		//$company_settings = CompanySettings::setCasts($company_settings, CompanySettings::$casts);
-
 		$this->settings = $company_settings;
 		$this->save();
 	}
 
+	public function validateSettings($settings)
+	{
+		$settings = (object)$settings;
+		$casts = CompanySettings::$casts;
+
+		foreach ($casts as $key => $value){
+		
+			/*Separate loop if it is a _id field which is an integer cast as a string*/
+			if(substr($key, -3) == '_id' || substr($key, -14) == 'number_counter'){
+				$value = "integer";
+				
+				if(!$this->checkAttribute($value, $settings->{$key})){
+					return [$key, $value];
+				}
+
+				continue;
+			}
+
+			/* Handles unset settings or blank strings */
+			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''){
+				continue;
+			}
+
+			/*Catch all filter */
+			if(!$this->checkAttribute($value, $settings->{$key})){
+					return [$key, $value];
+			}
+
+		}
+
+		return true;
+	}
 
 	private function checkSettingType($settings, $casts)
 	{
@@ -55,7 +82,7 @@ trait CompanySettingsSaver
 		foreach ($casts as $key => $value){
 
 			/*Separate loop if it is a _id field which is an integer cast as a string*/
-			if(substr($key, -3) == '_id' || substr($key, -8) == '_counter'){
+			if(substr($key, -3) == '_id' || substr($key, -14) == 'number_counter'){
 				$value = "integer";
 				
 				if($this->checkAttribute($value, $settings->{$key})){
@@ -101,7 +128,6 @@ trait CompanySettingsSaver
 				return method_exists($value, '__toString' ) || is_null($value) || is_string($value);
 			case 'bool':
 			case 'boolean':
-			//\Log::error("is {$value} boolean ? = ".is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN));
 				return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
 			case 'object':
 				return is_object($value);
@@ -117,5 +143,6 @@ trait CompanySettingsSaver
 
 //	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
 //	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
+//	\Log::error("integer testing {$key} - {$value} - ".$settings->{$key});
 
 }
