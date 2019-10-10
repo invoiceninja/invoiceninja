@@ -14,19 +14,27 @@ namespace App\Utils\Traits;
 use App\DataMapper\CompanySettings;
 
 /**
- * Class CompanySettingsSaver
+ * Class SettingsSaver
  * @package App\Utils\Traits
  */
-trait CompanySettingsSaver
+trait SettingsSaver
 {
 
-	public function saveSettings($settings)
+	/**
+	 * Saves a setting object
+	 *
+	 * Works for groups|clients|companies
+	 * @param  array $settings The request input settings array
+	 * @param  object $entity   The entity which the settings belongs to
+	 * @return void           
+	 */
+	public function saveSettings($settings, $entity)
 	{
 
 		if(!$settings)
 			return;
 
-		$company_settings = $this->settings;
+		$entity_settings = $this->settings;
 
 		//unset protected properties.
 		foreach(CompanySettings::$protected_fields as $field)
@@ -36,12 +44,21 @@ trait CompanySettingsSaver
 
 		//iterate through set properties with new values;
 		foreach($settings as $key => $value)
-			$company_settings->{$key} = $value;
+			$entity_settings->{$key} = $value;
 
-		$this->settings = $company_settings;
-		$this->save();
+		$entity->settings = $entity_settings;
+		$entity->save();
 	}
 
+	/**
+	 * Used for custom validation of inbound
+	 * settings request.
+	 *
+	 * Returns an array of errors, or boolean TRUE
+	 * on successful validation
+	 * @param  array $settings The request() settings array
+	 * @return array|bool      Array on failure, boolean TRUE on success
+	 */
 	public function validateSettings($settings)
 	{
 		$settings = (object)$settings;
@@ -75,7 +92,18 @@ trait CompanySettingsSaver
 		return true;
 	}
 
-	private function checkSettingType($settings)
+	/**
+	 * Checks the settings object for 
+	 * correct property types.
+	 *
+	 * The method will drop invalid types from 
+	 * the object and will also settype() the property
+	 * so that it can be saved cleanly
+	 * 
+	 * @param  array $settings The settings request() array
+	 * @return object          stdClass object
+	 */
+	private function checkSettingType($settings) : \stdClass
 	{
 		$settings = (object)$settings;
 		$casts = CompanySettings::$casts;
@@ -114,7 +142,13 @@ trait CompanySettingsSaver
 	}
 	
 
-	private function checkAttribute($key, $value)
+	/**
+	 * Type checks a object property.
+	 * @param  string $key   The type
+	 * @param  string $value The object property
+	 * @return bool        TRUE if the property is the expected type
+	 */
+	private function checkAttribute($key, $value) :bool
 	{
 		switch ($key)
 		{
@@ -138,7 +172,7 @@ trait CompanySettingsSaver
 				json_decode($string);
  					return (json_last_error() == JSON_ERROR_NONE);
 			default:
-				return $value;
+				return false;
 		}
 	}
 

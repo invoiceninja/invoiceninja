@@ -22,7 +22,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Utils\Traits\CompanySettingsSaver
+ * @covers App\Utils\Traits\SettingsSaver
  */
 class CompanySettingsTest extends TestCase
 {

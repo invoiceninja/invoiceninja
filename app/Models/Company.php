@@ -30,7 +30,7 @@ use App\Models\TaxRate;
 use App\Models\Timezone;
 use App\Models\Traits\AccountTrait;
 use App\Models\User;
-use App\Utils\Traits\CompanySettingsSaver;
+use App\Utils\Traits\SettingsSaver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -40,7 +40,7 @@ class Company extends BaseModel
 {
     use PresentableTrait;
     use MakesHash;
-    use CompanySettingsSaver;
+    use SettingsSaver;
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 

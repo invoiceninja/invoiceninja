@@ -13,7 +13,7 @@ namespace App\Http\ValidationRules;
 
 use App\Libraries\MultiDB;
 use App\Models\User;
-use App\Utils\Traits\CompanySettingsSaver;
+use App\Utils\Traits\SettingsSaver;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -22,7 +22,7 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class ValidSettingsRule implements Rule
 {
-    use CompanySettingsSaver;
+    use SettingsSaver;
     /**
      * @param string $attribute
      * @param mixed $value
