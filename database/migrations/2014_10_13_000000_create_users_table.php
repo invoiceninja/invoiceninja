@@ -150,6 +150,7 @@ class CreateUsersTable extends Migration
             $table->string('start_of_week')->nullable();
             $table->string('financial_year_start')->nullable();
             $table->smallInteger('enable_modules')->default(0);
+            $table->text('custom_fields');
             $table->text('settings');
             
             $table->timestamps(6);

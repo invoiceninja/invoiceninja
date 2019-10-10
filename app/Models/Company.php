@@ -61,6 +61,7 @@ class Company extends BaseModel
         // 'id_number',
         'size_id',
         //'settings',
+        'custom_fields',
     ];
 
     protected $hidden = [
@@ -77,6 +78,7 @@ class Company extends BaseModel
 
     protected $casts = [
         'settings' => 'object',
+        'custom_fields' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
