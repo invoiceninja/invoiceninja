@@ -101,7 +101,7 @@ class Handler extends ExceptionHandler
         else if($exception instanceof MethodNotAllowedHttpException){
             return response()->json(['message'=>'Method not support for this route'],404);
         }
-        else if ($exception instanceof ValidationException) {
+        else if ($exception instanceof ValidationException && $request->expectsJson()) {
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         }
 
