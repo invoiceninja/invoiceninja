@@ -216,7 +216,7 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $payment_intent_data = [
             'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency()->precision),
-            '->currency()' => $this->client->getCurrencyCode(),
+            'currency' => $this->client->getCurrencyCode(),
             'customer' => $this->findOrCreateCustomer(),
             'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
         ];

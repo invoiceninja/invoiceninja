@@ -18,6 +18,7 @@ use App\Models\CompanyToken;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\User;
 use App\Models\UserAccount;
@@ -135,12 +136,14 @@ class RandomDataSeeder extends Seeder
 
             if(rand(0, 1)) {
                 $payment = App\Models\Payment::create([
+                    'payment_date' => now(),
                     'user_id' => $user->id, 
                     'company_id' => $company->id, 
                     'client_id' => $client->id,
                     'amount' => $invoice->balance,
                     'transaction_reference' => rand(0,500),
                     'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+                    'status_id' => Payment::STATUS_COMPLETED,
                 ]);
 
                 $payment->invoices()->save($invoice);
