@@ -10,7 +10,7 @@
 
 We will be using the lessons learnt in Invoice Ninja 4.0 to build a bigger better platform to work from. If you would like to contribute to the project we will gladly accept contributions for code, user guides, bug tracking and feedback! Please consider the following guidelines prior to submitting a pull request:
 
-# Quick Start
+## Quick Start
 
 Curently the client portal and API are of alpha quality, to get started:
 
@@ -23,12 +23,13 @@ npm run production
 php artisan migrate:fresh --seed && php artisan db:seed --class=RandomDataSeeder
 ```
 
-```
 Navigate to
+```
 http://ninja.test:8000/client/login
 user: user@example.com
 pass: password
 ```
+
 ## Contribution guide.
 
 Code Style to follow [PSR-2](https://www.php-fig.org/psr/psr-2/) standards.
