@@ -230,12 +230,9 @@ class CompanyController extends BaseController
          */
         $company_token = CreateCompanyToken::dispatchNow($company, auth()->user());
 
-        //todo Need to discuss this with Hillel which is the best representation to return
-        //when a company is created. Do we send the entire account? Do we only send back the created CompanyUser?
         $this->entity_transformer = CompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
         
-        //return $this->itemResponse($company);
         $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
         
         return $this->listResponse($ct);
