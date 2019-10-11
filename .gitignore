@@ -19,3 +19,4 @@ yarn-error.log
 /public/logo
 
 .env.dusk.local
+/storage/debugbar/*
