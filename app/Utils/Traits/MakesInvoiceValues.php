@@ -283,9 +283,6 @@ trait MakesInvoiceValues
 
     		$columns = $this->transformColumnsForLineItems($columns);
 
-            //if(!is_array($this->line_items));
-            //    return $data;
-
     		$items = $this->transformLineItems($this->line_items);
 
     		foreach($items as $item)
