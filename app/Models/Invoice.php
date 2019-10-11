@@ -359,4 +359,10 @@ class Invoice extends BaseModel
         $this->due_date = Carbon::now()->addDays(PaymentTerm::find($this->company->settings->payment_terms_id)->num_days);
         $this->save();
     }
+
+    public function setStatus($status)
+    {
+        $this->status_id = $status;
+        $this->save();
+    }
 }

@@ -89,7 +89,8 @@ class UpdateInvoicePayment implements ShouldQueue
                         $invoice->updateBalance($invoice->partial*-1);
                         $invoice->clearPartial();
                         $invoice->setDueDate();
-                        //todo do we need to mark it as a partial?
+                        $invoice->setStatus(Invoice::STATUS_PARTIAL);
+                        
                     }
                     else
                     {
