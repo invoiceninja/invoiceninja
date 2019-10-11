@@ -42,15 +42,6 @@ class UpdateInvoiceRequest extends Request
             //'invoice_type_id' => 'integer',
         ];
     }
-    
-    public function sanitize()
-    {
-        $input = $this->all();
-
-        //        $this->replace($input);
-
-        return $this->all();
-    }
 
     public function sanitize()
     {

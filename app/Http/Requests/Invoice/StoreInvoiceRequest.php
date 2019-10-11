@@ -48,6 +48,7 @@ class StoreInvoiceRequest extends Request
         $input = $this->all();
 
         $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        $input['line_items'] = isset($input['line_items']) ?: [];
 
         $this->replace($input);
 

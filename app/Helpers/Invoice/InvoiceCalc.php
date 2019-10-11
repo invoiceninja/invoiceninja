@@ -194,7 +194,8 @@ class InvoiceCalc
 	 */
 	private function calcLineItems()
 	{
-		if(!$this->invoice->line_items || !property_exists($this->invoice, 'line_items') || count($this->invoice->line_items) == 0)
+		//if(!$this->invoice->line_items || !property_exists($this->invoice, 'line_items') || count($this->invoice->line_items) == 0)
+		if(!$this->invoice->line_items || count($this->invoice->line_items) == 0)
 			return $this;
 
 		$new_line_items = [];
