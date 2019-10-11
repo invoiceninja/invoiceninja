@@ -177,7 +177,7 @@ class InvoiceCalc
 	private function calcTaxes()
 	{
 
-        if (! $this->settings->inclusive_taxes) {
+        if (property_exists($this->settings, 'inclusive_taxes') && ! $this->settings->inclusive_taxes) {
             $taxAmount1 = round($this->total * ($this->invoice->tax_rate1 ? $this->invoice->tax_rate1 : 0) / 100, 2);
             $taxAmount2 = round($this->total * ($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100, 2);
             $this->total_taxes = round($taxAmount1 + $taxAmount2, 2) + $this->total_item_taxes;
