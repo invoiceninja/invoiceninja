@@ -39,12 +39,12 @@
  *       @OA\Property(property="shipping_state", type="string", example="", description="________"),
  *       @OA\Property(property="shipping_postal_code", type="string", example="", description="________"),
  *       @OA\Property(property="shipping_country_id", type="string", example="", description="________"),
- *       @OA\Property(property="settings", type="object", example="", description="________"),
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="________"),
  *       @OA\Property(property="balance", type="number", format="float", example="10.00", description="________"),
  *       @OA\Property(property="paid_to_date", type="number", format="float", example="10.00", description="________"),
  *       @OA\Property(property="last_login", type="number", format="integer", example="134341234234", description="Timestamp"),
  *       @OA\Property(property="created_at", type="number", format="integer", example="134341234234", description="Timestamp"),
  *       @OA\Property(property="updated_at", type="number", format="integer", example="134341234234", description="Timestamp"),
+ *       @OA\Property(property="settings",ref="#/components/schemas/CompanySettings"),
  * )
  */

@@ -195,7 +195,7 @@ class InvoiceCalc
             	$tmp_array[] = ['name' => $this->invoice->tax_name1 . ' ' . $this->invoice->tax_rate1.'%', 'total' => $taxAmount1];
 
             $taxAmount2 = round(($this->getSubTotal()-$this->getTotalDiscount()) * (($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100), 2);
-            $taxAmount1 -= $this->discount($taxAmount2, $this->invoice->discount, $this->invoice->is_amount_discount); 
+            $taxAmount2 -= $this->discount($taxAmount2, $this->invoice->discount, $this->invoice->is_amount_discount); 
 
 
 
@@ -203,7 +203,7 @@ class InvoiceCalc
             	$tmp_array[] = ['name' => $this->invoice->tax_name2 . ' ' . $this->invoice->tax_rate2.'%', 'total' => $taxAmount2];
 
             $taxAmount3 = round(($this->getSubTotal()-$this->getTotalDiscount()) * (($this->invoice->tax_rate3 ? $this->invoice->tax_rate3 : 0) / 100), 2);
-            $taxAmount1 -= $this->discount($taxAmount3, $this->invoice->discount, $this->invoice->is_amount_discount); 
+            $taxAmount3 -= $this->discount($taxAmount3, $this->invoice->discount, $this->invoice->is_amount_discount); 
 
             if($taxAmount3 > 0)
             	$tmp_array[] = ['name' => $this->invoice->tax_name3 . ' ' . $this->invoice->tax_rate3.'%', 'total' => $taxAmount3];
@@ -212,6 +212,8 @@ class InvoiceCalc
             $this->setTotalTaxMap($tmp_array);
 
             $this->setItemTotalTaxes($this->getItemTotalTaxes() + $taxAmount1 + $taxAmount2 + $taxAmount3);
+
+\Log::error("item taxes = ".$this->getItemTotalTaxes());
 
             $this->setTotal($this->getTotal() + $this->getItemTotalTaxes());
         }

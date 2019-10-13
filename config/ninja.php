@@ -48,7 +48,7 @@ return [
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
         'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 1),
         'military_time' => env('MILITARY_TIME', 0),
-        'start_of_week' => env('START_OF_WEEK',1),
+        'first_day_of_week' => env('first_day_of_week',1),
         'financial_year_start' => env('FINANCIAL_YEAR_START', '2000-01-01')
     ],
 

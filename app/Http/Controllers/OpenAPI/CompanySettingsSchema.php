@@ -30,7 +30,7 @@
  *       @OA\Property(property="show_tasks_in_portal", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="show_currency_code", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="shared_invoice_quote_counter", type="boolean", example=true, description="Flags whether to share the counter for invoices and quotes"),
- *       @OA\Property(property="start_of_week", type="integer", example="1", description="____________"),
+ *       @OA\Property(property="first_day_of_week", type="integer", example="1", description="____________"),
  *       @OA\Property(property="invoice_number_prefix", type="string", example="R", description="This string is prepended to the invoice number"),
  *       @OA\Property(property="invoice_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the invoice number pattern"),
  *       @OA\Property(property="invoice_number_counter", type="integer", example="1", description="____________"),

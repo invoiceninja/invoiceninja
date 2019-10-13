@@ -147,7 +147,7 @@ class CreateUsersTable extends Migration
             // $table->string('vat_number')->nullable();
             // $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
-            $table->string('start_of_week')->nullable();
+            $table->string('first_day_of_week')->nullable();
             $table->string('financial_year_start')->nullable();
             $table->smallInteger('enable_modules')->default(0);
             $table->text('custom_fields');
@@ -415,7 +415,6 @@ class CreateUsersTable extends Migration
             $t->text('private_notes')->nullable();
             $t->text('terms')->nullable();
 
-
             $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
@@ -425,11 +424,15 @@ class CreateUsersTable extends Migration
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
-
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
+
+            $t->string('custom_surcharge1')->nullable();
+            $t->string('custom_surcharge2')->nullable();
+            $t->string('custom_surcharge3')->nullable();
+            $t->string('custom_surcharge4')->nullable();
 
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);

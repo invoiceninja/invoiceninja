@@ -2,7 +2,7 @@
 /**
  * @OA\OpenApi(
  *     @OA\Info(
- *         version="1.0.27",
+ *         version="1.0.30",
  *         title="Invoice Ninja",
  *         description="Invoice Ninja. Open Source Invoicing lives here. ",
  *         termsOfService="http://swagger.io/terms/",
@@ -16,7 +16,7 @@
  *     ),
  *     @OA\Server(
  *         description="InvoiceNinja host",
- *         url="https://virtserver.swaggerhub.com/InvoiceNinja/invoices/1.0.27"
+ *         url="https://virtserver.swaggerhub.com/InvoiceNinja/invoices/1.0.30"
  *     ),
  *     @OA\ExternalDocumentation(
  *         description="http://docs.invoiceninja.com",
