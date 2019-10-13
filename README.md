@@ -18,6 +18,7 @@ Curently the client portal and API are of alpha quality, to get started:
 git clone https://github.com/invoiceninja/invoiceninja.git
 git checkout v2
 cp .env.example .env
+cp .env.dusk.example .env.dusk.local
 composer update
 npm i
 npm run production

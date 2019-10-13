@@ -17,3 +17,7 @@ yarn-error.log
 /resources/assets/bower
 /public/vendor
 /public/logo
+
+.env.dusk.local
+/public/vendors/*
+public/mix-manifest.json
