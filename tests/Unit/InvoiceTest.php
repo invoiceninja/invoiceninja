@@ -126,9 +126,9 @@ class InvoiceTest extends TestCase
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-		$this->assertEquals($this->invoice_calc->getTotal(), 22);
-		$this->assertEquals($this->invoice_calc->getBalance(), 22);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 2);
+		$this->assertEquals($this->invoice_calc->getTotal(), 21.5);
+		$this->assertEquals($this->invoice_calc->getBalance(), 21.5);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.5);
 	}
 
 	public function testInvoiceTotalsWithDiscountWithSurchargeWithDoubleExclusiveTax()
@@ -147,9 +147,9 @@ class InvoiceTest extends TestCase
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-		$this->assertEquals($this->invoice_calc->getTotal(), 24);
-		$this->assertEquals($this->invoice_calc->getBalance(), 24);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4);
+		$this->assertEquals($this->invoice_calc->getTotal(), 23);
+		$this->assertEquals($this->invoice_calc->getBalance(), 23);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 3);
 	}
 
 
@@ -185,7 +185,7 @@ class InvoiceTest extends TestCase
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
 		$this->assertEquals($this->invoice_calc->getTotal(), 20);
 		$this->assertEquals($this->invoice_calc->getBalance(), 20);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 0);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.82);
 		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
 	}
 

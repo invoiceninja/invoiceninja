@@ -166,6 +166,7 @@ trait MakesInvoiceValues
             $data['$invoice_number'] = $this->invoice_number;
             $data['$po_number'] = $this->po_number;
             $data['$line_taxes'] = $this->makeLineTaxes();
+            $data['$total_taxes'] = $this->makeTotalTaxes();
             // $data['$tax'] = ;
             // $data['$item'] = ;
             // $data['$description'] = ;
@@ -179,7 +180,7 @@ trait MakesInvoiceValues
             $data['$partial_due'] = Number::formatMoney($this->partial, $this->client);
             $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client);
             $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client);
-            $data['$taxes'] = Number::formatMoney($this->calc()->getTotalTaxes(), $this->client);
+            $data['$taxes'] = Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client);
             $data['$terms'] = $this->terms;
             // $data['$your_invoice'] = ;
             // $data['$quote'] = ;
@@ -413,5 +414,28 @@ trait MakesInvoiceValues
         }
 
         return $data;
+    }
+
+    /**
+     * @return string a collectino of <tr> with 
+     * itemised total tax data
+     */
+    
+    private function makeTotalTaxes() :string
+    {
+
+        $total_tax_map = $this->calc()->getTotalTaxMap();
+
+        $data = '';
+
+        foreach($total_tax_map as $tax)
+        {
+            $data .= '<tr class="total_taxes">';
+            $data .= '<td>'. $tax['name'] .'</td>';
+            $data .= '<td>'. Number::formatMoney($tax['total'], $this->client) .'</td></tr>';
+        }
+
+        return $data;
+
     }
 }

@@ -114,10 +114,10 @@
                         <td>$subtotal_label:</td>
                         <td>$subtotal</td>
                     </tr>
-                    <tr class="taxes">
-                        <td>$taxes_label:</td>
-                        <td>$taxes</td>
-                    </tr>
+
+                    {{-- total_taxes html is populated server side, with a class of total_taxes,  you can customise your CSS here to override the defaults--}}
+
+                    $total_taxes
 
                     {{-- line_taxes html is populated server side, with a class of line_items,  you can customise your CSS here to override the defaults--}}
                     

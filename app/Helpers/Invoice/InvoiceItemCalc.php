@@ -55,7 +55,7 @@ class InvoiceItemCalc
 		$this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
 
 		$this->setDiscount()
-		->calcTaxes();
+			->calcTaxes();
 
 	}	
 
@@ -67,15 +67,11 @@ class InvoiceItemCalc
 
 		if($this->item->is_amount_discount)
 		{	
-
 			$discountedTotal = $this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision);
-
 		}
 		else
-		{ 
-
-			$discountedTotal = $this->getLineTotal() - $this->formatValue(($this->getLineTotal() * $this->item->discount / 100), $this->currency->precision);
-
+		{
+			$discountedTotal = $this->getLineTotal() - $this->formatValue(round($this->getLineTotal() * ($this->item->discount / 100),2), $this->currency->precision);
 		}
 
 	    $this->setLineTotal($discountedTotal);
