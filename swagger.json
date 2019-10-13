@@ -5205,7 +5205,7 @@
             "type" : "boolean",
             "description" : "Toggles 24 hour time"
           },
-          "start_of_week" : {
+          "first_day_of_week" : {
             "type" : "integer",
             "description" : "References the start day of the week",
             "example" : 1

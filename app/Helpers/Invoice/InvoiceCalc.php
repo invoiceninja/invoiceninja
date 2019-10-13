@@ -11,6 +11,7 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Helpers\Invoice\Discounter;
 use App\Helpers\Invoice\InvoiceItemCalc;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
@@ -24,12 +25,15 @@ class InvoiceCalc
 {
 
 	use NumberFormatter;
+	use Discounter;
 
 	protected $invoice;
 
 	protected $settings;
 
 	private $line_items;
+
+	private $item_discount;
 
 	private $balance;
 
@@ -47,6 +51,8 @@ class InvoiceCalc
 
 	private $total_taxes;
 
+	private $total_tax_map;
+
 	private $total_discount;
 
 
@@ -59,8 +65,9 @@ class InvoiceCalc
 	{
 		
 		$this->invoice = $invoice;
+
 		$this->settings = $settings;
-	
+
 		$this->tax_map = new Collection;
 
 	}
@@ -104,19 +111,12 @@ class InvoiceCalc
 	 */
 	private function calcDiscount()
 	{
-        if ($this->invoice->discount != 0) {
 
-            if ($this->invoice->is_amount_discount) {
+        $this->setTotalDiscount($this->discount($this->getSubTotal(), $this->invoice->discount, $this->invoice->is_amount_discount));
 
-                $this->total -= $this->invoice->discount;
+      	$this->setTotal( $this->getTotal() - $this->getTotalDiscount() );
 
-            } else {
-
-                $this->total -= round($this->total * ($this->invoice->discount / 100), 2);
-
-            }
-
-        }
+      	/* Reduce all taxes */
 
         return $this;
 	}
@@ -132,9 +132,9 @@ class InvoiceCalc
 
 		if(isset($this->invoice->id) && $this->invoice->id >= 1)
 		{
-            $this->balance = round($this->total - ($this->invoice->amount - $this->invoice->balance), 2);
+            $this->balance = round($this->getTotal() - ($this->invoice->amount - $this->invoice->balance), 2);
         } else {
-            $this->balance = $this->total;
+            $this->balance = $this->getTotal();
         }
 
 		return $this;
@@ -151,22 +151,25 @@ class InvoiceCalc
 	{
 
 		// custom fields charged taxes
-        if (isset($this->invoice->custom_value1) && isset($this->settings->custom_invoice_taxes1)) {
-            $this->total += $this->invoice->custom_value1;
+        if (isset($this->invoice->custom_value1) && property_exists($this->settings, 'custom_invoice_taxes1') && $this->settings->custom_invoice_taxes1 === true ) {
+            $this->setTotal($this->getTotal() + $this->invoice->custom_value1);
         }
-        if (isset($this->invoice->custom_value2) && isset($this->settings->custom_invoice_taxes2)) {
-            $this->total += $this->invoice->custom_value2;
+        if (isset($this->invoice->custom_value2) && property_exists($this->settings, 'custom_invoice_taxes1') && $this->settings->custom_invoice_taxes2 === true) {
+            $this->setTotal($this->getTotal() + $this->invoice->custom_value2);
         }
+      	// \Log::error("pre calc taxes = ".$this->getTotal());
 
         $this->calcTaxes();
 
         // custom fields not charged taxes
-        if (isset($this->invoice->custom_value1) && ! $this->settings->custom_invoice_taxes1) {
-            $this->total += $this->invoice->custom_value1;
+        if (isset($this->invoice->custom_value1) && property_exists($this->settings, 'custom_invoice_taxes1') && $this->settings->custom_invoice_taxes1 !== true) {
+	      $this->setTotal($this->getTotal() + $this->invoice->custom_value1);
         }
-        if (isset($this->invoice->custom_value2) && ! $this->settings->custom_invoice_taxes2) {
-            $this->total += $this->invoice->custom_value2;
+
+        if (isset($this->invoice->custom_value2) && property_exists($this->settings, 'custom_invoice_taxes1') && $this->settings->custom_invoice_taxes2 !== true) {
+            $this->setTotal($this->getTotal() + $this->invoice->custom_value2);
         }
+
 
         return $this;
 	}
@@ -178,10 +181,33 @@ class InvoiceCalc
 	{
 
         if (property_exists($this->settings, 'inclusive_taxes') && ! $this->settings->inclusive_taxes) {
-            $taxAmount1 = round($this->total * ($this->invoice->tax_rate1 ? $this->invoice->tax_rate1 : 0) / 100, 2);
-            $taxAmount2 = round($this->total * ($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100, 2);
-            $this->total_taxes = round($taxAmount1 + $taxAmount2, 2) + $this->total_item_taxes;
-            $this->total += $this->total_taxes;
+
+            $taxAmount1 = round($this->getSubTotal() * (($this->invoice->tax_rate1 ? $this->invoice->tax_rate1 : 0) / 100), 2);
+            $taxAmount1 -= $this->discount($taxAmount1, $this->invoice->discount, $this->invoice->is_amount_discount); 
+
+            $tmp_array = [];
+
+            if($taxAmount1 > 0)
+            	$tmp_array[] = ['name' => $this->invoice->tax_name1 . ' ' . $this->invoice->tax_rate1.'%', 'total' => $taxAmount1];
+
+            $taxAmount2 = round($this->getSubTotal() * (($this->invoice->tax_rate2 ? $this->invoice->tax_rate2 : 0) / 100), 2);
+            $taxAmount2 -= $this->discount($taxAmount2, $this->invoice->discount, $this->invoice->is_amount_discount); 
+
+            if($taxAmount2 > 0)
+            	$tmp_array[] = ['name' => $this->invoice->tax_name2 . ' ' . $this->invoice->tax_rate2.'%', 'total' => $taxAmount2];
+
+            $taxAmount3 = round($this->getSubTotal() * (($this->invoice->tax_rate3 ? $this->invoice->tax_rate3 : 0) / 100), 2);
+            $taxAmount3 -= $this->discount($taxAmount3, $this->invoice->discount, $this->invoice->is_amount_discount); 
+
+            if($taxAmount3 > 0)
+            	$tmp_array[] = ['name' => $this->invoice->tax_name3 . ' ' . $this->invoice->tax_rate3.'%', 'total' => $taxAmount3];
+
+
+            $this->setTotalTaxMap($tmp_array);
+
+            $this->setItemTotalTaxes($this->getItemTotalTaxes() + $taxAmount1 + $taxAmount2 + $taxAmount3);
+
+            $this->setTotal($this->getTotal() + $this->getItemTotalTaxes());
         }
 
         return $this;
@@ -205,7 +231,6 @@ class InvoiceCalc
 			$item_calc = new InvoiceItemCalc($item, $this->settings, $this->invoice);
 			$item_calc->process();
 
-
 			$new_line_items[] = $item_calc->getLineItem();
 
 			//set collection of itemised taxes
@@ -214,13 +239,15 @@ class InvoiceCalc
 			//set running total of taxes
 			$this->total_item_taxes += $item_calc->getTotalTaxes();
 
-			//set running total of discounts
-			$this->total_discount += $item_calc->getTotalDiscounts();
+			$this->setItemTotalTaxes($this->getItemTotalTaxes() + ($item_calc->getTotalTaxes() - $this->discount($item_calc->getTotalTaxes(), $this->invoice->discount, $this->invoice->is_amount_discount)));
+
+			//set running total of item discounts
+			$this->item_discount += $item_calc->getTotalDiscounts();
 
 			//set running subtotal
-			$this->sub_total += $item_calc->getLineTotal();
+			$this->setSubTotal($this->getSubTotal() + $item_calc->getLineTotal());
 
-			$this->total += $item_calc->getLineTotal();
+			$this->setTotal($this->getTotal() + $item_calc->getLineTotal());
 
 		}
 
@@ -246,6 +273,18 @@ class InvoiceCalc
 		return $this;
 	}
 	
+	public function getTotalTaxMap()
+	{
+		return $this->total_tax_map;
+	}
+
+	public function setTotalTaxMap($value)
+	{
+		$this->total_tax_map = $value;
+
+		return $this;
+	}
+
 	/**
 	 * Sums and reduces the line item taxes 
 	 * 
@@ -270,7 +309,7 @@ class InvoiceCalc
             $total_line_tax = $values->filter(function ($value, $k) use($key){
                 return $value['key'] == $key;
             })->sum('total');
-        
+
             $tax_array[] = ['name' => $tax_name, 'total' => $total_line_tax];
 
         }
@@ -278,6 +317,14 @@ class InvoiceCalc
         return $tax_array;
     
 
+	}
+
+	private function adjustTaxesWithDiscount($line_taxes)
+	{\Log::error($line_taxes);
+		return $line_taxes->transform(function($line_tax){
+			\Log::error($line_tax['tax_name'] . " " . $line_tax['total']. " ". $this->discount($line_tax['total'], $this->invoice->discount, $this->invoice->is_amount_discount));
+			return $line_tax['total'] -= $this->discount($line_tax['total'], $this->invoice->discount, $this->invoice->is_amount_discount);
+		});
 	}
 
 	public function setTaxMap($value)
@@ -299,12 +346,12 @@ class InvoiceCalc
 		return $this;
 	}
 
-	public function getTotalTaxes()
+	public function getItemTotalTaxes()
 	{
 		return $this->total_taxes;
 	}
 
-	public function setTotalTaxes($value)
+	public function setItemTotalTaxes($value)
 	{
 		$this->total_taxes = $value;
 
@@ -323,7 +370,11 @@ class InvoiceCalc
 
 	public function setTotal($value)
 	{
+		\Log::error($this->total . " sets to  " . $value);
+
 		$this->total = $value;
+
+		return $this;
 	}
 
 	public function getBalance()
@@ -334,6 +385,8 @@ class InvoiceCalc
 	public function setBalance($value)
 	{
 		$this->balance = $value;
+
+		return $this;
 	}
 
 	public function getInvoice()

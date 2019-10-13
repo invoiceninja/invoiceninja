@@ -59,7 +59,7 @@ class InvoiceItemFactory
 			$item->quantity = $faker->numberBetween(1,10);
 			$item->cost = $faker->randomFloat(2, 1, 1000);
 			$item->line_total = $item->quantity * $item->cost;
-			$item->is_amount_discount = $faker->boolean();
+			$item->is_amount_discount = false;
 			$item->discount = $faker->numberBetween(1,10);
 			$item->notes = $faker->realText(20);
 			$item->product_key = $faker->word();
