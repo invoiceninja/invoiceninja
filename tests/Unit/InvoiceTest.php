@@ -93,8 +93,8 @@ class InvoiceTest extends TestCase
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-		$this->assertEquals($this->invoice_calc->getTotal(), 20);
-		$this->assertEquals($this->invoice_calc->getBalance(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 25);
+		$this->assertEquals($this->invoice_calc->getBalance(), 25);
 	}
 
 	public function testInvoiceTotalsWithDiscountWithSurchargeWithInclusiveTax()
@@ -107,8 +107,8 @@ class InvoiceTest extends TestCase
 		$this->invoice_calc->build();
 
 		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-		$this->assertEquals($this->invoice_calc->getTotal(), 20);
-		$this->assertEquals($this->invoice_calc->getBalance(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 25);
+		$this->assertEquals($this->invoice_calc->getBalance(), 25);
 	}
 
 	public function testInvoiceTotalsWithDiscountWithSurchargeWithExclusiveTax()
@@ -120,8 +120,9 @@ class InvoiceTest extends TestCase
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 		$this->settings->inclusive_taxes = false;
+		$this->invoice->is_amount_discount = true;
 
-		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
+		//$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
 
 		$this->invoice_calc->build();
 

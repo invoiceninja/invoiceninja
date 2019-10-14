@@ -19,13 +19,25 @@ trait Discounter
 
 	public function discount($amount, $discount, $is_amount_discount)
 	{
+		\Log::error("{$amount}, {$discount}, {$is_amount_discount}");
 
-		if($is_amount_discount){
+		if($is_amount_discount === true)
 			return $discount;
+
+		
+		return round($amount * ($discount / 100), 2);
+		
+	}
+
+	public function pro_rata_discount($amount, $total, $discount, $is_amount_discount)
+	{
+		if($is_amount_discount === true){
+			return round(($discount/$total * $amount),4);
 		}
-		else {
-			return round($amount * ($discount / 100), 2);
-		}
+
+		
+		return round($amount * ($discount / 100), 2);
+		
 	}
 
 }
