@@ -35,7 +35,8 @@ class Ninja
         }
 
         $mysql_version = DB::select(DB::raw("select version() as version"))[0]->version;
-        $account_key = null;
+        $account_key = Auth::check() ? Auth::user()->account->account_key : '';
+        
         $info = "App Version: v" . config('ninja.app_version') . "\\n" .
             "White Label: " . "\\n" . // TODO: Implement white label with hasFeature.
             "Server OS: " . php_uname('s') . ' ' . php_uname('r') . "\\n" .

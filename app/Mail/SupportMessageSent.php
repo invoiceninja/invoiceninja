@@ -27,23 +27,32 @@ class SupportMessageSent extends Mailable
      */
     public function build()
     {
-        $system_info = Ninja::getDebugInfo();
+        $system_info = null;
+        $log_lines = [];
 
-        $log_lines = null;
-        $log_file = new \SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+        /**
+         * With self-hosted version of Ninja,
+         * we are going to bundle system-level info
+         * and last 10 lines of laravel.log file.
+         */
+        if(Ninja::isSelfHost()) {
+            $system_info = Ninja::getDebugInfo();
 
-        $log_file->seek(PHP_INT_MAX);
-        $last_line = $log_file->key();
-        $lines = new \LimitIterator($log_file, $last_line - 10, $last_line);
+            $log_file = new \SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
 
-        $log_lines = iterator_to_array($lines);
+            $log_file->seek(PHP_INT_MAX);
+            $last_line = $log_file->key();
+            $lines = new \LimitIterator($log_file, $last_line - 10, $last_line);
+
+            $log_lines = iterator_to_array($lines);
+        }
 
         return $this->from(config('mail.from.address'))
             ->subject(ctrans('texts.new_support_message'))
             ->markdown('email.support.message', [
                 'message' => $this->message,
-                'system_info' => Ninja::getDebugInfo(),
-                'laravel_log' => $log_lines ?? null
+                'system_info' => $system_info,
+                'laravel_log' => $log_lines
             ]);
     }
 }
