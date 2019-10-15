@@ -254,7 +254,10 @@ class Invoice extends BaseModel
      */
     public function design() :string
     {
-        return File::exists(resource_path($this->settings->design)) ? File::get(resource_path($this->settings->design)) : File::get(resource_path('views/pdf/design1.blade.php'));
+        if(property_exists($this->settings,'design'))
+            return File::exists(resource_path($this->settings->design)) ? File::get(resource_path($this->settings->design)) : File::get(resource_path('views/pdf/design1.blade.php'));
+        else
+            return File::get(resource_path('views/pdf/design1.blade.php'));
     }
 
     /**
