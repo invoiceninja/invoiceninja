@@ -82,7 +82,13 @@ class CreateUsersTable extends Migration
             $table->string('key')->unique();
             $table->string('provider');
             $table->boolean('visible')->default(true);
-            $table->timestamps();
+            $table->unsignedInteger('sort_order')->default(10000);
+            $table->boolean('recommended')->default(0);
+            $table->string('site_url', 200)->nullable();
+            $table->boolean('is_offsite')->default(false);
+            $table->boolean('is_secure')->default(false);
+            $table->text('fields')->nullable();
+            $table->timestamps(6);
         });
 
         Schema::create('accounts', function ($table) {
@@ -756,21 +762,6 @@ class CreateUsersTable extends Migration
             $t->boolean('visible')->default(true);
         });
 
-        Schema::table('gateways', function ($table) {
-            $table->unsignedInteger('payment_library_id')->default(1);
-            $table->unsignedInteger('sort_order')->default(10000);
-            $table->boolean('recommended')->default(0);
-            $table->string('site_url', 200)->nullable();
-            $table->boolean('is_offsite')->default(false);
-            $table->boolean('is_secure')->default(false);
-            $table->text('fields')->nullable();
-        });
-
-        DB::table('gateways')->update(['payment_library_id' => 1]);
-
-        Schema::table('gateways', function ($table) {
-            $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
-        });
 
         Schema::create('tasks', function ($table) {
             $table->increments('id');

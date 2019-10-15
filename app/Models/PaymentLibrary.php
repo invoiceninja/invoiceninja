@@ -26,12 +26,5 @@ class PaymentLibrary extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function gateways()
-    {
-        return $this->hasMany(Gateway::class, 'payment_library_id');
-    }
 
 }
