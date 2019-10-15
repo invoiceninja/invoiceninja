@@ -19,6 +19,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceCalc;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\CompanyGateway;
@@ -116,7 +117,7 @@ trait MockAccountData
 
 		$this->invoice->settings = $this->settings;
 
-		$this->invoice_calc = new InvoiceCalc($this->invoice, $this->settings);
+		$this->invoice_calc = new InvoiceSum($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
 		$this->invoice = $this->invoice_calc->getInvoice();

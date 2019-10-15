@@ -118,7 +118,7 @@ class InvoiceCalc
 	private function calcDiscount()
 	{
 
-        $this->setTotalDiscount($this->discount($this->getSubTotal(), $this->invoice->discount, $this->invoice->is_amount_discount));
+        $this->setTotalDiscount($this->discount($this->getSubTotal()));
 
       	$this->setTotal( $this->getTotal() - $this->getTotalDiscount() );
 
@@ -175,7 +175,7 @@ class InvoiceCalc
 
             $taxAmount1 = $this->taxer($this->getSubTotal(), $this->invoice->tax_rate1);
 \Log::error("tax 1 pre discount of  ". $this->getSubTotal(). " = ". $taxAmount1);
-            $taxAmount1 -= $this->discount($taxAmount1, $this->invoice->discount, $this->invoice->is_amount_discount); 
+            $taxAmount1 -= $this->discount($taxAmount1); 
 \Log::error("tax 1 post discount =  ". $this->getSubTotal(). " = ". $taxAmount1);
 
             if($taxAmount1 > 0)
@@ -183,7 +183,7 @@ class InvoiceCalc
 
             $taxAmount2 = $this->taxer($this->getSubTotal(), $this->invoice->tax_rate2);
 \Log::error("tax 2 pre discount =  ". $this->getSubTotal(). " = ". $taxAmount2);
-            $taxAmount2 -= $this->discount($taxAmount2, $this->invoice->discount, $this->invoice->is_amount_discount); 
+            $taxAmount2 -= $this->discount($taxAmount2); 
 \Log::error("tax 2 post discount =  ". $this->getSubTotal(). " = ". $taxAmount2);
 
             if($taxAmount2 > 0)
@@ -191,7 +191,7 @@ class InvoiceCalc
 
             $taxAmount3 = $this->taxer($this->getSubTotal(), $this->invoice->tax_rate3);
 \Log::error("tax 3 pre discount =  ". $this->getSubTotal(). " = ". $taxAmount3);
-            $taxAmount3 -= $this->discount($taxAmount3, $this->invoice->discount, $this->invoice->is_amount_discount); 
+            $taxAmount3 -= $this->discount($taxAmount3); 
 \Log::error("tax 3 post discount =  ". $this->getSubTotal(). " = ". $taxAmount3);
 
             if($taxAmount3 > 0)
@@ -235,13 +235,13 @@ class InvoiceCalc
 			//set running total of taxes
 			$this->total_item_taxes += $item_calc->getTotalTaxes();
 
-			$this->setItemTotalTaxes($this->getItemTotalTaxes() + ($item_calc->getTotalTaxes() - $this->discount($item_calc->getTotalTaxes(), $this->invoice->discount, $this->invoice->is_amount_discount)));
+			//set running subtotal
+			$this->setSubTotal($this->getSubTotal() + $item_calc->getLineTotal());
+			
+			$this->setItemTotalTaxes($this->getItemTotalTaxes() + ($item_calc->getTotalTaxes() - $this->discount($item_calc->getTotalTaxes())));
 
 			//set running total of item discounts
 			$this->item_discount += $item_calc->getTotalDiscounts();
-
-			//set running subtotal
-			$this->setSubTotal($this->getSubTotal() + $item_calc->getLineTotal());
 
 			$this->setTotal($this->getTotal() + $item_calc->getLineTotal());
 
@@ -318,8 +318,8 @@ class InvoiceCalc
 	private function adjustTaxesWithDiscount($line_taxes)
 	{\Log::error($line_taxes);
 		return $line_taxes->transform(function($line_tax){
-			\Log::error($line_tax['tax_name'] . " " . $line_tax['total']. " ". $this->discount($line_tax['total'], $this->invoice->discount, $this->invoice->is_amount_discount));
-			return $line_tax['total'] -= $this->discount($line_tax['total'], $this->invoice->discount, $this->invoice->is_amount_discount);
+			\Log::error($line_tax['tax_name'] . " " . $line_tax['total']. " ". $this->discount($line_tax['total']));
+			return $line_tax['total'] -= $this->discount($line_tax['total']);
 		});
 	}
 

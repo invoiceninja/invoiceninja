@@ -11,6 +11,7 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Helpers\Invoice\Discounter;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
@@ -20,6 +21,7 @@ class InvoiceItemSum
 {
 
 	use NumberFormatter;
+	use Discounter;
 
 	protected $settings;
 
@@ -36,6 +38,8 @@ class InvoiceItemSum
 	private $item;
 
 	private $line_items;
+
+	private $sub_total;
 
 	public function __construct($invoice, $settings)
 	{
@@ -79,6 +83,8 @@ class InvoiceItemSum
 	private function push()
 	{
 		$this->item->line_total = $this->line_total;
+
+		$this->sub_total += $this->line_total;
 
 		$this->line_items[] = $this->item;
 
@@ -178,9 +184,22 @@ class InvoiceItemSum
 	}
 
 
+	public function applyInvoiceDiscount()
+	{
+		$tmp_sub_total = 0;
+		$tmp = [];
 
+		foreach($this->line_items as $this->item)
+		{
+			$this->item->line_total -= $this->discount($this->line_total);
+			$tmp[] = $this->item;
+			$tmp_sub_total += $this->item->line_total;
+		}
 
+		$this->line_items = $tmp;
 
+		$this->setSubTotal($tmp_sub_total);
+	}
 
 	public function getTotalTaxes()
 	{
@@ -193,7 +212,6 @@ class InvoiceItemSum
 
 		return $this;
 	}
-
 
 	public function setLineTotal($total)
 	{
@@ -220,6 +238,17 @@ class InvoiceItemSum
 	{
 		$this->tax_collection = $group_taxes;
 
+		return $this;
+	}
+
+	public function getSubTotal()
+	{
+		return $this->sub_total;
+	}
+
+	public function setSubTotal($value)
+	{
+		$this->sub_total = $value;
 		return $this;
 	}
 }

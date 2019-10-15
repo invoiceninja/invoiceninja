@@ -17,27 +17,22 @@ namespace App\Helpers\Invoice;
 trait Discounter
 {
 
-	public function discount($amount, $discount, $is_amount_discount)
+	public function discount($amount)
 	{
-		\Log::error("{$amount}, {$discount}, {$is_amount_discount}");
+		if($this->invoice->discount == 0)
+			return 0;
 
-		if($is_amount_discount === true)
-			return $discount;
+		if($this->invoice->is_amount_discount === true)
+			return $this->pro_rata_discount($amount);
 
 		
-		return round($amount * ($discount / 100), 2);
+		return round($amount * ($this->invoice->discount / 100), 2);
 		
 	}
 
-	public function pro_rata_discount($amount, $total, $discount, $is_amount_discount)
+	public function pro_rata_discount($amount)
 	{
-		if($is_amount_discount === true){
-			return round(($discount/$total * $amount),4);
-		}
-
-		
-		return round($amount * ($discount / 100), 2);
-		
+		return round(($this->invoice->discount/$this->getSubTotal() * $amount),2);		
 	}
 
 }

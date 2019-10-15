@@ -42,16 +42,27 @@ class InvoiceSum
 
 	public function build()
 	{
-		$this->calculateLineItems();
+		$this->calculateLineItems()
+			 ->calculateDiscount();
 
 		return $this;
 	}
 
 	private function calculateLineItems()
 	{
-		$this->invoice_item = new InvoiceItemSum($this->invoice, $this->settings);
-		$this->invoice_item->process();
+		$this->invoice_items = new InvoiceItemSum($this->invoice, $this->settings);
+		$this->invoice_items->process();
+
+		return $this;
 	}
 
+	private function calculateDiscount()
+	{
+		$this->invoice_items->applyInvoiceDiscount($this->invoice);
+	}
 
+	public function getInvoice()
+	{
+		return $this->invoice;
+	}
 }
