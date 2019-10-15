@@ -210,4 +210,16 @@ class InvoiceItemSum
 	{
 		return $this->line_items;
 	}
+
+	public function getGroupedTaxes()
+	{ 
+		return $this->tax_collection;
+	}
+
+	public function setGroupedTaxes($group_taxes)
+	{
+		$this->tax_collection = $group_taxes;
+
+		return $this;
+	}
 }
