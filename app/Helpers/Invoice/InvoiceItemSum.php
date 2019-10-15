@@ -16,29 +16,29 @@ use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class InvoiceItemCalc
+class InvoiceItemSum
 {
 
 	use NumberFormatter;
-
-	protected $item;
 
 	protected $settings;
 
 	protected $invoice;
 
-	private $total_taxes;
-
-	private $total_discounts;
-
-	private $tax_collection;
+	private $items;
 
 	private $line_total;
 
-	public function __construct(\stdClass $item, $settings, $invoice)
-	{
+	private $currency;
 
-		$this->item = $item;
+	private $total_taxes;
+
+	private $item;
+
+	private $line_items;
+
+	public function __construct($invoice, $settings)
+	{
 
 		$this->settings = $settings;
 
@@ -47,17 +47,50 @@ class InvoiceItemCalc
 		$this->invoice = $invoice;
 
 		$this->currency = $invoice->client->currency();
+
+		$this->line_items = [];
 	}
 
 	public function process()
 	{
+		if(!$this->invoice->line_items || count($this->invoice->line_items) == 0){
+			$this->items = [];
+			return $this;
+		}
 
-		$this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+		$this->buildLineItems();
 
-		$this->setDiscount()
-			->calcTaxes();
+		return $this;
+	}
 
-	}	
+	private function buildLineItems()
+	{
+		foreach($this->invoice->line_items as $this->item)
+		{
+			$this->sumLineItem()
+				->setDiscount()
+				->calcTaxes()
+				->push();
+		}
+
+		return $this;
+	}
+
+	private function push()
+	{
+		$this->item->line_total = $this->line_total;
+
+		$this->line_items[] = $this->item;
+
+		return $this;
+	}
+
+	private function sumLineItem()
+	{
+		$this->line_total = $this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision);
+
+		return $this;
+	}
 
 	private function setDiscount()
 	{
@@ -67,18 +100,12 @@ class InvoiceItemCalc
 
 		if($this->item->is_amount_discount)
 		{	
-			$discountedTotal = $this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision);
+			$this->line_total -= $this->formatValue($this->item->discount, $this->currency->precision);
 		}
 		else
 		{
-			$discountedTotal = $this->getLineTotal() - $this->formatValue(round($this->getLineTotal() * ($this->item->discount / 100),2), $this->currency->precision);
+			$this->line_total -= $this->formatValue(round($this->line_total * ($this->item->discount / 100),2), $this->currency->precision);
 		}
-
-	    $this->setLineTotal($discountedTotal);
-
-	    $totalDiscount = $this->getTotalDiscounts() + $discountedTotal;
-
-	    $this->setTotalDiscounts($totalDiscount);
 
 		return $this;
         
@@ -93,9 +120,9 @@ class InvoiceItemCalc
 			$tax_rate1 = $this->formatValue($this->item->tax_rate1, $this->currency->precision);
 
 			if($this->settings->inclusive_taxes)
-				$item_tax_rate1_total = $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate1/100))) , $this->currency->precision);
+				$item_tax_rate1_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate1/100))) , $this->currency->precision);
 			else
-				$item_tax_rate1_total = $this->formatValue(($this->getLineTotal() * $tax_rate1/100), $this->currency->precision);
+				$item_tax_rate1_total = $this->formatValue(($this->line_total * $tax_rate1/100), $this->currency->precision);
 
 			$item_tax += $item_tax_rate1_total;
 
@@ -107,9 +134,9 @@ class InvoiceItemCalc
 			$tax_rate2 = $this->formatValue($this->item->tax_rate2, $this->currency->precision);
 
 			if($this->settings->inclusive_taxes)
-				$item_tax_rate2_total = $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate2/100))) , $this->currency->precision);
+				$item_tax_rate2_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate2/100))) , $this->currency->precision);
 			else
-				$item_tax_rate2_total = $this->formatValue(($this->getLineTotal() * $tax_rate2/100), $this->currency->precision);
+				$item_tax_rate2_total = $this->formatValue(($this->line_total * $tax_rate2/100), $this->currency->precision);
 
 			$item_tax += $item_tax_rate2_total;
 
@@ -122,9 +149,9 @@ class InvoiceItemCalc
 			$tax_rate3 = $this->formatValue($this->item->tax_rate3, $this->currency->precision);
 
 			if($this->settings->inclusive_taxes)
-				$item_tax_rate3_total = $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate3/100))) , $this->currency->precision);
+				$item_tax_rate3_total = $this->formatValue(($this->line_total - ($this->line_total / (1+$tax_rate3/100))) , $this->currency->precision);
 			else
-				$item_tax_rate3_total = $this->formatValue(($this->getLineTotal() * $tax_rate3/100), $this->currency->precision);
+				$item_tax_rate3_total = $this->formatValue(($this->line_total * $tax_rate3/100), $this->currency->precision);
 
 			$item_tax += $item_tax_rate3_total;
 
@@ -150,30 +177,10 @@ class InvoiceItemCalc
 		
 	}
 
-	/****************
-	*
-	* Getters and Setters
-	*
-	*
-	*/
-	public function getLineItem()
-	{
 
-		return $this->item;
 
-	}
 
-	public function getLineTotal()
-	{
-		return $this->item->line_total;
-	}
 
-	public function setLineTotal($total)
-	{
-		$this->item->line_total = $total;
-
-		return $this;
-	}
 
 	public function getTotalTaxes()
 	{
@@ -187,29 +194,20 @@ class InvoiceItemCalc
 		return $this;
 	}
 
-	public function getTotalDiscounts()
-	{
-		return $this->total_discounts;
-	}
 
-	public function setTotalDiscounts($total)
+	public function setLineTotal($total)
 	{
-		$this->total_discounts = $total;
-
+		$this->line_total = $total;
 		return $this;
 	}
 
-	public function getGroupedTaxes()
-	{ 
-		return $this->tax_collection;
-	}
-
-	public function setGroupedTaxes($group_taxes)
+	public function getLineTotal()
 	{
-		$this->tax_collection = $group_taxes;
-
-		return $this;
+		return $this->line_total;
 	}
 
-
+	public function getLineItems()
+	{
+		return $this->line_items;
+	}
 }
