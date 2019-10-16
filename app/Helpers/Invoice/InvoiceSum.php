@@ -42,6 +42,8 @@ class InvoiceSum
 
 	private $total_discount;
 
+	private $total_custom_values;
+
 	/**
 	 * Constructs the object with Invoice and Settings object
 	 *
@@ -90,17 +92,17 @@ class InvoiceSum
 	private function calculateCustomValues()
 	{
 		$this->total_taxes += $this->valuerTax($this->invoice->custom_value1);
-        $this->total += $this->valuer($this->invoice->custom_value1, $this->settings->custom_invoice_taxes1);
-        
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value1, $this->settings->custom_invoice_taxes1);
+
 		$this->total_taxes += $this->valuerTax($this->invoice->custom_value2);
-        $this->total += $this->valuer($this->invoice->custom_value2, $this->settings->custom_invoice_taxes2);
-        
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value2, $this->settings->custom_invoice_taxes2);
+
 		$this->total_taxes += $this->valuerTax($this->invoice->custom_value3);
-        $this->total += $this->valuer($this->invoice->custom_value3, $this->settings->custom_invoice_taxes3);
-        
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value3, $this->settings->custom_invoice_taxes3);
+
         $this->total_taxes += $this->valuerTax($this->invoice->custom_value4);
-        $this->total += $this->valuer($this->invoice->custom_value4, $this->settings->custom_invoice_taxes4);
-        
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value4, $this->settings->custom_invoice_taxes4);
+
         return $this;
 	}
 
@@ -137,7 +139,7 @@ class InvoiceSum
 	{
 		//$this->invoice->balance = $this->balance($this->getTotal(), $this->invoice);
 		$this->setCalculatedAttributes();
-		
+
 		return $this;
 	}
 
@@ -152,10 +154,14 @@ class InvoiceSum
 
 	private function calculateTotals()
 	{
+		$this->total = 0;
 
 		$this->total += $this->invoice_items->getSubTotal();
-		$this->total -= $this->total_discount;
-		$this->total += $this->total_taxes;
+		
+		if($this->invoice->inclusive_taxes === false)
+			$this->total += $this->total_taxes;
+		
+		$this->total += $this->total_custom_values;
 
         return $this;
 

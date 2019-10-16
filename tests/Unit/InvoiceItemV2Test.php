@@ -281,8 +281,6 @@ class InvoiceItemV2Test extends TestCase
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
 
-		$item_calc->applyDiscount();
-
 		$line_items = $item_calc->getLineItems();
 
 		$this->assertEquals($item_calc->getSubTotal(), 10);
@@ -305,8 +303,6 @@ class InvoiceItemV2Test extends TestCase
 		
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
-
-		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
@@ -338,8 +334,6 @@ class InvoiceItemV2Test extends TestCase
 
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
-
-		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
@@ -374,8 +368,6 @@ class InvoiceItemV2Test extends TestCase
 
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
-
-		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
