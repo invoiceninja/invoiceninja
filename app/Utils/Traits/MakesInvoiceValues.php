@@ -424,14 +424,12 @@ trait MakesInvoiceValues
     private function makeTotalTaxes() :string
     {
 
-        $total_tax_map = $this->calc()->getTotalTaxMap();
-
         $data = '';
 
-        if(count($this->calc()->getTotalTaxMap()) == 0)
+        if($this->calc()->getTotalTaxMap()->count() == 0)
             return $data;
 
-        foreach($total_tax_map as $tax)
+        foreach($this->calc()->getTotalTaxMap() as $tax)
         {
             $data .= '<tr class="total_taxes">';
             $data .= '<td>'. $tax['name'] .'</td>';

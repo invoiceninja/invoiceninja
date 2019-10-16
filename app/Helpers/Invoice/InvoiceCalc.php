@@ -16,7 +16,6 @@ use App\Helpers\Invoice\InvoiceItemCalc;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class for invoice calculations.
@@ -77,7 +76,6 @@ class InvoiceCalc
 	 */
 	public function build()
 	{
-		//\Log::error(var_dump($this->settings));
 
 		$this->calcLineItems()
 			->calcDiscount()
@@ -157,7 +155,6 @@ class InvoiceCalc
         if (isset($this->invoice->custom_value2) && property_exists($this->settings, 'custom_invoice_taxes1') && $this->settings->custom_invoice_taxes2 === true) {
             $this->setTotal($this->getTotal() + $this->invoice->custom_value2);
         }
-      	// \Log::error("pre calc taxes = ".$this->getTotal());
 
         $this->calcTaxes();
 
@@ -320,9 +317,9 @@ class InvoiceCalc
 	}
 
 	private function adjustTaxesWithDiscount($line_taxes)
-	{\Log::error($line_taxes);
+	{
 		return $line_taxes->transform(function($line_tax){
-			\Log::error($line_tax['tax_name'] . " " . $line_tax['total']. " ". $this->discount($line_tax['total'], $this->invoice->discount, $this->invoice->is_amount_discount));
+
 			return $line_tax['total'] -= $this->discount($line_tax['total'], $this->invoice->discount, $this->invoice->is_amount_discount);
 		});
 	}
@@ -370,7 +367,6 @@ class InvoiceCalc
 
 	public function setTotal($value)
 	{
-		\Log::error($this->total . " sets to  " . $value);
 
 		$this->total = $value;
 
