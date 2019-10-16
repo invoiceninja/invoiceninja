@@ -6,7 +6,7 @@ use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
-use App\Helpers\Invoice\InvoiceCalc;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -120,7 +120,7 @@ class RandomDataSeeder extends Seeder
 
         $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
                 
-            $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
+            $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
             $invoice = $invoice_calc->build()->getInvoice();
             

@@ -428,6 +428,9 @@ trait MakesInvoiceValues
 
         $data = '';
 
+        if(count($this->calc()->getTotalTaxMap()) == 0)
+            return $data;
+
         foreach($total_tax_map as $tax)
         {
             $data .= '<tr class="total_taxes">';
