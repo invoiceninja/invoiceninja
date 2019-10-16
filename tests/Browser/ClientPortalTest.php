@@ -180,6 +180,7 @@ class ClientPortalTest extends DuskTestCase
         $this->browse(function ($browser) {
 
             $browser->visit('/client/login')
+                ->assertPathIs('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
                 ->press('Login')

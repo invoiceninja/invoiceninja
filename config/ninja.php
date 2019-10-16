@@ -64,6 +64,7 @@ return [
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
         'from_name' => env('MAIL_FROM_NAME'),
+        'ninja_official_contact' => env('NINJA_OFFICIAL_CONTACT', 'contact@invoiceninja.com'),
     ],
     'cached_tables' => [
         'banks' => 'App\Models\Bank',
