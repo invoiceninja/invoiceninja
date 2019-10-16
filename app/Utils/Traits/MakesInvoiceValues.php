@@ -426,7 +426,7 @@ trait MakesInvoiceValues
 
         $data = '';
 
-        if($this->calc()->getTotalTaxMap()->count() == 0)
+        if(count($this->calc()->getTotalTaxMap()) == 0)
             return $data;
 
         foreach($this->calc()->getTotalTaxMap() as $tax)

@@ -45,6 +45,8 @@ class InvoiceSum
 	private $total_custom_values;
 
 	private $total_tax_map;
+
+	private $sub_total;
 	/**
 	 * Constructs the object with Invoice and Settings object
 	 *
@@ -81,6 +83,7 @@ class InvoiceSum
 		$this->invoice_items->process();
 		$this->invoice->line_items = $this->invoice_items->getLineItems();
 		$this->total = $this->invoice_items->getSubTotal();
+		$this->setSubTotal($this->invoice_items->getSubTotal());
 
 		return $this;
 	}
@@ -164,6 +167,10 @@ class InvoiceSum
 		
 		if($this->settings->inclusive_taxes === false)
 			$this->total += $this->total_taxes;
+		else
+		{
+			$this->setSubTotal($this->getSubTotal() - $this->total_taxes);
+		}
 		
         return $this;
 
@@ -202,7 +209,13 @@ class InvoiceSum
 
 	public function getSubTotal()
 	{
-		return $this->invoice_items->getSubTotal();
+		return $this->sub_total;
+	}
+
+	public function setSubTotal($value)
+	{
+		$this->sub_total = $value;
+		return $this;
 	}
 
 	public function getTotalDiscount()

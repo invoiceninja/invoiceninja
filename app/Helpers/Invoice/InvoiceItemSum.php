@@ -12,6 +12,7 @@
 namespace App\Helpers\Invoice;
 
 use App\Helpers\Invoice\Discounter;
+use App\Helpers\Invoice\Taxer;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
@@ -21,6 +22,7 @@ class InvoiceItemSum
 
 	use NumberFormatter;
 	use Discounter;
+	use Taxer;
 
 	protected $settings;
 
@@ -116,56 +118,71 @@ class InvoiceItemSum
 	}
 
 	private function calcTaxes()
-	{
+	{\Log::error(print_r($this->settings,1));
+		if($this->settings->inclusive_taxes == true)
+			return $this->calcInclusiveTaxes();
+
+\Log::error("calculating exclusive taxes");
+\Log::error($this->settings->inclusive_taxes);
+
 		$item_tax = 0;
 
-		if(isset($this->item->tax_rate1) && $this->item->tax_rate1 > 0)
-		{
-			$tax_rate1 = $this->formatValue($this->item->tax_rate1, $this->currency->precision);
 
-			if($this->settings->inclusive_taxes)
-				$item_tax_rate1_total = $this->formatValue(($this->item->line_total - ($this->item->line_total / (1+$tax_rate1/100))) , $this->currency->precision);
-			else
-				$item_tax_rate1_total = $this->formatValue(($this->item->line_total * $tax_rate1/100), $this->currency->precision);
+			$item_tax_rate1_total = $this->calcLineTax($this->item->tax_rate1, $this->item);
 
 			$item_tax += $item_tax_rate1_total;
 
 			$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
-		}
+		
 
-		if(isset($this->item->tax_rate2) && $this->item->tax_rate2 > 0)
-		{
-			$tax_rate2 = $this->formatValue($this->item->tax_rate2, $this->currency->precision);
-
-			if($this->settings->inclusive_taxes)
-				$item_tax_rate2_total = $this->formatValue(($this->item->line_total - ($this->item->line_total / (1+$tax_rate2/100))) , $this->currency->precision);
-			else
-				$item_tax_rate2_total = $this->formatValue(($this->item->line_total * $tax_rate2/100), $this->currency->precision);
+			$item_tax_rate2_total = $this->calcLineTax($this->item->tax_rate2, $this->item);
 
 			$item_tax += $item_tax_rate2_total;
 
 			$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
 
-		}
 
-		if(isset($this->item->tax_rate3) && $this->item->tax_rate3 > 0)
-		{
-			$tax_rate3 = $this->formatValue($this->item->tax_rate3, $this->currency->precision);
-
-			if($this->settings->inclusive_taxes)
-				$item_tax_rate3_total = $this->formatValue(($this->item->line_total - ($this->item->line_total / (1+$tax_rate3/100))) , $this->currency->precision);
-			else
-				$item_tax_rate3_total = $this->formatValue(($this->item->line_total * $tax_rate3/100), $this->currency->precision);
+			$item_tax_rate3_total = $this->calcLineTax($this->item->tax_rate3, $this->item);
 
 			$item_tax += $item_tax_rate3_total;
 
 			$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
-		}
 
 		//todo if exclusive add on top, if inclusive need to reduce item rates
-
 		$this->setTotalTaxes($item_tax);
+
+		return $this;
+	}
+
+	/**
+	 * Inclusive taxes are a different beast
+	 * the line totals are changed when implementing 
+	 * inclusive taxes so we need to handle this away from the
+	 * calcTaxes method.
+	 *	 
+	 */
+	private function calcInclusiveTaxes()
+	{
+\Log::error("calculating inclusive taxes");
+			$tax1 = $this->inclusiveTax($this->item->tax_rate1, $this->item);
+			$tax2 = $this->inclusiveTax($this->item->tax_rate2, $this->item);
+			$tax3 = $this->inclusiveTax($this->item->tax_rate3, $this->item);
+
+			if($tax1>0)
+				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $tax1);
+
+			if($tax2>0)
+				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $tax2);
+
+			if($tax3>0)
+				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $tax3);
+
+			$total_taxes = ($tax1 + $tax2 + $tax3);
+
+			$this->setTotalTaxes($this->getTotalTaxes() + $total_taxes);
+
+			$this->item->line_total -= $total_taxes;
 
 		return $this;
 	}
