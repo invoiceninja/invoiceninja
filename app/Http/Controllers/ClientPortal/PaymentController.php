@@ -46,7 +46,7 @@ class PaymentController extends Controller
     public function index(PaymentFilters $filters, Builder $builder)
     {
         //$payments = Payment::filter($filters);
-        $payments = Payment::all();
+        $payments = Payment::with('type')->get();
 
         if (request()->ajax()) {
 

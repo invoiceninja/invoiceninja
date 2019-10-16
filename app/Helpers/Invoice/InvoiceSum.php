@@ -44,6 +44,7 @@ class InvoiceSum
 
 	private $total_custom_values;
 
+	private $total_tax_map;
 	/**
 	 * Constructs the object with Invoice and Settings object
 	 *
