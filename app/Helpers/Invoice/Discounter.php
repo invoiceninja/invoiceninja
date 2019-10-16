@@ -19,20 +19,18 @@ trait Discounter
 
 	public function discount($amount)
 	{
-		if($this->invoice->discount == 0)
-			return 0;
 
 		if($this->invoice->is_amount_discount === true)
-			return $this->pro_rata_discount($amount);
+			return $this->invoice->discount;
 
 		
 		return round($amount * ($this->invoice->discount / 100), 2);
 		
 	}
 
-	public function pro_rata_discount($amount)
-	{
-		return round(($this->invoice->discount/$this->getSubTotal() * $amount),2);		
-	}
+	// public function pro_rata_discount($amount)
+	// {
+	// 	return round(($this->invoice->discount/$this->getSubTotal() * $amount),2);		
+	// }
 
 }

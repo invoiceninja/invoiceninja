@@ -281,11 +281,11 @@ class InvoiceItemV2Test extends TestCase
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
 
-		$item_calc->applyInvoiceDiscount();
+		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
-		$this->assertEquals($item_calc->getSubTotal(), 9);
+		$this->assertEquals($item_calc->getSubTotal(), 10);
 	}
 
 	public function testInvoiceLevelDiscountIsPercentDiscountOnSubtotal()
@@ -306,11 +306,11 @@ class InvoiceItemV2Test extends TestCase
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
 
-		$item_calc->applyInvoiceDiscount();
+		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
-		$this->assertEquals($item_calc->getSubTotal(), 9.5);
+		$this->assertEquals($item_calc->getSubTotal(), 10);
 	}
 
 	public function testMultiItemInvoiceLevelDiscountIsAmountDiscountOnSubtotal()
@@ -339,13 +339,13 @@ class InvoiceItemV2Test extends TestCase
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
 
-		$item_calc->applyInvoiceDiscount();
+		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
-		$this->assertEquals($line_items[0]->line_total, 9.5);
-		$this->assertEquals($line_items[1]->line_total, 9.5);
-		$this->assertEquals($item_calc->getSubTotal(), 19);
+		$this->assertEquals($line_items[0]->line_total, 10);
+		$this->assertEquals($line_items[1]->line_total, 10);
+		$this->assertEquals($item_calc->getSubTotal(), 20);
 
 	}
 
@@ -375,13 +375,13 @@ class InvoiceItemV2Test extends TestCase
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
 
-		$item_calc->applyInvoiceDiscount();
+		$item_calc->applyDiscount();
 
 		$line_items = $item_calc->getLineItems();
 
-		$this->assertEquals($line_items[0]->line_total, 8);
-		$this->assertEquals($line_items[1]->line_total, 8);
-		$this->assertEquals($item_calc->getSubTotal(), 16);
+		$this->assertEquals($line_items[0]->line_total, 10);
+		$this->assertEquals($line_items[1]->line_total, 10);
+		$this->assertEquals($item_calc->getSubTotal(), 20);
 
 	}
 }

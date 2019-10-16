@@ -41,6 +41,8 @@ class InvoiceItemSum
 
 	private $sub_total;
 
+	private $total_discount;
+
 	public function __construct($invoice, $settings)
 	{
 
@@ -183,24 +185,6 @@ class InvoiceItemSum
 		
 	}
 
-
-	public function applyInvoiceDiscount()
-	{
-		$tmp_sub_total = 0;
-		$tmp = [];
-
-		foreach($this->line_items as $this->item)
-		{
-			$this->item->line_total -= $this->discount($this->line_total);
-			$tmp[] = $this->item;
-			$tmp_sub_total += $this->item->line_total;
-		}
-
-		$this->line_items = $tmp;
-
-		$this->setSubTotal($tmp_sub_total);
-	}
-
 	public function getTotalTaxes()
 	{
 		return $this->total_taxes;
@@ -251,4 +235,5 @@ class InvoiceItemSum
 		$this->sub_total = $value;
 		return $this;
 	}
+
 }

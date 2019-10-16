@@ -11,7 +11,7 @@
 
 namespace App\Repositories;
 
-use App\Helpers\Invoice\InvoiceCalc;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Models\RecurringInvoice;
 use Illuminate\Http\Request;
 
@@ -33,7 +33,7 @@ class RecurringInvoiceRepository extends BaseRepository
         
         $invoice->save();
 
-        $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
+        $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
         $invoice = $invoice_calc->build()->getInvoice();
 

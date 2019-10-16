@@ -18,8 +18,6 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
-use App\Helpers\Invoice\InvoiceCalc;
-use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\CompanyGateway;
@@ -31,6 +29,7 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 

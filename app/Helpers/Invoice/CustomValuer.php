@@ -20,10 +20,18 @@ trait CustomValuer
 	public function valuer($custom_value, $has_custom_invoice_taxes1)
 	{
 
-		if(isset($custom_value) && $has_custom_invoice_taxes1 === true)
+		if(isset($custom_value) && is_numeric($custom_value) && $has_custom_invoice_taxes1 === true)
         	return $custom_value;
 
         return 0;
+	}
+
+	public function valuerTax($custom_value)
+	{
+		if(isset($custom_value) && is_numeric($custom_value))
+			return round($custom_value * $this->invoice->tax_rate1 ,2) + round($custom_value * $this->invoice->tax_rate2 ,2) + round($custom_value * $this->invoice->tax_rate3 ,2);
+
+		return 0;
 	}
 
 }
