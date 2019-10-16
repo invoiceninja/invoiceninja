@@ -30,12 +30,7 @@ class Ninja
 
     public static function getDebugInfo()
     {
-        if ($info = session('DEBUG_INFO')) {
-            return $info;
-        }
-
         $mysql_version = DB::select(DB::raw("select version() as version"))[0]->version;
-        $account_key = Auth::check() ? Auth::user()->account->account_key : '';
         
         $info = "App Version: v" . config('ninja.app_version') . "\\n" .
             "White Label: " . "\\n" . // TODO: Implement white label with hasFeature.
@@ -43,7 +38,6 @@ class Ninja
             "PHP Version: " . phpversion() . "\\n" .
             "MySQL Version: " . $mysql_version;
 
-        session(['DEBUG_INFO' => $info]);
         return $info;
     }
 }

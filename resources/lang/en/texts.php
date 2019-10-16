@@ -3108,8 +3108,6 @@ $LANG = array(
     'freq_indefinitely' => 'Indefinitely',
     'next_send_date' => 'Next send date',
     'cycles_remaining' => 'Cycles remaining',
-    'display_log' => 'Display log',
-    'new_support_message' => 'New support message',
 );
 
 return $LANG;
