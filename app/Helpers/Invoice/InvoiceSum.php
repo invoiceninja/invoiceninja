@@ -66,6 +66,7 @@ class InvoiceSum
 			 ->calculateDiscount()
 			 ->calculateCustomValues()
 			 ->calculateInvoiceTaxes()
+			 ->setTaxMap()
 			 ->calculateTotals()
 			 ->calculateBalance()
 			 ->calculatePartial();
@@ -77,6 +78,8 @@ class InvoiceSum
 	{
 		$this->invoice_items = new InvoiceItemSum($this->invoice, $this->settings);
 		$this->invoice_items->process();
+		$this->invoice->line_items = $this->invoice_items->getLineItems();
+		$this->total = $this->invoice_items->getSubTotal();
 
 		return $this;
 	}
@@ -84,24 +87,27 @@ class InvoiceSum
 	private function calculateDiscount()
 	{
 		$this->total_discount = $this->discount($this->invoice_items->getSubTotal());
-		//$this->invoice_items->applyDiscount($this->invoice);
+
+		$this->total -= $this->total_discount;
 
 		return $this;
 	}
 
 	private function calculateCustomValues()
 	{
-		$this->total_taxes += $this->valuerTax($this->invoice->custom_value1);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value1, $this->settings->custom_invoice_taxes1);
+		$this->total_taxes += $this->valuerTax($this->invoice->custom_value1, $this->settings->custom_invoice_taxes1);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value1);
 
-		$this->total_taxes += $this->valuerTax($this->invoice->custom_value2);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value2, $this->settings->custom_invoice_taxes2);
+		$this->total_taxes += $this->valuerTax($this->invoice->custom_value2, $this->settings->custom_invoice_taxes2);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value2);
 
-		$this->total_taxes += $this->valuerTax($this->invoice->custom_value3);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value3, $this->settings->custom_invoice_taxes3);
+		$this->total_taxes += $this->valuerTax($this->invoice->custom_value3, $this->settings->custom_invoice_taxes3);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value3);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_value4);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value4, $this->settings->custom_invoice_taxes4);
+        $this->total_taxes += $this->valuerTax($this->invoice->custom_value4, $this->settings->custom_invoice_taxes4);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_value4);
+
+        $this->total += $this->total_custom_values;
 
         return $this;
 	}
@@ -110,21 +116,21 @@ class InvoiceSum
 	{
 
         if($this->invoice->tax_rate1 > 0){
-        	$tax = $this->taxer($this->invoice_items->getSubTotal(), $this->invoice->tax_rate1);
+        	$tax = $this->taxer($this->total, $this->invoice->tax_rate1);
         	$this->total_taxes += $tax;
         	$this->total_tax_map[] = ['name' => $this->invoice->tax_name1 . ' ' . $this->invoice->tax_rate1.'%', 'total' => $tax];
         }
 
         if($this->invoice->tax_rate2 > 0){
-        	$tax = $this->taxer($this->invoice_items->getSubTotal(), $this->invoice->tax_rate2);
+        	$tax = $this->taxer($this->total, $this->invoice->tax_rate2);
         	$this->total_taxes += $tax;
         	$this->total_tax_map[] = ['name' => $this->invoice->tax_name2. ' ' . $this->invoice->tax_rate2.'%', 'total' => $tax];
         }
 
         if($this->invoice->tax_rate3 > 0){
-        	$tax = $this->taxer($this->invoice_items->getSubTotal(), $this->invoice->tax_rate2);
+        	$tax = $this->taxer($this->total, $this->invoice->tax_rate3);
         	$this->total_taxes += $tax;
-        	$this->total_tax_map[] = ['name' => $this->invoice->tax_name2 . ' ' . $this->invoice->tax_rate2.'%', 'total' => $tax];
+        	$this->total_tax_map[] = ['name' => $this->invoice->tax_name3 . ' ' . $this->invoice->tax_rate3.'%', 'total' => $tax];
         }
 
         return $this;
@@ -154,15 +160,10 @@ class InvoiceSum
 
 	private function calculateTotals()
 	{
-		$this->total = 0;
-
-		$this->total += $this->invoice_items->getSubTotal();
 		
-		if($this->invoice->inclusive_taxes === false)
+		if($this->settings->inclusive_taxes === false)
 			$this->total += $this->total_taxes;
 		
-		$this->total += $this->total_custom_values;
-
         return $this;
 
 	}
@@ -195,6 +196,7 @@ class InvoiceSum
 		/* Set new calculated total */
 		$this->invoice->amount = $this->getTotal();
 
+		return $this;
 	}
 
 	public function getSubTotal()
@@ -222,14 +224,13 @@ class InvoiceSum
 		return $this->total;
 	}
 
-	public function getTaxMap()
+	public function setTaxMap()
 	{
+		$this->tax_map = collect();
 
-        $keys = $this->invoice_items->getGroupedTaxes()->collapse()->pluck('key')->unique();
+        $keys = $this->invoice_items->getGroupedTaxes()->pluck('key')->unique();
 
         $values = $this->invoice_items->getGroupedTaxes();
-
-        $tax_array = [];
 
         foreach($keys as $key)
         {
@@ -242,16 +243,29 @@ class InvoiceSum
                 return $value['key'] == $key;
             })->sum('total');
 
-            $tax_array[] = ['name' => $tax_name, 'total' => $total_line_tax];
+            $total_line_tax -= $this->discount($total_line_tax);
 
+            $this->tax_map[] = ['name' => $tax_name, 'total' => $total_line_tax];
+
+            $this->total_taxes += $total_line_tax;
         }
 
-        return $tax_array;
+        return $this;
    
+	}
+
+	public function getTaxMap()
+	{
+		return $this->tax_map;
 	}
 
 	public function getBalance()
 	{
 		return $this->invoice->balance;
+	}
+
+	public function getItemTotalTaxes()
+	{
+		return $this->getTotalTaxes();
 	}
 }

@@ -19,7 +19,7 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\NumberFormatter;
-use Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
