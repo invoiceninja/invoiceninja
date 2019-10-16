@@ -66,6 +66,8 @@ class CompanySettings extends BaseSettings
 
 	public $custom_invoice_taxes1 = false;
 	public $custom_invoice_taxes2 = false;
+	public $custom_invoice_taxes3 = false;
+	public $custom_invoice_taxes4 = false;
 
 	public $default_task_rate = 0;
 	public $send_reminders = false;
@@ -233,6 +235,8 @@ class CompanySettings extends BaseSettings
 		// 'custom_expense_label4' => 'string',
 		'custom_invoice_taxes1' => 'bool',
 		'custom_invoice_taxes2' => 'bool',
+		'custom_invoice_taxes3' => 'bool',
+		'custom_invoice_taxes4' => 'bool',
 		'default_task_rate' => 'float',
 		'send_reminders' => 'bool',
 		'show_tasks_in_portal' => 'bool',

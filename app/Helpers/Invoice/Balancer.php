@@ -14,23 +14,19 @@ namespace App\Helpers\Invoice;
 /**
  * Class for discount calculations
  */
-trait Discounter
+trait Balancer
 {
 
-	public function discount($amount)
+	public function balance($total, $invoice)
 	{
 
-		if($this->invoice->is_amount_discount === true)
-			return $this->invoice->discount;
+		if(isset($this->invoice->id) && $this->invoice->id >= 1)
+		{
+            return round($total - ($this->invoice->amount - $this->invoice->balance), 2);
+        } 
 
-		
-		return round($amount * ($this->invoice->discount / 100), 2);
-		
+        return $total;
+        
 	}
-
-	// public function pro_rata_discount($amount)
-	// {
-	// 	return round(($this->invoice->discount/$this->getSubTotal() * $amount),2);		
-	// }
 
 }

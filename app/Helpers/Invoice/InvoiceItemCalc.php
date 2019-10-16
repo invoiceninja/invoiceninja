@@ -115,8 +115,23 @@ class InvoiceItemCalc
 
 			$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
 
+		}
+
+		if(isset($this->item->tax_rate3) && $this->item->tax_rate3 > 0)
+		{
+			$tax_rate3 = $this->formatValue($this->item->tax_rate3, $this->currency->precision);
+
+			if($this->settings->inclusive_taxes)
+				$item_tax_rate3_total = $this->formatValue(($this->getLineTotal() - ($this->getLineTotal() / (1+$tax_rate3/100))) , $this->currency->precision);
+			else
+				$item_tax_rate3_total = $this->formatValue(($this->getLineTotal() * $tax_rate3/100), $this->currency->precision);
+
+			$item_tax += $item_tax_rate3_total;
+
+			$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
 		}
+
 
 		$this->setTotalTaxes($item_tax);
 

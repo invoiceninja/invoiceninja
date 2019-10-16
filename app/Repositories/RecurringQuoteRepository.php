@@ -11,7 +11,7 @@
 
 namespace App\Repositories;
 
-use App\Helpers\Invoice\InvoiceCalc;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Models\RecurringQuote;
 use Illuminate\Http\Request;
 
@@ -34,7 +34,7 @@ class RecurringQuoteRepository extends BaseRepository
         $quote->save();
 
 
-        $quote_calc = new InvoiceCalc($quote, $quote->settings);
+        $quote_calc = new InvoiceSum($quote, $quote->settings);
 
         $quote = $quote_calc->build()->getInvoice();
 

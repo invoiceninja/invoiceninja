@@ -14,7 +14,7 @@ namespace App\Repositories;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
-use App\Helpers\Invoice\InvoiceCalc;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\ClientContact;
@@ -46,9 +46,9 @@ class InvoiceRepository extends BaseRepository
      * Saves the invoices
      *
      * @param      array.                                        $data     The invoice data
-     * @param      InvoiceCalc|\App\Models\Invoice               $invoice  The invoice
+     * @param      InvoiceSum|\App\Models\Invoice               $invoice  The invoice
      *
-     * @return     Invoice|InvoiceCalc|\App\Models\Invoice|null  Returns the invoice object
+     * @return     Invoice|InvoiceSum|\App\Models\Invoice|null  Returns the invoice object
      */
     public function save($data, Invoice $invoice) : ?Invoice
 	{
@@ -75,7 +75,7 @@ class InvoiceRepository extends BaseRepository
 
         event(new CreateInvoiceInvitation($invoice));
 
-        $invoice_calc = new InvoiceCalc($invoice, $invoice->settings);
+        $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
         $invoice = $invoice_calc->build()->getInvoice();
         
