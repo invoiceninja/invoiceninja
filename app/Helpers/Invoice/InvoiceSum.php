@@ -173,7 +173,8 @@ class InvoiceSum
 	{
 		//Build invoice values here and return Invoice
 		$this->setCalculatedAttributes();
-
+		$this->invoice->save();
+		
 		return $this->invoice;
 	}
 
@@ -233,8 +234,8 @@ class InvoiceSum
 
 	public function setTaxMap()
 	{
-	//	if($this->invoice->is_amount_discount == true)
-	//		$this->invoice_items->calcTaxesWithAmountDiscount();
+		if($this->invoice->is_amount_discount == true)
+			$this->invoice_items->calcTaxesWithAmountDiscount();
 
 		$this->tax_map = collect();
 
