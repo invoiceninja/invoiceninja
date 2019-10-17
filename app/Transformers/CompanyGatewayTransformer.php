@@ -12,6 +12,7 @@
 namespace App\Transformers;
 
 use App\Models\CompanyGateway;
+use App\Transformers\GatewayTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -31,6 +32,7 @@ class CompanyGatewayTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
+        'gateway'
     ];
 
 
@@ -46,7 +48,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'gateway_key' => (string)$company_gateway->gateway_key ?: '',
             'accepted_credit_cards' => (int)$company_gateway->accepted_credit_cards,
             'require_cvv' => (bool)$company_gateway->require_cvv,
-            'show_address' => (bool)$company_gateway->show_address,
+            'show_billing_address' => (bool)$company_gateway->show_billing_address,
             'show_shipping_address' => (bool)$company_gateway->show_shipping_address,
             'update_details' => (bool)$company_gateway->update_details,
             'config' => (string) $company_gateway->getConfigTransformed(),
@@ -66,6 +68,13 @@ class CompanyGatewayTransformer extends EntityTransformer
             'updated_at' => $company_gateway->updated_at,
             'deleted_at' => $company_gateway->deleted_at,
         ];
+    }
+
+    public function includeGateway(CompanyGateway $company_gateway)
+    {
+        $transformer = new GatewayTransformer($this->serializer);
+
+        return $this->includeItem($company_gateway->gateway, $transformer, Gateway::class);
     }
 
 }
