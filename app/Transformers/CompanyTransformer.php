@@ -15,9 +15,11 @@ namespace App\Transformers;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
 use App\Models\GroupSetting;
 use App\Models\User;
+use App\Transformers\CompanyGatewayTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Transformers\GroupSettingTransformer;
 use App\Utils\Traits\MakesHash;
@@ -52,7 +54,8 @@ class CompanyTransformer extends EntityTransformer
         'expenses',
         'payments',
         'company_user',
-        'groups'
+        'groups',
+        'company_gateways',
     ];
 
 
@@ -99,6 +102,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->serializer);
 
         return $this->includeCollection($company->users, $transformer, User::class);
+    }
+
+    public function includeCompanyGateways(Company $company)
+    {
+        $transformer = new CompanyGatewayTransformer($this->serializer);
+
+        return $this->includeCollection($company->company_gateways, $transformer, CompanyGateway::class);
     }
 
     public function includeClients(Company $company)
