@@ -67,12 +67,12 @@ class InvoiceItemSum
 			return $this;
 		}
 
-		$this->buildLineItems();
+		$this->calcLineItems();
 
 		return $this;
 	}
 
-	private function buildLineItems()
+	private function calcLineItems()
 	{
 		foreach($this->invoice->line_items as $this->item)
 		{
@@ -230,10 +230,11 @@ class InvoiceItemSum
 	{
 		$this->setGroupedTaxes(collect([]));
 
+		$item_tax = 0;
+
 		foreach($this->line_items as $this->item)
 		{
-			$item_tax = 0;
-			
+
 			$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
 			$item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
@@ -256,7 +257,6 @@ class InvoiceItemSum
 			if($item_tax_rate3_total > 0)
 				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
-//\Log::error($this->item->tax_name1. " ". $this->item->line_total." ". $this->invoice->discount." ". $this->sub_total. " ".$amount. " ". $item_tax);
 		}
 
 		$this->setTotalTaxes($item_tax);

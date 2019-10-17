@@ -36,10 +36,15 @@ class MarkInvoicePaidTest extends TestCase
 
     public function testMarkInvoicePaidInvoice()
     {
+        \Log::error($this->invoice->amount);
+        \Log::error($this->invoice->balance);
         MarkInvoicePaid::dispatchNow($this->invoice);
 
         $invoice = Invoice::find($this->invoice->id);
-
+        
+        \Log::error($invoice->amount);
+        \Log::error($invoice->balance);
+        
         $this->assertEquals(0.00, $invoice->balance);
 
         $this->assertEquals(1, count($invoice->payments));
