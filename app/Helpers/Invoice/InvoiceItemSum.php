@@ -104,7 +104,7 @@ class InvoiceItemSum
 	private function setDiscount()
 	{
 
-		if($this->item->is_amount_discount)
+		if($this->invoice->is_amount_discount)
 		{	
 			$this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision));
 		}
@@ -112,6 +112,8 @@ class InvoiceItemSum
 		{
 			$this->setLineTotal($this->getLineTotal() - $this->formatValue(round($this->item->line_total * ($this->item->discount / 100),2), $this->currency->precision));
 		}
+
+		$this->item->is_amount_discount = $this->invoice->is_amount_discount;
 
 		return $this;
         
@@ -122,22 +124,22 @@ class InvoiceItemSum
 
 		$item_tax = 0;
 
-
-			$item_tax_rate1_total = $this->calcLineTax($this->item->tax_rate1, $this->item);
+			$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/100));
+			$item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
 			$item_tax += $item_tax_rate1_total;
 
 			if($item_tax_rate1_total > 0)
 				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
 		
-			$item_tax_rate2_total = $this->calcLineTax($this->item->tax_rate2, $this->item);
+			$item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
 
 			$item_tax += $item_tax_rate2_total;
 
 			if($item_tax_rate2_total > 0)
 				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
 
-			$item_tax_rate3_total = $this->calcLineTax($this->item->tax_rate3, $this->item);
+			$item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
 
 			$item_tax += $item_tax_rate3_total;
 
@@ -256,6 +258,7 @@ class InvoiceItemSum
 
 			if($item_tax_rate3_total > 0)
 				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+
 
 		}
 
