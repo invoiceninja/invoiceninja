@@ -120,8 +120,9 @@ class RandomDataSeeder extends Seeder
 
         $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
             
-            //$invoice->settings->inclusive_taxes = (bool)random_int(0, 1);
-            $invoice->settings->inclusive_taxes = true;
+            //$settings = $invoice->settings;
+            //$settings->inclusive_taxes = (bool)random_int(0, 1);
+            //$invoice->settings = $settings;
 
             $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 

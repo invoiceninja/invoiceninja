@@ -118,12 +118,7 @@ class InvoiceItemSum
 	}
 
 	private function calcTaxes()
-	{\Log::error(print_r($this->settings,1));
-		if($this->settings->inclusive_taxes == true)
-			return $this->calcInclusiveTaxes();
-
-\Log::error("calculating exclusive taxes");
-\Log::error($this->settings->inclusive_taxes);
+	{
 
 		$item_tax = 0;
 
@@ -132,57 +127,24 @@ class InvoiceItemSum
 
 			$item_tax += $item_tax_rate1_total;
 
-			$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
+			if($item_tax_rate1_total > 0)
+				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
 		
-
 			$item_tax_rate2_total = $this->calcLineTax($this->item->tax_rate2, $this->item);
 
 			$item_tax += $item_tax_rate2_total;
 
-			$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
-
+			if($item_tax_rate2_total > 0)
+				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
 
 			$item_tax_rate3_total = $this->calcLineTax($this->item->tax_rate3, $this->item);
 
 			$item_tax += $item_tax_rate3_total;
 
-			$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+			if($item_tax_rate3_total > 0)
+				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
-
-		//todo if exclusive add on top, if inclusive need to reduce item rates
 		$this->setTotalTaxes($item_tax);
-
-		return $this;
-	}
-
-	/**
-	 * Inclusive taxes are a different beast
-	 * the line totals are changed when implementing 
-	 * inclusive taxes so we need to handle this away from the
-	 * calcTaxes method.
-	 *	 
-	 */
-	private function calcInclusiveTaxes()
-	{
-\Log::error("calculating inclusive taxes");
-			$tax1 = $this->inclusiveTax($this->item->tax_rate1, $this->item);
-			$tax2 = $this->inclusiveTax($this->item->tax_rate2, $this->item);
-			$tax3 = $this->inclusiveTax($this->item->tax_rate3, $this->item);
-
-			if($tax1>0)
-				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $tax1);
-
-			if($tax2>0)
-				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $tax2);
-
-			if($tax3>0)
-				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $tax3);
-
-			$total_taxes = ($tax1 + $tax2 + $tax3);
-
-			$this->setTotalTaxes($this->getTotalTaxes() + $total_taxes);
-
-			$this->item->line_total -= $total_taxes;
 
 		return $this;
 	}

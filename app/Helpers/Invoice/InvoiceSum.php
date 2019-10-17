@@ -164,16 +164,9 @@ class InvoiceSum
 
 	private function calculateTotals()
 	{
-		
-		if($this->settings->inclusive_taxes === false)
-			$this->total += $this->total_taxes;
-		else
-		{
-			$this->setSubTotal($this->getSubTotal() - $this->total_taxes);
-		}
-		
-        return $this;
+		$this->total += $this->total_taxes;
 
+        return $this;
 	}
 
 	public function getInvoice()
