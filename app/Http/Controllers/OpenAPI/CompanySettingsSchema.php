@@ -4,6 +4,8 @@
  *   schema="CompanySettings",
  *   type="object",
  *       @OA\Property(property="timezone_id", type="string", example="15", description="The timezone id"),
+ *       @OA\Property(property="design_id", type="string", example="15", description="The design id (invoice, quote etc)"),
+ *       @OA\Property(property="auto_update_products", type="boolean", example=true, description="Determines if client fields are updated from third party APIs"),
  *       @OA\Property(property="date_format_id", type="string", example="15", description="____________"),
  *       @OA\Property(property="financial_year_start", type="string", example="2000-01-01", description="____________"),
  *       @OA\Property(property="language_id", type="string", example="1", description="____________"),

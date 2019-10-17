@@ -80,6 +80,7 @@ class CompanySettings extends BaseSettings
 	public $lock_sent_invoices = false;
 	public $auto_archive_invoice = false;
 
+
 	public $inclusive_taxes = false;
 
 	public $translations;
@@ -111,6 +112,9 @@ class CompanySettings extends BaseSettings
 	public $counter_padding = 0;
 
 	public $design = 'views/pdf/design1.blade.php';
+	
+	public $design_id = '1';//todo new
+	public $auto_update_products = true;
 
 	public $company_gateways = '';
 
@@ -171,6 +175,8 @@ class CompanySettings extends BaseSettings
 	public $id_number = '';
 
 	public static $casts = [
+		'auto_update_products' => 'bool',
+		'design_id' => 'string',
 		'name' => 'string',
 		'company_logo' => 'string',
 		'website' => 'string',

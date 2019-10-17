@@ -25,7 +25,7 @@ class CompanyGateway extends BaseModel
         'gateway_key',
         'accepted_credit_cards',
         'require_cvv',
-        'show_address',
+        'show_billing_address',
         'show_shipping_address',
         'update_details',
         'config',

@@ -363,7 +363,7 @@ class CreateUsersTable extends Migration
             $table->string('gateway_key');
             $table->unsignedInteger('accepted_credit_cards');
             $table->boolean('require_cvv')->default(true);
-            $table->boolean('show_address')->default(true)->nullable();
+            $table->boolean('show_billing_address')->default(true)->nullable();
             $table->boolean('show_shipping_address')->default(true)->nullable();
             $table->boolean('update_details')->default(false)->nullable();
             $table->text('config');

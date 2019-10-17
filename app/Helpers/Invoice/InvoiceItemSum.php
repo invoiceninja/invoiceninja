@@ -145,7 +145,7 @@ class InvoiceItemSum
 				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
 
-		$this->setTotalTaxes($item_tax);
+		$this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 			\Log::error($this->getTotalTaxes());
 
 		return $this;
