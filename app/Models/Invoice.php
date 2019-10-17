@@ -267,7 +267,8 @@ class Invoice extends BaseModel
      */
     public function calc()
     {
-
+//todo will need to switch between inclusive and exclusive implementations of InvoiceSum
+        
         $invoice_calc = new InvoiceSum($this, $this->settings);
         
         return $invoice_calc->build();

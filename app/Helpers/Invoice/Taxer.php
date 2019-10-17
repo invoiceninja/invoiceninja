@@ -42,6 +42,11 @@ trait Taxer
 
 	}
 
+	public function calcAmountLineTax($tax_rate, $amount)
+	{
+		return $this->formatValue(($amount * $tax_rate/100), $this->currency->precision);
+	}
+
 	public function inclusiveTax($tax_rate, $item)
 	{
 

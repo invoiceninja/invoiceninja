@@ -233,6 +233,9 @@ class InvoiceSum
 
 	public function setTaxMap()
 	{
+	//	if($this->invoice->is_amount_discount == true)
+	//		$this->invoice_items->calcTaxesWithAmountDiscount();
+
 		$this->tax_map = collect();
 
         $keys = $this->invoice_items->getGroupedTaxes()->pluck('key')->unique();
