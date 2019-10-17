@@ -189,13 +189,13 @@ class InvoiceSum
 		{
 			$paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
-			$this->invoice->balance = $this->getTotal() - $paid_to_date;
+			$this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision) - $paid_to_date;
 		}
 		else
-			$this->invoice->balance = $this->getTotal();
+			$this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
 
 		/* Set new calculated total */
-		$this->invoice->amount = $this->getTotal();
+		$this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
 
 		return $this;
 	}
@@ -253,7 +253,7 @@ class InvoiceSum
                 return $value['key'] == $key;
             })->sum('total');
 
-            $total_line_tax -= $this->discount($total_line_tax);
+            //$total_line_tax -= $this->discount($total_line_tax);
 
             $this->tax_map[] = ['name' => $tax_name, 'total' => $total_line_tax];
 

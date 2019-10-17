@@ -144,7 +144,9 @@ class InvoiceItemSum
 			if($item_tax_rate3_total > 0)
 				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
+
 		$this->setTotalTaxes($item_tax);
+			\Log::error($this->getTotalTaxes());
 
 		return $this;
 	}
@@ -255,6 +257,7 @@ class InvoiceItemSum
 			if($item_tax_rate3_total > 0)
 				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
 
+			\Log::error($item_tax);
 		}
 
 		$this->setTotalTaxes($item_tax);

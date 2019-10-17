@@ -36,23 +36,23 @@ trait Taxer
 	public function exclusiveTax($tax_rate, $item)
 	{
 
-		$tax_rate = $this->formatValue($tax_rate, $this->currency->precision);
+		$tax_rate = $this->formatValue($tax_rate, 4);
 
-		return $this->formatValue(($item->line_total * $tax_rate/100), $this->currency->precision);
+		return $this->formatValue(($item->line_total * $tax_rate/100), 4);
 
 	}
 
 	public function calcAmountLineTax($tax_rate, $amount)
 	{
-		return $this->formatValue(($amount * $tax_rate/100), $this->currency->precision);
+		return $this->formatValue(($amount * $tax_rate/100), 4);
 	}
 
 	public function inclusiveTax($tax_rate, $item)
 	{
 
-		$tax_rate = $this->formatValue($tax_rate, $this->currency->precision);
+		$tax_rate = $this->formatValue($tax_rate, 4);
 
-		return $this->formatValue(($item->line_total - ($item->line_total / (1+$tax_rate/100))) , $this->currency->precision);
+		return $this->formatValue(($item->line_total - ($item->line_total / (1+$tax_rate/100))) , 4);
 	}
 
 }
