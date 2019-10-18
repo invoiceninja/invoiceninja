@@ -56,7 +56,7 @@ class MakeModuleSettings extends GeneratorCommand
         $this->info('Creating settings view template for ' . $this->getModuleName());
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
 
-        parent::fire();
+        parent::handle();
 
         // add default routes if option specified
         $route =  $this->option('route');
