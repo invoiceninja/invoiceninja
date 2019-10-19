@@ -87,6 +87,9 @@ class EventServiceProvider extends ServiceProvider
             CreateInvoiceActivity::class,
             CreateInvoicePdf::class,
         ],
+        \Illuminate\Auth\Events\Lockout::class => [
+            \App\Listeners\User\AccountLocked::class,
+        ],
     ];
 
     /**

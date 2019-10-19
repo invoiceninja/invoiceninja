@@ -3108,6 +3108,12 @@ $LANG = array(
     'freq_indefinitely' => 'Indefinitely',
     'next_send_date' => 'Next send date',
     'cycles_remaining' => 'Cycles remaining',
+    'reset_notification' => 'Reset Password Notification',
+    'requested_reset' => 'You are receiving this email because we received a password reset request for your account.',
+    'locked_reset' => 'You are receiving this email because login on your account failed for few times. In order to continue using your account, you need to reset the password.',
+    'reset_password' => 'Reset Password',
+    'password_will_expire_in' => 'This password reset link will expire in :count minutes.',
+    'ignore_password_request' => 'If you did not request a password reset, no further action is required.', 
 );
 
 return $LANG;

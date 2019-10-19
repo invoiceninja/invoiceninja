@@ -11,12 +11,20 @@ use Illuminate\Support\Facades\Lang;
 class ClientContactResetPassword extends Notification
 {
     use Queueable;
- /**
+
+    /**
      * The password reset token.
      *
      * @var string
      */
     public $token;
+
+    /**
+     * For sending password reset, after locking account.
+     *
+     * @var boolean
+     */
+    public $is_locked;
 
     /**
      * The callback that should be used to build the mail message.
@@ -28,12 +36,13 @@ class ClientContactResetPassword extends Notification
     /**
      * Create a notification instance.
      *
-     * @param  string  $token
-     * @return void
+     * @param string $token
+     * @param bool $is_locked
      */
-    public function __construct($token)
+    public function __construct($token, $is_locked = false)
     {
         $this->token = $token;
+        $this->is_locked = $is_locked;
     }
 
     /**
@@ -59,12 +68,21 @@ class ClientContactResetPassword extends Notification
             return call_user_func(static::$toMailCallback, $notifiable, $this->token);
         }
 
-        return (new MailMessage)
-            ->subject(Lang::getFromJson('Reset Password Notification'))
-            ->line(Lang::getFromJson('You are receiving this email because we received a password reset request for your account.'))
-            ->action(Lang::getFromJson('Reset Password'), url(config('app.url').route('client.password.reset', ['token' => $this->token, 'email' => $notifiable->getEmailForPasswordReset()], false)))
-            ->line(Lang::getFromJson('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.users.expire')]))
-            ->line(Lang::getFromJson('If you did not request a password reset, no further action is required.'));
+        $mail = (new MailMessage)
+            ->subject(__('texts.reset_notification'));
+
+        if ($this->is_locked) {
+            $mail->line(__('texts.locked_reset'));
+        } else {
+            $mail->line(__('texts.requested_reset'));
+        }
+
+        $mail->action(__('texts.reset_password'), url(config('app.url') . route('client.password.reset', ['token' => $this->token, 'email' => $notifiable->getEmailForPasswordReset()], false)))
+            ->line(__('texts.password_will_expire_in', ['count' => config('auth.passwords.users.expire')]));
+
+        if (!$this->is_locked) $mail->line(__('ignore_password_request'));
+
+        return $mail;
     }
 
     /**

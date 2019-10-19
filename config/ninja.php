@@ -119,5 +119,7 @@ return [
         ]
     ],
 
-
+    'authentication' => [
+        'max_login_attempts' => config('AUTH_MAX_LOGIN_ATTEMPTS', 3),
+    ]
 ];

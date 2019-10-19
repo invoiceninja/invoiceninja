@@ -16,6 +16,7 @@ use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Filterable;
 use App\Models\Traits\UserTrait;
+use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
@@ -53,7 +54,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $appends = [
         'hashed_id'
     ];
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -101,7 +102,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns a account.
-     * 
+     *
      * @return Collection
      */
     public function account()
@@ -111,7 +112,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns all company tokens.
-     * 
+     *
      * @return Collection
      */
     public function tokens()
@@ -121,7 +122,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns all companies a user has access to.
-     * 
+     *
      * @return Collection
      */
     public function companies()
@@ -131,7 +132,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
     *
-    * As we are authenticating on CompanyToken, 
+    * As we are authenticating on CompanyToken,
     * we need to link the company to the user manually. This allows
     * us to decouple a $user and their attached companies.
     *
@@ -151,9 +152,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns the current company
-     * 
+     *
      * @return Collection
-     */ 
+     */
     public function company()
     {
         return $this->getCompany();
@@ -161,9 +162,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns the pivot tables for Company / User
-     * 
+     *
      * @return Collection
-     * 
+     *
      */
     public function user_companies()
     {
@@ -181,40 +182,40 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns the current company by
      * querying directly on the pivot table relationship
-     * 
+     *
      * @return Collection
      * @deprecated
      */
     public function user_company()
     {
-    
+
         return $this->user_companies->where('company_id', $this->companyId())->first();
 
     }
 
     /**
      * Returns the currently set company id for the user
-     * 
+     *
      * @return int
      */
     public function companyId() :int
     {
 
         return $this->company()->id;
-        
+
     }
 
     /**
      * Returns a object of user permissions
-     * 
+     *
      * @return stdClass
      */
     public function permissions()
     {
-        
+
         $permissions = json_decode($this->user_company()->permissions);
-        
-        if (! $permissions) 
+
+        if (! $permissions)
             return [];
 
         return $permissions;
@@ -222,7 +223,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns a object of User Settings
-     * 
+     *
      * @return stdClass
      */
     public function settings()
@@ -234,7 +235,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns a boolean of the administrator status of the user
-     * 
+     *
      * @return bool
      */
     public function isAdmin() : bool
@@ -246,7 +247,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns all user created contacts
-     * 
+     *
      * @return Collection
      */
     public function contacts()
@@ -258,7 +259,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns a boolean value if the user owns the current Entity
-     * 
+     *
      * @param  string Entity
      * @return bool
      */
@@ -272,7 +273,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Flattens a stdClass representation of the User Permissions
      * into a Collection
-     * 
+     *
      * @return Collection
      */
     public function permissionsFlat() :Collection
@@ -284,12 +285,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns true if permissions exist in the map
-     * 
+     *
      * @param  string permission
      * @return boolean
      */
     public function hasPermission($permission) : bool
-    { 
+    {
 
         return $this->permissionsFlat()->contains($permission);
 
@@ -297,12 +298,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns a array of permission for the mobile application
-     * 
+     *
      * @return array
      */
     public function permissionsMap() : array
     {
-        
+
         $keys = array_values((array) $this->permissions());
         $values = array_fill(0, count($keys), true);
 
@@ -322,5 +323,17 @@ class User extends Authenticatable implements MustVerifyEmail
         else
             return null;
 
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param string $token
+     * @param bool $is_locked
+     * @return void
+     */
+    public function sendPasswordResetNotification($token, $is_locked = false)
+    {
+        $this->notify(new ClientContactResetPassword($token, $is_locked));
     }
 }

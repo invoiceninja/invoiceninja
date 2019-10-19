@@ -40,6 +40,8 @@ class LoginController extends BaseController
     |
     */
    
+    protected $maxAttempts;
+
    /**
      * @OA\Tag(
      *     name="login",
@@ -74,6 +76,8 @@ class LoginController extends BaseController
     {
 
         parent::__construct();
+
+        $this->maxAttempts = config('ninja.authentication.max_login_attempts');
 
     }
 
