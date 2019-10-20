@@ -230,7 +230,7 @@ trait MockAccountData
 		$line_items = [];
 
 		$item = InvoiceItemFactory::create();
-		$item->qty = 1;
+		$item->quantity = 1;
 		$item->cost =10;
 
 		$line_items[] = $item;

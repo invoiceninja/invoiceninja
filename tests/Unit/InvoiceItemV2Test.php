@@ -174,19 +174,19 @@ class InvoiceItemV2Test extends TestCase
 
 	}
 
-	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleInclusiveTax()
+	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleExcTax()
 	{
 		$item = InvoiceItemFactory::create();
 		$item->quantity = 1;
 		$item->cost =10;
-		$item->is_amount_discount = true;
-		$item->discount = 2.521254522145214511;
+		$item->is_amount_discount = $this->invoice->is_amount_discount;
+		$item->discount = 2;
 		$item->tax_rate1 = 10;
 
 		$this->invoice->line_items = [$item];
 
 		$settings = new \stdClass;
-		$settings->inclusive_taxes = true;
+		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
@@ -194,7 +194,7 @@ class InvoiceItemV2Test extends TestCase
 
 		$line_items = $item_calc->getLineItems();
 
-		$this->assertEquals($item_calc->getTotalTaxes(), 0.68);
+		$this->assertEquals($item_calc->getTotalTaxes(), 0.80);
 	}
 
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithSingleExclusiveTax()
@@ -218,26 +218,26 @@ class InvoiceItemV2Test extends TestCase
 		$this->assertEquals($item_calc->getTotalTaxes(), 0.75);
 	}
 
-	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleInclusiveTax()
+	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleExcTax()
 	{
 		$item = InvoiceItemFactory::create();
 		$item->quantity = 1;
 		$item->cost =10;
 		$item->is_amount_discount = true;
-		$item->discount = 2.521254522145214511;
+		$item->discount = 2;
 		$item->tax_rate1 = 10;
 		$item->tax_rate2 = 17.5;
 
 		$this->invoice->line_items = [$item];
 
 		$settings = new \stdClass;
-		$settings->inclusive_taxes = true;
+		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
 		$item_calc = new InvoiceItemSum($this->invoice, $settings);
 		$item_calc->process();
 
-		$this->assertEquals($item_calc->getTotalTaxes(), 1.79);
+		$this->assertEquals($item_calc->getTotalTaxes(), 2.20);
 	}
 
 	public function testInvoiceItemTotalSimpleWithDiscountWithPrecisionWithDoubleExclusiveTax()
