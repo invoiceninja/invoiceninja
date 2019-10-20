@@ -55,13 +55,14 @@ class InvoiceItemSum
 
 		$this->invoice = $invoice;
 
-		$this->currency = $invoice->client->currency();
+		$this->currency = $this->invoice->client->currency();
 
 		$this->line_items = [];
 	}
 
 	public function process()
 	{
+
 		if(!$this->invoice->line_items || count($this->invoice->line_items) == 0){
 			$this->items = [];
 			return $this;
