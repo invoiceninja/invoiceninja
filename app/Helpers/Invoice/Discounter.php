@@ -29,9 +29,5 @@ trait Discounter
 		
 	}
 
-	// public function pro_rata_discount($amount)
-	// {
-	// 	return round(($this->invoice->discount/$this->getSubTotal() * $amount),2);		
-	// }
 
 }
