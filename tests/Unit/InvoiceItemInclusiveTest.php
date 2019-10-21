@@ -152,7 +152,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
 		$item_calc->process();
 
-		$this->assertEquals($item_calc->getTotalTaxes(), 2.13);
+		$this->assertEquals($item_calc->getTotalTaxes(), 2.12);
 		$this->assertEquals($item_calc->getSubTotal(), 7.74);
 
 	}
@@ -201,6 +201,30 @@ class InvoiceItemInclusiveTest extends TestCase
 
 		$this->assertEquals($item_calc->getSubTotal(), 14.48);
 		$this->assertEquals($item_calc->getTotalTaxes(), 3.98);
+	}
+
+	public function testInvoiceItemTotalSimpleWithPercentDiscountWithDoubleInclusiveTaxMultiQuantity()
+	{
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 2;
+		$item->cost =10;
+		$item->is_amount_discount = false;
+		$item->discount = 1;
+		$item->tax_rate1 = 10;
+		$item->tax_rate2 = 17.5;
+
+		$this->invoice->line_items = [$item];
+		$this->invoice->is_amount_discount = false;
+
+		$settings = new \stdClass;
+		$settings->inclusive_taxes = false;
+		$settings->precision = 2;
+
+		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc->process();
+
+		$this->assertEquals($item_calc->getSubTotal(), 15.33);
+		$this->assertEquals($item_calc->getTotalTaxes(), 4.21);
 	}
 }
 
