@@ -105,10 +105,10 @@ class InvoiceInclusiveTest extends TestCase
 
 		$this->invoice_calc->build();
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 18.18);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.32);
-		$this->assertEquals($this->invoice_calc->getTotal(), 19.5);
-		$this->assertEquals($this->invoice_calc->getBalance(), 19.5);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.36);
+		$this->assertEquals($this->invoice_calc->getTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getBalance(), 20);
 	}
 
 	public function testInvoiceTotalsWithPercentDiscountWithSurchargeWithInclusiveTax()
@@ -121,7 +121,7 @@ class InvoiceInclusiveTest extends TestCase
 
 		$this->invoice_calc->build();
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 18.18);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
 		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.73);
 		$this->assertEquals($this->invoice_calc->getTotal(), 24);
 	}
@@ -138,9 +138,9 @@ class InvoiceInclusiveTest extends TestCase
 
 		$this->invoice_calc->build();
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 18.18);
-		$this->assertEquals($this->invoice_calc->getTotal(), 19.5);
-		$this->assertEquals($this->invoice_calc->getTotal(), 19.5);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 20);
 		//$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.5);
 	}
 
@@ -158,9 +158,9 @@ class InvoiceInclusiveTest extends TestCase
 
 		$this->invoice_calc->build();
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 16.52);
-		$this->assertEquals($this->invoice_calc->getTotal(), 18.82);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 2.3);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 2.72);
 	}
 
 
@@ -193,7 +193,7 @@ class InvoiceInclusiveTest extends TestCase
 		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 18.18);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
 		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.82);
 		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
 		$this->assertEquals($this->invoice_calc->getTotal(), 20);
@@ -232,11 +232,11 @@ class InvoiceInclusiveTest extends TestCase
 		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 15.02);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.5);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 5.46);
 		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
-		$this->assertEquals($this->invoice_calc->getTotal(), 19.52);
-		$this->assertEquals($this->invoice_calc->getBalance(), 19.52);
+		$this->assertEquals($this->invoice_calc->getTotal(), 20);
+		$this->assertEquals($this->invoice_calc->getBalance(), 20);
 	}
 
 	public function testLineItemTaxRatesInclusiveTaxesWithInvoiceTaxesAndDiscounts()
@@ -275,18 +275,13 @@ class InvoiceInclusiveTest extends TestCase
 		$this->invoice_calc->build();
 
 		$line_items = $this->invoice_calc->invoice_items->getLineItems();
-		//\Log::error($line_items);
-		//
-		// foreach($this->invoice_calc->getTaxMap() as $tax)
-		// 	\Log::error("Tax ". $tax['name']. " total = ".$tax['total']);
-		
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 14.26);
-		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 0.71);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.08);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 19);
+		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 0.95);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.92);
 		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
-		$this->assertEquals($this->invoice_calc->getTotal(), 17.63);
-		$this->assertEquals($this->invoice_calc->getBalance(), 17.63);
+		$this->assertEquals($this->invoice_calc->getTotal(), 18.05);
+		$this->assertEquals($this->invoice_calc->getBalance(), 18.05);
 	}
 
 	public function testLineItemTaxRatesInclusiveTaxesWithInvoiceTaxesAndAmountDiscounts()
@@ -325,18 +320,13 @@ class InvoiceInclusiveTest extends TestCase
 		$this->invoice_calc->build();
 
 		$line_items = $this->invoice_calc->invoice_items->getLineItems();
-		//\Log::error($line_items);
-		//
-		// foreach($this->invoice_calc->getTaxMap() as $tax)
-		// 	\Log::error("Tax ". $tax['name']. " total = ".$tax['total']);
-		
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 5.02);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 10);
 		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 5);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 0);
-		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 0);
-		$this->assertEquals($this->invoice_calc->getTotal(), 0.02);
-		$this->assertEquals($this->invoice_calc->getBalance(), 0.02);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.36);
+		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
+		$this->assertEquals($this->invoice_calc->getTotal(), 5);
+		$this->assertEquals($this->invoice_calc->getBalance(), 5);
 	}
 
 
@@ -375,18 +365,13 @@ class InvoiceInclusiveTest extends TestCase
 		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
 		$this->invoice_calc->build();
 
-		$line_items = $this->invoice_calc->invoice_items->getLineItems();
-		//\Log::error($line_items);
-		//
-		// foreach($this->invoice_calc->getTaxMap() as $tax)
-		// 	\Log::error("Tax ". $tax['name']. " total = ".$tax['total']);
-		
+		$line_items = $this->invoice_calc->invoice_items->getLineItems();		
 
-		$this->assertEquals($this->invoice_calc->getSubTotal(), 140.28);
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 190);
 		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 5);
-		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 40.58);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 50.46);
 		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
-		$this->assertEquals($this->invoice_calc->getTotal(), 175.86);
-		$this->assertEquals($this->invoice_calc->getBalance(), 175.86);
+		$this->assertEquals($this->invoice_calc->getTotal(), 185);
+		$this->assertEquals($this->invoice_calc->getBalance(), 185);
 	}
 }

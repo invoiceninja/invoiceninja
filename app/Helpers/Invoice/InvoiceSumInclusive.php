@@ -65,13 +65,13 @@ class InvoiceSumInclusive
 	}
 
 	public function build()
-	{\Log::error('inclusive');
+	{
 		$this->calculateLineItems()
 			 ->calculateDiscount()
 			 ->calculateCustomValues()
 			 ->calculateInvoiceTaxes()
 			 ->setTaxMap()
-			 ->calculateTotals()
+//			 ->calculateTotals()
 			 ->calculateBalance()
 			 ->calculatePartial();
 
@@ -128,21 +128,23 @@ class InvoiceSumInclusive
 			$amount = $this->formatValue(($this->sub_total - ($this->sub_total * ($this->invoice->discount/100))),2);
 
         if($this->invoice->tax_rate1 > 0){
-        	$tax = $this->taxer($amount, $this->invoice->tax_rate1);
+        	$tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
         	$this->total_taxes += $tax;
 
         	$this->total_tax_map[] = ['name' => $this->invoice->tax_name1 . ' ' . $this->invoice->tax_rate1.'%', 'total' => $tax];
+
         }
 
+
         if($this->invoice->tax_rate2 > 0){
-        	$tax = $this->taxer($amount, $this->invoice->tax_rate2);
+        	$tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
         	$this->total_taxes += $tax;
         	$this->total_tax_map[] = ['name' => $this->invoice->tax_name2. ' ' . $this->invoice->tax_rate2.'%', 'total' => $tax];
 
         }
 
         if($this->invoice->tax_rate3 > 0){
-        	$tax = $this->taxer($amount, $this->invoice->tax_rate3);
+        	$tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
         	$this->total_taxes += $tax;
         	$this->total_tax_map[] = ['name' => $this->invoice->tax_name3 . ' ' . $this->invoice->tax_rate3.'%', 'total' => $tax];
         }
