@@ -31,7 +31,6 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class MockAccountData

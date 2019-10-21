@@ -27,4 +27,9 @@ trait Taxer
 		return $this->formatValue(($amount * $tax_rate/100), 4);
 	}
 
+	public function calcAmountLineInclusiveTax($tax_rate, $amount)
+	{
+		return $this->formatValue($amount - ( $amount / (1 + ($tax_rate/100)) ), 2);
+	}
+
 }
