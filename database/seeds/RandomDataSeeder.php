@@ -7,6 +7,7 @@ use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -120,11 +121,17 @@ class RandomDataSeeder extends Seeder
 
         $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
             
-            //$settings = $invoice->settings;
+            $settings = $invoice->settings;
             //$settings->inclusive_taxes = (bool)random_int(0, 1);
-            //$invoice->settings = $settings;
+            $settings->inclusive_taxes = true;
+            $invoice->settings = $settings;
 
-            $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
+            $invoice_calc = null;
+
+            if($settings->inclusive_taxes)
+                $invoice_calc = new InvoiceSumInclusive($invoice, $invoice->settings);
+            else 
+                $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
             $invoice = $invoice_calc->build()->getInvoice();
             

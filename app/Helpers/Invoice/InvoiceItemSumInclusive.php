@@ -269,7 +269,6 @@ class InvoiceItemSumInclusive
 
 			$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
 			$item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
-\Log::error("line total = ".$this->item->line_total. " amount {$amount} ". $item_tax_rate1_total. " discount = ". $this->invoice->discount . " subtotal = ".$this->sub_total);
 
 			$item_tax += $item_tax_rate1_total;
 
@@ -277,7 +276,6 @@ class InvoiceItemSumInclusive
 				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
 		
 			$item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
-\Log::error("line total = ".$this->item->line_total. " amount {$amount} ". $item_tax_rate2_total. " discount = ". $this->invoice->discount . " subtotal = ".$this->sub_total);
 
 			$item_tax += $item_tax_rate2_total;
 
@@ -285,7 +283,6 @@ class InvoiceItemSumInclusive
 				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
 
 			$item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
-\Log::error("line total = ".$this->item->line_total. " amount {$amount} ". $item_tax_rate3_total. " discount = ". $this->invoice->discount . " subtotal = ".$this->sub_total);
 
 			$item_tax += $item_tax_rate3_total;
 

@@ -239,43 +239,154 @@ class InvoiceInclusiveTest extends TestCase
 		$this->assertEquals($this->invoice_calc->getBalance(), 19.52);
 	}
 
-	// public function testLineItemTaxRatesExclusiveTaxes()
-	// {
+	public function testLineItemTaxRatesInclusiveTaxesWithInvoiceTaxesAndDiscounts()
+	{
+		$line_items = [];
 
-	// 	$line_items = [];
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+		$item->discount = 5;
 
-	// 	$item = InvoiceItemFactory::create();
-	// 	$item->quantity = 1;
-	// 	$item->cost =10;
-	// 	$item->tax_rate1 = 10;
-	// 	$item->tax_name1 = 10;
+		$line_items[] = $item;
 
-	// 	$line_items[] = $item;
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+		$item->discount = 5;
 
-	// 	$item = InvoiceItemFactory::create();
-	// 	$item->quantity = 1;
-	// 	$item->cost =10;
-	// 	$item->tax_rate1 = 10;
-	// 	$item->tax_name1 = 10;
+		$line_items[] = $item;
 
-	// 	$line_items[] = $item;
+		$this->invoice->line_items = $line_items;
 
-	// 	$this->invoice->line_items = $line_items;
-	// 	$this->invoice->discount = 0;
-	// 	$this->invoice->tax_name1 = 'GST';
-	// 	$this->invoice->tax_rate1 = 10;
-	// 	$this->invoice->tax_name2 = 'GST';
-	// 	$this->invoice->tax_rate2 = 10;
+		$this->settings->inclusive_taxes = true;
+		$this->invoice->discount = 5;
+		$this->invoice->is_amount_discount = false;
+		$this->invoice->custom_value1 = 0;
 
-	// 	$this->settings->inclusive_taxes = false;
-	// 	$this->invoice_calc = new InvoiceSum($this->invoice, $this->settings);
-	// 	$this->invoice_calc->build();
+		$this->invoice->tax_rate1 = 10;
+		$this->invoice->tax_rate2 = 10;
 
-	// 	$this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-	// 	//$this->assertEquals($this->invoice_calc->getTotal(), 26);
-	// 	//$this->assertEquals($this->invoice_calc->getBalance(), 26);
-	// 	//$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4);
-	// 	//$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
-	// }
+		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
+		$this->invoice_calc->build();
 
+		$line_items = $this->invoice_calc->invoice_items->getLineItems();
+		//\Log::error($line_items);
+		//
+		// foreach($this->invoice_calc->getTaxMap() as $tax)
+		// 	\Log::error("Tax ". $tax['name']. " total = ".$tax['total']);
+		
+
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 14.26);
+		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 0.71);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.08);
+		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
+		$this->assertEquals($this->invoice_calc->getTotal(), 17.63);
+		$this->assertEquals($this->invoice_calc->getBalance(), 17.63);
+	}
+
+	public function testLineItemTaxRatesInclusiveTaxesWithInvoiceTaxesAndAmountDiscounts()
+	{
+		$line_items = [];
+
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+		$item->discount = 5;
+
+		$line_items[] = $item;
+
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 1;
+		$item->cost =10;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+		$item->discount = 5;
+
+		$line_items[] = $item;
+
+		$this->invoice->line_items = $line_items;
+
+		$this->settings->inclusive_taxes = true;
+		$this->invoice->discount = 5;
+		$this->invoice->is_amount_discount = true;
+		$this->invoice->custom_value1 = 0;
+
+		$this->invoice->tax_rate1 = 10;
+		$this->invoice->tax_rate2 = 10;
+
+		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
+		$this->invoice_calc->build();
+
+		$line_items = $this->invoice_calc->invoice_items->getLineItems();
+		//\Log::error($line_items);
+		//
+		// foreach($this->invoice_calc->getTaxMap() as $tax)
+		// 	\Log::error("Tax ". $tax['name']. " total = ".$tax['total']);
+		
+
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 5.02);
+		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 5);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 0);
+		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 0);
+		$this->assertEquals($this->invoice_calc->getTotal(), 0.02);
+		$this->assertEquals($this->invoice_calc->getBalance(), 0.02);
+	}
+
+
+	public function testLineItemTaxRatesInclusiveTaxesWithInvoiceTaxesAndAmountDiscountsWithLargeCosts()
+	{
+		$line_items = [];
+
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 1;
+		$item->cost =100;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+		$item->discount = 5;
+
+		$line_items[] = $item;
+
+		$item = InvoiceItemFactory::create();
+		$item->quantity = 1;
+		$item->cost =100;
+		$item->tax_rate1 = 10;
+		$item->tax_name1 = 10;
+		$item->discount = 5;
+
+		$line_items[] = $item;
+
+		$this->invoice->line_items = $line_items;
+
+		$this->settings->inclusive_taxes = true;
+		$this->invoice->discount = 5;
+		$this->invoice->is_amount_discount = true;
+		$this->invoice->custom_value1 = 0;
+
+		$this->invoice->tax_rate1 = 10;
+		$this->invoice->tax_rate2 = 10;
+
+		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
+		$this->invoice_calc->build();
+
+		$line_items = $this->invoice_calc->invoice_items->getLineItems();
+		//\Log::error($line_items);
+		//
+		// foreach($this->invoice_calc->getTaxMap() as $tax)
+		// 	\Log::error("Tax ". $tax['name']. " total = ".$tax['total']);
+		
+
+		$this->assertEquals($this->invoice_calc->getSubTotal(), 140.28);
+		$this->assertEquals($this->invoice_calc->getTotalDiscount(), 5);
+		$this->assertEquals($this->invoice_calc->getTotalTaxes(), 40.58);
+		$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
+		$this->assertEquals($this->invoice_calc->getTotal(), 175.86);
+		$this->assertEquals($this->invoice_calc->getBalance(), 175.86);
+	}
 }
