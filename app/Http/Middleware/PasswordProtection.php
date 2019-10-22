@@ -14,6 +14,8 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use App\Models\CompanyToken;
 use Closure;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 
 class PasswordProtection
 {
