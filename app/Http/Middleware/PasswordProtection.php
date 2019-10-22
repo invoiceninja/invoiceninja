@@ -33,23 +33,27 @@ class PasswordProtection
             'errors' => []
         ];
 
-        if( $request->header('X-API-TOKEN') && $request->header('X-API-PASSWORD') && config('ninja.db.multi_db_enabled')) 
+        if( $request->header('X-API-PASSWORD') ) 
         {
 
-            if(! MultiDB::findAndSetDb($request->header('X-API-TOKEN')))
-            {
-
+            if(!Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password))
                 return response()->json($error, 403);
 
-            }
-        
+        }
+        elseif (Cache::get(auth()->user()->email."_logged_in")) {
+            return $next($request);
         }
         else {
 
-
-                return response()->json($error, 403);
+            $error = [
+                'message' => 'Access denied',
+                'errors' => []
+            ];
+                return response()->json($error, 412);
             
         }
+
+        Cache::add(auth()->user()->email."_logged_in", 'logged_in', now()->addMinutes(5));
 
         return $next($request);
     }
