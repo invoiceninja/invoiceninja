@@ -64,8 +64,10 @@ trait SettingsSaver
 		$settings = (object)$settings;
 		$casts = CompanySettings::$casts;
 
+		ksort($casts);
+
 		foreach ($casts as $key => $value){
-		
+
 			/*Separate loop if it is a _id field which is an integer cast as a string*/
 			if(substr($key, -3) == '_id' || substr($key, -14) == 'number_counter'){
 				$value = "integer";
@@ -78,14 +80,14 @@ trait SettingsSaver
 			}
 
 			/* Handles unset settings or blank strings */
-			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''){
+			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '')
 				continue;
-			}
+			
 
 			/*Catch all filter */
-			if(!$this->checkAttribute($value, $settings->{$key})){
-					return [$key, $value];
-			}
+			if(!$this->checkAttribute($value, $settings->{$key}))
+				return [$key, $value];
+			
 
 		}
 
