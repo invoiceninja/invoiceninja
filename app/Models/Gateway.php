@@ -24,6 +24,7 @@ class Gateway extends StaticModel
         'visible' => 'boolean',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
+        'default_gateway_type_id' => 'string',
         'fields' => 'json',
     ];
 
