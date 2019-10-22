@@ -31,7 +31,6 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class MockAccountData
@@ -99,9 +98,7 @@ trait MockAccountData
 
         $this->client->group_settings_id = $gs->id;
         $this->client->save();
-
-
-
+ 
         $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
         $this->invoice->client_id = $this->client->id;
 
@@ -115,6 +112,7 @@ trait MockAccountData
 		$this->settings->precision = 2;
 
 		$this->invoice->settings = $this->settings;
+        $this->invoice->save();
 
 		$this->invoice_calc = new InvoiceSum($this->invoice, $this->settings);
 		$this->invoice_calc->build();

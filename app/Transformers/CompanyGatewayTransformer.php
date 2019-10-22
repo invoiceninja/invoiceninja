@@ -56,7 +56,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'min_limit' => (float)$company_gateway->min_limit,
             'max_limit' => (float)$company_gateway->max_limit,
             'fee_amount' => (float) $company_gateway->fee_amount,
-            'fee_percent' => (float)$company_gateway->fee_percent ?: '',
+            'fee_percent' => (float)$company_gateway->fee_percent,
             'fee_tax_name1' => (string)$company_gateway->fee_tax_name1 ?: '',
             'fee_tax_name2' => (string) $company_gateway->fee_tax_name2 ?: '',
             'fee_tax_name3' => (string) $company_gateway->fee_tax_name3 ?: '',

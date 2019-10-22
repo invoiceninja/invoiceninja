@@ -75,9 +75,11 @@ class InvoiceRepository extends BaseRepository
 
         event(new CreateInvoiceInvitation($invoice));
 
-        $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
+        $invoice = $invoice->calc()->getInvoice();
+        
+        // $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
-        $invoice = $invoice_calc->build()->getInvoice();
+        // $invoice = $invoice_calc->build()->getInvoice();
         
         $invoice->save();
 

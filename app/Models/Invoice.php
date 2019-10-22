@@ -12,6 +12,8 @@
 namespace App\Models;
 
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\PaymentTerm;
@@ -19,7 +21,6 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\NumberFormatter;
-use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -267,9 +268,12 @@ class Invoice extends BaseModel
      */
     public function calc()
     {
-//todo will need to switch between inclusive and exclusive implementations of InvoiceSum
-        
-        $invoice_calc = new InvoiceSum($this, $this->settings);
+        $invoice_calc = null;
+
+        if($this->settings->inclusive_taxes)
+            $invoice_calc = new InvoiceSumInclusive($this, $this->settings);
+        else
+            $invoice_calc = new InvoiceSum($this, $this->settings);
         
         return $invoice_calc->build();
 
