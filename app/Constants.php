@@ -759,7 +759,7 @@ if (! defined('APP_NAME')) {
     }
 
     // include modules in translations
-    function mtrans($entityType, $text = false)
+    function mtrans($entityType, $text = false, $replace = [])
     {
         if (! $text) {
             $text = $entityType;
@@ -768,7 +768,7 @@ if (! defined('APP_NAME')) {
         // check if this has been translated in a module language file
         if (! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             $key = "{$module->getLowerName()}::texts.{$text}";
-            $value = trans($key);
+            $value = trans($key, $replace);
             if ($key != $value) {
                 return $value;
             }
