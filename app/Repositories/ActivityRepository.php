@@ -33,8 +33,6 @@ class ActivityRepository extends BaseRepository
 
 		$activity->is_system = app()->runningInConsole();
         $activity->ip = request()->getClientIp();
-//Log::error($activity);
-//Log::error($entity);
 
         foreach($fields as $key => $value) {
 

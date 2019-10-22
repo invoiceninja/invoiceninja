@@ -121,7 +121,7 @@ class CreateInvoicePdf implements ShouldQueue
         $data['__env'] = app(\Illuminate\View\Factory::class);
 
         $php = Blade::compileString($string);
-//Log::error($php);
+
         $obLevel = ob_get_level();
         ob_start();
         extract($data, EXTR_SKIP);

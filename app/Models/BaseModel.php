@@ -107,12 +107,9 @@ class BaseModel extends Model
         /* Does Setting Exist @ client level */
         if(isset($this->getSettings()->{$key}))
         {   
-            //Log::error('harvesting client settings for key = '. $key . ' and it has the value = '. $this->getSettings()->{$key});
-            //Log::error(print_r($this->getSettings(),1));
             return $this->getSettings()->{$key};
         }
         else {
-            //Log::error(print_r(new CompanySettings($this->company->settings),1));
             return (new CompanySettings($this->company->settings))->{$key};  
         }
 
@@ -123,13 +120,13 @@ class BaseModel extends Model
     {
         switch ($entity) {
             case Client::class:
-               // Log::error('saving client settings');
+
                 $this->settings = $settings;
                 $this->save();
                 $this->fresh();
                 break;
             case Company::class:
-               // Log::error('saving company settings');
+
                 $this->company->settings = $settings;
                 $this->company->save();
                 break;

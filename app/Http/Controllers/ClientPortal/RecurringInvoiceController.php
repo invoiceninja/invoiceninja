@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class RecurringInvoiceController extends Controller
         if (request()->ajax()) {
 
             return DataTables::of($invoices)->addColumn('action', function ($invoice) {
-                    return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+                    return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
                 })->addColumn('frequency_id', function ($invoice) {
                     return RecurringInvoice::frequencyForKey($invoice->frequency_id);
                 })
@@ -71,10 +72,14 @@ class RecurringInvoiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(RecurringInvoice $invoice)
+    public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
 
-
+        $data = [
+            'invoice' => $recurring_invoice->load('invoices'),
+        ];
+        
+        return view('portal.default.recurring_invoices.show', $data);
     }
 
 

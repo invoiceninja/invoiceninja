@@ -373,9 +373,6 @@ trait GeneratesCounter
 
         $search[] = '{$id_number}';
         $replace[] = $client->id_number;
-//Log::error($search);
-//Log::error($replace);
-//Log::error($pattern);
     	
         return str_replace($search, $replace, $pattern);
 

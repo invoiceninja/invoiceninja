@@ -222,8 +222,6 @@ class Client extends BaseModel
         }
         
         /*Company Settings*/
-    //    \Log::error($setting);
-  //      \Log::error(print_r($this->company->settings,1));
         if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
             return $this->company->settings->{$setting};
         }

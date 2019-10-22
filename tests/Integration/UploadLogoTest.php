@@ -110,7 +110,6 @@ class UploadLogoTest extends TestCase
         
         $response->assertStatus(200);
 
-        //Log::error(print_r($response->json(),1));
     }
 
 }
