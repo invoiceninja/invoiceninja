@@ -90,6 +90,9 @@ class EventServiceProvider extends ServiceProvider
         \Illuminate\Auth\Events\Lockout::class => [
             \App\Listeners\User\AccountLocked::class,
         ],
+        \Illuminate\Auth\Events\PasswordReset::class => [
+            \App\Listeners\PasswordReset::class,
+        ],
     ];
 
     /**
