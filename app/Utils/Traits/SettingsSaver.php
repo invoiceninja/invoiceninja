@@ -176,8 +176,4 @@ trait SettingsSaver
 		}
 	}
 
-//	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
-//	\Log::error('popping '.$key.' '.$value.' '.$settings->{$key}.' off the stack');
-//	s\Log::error("integer testing {$key} - {$value} - ".$settings->{$key});
-
 }

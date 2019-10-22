@@ -22,6 +22,7 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 	Route::get('invoices/{invoice_invitation}', 'ClientPortal\InvoiceController@show')->name('invoice.show_invitation');
 
 	Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index'); 
+	Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoices.show'); 
 	
 	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index'); 
 	Route::get('payments/{payment}', 'ClientPortal\PaymentController@show')->name('payments.show'); 

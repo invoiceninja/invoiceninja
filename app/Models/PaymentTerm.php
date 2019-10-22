@@ -37,7 +37,6 @@ class PaymentTerm extends BaseModel
 
     public static function getCompanyTerms()
     {
-        //Log::error('getting company terms');
         $default_terms = collect(config('ninja.payment_terms'));
 
         $terms = self::scope()->get();

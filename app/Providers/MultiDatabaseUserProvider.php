@@ -155,7 +155,6 @@ class MultiDatabaseUserProvider implements UserProvider
      */
     public function validateCredentials(UserContract $user, array $credentials)
     {        
-        //Log::error('validateCredentials');
 
         $plain = $credentials['password'];
 

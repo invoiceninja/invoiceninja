@@ -68,9 +68,9 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 
   Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
 
-  Route::resource('users', 'UserController'); // name = (users. index / create / show / update / destroy / edit
+  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
 
-  Route::post('users/bulk', 'UserController@bulk')->name('users.bulk');
+  Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
 
   Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
 
