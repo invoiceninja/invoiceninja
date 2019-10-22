@@ -88,8 +88,6 @@ class CompanySettings extends BaseSettings
 	public $fill_products = false;
 	public $convert_products = false;
 
-	public $company_gateways = '';
-
 	public $invoice_terms = '';
 	public $quote_terms = '';
 	public $invoice_taxes = false;
@@ -241,7 +239,6 @@ class CompanySettings extends BaseSettings
 		'reset_counter_date' => 'string',
 		'counter_padding' => 'integer',
 		'design' => 'string',
-		'company_gateways' => 'string',
 	];
 
 	/**
