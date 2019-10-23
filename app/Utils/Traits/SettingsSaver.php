@@ -123,7 +123,12 @@ trait SettingsSaver
 					continue;
 				}
 				elseif($this->checkAttribute($value, $settings->{$key})){
-					settype($settings->{$key}, $value);
+
+					if(substr($key, -3) == '_id')
+						settype($settings->{$key}, 'string');
+					else
+						settype($settings->{$key}, $value);
+					
 				}
 				else {
 					unset($settings->{$key});
