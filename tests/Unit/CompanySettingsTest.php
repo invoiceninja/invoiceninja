@@ -49,4 +49,14 @@ class CompanySettingsTest extends TestCase
 
 	}
 
+	public function testSettingsArrayAgainstCastsArray()
+	{
+		$company_settings = json_decode(json_encode(CompanySettings::defaults()),true);
+		$casts = CompanySettings::$casts;
+
+		$diff = array_diff_key($company_settings, $casts);
+
+		$this->assertEquals(1, count($diff));
+	}
+
 }
