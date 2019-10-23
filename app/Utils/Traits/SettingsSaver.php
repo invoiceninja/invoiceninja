@@ -72,7 +72,10 @@ trait SettingsSaver
 			if(substr($key, -3) == '_id' || substr($key, -14) == 'number_counter'){
 				$value = "integer";
 				
-				if(!$this->checkAttribute($value, $settings->{$key})){
+				if(!property_exists($settings, $key)){
+					continue;
+				}
+				else if(!$this->checkAttribute($value, $settings->{$key})){
 					return [$key, $value];
 				}
 
@@ -80,7 +83,7 @@ trait SettingsSaver
 			}
 
 			/* Handles unset settings or blank strings */
-			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '')
+			if(!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '')
 				continue;
 			
 
@@ -116,7 +119,10 @@ trait SettingsSaver
 			if(substr($key, -3) == '_id' || substr($key, -14) == 'number_counter'){
 				$value = "integer";
 				
-				if($this->checkAttribute($value, $settings->{$key})){
+				if(!property_exists($settings, $key)){
+					continue;
+				}
+				elseif($this->checkAttribute($value, $settings->{$key})){
 					settype($settings->{$key}, $value);
 				}
 				else {
@@ -127,7 +133,7 @@ trait SettingsSaver
 			}
 
 			/* Handles unset settings or blank strings */
-			if(is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''){
+			if(!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''){
 				continue;
 			}
 

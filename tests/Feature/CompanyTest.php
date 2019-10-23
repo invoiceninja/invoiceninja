@@ -87,6 +87,7 @@ class CompanyTest extends TestCase
             ]
         )
         ->assertStatus(200)->decodeResponseJson();
+
         $company = Company::find($this->decodePrimaryKey($response['data'][0]['company']['id']));        
 
         $response = $this->withHeaders([
@@ -116,11 +117,27 @@ class CompanyTest extends TestCase
             ->assertStatus(200);
 
 
+        $settings = new \stdClass;
+        $settings->custom_value1 = 'test';
+
+        $company->settings = $settings;
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company->toArray())
+        ->assertStatus(200)->decodeResponseJson();
+
+\Log::error($response);
+        //$this->assertEquals(1, $response['data']['size_id']);
+
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
         ])->delete('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200);
-    }
+
+
+        }
 }
