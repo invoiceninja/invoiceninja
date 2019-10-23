@@ -402,6 +402,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('status_id');
 
             $t->unsignedInteger('recurring_invoice_id')->nullable();
+            $t->unsignedInteger('design_id')->nullable();
 
             $t->string('invoice_number')->nullable();
             $t->float('discount')->default(0);
@@ -588,6 +589,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
+            $t->unsignedInteger('design_id');
 
             $t->string('quote_number')->nullable();
             $t->float('discount')->default(0);

@@ -59,7 +59,6 @@ class Number
      * 
      * @return string           The formatted value
      */
-    //public static function formatMoney($value, $currency, $country, $settings) :string
     public static function formatMoney($value, $client) :string
     {
         $currency = $client->currency();
@@ -68,7 +67,7 @@ class Number
         $decimal = $currency->decimal_separator;
         $precision = $currency->precision;
         $code = $currency->code;
-        $swapSymbol = $client->country->swap_currency_symbol;
+        $swapSymbol = $currency->swap_currency_symbol;
 
             /* Country settings override client settings */
             if ($client->country->thousand_separator) 
