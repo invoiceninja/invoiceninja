@@ -25,6 +25,12 @@
                         		{{ $inv->id }} - {{ $inv->amount }}
                         	@endforeach
                         </table>
+
+                        @if($invoice->remaining_cycles >=1)
+                        <div class="pull-right">
+                            <button class="btn btn-primary">Cancel</button>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
