@@ -271,13 +271,7 @@ class Client extends BaseModel
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
-        $company_gateways = $this->getSetting('company_gateways');
-
-        /* If we have a custom gateway list pass this back first */
-        if($company_gateways)
-            $gateways = $this->company->company_gateways->whereIn('id', $company_gateways);
-        else
-            $gateways = $this->company->company_gateways;
+        $gateways = $this->company->company_gateways;
 
         foreach($gateways as $gateway)
         {
