@@ -84,6 +84,7 @@ class QuoteTransformer extends EntityTransformer
             'balance' => (float) $quote->balance ?: '',
             'client_id' => (string) $quote->client_id,
             'status_id' => (string) ($quote->status_id ?: 1),
+            'design_id' => (string) ($quote->design_id ?: 1),
             'updated_at' => $quote->updated_at,
             'archived_at' => $quote->deleted_at,
             'quote_number' => $quote->quote_number ?: '',

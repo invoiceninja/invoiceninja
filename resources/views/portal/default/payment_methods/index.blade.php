@@ -25,9 +25,11 @@
 			<div class="col-lg-12" style="padding-bottom: 10px;">
 
 				<!-- Filters / Buttons in here.-->
+                @if(auth()->user()->client->getCreditCardGateway())
 				<div id="top_right_buttons" class="pull-right">
                       <a href="{{ route('client.payment_methods.create')}}" class="btn btn-success">{{ ctrans('texts.add_payment_method') }}</a>
 				</div>
+                @endif
             </div>
         </div>
 
