@@ -370,17 +370,17 @@ class CreateUsersTable extends Migration
             $table->text('config');
             $table->unsignedInteger('priority_id')->default(0);
 
-            $table->decimal('min_limit', 13, 2)->default(0);
-            $table->decimal('max_limit', 13, 2)->default(0);
-            $table->decimal('fee_amount', 13, 2)->default(0);
-            $table->decimal('fee_percent', 13, 2)->default(0);
+            $table->decimal('min_limit', 13, 2)->nullable();
+            $table->decimal('max_limit', 13, 2)->nullable();
+            $table->decimal('fee_amount', 13, 2)->nullable();
+            $table->decimal('fee_percent', 13, 2)->nullable();
             $table->string('fee_tax_name1')->nullable();
             $table->string('fee_tax_name2')->nullable();
             $table->string('fee_tax_name3')->nullable();
             $table->decimal('fee_tax_rate1', 13, 2)->nullable();
             $table->decimal('fee_tax_rate2', 13, 2)->nullable();
             $table->decimal('fee_tax_rate3', 13, 2)->nullable();
-            $table->unsignedInteger('fee_cap')->default(0);
+            $table->unsignedInteger('fee_cap')->nullable();
             $table->boolean('adjust_fee_percent')->default(false);
 
             $table->timestamps(6);
