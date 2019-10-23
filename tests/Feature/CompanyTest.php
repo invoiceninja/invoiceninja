@@ -119,6 +119,8 @@ class CompanyTest extends TestCase
 
         $settings = new \stdClass;
         $settings->custom_value1 = 'test';
+        $settings->invoice_design_id = '2';
+        $settings->quote_design_id = 1;
 
         $company->settings = $settings;
 
@@ -128,7 +130,14 @@ class CompanyTest extends TestCase
         ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company->toArray())
         ->assertStatus(200)->decodeResponseJson();
 
-\Log::error($response);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->get('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
+        ->assertStatus(200)->decodeResponseJson();
+
+        //\Log::error($response);
         //$this->assertEquals(1, $response['data']['size_id']);
 
 
