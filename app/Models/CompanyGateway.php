@@ -29,7 +29,7 @@ class CompanyGateway extends BaseModel
         'show_shipping_address',
         'update_details',
         'config',
-        'priority_id',
+        'priority',
         'min_limit',
         'max_limit',
         'fee_amount',

@@ -16,6 +16,7 @@ use App\Models\CompanyToken;
 use Closure;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class PasswordProtection
 {
@@ -55,7 +56,7 @@ class PasswordProtection
             
         }
 
-        Cache::add(auth()->user()->email."_logged_in", 'logged_in', now()->addMinutes(5));
+        Cache::add(auth()->user()->email."_logged_in", Str::random(64), now()->addMinutes(10));
 
         return $next($request);
     }

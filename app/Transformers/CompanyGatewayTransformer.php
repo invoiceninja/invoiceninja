@@ -52,7 +52,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'show_shipping_address' => (bool)$company_gateway->show_shipping_address,
             'update_details' => (bool)$company_gateway->update_details,
             'config' => (string) $company_gateway->getConfigTransformed(),
-            'priority_id' => (int)$company_gateway->priority_id,
+            'priority' => (int)$company_gateway->priority,
             'min_limit' => (float)$company_gateway->min_limit ?: null,
             'max_limit' => (float)$company_gateway->max_limit ?: null,
             'fee_amount' => (float) $company_gateway->fee_amount ?: null,
