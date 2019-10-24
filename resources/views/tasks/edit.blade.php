@@ -40,6 +40,7 @@
         @endif
         {!! Former::text('action') !!}
         {!! Former::text('time_log') !!}
+        {!! Former::text('is_running') !!}
     </div>
 
     <div class="row" onkeypress="formEnterClick(event)">
