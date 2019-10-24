@@ -70,13 +70,13 @@ class Number
         $swapSymbol = $currency->swap_currency_symbol;
 
             /* Country settings override client settings */
-            if ($client->country->thousand_separator) 
+            if (property_exists($client->country), 'thousand_separator') 
                 $thousand = $client->country->thousand_separator;
             
-            if ($client->country->decimal_separator) 
+            if (property_exists($client->country), 'decimal_separator') 
                 $decimal = $client->country->decimal_separator;
             
-            if($client->country->swap_currency_symbol)
+            if(property_exists($client->country), 'swap_currency_symbol')
                 $swapSymbol = $client->country->swap_currency_symbol;
 
         $value = number_format($value, $precision, $decimal, $thousand);
