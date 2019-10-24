@@ -183,6 +183,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::delete('task_statuses/{task_status_id}', 'TaskKanbanController@deleteStatus');
     Route::put('task_status_order/{task_id}', 'TaskKanbanController@updateTask');
     Route::resource('tasks', 'TaskController');
+    Route::get('tasks/{tasks}/clone', 'TaskController@cloneTask');
     Route::get('api/tasks/{client_id?}/{project_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
