@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -140,13 +141,41 @@ class InvoiceTest extends TestCase
             ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $invoice_update)
             ->assertStatus(200);
 
-        $response = $this->withHeaders([
+    }
+
+    public function testPostNewInvoice()
+    {
+        $invoice = [
+            'status_id' => 1,
+            'invoice_number' => 'dfdfd', 
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+        ];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/invoices/', $invoice)
+            ->assertStatus(200);
+    }
+
+    public function testDeleteInvoice()
+    {
+            $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->delete('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id));
 
         $response->assertStatus(200);
-
     }
 
 }
