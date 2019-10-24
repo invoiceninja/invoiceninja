@@ -140,12 +140,6 @@ class TaskController extends BaseController
         return View::make('tasks.edit', $data);
     }
 
-
-    public function cloneTask(TaskRequest $request, $publicId)
-    {
-        return self::edit($request, $publicId, true);
-    }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -153,7 +147,7 @@ class TaskController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(TaskRequest $request, $publicId, $clone = false)
+    public function edit(TaskRequest $request)
     {
         $this->checkTimezone();
         $task = $request->entity();
@@ -178,26 +172,10 @@ class TaskController extends BaseController
 
         $actions[] = DropdownButton::DIVIDER;
         if (! $task->trashed()) {
-          if (! $clone) {
-              $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans("texts.clone_task")];
-          }
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_task')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_task')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_task')];
-        }
-
-        if ($clone) {
-            $task->id = null;
-            $task->public_id = null;
-            $task->deleted_at = null;
-
-            $method = 'POST';
-            $url = 'tasks';
-        }
-        else{
-          $method = 'PUT';
-          $url = 'tasks/'.$task->public_id;
         }
 
         $data = [
@@ -205,8 +183,8 @@ class TaskController extends BaseController
             'entity' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'projectPublicId' => $task->project ? $task->project->public_id : 0,
-            'method' => $method,
-            'url' => $url,
+            'method' => 'PUT',
+            'url' => 'tasks/'.$task->public_id,
             'title' => trans('texts.edit_task'),
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
@@ -251,12 +229,7 @@ class TaskController extends BaseController
      */
     private function save($request, $publicId = null)
     {
-
         $action = Input::get('action');
-
-        if ( in_array($action, ['clone'])) {
-          return redirect()->to(sprintf('tasks/%s/clone', $publicId));
-        }
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
