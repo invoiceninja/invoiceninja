@@ -101,7 +101,8 @@ class CreateUsersTable extends Migration
             $table->date('plan_started')->nullable();
             $table->date('plan_paid')->nullable();
             $table->date('plan_expires')->nullable();
-
+            $table->string('user_agent')->nullable();
+            
             $table->unsignedInteger('payment_id')->nullable()->index();
             $table->unsignedInteger('default_company_id');
 
