@@ -75,7 +75,7 @@ class Number
             
             if (property_exists($client->country), 'decimal_separator') 
                 $decimal = $client->country->decimal_separator;
-            
+
             if(property_exists($client->country), 'swap_currency_symbol')
                 $swapSymbol = $client->country->swap_currency_symbol;
 
