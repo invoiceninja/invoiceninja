@@ -78,6 +78,27 @@ class CompanySettings extends BaseSettings
 	public $credit_number_pattern = '';
 	public $credit_number_counter = 1;
 
+	public $task_number_prefix = '';
+	public $task_number_pattern = '';
+	public $task_number_counter = 1;
+
+	public $expense_number_prefix = '';
+	public $expense_number_pattern = '';
+	public $expense_number_counter = 1;
+
+	public $vendor_number_prefix = '';
+	public $vendor_number_pattern = '';
+	public $vendor_number_counter = 1;
+
+	public $ticket_number_prefix = '';
+	public $ticket_number_pattern = '';
+	public $ticket_number_counter = 1;
+
+	public $payment_number_prefix = '';
+	public $payment_number_pattern = '';
+	public $payment_number_counter = 1;
+
+
 	public $shared_invoice_quote_counter = false;
 
 	public $recurring_invoice_number_prefix = 'R';
@@ -157,6 +178,21 @@ class CompanySettings extends BaseSettings
 	public $id_number = '';
 
 	public static $casts = [
+		'task_number_prefix' => 'string',	
+		'task_number_pattern' => 'string',
+		'task_number_counter' => 'int',
+		'expense_number_prefix' => 'string',
+		'expense_number_pattern' => 'string',
+		'expense_number_counter' => 'int',
+		'vendor_number_prefix' => 'string',
+		'vendor_number_pattern' => 'string',
+		'vendor_number_counter' => 'int',
+		'ticket_number_prefix' => 'string',
+		'ticket_number_pattern' => 'string',
+		'ticket_number_counter' => 'int',
+		'payment_number_prefix' => 'string',
+		'payment_number_pattern' => 'string',
+		'payment_number_counter' => 'int',
 		'reply_to_email' => 'string',
 		'bcc_email' => 'string',
 		'pdf_email_attachment' => 'bool',
