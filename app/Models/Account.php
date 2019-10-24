@@ -42,6 +42,7 @@ class Account extends BaseModel
         'utm_campaign',
         'utm_term',
         'utm_content',
+        'user_agent',
     ];
 
     /**

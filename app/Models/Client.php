@@ -271,7 +271,12 @@ class Client extends BaseModel
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
-        $gateways = $this->company->company_gateways;
+        $company_gateways = $this->getSetting('company_gateway_ids');
+        
+        if($company_gateways)
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+        else
+            $gateways = $this->company->company_gateways;
 
         foreach($gateways as $gateway)
         {
@@ -315,7 +320,12 @@ class Client extends BaseModel
 //Also need to harvest the list of client gateway tokens and present these
 //for instant payment
 
-        $gateways = $this->company->company_gateways;
+        $company_gateways = $this->client->getSetting('company_gateway_ids');
+
+        if($company_gateways)
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+        else
+            $gateways = $this->company->company_gateways;
 
         $gateways->filter(function ($method) use ($amount){
             if($method->min_limit !==  null && $amount < $method->min_limit)

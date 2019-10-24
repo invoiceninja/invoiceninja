@@ -76,6 +76,9 @@ class Number
             if ($client->country->decimal_separator) 
                 $decimal = $client->country->decimal_separator;
             
+            if($client->country->swap_currency_symbol)
+                $swapSymbol = $client->country->swap_currency_symbol;
+
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
         

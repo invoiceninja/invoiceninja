@@ -101,7 +101,8 @@ class CreateUsersTable extends Migration
             $table->date('plan_started')->nullable();
             $table->date('plan_paid')->nullable();
             $table->date('plan_expires')->nullable();
-
+            $table->string('user_agent')->nullable();
+            
             $table->unsignedInteger('payment_id')->nullable()->index();
             $table->unsignedInteger('default_company_id');
 
@@ -368,7 +369,7 @@ class CreateUsersTable extends Migration
             $table->boolean('show_shipping_address')->default(true)->nullable();
             $table->boolean('update_details')->default(false)->nullable();
             $table->text('config');
-            $table->unsignedInteger('priority_id')->default(0);
+            $table->unsignedInteger('priority')->default(0);
 
             $table->decimal('min_limit', 13, 2)->nullable();
             $table->decimal('max_limit', 13, 2)->nullable();

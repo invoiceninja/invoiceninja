@@ -12,7 +12,7 @@
  *       @OA\Property(property="update_details", type="boolean", example=true, description="______"),
  *       @OA\Property(property="adjust_fee_percent", type="boolean", example=true, description="______"),
  *       @OA\Property(property="config", type="string", example="2", description="______"),
- *       @OA\Property(property="priority_id", type="string", example="2", description="______"),
+ *       @OA\Property(property="priority", type="string", example="2", description="______"),
  *       @OA\Property(property="user_id", type="string", example="2", description="______"),
  *       @OA\Property(property="min_limit", type="string", example="2", description="______"),
  *       @OA\Property(property="max_limit", type="string", example="2", description="______"),

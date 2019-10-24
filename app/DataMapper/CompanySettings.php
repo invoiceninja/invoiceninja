@@ -26,9 +26,10 @@ class CompanySettings extends BaseSettings
 
 	public $language_id = '';
 	public $show_currency_code = false;
-	public $currency_id = '1';
 
-	public $payment_terms = 1; 
+	public $company_gateway_ids = '';
+
+	public $currency_id = '1';
 
 	public $custom_value1 = '';
 	public $custom_value2 = '';
@@ -41,6 +42,8 @@ class CompanySettings extends BaseSettings
 	public $custom_invoice_taxes4 = false;
 
 	public $default_task_rate = 0;
+
+	public $payment_terms = 1; 
 	public $send_reminders = false;
 	public $show_tasks_in_portal = false;
 
@@ -75,6 +78,27 @@ class CompanySettings extends BaseSettings
 	public $credit_number_pattern = '';
 	public $credit_number_counter = 1;
 
+	public $task_number_prefix = '';
+	public $task_number_pattern = '';
+	public $task_number_counter = 1;
+
+	public $expense_number_prefix = '';
+	public $expense_number_pattern = '';
+	public $expense_number_counter = 1;
+
+	public $vendor_number_prefix = '';
+	public $vendor_number_pattern = '';
+	public $vendor_number_counter = 1;
+
+	public $ticket_number_prefix = '';
+	public $ticket_number_pattern = '';
+	public $ticket_number_counter = 1;
+
+	public $payment_number_prefix = '';
+	public $payment_number_pattern = '';
+	public $payment_number_counter = 1;
+
+
 	public $shared_invoice_quote_counter = false;
 
 	public $recurring_invoice_number_prefix = 'R';
@@ -107,7 +131,22 @@ class CompanySettings extends BaseSettings
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
-	public $email_footer = '';
+
+
+	public $enable_portal_password = false;
+	public $show_accept_invoice_terms = false;
+	public $show_accept_quote_terms = false;
+	public $require_invoice_signature = false;
+	public $require_quote_signature = false;
+
+	//email settings
+	public $reply_to_email = '';
+	public $bcc_email = '';
+	public $pdf_email_attachment = false;
+	public $ubl_email_attachment = false;
+
+	public $email_style = ''; //plain, light, dark, custom
+	public $email_style_custom = ''; //the template itself
 	public $email_subject_invoice = '';
 	public $email_subject_quote = '';
 	public $email_subject_payment = '';
@@ -120,11 +159,7 @@ class CompanySettings extends BaseSettings
 	public $email_template_reminder1 = '';
 	public $email_template_reminder2 = '';
 	public $email_template_reminder3 = '';
-	public $enable_portal_password = false;
-	public $show_accept_invoice_terms = false;
-	public $show_accept_quote_terms = false;
-	public $require_invoice_signature = false;
-	public $require_quote_signature = false;
+	public $email_footer = '';
 
 	/* Company Meta data that we can use to build sub companies*/
 
@@ -143,6 +178,28 @@ class CompanySettings extends BaseSettings
 	public $id_number = '';
 
 	public static $casts = [
+		'task_number_prefix' => 'string',	
+		'task_number_pattern' => 'string',
+		'task_number_counter' => 'int',
+		'expense_number_prefix' => 'string',
+		'expense_number_pattern' => 'string',
+		'expense_number_counter' => 'int',
+		'vendor_number_prefix' => 'string',
+		'vendor_number_pattern' => 'string',
+		'vendor_number_counter' => 'int',
+		'ticket_number_prefix' => 'string',
+		'ticket_number_pattern' => 'string',
+		'ticket_number_counter' => 'int',
+		'payment_number_prefix' => 'string',
+		'payment_number_pattern' => 'string',
+		'payment_number_counter' => 'int',
+		'reply_to_email' => 'string',
+		'bcc_email' => 'string',
+		'pdf_email_attachment' => 'bool',
+		'ubl_email_attachment' => 'bool',
+		'email_style' => 'string',
+		'email_style_custom' => 'string',
+		'company_gateway_ids' => 'string',
 		'address1' => 'string',
 		'address2' => 'string',
 		'city' => 'string',
