@@ -549,6 +549,7 @@ $LANG = array(
     'created_task' => 'Successfully created task',
     'updated_task' => 'Successfully updated task',
     'edit_task' => 'Edit Task',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Archive Task',
     'restore_task' => 'Restore Task',
     'delete_task' => 'Delete Task',
