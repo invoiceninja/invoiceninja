@@ -13,6 +13,8 @@ namespace App\Transformers;
 
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
+use App\Transformers\ClientGatewayTokenTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -30,6 +32,7 @@ class ClientTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
+        'gateway_tokens'
     ];
 
 
@@ -45,7 +48,12 @@ class ClientTransformer extends EntityTransformer
         return $this->includeCollection($client->contacts, $transformer, ClientContact::class);
     }
 
+    public function includeGatewayTokens(Client $client)
+    {
+        $transformer = new ClientGatewayTokenTransformer($this->serializer);
 
+        return $this->includeCollection($client->gateway_tokens, $transformer, ClientGatewayToken::class);
+    }
     /**
      * @param Client $client
      *
@@ -65,6 +73,7 @@ class ClientTransformer extends EntityTransformer
             'last_login' => (int)$client->last_login,
             'address1' => $client->address1 ?: '',
             'address2' => $client->address2 ?: '',
+            'phone' => $client->phone ?: '',
             'city' => $client->city ?: '',
             'state' => $client->state ?: '',
             'postal_code' => $client->postal_code ?: '',
