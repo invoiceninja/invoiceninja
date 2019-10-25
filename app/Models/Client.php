@@ -320,7 +320,7 @@ class Client extends BaseModel
 //Also need to harvest the list of client gateway tokens and present these
 //for instant payment
 
-        $company_gateways = $this->client->getSetting('company_gateway_ids');
+        $company_gateways = $this->getSetting('company_gateway_ids');
 
         if($company_gateways)
             $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
