@@ -209,7 +209,7 @@ trait MakesInvoiceValues
             $data['$phone'] = $this->client->present()->phone();
             $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, FALSE);
             $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, TRUE);
-            $data['$country'] = $this->client->country->name;
+            $data['$country'] = $this->client->country->name ?: 'No Country Set';
             $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
             $data['$contact_name'] = $this->client->present()->primary_contact_name();
             $data['$company_name'] = $this->company->present()->name();
