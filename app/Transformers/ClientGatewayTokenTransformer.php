@@ -35,6 +35,7 @@ class ClientGatewayTokenTransformer extends EntityTransformer
             'token' => (string)$cgt->token ?: '',
             'gateway_customer_reference' => $cgt->gateway_customer_reference ?: '',
             'gateway_type_id' => (string)$cgt->gateway_type_id ?: '',
+            'company_gateway_id' => (string)$this->encodePrimaryKey($cgt->company_gateway_id) ?: '',
             'is_default' => (bool) $cgt->is_default,
             'updated_at' => $cgt->updated_at,
             'archived_at' => $cgt->deleted_at,
