@@ -73,6 +73,7 @@ class ClientTransformer extends EntityTransformer
             'last_login' => (int)$client->last_login,
             'address1' => $client->address1 ?: '',
             'address2' => $client->address2 ?: '',
+            'phone' => $client->phone ?: '',
             'city' => $client->city ?: '',
             'state' => $client->state ?: '',
             'postal_code' => $client->postal_code ?: '',
