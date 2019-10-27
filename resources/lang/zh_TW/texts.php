@@ -546,6 +546,7 @@ $LANG = array(
     'created_task' => '成功建立的工作項目',
     'updated_task' => '成功更新的工作項目',
     'edit_task' => '編輯工作項目',
+    'clone_task' => 'Clone Task',
     'archive_task' => '歸檔任務項目',
     'restore_task' => '復原任務',
     'delete_task' => '刪除工作項目',

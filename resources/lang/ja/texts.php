@@ -549,6 +549,7 @@ $LANG = array(
     'created_task' => 'タスクが登録されました。',
     'updated_task' => 'タスクが更新されました。',
     'edit_task' => 'タスクを更新',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'タスクをアーカイブ',
     'restore_task' => 'タスクをリストア',
     'delete_task' => 'タスクを削除',

@@ -549,6 +549,7 @@ $LANG = array(
     'created_task' => 'Sukurtas darbas',
     'updated_task' => 'Atnaujintas darbas',
     'edit_task' => 'Keisti',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Archyvuoti',
     'restore_task' => 'Tęsti',
     'delete_task' => 'Trinti',

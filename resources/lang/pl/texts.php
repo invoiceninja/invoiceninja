@@ -547,6 +547,7 @@ Przykłady dynamicznych zmiennych:
     'created_task' => 'Pomyślnie utworzono zadanie',
     'updated_task' => 'Pomyślnie zaktualizowano zadanie',
     'edit_task' => 'Edytuj zadanie',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Archiwizuj zadanie',
     'restore_task' => 'Przywróć zadanie',
     'delete_task' => 'Usuń zadanie',

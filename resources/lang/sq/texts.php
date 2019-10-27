@@ -546,6 +546,7 @@ $LANG = array(
     'created_task' => 'Detyra u krijua me sukses',
     'updated_task' => 'Detyra është perditesuar me sukses',
     'edit_task' => 'Edito Detyrën',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Arkivo Detyrën',
     'restore_task' => 'Rikthe Detyrën',
     'delete_task' => 'Fshi Detyrën',

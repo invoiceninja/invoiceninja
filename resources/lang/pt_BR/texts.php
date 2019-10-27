@@ -546,6 +546,7 @@ Não consegue achar a fatura? Precisa de mais ajuda? Ficaremos feliz em ajudar
     'created_task' => 'Tarefa criada com sucesso',
     'updated_task' => 'Tarefa atualizada com sucesso',
     'edit_task' => 'Editar Tarefa',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Arquivar Tarefa',
     'restore_task' => 'Restaurar Tarefa',
     'delete_task' => 'Excluir Tarefa',

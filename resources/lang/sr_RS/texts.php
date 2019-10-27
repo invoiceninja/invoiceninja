@@ -549,6 +549,7 @@ $LANG = array(
     'created_task' => 'Uspešno kreiran zadatak',
     'updated_task' => 'Uspešno ažuriran zadatak',
     'edit_task' => 'Uredi zadatak',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Arhiviraj zadatak',
     'restore_task' => 'Obnovi zadatak',
     'delete_task' => 'Obriši zadatak',
