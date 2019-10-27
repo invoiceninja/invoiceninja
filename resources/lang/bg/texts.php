@@ -550,6 +550,7 @@ $LANG = array(
     'created_task' => 'Успешно създадена задача',
     'updated_task' => 'Успешно актуализирана задача',
     'edit_task' => 'Редакция на задача',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Архивиране на задача',
     'restore_task' => 'Възстановяване на задача',
     'delete_task' => 'Изтриване на задача',

@@ -543,6 +543,7 @@ $LANG = array(
     'created_task' => 'Tarea creada correctamente',
     'updated_task' => 'Tarea actualizada correctamente',
     'edit_task' => 'Editar Tarea',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Archivar Tarea',
     'restore_task' => 'Restaurar Tarea',
     'delete_task' => 'Borrar Tarea',

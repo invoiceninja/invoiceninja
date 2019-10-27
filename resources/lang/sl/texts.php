@@ -545,6 +545,7 @@ Ne morete najti računa? Potrebujete dodatno pomoč? Z veseljem bomo pomagali. P
     'created_task' => 'Opravilo uspešno ustvarjeno',
     'updated_task' => 'Opravilo uspešno posodobljeno',
     'edit_task' => 'Uredi opravilo',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Arhiviraj opravilo',
     'restore_task' => 'Obnovi opravilo',
     'delete_task' => 'Odstrani opravilo',

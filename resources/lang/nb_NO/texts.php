@@ -549,6 +549,7 @@ $LANG = array(
     'created_task' => 'Suksessfullt opprettet oppgave',
     'updated_task' => 'Suksessfullt oppdatert oppgave',
     'edit_task' => 'Rediger Oppgave',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Arkiver Oppgave',
     'restore_task' => 'Gjennopprett Oppgave',
     'delete_task' => 'Slett Oppgave',

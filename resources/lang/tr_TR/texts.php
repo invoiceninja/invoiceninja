@@ -548,6 +548,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'created_task' => 'Görev başarıyla oluşturuldu',
     'updated_task' => 'Görev başarıyla güncellendi',
     'edit_task' => 'Görev Düzenle',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Görev Arşivle',
     'restore_task' => 'Görevi Geri Yükle',
     'delete_task' => 'Görev Sil',

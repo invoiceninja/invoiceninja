@@ -548,6 +548,7 @@ $LANG = array(
     'created_task' => 'Framgångsrikt skapad uppgift',
     'updated_task' => 'Lyckad uppdatering av uppgift',
     'edit_task' => 'Redigera uppgift',
+    'clone_task' => 'Clone Task',
     'archive_task' => 'Arkivera uppgift',
     'restore_task' => 'Återställa uppgift',
     'delete_task' => 'Radera uppgift',
