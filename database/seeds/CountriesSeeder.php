@@ -62,6 +62,10 @@ class CountriesSeeder extends Seeder
             'CH' => [
                 'swap_postal_code' => true,
             ],
+            'CN' => [ // China
+                'thousand_separator' => ',',
+                'decimal_separator' => '.',
+            ],
             'CZ' => [ // Czech Republic
                 'swap_currency_symbol' => true,
             ],
