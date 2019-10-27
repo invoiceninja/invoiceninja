@@ -26,6 +26,7 @@
  *       @OA\Property(property="city", type="string", example="", description="________"),
  *       @OA\Property(property="state", type="string", example="", description="________"),
  *       @OA\Property(property="postal_code", type="string", example="", description="________"),
+ *       @OA\Property(property="phone", type="string", example="555-3434-3434", description="The client phone number"),
  *       @OA\Property(property="country_id", type="string", example="", description="________"),
  *       @OA\Property(property="custom_value1", type="string", example="", description="________"),
  *       @OA\Property(property="custom_value2", type="string", example="", description="________"),
