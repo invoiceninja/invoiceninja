@@ -54,7 +54,6 @@ class CompanySettings extends BaseSettings
 	public $lock_sent_invoices = false;
 	public $auto_archive_invoice = false;
 
-
 	public $inclusive_taxes = false;
 
 	public $translations;
@@ -107,10 +106,6 @@ class CompanySettings extends BaseSettings
 	public $counter_padding = 0;
 
 	public $design = 'views/pdf/design1.blade.php';
-	
-	public $update_products = true;
-	public $fill_products = false;
-	public $convert_products = false;
 
 	public $invoice_terms = '';
 	public $quote_terms = '';
@@ -127,7 +122,6 @@ class CompanySettings extends BaseSettings
 	public $tax_rate2 = 0;
 	public $tax_name3 = '';
 	public $tax_rate3 = 0;
-	public $enable_second_tax_rate = false;
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
@@ -156,9 +150,11 @@ class CompanySettings extends BaseSettings
 	public $email_subject_reminder1 = '';
 	public $email_subject_reminder2 = '';
 	public $email_subject_reminder3 = '';
+	public $email_subject_reminder_endless = '';
 	public $email_template_reminder1 = '';
 	public $email_template_reminder2 = '';
 	public $email_template_reminder3 = '';
+	public $email_template_reminder_endless = '';
 	public $email_footer = '';
 
 	/* Company Meta data that we can use to build sub companies*/
@@ -204,7 +200,6 @@ class CompanySettings extends BaseSettings
 		'address2' => 'string',
 		'city' => 'string',
 		'company_logo' => 'string',
-		'convert_products' => 'bool',
 		'country_id' => 'string',
 		'client_number_prefix' => 'string',
 		'client_number_pattern' => 'string',
@@ -237,12 +232,12 @@ class CompanySettings extends BaseSettings
 		'email_subject_reminder1' => 'string',
 		'email_subject_reminder2' => 'string',
 		'email_subject_reminder3' => 'string',
+		'email_subject_reminder_endless' => 'string',
 		'email_template_reminder1' => 'string',
 		'email_template_reminder2' => 'string',
 		'email_template_reminder3' => 'string',
+		'email_template_reminder_endless' => 'string',
 		'enable_portal_password' => 'bool',
-		'enable_second_tax_rate' => 'bool',
-		'fill_products' => 'bool',
 		'inclusive_taxes' => 'bool',
 		'invoice_number_prefix' => 'string',
 		'invoice_number_pattern' => 'string',
@@ -270,7 +265,6 @@ class CompanySettings extends BaseSettings
 		'require_invoice_signature' => 'bool',
 		'require_quote_signature' => 'bool',
 		'show_item_taxes' => 'bool',
-		'update_products' => 'bool',
 		'state' => 'string',
 		'email' => 'string',
 		'vat_number' => 'string',
