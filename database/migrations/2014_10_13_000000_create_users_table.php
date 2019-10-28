@@ -144,7 +144,10 @@ class CreateUsersTable extends Migration
             $table->boolean('convert_products')->default(false);
             $table->boolean('fill_products')->default(false);
             $table->boolean('update_products')->default(false);
-            $table->boolean('custom_surcharge_taxes')->default(false);
+            $table->boolean('custom_surcharge_taxes1')->default(false);
+            $table->boolean('custom_surcharge_taxes2')->default(false);
+            $table->boolean('custom_surcharge_taxes3')->default(false);
+            $table->boolean('custom_surcharge_taxes4')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
 
             // $table->string('website')->nullable();
