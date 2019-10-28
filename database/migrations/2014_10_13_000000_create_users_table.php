@@ -972,13 +972,14 @@ class CreateUsersTable extends Migration
             $table->string('format_dart');
         });
 
-        Schema::create('system_log', function ($table){
+        Schema::create('system_logs', function ($table){
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('category_id')->nullable();
             $table->unsignedInteger('event_id')->nullable();
+            $table->unsignedInteger('type_id')->nullable();
             $table->text('log');
             $table->timestamps(6);
 

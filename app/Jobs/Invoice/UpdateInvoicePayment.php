@@ -13,6 +13,7 @@ namespace App\Jobs\Invoice;
 
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Utils\Traits\SystemLogTrait;
@@ -104,15 +105,19 @@ class UpdateInvoicePayment implements ShouldQueue
             }
             else {
 
-/*
-                $this->sysLog([
-                    'payment' => $this->payment,
-                    'invoices' => $invoices,
-                    'invoices_total' => $invoices_total,
-                    'payment_amount' => $this->payment->amount,
-                    'partial_check_amount' => $total,
-                ], SystemLog::GATEWAY_RESPONSE, SystemLog::PAYMENT_RECONCILIATION_FAILURE, $this->payment->client);
-*/
+                SystemLogger::dispatch(
+                    [
+                        'payment' => $this->payment,
+                        'invoices' => $invoices,
+                        'invoices_total' => $invoices_total,
+                        'payment_amount' => $this->payment->amount,
+                        'partial_check_amount' => $total,                    ],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE,
+                    SystemLog::TYPE_LEDGER,
+                    $this->payment->client
+                );
+
                 throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total}");
             }
 

@@ -76,7 +76,7 @@ class CompanyTransformer extends EntityTransformer
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
             'first_month_of_year' => (string) $company->first_month_of_year ?: '',
-            'first_day_of_week' => (string) $first_day_of_week ?: '',
+            'first_day_of_week' => (string) $company->first_day_of_week ?: '',
             'settings' => $company->settings ?: '',
             'updated_at' => (int)$company->updated_at,
             'deleted_at' => (int)$company->deleted_at,

@@ -14,11 +14,13 @@ namespace App\PaymentDrivers;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -364,18 +366,32 @@ class StripePaymentDriver extends BasePaymentDriver
             event(new PaymentWasCreated($payment));
 
             UpdateInvoicePayment::dispatchNow($payment);
-            
+        
+            SystemLogger::dispatch([
+                'server_response' => $payment_intent,
+                'data' => $data
+              ], 
+              SystemLog::CATEGORY_GATEWAY_RESPONSE,
+              SystemLog::EVENT_GATEWAY_SUCCESS,
+              SystemLog::TYPE_STRIPE,
+              $this->client
+            );
+
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         }
         else
         {
           /*Fail and log*/
-
-          $this->sysLog([
-            'server_response' => $server_response,
-            'invoices' => $invoices,
-          ]);
+            SystemLogger::dispatch([
+              'server_response' => $server_response,
+              'data' => $data
+            ], 
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_STRIPE,
+            $this->client
+            );
 
           throw new \Exception("Failed to process payment", 1);
           
