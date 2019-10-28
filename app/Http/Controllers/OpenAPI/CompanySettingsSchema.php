@@ -35,6 +35,8 @@
  *       @OA\Property(property="custom_message_unapproved_quote", type="string", example="Please approve quote", description="____________"),
  *       @OA\Property(property="lock_sent_invoices", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="auto_archive_invoice", type="boolean", example=true, description="____________"),
+ *       @OA\Property(property="auto_archive_quote", type="boolean", example=true, description="____________"),
+ *       @OA\Property(property="auto_convert_quote", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="inclusive_taxes", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="translations", type="object", example="", description="JSON payload of customized translations"),
  *       @OA\Property(property="task_number_prefix", type="string", example="R", description="This string is prepended to the task number"),

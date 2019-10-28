@@ -53,6 +53,8 @@ class CompanySettings extends BaseSettings
 	public $custom_message_unapproved_quote = '';
 	public $lock_sent_invoices = false;
 	public $auto_archive_invoice = false;
+	public $auto_archive_quote = false;
+	public $auto_convert_quote = false;
 
 	public $inclusive_taxes = false;
 
@@ -103,7 +105,7 @@ class CompanySettings extends BaseSettings
 	public $recurring_invoice_number_prefix = 'R';
 	public $reset_counter_frequency_id = '0';
 	public $reset_counter_date = '';
-	public $counter_padding = 0;
+	public $counter_padding = 4;
 
 	public $design = 'views/pdf/design1.blade.php';
 
@@ -286,6 +288,8 @@ class CompanySettings extends BaseSettings
 		'show_tasks_in_portal' => 'bool',
 		'lock_sent_invoices' => 'bool',
 		'auto_archive_invoice' => 'bool',
+		'auto_archive_quote' => 'bool',
+		'auto_convert_quote' => 'bool',
 		'shared_invoice_quote_counter' => 'bool',
 		'counter_padding' => 'integer',
 		'design' => 'string',

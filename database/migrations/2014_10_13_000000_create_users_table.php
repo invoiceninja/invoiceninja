@@ -162,7 +162,7 @@ class CreateUsersTable extends Migration
             // $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->string('first_day_of_week')->nullable();
-            $table->string('financial_year_start')->nullable();
+            $table->string('first_month_of_year')->nullable();
             $table->smallInteger('enable_modules')->default(0);
             $table->text('custom_fields');
             $table->text('settings');
