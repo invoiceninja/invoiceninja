@@ -57,7 +57,6 @@ class InvoiceRepository extends BaseRepository
         $starting_amount = $invoice->amount;
 
         $invoice->fill($data);
-
         $invoice->save();
 
         if(isset($data['client_contacts']))
