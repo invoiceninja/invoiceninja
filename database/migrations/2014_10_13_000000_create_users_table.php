@@ -692,7 +692,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes();
 
-            $t->string('name',100)->unique();
+            $t->string('name',100);
             $t->decimal('rate', 13, 3)->default(0);
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
