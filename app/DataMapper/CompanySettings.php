@@ -175,7 +175,26 @@ class CompanySettings extends BaseSettings
 	public $vat_number = '';
 	public $id_number = '';
 
+
+	public $page_size = 'A4'; 
+    public $font_size = 9; 
+    public $primary_font = 'roboto';
+    public $secondary_font = 'roboto';
+    public $hide_paid_to_date = false;
+    public $embed_documents = false; 
+    public $all_pages_header = true;
+    public $all_pages_footer = true;
+
+
 	public static $casts = [
+		'page_size' => 'string',
+		'font_size' => 'int',
+		'primary_font' => 'string',
+		'secondary_font' => 'string',
+		'hide_paid_to_date' => 'bool',
+		'embed_documents' => 'bool',
+		'all_pages_header' => 'bool',
+		'all_pages_footer' => 'bool',
 		'task_number_prefix' => 'string',	
 		'task_number_pattern' => 'string',
 		'task_number_counter' => 'int',

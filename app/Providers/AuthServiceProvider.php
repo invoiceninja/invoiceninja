@@ -22,6 +22,7 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Policies\ActivityPolicy;
 use App\Policies\ClientPolicy;
@@ -34,6 +35,7 @@ use App\Policies\ProductPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
+use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
 use Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -59,6 +61,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         GroupSetting::class => GroupSettingPolicy::class,
         CompanyGateway::class => CompanyGatewayPolicy::class,
+        TaxRate::class => TaxRatePolicy::class,
     ];
 
     /**
