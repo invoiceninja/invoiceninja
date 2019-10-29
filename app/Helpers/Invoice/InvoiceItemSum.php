@@ -282,8 +282,12 @@ class InvoiceItemSum
 		foreach($invoice_item as $key => $value)
 		{
 
-			if(!property_exists($this->item, $key))
+			if(!property_exists($this->item, $key) || !isset($this->item->{$key})){
+				$this->item->{$key} = $value;
 				$this->item->{$key} = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
+			}			
+
+
 		}
 
 
