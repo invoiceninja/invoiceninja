@@ -14,39 +14,64 @@ namespace App\DataMapper;
 class InvoiceItem
 {
 
-    private $quantity;
+    public $quantity = 0;
 
-    private $cost;
+    public $cost = 0;
 
-    private $product_key;
+    public $product_key = '';
 
-    private $notes;
+    public $notes = '';
 
-    private $discount;
+    public $discount = 0;
 
-    private $is_amount_discount;
+    public $is_amount_discount = false;
 
-    private $tax_name1;
+    public $tax_name1 = '';
 
-    private $tax_rate1;
+    public $tax_rate1 = 0;
 
-    private $tax_name2;
+    public $tax_name2 = '';
 
-    private $tax_rate2;
+    public $tax_rate2 = 0;
 
-    private $sort_id;
+    public $tax_name3 = '';
 
-    private $line_total;
+    public $tax_rate3 = 0;
 
-    private $date;
+    public $sort_id = 0;
 
-    private $custom_value1;
+    public $line_total = 0;
 
-    private $custom_value2;
+    public $date = '';
 
-    private $custom_value3;
+    public $custom_value1 = '';
 
-    private $custom_value4;
+    public $custom_value2 = '';
+
+    public $custom_value3 = '';
+
+    public $custom_value4 = '';
 
 
+    public static $casts = [
+        'quantity' => 'float',
+        'cost' => 'float',
+        'product_key' => 'string',
+        'notes' => 'string',
+        'discount' => 'float',
+        'is_amount_discount' => 'bool',
+        'tax_name1' => 'string',
+        'tax_name2' => 'string',
+        'tax_name3' => 'string',
+        'tax_rate1' => 'float',
+        'tax_rate2' => 'float',
+        'tax_rate3' => 'float',
+        'sort_id' => 'int',
+        'line_total' => 'float',
+        'date' => 'string',
+        'custom_value1' => 'string',
+        'custom_value2' => 'string',
+        'custom_value3' => 'string',
+        'custom_value4' => 'string',
+    ];
 }

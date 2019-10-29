@@ -31,7 +31,7 @@ class BaseSettings
 		return $obj;
 	}
 
-	protected static function castAttribute($key, $value)
+	public static function castAttribute($key, $value)
 	{
 		switch ($key)
 		{
