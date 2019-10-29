@@ -11,7 +11,9 @@
 
 namespace App\Http\Requests\Client;
 
+use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -32,11 +34,12 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
+        $this->sanitize();
 
         /* Ensure we have a client name, and that all emails are unique*/
         $rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
-        //$rules['settings'] = 'json';
+        $rules['settings'] = new ValidSettingsRule();
         
         $contacts = request('contacts');
 
@@ -58,8 +61,8 @@ class StoreClientRequest extends Request
     public function sanitize()
     {
         $input = $this->all();
-
-        $input['settings'] = new \stdClass;
+        
+        $input['settings'] = ClientSettings::defaults();
         
         $this->replace($input);   
 

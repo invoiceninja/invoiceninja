@@ -11,7 +11,9 @@
 
 namespace App\Http\Requests\GroupSetting;
 
+use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\GroupSetting;
 use Illuminate\Support\Facades\Log;
 
@@ -32,21 +34,24 @@ class StoreGroupSettingRequest extends Request
 
     public function rules()
     {
+        $this->sanitize();
 
-        return [
-            'name' => 'required',
-      //      'settings' => 'json',
-        ];
+        $rules['name'] = 'required';
+        $rules['settings'] = new ValidSettingsRule();
 
+        return $rules;
     }
-
 
     public function sanitize()
     {
         $input = $this->all();
-
+        
+        $input['settings'] = ClientSettings::defaults();
+        
         $this->replace($input);   
+
     }
+
 
     public function messages()
     {

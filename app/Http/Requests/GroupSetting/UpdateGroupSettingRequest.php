@@ -12,6 +12,7 @@
 namespace App\Http\Requests\GroupSetting;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidSettingsRule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -31,9 +32,9 @@ class UpdateGroupSettingRequest extends Request
     public function rules()
     {
 
-        return [
-     //       'settings' => 'json',
-        ];
+        $rules['settings'] = new ValidSettingsRule();
+        
+        return $rules;
 
     }
 
