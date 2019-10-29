@@ -63,7 +63,7 @@ class InvoiceItemSum
 	public function process()
 	{
 
-		if(!$this->invoice->line_items || count($this->invoice->line_items) == 0){
+		if(!$this->invoice->line_items || !isset($this->invoice->line_items) || count($this->invoice->line_items) == 0){
 			$this->items = [];
 			return $this;
 		}

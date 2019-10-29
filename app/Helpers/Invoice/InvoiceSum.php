@@ -65,6 +65,7 @@ class InvoiceSum
 
 	public function build()
 	{
+
 		$this->calculateLineItems()
 			 ->calculateDiscount()
 			 ->calculateCustomValues()
@@ -99,17 +100,17 @@ class InvoiceSum
 
 	private function calculateCustomValues()
 	{
-		$this->total_taxes += $this->valuerTax($this->invoice->custom_value1, $this->invoice->custom_surcharge_taxes1);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value1);
+		$this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_taxes1);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-		$this->total_taxes += $this->valuerTax($this->invoice->custom_value2, $this->invoice->custom_surcharge_taxes2);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value2);
+		$this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_taxes2);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-		$this->total_taxes += $this->valuerTax($this->invoice->custom_value3, $this->invoice->custom_surcharge_taxes3);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value3);
+		$this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_taxes3);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_value4, $this->invoice->custom_surcharge_taxes4);
-        $this->total_custom_values += $this->valuer($this->invoice->custom_value4);
+        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_taxes4);
+        $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
 
