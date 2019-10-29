@@ -53,7 +53,8 @@ class CompanySettings extends BaseSettings
 	public $custom_message_unapproved_quote = '';
 	public $lock_sent_invoices = false;
 	public $auto_archive_invoice = false;
-
+	public $auto_archive_quote = false;
+	public $auto_convert_quote = false;
 
 	public $inclusive_taxes = false;
 
@@ -104,13 +105,9 @@ class CompanySettings extends BaseSettings
 	public $recurring_invoice_number_prefix = 'R';
 	public $reset_counter_frequency_id = '0';
 	public $reset_counter_date = '';
-	public $counter_padding = 0;
+	public $counter_padding = 4;
 
 	public $design = 'views/pdf/design1.blade.php';
-	
-	public $update_products = true;
-	public $fill_products = false;
-	public $convert_products = false;
 
 	public $invoice_terms = '';
 	public $quote_terms = '';
@@ -127,7 +124,6 @@ class CompanySettings extends BaseSettings
 	public $tax_rate2 = 0;
 	public $tax_name3 = '';
 	public $tax_rate3 = 0;
-	public $enable_second_tax_rate = false;
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
@@ -156,9 +152,11 @@ class CompanySettings extends BaseSettings
 	public $email_subject_reminder1 = '';
 	public $email_subject_reminder2 = '';
 	public $email_subject_reminder3 = '';
+	public $email_subject_reminder_endless = '';
 	public $email_template_reminder1 = '';
 	public $email_template_reminder2 = '';
 	public $email_template_reminder3 = '';
+	public $email_template_reminder_endless = '';
 	public $email_footer = '';
 
 	/* Company Meta data that we can use to build sub companies*/
@@ -204,7 +202,6 @@ class CompanySettings extends BaseSettings
 		'address2' => 'string',
 		'city' => 'string',
 		'company_logo' => 'string',
-		'convert_products' => 'bool',
 		'country_id' => 'string',
 		'client_number_prefix' => 'string',
 		'client_number_pattern' => 'string',
@@ -237,12 +234,12 @@ class CompanySettings extends BaseSettings
 		'email_subject_reminder1' => 'string',
 		'email_subject_reminder2' => 'string',
 		'email_subject_reminder3' => 'string',
+		'email_subject_reminder_endless' => 'string',
 		'email_template_reminder1' => 'string',
 		'email_template_reminder2' => 'string',
 		'email_template_reminder3' => 'string',
+		'email_template_reminder_endless' => 'string',
 		'enable_portal_password' => 'bool',
-		'enable_second_tax_rate' => 'bool',
-		'fill_products' => 'bool',
 		'inclusive_taxes' => 'bool',
 		'invoice_number_prefix' => 'string',
 		'invoice_number_pattern' => 'string',
@@ -270,7 +267,6 @@ class CompanySettings extends BaseSettings
 		'require_invoice_signature' => 'bool',
 		'require_quote_signature' => 'bool',
 		'show_item_taxes' => 'bool',
-		'update_products' => 'bool',
 		'state' => 'string',
 		'email' => 'string',
 		'vat_number' => 'string',
@@ -292,6 +288,8 @@ class CompanySettings extends BaseSettings
 		'show_tasks_in_portal' => 'bool',
 		'lock_sent_invoices' => 'bool',
 		'auto_archive_invoice' => 'bool',
+		'auto_archive_quote' => 'bool',
+		'auto_convert_quote' => 'bool',
 		'shared_invoice_quote_counter' => 'bool',
 		'counter_padding' => 'integer',
 		'design' => 'string',

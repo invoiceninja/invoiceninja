@@ -141,6 +141,15 @@ class CreateUsersTable extends Migration
             $table->string('ip')->nullable();
             $table->string('company_key',100)->unique();
             $table->string('logo')->nullable();
+            $table->boolean('convert_products')->default(false);
+            $table->boolean('fill_products')->default(false);
+            $table->boolean('update_products')->default(false);
+            $table->boolean('custom_surcharge_taxes1')->default(false);
+            $table->boolean('custom_surcharge_taxes2')->default(false);
+            $table->boolean('custom_surcharge_taxes3')->default(false);
+            $table->boolean('custom_surcharge_taxes4')->default(false);
+            $table->unsignedInteger('enabled_tax_rates')->default(1);
+
             // $table->string('website')->nullable();
             // $table->string('address1')->nullable();
             // $table->string('address2')->nullable();
@@ -156,7 +165,7 @@ class CreateUsersTable extends Migration
             // $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->string('first_day_of_week')->nullable();
-            $table->string('financial_year_start')->nullable();
+            $table->string('first_month_of_year')->nullable();
             $table->smallInteger('enable_modules')->default(0);
             $table->text('custom_fields');
             $table->text('settings');
@@ -276,8 +285,8 @@ class CreateUsersTable extends Migration
             $table->string('logo', 255)->nullable();
             $table->string('phone', 255)->nullable();
 
-            $table->decimal('balance', 13, 2)->default(0);
-            $table->decimal('paid_to_date', 13, 2)->default(0);
+            $table->decimal('balance', 16, 4)->default(0);
+            $table->decimal('paid_to_date', 16, 4)->default(0);
             $table->timestamp('last_login')->nullable();
             $table->unsignedInteger('industry_id')->nullable();
             $table->unsignedInteger('size_id')->nullable();
@@ -372,16 +381,16 @@ class CreateUsersTable extends Migration
             $table->text('config');
             $table->unsignedInteger('priority')->default(0);
 
-            $table->decimal('min_limit', 13, 2)->nullable();
-            $table->decimal('max_limit', 13, 2)->nullable();
-            $table->decimal('fee_amount', 13, 2)->nullable();
-            $table->decimal('fee_percent', 13, 2)->nullable();
+            $table->decimal('min_limit', 16, 4)->nullable();
+            $table->decimal('max_limit', 16, 4)->nullable();
+            $table->decimal('fee_amount', 16, 4)->nullable();
+            $table->decimal('fee_percent', 16, 4)->nullable();
             $table->string('fee_tax_name1')->nullable();
             $table->string('fee_tax_name2')->nullable();
             $table->string('fee_tax_name3')->nullable();
-            $table->decimal('fee_tax_rate1', 13, 2)->nullable();
-            $table->decimal('fee_tax_rate2', 13, 2)->nullable();
-            $table->decimal('fee_tax_rate3', 13, 2)->nullable();
+            $table->decimal('fee_tax_rate1', 16, 4)->nullable();
+            $table->decimal('fee_tax_rate2', 16, 4)->nullable();
+            $table->decimal('fee_tax_rate3', 16, 4)->nullable();
             $table->unsignedInteger('fee_cap')->nullable();
             $table->boolean('adjust_fee_percent')->default(false);
 
@@ -443,10 +452,11 @@ class CreateUsersTable extends Migration
             $t->string('custom_surcharge2')->nullable();
             $t->string('custom_surcharge3')->nullable();
             $t->string('custom_surcharge4')->nullable();
+            $t->boolean('custom_surcharge_taxes')->default(false);
 
-            $t->decimal('amount', 13, 2);
-            $t->decimal('balance', 13, 2);
-            $t->decimal('partial', 13, 2)->nullable();
+            $t->decimal('amount', 16, 4);
+            $t->decimal('balance', 16, 4);
+            $t->decimal('partial', 16, 4)->nullable();
             $t->datetime('partial_due_date')->nullable();
 
             $t->datetime('last_viewed')->nullable();
@@ -503,9 +513,9 @@ class CreateUsersTable extends Migration
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
 
-            $t->decimal('amount', 13, 2);
-            $t->decimal('balance', 13, 2);
-            $t->decimal('partial', 13, 2)->nullable();
+            $t->decimal('amount', 16, 4);
+            $t->decimal('balance', 16, 4);
+            $t->decimal('partial', 16, 4)->nullable();
 
             $t->datetime('last_viewed')->nullable();
 
@@ -565,8 +575,8 @@ class CreateUsersTable extends Migration
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
 
-            $t->decimal('amount', 13, 2)->default(0);
-            $t->decimal('balance', 13, 2)->default(0);
+            $t->decimal('amount', 16, 4)->default(0);
+            $t->decimal('balance', 16, 4)->default(0);
 
             $t->datetime('last_viewed')->nullable();
 
@@ -627,9 +637,9 @@ class CreateUsersTable extends Migration
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
 
-            $t->decimal('amount', 13, 2)->default(0);
-            $t->decimal('balance', 13, 2)->default(0);
-            $t->decimal('partial', 13, 2)->nullable();
+            $t->decimal('amount', 16, 4)->default(0);
+            $t->decimal('balance', 16, 4)->default(0);
+            $t->decimal('partial', 16, 4)->nullable();
             $t->datetime('partial_due_date')->nullable();
 
             $t->datetime('last_viewed')->nullable();
@@ -682,7 +692,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes();
 
-            $t->string('name',100)->unique();
+            $t->string('name',100);
             $t->decimal('rate', 13, 3)->default(0);
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -703,9 +713,9 @@ class CreateUsersTable extends Migration
 
             $t->string('product_key')->nullable();
             $t->text('notes')->nullable();
-            $t->decimal('cost', 13, 2)->default(0);
-            $t->decimal('price', 13, 2)->default(0);
-            $t->decimal('quantity', 13, 2)->default(0);
+            $t->decimal('cost', 16, 4)->default(0);
+            $t->decimal('price', 16, 4)->default(0);
+            $t->decimal('quantity', 16, 4)->default(0);
 
             $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
@@ -735,7 +745,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_gateway_id')->nullable();
             $t->unsignedInteger('payment_type_id')->nullable();
             $t->unsignedInteger('status_id')->index();
-            $t->decimal('amount', 13, 2)->default(0);
+            $t->decimal('amount', 16, 4)->default(0);
             $t->datetime('payment_date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
@@ -900,8 +910,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
 
-            $table->decimal('adjustment', 13, 2)->nullable();
-            $table->decimal('balance', 13, 2)->nullable(); //this is the clients balance carried forward
+            $table->decimal('adjustment', 16, 4)->nullable();
+            $table->decimal('balance', 16, 4)->nullable(); //this is the clients balance carried forward
             $table->text('notes')->nullable();
             $table->text('hash')->nullable();
 
@@ -962,13 +972,14 @@ class CreateUsersTable extends Migration
             $table->string('format_dart');
         });
 
-        Schema::create('system_log', function ($table){
+        Schema::create('system_logs', function ($table){
             $table->increments('id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('category_id')->nullable();
             $table->unsignedInteger('event_id')->nullable();
+            $table->unsignedInteger('type_id')->nullable();
             $table->text('log');
             $table->timestamps(6);
 

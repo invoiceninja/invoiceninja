@@ -112,8 +112,8 @@ class GeneratesCounterTest extends TestCase
         $invoice_number = $this->getNextInvoiceNumber($this->client);
         $invoice_number2 = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, '2019-1');
-        $this->assertEquals($invoice_number2, '2019-2');
+        $this->assertEquals($invoice_number, '2019-0001');
+        $this->assertEquals($invoice_number2, '2019-0002');
         $this->assertEquals($this->client->company->settings->invoice_number_counter,3);
        
     }
@@ -136,10 +136,10 @@ class GeneratesCounterTest extends TestCase
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, '2019-10');
+        $this->assertEquals($invoice_number, '2019-0010');
         
         $invoice_number = $this->getNextInvoiceNumber($this->client);
-		$this->assertEquals($invoice_number, '2019-11');
+		$this->assertEquals($invoice_number, '2019-0011');
         
        
     }
@@ -181,11 +181,11 @@ class GeneratesCounterTest extends TestCase
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
     
-        $this->assertEquals($invoice_number, 'X1');
+        $this->assertEquals($invoice_number, 'X0001');
 
         $invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, 'X2');
+        $this->assertEquals($invoice_number, 'X0002');
 
 
     }
@@ -194,11 +194,11 @@ class GeneratesCounterTest extends TestCase
     {
         $client_number = $this->getNextClientNumber($this->client);
 
-        $this->assertEquals($client_number, '1');
+        $this->assertEquals($client_number, '0001');
 
         $client_number = $this->getNextClientNumber($this->client);
 
-        $this->assertEquals($client_number, '2');
+        $this->assertEquals($client_number, '0002');
 
     }
 
@@ -212,11 +212,11 @@ class GeneratesCounterTest extends TestCase
 
         $client_number = $this->getNextClientNumber($this->client);
     
-        $this->assertEquals($client_number, 'C1');
+        $this->assertEquals($client_number, 'C0001');
 
         $client_number = $this->getNextClientNumber($this->client);
 
-        $this->assertEquals($client_number, 'C2');
+        $this->assertEquals($client_number, 'C0002');
 
 
     }
@@ -233,11 +233,11 @@ class GeneratesCounterTest extends TestCase
 
         $client_number = $this->getNextClientNumber($this->client);
     
-        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-1');
+        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-0001');
 
         $client_number = $this->getNextClientNumber($this->client);
     
-        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-2');
+        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-0002');
 
     }
 /*

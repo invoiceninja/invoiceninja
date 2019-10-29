@@ -46,7 +46,7 @@ class MarkInvoicePaidTest extends TestCase
         $this->assertEquals(1, count($invoice->payments));
 
         foreach($invoice->payments as $payment) {
-            $this->assertEquals($this->invoice->amount, $payment->amount);
+            $this->assertEquals(round($this->invoice->amount,2), $payment->amount);
         }
 
        //events are not firing which makes this impossible to control.

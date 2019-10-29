@@ -49,7 +49,7 @@ return [
         'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 1),
         'military_time' => env('MILITARY_TIME', 0),
         'first_day_of_week' => env('FIRST_DATE_OF_WEEK',0),
-        'financial_year_start' => env('FINANCIAL_YEAR_START', '2000-01-01')
+        'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01')
     ],
 
     'testvars' => [

@@ -13,6 +13,7 @@ namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -105,10 +106,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         } else {
             // payment failed: display message to customer
 
-            $this->sysLog([
+            SystemLogger::dispatch([
               'server_response' => $response->getData(),
               'data' => $data
-            ]);
+            ], 
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client
+            );
 
             throw new \Exception("Error Processing Payment", 1);
             
@@ -127,10 +133,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         } elseif (! $response->isSuccessful()) {
             
             
-            $this->sysLog([
-              'request' => $request->all(),
+            SystemLogger::dispatch([
+              'data' => $request->all(),
               'server_response' => $response->getData()
-            ]);
+            ], 
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client
+          );
 
             throw new \Exception($response->getMessage());
         }

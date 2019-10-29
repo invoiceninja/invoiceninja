@@ -39,5 +39,6 @@
  *       @OA\Property(property="last_viewed", type="number", format="integer", example="1434342123", description="Timestamp"),
  *       @OA\Property(property="updated_at", type="number", format="integer", example="1434342123", description="Timestamp"),
  *       @OA\Property(property="archived_at", type="number", format="integer", example="1434342123", description="Timestamp"),
+ *       @OA\Property(property="custom_surcharge_taxes", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
  * )
  */
