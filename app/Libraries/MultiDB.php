@@ -143,7 +143,7 @@ class MultiDB
 
     public static function findAndSetDbByDomain($domain) :bool
     {
-//\Log::error("searching for {$domain}");
+    //\Log::error("searching for {$domain}");
 
         foreach (self::$dbs as $db)
         {

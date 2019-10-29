@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidSettingsRule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -40,6 +41,7 @@ class UpdateClientRequest extends Request
         $rules['shipping_country_id'] = 'integer|nullable';
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
+        $rules['settings'] = new ValidSettingsRule();
 
 
 //        $rules['settings'] = 'json';
