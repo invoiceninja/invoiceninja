@@ -11,6 +11,8 @@
 
 namespace App\Helpers\Invoice;
 
+use App\DataMapper\BaseSettings;
+use App\DataMapper\InvoiceItem;
 use App\Helpers\Invoice\Discounter;
 use App\Helpers\Invoice\Taxer;
 use App\Models\Invoice;
@@ -77,7 +79,8 @@ class InvoiceItemSum
 	{
 		foreach($this->invoice->line_items as $this->item)
 		{
-			$this->sumLineItem()
+			$this->cleanLineItem()
+				->sumLineItem()
 				->setDiscount()
 				->calcTaxes()
 				->push();
@@ -265,5 +268,25 @@ class InvoiceItemSum
 
 		$this->setTotalTaxes($item_tax);
 
+	}
+
+	/**
+	 * Sets default values for the line_items
+	 * @return $this 
+	 */
+	private function cleanLineItem()
+	{
+		$invoice_item = (object)get_class_vars(InvoiceItem::class);
+		unset($invoice_item->casts);
+
+		foreach($invoice_item as $key => $value)
+		{
+
+			if(!property_exists($this->item, $key))
+				$this->item->{$key} = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
+		}
+
+
+		return $this;
 	}
 }
