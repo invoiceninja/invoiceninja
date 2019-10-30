@@ -55,6 +55,11 @@ class CompanyUser extends Pivot
         return $this->hasOne(Company::class, 'id', 'company_id');
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     /*todo monitor this function - may fail under certain conditions*/
     public function token()
     {
