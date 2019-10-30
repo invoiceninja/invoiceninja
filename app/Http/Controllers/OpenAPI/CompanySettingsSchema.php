@@ -21,7 +21,7 @@
  *       @OA\Property(property="custom_invoice_taxes4", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="default_task_rate", type="number", format="float", example="10.00", description="____________"),
  *       @OA\Property(property="send_reminders", type="boolean", example=true, description="____________"),
- *       @OA\Property(property="show_tasks_in_portal", type="boolean", example=true, description="____________"),
+ *       @OA\Property(property="enable_client_portal_tasks", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="email_style", type="string", example="light", description="options include plain,light,dark,custom"),
  *       @OA\Property(property="reply_to_email", type="string", example="email@gmail.com", description="The reply to email address"),
  *       @OA\Property(property="bcc_email", type="string", example="email@gmail.com, contact@gmail.com", description="A comma separate list of BCC emails"),
@@ -134,6 +134,16 @@
  *       @OA\Property(property="embed_documents", type="boolean", example=false, description="____________"),
  *       @OA\Property(property="all_pages_header", type="boolean", example=false, description="____________"),
  *       @OA\Property(property="all_pages_footer", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="document_email_attachment", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="enable_client_portal_password", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="enable_email_markup", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="enable_client_portal_dashboard", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="enable_client_portal", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="email_template_statement", type="string", example='template matter', description="____________"),
+ *       @OA\Property(property="email_subject_statement", type="string", example='subject matter', description="____________"),
+ *       @OA\Property(property="signature_on_pdf", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="send_portal_password", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="quote_footer", type="string", example='the quote footer', description="____________"),
  * )
  */
  
