@@ -58,7 +58,7 @@ class PaymentTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup', $data);
+            ])->post('/api/v1/signup?include=account', $data);
 
         $acc = $response->json();
 
@@ -122,7 +122,7 @@ class PaymentTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup', $data);
+            ])->post('/api/v1/signup?include=account', $data);
 
         $acc = $response->json();
 

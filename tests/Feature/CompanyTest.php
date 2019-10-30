@@ -58,7 +58,7 @@ class CompanyTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup', $data);
+            ])->post('/api/v1/signup?include=account', $data);
 
 
         $response->assertStatus(200);
@@ -80,14 +80,14 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
-        ])->post('/api/v1/companies/', 
+        ])->post('/api/v1/companies?include=company', 
             [
                 'name' => 'A New Company',
                 'logo' => UploadedFile::fake()->image('avatar.jpg')
             ]
         )
         ->assertStatus(200)->decodeResponseJson();
-
+\Log::error($response);
         $company = Company::find($this->decodePrimaryKey($response['data'][0]['company']['id']));        
 
         $response = $this->withHeaders([
