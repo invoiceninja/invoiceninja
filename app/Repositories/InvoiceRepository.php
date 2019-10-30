@@ -110,6 +110,11 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->save();
 
+        /*
+         * Why? because up until this point the invoice was a draft.
+         * When marked as sent it becomes a ledgerable item.
+         *
+         */
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->balance);
 
         return $invoice;
