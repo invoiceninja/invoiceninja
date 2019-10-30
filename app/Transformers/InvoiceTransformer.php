@@ -107,7 +107,7 @@ class InvoiceTransformer extends EntityTransformer
             'tax_name3' => $invoice->tax_name3 ? $invoice->tax_name3 : '',
             'tax_rate3' => (float) $invoice->tax_rate3,
             'is_amount_discount' => (bool) ($invoice->is_amount_discount ?: false),
-            'invoice_footer' => $invoice->invoice_footer ?: '',
+            'footer' => $invoice->footer ?: '',
             'partial' => (float) ($invoice->partial ?: 0.0),
             'partial_due_date' => $invoice->partial_due_date ?: '',
             'custom_value1' => (string) $invoice->custom_value1 ?: '',
