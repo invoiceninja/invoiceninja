@@ -128,7 +128,7 @@ class CompanySettingsTest extends TestCase
         $settings->require_quote_signature = true;
         $settings->show_accept_quote_terms = false;
         $settings->show_accept_invoice_terms = "TRUE";
-        $settings->show_tasks_in_portal = "FALSE";
+        $settings->enable_client_portal_tasks = "FALSE";
 
         $this->company->settings = $settings;
 
