@@ -26,6 +26,13 @@ class CompanySettings extends BaseSettings
 	public $auto_archive_invoice = false;
 	public $lock_sent_invoices = false;
 
+	public $enable_client_portal_tasks = false;
+	public $enable_client_portal_password = false;
+	public $enable_client_portal = true;
+	public $enable_client_portal_dashboard = true;
+	public $signature_on_pdf = false;
+	public $document_email_attachment = false;
+	public $send_portal_password = false;
 
 	public $timezone_id = '';
 	public $date_format_id = '';
@@ -52,7 +59,6 @@ class CompanySettings extends BaseSettings
 
 	public $payment_terms = 1; 
 	public $send_reminders = false;
-	public $show_tasks_in_portal = false;
 
 	public $custom_message_dashboard = '';
 	public $custom_message_unpaid_invoice = '';
@@ -62,6 +68,7 @@ class CompanySettings extends BaseSettings
 	public $auto_convert_quote = false;
 
 	public $inclusive_taxes = false;
+	public $quote_footer = '';
 
 	public $translations;
 
@@ -104,7 +111,7 @@ class CompanySettings extends BaseSettings
 
 
 	public $shared_invoice_quote_counter = false;
-	public $recurring_invoice_number_prefix = 'R';
+	public $recurring_number_prefix = 'R';
 	public $reset_counter_frequency_id = '0';
 	public $reset_counter_date = '';
 	public $counter_padding = 4;
@@ -130,7 +137,6 @@ class CompanySettings extends BaseSettings
 	public $custom_fields = '';
 	public $invoice_fields = '';
 
-	public $enable_portal_password = false;
 	public $show_accept_invoice_terms = false;
 	public $show_accept_quote_terms = false;
 	public $require_invoice_signature = false;
@@ -147,9 +153,11 @@ class CompanySettings extends BaseSettings
 	public $email_subject_invoice = '';
 	public $email_subject_quote = '';
 	public $email_subject_payment = '';
+	public $email_subject_statement = '';
 	public $email_template_invoice = '';
 	public $email_template_quote = '';
 	public $email_template_payment = '';
+	public $email_template_statement = '';
 	public $email_subject_reminder1 = '';
 	public $email_subject_reminder2 = '';
 	public $email_subject_reminder3 = '';
@@ -158,7 +166,8 @@ class CompanySettings extends BaseSettings
 	public $email_template_reminder2 = '';
 	public $email_template_reminder3 = '';
 	public $email_template_reminder_endless = '';
-	public $email_footer = '';
+	public $email_signature = '';
+	public $enable_email_markup = true;
 
 	/* Company Meta data that we can use to build sub companies*/
 
@@ -187,6 +196,16 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'document_email_attachment' => 'bool',
+		'enable_client_portal_password' => 'bool',
+		'enable_email_markup' => 'bool',
+		'enable_client_portal_dashboard' => 'bool',
+		'enable_client_portal' => 'bool',
+		'email_template_statement' => 'string',
+		'email_subject_statement' => 'string',
+		'signature_on_pdf' => 'bool',
+		'send_portal_password' => 'bool',
+		'quote_footer' => 'string',
 		'page_size' => 'string',
 		'font_size' => 'int',
 		'primary_font' => 'string',
@@ -243,7 +262,7 @@ class CompanySettings extends BaseSettings
 		'custom_message_unapproved_quote' => 'string',
 		'custom_fields' => 'string',
 		'default_task_rate' => 'float',
-		'email_footer' => 'string',
+		'email_signature' => 'string',
 		'email_subject_invoice' => 'string',
 		'email_subject_quote' => 'string',
 		'email_subject_payment' => 'string',
@@ -280,7 +299,7 @@ class CompanySettings extends BaseSettings
 		'quote_number_pattern' => 'string',
 		'quote_number_counter' => 'integer',
 		'quote_terms' => 'string',
-		'recurring_invoice_number_prefix' => 'string',
+		'recurring_number_prefix' => 'string',
 		'reset_counter_frequency_id' => 'integer',
 		'reset_counter_date' => 'string',
 		'require_invoice_signature' => 'bool',
@@ -304,7 +323,7 @@ class CompanySettings extends BaseSettings
 		'language_id' => 'string',
 		'show_currency_code' => 'bool',
 		'send_reminders' => 'bool',
-		'show_tasks_in_portal' => 'bool',
+		'enable_client_portal_tasks' => 'bool',
 		'lock_sent_invoices' => 'bool',
 		'auto_archive_invoice' => 'bool',
 		'auto_archive_quote' => 'bool',
