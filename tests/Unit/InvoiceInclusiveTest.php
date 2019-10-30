@@ -86,7 +86,7 @@ class InvoiceInclusiveTest extends TestCase
 	public function testInvoiceTotalsWithDiscountWithSurcharge()
 	{
 		$this->invoice->discount = 5;
-		$this->invoice->custom_value1 = 5;
+		$this->invoice->custom_surcharge1 = 5;
 			
 		$this->invoice_calc->build();
 
@@ -98,7 +98,7 @@ class InvoiceInclusiveTest extends TestCase
 	public function testInvoiceTotalsWithDiscountWithSurchargeWithInclusiveTax()
 	{
 		$this->invoice->discount = 5;
-		$this->invoice->custom_value1 = 5;
+		$this->invoice->custom_surcharge1 = 5;
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->is_amount_discount = true;
@@ -114,7 +114,7 @@ class InvoiceInclusiveTest extends TestCase
 	public function testInvoiceTotalsWithPercentDiscountWithSurchargeWithInclusiveTax()
 	{
 		$this->invoice->discount = 5;
-		$this->invoice->custom_value1 = 5;
+		$this->invoice->custom_surcharge1 = 5;
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->is_amount_discount = false;
@@ -130,7 +130,7 @@ class InvoiceInclusiveTest extends TestCase
 	{
 
 		$this->invoice->discount = 5;
-		$this->invoice->custom_value1 = 5;
+		$this->invoice->custom_surcharge1 = 5;
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 		$this->settings->inclusive_taxes = true;
@@ -148,7 +148,7 @@ class InvoiceInclusiveTest extends TestCase
 	{
 
 		$this->invoice->discount = 5;
-		$this->invoice->custom_value1 = 5;
+		$this->invoice->custom_surcharge1 = 5;
 		$this->invoice->tax_name1 = 'GST';
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->tax_name2 = 'GST';
@@ -188,7 +188,7 @@ class InvoiceInclusiveTest extends TestCase
 
 		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 0;
-		$this->invoice->custom_value1 = 0;
+		$this->invoice->custom_surcharge1 = 0;
 
 		$this->invoice_calc = new InvoiceSumInclusive($this->invoice, $this->settings);
 		$this->invoice_calc->build();
@@ -224,7 +224,7 @@ class InvoiceInclusiveTest extends TestCase
 
 		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 0;
-		$this->invoice->custom_value1 = 0;
+		$this->invoice->custom_surcharge1 = 0;
 
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->tax_rate2 = 10;
@@ -266,7 +266,7 @@ class InvoiceInclusiveTest extends TestCase
 		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 5;
 		$this->invoice->is_amount_discount = false;
-		$this->invoice->custom_value1 = 0;
+		$this->invoice->custom_surcharge1 = 0;
 
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->tax_rate2 = 10;
@@ -311,7 +311,7 @@ class InvoiceInclusiveTest extends TestCase
 		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 5;
 		$this->invoice->is_amount_discount = true;
-		$this->invoice->custom_value1 = 0;
+		$this->invoice->custom_surcharge1 = 0;
 
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->tax_rate2 = 10;
@@ -357,7 +357,7 @@ class InvoiceInclusiveTest extends TestCase
 		$this->settings->inclusive_taxes = true;
 		$this->invoice->discount = 5;
 		$this->invoice->is_amount_discount = true;
-		$this->invoice->custom_value1 = 0;
+		$this->invoice->custom_surcharge1 = 0;
 
 		$this->invoice->tax_rate1 = 10;
 		$this->invoice->tax_rate2 = 10;

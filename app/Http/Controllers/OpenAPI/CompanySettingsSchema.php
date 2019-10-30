@@ -129,7 +129,7 @@
  *       @OA\Property(property="page_size", type="string", example="A4", description="The default page size"),
  *       @OA\Property(property="font_size", type="number", example="9", description="The font size"),
  *       @OA\Property(property="primary_font", type="string", example="roboto", description="The primary font"),
- *       @OA\Property(property="primary_font", type="string", example="roboto", description="The secondary font"),
+ *       @OA\Property(property="secondary_font", type="string", example="roboto", description="The secondary font"),
  *       @OA\Property(property="hide_paid_to_date", type="boolean", example=false, description="____________"),
  *       @OA\Property(property="embed_documents", type="boolean", example=false, description="____________"),
  *       @OA\Property(property="all_pages_header", type="boolean", example=false, description="____________"),
