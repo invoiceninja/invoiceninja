@@ -20,6 +20,13 @@ use App\Models\Company;
 class CompanySettings extends BaseSettings
 {
 
+	/*Group settings based on functionality*/
+
+	/*Invoice*/
+	public $auto_archive_invoice = false;
+	public $lock_sent_invoices = false;
+
+
 	public $timezone_id = '';
 	public $date_format_id = '';
 	public $military_time = false;
@@ -51,8 +58,6 @@ class CompanySettings extends BaseSettings
 	public $custom_message_unpaid_invoice = '';
 	public $custom_message_paid_invoice = '';
 	public $custom_message_unapproved_quote = '';
-	public $lock_sent_invoices = false;
-	public $auto_archive_invoice = false;
 	public $auto_archive_quote = false;
 	public $auto_convert_quote = false;
 
@@ -60,12 +65,10 @@ class CompanySettings extends BaseSettings
 
 	public $translations;
 
-	/**
-	 * Counter Variables
-	 */
-	public $invoice_number_prefix = '';
+	/* Counters */
 	public $invoice_number_pattern = '';
 	public $invoice_number_counter = 1;
+	public $invoice_number_prefix = '';
 
 	public $quote_number_prefix = '';
 	public $quote_number_pattern = '';
@@ -101,7 +104,6 @@ class CompanySettings extends BaseSettings
 
 
 	public $shared_invoice_quote_counter = false;
-
 	public $recurring_invoice_number_prefix = 'R';
 	public $reset_counter_frequency_id = '0';
 	public $reset_counter_date = '';
@@ -127,7 +129,6 @@ class CompanySettings extends BaseSettings
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
-
 
 	public $enable_portal_password = false;
 	public $show_accept_invoice_terms = false;
@@ -175,7 +176,25 @@ class CompanySettings extends BaseSettings
 	public $vat_number = '';
 	public $id_number = '';
 
+	public $page_size = 'A4'; 
+    public $font_size = 9; 
+    public $primary_font = 'roboto';
+    public $secondary_font = 'roboto';
+    public $hide_paid_to_date = false;
+    public $embed_documents = false; 
+    public $all_pages_header = true;
+    public $all_pages_footer = true;
+
+
 	public static $casts = [
+		'page_size' => 'string',
+		'font_size' => 'int',
+		'primary_font' => 'string',
+		'secondary_font' => 'string',
+		'hide_paid_to_date' => 'bool',
+		'embed_documents' => 'bool',
+		'all_pages_header' => 'bool',
+		'all_pages_footer' => 'bool',
 		'task_number_prefix' => 'string',	
 		'task_number_pattern' => 'string',
 		'task_number_counter' => 'int',

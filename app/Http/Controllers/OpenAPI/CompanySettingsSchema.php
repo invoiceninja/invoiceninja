@@ -126,6 +126,14 @@
  *       @OA\Property(property="email", type="string", example="joe@acme.co", description="____________"),
  *       @OA\Property(property="country_id", type="string", example="1", description="The country ID"),
  *       @OA\Property(property="vat_number", type="string", example="32 120 377 720", description="____________"),
- *       @OA\Property(property="id_number", type="string", example="ACME-CO-123", description="____________"),
+ *       @OA\Property(property="page_size", type="string", example="A4", description="The default page size"),
+ *       @OA\Property(property="font_size", type="number", example="9", description="The font size"),
+ *       @OA\Property(property="primary_font", type="string", example="roboto", description="The primary font"),
+ *       @OA\Property(property="secondary_font", type="string", example="roboto", description="The secondary font"),
+ *       @OA\Property(property="hide_paid_to_date", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="embed_documents", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="all_pages_header", type="boolean", example=false, description="____________"),
+ *       @OA\Property(property="all_pages_footer", type="boolean", example=false, description="____________"),
  * )
  */
+ 

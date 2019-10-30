@@ -75,7 +75,7 @@ class TaxRateController extends BaseController
      */
     public function index()
     {
-        $tax_rates = TaxRate::all();
+        $tax_rates = TaxRate::scope();
 
         return $this->listResponse($tax_rates);
     }
