@@ -28,8 +28,8 @@ class CompanySettings extends BaseSettings
 
 	public $enable_client_portal_tasks = false;
 	public $enable_client_portal_password = false;
-	public $enable_client_portal = true;
-	public $enable_client_portal_dashboard = true;
+	public $enable_client_portal = true; //implemented
+	public $enable_client_portal_dashboard = true; //implemented
 	public $signature_on_pdf = false;
 	public $document_email_attachment = false;
 	public $send_portal_password = false;

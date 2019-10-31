@@ -32,13 +32,16 @@ class InvitationController extends Controller
     public function invoiceRouter(string $invitation_key)
     {
 
-//    	$invitation = InvoiceInvitation::whereInvitationKey($invitation_key)->first();
         $invitation = InvoiceInvitation::whereRaw("BINARY `invitation_key`= ?", [$invitation_key])->first();
 
     	if($invitation){
     		$invitation->markViewed();
+
+            if(!auth()->user() && $invitation->contact->client->getSetting('enable_client_portal_password') == 'true')
+                return redirect()->guest(route('client.login'));
+
     		Auth::guard('contact')->loginUsingId($invitation->client_contact_id, true);
-    		return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
+    		  return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
     	}
     	else
     		abort(404);
