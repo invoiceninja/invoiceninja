@@ -57,3 +57,11 @@
 @include('portal.default.footer')
 @yield('footer')
 </html>
+
+<script type="text/javascript">
+  @if($settings->enable_client_portal == 'false')
+  $('.navbar-toggler-icon').hide();
+  $('.app').removeClass("sidebar-lg-show");
+  $('.app').addClass("sidebar-hidden");
+  @endif
+</script>

@@ -3,6 +3,7 @@
 @section('body')
 <main class="main">
     <div class="container-fluid">	
+    	@if($settings->enable_client_portal_dashboard == 'true')
 		<div class="row" style="margin-top: 30px;">
 			<div class="col-6 col-lg-4">
 				<div class="card">
@@ -40,6 +41,7 @@
 				</div>
 			</div>
 		</div>
+		@endif
 		<!-- client and supplier information -->
 		<div class="row">
 			<div class="col-sm-6 col-md-6">

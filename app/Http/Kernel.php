@@ -107,5 +107,6 @@ class Kernel extends HttpKernel
         'domain_db' => \App\Http\Middleware\SetDomainNameDb::class,
         'password_protected' => \App\Http\Middleware\PasswordProtection::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'portal_enabled' => \App\Http\Middleware\ClientPortalEnabled::class,
     ];
 }
