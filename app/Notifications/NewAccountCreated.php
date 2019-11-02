@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class NewAccountCreated extends Notification
+class NewAccountCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 
