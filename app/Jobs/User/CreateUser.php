@@ -62,6 +62,7 @@ class CreateUser
         $user->fill($this->request);
         $user->email = $this->request['email'];//todo need to remove this in production
         $user->last_login = now();
+        $user->ip = request()->ip();
         $user->save();
 
         $user->companies()->attach($this->company->id, [

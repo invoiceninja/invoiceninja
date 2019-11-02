@@ -29,5 +29,8 @@ class ClientPortalEnabled
         if(auth()->user()->client->getSetting('enable_client_portal') == 'false')
             return redirect()->to('client/dashboard');
 
+
+        return $next($request);
+
     }
 }

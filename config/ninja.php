@@ -84,6 +84,9 @@ return [
         //'frequencies' => 'App\Models\Frequency',
         //'fonts' => 'App\Models\Font',
     ],
+    'notification' => [
+        'slack' => env('SLACK_WEBHOOK_URL',''),
+    ],
     'payment_terms' => [
         [
             'num_days' => 0,

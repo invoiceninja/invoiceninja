@@ -17,11 +17,13 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\CreateUser;
 use App\Models\Account;
 use App\Models\User;
+use App\Notifications\NewAccountCreated;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class CreateAccount
 {
@@ -89,6 +91,9 @@ class CreateAccount
         if($user)
             event(new AccountCreated($user));
         
+        Notification::route('slack', config('ninja.notification.slack'))
+                    ->notify(new NewAccountCreated($user, $company));
+
         return $account;
     }
 }

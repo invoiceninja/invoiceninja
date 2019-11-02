@@ -28,7 +28,7 @@
 
                         @if($invoice->remaining_cycles >=1)
                         <div class="pull-right">
-                            <button class="btn btn-primary">Cancel</button>
+                            <button class="btn btn-danger mb-1" type="button" data-toggle="modal" data-target="#cancel_recurring">Request Cancellation</button>
                         </div>
                         @endif
                     </div>
@@ -38,6 +38,27 @@
     </div>
 </main>
 
+<div class="modal fade show" id="cancel_recurring" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
+<div class="modal-dialog modal-danger" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title">Request Cancellation</h4>
+<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">×</span>
+</button>
+</div>
+<div class="modal-body">
+<p>Warning! You are requesting a cancellation of this service.</p>
+<p>Your service may be cancelled with no further notification to you.</p>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+<a href="{{ route('client.recurring_invoices.request_cancellation',['recurring_invoice' => $invoice->hashed_id]) }}" class="btn btn-danger">Confirm Cancellation</a>
+</div>
+</div>
+</div>
+
+</div>
 </body>
 @endsection
 @push('css')

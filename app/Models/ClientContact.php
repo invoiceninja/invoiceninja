@@ -12,20 +12,22 @@
 namespace App\Models;
 
 use App\Models\Company;
+use App\Models\Language;
 use App\Models\User;
 use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Log;
+use Laracasts\Presenter\PresentableTrait;
 
 
-class ClientContact extends Authenticatable
+class ClientContact extends Authenticatable implements HasLocalePreference
 {
     use Notifiable;
     use MakesHash;
@@ -132,5 +134,12 @@ class ClientContact extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ClientContactResetPassword($token));
+    }
+
+    public function preferredLocale()
+    {
+        $lang = Language::find($this->client->getSetting('language_id'));
+
+        return $lang->locale;
     }
 }

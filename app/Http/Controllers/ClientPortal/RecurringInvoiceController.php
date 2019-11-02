@@ -80,8 +80,24 @@ class RecurringInvoiceController extends Controller
         ];
         
         return view('portal.default.recurring_invoices.show', $data);
+
     }
 
 
+    public function requestCancellation(Request $request, RecurringInvoice $recurring_invoice)
+    {
+
+        $data = [
+            'invoice' => $recurring_invoice
+        ];
+
+        //todo double check the user is able to request a cancellation
+
+        Mail::to(config('ninja.contact.ninja_official_contact'))
+            ->send(new RecurringCancellationRequest($invoice));
+
+        return view('portal.default.recurring_invoices.request_cancellation', $data);
+
+    }
 
 }
