@@ -158,6 +158,8 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value)
     {
-        return $this->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        return $this
+            ->withTrashed()
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 }
