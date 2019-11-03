@@ -59,7 +59,7 @@
 </html>
 
 <script type="text/javascript">
-  @if($settings->enable_client_portal == 'false')
+  @if($settings->enable_client_portal === false)
   $('.navbar-toggler-icon').hide();
   $('.app').removeClass("sidebar-lg-show");
   $('.app').addClass("sidebar-hidden");

@@ -35,13 +35,16 @@ class InvitationController extends Controller
         $invitation = InvoiceInvitation::whereRaw("BINARY `invitation_key`= ?", [$invitation_key])->first();
 
     	if($invitation){
-    		$invitation->markViewed();
 
-            if(!auth()->user() && $invitation->contact->client->getSetting('enable_client_portal_password') == 'true')
-                return redirect()->guest(route('client.login'));
+\Log::error("bool val = ".boolval($invitation->contact->client->getSetting('enable_client_portal_password')));
 
-    		Auth::guard('contact')->loginUsingId($invitation->client_contact_id, true);
-    		  return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
+            if((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false)
+                $this->middleware('auth:contact');
+
+            $invitation->markViewed();
+
+            return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
+
     	}
     	else
     		abort(404);
