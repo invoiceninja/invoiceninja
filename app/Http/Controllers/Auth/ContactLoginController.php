@@ -63,13 +63,13 @@ class ContactLoginController extends Controller
 
     public function authenticated(Request $request, ClientContact $client)
     {
-        
+
         Auth::guard('contact')->login($client, true);
 
         if(session()->get('url.intended'))
             return redirect(session()->get('url.intended'));
-
-        return redirect()->intended();
+              
+        return redirect(route('client.dashboard'));
     }
     
     public function logout()

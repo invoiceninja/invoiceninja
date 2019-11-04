@@ -30,6 +30,8 @@ class RecurringCancellationRequest extends Mailable
      */
     public function build()
     {
+        //iterate in here on the interested parties
+
         return $this->view('view.name');
     }
 }

@@ -339,5 +339,10 @@ class User extends Authenticatable implements MustVerifyEmail,HasLocalePreferenc
 
         return $lang->locale;
     }
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email;
+    }
 }
 

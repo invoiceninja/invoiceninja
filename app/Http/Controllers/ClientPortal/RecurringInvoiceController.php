@@ -95,7 +95,7 @@ class RecurringInvoiceController extends Controller
         //todo double check the user is able to request a cancellation
 
         Mail::to(config('ninja.contact.ninja_official_contact'))
-            ->send(new RecurringCancellationRequest($invoice));
+            ->send(new RecurringCancellationRequest($invoice, auth()->user()));
 
         return view('portal.default.recurring_invoices.request_cancellation', $data);
 
