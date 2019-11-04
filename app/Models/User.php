@@ -15,11 +15,13 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Filterable;
+use App\Models\Language;
 use App\Models\Traits\UserTrait;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -28,7 +30,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail,HasLocalePreference
 {
     use Notifiable;
     use SoftDeletes;
@@ -62,8 +64,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'first_name',
         'last_name',
-     //   'email',
-     //   'phone',
+        'email',
+        'phone',
         'signature',
         'avatar',
         'accepted_terms_version',
@@ -323,4 +325,19 @@ class User extends Authenticatable implements MustVerifyEmail
             return null;
 
     }
+
+    public function routeNotificationForSlack($notification)
+    {
+        //todo need to return the company channel here for hosted users
+        //else the env variable for selfhosted
+        return config('ninja.notification.slack');
+    }
+
+    public function preferredLocale()
+    {
+        $lang = Language::find($this->company()->settings->language_id);
+
+        return $lang->locale;
+    }
 }
+

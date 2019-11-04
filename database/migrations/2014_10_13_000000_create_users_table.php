@@ -230,6 +230,8 @@ class CreateUsersTable extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
+            $table->string('ip')->nullable();
+            $table->string('device_token')->nullable();
             $table->string('email',100)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();

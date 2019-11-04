@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientContact;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class ContactLoginController extends Controller
 
     public function __construct()
     {
-      $this->middleware('guest:contact', ['except' => ['logout']]);
+        $this->middleware('guest:contact', ['except' => ['logout']]);
     }
     
     public function showLoginForm()
@@ -60,7 +61,16 @@ class ContactLoginController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    public function authenticated(Request $request, ClientContact $client)
+    {
+        
+        Auth::guard('contact')->login($client, true);
 
+        if(session()->get('url.intended'))
+            return redirect(session()->get('url.intended'));
+
+        return redirect()->intended();
+    }
     
     public function logout()
     {

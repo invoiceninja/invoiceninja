@@ -49,6 +49,9 @@ class PortalComposer
         $data['countries'] = TranslationHelper::getCountries();
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
+        $data['settings'] = auth()->user()->client->getMergedSettings();
+
+//\Log::error(print_r($data['settings'],1));
 
         return $data;
 
