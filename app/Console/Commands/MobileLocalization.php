@@ -94,9 +94,10 @@ class MobileLocalization extends Command
 
         $start = strpos($data, '\'en\': {') + 8;
         $end = strpos($data, '},', $start);
-        $data = substr($data, $start, $end - $start - 6);
+        $data = substr($data, $start, $end - $start - 5);
 
         $data = str_replace("\n", "", $data);
+        $data = str_replace("\"", "\'", $data);
         $data = str_replace("'", "\"", $data);
 
         return json_decode('{' . $data . '}');
