@@ -344,18 +344,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return config('ninja.notification.slack');
     }
 
-    public function preferredLocale()
-    {
-        \Log::error(print_r($this->company(),1));
-
-        $lang = Language::find($this->company()->settings->language_id);
-
-        return $lang->locale;
-    }
 
     public function routeNotificationForMail($notification)
     {
         return $this->email;
     }
+
 }
 

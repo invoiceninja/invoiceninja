@@ -34,17 +34,17 @@ class TemplateController extends BaseController
      *      description="Returns a blank HTML entity temlpate",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(
-	 *          name="entity",
-	 *          in="path",
-	 *          description="The Entity (invoice,quote,recurring_invoice)",
-	 *          example="invoice",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
+     *      @OA\Parameter(
+     *          name="entity",
+     *          in="path",
+     *          description="The Entity (invoice,quote,recurring_invoice)",
+     *          example="invoice",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="The template response",
@@ -68,6 +68,7 @@ class TemplateController extends BaseController
      */
     public function create($entity)
     {
+
     	return response()->json(request()->all(), 200);
     }
 
@@ -81,31 +82,31 @@ class TemplateController extends BaseController
      *      operationId="getShowTemplate",
      *      tags={"templates"},
      *      summary="Returns a entity template with the template variables replaced with the Entities",
-     *      description="Returns a blank HTML entity temlpate",
+     *      description="Returns a entity template with the template variables replaced with the Entities",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(
-	 *          name="entity",
-	 *          in="path",
-	 *          description="The Entity (invoice,quote,recurring_invoice)",
-	 *          example="invoice",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Parameter(
-	 *          name="entity_id",
-	 *          in="path",
-	 *          description="The Entity ID",
-	 *          example="X9f87dkf",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
+     *      @OA\Parameter(
+     *          name="entity",
+     *          in="path",
+     *          description="The Entity (invoice,quote,recurring_invoice)",
+     *          example="invoice",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Parameter(
+     *          name="entity_id",
+     *          in="path",
+     *          description="The Entity ID",
+     *          example="X9f87dkf",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="The template response",
@@ -129,6 +130,7 @@ class TemplateController extends BaseController
      */
     public function show($entity, $entity_id)
     {
+
     	return response()->json(request()->all(), 200);
     }
 
