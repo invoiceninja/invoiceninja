@@ -34,7 +34,6 @@ class TemplateController extends BaseController
      *      description="Returns a blank HTML entity temlpate",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-<<<<<<< HEAD
      *      @OA\Parameter(
      *          name="entity",
      *          in="path",
@@ -46,19 +45,6 @@ class TemplateController extends BaseController
      *              format="string",
      *          ),
      *      ),
-=======
-	 *      @OA\Parameter(
-	 *          name="entity",
-	 *          in="path",
-	 *          description="The Entity (invoice,quote,recurring_invoice)",
-	 *          example="invoice",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
->>>>>>> 9d9836369c99fc997e62c929fd675f92de556bd2
      *      @OA\Response(
      *          response=200,
      *          description="The template response",
@@ -82,11 +68,8 @@ class TemplateController extends BaseController
      */
     public function create($entity)
     {
-<<<<<<< HEAD
-        return response()->json(request()->all(), 200);
-=======
+
     	return response()->json(request()->all(), 200);
->>>>>>> 9d9836369c99fc997e62c929fd675f92de556bd2
     }
 
     /**
@@ -99,7 +82,6 @@ class TemplateController extends BaseController
      *      operationId="getShowTemplate",
      *      tags={"templates"},
      *      summary="Returns a entity template with the template variables replaced with the Entities",
-<<<<<<< HEAD
      *      description="Returns a entity template with the template variables replaced with the Entities",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -125,33 +107,6 @@ class TemplateController extends BaseController
      *              format="string",
      *          ),
      *      ),
-=======
-     *      description="Returns a blank HTML entity temlpate",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(
-	 *          name="entity",
-	 *          in="path",
-	 *          description="The Entity (invoice,quote,recurring_invoice)",
-	 *          example="invoice",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Parameter(
-	 *          name="entity_id",
-	 *          in="path",
-	 *          description="The Entity ID",
-	 *          example="X9f87dkf",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
->>>>>>> 9d9836369c99fc997e62c929fd675f92de556bd2
      *      @OA\Response(
      *          response=200,
      *          description="The template response",
@@ -175,11 +130,8 @@ class TemplateController extends BaseController
      */
     public function show($entity, $entity_id)
     {
-<<<<<<< HEAD
-        return response()->json(request()->all(), 200);
-=======
+
     	return response()->json(request()->all(), 200);
->>>>>>> 9d9836369c99fc997e62c929fd675f92de556bd2
     }
 
 }
