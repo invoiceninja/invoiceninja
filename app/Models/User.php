@@ -141,6 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail
     */
     public function setCompany($company)
     {
+        \Log::error('setting company');
         $this->company = $company;
     }
 
@@ -343,13 +344,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return config('ninja.notification.slack');
     }
 
-    // public function preferredLocale()
-    // {
 
-    //     $lang = Language::find($this->company()->settings->language_id);
-
-    //     return $lang->locale;
-    // }
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email;
+    }
 
     public function routeNotificationForMail($notification)
     {
