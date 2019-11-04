@@ -18,6 +18,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Omnipay\Common\Item;
@@ -130,7 +131,20 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         if ($response->isCancelled()) {
             return redirect()->route('client.invoices.index')->with('warning',ctrans('texts.status_voided'));
-        } elseif (! $response->isSuccessful()) {
+        } 
+        elseif($response->isSuccessful()){
+          
+            SystemLogger::dispatch([
+                'server_response' => $response->getData(),
+                'data' => $request->all()
+              ], 
+              SystemLog::CATEGORY_GATEWAY_RESPONSE,
+              SystemLog::EVENT_GATEWAY_SUCCESS,
+              SystemLog::TYPE_PAYPAL,
+              $this->client
+            );
+        }
+        elseif (! $response->isSuccessful()) {
             
             
             SystemLogger::dispatch([
