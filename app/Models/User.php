@@ -27,10 +27,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
-class User extends Authenticatable implements MustVerifyEmail,HasLocalePreference
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
     use SoftDeletes;
@@ -140,6 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail,HasLocalePreferenc
     */
     public function setCompany($company)
     {
+        \Log::error('setting company');
         $this->company = $company;
     }
 
@@ -159,6 +161,14 @@ class User extends Authenticatable implements MustVerifyEmail,HasLocalePreferenc
     public function company()
     {
         return $this->getCompany();
+    }
+
+    private function setCompanyByGuard()
+    {
+        
+        if(Auth::guard('contact')->check())
+            $this->setCompany(auth()->user()->client->company);
+
     }
 
     /**
@@ -319,6 +329,7 @@ class User extends Authenticatable implements MustVerifyEmail,HasLocalePreferenc
 
     public function getEmailVerifiedAt()
     {
+
         if($this->email_verified_at)
             return Carbon::parse($this->email_verified_at)->timestamp;
         else
@@ -335,9 +346,16 @@ class User extends Authenticatable implements MustVerifyEmail,HasLocalePreferenc
 
     public function preferredLocale()
     {
+        \Log::error(print_r($this->company(),1));
+
         $lang = Language::find($this->company()->settings->language_id);
 
         return $lang->locale;
+    }
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email;
     }
 }
 

@@ -14,10 +14,13 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
 use App\Models\RecurringInvoice;
+use App\Notifications\ClientContactRequestCancellation;
+use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 
@@ -93,9 +96,8 @@ class RecurringInvoiceController extends Controller
         ];
 
         //todo double check the user is able to request a cancellation
-
-        Mail::to(config('ninja.contact.ninja_official_contact'))
-            ->send(new RecurringCancellationRequest($invoice));
+        //can add locale specific by chaining ->locale();
+        $recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 
         return view('portal.default.recurring_invoices.request_cancellation', $data);
 
