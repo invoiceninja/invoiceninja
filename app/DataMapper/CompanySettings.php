@@ -169,6 +169,36 @@ class CompanySettings extends BaseSettings
 	public $email_signature = '';
 	public $enable_email_markup = true;
 
+
+	public $email_subject_custom1 = '';
+	public $email_subject_custom2 = '';
+	public $email_subject_custom3 = '';
+
+	public $email_template_custom1 = '';
+	public $email_template_custom2 = '';
+	public $email_template_custom3 = '';
+
+	public $enable_reminder1 = false;
+	public $enable_reminder2 = false;
+	public $enable_reminder3 = false;
+
+	public $num_days_reminder1 = 0;
+	public $num_days_reminder2 = 0;
+	public $num_days_reminder3 = 0;
+
+	public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
+	public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
+	public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
+
+	public $late_fee_amount1 = '';
+	public $late_fee_amount2 = '';
+	public $late_fee_amount3 = '';
+
+	public $endless_reminder_frequency_id = '0';
+
+	public $client_online_payment_notification = true;
+	public $client_manual_payment_notification = true;
+
 	/* Company Meta data that we can use to build sub companies*/
 
 	public $name = '';
@@ -187,8 +217,8 @@ class CompanySettings extends BaseSettings
 
 	public $page_size = 'A4'; 
     public $font_size = 9; 
-    public $primary_font = 'roboto';
-    public $secondary_font = 'roboto';
+    public $primary_font = 'Roboto';
+    public $secondary_font = 'Roboto';
     public $hide_paid_to_date = false;
     public $embed_documents = false; 
     public $all_pages_header = true;
@@ -196,6 +226,27 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'email_subject_custom1' => 'string',
+		'email_subject_custom2' => 'string',
+		'email_subject_custom3' => 'string',
+		'email_template_custom1' => 'string',
+		'email_template_custom2' => 'string',
+		'email_template_custom3' => 'string',
+		'enable_reminder1' => 'bool',
+		'enable_reminder2' => 'bool',
+		'enable_reminder3' => 'bool',
+		'num_days_reminder1' => 'int',
+		'num_days_reminder2' => 'int',
+		'num_days_reminder3' => 'int',
+		'schedule_reminder1' => 'string', // (enum: after_invoice_date, before_due_date, after_due_date)
+		'schedule_reminder2' => 'string', // (enum: after_invoice_date, before_due_date, after_due_date)
+		'schedule_reminder3' => 'string', // (enum: after_invoice_date, before_due_date, after_due_date)
+		'late_fee_amount1' => 'string',
+		'late_fee_amount2' => 'string',
+		'late_fee_amount3' => 'string',
+		'endless_reminder_frequency_id' => 'integer',
+		'client_online_payment_notification' => 'bool',
+		'client_manual_payment_notification' => 'bool',
 		'document_email_attachment' => 'bool',
 		'enable_client_portal_password' => 'bool',
 		'enable_email_markup' => 'bool',

@@ -36,8 +36,6 @@ class InvitationController extends Controller
 
     	if($invitation){
 
-\Log::error("bool val = ".boolval($invitation->contact->client->getSetting('enable_client_portal_password')));
-
             if((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false)
                 $this->middleware('auth:contact');
 
