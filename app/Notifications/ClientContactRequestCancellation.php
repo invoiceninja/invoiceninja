@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 
 class ClientContactRequestCancellation extends Notification implements ShouldQueue
 {
@@ -23,9 +24,18 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
 
     protected $client_contact;
 
+    /**
+     * The callback that should be used to build the mail message.
+     *
+     * @var \Closure|null
+     */
+    public static $toMailCallback;
+
+
     public function __construct($recurring_invoice, $client_contact)
     {
         $this->recurring_invoice = $recurring_invoice;
+        $this->client_contact = $client_contact;
     }
 
     /**
@@ -47,8 +57,22 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      */
     public function toMail($notifiable)
     {
+        if (static::$toMailCallback) {
+            return call_user_func(static::$toMailCallback, $notifiable, $this->client_contact);
+        }
+        
 
-    	return new RecurringCancellationRequest($this->recurring_invoice);
+        $client_contact_name = $this->client_contact->present()->name();
+        $client_name = $this->client_contact->client->present()->name();
+        $recurring_invoice_number = $this->recurring_invoice->invoice_number;
+
+
+        return (new MailMessage)
+            ->subject('Request for recurring invoice cancellation from '.$client_contact_name)
+            ->markdown('email.support.cancellation', [
+                'message' => "Contact {$client_contact_name} from client {$client_name} requested to cancel Recurring Invoice #{$recurring_invoice_number}",
+            ]);
+
     }
 
     /**
@@ -67,16 +91,27 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
     public function toSlack($notifiable)
     {
 
-    $user_name = $this->user->first_name . " " . $this->user->last_name;
-    $email = $this->user->email;
-    $ip = $this->user->ip;
+    $name = $this->client_contact->present()->name();
+    $client_name = $this->client_contact->client->present()->name();
+    $recurring_invoice_number = $this->recurring_invoice->invoice_number;
 
     return (new SlackMessage)
                 ->success()
                 ->to("#devv2")
                 ->from("System")
                 ->image('https://app.invoiceninja.com/favicon.png')
-                ->content("A new account has been created by {$user_name} - {$email} - from IP: {$ip}");
+                ->content("Contact {$name} from client {$client_name} requested to cancel Recurring Invoice #{$recurring_invoice_number}");
     }
 
+
+    /**
+     * Set a callback that should be used when building the notification mail message.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public static function toMailUsing($callback)
+    {
+        static::$toMailCallback = $callback;
+    }
 }
