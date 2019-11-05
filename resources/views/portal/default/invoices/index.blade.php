@@ -178,7 +178,10 @@ $(document).ready(function() {
     }); 
 
     $('#download_invoices').click(function() {
-        alert('download');
+        $('#hashed_ids').val(selected);
+        $('#action').val('download');
+
+        $('#payment_form').submit();
     }); 
 
  
