@@ -147,6 +147,11 @@ class Client extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    public function assigned_user()
+    {
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+    }
+
     public function country()
     {
         return $this->belongsTo(Country::class);

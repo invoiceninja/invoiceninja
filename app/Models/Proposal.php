@@ -39,4 +39,9 @@ class Proposal extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function assigned_user()
+    {
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+    }
+    
 }

@@ -110,6 +110,11 @@ class RecurringInvoice extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    public function assigned_user()
+    {
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+    }
+    
     public function invoices()
     {
         return $this->hasMany(Invoice::class, "id", "recurring_invoice_id");
