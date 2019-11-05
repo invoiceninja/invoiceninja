@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Models\Filterable;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +26,7 @@ class RecurringInvoice extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
-
+    use MakesDates;
     /**
      * Invoice Statuses
      */
