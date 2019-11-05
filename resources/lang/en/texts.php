@@ -1268,6 +1268,9 @@ $LANG = array(
     'account_holder_name' => 'Account Holder Name',
     'add_account' => 'Add Account',
     'payment_methods' => 'Payment Methods',
+    'delete_payment_method' => 'Delete Payment Method',
+    'about_to_delete_payment_method' => 'You are about to delete the payment method.',
+    'action_cant_be_reversed' => 'Action can\'t be reversed',
     'complete_verification' => 'Complete Verification',
     'verification_amount1' => 'Amount 1',
     'verification_amount2' => 'Amount 2',
@@ -3108,6 +3111,7 @@ $LANG = array(
     'freq_indefinitely' => 'Indefinitely',
     'next_send_date' => 'Next send date',
     'cycles_remaining' => 'Cycles remaining',
+    'i_understand_delete' => 'I understand, delete',
 );
 
 return $LANG;
