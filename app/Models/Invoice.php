@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\PaymentTerm;
@@ -296,6 +297,17 @@ class Invoice extends BaseModel
         }
 
         return $public_path;
+    }
+
+    public function pdf_file_path()
+    {
+        $storage_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
+
+        if(!Storage::exists($storage_path)) {
+            CreateInvoicePdf::dispatchNow($this);
+        }
+
+        return $storage_path;        
     }
 
     /**

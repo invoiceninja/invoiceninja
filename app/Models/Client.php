@@ -31,6 +31,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
@@ -168,13 +169,26 @@ class Client extends BaseModel
     }
 
     public function date_format()
-    {        
-        return DateFormat::find($this->getSetting('date_format_id'))->format;
+    {   
+        $date_formats = Cache::get('date_formats');
+        
+        return $date_formats->filter(function($item) {
+            return $item->id == $this->getSetting('date_format_id');
+        })->first()->format;
+
+        //return DateFormat::find($this->getSetting('date_format_id'))->format;
     }
 
     public function currency()
     {
-        return Currency::find($this->getSetting('currency_id'));
+
+        $currencies = Cache::get('currencies');
+        
+        return $currencies->filter(function($item) {
+            return $item->id == $this->getSetting('currency_id');
+        })->first();
+
+        //return Currency::find($this->getSetting('currency_id'));
         //return $this->belongsTo(Currency::class);
     }
 

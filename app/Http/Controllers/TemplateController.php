@@ -77,7 +77,7 @@ class TemplateController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * @OA\Get(
+     * @OA\Post(
      *      path="/api/v1/templates/{entity}/{entity_id}",
      *      operationId="getShowTemplate",
      *      tags={"templates"},

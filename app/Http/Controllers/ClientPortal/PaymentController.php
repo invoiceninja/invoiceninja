@@ -46,7 +46,7 @@ class PaymentController extends Controller
     public function index(PaymentFilters $filters, Builder $builder)
     {
         //$payments = Payment::filter($filters);
-        $payments = Payment::with('type')->get();
+        $payments = Payment::with('type','client')->get();
 
         if (request()->ajax()) {
 
@@ -57,6 +57,13 @@ class PaymentController extends Controller
                 })
                 ->editColumn('status_id', function ($payment){
                     return Payment::badgeForStatus($payment->status_id);
+                })
+                ->editColumn('payment_date', function ($payment){
+                    //return $payment->payment_date;
+                    return $payment->formatDate($payment->payment_date, $payment->client->date_format());
+                })
+                ->editColumn('amount', function ($payment) {
+                    return Number::formatMoney($payment->amount, $payment->client);
                 })
                 ->rawColumns(['action', 'status_id','payment_type_id'])
                 ->make(true);

@@ -33,6 +33,7 @@
         "laravelcollective/html": "6.0.*",
         "league/fractal": "^0.17.0",
         "league/omnipay": "^3.0",
+        "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^6.0",
         "omnipay/paypal": "^3.0",
         "omnipay/stripe": "^3.0",

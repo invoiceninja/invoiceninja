@@ -20,11 +20,14 @@ use App\Repositories\BaseRepository;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Barracuda\ArchiveStream\Archive;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
+use ZipStream\Option\Archive;
+use ZipStream\ZipStream;
 
 /**
  * Class InvoiceController
@@ -168,25 +171,32 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
-                            ->get()
-                            ->filter(function ($invoice){
-                                return $invoice->isPayable();
-                            });
+                            ->get();
 
         //generate pdf's of invoices locally
-        
+        if(!$invoices || $invoices->count() == 0)
+            return;
 
         //if only 1 pdf, output to buffer for download
-        
-        
-        //if multiple pdf's, output to zip stream using Barracuda lib
-        
+        if($invoices->count() == 1)
+            return response()->download(public_path($invoices->first()->pdf_file_path()));
 
-/*       
-    $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')));
-    $zip->add_file($name, $document->getRaw());
-    $zip->finish();
-*/ 
+
+        # enable output of HTTP headers
+        $options = new Archive();
+        $options->setSendHttpHeaders(true);
+
+        # create a new zipstream object
+        $zip = new ZipStream(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')).".zip", $options);
+
+           foreach($invoices as $invoice){
+
+                $zip->addFileFromPath(basename($invoice->pdf_file_path()), public_path($invoice->pdf_file_path()));
+            }
+
+        # finish the zip stream
+        $zip->finish();
+
     }
     
 

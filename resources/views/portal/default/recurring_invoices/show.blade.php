@@ -12,11 +12,11 @@
                     </div>
                     <div class="card-body">
                         <table class="table table-responsive-sm table-bordered">
-                        	<tr><td style="text-align: right;">{{ctrans('texts.start_date')}}</td><td>{!! $invoice->start_date !!}</td></tr>
-                        	<tr><td style="text-align: right;">{{ctrans('texts.next_send_date')}}</td><td>{!! $invoice->next_send_date !!}</td></tr>
+                        	<tr><td style="text-align: right;">{{ctrans('texts.start_date')}}</td><td>{!! $invoice->formatDate($invoice->start_date,$invoice->client->date_format()) !!}</td></tr>
+                        	<tr><td style="text-align: right;">{{ctrans('texts.next_send_date')}}</td><td>{!! $invoice->formatDate($invoice->next_send_date,$invoice->client->date_format()) !!}</td></tr>
                         	<tr><td style="text-align: right;">{{ctrans('texts.frequency')}}</td><td>{!! App\Models\RecurringInvoice::frequencyForKey($invoice->frequency_id) !!}</td></tr>
                         	<tr><td style="text-align: right;">{{ctrans('texts.cycles_remaining')}}</td><td>{!! $invoice->remaining_cycles !!}</td></tr>
-                        	<tr><td style="text-align: right;">{{ctrans('texts.amount')}}</td><td>{!! $invoice->amount !!}</td></tr>
+                        	<tr><td style="text-align: right;">{{ctrans('texts.amount')}}</td><td>{!! App\Utils\Number::formatMoney($invoice->amount, $invoice->client) !!}</td></tr>
 
                         </table>
 

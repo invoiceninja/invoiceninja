@@ -16,6 +16,8 @@ use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
 use App\Models\RecurringInvoice;
 use App\Notifications\ClientContactRequestCancellation;
 use App\Notifications\ClientContactResetPassword;
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +35,7 @@ class RecurringInvoiceController extends Controller
 {
 
     use MakesHash;
-
+    use MakesDates;
     /**
      * Show the list of Invoices
      *
@@ -46,6 +48,7 @@ class RecurringInvoiceController extends Controller
         $invoices = RecurringInvoice::whereClientId(auth()->user()->client->id)
                                     ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])
                                     ->orderBy('status_id', 'asc')
+                                    ->with('client')
                                     ->get();
 
         if (request()->ajax()) {
@@ -57,6 +60,15 @@ class RecurringInvoiceController extends Controller
                 })
                 ->editColumn('status_id', function ($invoice){
                     return RecurringInvoice::badgeForStatus($invoice->status);
+                })
+                ->editColumn('start_date', function ($invoice){
+                    return $this->formatDate($invoice->invoice_date, $invoice->client->date_format());
+                })
+                ->editColumn('next_send_date', function ($invoice){
+                    return $this->formatDate($invoice->next_send_date, $invoice->client->date_format());
+                })
+                ->editColumn('amount', function ($invoice){
+                    return Number::formatMoney($invoice->amount, $invoice->client);
                 })
                 ->rawColumns(['action', 'status_id'])
                 ->make(true);
