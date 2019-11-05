@@ -172,9 +172,6 @@ class InvoiceController extends Controller
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
                             ->get();
-                            // ->filter(function ($invoice){
-                            //     return $invoice->isPayable();
-                            // });
 
         //generate pdf's of invoices locally
         if(!$invoices || $invoices->count() == 0)
