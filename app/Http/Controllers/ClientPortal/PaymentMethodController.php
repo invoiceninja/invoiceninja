@@ -11,10 +11,12 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Models\ClientGatewayToken;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
@@ -36,37 +38,37 @@ class PaymentMethodController extends Controller
         if (request()->ajax()) {
 
             return DataTables::of($payment_methods)->addColumn('action', function ($payment_method) {
-                    return '<a href="/client/payment_methods/'. $payment_method->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
-                })
-                ->editColumn('gateway_type_id', function ($payment_method){
+                return '<a href="/client/payment_methods/' . $payment_method->hashed_id . '" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>' . ctrans('texts.view') . '</a>';
+            })
+                ->editColumn('gateway_type_id', function ($payment_method) {
                     return ctrans("texts.{$payment_method->gateway_type->alias}");
-                })->editColumn('created_at', function ($payment_method){
+                })->editColumn('created_at', function ($payment_method) {
                     return $this->formatDateTimestamp($payment_method->created_at, auth()->user()->client->date_format());
-                })->editColumn('is_default', function ($payment_method){
+                })->editColumn('is_default', function ($payment_method) {
                     return $payment_method->is_default ? ctrans('texts.default') : '';
                 })->editColumn('meta', function ($payment_method) {
-                    if(isset($payment_method->meta->exp_month) && isset($payment_method->meta->exp_year))
+                    if (isset($payment_method->meta->exp_month) && isset($payment_method->meta->exp_year))
                         return "{$payment_method->meta->exp_month}/{$payment_method->meta->exp_year}";
                     else
                         return "";
                 })->addColumn('last4', function ($payment_method) {
-                    if(isset($payment_method->meta->last4))
+                    if (isset($payment_method->meta->last4))
                         return $payment_method->meta->last4;
                     else
                         return "";
                 })->addColumn('brand', function ($payment_method) {
-                    if(isset($payment_method->meta->brand))
+                    if (isset($payment_method->meta->brand))
                         return $payment_method->meta->brand;
                     else
                         return "";
                 })
-                ->rawColumns(['action', 'status_id','last4','brand'])
+                ->rawColumns(['action', 'status_id', 'last4', 'brand'])
                 ->make(true);
-        
+
         }
 
         $data['html'] = $builder;
-      
+
         return view('portal.default.payment_methods.index', $data);
     }
 
@@ -91,7 +93,7 @@ class PaymentMethodController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -105,18 +107,18 @@ class PaymentMethodController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ClientGatewayToken $payment_method
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function show($id)
+    public function show(ClientGatewayToken $payment_method)
     {
-        //
+        return view('portal.default.payment_methods.show', compact('payment_method'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -127,8 +129,8 @@ class PaymentMethodController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -139,10 +141,19 @@ class PaymentMethodController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @return \Illuminate\Http\Response
+     * @param ClientGatewayToken $payment_method
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy()
+    public function destroy(ClientGatewayToken $payment_method)
     {
+        try {
+            event(new MethodDeleted($payment_method));
+            $payment_method->delete();
+        } catch (\Exception $e) {
+            Log::error(json_encode($e));
+            return back();
+        }
 
+        return redirect()->route('client.payment_methods.index');
     }
 }
