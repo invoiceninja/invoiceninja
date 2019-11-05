@@ -15,5 +15,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Credit extends BaseModel
 {
-    //
+    public function assigned_user()
+    {
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+    }
 }

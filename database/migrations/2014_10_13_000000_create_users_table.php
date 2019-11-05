@@ -280,6 +280,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('user_id')->index();
+            $table->unsignedInteger('assigned_user_id')->nullable();
 
             $table->string('name')->nullable();
             $table->string('website')->nullable();
@@ -412,6 +413,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
 
@@ -478,6 +480,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
 
             $t->unsignedInteger('status_id')->index();
@@ -541,6 +544,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
 
             $t->unsignedInteger('status_id')->index();
@@ -602,6 +606,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
             $t->unsignedInteger('design_id');
@@ -708,6 +713,7 @@ class CreateUsersTable extends Migration
             $t->increments('id');
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id')->nullable();
 
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
@@ -743,6 +749,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id')->nullable();
+            $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('client_contact_id')->nullable();
             $t->unsignedInteger('invitation_id')->nullable();
             $t->unsignedInteger('company_gateway_id')->nullable();
@@ -784,6 +791,7 @@ class CreateUsersTable extends Migration
         Schema::create('tasks', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('assigned_user_id')->nullable();
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('invoice_id')->nullable();

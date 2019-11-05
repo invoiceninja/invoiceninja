@@ -28,7 +28,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -141,7 +140,6 @@ class User extends Authenticatable implements MustVerifyEmail
     */
     public function setCompany($company)
     {
-        \Log::error('setting company');
         $this->company = $company;
     }
 
@@ -282,6 +280,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Returns a boolean value if the user is assigned to the current Entity
+     * 
+     * @param  string Entity
+     * @return bool
+     */
+    public function assigned($entity) : bool
+    {
+
+        return ! empty($entity->assigned_user_id) && $entity->assigned_user_id == $this->id;
+
+    }
+
+    /**
      * Flattens a stdClass representation of the User Permissions
      * into a Collection
      * 
@@ -344,18 +355,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return config('ninja.notification.slack');
     }
 
-    public function preferredLocale()
-    {
-        \Log::error(print_r($this->company(),1));
-
-        $lang = Language::find($this->company()->settings->language_id);
-
-        return $lang->locale;
-    }
 
     public function routeNotificationForMail($notification)
     {
         return $this->email;
     }
+
+
 }
 

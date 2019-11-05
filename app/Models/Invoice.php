@@ -135,6 +135,11 @@ class Invoice extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    public function assigned_user()
+    {
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+    }
+    
     public function invitations()
     {
         return $this->hasMany(InvoiceInvitation::class);
