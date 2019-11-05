@@ -138,8 +138,28 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function preferredLocale()
     {
-        $lang = Language::find($this->client->getSetting('language_id'));
+        $languages = Cache::get('languages');
+        
+        return $languages->filter(function($item) {
+            return $item->id == $this->client->getSetting('language_id');
+        })->first()->locale;
 
-        return $lang->locale;
+        //$lang = Language::find($this->client->getSetting('language_id'));
+
+        //return $lang->locale;
+    }
+
+
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  mixed  $value
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->withTrashed()
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 }

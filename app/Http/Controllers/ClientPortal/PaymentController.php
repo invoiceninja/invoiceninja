@@ -62,6 +62,9 @@ class PaymentController extends Controller
                     //return $payment->payment_date;
                     return $payment->formatDate($payment->payment_date, $payment->client->date_format());
                 })
+                ->editColumn('amount', function ($payment) {
+                    return Number::formatMoney($payment->amount, $payment->client);
+                })
                 ->rawColumns(['action', 'status_id','payment_type_id'])
                 ->make(true);
         

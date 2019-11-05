@@ -361,6 +361,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->email;
     }
 
-
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  mixed  $value
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->withTrashed()
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }
 

@@ -34,7 +34,6 @@ class CheckCacheTest extends TestCase
     {
     	$date_formats = Cache::get('date_formats');
 
-\Log::error(print_r($date_formats,1));
     	$this->assertEquals(13, count($date_formats));
     }
 }
