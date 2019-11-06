@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\Client;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -53,6 +54,17 @@ class ActivityRepository extends BaseRepository
 	public function createBackup($entity, $activity)
 	{
 		$backup = new Backup();
+
+		// if(get_class($entity) == Client::class)
+		// 	$settings = $entity->getMergedSettings();
+		// else
+		// 	$settings = $entity->client->getMergedSettings();
+//		$entity->clientMergedDettings = $settings;
+
+		if(get_class($entity) == Client::class)
+			$entity->load('company');
+		else
+			$entity->load('company','client');
 
 		$backup->activity_id = $activity->id;
 		$backup->json_backup = $entity->toJson();

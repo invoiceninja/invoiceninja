@@ -15,7 +15,7 @@
                             @endif
                             <form method="POST" action="{{ route($passwordEmailRoute) }}">
                                 @csrf
-                                <h1>trans('texts.password_recovery')</h1>
+                                <h1>{{trans('texts.password_recovery')}}</h1>
                                 <p class="text-muted"></p>
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
@@ -23,7 +23,7 @@
                                       <i class="icon-user"></i>
                                     </span>
                                     </div>
-                                    <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="trans('texts.email')" required autofocus>
+                                    <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="{{trans('texts.email')}}" required autofocus>
 
                                     @if ($errors->has('email'))
                                         <span class="invalid-feedback" role="alert">
@@ -35,7 +35,7 @@
 
                                 <div class="row">
                                     <div class="col-6">
-                                        <button class="btn btn-primary px-4" type="submit">trans('texts.send_email')</button>
+                                        <button class="btn btn-primary px-4" type="submit">{{trans('texts.send_email')}}</button>
                                     </div>
                                 </div>
                             </form>
