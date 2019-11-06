@@ -55,7 +55,7 @@ class CompanySettingsTest extends TestCase
 		$casts = CompanySettings::$casts;
 
 		$diff = array_diff_key($company_settings, $casts);
-\Log::error($diff);
+
 		$this->assertEquals(1, count($diff));
 	}
 

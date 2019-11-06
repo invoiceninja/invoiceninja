@@ -126,13 +126,13 @@ class CompanySettings extends BaseSettings
 	public $quote_design_id = '1';
 	public $invoice_footer = '';
 	public $invoice_labels = '';
-	public $show_item_taxes = false;
 	public $tax_name1 = '';
 	public $tax_rate1 = 0;
 	public $tax_name2 = '';
 	public $tax_rate2 = 0;
 	public $tax_name3 = '';
 	public $tax_rate3 = 0;
+	public $number_of_tax_rates = 1;
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
@@ -226,6 +226,7 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'number_of_tax_rates' => 'int',
 		'email_subject_custom1' => 'string',
 		'email_subject_custom2' => 'string',
 		'email_subject_custom3' => 'string',
@@ -355,7 +356,6 @@ class CompanySettings extends BaseSettings
 		'reset_counter_date' => 'string',
 		'require_invoice_signature' => 'bool',
 		'require_quote_signature' => 'bool',
-		'show_item_taxes' => 'bool',
 		'state' => 'string',
 		'email' => 'string',
 		'vat_number' => 'string',
