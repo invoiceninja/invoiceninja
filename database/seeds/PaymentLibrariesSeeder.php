@@ -67,7 +67,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'GoCardless', 'provider' => 'GoCardlessV2\Redirect', 'sort_order' => 9, 'is_offsite' => true, 'key' => 'b9886f9257f0c6ee7c302f1c74475f6c', 'fields' => '{"accessToken":"","webhookSecret":"","testMode":true}'],
             ['name' => 'PagSeguro', 'provider' => 'PagSeguro', 'key' => 'ef498756b54db63c143af0ec433da803', 'fields' => '{"email":"","token":"","sandbox":false}'],
             ['name' => 'PAYMILL', 'provider' => 'Paymill', 'key' => 'ca52f618a39367a4c944098ebf977e1c', 'fields' => '{"apiKey":""}'],
-            ['name' => 'Custom', 'provider' => 'Custom2', 'is_offsite' => true, 'sort_order' => 21, 'key' => '54faab2ab6e3223dbe848b1686490baa', 'fields' => ''],
+            ['name' => 'Custom', 'provider' => 'Custom2', 'is_offsite' => true, 'sort_order' => 21, 'key' => '54faab2ab6e3223dbe848b1686490baa', 'fields' => '{"text":"","name":""}'],
             ['name' => 'Custom', 'provider' => 'Custom3', 'is_offsite' => true, 'sort_order' => 22, 'key' => '8149a02d9e691a78da2664d0ce9ce1a9', 'fields' => ''],
         ];
 

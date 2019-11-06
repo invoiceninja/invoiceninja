@@ -190,9 +190,9 @@ class CompanySettings extends BaseSettings
 	public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
 	public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
 
-	public $late_fee_amount1 = '';
-	public $late_fee_amount2 = '';
-	public $late_fee_amount3 = '';
+	public $late_fee_amount1 = 0;
+	public $late_fee_amount2 = 0;
+	public $late_fee_amount3 = 0;
 
 	public $endless_reminder_frequency_id = '0';
 
@@ -241,9 +241,9 @@ class CompanySettings extends BaseSettings
 		'schedule_reminder1' => 'string', // (enum: after_invoice_date, before_due_date, after_due_date)
 		'schedule_reminder2' => 'string', // (enum: after_invoice_date, before_due_date, after_due_date)
 		'schedule_reminder3' => 'string', // (enum: after_invoice_date, before_due_date, after_due_date)
-		'late_fee_amount1' => 'string',
-		'late_fee_amount2' => 'string',
-		'late_fee_amount3' => 'string',
+		'late_fee_amount1' => 'float',
+		'late_fee_amount2' => 'float',
+		'late_fee_amount3' => 'float',
 		'endless_reminder_frequency_id' => 'integer',
 		'client_online_payment_notification' => 'bool',
 		'client_manual_payment_notification' => 'bool',
