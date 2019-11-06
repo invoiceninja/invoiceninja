@@ -3,9 +3,9 @@
     <button class="navbar-toggler sidebar-toggler d-lg-none mr-auto" type="button" data-toggle="sidebar-show">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <a class="navbar-brand" href="https://invoiceninja.com">
-        <img class="navbar-brand-full" src="/images/logo.png" width="50" height="50" alt="Invoice Ninja Logo">
-        <img class="navbar-brand-minimized" src="/images/logo.png" width="30" height="30" alt="Invoice Ninja Logo">
+    <a class="navbar-brand" href="{!! $settings->website ?: 'https://invoiceninja.com' !!}">
+        <img class="navbar-brand-full" src="{!! $settings->company_logo ?: '/images/logo.png' !!}" width="50" height="50" alt="Invoice Ninja Logo">
+        <img class="navbar-brand-minimized" src="{!! $settings->company_logo ?: '/images/logo.png' !!}" width="30" height="30" alt="Invoice Ninja Logo">
     </a>
 
   <button class="navbar-toggler sidebar-toggler sidebar-minimizer" type="button" data-toggle="sidebar-show">

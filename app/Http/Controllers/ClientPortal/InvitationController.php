@@ -48,4 +48,10 @@ class InvitationController extends Controller
     		abort(404);
 
     }
+
+    // public function invoiceRouterForIframe(string $client_hash, string $invitation_key)
+    // {
+
+    // }
+    
 }
