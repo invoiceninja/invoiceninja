@@ -62,7 +62,7 @@ $(function() {
         drawCallback: function(settings){
 
            data = this.api().ajax.json().data;
-           console.log(data);
+
         },
         columns: [
 

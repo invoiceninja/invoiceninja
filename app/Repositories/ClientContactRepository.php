@@ -34,7 +34,7 @@ class ClientContactRepository extends BaseRepository
 
 		});
 
-		/* Set first record to primary - always*/
+		/* Set first record to primary - always */
 		$contacts = $contacts->sortBy('is_primary');
 
 		$contacts->first(function($contact){

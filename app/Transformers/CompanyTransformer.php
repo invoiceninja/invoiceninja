@@ -18,10 +18,12 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
 use App\Models\GroupSetting;
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Transformers\CompanyGatewayTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Transformers\GroupSettingTransformer;
+use App\Transformers\TaxRateTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -72,7 +74,11 @@ class CompanyTransformer extends EntityTransformer
             'update_products' => (bool)$company->update_products,
             'fill_products' => (bool)$company->fill_products,
             'convert_products' => (bool)$company->convert_products,
-            'custom_surcharge_taxes' => (bool)$company->custom_surcharge_taxes,
+            'custom_surcharge_taxes1' => (bool)$company->custom_surcharge_taxes1,
+            'custom_surcharge_taxes2' => (bool)$company->custom_surcharge_taxes2,
+            'custom_surcharge_taxes3' => (bool)$company->custom_surcharge_taxes3,
+            'custom_surcharge_taxes4' => (bool)$company->custom_surcharge_taxes4,
+            'custom_fields' => (string) $company->custom_fields,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
             'first_month_of_year' => (string) $company->first_month_of_year ?: '',
@@ -131,6 +137,15 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new AccountTransformer($this->serializer);
 
         return $this->includeItem($company->account, $transformer, Account::class);
+    
+    }
+
+    public function includeTaxRates(Company $company)
+    {
+
+        $transformer = new TaxRateTransformer($this->serializer);
+
+        return $this->includeCollection($company->tax_rates, $transformer, TaxRate::class);
     
     }
 }

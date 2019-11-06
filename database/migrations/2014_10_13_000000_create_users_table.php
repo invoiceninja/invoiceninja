@@ -83,7 +83,7 @@ class CreateUsersTable extends Migration
             $table->string('provider');
             $table->boolean('visible')->default(true);
             $table->unsignedInteger('sort_order')->default(10000);
-            $table->boolean('recommended')->default(0);
+            //$table->boolean('recommended')->default(0);
             $table->string('site_url', 200)->nullable();
             $table->boolean('is_offsite')->default(false);
             $table->boolean('is_secure')->default(false);
@@ -668,7 +668,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('client_contact_id');
             $t->unsignedInteger('invoice_id')->index();
-            $t->string('invitation_key')->index()->unique();
+            $t->string('key')->index();
             $t->timestamps(6);
             $t->softDeletes();
 

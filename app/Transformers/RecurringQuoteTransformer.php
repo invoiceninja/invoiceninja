@@ -81,6 +81,8 @@ class RecurringQuoteTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($quote->id),
+            'user_id' => $this->encodePrimaryKey($quote->user_id),
+            'assigned_user_id' => $this->encodePrimaryKey($quote->assigned_user_id),
             'amount' => (float) $quote->amount ?: '',
             'balance' => (float) $quote->balance ?: '',
             'client_id' => (string) $quote->client_id,

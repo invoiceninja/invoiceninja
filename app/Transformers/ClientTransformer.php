@@ -63,6 +63,8 @@ class ClientTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($client->id),
+            'user_id' => $this->encodePrimaryKey($client->user_id),
+            'assigned_user_id' => $this->encodePrimaryKey($client->assigned_user_id),
             'name' => $client->name ?: '',
             'website' => $client->website ?: '',
             'private_notes' => $client->private_notes ?: '',
@@ -89,7 +91,7 @@ class ClientTransformer extends EntityTransformer
             'shipping_state' => $client->shipping_state ?: '',
             'shipping_postal_code' => $client->shipping_postal_code ?: '',
             'shipping_country_id' => $client->shipping_country_id ?: '',
-            'settings' => $client->settings ?: '',
+            'settings' => $client->settings ?: new \stdClass,
             'is_deleted' => (bool) $client->is_deleted,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',

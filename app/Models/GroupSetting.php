@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class GroupSetting extends StaticModel
 {
+	use MakesHash;
+	
 	public $timestamps = false;
 
     protected $casts = [
@@ -52,5 +54,15 @@ class GroupSetting extends StaticModel
 		return $this->hasMany(Client::class, 'id', 'group_settings_id');
 	}
 
-
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  mixed  $value
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }

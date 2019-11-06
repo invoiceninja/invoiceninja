@@ -21,7 +21,7 @@ class Gateway extends StaticModel
         'is_offsite' => 'boolean',
         'is_secure' => 'boolean',
         'recommended' => 'boolean',
-        'visible' => 'boolean',
+        //'visible' => 'boolean',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'default_gateway_type_id' => 'string',

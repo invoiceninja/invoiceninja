@@ -55,6 +55,8 @@ class PaymentTransformer extends EntityTransformer
     {
         return  [
             'id' => $this->encodePrimaryKey($payment->id),
+            'user_id' => $this->encodePrimaryKey($payment->user_id),
+            'assigned_user_id' => $this->encodePrimaryKey($payment->assigned_user_id),
             'amount' => (float) $payment->amount,
             'transaction_reference' => $payment->transaction_reference ?: '',
             'payment_date' => $payment->payment_date ?: '',
