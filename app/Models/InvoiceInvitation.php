@@ -21,8 +21,9 @@ class InvoiceInvitation extends BaseModel
 
 	use MakesDates;
 
-    protected $guarded = [
+    protected $fillable = [
         'id',
+        'client_contact_id',
     ];
 
     public function entityType()

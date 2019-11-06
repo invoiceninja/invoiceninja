@@ -12,11 +12,13 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateInvoiceRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -34,7 +36,7 @@ class UpdateInvoiceRequest extends Request
     public function rules()
     {
 
-        //$this->sanitize();
+        $this->sanitize();
 
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
@@ -46,6 +48,9 @@ class UpdateInvoiceRequest extends Request
     public function sanitize()
     {
         $input = $this->all();
+
+        if(isset($input['client_id']))
+            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
         $this->replace($input);
 

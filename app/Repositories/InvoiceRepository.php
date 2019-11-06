@@ -72,7 +72,39 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        event(new CreateInvoiceInvitation($invoice));
+
+        if(isset($data['invitations']))
+        {
+
+            $invitations = collect($data['invitations']);
+
+            /* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
+            collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function($invitation){
+
+                InvoiceInvitation::destroy($invitation);
+
+            });
+
+
+            foreach($data['invitations'] as $invitation)
+            {
+                $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+
+                if(!$inv)
+                {
+                    $invitation['client_contact_id'] = $this->decodePrimaryKey($invitation['client_contact_id']);
+
+                    $new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+                    $new_invitation->fill($invitation);
+                    $new_invitation->invoice_id = $invoice->id;
+                    $new_invitation->save();
+
+                }
+            }
+
+        }
+
+        //event(new CreateInvoiceInvitation($invoice));
 
         $invoice = $invoice->calc()->getInvoice();
         
@@ -88,7 +120,7 @@ class InvoiceRepository extends BaseRepository
         if($finished_amount != $starting_amount)
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
 
-        return $invoice;
+        return $invoice->fresh();
 
 	}
 

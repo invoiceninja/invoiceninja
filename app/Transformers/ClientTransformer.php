@@ -63,6 +63,8 @@ class ClientTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($client->id),
+            'user_id' => $this->encodePrimaryKey($client->user_id),
+            'assigned_user_id' => $this->encodePrimaryKey($client->assigned_user_id),
             'name' => $client->name ?: '',
             'website' => $client->website ?: '',
             'private_notes' => $client->private_notes ?: '',

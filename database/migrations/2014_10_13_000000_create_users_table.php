@@ -668,7 +668,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('client_contact_id');
             $t->unsignedInteger('invoice_id')->index();
-            $t->string('invitation_key')->index()->unique();
+            $t->string('key')->index();
             $t->timestamps(6);
             $t->softDeletes();
 
