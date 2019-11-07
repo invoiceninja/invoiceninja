@@ -41,33 +41,33 @@ trait GeneratesCounter
 		//Reset counters if enabled
 		$this->resetCounters($client);
 
-		$is_client_counter = false;
-
 		//todo handle if we have specific client patterns in the future
-		$pattern = $client->company->settings->invoice_number_pattern;
+		$pattern = $client->getSetting('invoice_number_pattern');
 
 		//Determine if we are using client_counters
-		if(strpos($pattern, 'client_counter') === false)
+		if(strpos($pattern, 'clientCounter'))
 		{
-			$counter = $client->company->settings->invoice_number_counter;
+			$counter = $client->settings->invoice_number_counter;
+			$counter_entity = $client;
+		}
+		elseif(strpos($pattern, 'groupCounter'))
+		{
+			$counter = $client->group_settings->invoice_number_counter;
+			$counter_entity = $client->group_settings;
 		}
 		else 
 		{
-			$counter = $client->settings->invoice_number_counter;
-			$is_client_counter = true;
+			$counter = $client->company->settings->invoice_number_counter;
+			$counter_entity = $client->company;
 		}
 
 		//Return a valid counter
-		$pattern = $client->company->settings->invoice_number_pattern;
-		$prefix = $client->company->settings->invoice_number_prefix;
-		$padding = $client->company->settings->counter_padding;
+		$pattern = $client->getSetting('invoice_number_pattern');
+		$prefix = $client->getSetting('invoice_number_prefix');
+		$padding = $client->getSetting('counter_padding');
 		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $prefix, $pattern);
 
-		//increment the correct invoice_number Counter (company vs client)
-		if($is_client_counter)
-			$this->incrementCounter($client, 'invoice_number_counter');
-		else
-			$this->incrementCounter($client->company, 'invoice_number_counter');
+		$this->incrementCounter($counter_entity, 'invoice_number_counter');
 
 		return $invoice_number;
 	}
@@ -339,7 +339,10 @@ trait GeneratesCounter
         $search[] = '{$counter}';
         $replace[] = $counter;
 
-        $search[] = '{$client_counter}';
+        $search[] = '{$clientCounter}';
+        $replace[] = $counter;
+
+        $search[] = '{$groupCounter}';
         $replace[] = $counter;
 
         if (strstr($pattern, '{$user_id}')) {

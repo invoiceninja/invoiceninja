@@ -103,7 +103,8 @@ class GeneratesCounterTest extends TestCase
     public function testInvoiceNumberPattern()
     {
         $settings = $this->client->company->settings;
-        $settings->invoice_number_prefix = null;
+        $settings->invoice_number_prefix = '';
+        $settings->invoice_number_counter = 1;
         $settings->invoice_number_pattern = '{$year}-{$counter}';
 
         $this->client->company->settings = $settings;
@@ -122,8 +123,8 @@ class GeneratesCounterTest extends TestCase
     {
         $settings = $this->client->company->settings;
 
-        $settings->invoice_number_prefix = null;
-        $settings->invoice_number_pattern = '{$year}-{$client_counter}';
+        $settings->invoice_number_prefix = '';
+        $settings->invoice_number_pattern = '{$year}-{$clientCounter}';
         $this->client->company->settings = $settings;
         $this->client->company->save();
 
