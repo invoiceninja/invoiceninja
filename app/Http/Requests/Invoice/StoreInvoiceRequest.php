@@ -14,11 +14,13 @@ namespace App\Http\Requests\Invoice;
 use App\Http\Requests\Request;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 
 class StoreInvoiceRequest extends Request
 {
     use MakesHash;
+    use CleanLineItems;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -34,6 +36,7 @@ class StoreInvoiceRequest extends Request
     public function rules()
     {
         $this->sanitize();
+
         return [
             'client_id' => 'required',
            // 'invoice_type_id' => 'integer',
@@ -46,11 +49,12 @@ class StoreInvoiceRequest extends Request
         $input = $this->all();
 
         $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        $input['line_items'] = isset($input['line_items']) ? $input['line_items'] : [];
+        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);
 
         return $this->all();
     }
+
 }
 
