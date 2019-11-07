@@ -133,7 +133,6 @@ class CompanySettings extends BaseSettings
 	public $tax_rate2 = 0;
 	public $tax_name3 = '';
 	public $tax_rate3 = 0;
-	public $number_of_tax_rates = 1;
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
@@ -228,7 +227,6 @@ class CompanySettings extends BaseSettings
 
 	public static $casts = [
 		'counter_number_applied' => 'string',
-		'number_of_tax_rates' => 'int',
 		'email_subject_custom1' => 'string',
 		'email_subject_custom2' => 'string',
 		'email_subject_custom3' => 'string',

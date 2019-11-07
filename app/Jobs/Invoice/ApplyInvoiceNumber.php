@@ -65,16 +65,13 @@ class ApplyInvoiceNumber implements ShouldQueue
                 if($this->invoice->status_id == Invoice::STATUS_SENT)
                     $this->invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
                 break;
-            case 'when_paid':
-                if($this->invoice->status_id == Invoice::STATUS_PAID)
-                    $this->invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
-                break;
             
             default:
                 # code...
                 break;
         }
-            $this->invoice->save();
+   
+        $this->invoice->save();
             
         return $this->invoice;
 

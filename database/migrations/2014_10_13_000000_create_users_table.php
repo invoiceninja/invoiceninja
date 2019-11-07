@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateUsersTable extends Migration
@@ -181,6 +182,8 @@ class CreateUsersTable extends Migration
 
 
         });
+
+        DB::statement('ALTER table companies key_block_size=8 row_format=compressed');
 
 
         Schema::create('company_user', function (Blueprint $table) {

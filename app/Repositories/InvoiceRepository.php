@@ -142,7 +142,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->status_id = Invoice::STATUS_SENT;
 
-        $this->markInvitationsSent();
+        $this->markInvitationsSent($invoice);
 
         $invoice->save();
 
@@ -153,7 +153,7 @@ class InvoiceRepository extends BaseRepository
          */
         $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings());
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->balance);
+        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $this->balance);
 
         return $invoice;
 
