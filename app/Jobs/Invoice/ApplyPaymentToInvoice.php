@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -107,6 +108,8 @@ class ApplyPaymentToInvoice implements ShouldQueue
         }
 
         $this->invoice->save();
+
+        $this->invoice = ApplyInvoiceNumber::dispatchNow($this->invoice, $invoice->client->getMergedSettings());
 
         return $this->invoice;
     }
