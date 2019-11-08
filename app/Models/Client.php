@@ -98,6 +98,7 @@ class Client extends BaseModel
     ];
     
     protected $casts = [
+        'country_id' => 'string',
         'settings' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
