@@ -16,6 +16,7 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -120,6 +121,8 @@ class InvoiceRepository extends BaseRepository
         if($finished_amount != $starting_amount)
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
 
+        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings());
+
         return $invoice->fresh();
 
 	}
@@ -139,7 +142,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->status_id = Invoice::STATUS_SENT;
 
-        $this->markInvitationsSent();
+        $this->markInvitationsSent($invoice);
 
         $invoice->save();
 
@@ -148,7 +151,9 @@ class InvoiceRepository extends BaseRepository
          * When marked as sent it becomes a ledgerable item.
          *
          */
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->balance);
+        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings());
+
+        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $this->balance);
 
         return $invoice;
 

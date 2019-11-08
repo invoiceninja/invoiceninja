@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,7 @@ use Illuminate\Validation\Rule;
 class UpdateInvoiceRequest extends Request
 {
     use MakesHash;
+    use CleanLineItems;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -51,6 +53,8 @@ class UpdateInvoiceRequest extends Request
 
         if(isset($input['client_id']))
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+
+        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
         $this->replace($input);
 

@@ -241,6 +241,9 @@ class InvoiceItemSum
 		foreach($this->line_items as $this->item)
 		{
 
+			if($this->item->line_total == 0)
+				continue;
+
 			$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
 			$item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 

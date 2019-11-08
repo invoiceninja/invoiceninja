@@ -72,6 +72,7 @@ class CompanySettings extends BaseSettings
 
 	public $translations;
 
+	public $counter_number_applied = 'when_saved'; // when_saved , when_sent , when_paid 
 	/* Counters */
 	public $invoice_number_pattern = '';
 	public $invoice_number_counter = 1;
@@ -132,7 +133,6 @@ class CompanySettings extends BaseSettings
 	public $tax_rate2 = 0;
 	public $tax_name3 = '';
 	public $tax_rate3 = 0;
-	public $number_of_tax_rates = 1;
 	public $payment_type_id = '1';
 	public $custom_fields = '';
 	public $invoice_fields = '';
@@ -226,7 +226,7 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
-		'number_of_tax_rates' => 'int',
+		'counter_number_applied' => 'string',
 		'email_subject_custom1' => 'string',
 		'email_subject_custom2' => 'string',
 		'email_subject_custom3' => 'string',
