@@ -460,7 +460,10 @@ class CreateUsersTable extends Migration
             $t->string('custom_surcharge2')->nullable();
             $t->string('custom_surcharge3')->nullable();
             $t->string('custom_surcharge4')->nullable();
-            $t->boolean('custom_surcharge_taxes')->default(false);
+            $t->boolean('custom_surcharge_tax1')->default(false);
+            $t->boolean('custom_surcharge_tax2')->default(false);
+            $t->boolean('custom_surcharge_tax3')->default(false);
+            $t->boolean('custom_surcharge_tax4')->default(false);
 
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);

@@ -114,11 +114,12 @@ class RandomDataSeeder extends Seeder
         factory(\App\Models\Product::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /** Invoice Factory */
-        factory(\App\Models\Invoice::class,500)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
+        factory(\App\Models\Invoice::class,5000)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
-        $invoices = Invoice::all();
+        $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
-
+\Log::error($invoics->count());
+exit;
         $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
             
             $settings = $invoice->settings;
