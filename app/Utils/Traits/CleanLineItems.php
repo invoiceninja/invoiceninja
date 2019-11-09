@@ -58,6 +58,7 @@ trait CleanLineItems
         if(array_key_exists("id", $item))
         {
             $item['id'] = $item['id']*-1;
+            $item ['id'] = (string)$item['id'];
         }  
 
         return $item;
