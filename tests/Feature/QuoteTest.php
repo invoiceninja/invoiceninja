@@ -185,7 +185,7 @@ class QuoteTest extends TestCase
         $this->assertNotNull($quote);
         $this->assertNotNull($quote->settings);
 
-        $this->assertTrue(property_exists($quote->settings, 'custom_invoice_taxes1'));
+        $this->assertTrue(property_exists($quote->settings, 'military_time'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

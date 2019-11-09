@@ -118,8 +118,7 @@ class RandomDataSeeder extends Seeder
 
         $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
-\Log::error($invoics->count());
-exit;
+
         $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
             
             $settings = $invoice->settings;

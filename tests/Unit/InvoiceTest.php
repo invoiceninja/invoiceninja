@@ -35,8 +35,6 @@ class InvoiceTest extends TestCase
 		
 		$this->settings = $this->invoice->settings;
 
-		$this->settings->custom_invoice_taxes1 = true;
-		$this->settings->custom_invoice_taxes2 = true;
 		$this->settings->inclusive_taxes = true;
 		$this->settings->precision = 2;
 
