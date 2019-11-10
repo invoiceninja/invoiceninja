@@ -427,7 +427,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->text('line_items')->nullable();
-            $t->text('settings')->nullable();
+            //$t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
             $t->text('footer')->nullable();
@@ -444,6 +444,8 @@ class CreateUsersTable extends Migration
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
+            $t->boolean('uses_inclusive_taxes')->default(0);
+            
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();

@@ -114,24 +114,19 @@ class RandomDataSeeder extends Seeder
         factory(\App\Models\Product::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /** Invoice Factory */
-        factory(\App\Models\Invoice::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
+        factory(\App\Models\Invoice::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
 
         $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
-            
-            $settings = $invoice->settings;
-            //$settings->inclusive_taxes = (bool)random_int(0, 1);
-            $settings->inclusive_taxes = true;
-            $invoice->settings = $settings;
 
             $invoice_calc = null;
 
-            if($settings->inclusive_taxes)
-                $invoice_calc = new InvoiceSumInclusive($invoice, $invoice->settings);
+            if($invoice->uses_inclusive_taxes)
+                $invoice_calc = new InvoiceSumInclusive($invoice);
             else 
-                $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
+                $invoice_calc = new InvoiceSum($invoice);
 
             $invoice = $invoice_calc->build()->getInvoice();
             

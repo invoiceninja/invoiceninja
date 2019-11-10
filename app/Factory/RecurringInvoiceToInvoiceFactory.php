@@ -34,7 +34,6 @@ class recurring_invoiceToInvoiceFactory
 		$invoice->due_date = $recurring_invoice->due_date; //todo calculate based on terms
 		$invoice->is_deleted = $recurring_invoice->is_deleted;
 		$invoice->line_items = $recurring_invoice->line_items;
-		$invoice->settings = $recurring_invoice->settings;
 		$invoice->backup = json_encode([]);
 		$invoice->tax_name1 = $recurring_invoice->tax_name1;
 		$invoice->tax_rate1 = $recurring_invoice->tax_rate1;

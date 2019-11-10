@@ -102,7 +102,7 @@ class InvitationTest extends TestCase
 
         $client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-        factory(\App\Models\Invoice::class,5)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
+        factory(\App\Models\Invoice::class,5)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoice = Invoice::whereUserId($user->id)->whereCompanyId($company->id)->whereClientId($client->id)->first();
 

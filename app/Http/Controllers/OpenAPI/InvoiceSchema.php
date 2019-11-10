@@ -32,6 +32,7 @@
  *       @OA\Property(property="partial", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="is_amount_discount", type="boolean", example=true, description="_________"),
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="_________"),
+ *       @OA\Property(property="uses_inclusive_taxes", type="boolean", example=true, description="Defines the type of taxes used as either inclusive or exclusive"),
  *       @OA\Property(property="invoice_date", type="string", format="date", example="1994-07-30", description="_________"),
  *       @OA\Property(property="partial_due_date", type="string", format="date", example="1994-07-30", description="_________"),
  *       @OA\Property(property="due_date", type="string", format="date", example="1994-07-30", description="_________"),

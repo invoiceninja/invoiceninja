@@ -30,8 +30,6 @@ class InvoiceSum
 
 	protected $invoice;
 
-	protected $settings;
-
 	public $tax_map;
 
 	public $invoice_item;
@@ -52,12 +50,10 @@ class InvoiceSum
 	 *
 	 * @param      \App\Models\Invoice  $invoice   The invoice
 	 */
-	public function __construct($invoice, $settings)
+	public function __construct($invoice)
 	{
 		
 		$this->invoice = $invoice;
-
-		$this->settings = $settings;
 
 		$this->tax_map = new Collection;
 
@@ -80,7 +76,7 @@ class InvoiceSum
 
 	private function calculateLineItems()
 	{
-		$this->invoice_items = new InvoiceItemSum($this->invoice, $this->settings);
+		$this->invoice_items = new InvoiceItemSum($this->invoice);
 		$this->invoice_items->process();
 		$this->invoice->line_items = $this->invoice_items->getLineItems();
 		$this->total = $this->invoice_items->getSubTotal();

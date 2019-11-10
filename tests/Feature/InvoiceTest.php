@@ -131,9 +131,6 @@ class InvoiceTest extends TestCase
         ];
 
         $this->assertNotNull($this->invoice);
-        $this->assertNotNull($this->invoice->settings);
-
-        $this->assertTrue(property_exists($this->invoice->settings, 'custom_value4'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

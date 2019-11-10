@@ -64,16 +64,16 @@ class StoreInvoice implements ShouldQueue
 
         $payment = false;
 
-        /* Test if we should auto-bill the invoice */
-        if(property_exists($this->invoice->settings, 'auto_bill') && (bool)$this->invoice->settings->auto_bill)
-        {
+        // /* Test if we should auto-bill the invoice */
+        // if(property_exists($this->invoice->client->getSetting('auto_bill')) && (bool)$this->invoice->client->getSetting('auto_bill'))
+        // {
 
-           $this->invoice = $invoice_repo->markSent($this->invoice);
+        //    $this->invoice = $invoice_repo->markSent($this->invoice);
 
-           //fire autobill - todo - the PAYMENT class will update the INVOICE status.
-           // $payment = 
+        //    //fire autobill - todo - the PAYMENT class will update the INVOICE status.
+        //    // $payment = 
            
-        }
+        // }
 
         if(isset($this->data['email_invoice']) && (bool)$this->data['email_invoice'])
         {
