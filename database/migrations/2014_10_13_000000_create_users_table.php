@@ -152,19 +152,12 @@ class CreateUsersTable extends Migration
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
 
-            // $table->string('website')->nullable();
-            // $table->string('address1')->nullable();
-            // $table->string('address2')->nullable();
-            // $table->string('city')->nullable();
-            // $table->string('state')->nullable();
-            // $table->string('postal_code')->nullable();
-            // $table->string('phone')->nullable();
-            // $table->string('email')->nullable();
-            // $table->unsignedInteger('country_id')->nullable();
+            $table->boolean('enable_product_cost')->default(0)
+            $table->boolean('enable_product_quantity')->default(1);
+            $table->boolean('default_quantity')->default(1)
+
             $table->string('domain')->nullable();
             $table->string('db')->nullable();
-            // $table->string('vat_number')->nullable();
-            // $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->string('first_day_of_week')->nullable();
             $table->string('first_month_of_year')->nullable();

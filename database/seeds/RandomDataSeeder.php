@@ -74,7 +74,7 @@ class RandomDataSeeder extends Seeder
             'is_locked' => 0,
             'permissions' => json_encode([]),
             'settings' => json_encode(DefaultSettings::userSettings()),
-        ]);s
+        ]);
 
         $client = factory(\App\Models\Client::class)->create([
             'user_id' => $user->id,
@@ -114,7 +114,7 @@ class RandomDataSeeder extends Seeder
         factory(\App\Models\Product::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /** Invoice Factory */
-        factory(\App\Models\Invoice::class,5000)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
+        factory(\App\Models\Invoice::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
         $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
