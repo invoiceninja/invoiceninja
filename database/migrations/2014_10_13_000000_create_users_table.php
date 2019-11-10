@@ -379,20 +379,19 @@ class CreateUsersTable extends Migration
             $table->boolean('show_shipping_address')->default(true)->nullable();
             $table->boolean('update_details')->default(false)->nullable();
             $table->text('config');
-            $table->unsignedInteger('priority')->default(0);
-
-            $table->decimal('min_limit', 16, 4)->nullable();
-            $table->decimal('max_limit', 16, 4)->nullable();
-            $table->decimal('fee_amount', 16, 4)->nullable();
-            $table->decimal('fee_percent', 16, 4)->nullable();
-            $table->string('fee_tax_name1')->nullable();
-            $table->string('fee_tax_name2')->nullable();
-            $table->string('fee_tax_name3')->nullable();
-            $table->decimal('fee_tax_rate1', 16, 4)->nullable();
-            $table->decimal('fee_tax_rate2', 16, 4)->nullable();
-            $table->decimal('fee_tax_rate3', 16, 4)->nullable();
-            $table->unsignedInteger('fee_cap')->nullable();
-            $table->boolean('adjust_fee_percent')->default(false);
+            $table->string('fees_and_limits');
+            // $table->decimal('min_limit', 16, 4)->nullable();
+            // $table->decimal('max_limit', 16, 4)->nullable();
+            // $table->decimal('fee_amount', 16, 4)->nullable();
+            // $table->decimal('fee_percent', 16, 4)->nullable();
+            // $table->string('fee_tax_name1')->nullable();
+            // $table->string('fee_tax_name2')->nullable();
+            // $table->string('fee_tax_name3')->nullable();
+            // $table->decimal('fee_tax_rate1', 16, 4)->nullable();
+            // $table->decimal('fee_tax_rate2', 16, 4)->nullable();
+            // $table->decimal('fee_tax_rate3', 16, 4)->nullable();
+            // $table->unsignedInteger('fee_cap')->nullable();
+            // $table->boolean('adjust_fee_percent')->default(false);
 
             $table->timestamps(6);
             $table->softDeletes();

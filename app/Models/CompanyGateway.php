@@ -20,6 +20,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompanyGateway extends BaseModel
 {
+    protected $casts = [
+        'fees_and_limits' => 'object',
+    ];
 
     protected $fillable = [
         'gateway_key',
@@ -29,17 +32,7 @@ class CompanyGateway extends BaseModel
         'show_shipping_address',
         'update_details',
         'config',
-        'priority',
-        'min_limit',
-        'max_limit',
-        'fee_amount',
-        'fee_percent',
-        'fee_tax_name1',
-        'fee_tax_name2',
-        'fee_tax_rate1',
-        'fee_tax_rate2',
-        'fee_cap',
-        'adjust_fee_percent',
+        'fees_and_limits',
     ];
 
     public static $credit_cards = [
