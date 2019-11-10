@@ -31,10 +31,21 @@ class UpdateGroupSettingRequest extends Request
 
     public function rules()
     {
+        $this->sanitize();
 
         $rules['settings'] = new ValidSettingsRule();
         
         return $rules;
+
+    }
+
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        $this->replace($input);   
+
+        return $this->all();
 
     }
 
