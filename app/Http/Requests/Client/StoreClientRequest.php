@@ -15,10 +15,13 @@ use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Client;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 
 class StoreClientRequest extends Request
 {
+    use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -64,7 +67,12 @@ class StoreClientRequest extends Request
         
         $input['settings'] = ClientSettings::defaults();
         
+        if(isset($input['group_settings_id']))
+            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+
         $this->replace($input);   
+
+        return $this->all();
 
     }
 

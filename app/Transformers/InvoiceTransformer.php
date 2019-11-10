@@ -101,6 +101,7 @@ class InvoiceTransformer extends EntityTransformer
             'public_notes' => $invoice->public_notes ?: '',
             'private_notes' => $invoice->private_notes ?: '',
             'is_deleted' => (bool) $invoice->is_deleted,
+            'uses_inclusive_taxes' => (bool) $invoice->uses_inclusive_taxes,
             'invoice_type_id' => (string) $invoice->invoice_type_id ?: '',
             'tax_name1' => $invoice->tax_name1 ? $invoice->tax_name1 : '',
             'tax_rate1' => (float) $invoice->tax_rate1,
