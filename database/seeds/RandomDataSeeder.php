@@ -74,7 +74,7 @@ class RandomDataSeeder extends Seeder
             'is_locked' => 0,
             'permissions' => json_encode([]),
             'settings' => json_encode(DefaultSettings::userSettings()),
-        ]);
+        ]);s
 
         $client = factory(\App\Models\Client::class)->create([
             'user_id' => $user->id,

@@ -52,19 +52,8 @@ class CompanyGatewayTransformer extends EntityTransformer
             'show_shipping_address' => (bool)$company_gateway->show_shipping_address,
             'update_details' => (bool)$company_gateway->update_details,
             'config' => (string) $company_gateway->getConfigTransformed(),
-            'priority' => (int)$company_gateway->priority,
-            'min_limit' => (float)$company_gateway->min_limit ?: null,
-            'max_limit' => (float)$company_gateway->max_limit ?: null,
-            'fee_amount' => (float) $company_gateway->fee_amount ?: null,
-            'fee_percent' => (float)$company_gateway->fee_percent ?: null,
-            'fee_tax_name1' => (string)$company_gateway->fee_tax_name1 ?: '',
-            'fee_tax_name2' => (string) $company_gateway->fee_tax_name2 ?: '',
-            'fee_tax_name3' => (string) $company_gateway->fee_tax_name3 ?: '',
-            'fee_tax_rate1' => (float) $company_gateway->fee_tax_rate1,
-            'fee_tax_rate2' => (float)$company_gateway->fee_tax_rate2,
-            'fee_tax_rate3' => (float)$company_gateway->fee_tax_rate3,
-            'fee_cap' => (float)$company_gateway->fee_cap ?: null,
-            'adjust_fee_percent' => (bool)$company_gateway->adjust_fee_percent,
+            //'priority' => (int)$company_gateway->priority,
+            'fees_and_limits' => $this->mapFeesAndLimits($company_gateway),
             'updated_at' => $company_gateway->updated_at,
             'deleted_at' => $company_gateway->deleted_at,
         ];
@@ -77,4 +66,23 @@ class CompanyGatewayTransformer extends EntityTransformer
         return $this->includeItem($company_gateway->gateway, $transformer, Gateway::class);
     }
 
+
+    private function mapFeesAndLimits($company_gateway)
+    {
+        $cg = new \stdClass;
+        $cg->min_limit = (float)$company_gateway->min_limit ?: null;
+        $cg->max_limit = (float)$company_gateway->max_limit ?: null;
+        $cg->fee_amount = (float) $company_gateway->fee_amount ?: null;
+        $cg->fee_percent = (float)$company_gateway->fee_percent ?: null;
+        $cg->fee_tax_name1 = (string)$company_gateway->fee_tax_name1 ?: '';
+        $cg->fee_tax_name2 = (string) $company_gateway->fee_tax_name2 ?: '';
+        $cg->fee_tax_name3 = (string) $company_gateway->fee_tax_name3 ?: '';
+        $cg->fee_tax_rate1 = (float) $company_gateway->fee_tax_rate1;
+        $cg->fee_tax_rate2 = (float)$company_gateway->fee_tax_rate2;
+        $cg->fee_tax_rate3 = (float)$company_gateway->fee_tax_rate3;
+        $cg->fee_cap = (float)$company_gateway->fee_cap ?: null;
+        $cg->adjust_fee_percent = (bool)$company_gateway->adjust_fee_percent;
+
+        return $cg;
+    }
 }
