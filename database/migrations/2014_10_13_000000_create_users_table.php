@@ -152,9 +152,9 @@ class CreateUsersTable extends Migration
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
 
-            $table->boolean('enable_product_cost')->default(0)
+            $table->boolean('enable_product_cost')->default(0);
             $table->boolean('enable_product_quantity')->default(1);
-            $table->boolean('default_quantity')->default(1)
+            $table->boolean('default_quantity')->default(1);
 
             $table->string('domain')->nullable();
             $table->string('db')->nullable();
