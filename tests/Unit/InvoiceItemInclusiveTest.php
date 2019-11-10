@@ -41,7 +41,7 @@ class InvoiceItemInclusiveTest extends TestCase
 
 		$this->invoice->line_items = [$item];
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getLineTotal(), 10);
@@ -61,7 +61,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getLineTotal(), 8);
@@ -81,7 +81,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getLineTotal(), 7.48);
@@ -103,7 +103,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$this->invoice->line_items = [$item];
 
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 0.91);
@@ -126,7 +126,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$this->invoice->line_items = [$item];
 
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 0.73);
@@ -149,7 +149,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$settings->inclusive_taxes = true;
 		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getTotalTaxes(), 2.4);
@@ -173,7 +173,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getSubTotal(), 9);
@@ -196,7 +196,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getSubTotal(), 19);
@@ -220,7 +220,7 @@ class InvoiceItemInclusiveTest extends TestCase
 		$settings->inclusive_taxes = false;
 		$settings->precision = 2;
 
-		$item_calc = new InvoiceItemSumInclusive($this->invoice, $settings);
+		$item_calc = new InvoiceItemSumInclusive($this->invoice);
 		$item_calc->process();
 
 		$this->assertEquals($item_calc->getSubTotal(), 19.8);

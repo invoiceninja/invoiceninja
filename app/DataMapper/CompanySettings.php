@@ -50,11 +50,6 @@ class CompanySettings extends BaseSettings
 	public $custom_value3 = '';
 	public $custom_value4 = '';
 
-	public $custom_invoice_taxes1 = false;
-	public $custom_invoice_taxes2 = false;
-	public $custom_invoice_taxes3 = false;
-	public $custom_invoice_taxes4 = false;
-
 	public $default_task_rate = 0;
 
 	public $payment_terms = 1; 
@@ -121,8 +116,8 @@ class CompanySettings extends BaseSettings
 
 	public $invoice_terms = '';
 	public $quote_terms = '';
-	public $invoice_taxes = false;
-	public $invoice_item_taxes = false;
+	public $invoice_taxes = 0;
+	public $invoice_item_taxes = 0;
 	public $invoice_design_id = '1';
 	public $quote_design_id = '1';
 	public $invoice_footer = '';
@@ -134,7 +129,6 @@ class CompanySettings extends BaseSettings
 	public $tax_name3 = '';
 	public $tax_rate3 = 0;
 	public $payment_type_id = '1';
-	public $custom_fields = '';
 	public $invoice_fields = '';
 
 	public $show_accept_invoice_terms = false;
@@ -304,15 +298,10 @@ class CompanySettings extends BaseSettings
 		'custom_value2' => 'string',
 		'custom_value3' => 'string',
 		'custom_value4' => 'string',
-		'custom_invoice_taxes1' => 'bool',
-		'custom_invoice_taxes2' => 'bool',
-		'custom_invoice_taxes3' => 'bool',
-		'custom_invoice_taxes4' => 'bool',
 		'custom_message_dashboard' => 'string',
 		'custom_message_unpaid_invoice' => 'string',
 		'custom_message_paid_invoice' => 'string',
 		'custom_message_unapproved_quote' => 'string',
-		'custom_fields' => 'string',
 		'default_task_rate' => 'float',
 		'email_signature' => 'string',
 		'email_subject_invoice' => 'string',
@@ -336,8 +325,8 @@ class CompanySettings extends BaseSettings
 		'invoice_number_counter' => 'integer',
 		'invoice_design_id' => 'string',
 		'invoice_fields' => 'string',
-		'invoice_taxes' => 'bool',
-		'invoice_item_taxes' => 'bool',
+		'invoice_taxes' => 'int',
+		'invoice_item_taxes' => 'int',
 		'invoice_footer' => 'string',
 		'invoice_labels' => 'string',
 		'invoice_terms' => 'string',

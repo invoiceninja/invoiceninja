@@ -130,8 +130,10 @@ class TemplateController extends BaseController
      */
     public function show($entity, $entity_id)
     {
+        $text = request()->input('text');
 
-    	return response()->json(request()->all(), 200);
+    	return response()->json($text, 200);
+
     }
 
 }

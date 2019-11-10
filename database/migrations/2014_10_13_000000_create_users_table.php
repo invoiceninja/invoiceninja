@@ -152,19 +152,12 @@ class CreateUsersTable extends Migration
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
 
-            // $table->string('website')->nullable();
-            // $table->string('address1')->nullable();
-            // $table->string('address2')->nullable();
-            // $table->string('city')->nullable();
-            // $table->string('state')->nullable();
-            // $table->string('postal_code')->nullable();
-            // $table->string('phone')->nullable();
-            // $table->string('email')->nullable();
-            // $table->unsignedInteger('country_id')->nullable();
+            $table->boolean('enable_product_cost')->default(0);
+            $table->boolean('enable_product_quantity')->default(1);
+            $table->boolean('default_quantity')->default(1);
+
             $table->string('domain')->nullable();
             $table->string('db')->nullable();
-            // $table->string('vat_number')->nullable();
-            // $table->string('id_number')->nullable();
             $table->unsignedInteger('size_id')->nullable();
             $table->string('first_day_of_week')->nullable();
             $table->string('first_month_of_year')->nullable();
@@ -434,7 +427,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->text('line_items')->nullable();
-            $t->text('settings')->nullable();
+            //$t->text('settings')->nullable();
             $t->text('backup')->nullable();
 
             $t->text('footer')->nullable();
@@ -451,6 +444,8 @@ class CreateUsersTable extends Migration
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
+            $t->boolean('uses_inclusive_taxes')->default(0);
+            
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -460,7 +455,10 @@ class CreateUsersTable extends Migration
             $t->string('custom_surcharge2')->nullable();
             $t->string('custom_surcharge3')->nullable();
             $t->string('custom_surcharge4')->nullable();
-            $t->boolean('custom_surcharge_taxes')->default(false);
+            $t->boolean('custom_surcharge_tax1')->default(false);
+            $t->boolean('custom_surcharge_tax2')->default(false);
+            $t->boolean('custom_surcharge_tax3')->default(false);
+            $t->boolean('custom_surcharge_tax4')->default(false);
 
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);

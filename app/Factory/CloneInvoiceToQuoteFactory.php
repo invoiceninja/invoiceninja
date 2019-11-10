@@ -52,7 +52,6 @@ class CloneInvoiceToQuoteFactory
 		$quote->due_date = null;
 		$quote->partial_due_date = null;
 		$quote->balance = $invoice->amount;
-		$quote->settings = $invoice->settings;
 		$quote->line_items = $invoice->line_items;
 
 		return $quote;

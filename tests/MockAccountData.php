@@ -103,18 +103,11 @@ trait MockAccountData
         $this->invoice->client_id = $this->client->id;
 
 		$this->invoice->line_items = $this->buildLineItems();
-		
-		$this->settings = $this->client->getMergedSettings();
+		$this->invoice->uses_inclusive_Taxes = false;
 
-		$this->settings->custom_taxes1 = false;
-		$this->settings->custom_taxes2 = false;
-		$this->settings->inclusive_taxes = false;
-		$this->settings->precision = 2;
-
-		$this->invoice->settings = $this->settings;
         $this->invoice->save();
 
-		$this->invoice_calc = new InvoiceSum($this->invoice, $this->settings);
+		$this->invoice_calc = new InvoiceSum($this->invoice);
 		$this->invoice_calc->build();
 
 		$this->invoice = $this->invoice_calc->getInvoice();

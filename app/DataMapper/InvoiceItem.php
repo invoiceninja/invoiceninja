@@ -38,7 +38,7 @@ class InvoiceItem
 
     public $tax_rate3 = 0;
 
-    public $sort_id = 0;
+    public $sort_id = '0';
 
     public $line_total = 0;
 
@@ -68,7 +68,7 @@ class InvoiceItem
         'tax_rate1' => 'float',
         'tax_rate2' => 'float',
         'tax_rate3' => 'float',
-        'sort_id' => 'int',
+        'sort_id' => 'string',
         'line_total' => 'float',
         'date' => 'string',
         'custom_value1' => 'string',

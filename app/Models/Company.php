@@ -77,6 +77,8 @@ class Company extends BaseModel
     ];
 
     protected $casts = [
+        'country_id' => 'string',
+        'custom_fields' => 'object',
         'settings' => 'object',
         'custom_fields' => 'object',
         'updated_at' => 'timestamp',

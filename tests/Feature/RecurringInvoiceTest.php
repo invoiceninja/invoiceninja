@@ -185,7 +185,7 @@ class RecurringInvoiceTest extends TestCase
         $this->assertNotNull($RecurringInvoice);
         $this->assertNotNull($RecurringInvoice->settings);
 
-        $this->assertTrue(property_exists($RecurringInvoice->settings, 'custom_invoice_taxes1'));
+        $this->assertTrue(property_exists($RecurringInvoice->settings, 'military_time'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

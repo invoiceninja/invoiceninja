@@ -26,8 +26,6 @@ class InvoiceItemSum
 	use Discounter;
 	use Taxer;
 
-	protected $settings;
-
 	protected $invoice;
 
 	private $items;
@@ -48,10 +46,8 @@ class InvoiceItemSum
 
 	private $tax_collection;
 
-	public function __construct($invoice, $settings)
+	public function __construct($invoice)
 	{
-
-		$this->settings = $settings;
 
 		$this->tax_collection = collect([]);
 

@@ -38,18 +38,19 @@ class RecurringInvoice extends BaseModel
 
 
     /**
-     * Recurring intervals
+     * Recurring intervals //todo MAP WHEN WE MIGRATE
      */
-    const FREQUENCY_WEEKLY = 1;
-    const FREQUENCY_TWO_WEEKS = 2;
-    const FREQUENCY_FOUR_WEEKS = 3;
-    const FREQUENCY_MONTHLY = 4;
-    const FREQUENCY_TWO_MONTHS = 5;
-    const FREQUENCY_THREE_MONTHS = 6;
-    const FREQUENCY_FOUR_MONTHS = 7;
-    const FREQUENCY_SIX_MONTHS = 8;
-    const FREQUENCY_ANNUALLY = 9;
-    const FREQUENCY_TWO_YEARS = 10;
+    const FREQUENCY_DAILY = 1;
+    const FREQUENCY_WEEKLY = 2;
+    const FREQUENCY_TWO_WEEKS = 3;
+    const FREQUENCY_FOUR_WEEKS = 4;
+    const FREQUENCY_MONTHLY = 5;
+    const FREQUENCY_TWO_MONTHS = 6;
+    const FREQUENCY_THREE_MONTHS = 7;
+    const FREQUENCY_FOUR_MONTHS = 8;
+    const FREQUENCY_SIX_MONTHS = 9;
+    const FREQUENCY_ANNUALLY = 10;
+    const FREQUENCY_TWO_YEARS = 11;
 
     const RECURS_INDEFINITELY = -1;
     
