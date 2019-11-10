@@ -48,7 +48,6 @@ class Invoice extends BaseModel
         'client_id',
         'company_id',
         'backup',
-        'settings',
     ];
 
     protected $fillable = [
@@ -76,13 +75,11 @@ class Invoice extends BaseModel
         'custom_value3',
         'custom_value4',
         'line_items',
-        'settings',
         'client_id',
         'footer',
     ];
 
     protected $casts = [
-        'settings' => 'object',
         'line_items' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
@@ -261,8 +258,8 @@ class Invoice extends BaseModel
      */
     public function design() :string
     {
-        if(property_exists($this->settings,'design'))
-            return File::exists(resource_path($this->settings->design)) ? File::get(resource_path($this->settings->design)) : File::get(resource_path('views/pdf/design1.blade.php'));
+        if($this->client->getSetting('design'))
+            return File::exists(resource_path($this->client->getSetting('design'))) ? File::get(resource_path($this->client->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
         else
             return File::get(resource_path('views/pdf/design1.blade.php'));
     }
@@ -277,9 +274,9 @@ class Invoice extends BaseModel
         $invoice_calc = null;
 
         if($this->uses_inclusive_taxes)
-            $invoice_calc = new InvoiceSumInclusive($this, $this->settings);
+            $invoice_calc = new InvoiceSumInclusive($this);
         else
-            $invoice_calc = new InvoiceSum($this, $this->settings);
+            $invoice_calc = new InvoiceSum($this, $this);
         
         return $invoice_calc->build();
 

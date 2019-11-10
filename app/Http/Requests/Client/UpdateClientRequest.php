@@ -13,11 +13,13 @@ namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidSettingsRule;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateClientRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -32,6 +34,7 @@ class UpdateClientRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
+        $this->sanitize();
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
@@ -74,7 +77,10 @@ class UpdateClientRequest extends Request
     {
         $input = $this->all();
 
-        //        $this->replace($input);
+        if(isset($input['group_settings_id']))
+            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+
+        $this->replace($input);
 
         return $this->all();
     }
