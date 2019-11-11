@@ -33,8 +33,8 @@ trait CompanyGatewayFeesAndLimitsSaver
 
 			foreach ($casts as $key => $value)
 			{
-\Log::error(print_r($fee_and_limit,1));
-\Log::error($key);
+
+
 				/* Handles unset settings or blank strings */
 				if(!property_exists($fee_and_limit, $key) || is_null($fee_and_limit->{$key}) || !isset($fee_and_limit->{$key}) || $fee_and_limit->{$key} == '')
 					continue;
@@ -82,6 +82,24 @@ trait CompanyGatewayFeesAndLimitsSaver
 			default:
 				return false;
 		}
+	}
+
+	public function cleanFeesAndLimits($fees_and_limits)
+	{
+
+		$new_arr = [];
+
+		foreach($fees_and_limits as $key => $value)
+		{
+
+			$fal = new FeesAndLimits;
+
+			$new_arr[$key] = array_replace((array)$fal, (array)$value);
+		
+		}
+
+		return $new_arr;
+
 	}
 
 }

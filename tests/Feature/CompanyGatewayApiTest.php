@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
+use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
 use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +30,7 @@ class CompanyGatewayApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
+    use CompanyGatewayFeesAndLimitsSaver;
 
     public function setUp() :void
     {
@@ -119,7 +120,11 @@ class CompanyGatewayApiTest extends TestCase
 
     public function testCompanyGatewayFeesAndLimitsSuccess()
     {
-        $fee_and_limit['bank_transfer'] = new FeesAndLimits;
+        $fee_and_limit['1'] = new FeesAndLimits;
+        $fee_and_limit['2'] = new FeesAndLimits;
+        $fee_and_limit['3'] = new FeesAndLimits;
+        $fee_and_limit['4'] = new FeesAndLimits;
+        $fee_and_limit['5'] = new FeesAndLimits;
 
         $data = [
             'config' => 'random config',
@@ -134,7 +139,7 @@ class CompanyGatewayApiTest extends TestCase
             ])->post('/api/v1/company_gateways', $data);
 
         $cg = $response->json();
-
+\Log::error(print_r($cg,1));
         $cg_id = $cg['data']['id'];
 
         $this->assertNotNull($cg_id);
@@ -159,7 +164,7 @@ class CompanyGatewayApiTest extends TestCase
             'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
             'fees_and_limits' => $fee_and_limit,
         ];
-\Log::error(json_encode($data));
+//\Log::error(json_encode($data));
 
         /* POST */
         $response = $this->withHeaders([
@@ -170,5 +175,22 @@ class CompanyGatewayApiTest extends TestCase
 
         $response->assertStatus(302);
 
+    }
+
+    public function testCompanyGatewayArrayBuilder()
+    {
+        $arr = [
+            'min_limit' => 1,
+            'max_limit' => 2
+        ];
+
+        $fal = (array)new FeesAndLimits;
+
+        $new_arr = array_replace($fal, $arr);
+
+        $this->assertEquals($arr['min_limit'], $new_arr['min_limit']);
+        $this->assertTrue(array_key_exists('fee_amount', $new_arr));
+
+        \Log::error($new_arr);
     }
 }

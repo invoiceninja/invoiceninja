@@ -13,9 +13,11 @@ namespace App\Http\Requests\CompanyGateway;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
+use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 
 class StoreCompanyGatewayRequest extends Request
 {
+    use CompanyGatewayFeesAndLimitsSaver;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -48,22 +50,12 @@ class StoreCompanyGatewayRequest extends Request
 
         $input['config'] = encrypt($input['config']);
 
+        if(isset($input['fees_and_limits']))
+            $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
+
         $this->replace($input);
 
         return $this->all();
     }
 }
 
-
-        // $input['min_limit'] = isset($input['fees_and_limits']['min_limit']) ? $input['fees_and_limits']['min_limit'] : null;
-        // $input['max_limit'] = isset($input['fees_and_limits']['max_limit']) ? $input['fees_and_limits']['max_limit'] : null;
-        // $input['fee_amount'] = isset($input['fees_and_limits']['fee_amount']) ? $input['fees_and_limits']['fee_amount'] : null;
-        // $input['fee_percent'] = isset($input['fees_and_limits']['fee_percent']) ? $input['fees_and_limits']['fee_percent'] : null;
-        // $input['fee_tax_name1'] = isset($input['fees_and_limits']['fee_tax_name1']) ? $input['fees_and_limits']['fee_tax_name1'] : '';
-        // $input['fee_tax_name2'] = isset($input['fees_and_limits']['fee_tax_name2']) ? $input['fees_and_limits']['fee_tax_name2'] : '';
-        // $input['fee_tax_name3'] = isset($input['fees_and_limits']['fee_tax_name3']) ? $input['fees_and_limits']['fee_tax_name3'] : '';
-        // $input['fee_tax_rate1'] = isset($input['fees_and_limits']['fee_tax_rate1']) ? $input['fees_and_limits']['fee_tax_rate1'] : 0;
-        // $input['fee_tax_rate2'] = isset($input['fees_and_limits']['fee_tax_rate2']) ? $input['fees_and_limits']['fee_tax_rate2'] : 0;
-        // $input['fee_tax_rate3'] = isset($input['fees_and_limits']['fee_tax_rate3']) ? $input['fees_and_limits']['fee_tax_rate3'] : 0;
-        // $input['fee_cap'] = isset($input['fees_and_limits']['fee_cap']) ? $input['fees_and_limits']['fee_cap'] : null;
-        // $input['adjust_fee_percent'] = isset($input['fees_and_limits']['adjust_fee_percent']) ? $input['fees_and_limits']['adjust_fee_percent'] : 0;
