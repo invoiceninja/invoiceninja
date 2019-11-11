@@ -131,6 +131,7 @@ class CompanyGatewayApiTest extends TestCase
             'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
             'fees_and_limits' => $fee_and_limit,
         ];
+\Log::error(json_encode($data));
 
         /* POST */
         $response = $this->withHeaders([
@@ -139,7 +140,7 @@ class CompanyGatewayApiTest extends TestCase
             ])->post('/api/v1/company_gateways', $data);
 
         $cg = $response->json();
-\Log::error(print_r($cg,1));
+
         $cg_id = $cg['data']['id'];
 
         $this->assertNotNull($cg_id);

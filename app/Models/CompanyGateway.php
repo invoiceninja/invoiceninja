@@ -20,8 +20,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompanyGateway extends BaseModel
 {
+
     protected $casts = [
         'fees_and_limits' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
     ];
 
     protected $fillable = [
@@ -42,6 +46,11 @@ class CompanyGateway extends BaseModel
             8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
             16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
         ];
+
+    public function getFeesAndLimitsAttribute()
+    {
+        return json_decode($this->attributes['fees_and_limits']);
+    }
 
     public function company()
     {

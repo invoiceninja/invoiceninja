@@ -48,7 +48,8 @@ class StoreCompanyGatewayRequest extends Request
     {
         $input = $this->all();
 
-        $input['config'] = encrypt($input['config']);
+        if(isset($input['config']))
+            $input['config'] = encrypt($input['config']);
 
         if(isset($input['fees_and_limits']))
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);

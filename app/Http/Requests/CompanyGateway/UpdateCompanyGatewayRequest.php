@@ -12,10 +12,14 @@
 namespace App\Http\Requests\CompanyGateway;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Models\Company;
+use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 
 class UpdateCompanyGatewayRequest extends Request
 {
+    use CompanyGatewayFeesAndLimitsSaver;
+
     /**
      * Determine if the user is authorized to make this request.
      *
