@@ -131,7 +131,7 @@ class CreateUsersTable extends Migration
             $table->string('referral_code')->nullable();
 
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
         });
         
         Schema::create('companies', function (Blueprint $table) {
@@ -166,7 +166,7 @@ class CreateUsersTable extends Migration
             $table->text('settings');
             
             $table->timestamps(6);
-            $table->softDeletes();
+            //$table->softDeletes('deleted_at', 6);
             
             //$table->foreign('country_id')->references('id')->on('countries');
             $table->foreign('industry_id')->references('id')->on('industries');
@@ -248,7 +248,7 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->unique(['oauth_user_id', 'oauth_provider_id']);
 
@@ -317,7 +317,7 @@ class CreateUsersTable extends Migration
             $table->string('id_number')->nullable();
 
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('industry_id')->references('id')->on('industries');
@@ -359,7 +359,7 @@ class CreateUsersTable extends Migration
             $table->string('contact_key')->nullable();
             $table->rememberToken();
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
@@ -382,7 +382,7 @@ class CreateUsersTable extends Migration
             $table->text('fees_and_limits');
 
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -459,7 +459,7 @@ class CreateUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
 
             $t->unique(['company_id', 'invoice_number']);
         });
@@ -524,7 +524,7 @@ class CreateUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
 
         });
 
@@ -586,7 +586,7 @@ class CreateUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
 
         });
 
@@ -645,7 +645,7 @@ class CreateUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
 
             $t->unique(['company_id', 'quote_number']);
         });
@@ -657,9 +657,6 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('client_contact_id');
             $t->unsignedInteger('invoice_id')->index();
             $t->string('key')->index();
-            $t->timestamps(6);
-            $t->softDeletes();
-
             $t->string('transaction_reference')->nullable();
             $t->string('message_id')->nullable();
             $t->text('email_error')->nullable();
@@ -675,10 +672,12 @@ class CreateUsersTable extends Migration
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
 
+            $t->timestamps(6);
+            $t->softDeletes('deleted_at', 6);
+
             $t->index(['deleted_at', 'invoice_id']);
 
         });
-
 
         Schema::create('tax_rates', function ($t) {
 
@@ -686,7 +685,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('user_id')->nullable();
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
 
             $t->string('name',100);
             $t->decimal('rate', 13, 3)->default(0);
@@ -728,7 +727,7 @@ class CreateUsersTable extends Migration
 
 
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
         });
 
 
@@ -748,7 +747,7 @@ class CreateUsersTable extends Migration
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
             $t->timestamps(6);
-            $t->softDeletes();
+            $t->softDeletes('deleted_at', 6);
             $t->boolean('is_deleted')->default(false);
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
@@ -784,7 +783,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('invoice_id')->nullable();
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
@@ -817,7 +816,7 @@ class CreateUsersTable extends Migration
             $table->string('username')->nullable();
 
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -837,7 +836,7 @@ class CreateUsersTable extends Migration
             $table->string('account_number')->nullable();
 
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -852,7 +851,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
             $table->timestamps(6);
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -939,7 +938,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('gateway_type_id');
             $table->boolean('is_default')->default(0);
             $table->text('meta')->nullable();
-            $table->softDeletes();
+            $table->softDeletes('deleted_at', 6);
 
             $table->timestamps(6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');

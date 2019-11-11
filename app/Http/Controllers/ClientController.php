@@ -509,12 +509,12 @@ class ClientController extends BaseController
         
         $ids = request()->input('ids');
 
-        $clients = Client::withTrashed()->find($ids);
-
+        $clients = Client::withTrashed()->find($this->transformKeys($ids));
+        
         $clients->each(function ($client, $key) use($action){
 
             if(auth()->user()->can('edit', $client))
-                $this->client_repo->{$action}($invoice);
+                $this->client_repo->{$action}($client);
 
         });
 

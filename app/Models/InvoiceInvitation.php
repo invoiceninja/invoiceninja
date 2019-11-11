@@ -14,13 +14,15 @@ namespace App\Models;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 class InvoiceInvitation extends BaseModel
 {
 
 	use MakesDates;
-
+    use SoftDeletes;
+    
     protected $fillable = [
         'id',
         'client_contact_id',
