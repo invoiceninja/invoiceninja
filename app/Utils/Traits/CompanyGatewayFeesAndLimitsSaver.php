@@ -86,7 +86,6 @@ trait CompanyGatewayFeesAndLimitsSaver
 
 	public function cleanFeesAndLimits($fees_and_limits)
 	{
-
 		$new_arr = [];
 
 		foreach($fees_and_limits as $key => $value)
@@ -94,12 +93,17 @@ trait CompanyGatewayFeesAndLimitsSaver
 
 			$fal = new FeesAndLimits;
 
-			$new_arr[$key] = array_replace((array)$fal, (array)$value);
-		
+			foreach($value as $k => $v)
+			{
+				$fal->{$k} = $v;
+			}
+
+			$new_arr[$key] = (array)$fal;
+
 		}
 
 		return $new_arr;
-
+		
 	}
 
 }

@@ -47,10 +47,10 @@ class CompanyGateway extends BaseModel
             16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
         ];
 
-    public function getFeesAndLimitsAttribute()
-    {
-        return json_decode($this->attributes['fees_and_limits']);
-    }
+    // public function getFeesAndLimitsAttribute()
+    // {
+    //     return json_decode($this->attributes['fees_and_limits']);
+    // }
 
     public function company()
     {

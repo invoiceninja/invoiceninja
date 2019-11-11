@@ -37,7 +37,10 @@ class FeesAndLimits
 
 	public $adjust_fee_percent = false;
 
+    //public $gateway_type_id = 1;
+
     public static $casts = [
+        'gateway_type_id' => 'int',
         'min_limit' => 'float',
         'max_limit' => 'float',
         'fee_amount' => 'float',

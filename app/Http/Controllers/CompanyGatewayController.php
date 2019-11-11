@@ -192,7 +192,7 @@ class CompanyGatewayController extends BaseController
      */
     public function store(StoreCompanyGatewayRequest $request)
     {
-
+        
         $company_gateway = CompanyGatewayFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $company_gateway->fill($request->all());
         $company_gateway->save();
@@ -370,6 +370,10 @@ class CompanyGatewayController extends BaseController
     {
 
         $company_gateway->fill($request->all());
+
+        if(!$request->has('fees_and_limits'))
+            $company_gateway->fees_and_limits = '';
+
         $company_gateway->save();
 
         return $this->itemResponse($company_gateway);

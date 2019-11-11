@@ -120,18 +120,21 @@ class CompanyGatewayApiTest extends TestCase
 
     public function testCompanyGatewayFeesAndLimitsSuccess()
     {
-        $fee_and_limit['1'] = new FeesAndLimits;
-        $fee_and_limit['2'] = new FeesAndLimits;
-        $fee_and_limit['3'] = new FeesAndLimits;
-        $fee_and_limit['4'] = new FeesAndLimits;
-        $fee_and_limit['5'] = new FeesAndLimits;
+        $fee = new FeesAndLimits;
+
+        $fee = (array)$fee;
+
+        $fee_and_limit['1'] = ['min_limit' => 1];
+        $fee_and_limit['2'] = ['min_limit' => 1];
+        $fee_and_limit['3'] = ['min_limit' => 1];
+        $fee_and_limit['4'] = ['min_limit' => 1];
+        $fee_and_limit['5'] = ['min_limit' => 1];
 
         $data = [
             'config' => 'random config',
             'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
             'fees_and_limits' => $fee_and_limit,
         ];
-\Log::error(json_encode($data));
 
         /* POST */
         $response = $this->withHeaders([
@@ -151,6 +154,17 @@ class CompanyGatewayApiTest extends TestCase
 
         $response->assertStatus(200);
 
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->get('/api/v1/company_gateways/'.$this->encodePrimaryKey($cg['data']['id']));
+
+        $cg = $response->json();
+
+        $response->assertStatus(200);
+
+
     }
 
 
@@ -165,7 +179,6 @@ class CompanyGatewayApiTest extends TestCase
             'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
             'fees_and_limits' => $fee_and_limit,
         ];
-//\Log::error(json_encode($data));
 
         /* POST */
         $response = $this->withHeaders([
@@ -192,6 +205,5 @@ class CompanyGatewayApiTest extends TestCase
         $this->assertEquals($arr['min_limit'], $new_arr['min_limit']);
         $this->assertTrue(array_key_exists('fee_amount', $new_arr));
 
-        \Log::error($new_arr);
     }
 }
