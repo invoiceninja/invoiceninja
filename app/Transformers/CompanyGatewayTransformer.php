@@ -52,7 +52,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'show_shipping_address' => (bool)$company_gateway->show_shipping_address,
             'update_details' => (bool)$company_gateway->update_details,
             'config' => (string) $company_gateway->getConfigTransformed(),
-            'fees_and_limits' => $this->mapFeesAndLimits($company_gateway),
+            'fees_and_limits' => $company_gateway->fees_and_limits ?: '',
             'updated_at' => $company_gateway->updated_at,
             'deleted_at' => $company_gateway->deleted_at,
         ];

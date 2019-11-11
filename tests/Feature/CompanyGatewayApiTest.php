@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\DataMapper\DefaultSettings;
+use App\DataMapper\FeesAndLimits;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -115,4 +116,59 @@ class CompanyGatewayApiTest extends TestCase
 
     }
     
+
+    public function testCompanyGatewayFeesAndLimitsSuccess()
+    {
+        $fee_and_limit['bank_transfer'] = new FeesAndLimits;
+
+        $data = [
+            'config' => 'random config',
+            'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
+            'fees_and_limits' => $fee_and_limit,
+        ];
+
+        /* POST */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/company_gateways', $data);
+
+        $cg = $response->json();
+
+        $cg_id = $cg['data']['id'];
+
+        $this->assertNotNull($cg_id);
+
+        $cg_fee = $cg['data']['fees_and_limits'];
+
+        $this->assertNotNull($cg_fee);
+
+        $response->assertStatus(200);
+
+    }
+
+
+    public function testCompanyGatewayFeesAndLimitsFails()
+    {
+        $fee_and_limit['bank_transfer'] = new FeesAndLimits;
+
+        $fee_and_limit['bank_transfer']->adjust_fee_percent = 10;
+
+        $data = [
+            'config' => 'random config',
+            'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
+            'fees_and_limits' => $fee_and_limit,
+        ];
+\Log::error(json_encode($data));
+
+        /* POST */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/company_gateways', $data);
+
+
+        $response->assertStatus(302);
+
+    }
 }

@@ -31,6 +31,7 @@ class StoreCompanyGatewayRequest extends Request
 
     public function rules()
     {
+
         $this->sanitize();
 
         $rules = [

@@ -223,7 +223,6 @@ class RandomDataSeeder extends Seeder
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.paypal'));
-            $cg->priority = 3;
             $cg->save();
         }
 
