@@ -196,7 +196,6 @@ trait MockAccountData
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->priority = 1;
             $cg->save();
 
 
@@ -209,7 +208,6 @@ trait MockAccountData
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->priority = 2;
             $cg->save();
         }
 

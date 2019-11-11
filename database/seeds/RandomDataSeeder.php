@@ -198,7 +198,6 @@ class RandomDataSeeder extends Seeder
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->priority = 1;
             $cg->save();
 
             $cg = new CompanyGateway;
@@ -210,7 +209,6 @@ class RandomDataSeeder extends Seeder
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->priority = 2;
             $cg->save();
         }
 
@@ -225,7 +223,6 @@ class RandomDataSeeder extends Seeder
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.paypal'));
-            $cg->priority = 3;
             $cg->save();
         }
 

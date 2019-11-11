@@ -21,6 +21,13 @@ use Illuminate\Database\Eloquent\Model;
 class CompanyGateway extends BaseModel
 {
 
+    protected $casts = [
+        'fees_and_limits' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+
     protected $fillable = [
         'gateway_key',
         'accepted_credit_cards',
@@ -29,17 +36,7 @@ class CompanyGateway extends BaseModel
         'show_shipping_address',
         'update_details',
         'config',
-        'priority',
-        'min_limit',
-        'max_limit',
-        'fee_amount',
-        'fee_percent',
-        'fee_tax_name1',
-        'fee_tax_name2',
-        'fee_tax_rate1',
-        'fee_tax_rate2',
-        'fee_cap',
-        'adjust_fee_percent',
+        'fees_and_limits',
     ];
 
     public static $credit_cards = [
@@ -49,6 +46,11 @@ class CompanyGateway extends BaseModel
             8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
             16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
         ];
+
+    // public function getFeesAndLimitsAttribute()
+    // {
+    //     return json_decode($this->attributes['fees_and_limits']);
+    // }
 
     public function company()
     {
