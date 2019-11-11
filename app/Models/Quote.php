@@ -86,4 +86,9 @@ class Quote extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }

@@ -116,4 +116,10 @@ class RecurringQuote extends BaseModel
     {
         $this->morphMany(RecurringQuoteInvitation::class);
     }
+
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }

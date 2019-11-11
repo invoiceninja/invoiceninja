@@ -256,4 +256,10 @@ class RecurringInvoice extends BaseModel
         }
     }
 
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+    
 }
