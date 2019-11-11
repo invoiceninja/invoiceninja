@@ -9,20 +9,16 @@
  *       @OA\Property(property="accepted_credit_cards", type="integer", example="32", description="Bitmask representation of cards"),
  *       @OA\Property(property="show_billing_address", type="boolean", example=true, description="______"),
  *       @OA\Property(property="show_shipping_address", type="boolean", example=true, description="______"),
- *       @OA\Property(property="config", type="string", example="2", description="______"),
+ *       @OA\Property(property="config", type="string", example="dfadsfdsafsafd", description="The configuration map for the gateway"),
  *       @OA\Property(property="update_details", type="boolean", example=true, description="______"),
- *       @OA\Property(property="adjust_fee_percent", type="boolean", example=true, description="______"),
- *       @OA\Property(property="fees_and_limits", type="object", description="A mapped collection of the fees and limits for the configured gateway"),
- *       @OA\Property(property="user_id", type="string", example="2", description="______"),
- *       @OA\Property(property="min_limit", type="string", example="2", description="______"),
- *       @OA\Property(property="max_limit", type="string", example="2", description="______"),
- *       @OA\Property(property="fee_amount", type="number", format="float", example="2.0", description="______"),
- *       @OA\Property(property="fee_percent", type="number", format="float", example="2.0", description="______"),
- *       @OA\Property(property="fee_tax_name1", type="string", example="2", description="______"),
- *       @OA\Property(property="fee_tax_name2", type="string", example="2", description="______"),
- *       @OA\Property(property="fee_tax_rate1", type="number", format="float", example="2.0", description="______"),
- *       @OA\Property(property="fee_tax_rate2", type="number", format="float", example="2.0", description="______"),
- *       @OA\Property(property="fee_cap", type="number", format="float", example="2.0", description="______"),
+ *       @OA\Property(
+ *       	property="fees_and_limits", 
+ *        	type="array",
+ *        	description="A mapped collection of the fees and limits for the configured gateway",
+ *        	@OA\Items(
+ *           	ref="#/components/schemas/FeesAndLimits",
+ *          ),
+ *       ),
  * )
  */
      
