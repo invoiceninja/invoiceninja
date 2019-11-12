@@ -388,9 +388,4 @@ class Invoice extends BaseModel
         $this->save();
     }
 
-    public function resolveRouteBinding($value)
-    {
-        return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-    }
 }
