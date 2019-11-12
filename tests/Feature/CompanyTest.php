@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
@@ -117,7 +118,7 @@ class CompanyTest extends TestCase
             ->assertStatus(200);
 
 
-        $settings = new \stdClass;
+        $settings = CompanySettings::defaults();
         $settings->custom_value1 = 'test';
         $settings->invoice_design_id = '2';
         $settings->quote_design_id = 1;
