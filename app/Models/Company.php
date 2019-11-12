@@ -45,35 +45,19 @@ class Company extends BaseModel
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $fillable = [
-        // 'name',
-        // 'logo',
         'industry_id',
-        // 'address1',
-        // 'address2',
-        // 'city',
-        // 'state',
-        // 'postal_code',
-        // 'phone',
-        // 'email',
-        // 'country_id',
         'domain',
-        // 'vat_number',
-        // 'id_number',
         'size_id',
-        //'settings',
         'custom_fields',
+        'enable_product_cost',
+        'enable_product_quantity',
+        'default_quantity',
     ];
 
     protected $hidden = [
         'id',
-      //  'settings',
-      //  'account_id',
-      //  'company_key',
         'db',
-      //  'domain',
         'ip',
-      //  'industry_id',
-      //  'size_id',
     ];
 
     protected $casts = [

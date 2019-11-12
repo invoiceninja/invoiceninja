@@ -57,9 +57,6 @@ class BaseRepository
         if ($entity->trashed()) 
             return;
         
-        if(get_class($entity) == Client::class)
-            $entity->contacts()->delete();
-        
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
@@ -81,9 +78,6 @@ class BaseRepository
         $fromDeleted = false;
 
         $entity->restore();
-
-        if(get_class($entity) == Client::class)
-            $entity->contacts()->restore();
 
         if ($entity->is_deleted) {
             $fromDeleted = true;
