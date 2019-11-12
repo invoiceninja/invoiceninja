@@ -14,12 +14,14 @@ namespace App\Models;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Quote extends BaseModel
 {
     use MakesHash;
     use Filterable;
-
+    use SoftDeletes;
+    
 	protected $fillable = [
 		'client_id',
         'quote_number',

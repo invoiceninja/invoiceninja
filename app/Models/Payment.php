@@ -143,4 +143,10 @@ class Payment extends BaseModel
                 break;
         }
     }
+
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }

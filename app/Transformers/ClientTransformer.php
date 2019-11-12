@@ -11,9 +11,11 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
+use App\Transformers\ActivityTransformer;
 use App\Transformers\ClientGatewayTokenTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -32,9 +34,22 @@ class ClientTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'gateway_tokens'
+        'gateway_tokens',
+        'activities',
     ];
 
+
+    /**
+     * @param Client $client
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeActivities(Client $client)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($client->activities, $transformer, Activity::class);
+    }
 
     /**
      * @param Client $client

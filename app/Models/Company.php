@@ -257,4 +257,9 @@ class Company extends BaseModel
         return User::find($c->user_id);
     }
 
+    public function resolveRouteBinding($value)
+    {
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }

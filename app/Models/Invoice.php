@@ -387,4 +387,5 @@ class Invoice extends BaseModel
         $this->status_id = $status;
         $this->save();
     }
+
 }

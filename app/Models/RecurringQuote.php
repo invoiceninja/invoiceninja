@@ -116,4 +116,5 @@ class RecurringQuote extends BaseModel
     {
         $this->morphMany(RecurringQuoteInvitation::class);
     }
+    
 }

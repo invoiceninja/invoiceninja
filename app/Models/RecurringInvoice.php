@@ -255,5 +255,5 @@ class RecurringInvoice extends BaseModel
                 break;
         }
     }
-
+    
 }

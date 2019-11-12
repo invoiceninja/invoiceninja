@@ -25,7 +25,6 @@ class BaseModel extends Model
 {
     use MakesHash;
     use UserSessionAttributes;
-    use SoftDeletes;
 
     //todo customise names of archived_at / updated_at columns
     ///const CREATED_AT = 'creation_date';

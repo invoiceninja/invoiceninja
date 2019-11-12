@@ -64,7 +64,6 @@ class Client extends BaseModel
         'private_notes',
         'industry_id',
         'size_id',
-//        'currency_id',
         'address1',
         'address2',
         'city',
@@ -127,6 +126,11 @@ class Client extends BaseModel
                     ->whereCompanyGatewayId($company_gateway_id)
                     ->whereGatewayTypeId($payment_method_id)
                     ->first();
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class, 'id', 'client_id');
     }
 
     public function contacts()
