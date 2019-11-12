@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -53,17 +54,19 @@ class BaseRepository
      */
     public function archive($entity)
     {
-        if ($entity->trashed()) {
+        if ($entity->trashed()) 
             return;
-        }
-
+        
+        if(get_class($entity) == Client::class)
+            $entity->contacts()->delete();
+        
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
 
-        if (class_exists($className)) {
+        if (class_exists($className)) 
             event(new $className($entity));
-        }
+        
     }
 
     /**
@@ -74,6 +77,8 @@ class BaseRepository
         if (! $entity->trashed()) {
             return;
         }
+
+
 
         $fromDeleted = false;
         $entity->restore();

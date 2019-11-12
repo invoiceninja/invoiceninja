@@ -518,7 +518,7 @@ class ClientController extends BaseController
 
         });
 
-        return $this->listResponse(Client::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 

@@ -130,7 +130,7 @@ class Client extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class, 'id', 'client_id');
     }
 
     public function contacts()
