@@ -78,10 +78,12 @@ class BaseRepository
             return;
         }
 
-
-
         $fromDeleted = false;
+
         $entity->restore();
+
+        if(get_class($entity) == Client::class)
+            $entity->contacts()->restore();
 
         if ($entity->is_deleted) {
             $fromDeleted = true;
@@ -91,9 +93,9 @@ class BaseRepository
 
         $className = $this->getEventClass($entity, 'Restored');
 
-        if (class_exists($className)) {
+        if (class_exists($className)) 
             event(new $className($entity, $fromDeleted));
-        }
+        
     }
 
     /**
