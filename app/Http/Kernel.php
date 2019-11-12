@@ -53,6 +53,7 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             'query_logging',
+            'cors',
             \App\Http\Middleware\StartupCheck::class,
         ],
         'contact' => [
@@ -108,5 +109,6 @@ class Kernel extends HttpKernel
         'password_protected' => \App\Http\Middleware\PasswordProtection::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'portal_enabled' => \App\Http\Middleware\ClientPortalEnabled::class,
+        'cors' => \App\Http\Middleware\Cors::class,
     ];
 }
