@@ -28,7 +28,7 @@ class RecurringInvoicePolicy extends EntityPolicy
 	 */
 	public function create(User $user) : bool
 	{
-		return $user->isAdmin() || $user->hasPermission('create_recurring_invoice');
+		return $user->isAdmin() || $user->hasPermission('create_recurring_invoice') || $user->hasPermission('create_all');
 	}
 
 }

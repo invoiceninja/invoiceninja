@@ -50,6 +50,7 @@ class EntityPolicy
 
 			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
 			|| ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId())
+			|| ($user->hasPermission('edit_all') && $entity->company_id == $user->companyId())
 			|| $user->owns($entity)
 			|| $user->assigned($entity);
     
@@ -69,6 +70,7 @@ class EntityPolicy
 
 			return ($user->isAdmin() && $entity->company_id == $user->companyId()) 
 			|| ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->company_id == $user->companyId()) 
+			|| ($user->hasPermission('view_all') && $entity->company_id == $user->companyId())
 			|| $user->owns($entity)
 			|| $user->assigned($entity);
 	}

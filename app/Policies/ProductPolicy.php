@@ -36,7 +36,7 @@ class ProductPolicy extends EntityPolicy
      */
     public function create(User $user) : bool
     {
-        return $user->isAdmin() || $user->hasPermission('create_product');
+        return $user->isAdmin() || $user->hasPermission('create_product') || $user->hasPermission('create_all');
     }
 
 }

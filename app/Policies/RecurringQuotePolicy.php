@@ -28,7 +28,7 @@ class RecurringQuotePolicy extends EntityPolicy
 	 */
 	public function create(User $user) : bool
 	{
-		return $user->isAdmin() || $user->hasPermission('create_recurring_quote');
+		return $user->isAdmin() || $user->hasPermission('create_recurring_quote') || $user->hasPermission('create_all');
 	}
 
 }

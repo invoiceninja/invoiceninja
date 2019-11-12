@@ -30,7 +30,7 @@ class CompanyPolicy extends EntityPolicy
 	public function create(User $user) : bool
 	{
 
-		return $user->isAdmin() || $user->hasPermission('create_company');
+		return $user->isAdmin() || $user->hasPermission('create_company') || $user->hasPermission('create_all');
 
 	}
 
@@ -47,6 +47,7 @@ class CompanyPolicy extends EntityPolicy
 
 			return ($user->isAdmin() && $entity->id == $user->companyId()) 
 			|| ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->id == $user->companyId()) 
+			|| ($user->hasPermission('view_all') && $entity->id == $user->companyId()) 
 			|| $user->owns($entity);
 	}
 
@@ -65,6 +66,7 @@ class CompanyPolicy extends EntityPolicy
 		
 			return ($user->isAdmin() && $entity->id == $user->companyId()) 
 			|| ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->id == $user->companyId())
+			|| ($user->hasPermission('edit_all') && $entity->id == $user->companyId()) 
 			|| $user->owns($entity);
     
 	}

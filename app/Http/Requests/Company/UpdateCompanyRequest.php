@@ -34,15 +34,19 @@ class UpdateCompanyRequest extends Request
 
     public function rules()
     {
-        
-        return [
-            'company_logo' => 'mimes:jpeg,jpg,png,gif|max:10000', // max 10000kb
-            'industry_id' => 'integer|nullable',
-            'size_id' => 'integer|nullable',
-            'country_id' => 'integer|nullable',
-            'work_email' => 'email|nullable',
-            'settings' => new ValidSettingsRule(),
-        ];
+
+        $rules = [];
+
+        $rules['name'] = 'required';
+        $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
+        $rules['settings'] = new ValidSettingsRule();
+        $rules['industry_id'] = 'integer|nullable';
+        $rules['size_id'] = 'integer|nullable';
+        $rules['country_id'] = 'integer|nullable';
+        $rules['work_email'] = 'email|nullable';
+
+        return $rules;
+
     }
     
 }
