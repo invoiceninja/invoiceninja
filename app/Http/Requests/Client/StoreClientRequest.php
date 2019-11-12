@@ -17,6 +17,7 @@ use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class StoreClientRequest extends Request
 {
@@ -43,15 +44,18 @@ class StoreClientRequest extends Request
         //$rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         $rules['settings'] = new ValidSettingsRule();
-        
+
         $contacts = request('contacts');
 
         if(is_array($contacts))
         {
 
             for ($i = 0; $i < count($contacts); $i++) {
-                //$rules['contacts.' . $i . '.email'] = 'required|email|unique:client_contacts,email,' . isset($contacts[$i]['id']);
-                $rules['contacts.' . $i . '.email'] = 'nullable|email';
+                // $rules['contacts.' . $i . '.email'] = Rule::unique('client_contacts','email')->where(function ($query) {
+                //                                     return $query->where('company_id', $this->company_id);
+                //                                 });
+                    //$rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,NULL,' . isset($contacts[$i]['id']).',company_id,'.$this->company_id;
+                $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,client_id,'.$this->id;
             }
 
         }
