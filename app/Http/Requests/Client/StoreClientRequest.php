@@ -40,7 +40,7 @@ class StoreClientRequest extends Request
         $this->sanitize();
 
         /* Ensure we have a client name, and that all emails are unique*/
-        $rules['name'] = 'required|min:1';
+        //$rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         $rules['settings'] = new ValidSettingsRule();
         

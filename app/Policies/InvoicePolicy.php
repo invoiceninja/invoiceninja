@@ -28,7 +28,7 @@ class InvoicePolicy extends EntityPolicy
 	 */
 	public function create(User $user) : bool
 	{
-		return $user->isAdmin() || $user->hasPermission('create_invoice');
+		return $user->isAdmin() || $user->hasPermission('create_invoice') || $user->hasPermission('create_all');
 	}
 
 }

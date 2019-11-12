@@ -60,7 +60,6 @@ class ClientRepository extends BaseRepository
      */
     public function save(array $data, Client $client) : ?Client
 	{
-
         $client->fill($data);
 
         $client->save();
@@ -72,6 +71,11 @@ class ClientRepository extends BaseRepository
 
         if(isset($data['contacts']))
             $contacts = $this->contact_repo->save($data['contacts'], $client);
+
+
+        if($data['name'] == '')
+            $data['name'] = $client->present()->name();
+
 
         return $client;
         

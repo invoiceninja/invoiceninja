@@ -13,9 +13,9 @@ namespace App\DataMapper;
 
 class FeesAndLimits
 {
-	public $min_limit = 0;
+	public $min_limit = -1; //equivalent to null
 
-	public $max_limit = 0;
+	public $max_limit = -1; //equivalent to null
 
 	public $fee_amount = 0;
 

@@ -28,7 +28,7 @@ class QuotePolicy extends EntityPolicy
 	 */
 	public function create(User $user) : bool
 	{
-		return $user->isAdmin() || $user->hasPermission('create_quote');
+		return $user->isAdmin() || $user->hasPermission('create_quote') || $user->hasPermission('create_all');
 	}
 
 }

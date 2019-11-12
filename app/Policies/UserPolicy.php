@@ -30,7 +30,7 @@ class UserPolicy extends EntityPolicy
 	public function create(User $user) : bool
 	{
 
-		return $user->isAdmin() || $user->hasPermission('create_user');
+		return $user->isAdmin() || $user->hasPermission('create_user') || $user->hasPermission('create_all');
 
 	}
 
