@@ -46,8 +46,8 @@ class QuoteTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-              'name' => $this->faker->company,
-          'email' => $this->faker->unique()->safeEmail,
+            'name' => $this->faker->company,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
             'privacy_policy' => 1,
@@ -160,7 +160,6 @@ class QuoteTest extends TestCase
         factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $quote = Quote::where('user_id',$user->id)->first();
-        $quote->settings = $client->getMergedSettings();
         $quote->save();
 
         $response = $this->withHeaders([
@@ -183,9 +182,7 @@ class QuoteTest extends TestCase
         ];
 
         $this->assertNotNull($quote);
-        $this->assertNotNull($quote->settings);
 
-        $this->assertTrue(property_exists($quote->settings, 'military_time'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
