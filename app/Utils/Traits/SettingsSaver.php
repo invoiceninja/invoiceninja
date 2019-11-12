@@ -144,6 +144,10 @@ trait SettingsSaver
 
 			/*Catch all filter */
 			if($this->checkAttribute($value, $settings->{$key})){
+
+				if($value == 'string' && is_null($settings->{$key}))
+					$settings->{$key} = '';
+
 				settype($settings->{$key}, $value);
 			}
 			else {

@@ -159,7 +159,6 @@ class RecurringInvoiceTest extends TestCase
         factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $RecurringInvoice = RecurringInvoice::where('user_id',$user->id)->first();
-        $RecurringInvoice->settings = $client->getMergedSettings();
         $RecurringInvoice->save();
 
         
@@ -183,9 +182,6 @@ class RecurringInvoiceTest extends TestCase
         ];
 
         $this->assertNotNull($RecurringInvoice);
-        $this->assertNotNull($RecurringInvoice->settings);
-
-        $this->assertTrue(property_exists($RecurringInvoice->settings, 'military_time'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

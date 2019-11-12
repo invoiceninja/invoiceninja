@@ -160,7 +160,6 @@ class QuoteTest extends TestCase
         factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $quote = Quote::where('user_id',$user->id)->first();
-        $quote->settings = $client->getMergedSettings();
         $quote->save();
 
         $response = $this->withHeaders([
@@ -183,9 +182,7 @@ class QuoteTest extends TestCase
         ];
 
         $this->assertNotNull($quote);
-        $this->assertNotNull($quote->settings);
 
-        $this->assertTrue(property_exists($quote->settings, 'military_time'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

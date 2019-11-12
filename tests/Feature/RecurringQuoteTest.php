@@ -160,7 +160,6 @@ class RecurringQuoteTest extends TestCase
         factory(\App\Models\RecurringQuote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $RecurringQuote = RecurringQuote::where('user_id',$user->id)->first();
-        $RecurringQuote->settings = $client->getMergedSettings();
         $RecurringQuote->save();
 
         
@@ -184,9 +183,7 @@ class RecurringQuoteTest extends TestCase
         ];
 
         $this->assertNotNull($RecurringQuote);
-        $this->assertNotNull($RecurringQuote->settings);
 
-        $this->assertTrue(property_exists($RecurringQuote->settings, 'military_time'));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

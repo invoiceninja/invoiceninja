@@ -35,7 +35,6 @@ class QuoteFactory
 		$quote->partial_due_date = null;
 		$quote->is_deleted = false;
 		$quote->line_items = json_encode([]);
-		$quote->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()); //todo need to embed the settings here
 		$quote->backup = json_encode([]);
 		$quote->tax_name1 = '';
 		$quote->tax_rate1 = 0;
