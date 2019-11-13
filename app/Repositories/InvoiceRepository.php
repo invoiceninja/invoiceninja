@@ -17,6 +17,7 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\ApplyInvoiceNumber;
+use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -58,6 +59,7 @@ class InvoiceRepository extends BaseRepository
         $starting_amount = $invoice->amount;
 
         $invoice->fill($data);
+
         $invoice->save();
 
         if(isset($data['client_contacts']))
@@ -105,7 +107,9 @@ class InvoiceRepository extends BaseRepository
 
         }
 
-        //event(new CreateInvoiceInvitation($invoice));
+        /* If no invitations have been created, this is our fail safe to maintain state*/
+        if($invoice->invitations->count() == 0)
+            CreateInvoiceInvitations::dispatchNow($invoice);
 
         $invoice = $invoice->calc()->getInvoice();
         
