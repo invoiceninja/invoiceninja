@@ -66,7 +66,20 @@ class ClientContactRepository extends BaseRepository
 			$update_contact->save();
 		});
 
+		//always made sure we have one blank contact to maintain state
+		if($contacts->count() == 0)
+		{
 
+			$new_contact = new ClientContact;
+			$new_contact->client_id = $client->id;
+			$new_contact->company_id = $client->company_id;
+			$new_contact->user_id = $client->user_id;
+			$new_contact->contact_key = Str::random(40);
+			$new_contact->is_primary = true;
+			$new_contact->save();
+
+		}
+		
 	}
 
 }
