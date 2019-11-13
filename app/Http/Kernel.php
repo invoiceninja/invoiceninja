@@ -53,7 +53,6 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             'query_logging',
-            'cors',
             \App\Http\Middleware\StartupCheck::class,
         ],
         'contact' => [
