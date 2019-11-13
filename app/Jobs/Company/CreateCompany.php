@@ -51,9 +51,7 @@ class CreateCompany
     {
         $settings = CompanySettings::defaults();
 
-        $default_company_name = isset($this->request['first_name']) ? $this->request['first_name'] : '' . ' ' . isset($this->request['last_name']) ? $this->request['last_name'] : '';
-
-        $settings->name = isset($this->request['name']) ? $this->request['name'] :  $default_company_name;
+        $settings->name = isset($this->request['name']) ? $this->request['name'] :  '';
 
         $company = new Company();
         $company->account_id = $this->account->id;
