@@ -3,7 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response;
+
 
 class Cors
 {
