@@ -54,7 +54,7 @@ class UpdateClientRequest extends Request
             if(is_array($contacts))
             {
                 for ($i = 0; $i < count($contacts); $i++) {
-                    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
+                //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
                     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
                 }
             }

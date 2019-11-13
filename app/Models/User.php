@@ -202,6 +202,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     }
 
+    public function company_user()
+    {
+        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
+            'user_id', // Foreign key on CompanyToken table...
+            'company_id', // Foreign key on CompanyUser table...
+            'id', // Local key on suppliers table...
+            'company_id' // Local key on CompanyToken table...
+        );
+
+       // return $this->user_companies->where('company_id', $this->companyId());
+    }
+
+
     /**
      * Returns the currently set company id for the user
      * 
