@@ -45,7 +45,8 @@ trait Inviteable
 	{
 		$entity_type = strtolower(class_basename($this->entityType()));
 
-		$this->with('company','contact',$this->entity_type);
+		//$this->with('company','contact',$this->entity_type);
+		$this->with('company');
 
 		$domain = isset($this->company->portal_domain) ?: $this->company->domain;
 
@@ -54,7 +55,8 @@ trait Inviteable
 				return $domain . $entity_type .'/'. $this->key;
 				break;
 			case 'iframe':
-				return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
+				return $domain . $entity_type .'/'. $this->key;
+				//return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
 				break;
 			case 'domain':
 				return $domain . $entity_type .'/'. $this->key;

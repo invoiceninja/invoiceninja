@@ -106,6 +106,7 @@ class Kernel extends HttpKernel
         'contact_token_auth' => \App\Http\Middleware\ContactTokenAuth::class,
         'contact_db' => \App\Http\Middleware\ContactSetDb::class,
         'domain_db' => \App\Http\Middleware\SetDomainNameDb::class,
+        'invite_db' => \App\Http\Middleware\SetInviteDb::class,
         'password_protected' => \App\Http\Middleware\PasswordProtection::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'portal_enabled' => \App\Http\Middleware\ClientPortalEnabled::class,

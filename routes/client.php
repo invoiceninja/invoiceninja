@@ -45,11 +45,11 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 
 });
 
-Route::group(['middleware' => ['domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	/*Invitation catches*/
-	Route::get('invoice/{invitation_id}','ClientPortal\InvitationController@invoiceRouter');
-	Route::get('invoice/{client_hash}/{invitation_id}','ClientPortal\InvitationController@invoiceRouterForIframe'); 
+	Route::get('{entity}/{invitation_key}','ClientPortal\InvitationController@router');
+	Route::get('{entity}/{client_hash}/{invitation_key}','ClientPortal\InvitationController@routerForIframe'); //should never need this
 	Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}','ClientPortal\PaymentHookController@process');
 
 });

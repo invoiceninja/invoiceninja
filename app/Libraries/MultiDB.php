@@ -161,6 +161,21 @@ class MultiDB
 
     }
 
+    public static function findAndSetDbByInvitation($entity, $invitation_key)
+    {
+        $entity.'Invitation';
+
+        foreach (self::$dbs as $db)
+        {
+            if($invite = $entity::on($db)->whereKey($invitation_key)->first())
+            {
+                self::setDb($db);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @param $database
      */
