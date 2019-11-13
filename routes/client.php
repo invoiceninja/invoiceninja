@@ -49,7 +49,7 @@ Route::group(['middleware' => ['domain_db'], 'prefix' => 'client', 'as' => 'clie
 
 	/*Invitation catches*/
 	Route::get('invoice/{invitation_id}','ClientPortal\InvitationController@invoiceRouter');
-	//Route::get('invoice/{client_hash}/{invitation_id}','ClientPortal\InvitationController@invoiceRouterForIframe'); we shouldn't need this if we force subdomain for the clients
+	Route::get('invoice/{client_hash}/{invitation_id}','ClientPortal\InvitationController@invoiceRouterForIframe'); 
 	Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}','ClientPortal\PaymentHookController@process');
 
 });
