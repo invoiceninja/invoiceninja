@@ -34,12 +34,35 @@ trait Inviteable
 		if(isset($this->opened_date))
 			$status = ctrans('texts.invitation_status_opened');
 
-
 		if(isset($this->viewed_date))
 			$status = ctrans('texts.invitation_status_viewed');
 
 
 		return $status;
 	}
+
+	public function getLink() : string
+	{
+		$entity_type = strtolower(class_basename($this->entityType()));
+
+		$this->with('company','contact',$this->entity_type);
+
+		$domain = isset($this->company->portal_domain) ?: $this->company->domain;
+
+		switch ($this->company->portal_mode) {
+			case 'subdomain':
+				return $domain . $entity_type .'/'. $this->key;
+				break;
+			case 'iframe':
+				return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
+				break;
+			case 'domain':
+				return $domain . $entity_type .'/'. $this->key;
+				break;
+
+		}
+
+	}
+
 
 }
