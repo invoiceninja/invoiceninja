@@ -45,18 +45,16 @@ class UpdateClientRequest extends Request
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         $rules['settings'] = new ValidSettingsRule();
-
-
-//        $rules['settings'] = 'json';
+        $rules['contacts.*.email'] = 'distinct';
 
         $contacts = request('contacts');
 
             if(is_array($contacts))
             {
-                for ($i = 0; $i < count($contacts); $i++) {
-                    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
-                    //$rules['contacts.' . $i . '.email'] = 'nullable|email';
-                }
+                // for ($i = 0; $i < count($contacts); $i++) {
+                // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
+                //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
+                // }
             }
             return $rules;
             

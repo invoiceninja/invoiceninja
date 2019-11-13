@@ -44,6 +44,7 @@ class StoreClientRequest extends Request
         //$rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         $rules['settings'] = new ValidSettingsRule();
+        $rules['contacts.*.email'] = 'distinct';
 
         $contacts = request('contacts');
 
@@ -51,11 +52,8 @@ class StoreClientRequest extends Request
         {
 
             for ($i = 0; $i < count($contacts); $i++) {
-                // $rules['contacts.' . $i . '.email'] = Rule::unique('client_contacts','email')->where(function ($query) {
-                //                                     return $query->where('company_id', $this->company_id);
-                //                                 });
-                    //$rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,NULL,' . isset($contacts[$i]['id']).',company_id,'.$this->company_id;
-                $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,client_id,'.$this->id;
+
+                //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
             }
 
         }

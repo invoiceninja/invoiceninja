@@ -40,6 +40,7 @@ class UserTransformer extends EntityTransformer
     protected $availableIncludes = [
         'companies',
         'company_users',
+        'company_user'
     ];
 
 
@@ -93,6 +94,14 @@ class UserTransformer extends EntityTransformer
         $transformer = new CompanyUserTransformer($this->serializer);
 
         return $this->includeCollection($user->user_companies, $transformer, CompanyUser::class);
+
+    }
+
+    public function includeCompanyUser(User $user)
+    {
+        $transformer = new CompanyUserTransformer($this->serializer);
+
+        return $this->includeItem($user->company_user, $transformer, CompanyUser::class);
 
     }
 }
