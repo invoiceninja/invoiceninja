@@ -11,7 +11,6 @@ Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController
 Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update');
 
 //todo implement domain DB
-//Route::group(['middleware' => ['auth:contact', 'domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
 Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit

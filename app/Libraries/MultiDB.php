@@ -123,6 +123,21 @@ class MultiDB
 
     }
 
+    public static function userFindAndSetDb($email) : bool
+    {
+
+
+            //multi-db active
+            foreach (self::$dbs as $db)
+            {
+                if(User::on($db)->where(['email' => $email])->get()->count() >=1) // if user already exists, validation will fail
+                    return true;
+            }
+
+            return false;
+
+    }
+
     public static function findAndSetDb($token) :bool
     {
 
