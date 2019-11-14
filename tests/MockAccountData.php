@@ -18,6 +18,7 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\CompanyGateway;
@@ -29,8 +30,8 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class MockAccountData
@@ -54,6 +55,34 @@ trait MockAccountData
 
 	public function makeTestData()
 	{
+
+        /* Warm up the cache !*/
+        $cached_tables = config('ninja.cached_tables');
+        
+        foreach ($cached_tables as $name => $class) {
+            if (! Cache::has($name)) {
+                // check that the table exists in case the migration is pending
+                if (! Schema::hasTable((new $class())->getTable())) {
+                    continue;
+                }
+                if ($name == 'payment_terms') {
+                    $orderBy = 'num_days';
+                } elseif ($name == 'fonts') {
+                    $orderBy = 'sort_order';
+                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
+                    $orderBy = 'name';
+                } else {
+                    $orderBy = 'id';
+                }
+                $tableData = $class::orderBy($orderBy)->get();
+                if ($tableData->count()) {
+                    Cache::forever($name, $tableData);
+                }
+            }
+        }
+
+
+
         $this->account = factory(\App\Models\Account::class)->create();
         $this->company = factory(\App\Models\Company::class)->create([
             'account_id' => $this->account->id,
