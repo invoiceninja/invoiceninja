@@ -603,11 +603,11 @@ class PaymentController extends BaseController
         
         switch ($action) {
             case 'clone_to_invoice':
-                $payment = CloneInvoiceFactory::create($payment, auth()->user()->id);
-                return $this->itemResponse($payment);
+                //$payment = CloneInvoiceFactory::create($payment, auth()->user()->id);
+                //return $this->itemResponse($payment);
                 break;
             case 'clone_to_quote':
-                $quote = CloneInvoiceToQuoteFactory::create($payment, auth()->user()->id);
+                //$quote = CloneInvoiceToQuoteFactory::create($payment, auth()->user()->id);
                 // todo build the quote transformer and return response here 
                 break;
             case 'history':
