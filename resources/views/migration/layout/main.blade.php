@@ -8,6 +8,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js" integrity="sha256-iM4Yzi/zLj/IshPWMC1IluRxTtRjMqjPGd97TZ9yYpU=" crossorigin="anonymous"></script>
+    <script !src="">
+        Turbolinks.start();
+    </script>
 </head>
 
 <style>
@@ -34,7 +39,7 @@
     </div>
 </div>
 
-<div class="flex mt-6 justify-center">
+<div class="flex mt-6 justify-center mb-10">
     <div class="w-full mx-8 md:mx-0 md:w-1/2 p-6 rounded-lg bg-white shadow">
         @yield('body')
     </div>

@@ -8,6 +8,9 @@ use App\Http\Controllers\Controller;
 
 class MigrationController extends BaseController
 {
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
         return view('migration.intro');

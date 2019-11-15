@@ -150,6 +150,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('migration/start', 'Migration\MigrationController@index');
     Route::get('migration/{type}/credentials', 'Migration\CredentialsController@index');
+    Route::put('migration/{type}/credentials', 'Migration\CredentialsController@login');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
