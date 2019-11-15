@@ -2,6 +2,8 @@
 
 namespace App\Services\Migration;
 
+use Illuminate\Support\Facades\Log;
+
 /**
  * @package App\Services\Migration
  */
@@ -24,7 +26,7 @@ class Authentication
      *
      * @var array
      */
-    private $response;
+    public $response;
 
     /**
      * @param array $data
@@ -41,7 +43,46 @@ class Authentication
 
     public function handle()
     {
-        $this->was_successful = true;
+        try {
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $this->endpoint . '/api/v1/login');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+
+            $payload = [
+                'email' => $this->email_address,
+                'password' => $this->password,
+            ];
+
+            $headers = array();
+            $headers[] = 'Content-Type: application/json';
+            $headers[] = 'X-Api-Secret: ' . $this->x_api_secret;
+            $headers[] = 'X-Requested-With: XMLHttpRequest';
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+
+            $result = json_decode(curl_exec($ch));
+
+            if (curl_errno($ch)) {
+                throw new \Exception(curl_error($ch));
+            }
+
+            curl_close($ch);
+
+            if (property_exists($result, 'message') && $result->message = "These credentials do not match our records") {
+                $this->response = $result->message;
+
+                return $this->was_successful = false;
+            }
+
+            return $this->was_successful = true;
+        } catch (\Exception $e) {
+            info($e);
+            return $this->was_successful = false;
+        }
     }
 
     public function wasSuccessful()

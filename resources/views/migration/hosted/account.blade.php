@@ -15,6 +15,12 @@
                 </div>
             @endif
 
+            @if(session('message'))
+                <div class="mb-5">
+                    <p>{{ session('message') }}</p>
+                </div>
+            @endif
+
             <form action="/migration/self_hosted/credentials" method="post">
                 {!! csrf_field() !!}
                 <input name="_method" value="put" hidden>
