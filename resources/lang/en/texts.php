@@ -3277,6 +3277,11 @@ $LANG = array(
     'google_sign_up' => 'Google Sign Up',
     'sign_up_with_google' => 'Sign Up With Google',
     'long_press_multiselect' => 'Long-press Multiselect',
+
+    'migrate_to_v2' => 'Migrate To V2',
+    'migrate_to_v2_intro' => 'We will walk you trough some steps and get your up and ready with next version of InvoiceNinja.',
+    'start_migration' => 'Start Migration',
+
 );
 
 return $LANG;

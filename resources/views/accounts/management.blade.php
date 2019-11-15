@@ -240,6 +240,19 @@
 
 		{!! Former::close() !!}
 
+		<!-- Migrate to v2 -->
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="panel-title">{!! trans('texts.migrate_to_v2') !!}</div>
+			</div>
+			<div class="panel-body">
+				<p>
+					{!! trans('texts.migrate_to_v2_intro') !!}
+				</p>
+				<a href="/migration/start" class="btn btn-primary btn-lg">{!! trans('texts.start_migration') !!}</a>
+			</div>
+		</div>
+
 		@if (! Auth::user()->account->isNinjaOrLicenseAccount())
 			<div class="panel panel-default">
 				<div class="panel-heading">
