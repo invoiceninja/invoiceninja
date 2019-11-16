@@ -22,6 +22,7 @@ use Tests\TestCase;
 
 /**
  * @test
+ * @covers App\Http\Controllers\ClientController
  */
 class ClientApiTest extends TestCase
 {
@@ -89,5 +90,68 @@ class ClientApiTest extends TestCase
         $response->assertStatus(200);
 
     }
-    
+
+    public function testClientNotArchived()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->get('/api/v1/clients/'.$this->encodePrimaryKey($this->client->id));
+
+        $arr = $response->json();
+
+        $this->assertNull($arr['data']['deleted_at']);
+    }
+
+    public function testClientArchived()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->client->id)],
+        ];
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/clients/bulk?action=archive', $data);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data'][0]['deleted_at']);
+    }
+ 
+    public function testClientRestored()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->client->id)],
+        ];
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/clients/bulk?action=restore', $data);
+
+        $arr = $response->json();
+
+        $this->assertNull($arr['data'][0]['deleted_at']);
+    }
+
+    public function testClientDeleted()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->client->id)],
+        ];
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/clients/bulk?action=delete', $data);
+
+        $arr = $response->json();
+
+        $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
+
 }

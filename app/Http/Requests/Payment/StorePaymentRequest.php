@@ -13,9 +13,11 @@ namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 
 class StorePaymentRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,6 +31,8 @@ class StorePaymentRequest extends Request
 
     public function rules()
     {
+        $this->sanitize();
+
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
             'client_id' => 'integer|nullable',
@@ -41,7 +45,15 @@ class StorePaymentRequest extends Request
 
     public function sanitize()
     {
-        //do post processing of Payment request here, ie. Payment_items
+        
+        $input = $this->all();
+
+        if(isset($input['invoices']))
+            $input['invoices'] = $this->transformKeys(array_column($input['invoices']), 'id');
+
+        $this->replace($input);
+
+        return $this->all();
     }
 
     public function messages()

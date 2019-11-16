@@ -28,7 +28,18 @@ class PaymentRepository extends BaseRepository
     
 	public function save(Request $request, Payment $payment) : ?Payment
 	{
+
         $payment->fill($request->input());
+        
+        if($request->input('invoices')) 
+        {
+
+            $invoices = Invoice::whereIn('id', $request->input('invoices'))->get();
+            
+        }
+
+        //parse invoices[] and attach to paymentables
+        //parse invoices[] and apply payments and subfunctions
         
         $payment->save();
         

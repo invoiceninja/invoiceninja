@@ -28,7 +28,7 @@ class InvoiceInvitationTransformer extends EntityTransformer
             'key' => $invitation->key,
             'link' => $invitation->getLink() ?: '',
             'sent_date' => $invitation->sent_date ?: '',
-            'viewed_date' => $invitation->sent_date ?: '',
+            'viewed_date' => $invitation->viewed_date ?: '',
             'opened_date' => $invitation->opened_date ?: '',
         ];
     }

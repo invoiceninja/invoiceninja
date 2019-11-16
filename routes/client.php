@@ -11,7 +11,6 @@ Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController
 Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update');
 
 //todo implement domain DB
-//Route::group(['middleware' => ['auth:contact', 'domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
 Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
@@ -45,11 +44,11 @@ Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'c
 
 });
 
-Route::group(['middleware' => ['domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	/*Invitation catches*/
-	Route::get('invoice/{invitation_id}','ClientPortal\InvitationController@invoiceRouter');
-	//Route::get('invoice/{client_hash}/{invitation_id}','ClientPortal\InvitationController@invoiceRouterForIframe'); we shouldn't need this if we force subdomain for the clients
+	Route::get('{entity}/{invitation_key}','ClientPortal\InvitationController@router');
+	Route::get('{entity}/{client_hash}/{invitation_key}','ClientPortal\InvitationController@routerForIframe'); //should never need this
 	Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}','ClientPortal\PaymentHookController@process');
 
 });

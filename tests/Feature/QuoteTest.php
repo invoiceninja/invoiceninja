@@ -178,17 +178,17 @@ class QuoteTest extends TestCase
 
         $quote_update = [
             'status_id' => Quote::STATUS_APPROVED,
-            'client_id' => $quote->client_id,
+         //   'client_id' => $this->encodePrimaryKey($quote->client_id),
         ];
 
         $this->assertNotNull($quote);
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $token,
-            ])->put('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id), $quote_update)
-            ->assertStatus(200);
+            ])->put('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id), $quote_update);
+
+        $response->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

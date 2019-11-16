@@ -6,6 +6,8 @@
  *       @OA\Property(property="id", type="string", example="WJxbojagwO", description="The company hash id"),
  *       @OA\Property(property="size_id", type="string", example="1", description="The company size ID"),
  *       @OA\Property(property="industry_id", type="string", example="1", description="The company industry ID"),
+ *       @OA\Property(property="portal_mode", type="string", example="subdomain", description="Determines the client facing urls ie: subdomain,domain,iframe"),
+ *       @OA\Property(property="portal_domain", type="string", example="https://subdomain.invoicing.co", description="The fully qualified domain for client facing URLS"),
  *       @OA\Property(property="enabled_tax_rates", type="integer", example="1", description="Number of taxes rates used per entity"),
  *       @OA\Property(property="fill_products", type="boolean", example=true, description="Toggles filling a product description based on product key"),
  *       @OA\Property(property="convert_products", type="boolean", example=true, description="___________"),

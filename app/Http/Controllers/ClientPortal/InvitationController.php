@@ -29,10 +29,12 @@ class InvitationController extends Controller
     use MakesHash;
     use MakesDates;
 
-    public function invoiceRouter(string $invitation_key)
+    public function router(string $entity, string $invitation_key)
     {
+        $key = $entity.'_id';
+        $entity_obj = ucfirst($entity).'Invitation';
 
-        $invitation = InvoiceInvitation::whereRaw("BINARY `invitation_key`= ?", [$invitation_key])->first();
+        $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
 
     	if($invitation){
 
@@ -41,7 +43,7 @@ class InvitationController extends Controller
 
             $invitation->markViewed();
 
-            return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
+            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
 
     	}
     	else
@@ -49,9 +51,9 @@ class InvitationController extends Controller
 
     }
 
-    // public function invoiceRouterForIframe(string $client_hash, string $invitation_key)
-    // {
+    public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
+    {
 
-    // }
+    }
     
 }

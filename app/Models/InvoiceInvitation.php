@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Models\Invoice;
+use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,7 +23,8 @@ class InvoiceInvitation extends BaseModel
 
 	use MakesDates;
     use SoftDeletes;
-    
+    use Inviteable;
+
     protected $fillable = [
         'id',
         'client_contact_id',
@@ -77,11 +79,6 @@ class InvoiceInvitation extends BaseModel
     public function getName()
     {
         return $this->invitation_key;
-    }
-
-    public function getLink()
-    {
-        
     }
 
     public function markViewed()

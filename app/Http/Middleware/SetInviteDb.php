@@ -11,10 +11,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
+use App\Libraries\MultiDB;
 use Closure;
 
-class ApiSecretCheck
+class SetInviteDb
 {
     /**
      * Handle an incoming request.
@@ -23,23 +23,27 @@ class ApiSecretCheck
      * @param  \Closure  $next
      * @return mixed
      */
+    
     public function handle($request, Closure $next)
     {
 
-        if( $request->header('X-API-SECRET') && ($request->header('X-API-SECRET') == config('ninja.api_secret')) )
-            return $next($request);
-        else {
-
             $error = [
-                'message' => 'Invalid secret',
+                'message' => 'Invalid URL',
                 'errors' => []
             ];
-            return response()
-            ->json(json_encode($error, JSON_PRETTY_PRINT) ,403)
-            ->header('X-App-Version', config('ninja.app_version'))
-            ->header('X-Api-Version', config('ninja.api_version'));
+        /* 
+         * Use the host name to set the active DB
+         **/
+        if( $request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByInvitation($request->route('entity'),$request->route('invitation_key'))) 
+        {
+            if(request()->json)
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
+            else
+                abort(404);
         }
 
-        
+        return $next($request);
     }
+
+
 }

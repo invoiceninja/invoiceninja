@@ -112,10 +112,24 @@ class MultiDBUserTest extends TestCase
         $this->assertFalse(MultiDB::checkUserEmailExists('bademail@example.com'));
     }
 
+    public function test_check_that_set_db_by_email_works()
+    {
+        $this->assertTrue(MultiDB::userFindAndSetDb('db1@example.com'));
+    }
+
+    public function test_check_that_set_db_by_email_works_db_2()
+    {
+        $this->assertTrue(MultiDB::userFindAndSetDb('db2@example.com'));
+    }
+
+    public function test_check_that_set_db_by_email_works_db_3()
+    {
+        $this->assertFalse(MultiDB::userFindAndSetDb('bademail@example.com'));
+    }
+
     /*
      * This is what you do when you demand 100% code coverage :/
      */
-
     public function test_set_db_invokes()
     {
         $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-01'));
