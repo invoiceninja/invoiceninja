@@ -1,29 +1,24 @@
 <?php
 
-namespace App\Services\Migration;
 
-use Illuminate\Support\Facades\Log;
+namespace App\Services\Migration;
 
 /**
  * @package App\Services\Migration
  */
-class Authentication
+class RegisterService
 {
-    private $email_address;
-    private $password;
-    private $x_api_secret;
-    private $endpoint;
+    /**
+     * @var array
+     */
+    private $data;
 
     /**
-     * Shows a final result, was authentication successful.
-     *
      * @var bool
      */
     private $was_successful;
 
     /**
-     * Complete response from the V2 endpoint.
-     *
      * @var array
      */
     public $response;
@@ -33,31 +28,27 @@ class Authentication
      */
     public function __construct(array $data)
     {
-        $this->email_address = $data['email_address'];
-        $this->password = $data['password'];
-        $this->x_api_secret = $data['x_api_secret'];
-
-        // TODO: Check if application is self-hosted.
-        $this->endpoint = $data['api_endpoint'];
+        $this->data = $data;
+        $this->was_successful = false;
+        $this->response = [];
     }
 
-    public function handle(): bool
+    public function handle()
     {
         try {
 
             $ch = curl_init();
 
-            curl_setopt($ch, CURLOPT_URL, $this->endpoint . '/api/v1/login');
+            curl_setopt($ch, CURLOPT_URL, $this->data['api_endpoint'] . '/api/v1/signup');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->payload()));
 
             $headers = array();
             $headers[] = 'Content-Type: application/json';
-            $headers[] = 'X-Api-Secret: ' . $this->x_api_secret;
+            $headers[] = 'X-Api-Secret: ' . $this->data['x_api_secret'];
             $headers[] = 'X-Requested-With: XMLHttpRequest';
-
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->payload()));
 
             $result = json_decode(curl_exec($ch));
 
@@ -68,31 +59,48 @@ class Authentication
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($httpCode == 401) {
+            if ($httpCode == 422) {
+                $this->response = $result;
+
                 return $this->was_successful = false;
             }
 
             return $this->was_successful = true;
+
         } catch (\Exception $e) {
             info($e);
             return $this->was_successful = false;
         }
     }
 
+    private function payload()
+    {
+        return [
+            'email' => $this->data['email_address'],
+            'password' => $this->data['password'],
+            'first_name' => $this->data['first_name'],
+            'last_name' => $this->data['last_name'],
+            'terms_of_service' => $this->data['tos'],
+            'privacy_policy' => $this->data['privacy_policy'],
+        ];
+    }
+
     public function wasSuccessful(): bool
     {
         if ($this->was_successful) {
+
+            /**
+             * Store items into session, so we can use them later, without
+             * asking user to enter them again.
+             */
+            session([
+                'x-api-secret' => $this->data['x_api_secret'],
+                'api-endpoint' => $this->data['api_endpoint'],
+            ]);
+
             return true;
         }
 
         return false;
-    }
-
-    private function payload(): array
-    {
-        return [
-            'email' => $this->email_address,
-            'password' => $this->password,
-        ];
     }
 }

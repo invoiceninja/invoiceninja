@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Migration\SelfLoginRequest;
-use App\Services\Migration\Authentication;
+use App\Http\Requests\Migration\LoginRequest;
+use App\Http\Requests\Migration\RegisterRequest;
+use App\Services\Migration\LoginService;
+use App\Services\Migration\RegisterService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -26,13 +28,13 @@ class CredentialsController extends BaseController
     }
 
     /**
-     * @param SelfLoginRequest $request
+     * @param LoginRequest $request
      * @param $type
-     * @return string
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function login(SelfLoginRequest $request, $type)
+    public function login(LoginRequest $request, $type)
     {
-        $authentication = new Authentication($request->all());
+        $authentication = new LoginService($request->all());
         $authentication->handle();
 
         if ($authentication->wasSuccessful()) {
@@ -40,5 +42,33 @@ class CredentialsController extends BaseController
         }
 
         return back()->with('failure', 'Oops, looks like that combination didn\'t worked. Please try again.');
+    }
+
+    /**
+     * @param $type
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function create($type)
+    {
+        return view(
+            sprintf('migration.%s.account.create', $type)
+        );
+    }
+
+    /**
+     * @param RegisterRequest $request
+     * @param $type
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(RegisterRequest $request, $type)
+    {
+        $registration = new RegisterService($request->all());
+        $registration->handle();
+
+        if ($registration->wasSuccessful()) {
+            return back()->with('success', 'Account was successfully created.');
+        }
+
+        return back()->with('errors', $registration->response->errors);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Migration;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SelfLoginRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,16 @@ class SelfLoginRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules =  [
             'email_address' => ['required', 'email'],
             'password' => ['required'],
-            'x_api_secret' => ['required'],
-            'api_endpoint' => ['required', 'url'],
         ];
+
+        if(request()->_type == 'self_hosted') {
+            $rules['x_api_secret'] = ['required'];
+            $rules['api_endpoint'] = ['required'];
+        }
+
+        return $rules;
     }
 }
