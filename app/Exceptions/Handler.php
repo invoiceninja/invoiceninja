@@ -80,7 +80,7 @@ class Handler extends ExceptionHandler
         }
         else if($exception instanceof FatalThrowableError)
         {
-            return response()->json(['message'=>'Fatal error', 500]);
+            return response()->json(['message'=>'Fatal error'], 500);
         }
         else if($exception instanceof AuthorizationException)
         {

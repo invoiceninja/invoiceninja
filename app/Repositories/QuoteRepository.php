@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\Client;
 use App\Models\Quote;
 use Illuminate\Http\Request;
 
@@ -29,12 +30,12 @@ class QuoteRepository extends BaseRepository
     
 	public function save(Request $request, Quote $quote) : ?Quote
 	{
+
         $quote->fill($request->input());
-        
+
         $quote->save();
 
-
-        $invoice_calc = new InvoiceSum($quote, $quote->settings);
+        $invoice_calc = new InvoiceSum($quote);
 
         $quote = $invoice_calc->build()->getInvoice();
 

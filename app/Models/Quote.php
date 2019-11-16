@@ -73,6 +73,12 @@ class Quote extends BaseModel
         return $this->belongsTo(User::class);
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+
     public function assigned_user()
     {
         return $this->belongsTo(User::class ,'assigned_user_id', 'id');
