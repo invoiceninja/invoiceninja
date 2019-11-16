@@ -41,7 +41,7 @@ class Authentication
         $this->endpoint = $data['api_endpoint'];
     }
 
-    public function handle()
+    public function handle(): bool
     {
         try {
 
@@ -51,18 +51,13 @@ class Authentication
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 
-            $payload = [
-                'email' => $this->email_address,
-                'password' => $this->password,
-            ];
-
             $headers = array();
             $headers[] = 'Content-Type: application/json';
             $headers[] = 'X-Api-Secret: ' . $this->x_api_secret;
             $headers[] = 'X-Requested-With: XMLHttpRequest';
 
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->payload()));
 
             $result = json_decode(curl_exec($ch));
 
@@ -70,11 +65,10 @@ class Authentication
                 throw new \Exception(curl_error($ch));
             }
 
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if (property_exists($result, 'message') && $result->message = "These credentials do not match our records") {
-                $this->response = $result->message;
-
+            if ($httpCode == 401) {
                 return $this->was_successful = false;
             }
 
@@ -85,12 +79,20 @@ class Authentication
         }
     }
 
-    public function wasSuccessful()
+    public function wasSuccessful(): bool
     {
         if ($this->was_successful) {
             return true;
         }
 
         return false;
+    }
+
+    private function payload(): array
+    {
+        return [
+            'email' => $this->email_address,
+            'password' => $this->password,
+        ];
     }
 }

@@ -36,9 +36,9 @@ class CredentialsController extends BaseController
         $authentication->handle();
 
         if ($authentication->wasSuccessful()) {
-            return back()->with('message', 'Authentication was successful.');
+            return back()->with('success', 'Authentication was successful.');
         }
 
-        return back()->with('message', $authentication->response);
+        return back()->with('failure', 'Oops, looks like that combination didn\'t worked. Please try again.');
     }
 }
