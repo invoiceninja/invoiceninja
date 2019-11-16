@@ -22,35 +22,36 @@
             @endif
 
             <form action="/migration/self_hosted/credentials" method="post">
-                {!! csrf_field() !!}
-                <input name="_method" value="put" hidden>
+                {{ csrf_field() }}
+                <input hidden name="_method" value="put">
 
                 <div class="flex flex-col">
-                    <label for="email_address">{!! trans('texts.email_address') !!}</label>
+                    <label for="email_address" class="text-sm uppercase text-gray-900 mb-1">{!! trans('texts.email_address') !!}</label>
                     <input type="email" name="email_address"
-                           class="p-2 bg-gray-200 rounded focus:bg-gray-300 focus:outline-none"
+                           class="p-2 bg-white rounded shadow focus:shadow-lg focus:outline-none"
                            value="{{ old('email_password') }}">
                 </div>
 
                 <div class="flex flex-col mt-5">
-                    <label for="password">{!! trans('texts.password') !!}</label>
+                    <label for="password" class="text-sm uppercase text-gray-900 mb-1">{!! trans('texts.password') !!}</label>
                     <input type="password" name="password"
-                           class="p-2 bg-gray-200 rounded focus:bg-gray-300 focus:outline-none">
+                           class="p-2 bg-white rounded shadow focus:shadow-lg focus:outline-none">
                 </div>
 
                 <div class="flex flex-col mt-5">
-                    <label for="x_api_secret">X-API-SECRET</label>
+                    <label for="x_api_secret" class="text-sm uppercase text-gray-900 mb-1">X-API-SECRET</label>
                     <input type="text" name="x_api_secret"
-                           class="p-2 bg-gray-200 rounded focus:bg-gray-300 focus:outline-none">
+                           class="p-2 bg-white rounded shadow focus:shadow-lg focus:outline-none">
                 </div>
 
                 <div class="flex flex-col mt-5">
-                    <label for="api_endpoint">Self-hosted URL (with http://):</label>
+                    <label for="api_endpoint" class="text-sm uppercase text-gray-900 mb-1">Self-hosted URL (with http://):</label>
                     <input type="text" name="api_endpoint"
-                           class="p-2 bg-gray-200 rounded focus:bg-gray-300 focus:outline-none">
+                           class="p-2 bg-white rounded shadow focus:shadow-lg focus:outline-none">
                 </div>
 
-                <button type="submit" class="bg-blue-700 hover:bg-blue-800 w-full rounded mt-3 text-white py-2">Log in
+                <button type="submit" class="bg-blue-700 hover:shadow hover:bg-blue-800 w-full rounded mt-5 text-white py-2">
+                    Check connection
                 </button>
 
             </form>
