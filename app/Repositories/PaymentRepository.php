@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Invoice;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -30,18 +31,21 @@ class PaymentRepository extends BaseRepository
 	{
 
         $payment->fill($request->input());
+
+        $payment->save();
         
         if($request->input('invoices')) 
         {
 
             $invoices = Invoice::whereIn('id', $request->input('invoices'))->get();
             
+            $payment->invoices()->saveMany($invoices);
+    
         }
 
         //parse invoices[] and attach to paymentables
         //parse invoices[] and apply payments and subfunctions
         
-        $payment->save();
         
         return $payment;
 	}
