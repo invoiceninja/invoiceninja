@@ -39,7 +39,7 @@ class RegisterService
 
             $ch = curl_init();
 
-            curl_setopt($ch, CURLOPT_URL, $this->data['api_endpoint'] . '/api/v1/signup');
+            curl_setopt($ch, CURLOPT_URL, $this->data['api_endpoint'] . '/api/v1/signup?include=token');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->payload()));
@@ -64,6 +64,9 @@ class RegisterService
 
                 return $this->was_successful = false;
             }
+
+            /** Store API key to use in future. */
+            session(['api-token' => $result->data[0]->token->token]);
 
             return $this->was_successful = true;
 

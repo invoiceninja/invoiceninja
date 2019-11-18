@@ -74,7 +74,7 @@ class LoginService
             }
 
             /** Store API key to use in future. */
-            session(['token' => $result->data[0]->token->token]);
+            session(['api-token' => $result->data[0]->token->token]);
 
             return $this->was_successful = true;
         } catch (\Exception $e) {
@@ -94,8 +94,6 @@ class LoginService
             session([
                 'x-api-secret' => $this->x_api_secret,
                 'api-endpoint' => $this->endpoint,
-                'email_address' => $this->email_address,
-                'password' => $this->password,
             ]);
 
             return true;
