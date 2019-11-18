@@ -52,7 +52,7 @@ To improve chances of PRs being merged please include tests to ensure your code 
 
 ## Documentation
 
-API documentation is hosted using Swagger and can be found [HERE](https://app.swaggerhub.com/apis-docs/InvoiceNinja/InvoiceNinjaV2/1.0.3)
+API documentation is hosted using Swagger and can be found [HERE](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
 
 ## Current work in progress
 
