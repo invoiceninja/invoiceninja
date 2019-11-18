@@ -10,6 +10,7 @@ use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -159,6 +160,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
         $this->invoice->client_id = $client->id;
+        $this->invoice->status_id = Invoice::STATUS_SENT;
 
         $this->invoice->line_items = $this->buildLineItems();
         $this->invoice->uses_inclusive_Taxes = false;
@@ -169,7 +171,7 @@ class PaymentTest extends TestCase
         $this->invoice_calc->build();
 
         $this->invoice = $this->invoice_calc->getInvoice();
-        $this->invoice->id = $this->encodePrimaryKey($this->invoice->id);
+        $this->invoice->id = $this->invoice->hashed_id;
 
         $data = [
             'amount' => $this->invoice->amount,
@@ -197,7 +199,7 @@ class PaymentTest extends TestCase
 
         $arr = $response->json();
 
-     //   \Log::error($arr);
+       \Log::error($arr);
         $response->assertStatus(200);
 
     }

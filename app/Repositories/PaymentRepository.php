@@ -24,7 +24,6 @@ use Illuminate\Http\Request;
 class PaymentRepository extends BaseRepository
 {
 
-
     public function getClassName()
     {
         return Payment::class;
@@ -41,7 +40,7 @@ class PaymentRepository extends BaseRepository
         {
 
             $invoices = Invoice::whereIn('id', $request->input('invoices'))->get();
-            
+
             $payment->invoices()->saveMany($invoices);
     
         }
@@ -50,11 +49,8 @@ class PaymentRepository extends BaseRepository
 
         UpdateInvoicePayment::dispatchNow($payment);
 
-        //parse invoices[] and attach to paymentables
-        //parse invoices[] and apply payments and subfunctions
-        
-        
         return $payment;
+
 	}
 
 }

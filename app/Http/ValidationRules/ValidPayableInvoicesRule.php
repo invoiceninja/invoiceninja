@@ -30,13 +30,14 @@ class ValidPayableInvoicesRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        foreach($value as $inv) {
 
-            $invoice = Invoice::find($this->decodePrimaryKey($inv['hashed_id']));
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($value,'hashed_id')))->get();
 
-            if(! $invoice->isPayable())
-                return false;
+        foreach ($invoices as $invoice) {
 
+        if(! $invoice->isPayable())
+            return false;
+    
         }
 
         return true;

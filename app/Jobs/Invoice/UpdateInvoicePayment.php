@@ -50,7 +50,8 @@ class UpdateInvoicePayment implements ShouldQueue
         $invoices = $this->payment->invoices()->get();
 
         $invoices_total = $invoices->sum('balance');
-
+\Log::error("invoices total = {$invoices_total}");
+\Log::error("invoices count = ". $invoice->count());
         /* Simplest scenario - All invoices are paid in full*/
         if(strval($invoices_total) === strval($this->payment->amount))
         {

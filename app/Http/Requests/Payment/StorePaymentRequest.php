@@ -40,7 +40,7 @@ class StorePaymentRequest extends Request
         $rules = [
             'client_id' => 'required',
             'invoices' => 'present|array',
-            'invoices' => new ValidPayableInvoicesRule(),
+         //  'invoices' => new ValidPayableInvoicesRule(),
         ];
 
         return $rules;
@@ -51,7 +51,7 @@ class StorePaymentRequest extends Request
     public function sanitize()
     {
         $input = $this->all();
-                
+           \Log::error($input);     
         if(isset($input['client_id']))
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
