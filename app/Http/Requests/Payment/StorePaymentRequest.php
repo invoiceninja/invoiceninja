@@ -12,12 +12,14 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 
 class StorePaymentRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,41 +28,47 @@ class StorePaymentRequest extends Request
 
     public function authorize() : bool
     {
+
         return auth()->user()->can('create', Payment::class);
+
     }
 
     public function rules()
     {
         $this->sanitize();
 
-        return [
-            'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'integer|nullable',
-            'payment_type_id' => 'integer|nullable',
-            'amount' => 'numeric',
+        $rules = [
+            'amount' => 'numeric|required',
             'payment_date' => 'required',
+            'client_id' => 'required',
+            'invoices' => 'required',
+            'invoices' => new ValidPayableInvoicesRule(),
         ];
+
+        return $rules;
+            
     }
 
 
     public function sanitize()
     {
-        
         $input = $this->all();
 
-        if(isset($input['invoices']))
-            $input['invoices'] = $this->transformKeys(array_column($input['invoices']), 'id');
+        if(isset($input['client_id']))
+            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
-        $this->replace($input);
+        if(isset($input['invoices']))
+            $input['invoices'] = $this->transformKeys(explode(",", $input['invoices']));
+
+        if(is_array($input['invoices']) === false)
+            $input['invoices'] = null;
+
+
+        $this->replace($input);   
 
         return $this->all();
-    }
-
-    public function messages()
-    {
 
     }
 
 
 }
-

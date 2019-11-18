@@ -120,18 +120,18 @@ class Activity extends StaticModel
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-    public function task()
-    {
-        return $this->belongsTo(Task::class)->withTrashed();
-    }
+    // public function task()
+    // {
+    //     return $this->belongsTo(Task::class)->withTrashed();
+    // }
 
-    public function expense()
-    {
-        return $this->belongsTo(Expense::class)->withTrashed();
-    }
+    // public function expense()
+    // {
+    //     return $this->belongsTo(Expense::class)->withTrashed();
+    // }
 
     public function company()
     {
-        return $this->belongsTo(Company::class)->withTrashed();
+        return $this->belongsTo(Company::class);
     }
 }

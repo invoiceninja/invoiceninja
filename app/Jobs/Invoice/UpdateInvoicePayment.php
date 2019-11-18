@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
@@ -51,7 +52,7 @@ class UpdateInvoicePayment implements ShouldQueue
 
         $invoices_total = $invoices->sum('balance');
 
-        /* Simplest scenario*/
+        /* Simplest scenario - All invoices are paid in full*/
         if(strval($invoices_total) === strval($this->payment->amount))
         {
             $invoices->each(function ($invoice){
@@ -59,15 +60,18 @@ class UpdateInvoicePayment implements ShouldQueue
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
                 $invoice->clearPartial();
                 $invoice->updateBalance($invoice->balance*-1);
-            
+  
+                UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+
             });
 
         }
+        /*Combination of partials and full invoices are being paid*/
         else {
             
             $total = 0;
 
-
+            /* Calculate the grand total of the invoices*/
             foreach($invoices as $invoice)
             {
 
@@ -78,7 +82,7 @@ class UpdateInvoicePayment implements ShouldQueue
 
             }
 
-            /* test if there is a batch of partial invoices that have been paid */
+            /*Test if there is a batch of partial invoices that have been paid */
             if($this->payment->amount == $total)
             {
                 
@@ -91,6 +95,8 @@ class UpdateInvoicePayment implements ShouldQueue
                         $invoice->clearPartial();
                         $invoice->setDueDate();
                         $invoice->setStatus(Invoice::STATUS_PARTIAL);
+
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1);
                         
                     }
                     else
@@ -98,6 +104,9 @@ class UpdateInvoicePayment implements ShouldQueue
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
                         $invoice->clearPartial();
                         $invoice->updateBalance($invoice->balance*-1);
+
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+
                     }
 
                 });

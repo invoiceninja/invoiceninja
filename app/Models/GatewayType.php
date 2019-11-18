@@ -22,7 +22,7 @@ class GatewayType extends StaticModel
     const CREDIT_CARD = 1;
     const BANK_TRANSFER = 2;
     const PAYPAL = 3;
-    const BITCOIN = 4;
+    const CRYPTO = 4;
     const DWOLLA = 5;
     const CUSTOM1 = 6;
     const ALIPAY = 7;

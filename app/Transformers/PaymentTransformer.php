@@ -27,7 +27,7 @@ class PaymentTransformer extends EntityTransformer
 
     protected $availableIncludes = [
         'client',
-        'invoice',
+        'invoices',
     ];
 
     public function __construct($serializer = null)
@@ -37,11 +37,11 @@ class PaymentTransformer extends EntityTransformer
 
     }
 
-    public function includeInvoice(Payment $payment)
+    public function includeInvoices(Payment $payment)
     {
         $transformer = new InvoiceTransformer($this->serializer);
 
-        return $this->includeItem($payment->invoice, $transformer, Invoice::class);
+        return $this->includeCollection($payment->invoices, $transformer, Invoice::class);
     }
 
     public function includeClient(Payment $payment)
@@ -65,6 +65,7 @@ class PaymentTransformer extends EntityTransformer
             'is_deleted' => (bool) $payment->is_deleted,
             'payment_type_id' => (string) $payment->payment_type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',
+            'client_id' => (string) $this->encodePrimaryKey($payment->client_id),
 /*
             'private_notes' => $payment->private_notes ?: '',
             'exchange_rate' => (float) $payment->exchange_rate,
