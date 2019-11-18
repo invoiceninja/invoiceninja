@@ -31,13 +31,15 @@ class ValidPayableInvoicesRule implements Rule
     public function passes($attribute, $value)
     {
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($value,'hashed_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",",$value)))->get();
+
+        if(!$invoices || $invoices->count() == 0)
+            return false;
 
         foreach ($invoices as $invoice) {
 
         if(! $invoice->isPayable())
             return false;
-    
         }
 
         return true;

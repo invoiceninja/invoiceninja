@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
@@ -50,8 +51,7 @@ class UpdateInvoicePayment implements ShouldQueue
         $invoices = $this->payment->invoices()->get();
 
         $invoices_total = $invoices->sum('balance');
-\Log::error("invoices total = {$invoices_total}");
-\Log::error("invoices count = ". $invoice->count());
+
         /* Simplest scenario - All invoices are paid in full*/
         if(strval($invoices_total) === strval($this->payment->amount))
         {
@@ -60,7 +60,9 @@ class UpdateInvoicePayment implements ShouldQueue
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
                 $invoice->clearPartial();
                 $invoice->updateBalance($invoice->balance*-1);
-            
+  
+                UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+
             });
 
         }
@@ -93,6 +95,8 @@ class UpdateInvoicePayment implements ShouldQueue
                         $invoice->clearPartial();
                         $invoice->setDueDate();
                         $invoice->setStatus(Invoice::STATUS_PARTIAL);
+
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1);
                         
                     }
                     else
@@ -100,6 +104,9 @@ class UpdateInvoicePayment implements ShouldQueue
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
                         $invoice->clearPartial();
                         $invoice->updateBalance($invoice->balance*-1);
+
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+
                     }
 
                 });

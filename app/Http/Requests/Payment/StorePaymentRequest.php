@@ -38,9 +38,11 @@ class StorePaymentRequest extends Request
         $this->sanitize();
 
         $rules = [
+            'amount' => 'numeric|required',
+            'payment_date' => 'required',
             'client_id' => 'required',
-            'invoices' => 'present|array',
-         //  'invoices' => new ValidPayableInvoicesRule(),
+            'invoices' => 'required',
+            'invoices' => new ValidPayableInvoicesRule(),
         ];
 
         return $rules;
@@ -51,12 +53,16 @@ class StorePaymentRequest extends Request
     public function sanitize()
     {
         $input = $this->all();
-           \Log::error($input);     
+
         if(isset($input['client_id']))
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
         if(isset($input['invoices']))
-            $input['invoices'] = $this->transformKeys(array_column($input['invoices'],'id'));
+            $input['invoices'] = $this->transformKeys(explode(",", $input['invoices']));
+
+        if(is_array($input['invoices']) === false)
+            $input['invoices'] = null;
+
 
         $this->replace($input);   
 

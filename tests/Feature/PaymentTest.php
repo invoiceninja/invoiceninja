@@ -91,7 +91,7 @@ class PaymentTest extends TestCase
 
         factory(\App\Models\Payment::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
-        $Payment = Payment::all()->first();
+        $Payment = Payment::all()->last();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -129,10 +129,8 @@ class PaymentTest extends TestCase
 
         $data = [
             'amount' => $this->invoice->amount,
-            'invoices' => [
-                $this->invoice
-            ],
-            'payment_date' => '2020/12/12',
+            'invoices' => $this->invoice->hashed_id,
+            'payment_date' => '2020/12/11',
 
         ];
 
@@ -171,42 +169,83 @@ class PaymentTest extends TestCase
         $this->invoice_calc->build();
 
         $this->invoice = $this->invoice_calc->getInvoice();
-        $this->invoice->id = $this->invoice->hashed_id;
+        $this->invoice->save();
 
         $data = [
             'amount' => $this->invoice->amount,
             'client_id' => $client->hashed_id,
-            'invoices' => [
-                $this->invoice
-            ],
+            'invoices' => $this->invoice->hashed_id,
             'payment_date' => '2020/12/12',
 
         ];
+
 
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/payments?include=invoices', $data);
+
         }
         catch(ValidationException $e) {
-
+            \Log::error('in the validator');
             $message = json_decode($e->validator->getMessageBag(),1);
-            
-            $this->assertTrue(array_key_exists('client_id', $message));
+            \Log::error($message);
+            $this->assertNotNull($message);
 
         }
 
-        $arr = $response->json();
-
-       \Log::error($arr);
-        $response->assertStatus(200);
-
+            $arr = $response->json();
+            \Log::error($arr);
+            $response->assertStatus(200);
+        
+    
     }
 
-    // public function testUpdatePayment()
-    // {
+    public function testStorePaymentWithNoInvoiecs()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
 
-    // }
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+        $this->invoice->status_id = Invoice::STATUS_SENT;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_Taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+
+        $data = [
+            'amount' => $this->invoice->amount,
+            'client_id' => $client->hashed_id,
+            'invoices' => '',
+            'payment_date' => '2020/12/12',
+
+        ];
+
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments?include=invoices', $data);
+
+        }
+        catch(ValidationException $e) {
+            \Log::error('in the validator');
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error($message);
+            $this->assertNotNull($message);
+
+        }
+    
+    }
 
 }
