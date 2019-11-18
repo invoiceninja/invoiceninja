@@ -38,7 +38,7 @@ class CredentialsController extends BaseController
         $authentication->handle();
 
         if ($authentication->wasSuccessful()) {
-            return back()->with('success', 'Authentication was successful.');
+            return redirect('/migration/companies')->with('success', 'Authentication was successful.');
         }
 
         return back()->with('failure', 'Oops, looks like that combination didn\'t worked. Please try again.');
@@ -66,7 +66,7 @@ class CredentialsController extends BaseController
         $registration->handle();
 
         if ($registration->wasSuccessful()) {
-            return back()->with('success', 'Account was successfully created.');
+            return redirect('/migration/companies')->with('success', 'Account was successfully created.');
         }
 
         return back()->with('errors', $registration->response->errors);

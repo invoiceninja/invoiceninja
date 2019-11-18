@@ -156,6 +156,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('migration/{type}/credentials/create', 'Migration\CredentialsController@create');
     Route::put('migration/{type}/credentials/create', 'Migration\CredentialsController@register');
+
+    Route::get('migration/companies', 'Migration\CompaniesController@index');
     // migration-routes-end
 
     Route::resource('clients', 'ClientController');

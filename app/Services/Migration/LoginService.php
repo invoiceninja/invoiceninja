@@ -37,7 +37,7 @@ class LoginService
         $this->password = $data['password'];
         $this->x_api_secret = $data['x_api_secret'];
 
-        // TODO: Check if application is self-hosted.
+        // TODO: Check if application is hosted.
         $this->endpoint = $data['api_endpoint'];
     }
 
@@ -47,7 +47,7 @@ class LoginService
 
             $ch = curl_init();
 
-            curl_setopt($ch, CURLOPT_URL, $this->endpoint . '/api/v1/login');
+            curl_setopt($ch, CURLOPT_URL, $this->endpoint . '/api/v1/login?include=token');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
 
@@ -56,6 +56,7 @@ class LoginService
             $headers[] = 'X-Api-Secret: ' . $this->x_api_secret;
             $headers[] = 'X-Requested-With: XMLHttpRequest';
 
+            curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->payload()));
 
@@ -71,6 +72,9 @@ class LoginService
             if ($httpCode == 401) {
                 return $this->was_successful = false;
             }
+
+            /** Store API key to use in future. */
+            session(['token' => $result->data[0]->token->token]);
 
             return $this->was_successful = true;
         } catch (\Exception $e) {
@@ -90,6 +94,8 @@ class LoginService
             session([
                 'x-api-secret' => $this->x_api_secret,
                 'api-endpoint' => $this->endpoint,
+                'email_address' => $this->email_address,
+                'password' => $this->password,
             ]);
 
             return true;
@@ -98,6 +104,9 @@ class LoginService
         return false;
     }
 
+    /**
+     * @return array
+     */
     private function payload(): array
     {
         return [
@@ -105,4 +114,5 @@ class LoginService
             'password' => $this->password,
         ];
     }
+
 }
