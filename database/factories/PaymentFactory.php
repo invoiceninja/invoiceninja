@@ -6,6 +6,7 @@ use App\Models\Payment;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Payment::class, function (Faker $faker) {
+
     return [
 		'is_deleted' => false,
 		'amount' => $faker->numberBetween(1,10),
@@ -14,6 +15,7 @@ $factory->define(App\Models\Payment::class, function (Faker $faker) {
 		'payment_type_id' => Payment::TYPE_CREDIT_CARD,
 		'status_id' => Payment::STATUS_COMPLETED
     ];
+    
 });
 
 		
