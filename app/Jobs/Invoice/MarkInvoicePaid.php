@@ -59,8 +59,10 @@ class MarkInvoicePaid implements ShouldQueue
         $payment->transaction_reference = ctrans('texts.manual_entry');
         /* Create a payment relationship to the invoice entity */
         $payment->save();
-        $payment->invoices()->save($this->invoice);
-        $payment->save();
+
+        $payment->invoices()->attach($this->invoice->id,[
+            'amount' => $payment->amount
+        ]);
 
         $this->invoice->updateBalance($payment->amount*-1);
 

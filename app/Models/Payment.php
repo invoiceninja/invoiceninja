@@ -91,7 +91,7 @@ class Payment extends BaseModel
 
     public function invoices()
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable');
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount');
     }
 
     public function company_ledger()
