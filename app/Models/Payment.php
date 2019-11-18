@@ -18,13 +18,15 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends BaseModel
 {
     use MakesHash;
     use Filterable;
     use MakesDates;
-
+    use SoftDeletes;
+    
     const STATUS_PENDING = 1;
     const STATUS_VOIDED = 2;
     const STATUS_FAILED = 3;
@@ -147,6 +149,7 @@ class Payment extends BaseModel
     public function resolveRouteBinding($value)
     {
         return $this
+            ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 }
