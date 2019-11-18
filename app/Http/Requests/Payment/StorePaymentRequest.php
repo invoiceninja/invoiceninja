@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 
@@ -39,6 +40,7 @@ class StorePaymentRequest extends Request
         $rules = [
             'client_id' => 'required',
             'invoices' => 'present|array',
+            'invoices' => new ValidPayableInvoicesRule(),
         ];
 
         return $rules;

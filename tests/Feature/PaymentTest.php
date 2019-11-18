@@ -191,15 +191,13 @@ class PaymentTest extends TestCase
 
             $message = json_decode($e->validator->getMessageBag(),1);
             
-            \Log::error($message);
-
             $this->assertTrue(array_key_exists('client_id', $message));
 
         }
 
         $arr = $response->json();
 
-        \Log::error($arr);
+     //   \Log::error($arr);
         $response->assertStatus(200);
 
     }

@@ -11,6 +11,9 @@
 
 namespace App\Repositories;
 
+use App\Events\Payment\PaymentWasCreated;
+use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Models\Invoice;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -42,6 +45,10 @@ class PaymentRepository extends BaseRepository
             $payment->invoices()->saveMany($invoices);
     
         }
+
+        event(new PaymentWasCreated($payment));
+
+        UpdateInvoicePayment::dispatchNow($payment);
 
         //parse invoices[] and attach to paymentables
         //parse invoices[] and apply payments and subfunctions

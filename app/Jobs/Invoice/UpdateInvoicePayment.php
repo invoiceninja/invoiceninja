@@ -51,7 +51,7 @@ class UpdateInvoicePayment implements ShouldQueue
 
         $invoices_total = $invoices->sum('balance');
 
-        /* Simplest scenario*/
+        /* Simplest scenario - All invoices are paid in full*/
         if(strval($invoices_total) === strval($this->payment->amount))
         {
             $invoices->each(function ($invoice){
@@ -63,11 +63,12 @@ class UpdateInvoicePayment implements ShouldQueue
             });
 
         }
+        /*Combination of partials and full invoices are being paid*/
         else {
             
             $total = 0;
 
-
+            /* Calculate the grand total of the invoices*/
             foreach($invoices as $invoice)
             {
 
@@ -78,7 +79,7 @@ class UpdateInvoicePayment implements ShouldQueue
 
             }
 
-            /* test if there is a batch of partial invoices that have been paid */
+            /*Test if there is a batch of partial invoices that have been paid */
             if($this->payment->amount == $total)
             {
                 
