@@ -27,4 +27,18 @@ class DestroyPaymentRequest extends Request
         return auth()->user()->can('edit', $this->payment);
     }
 
+ //    public function rules()
+ //    {
+ //    	return [
+ //    		'deletable'
+ //    	];
+ //    }
+
+ //    public function messages()
+	// {
+ //        return [
+ //            'deletable' => 'Payment cannot be deleted',
+ //        ];
+    
+	// }
 }

@@ -17,10 +17,12 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasDeleted;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
+use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -58,6 +60,9 @@ class EventServiceProvider extends ServiceProvider
             PaymentCreatedActivity::class,
             //UpdateInvoicePayment::class,
             UpdateInvoiceInvitations::class,
+        ],
+        PaymentWasDeleted::class => [
+            PaymentDeletedActivity::class
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',

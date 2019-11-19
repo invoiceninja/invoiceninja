@@ -58,9 +58,14 @@ class UpdateInvoicePayment implements ShouldQueue
             $invoices->each(function ($invoice){
                 
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
+
+                $invoice->pivot->amount = $invoice->balance;
+                $invoice->pivot->save();
+
                 $invoice->clearPartial();
                 $invoice->updateBalance($invoice->balance*-1);
-  
+                
+
                 UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
 
             });
@@ -91,6 +96,10 @@ class UpdateInvoicePayment implements ShouldQueue
                     if($invoice->hasPartial()) {
 
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1));
+        
+                        $invoice->pivot->amount = $invoice->partial;
+                        $invoice->pivot->save();
+
                         $invoice->updateBalance($invoice->partial*-1);
                         $invoice->clearPartial();
                         $invoice->setDueDate();
@@ -102,6 +111,10 @@ class UpdateInvoicePayment implements ShouldQueue
                     else
                     {
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
+
+                        $invoice->pivot->amount = $invoice->balance;
+                        $invoice->pivot->save();
+                        
                         $invoice->clearPartial();
                         $invoice->updateBalance($invoice->balance*-1);
 
