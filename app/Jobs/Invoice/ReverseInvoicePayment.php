@@ -12,6 +12,7 @@
 namespace App\Jobs\Invoice;
 
 use App\Jobs\Client\UpdateClientBalance;
+use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
@@ -67,7 +68,7 @@ class ReverseInvoicePayment implements ShouldQueue
 
         UpdateClientBalance::dispatchNow($client, $this->payment->amount);
 
-
+        UpdateClientPaidToDate::dispatchNow($client, $this->payment->amount*-1);
     }
 
 }

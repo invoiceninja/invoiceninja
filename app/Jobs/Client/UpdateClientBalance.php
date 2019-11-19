@@ -44,8 +44,7 @@ class UpdateClientBalance
     {
 
         $this->client->balance += $this->amount;
-        $this->client->paid_to_date += $this->amount;
         $this->client->save();
-
+\Log::error("incrementing client balance by ".$this->amount." to ". $this->client->balance);
     }
 }

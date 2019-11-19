@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Currency;
 use App\Models\Filterable;
@@ -388,4 +389,35 @@ class Invoice extends BaseModel
         $this->save();
     }
 
+    public function markSent()
+    {
+        /* Return immediately if status is not draft */
+        if($this->status_id != Invoice::STATUS_DRAFT)
+            return $this;
+
+        $this->status_id = Invoice::STATUS_SENT;
+
+        $this->markInvitationsSent();
+
+        UpdateClientBalance::dispatchNow($this->client, $this->balance);
+        
+        $this->save();
+    }
+
+    /**
+     * Updates Invites to SENT
+     *
+     */
+    private function markInvitationsSent()
+    {
+        $this->invitations->each(function($invitation) {
+
+            if(!isset($invitation->sent_date))
+            {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+
+        });
+    }
 }

@@ -140,15 +140,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-        /* Return immediately if status is not draft */
-        if($invoice->status_id != Invoice::STATUS_DRAFT)
-            return $invoice;
-
-        $invoice->status_id = Invoice::STATUS_SENT;
-
-        $this->markInvitationsSent($invoice);
-
-        $invoice->save();
+        $invoice->markSent();
 
         /*
          * Why? because up until this point the invoice was a draft.
@@ -164,22 +156,6 @@ class InvoiceRepository extends BaseRepository
     }
 
 
-    /**
-     * Updates Invites to SENT
-     *
-     * @param      \App\Models\Invoice  $invoice  The invoice
-     */
-    private function markInvitationsSent(Invoice $invoice) :void
-    {
-        $invoice->invitations->each(function($invitation) {
 
-            if(!isset($invitation->sent_date))
-            {
-                $invitation->sent_date = Carbon::now();
-                $invitation->save();
-            }
-
-        });
-    }
 
 }
