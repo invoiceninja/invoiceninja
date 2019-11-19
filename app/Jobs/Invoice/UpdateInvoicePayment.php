@@ -48,15 +48,14 @@ class UpdateInvoicePayment implements ShouldQueue
      */
     public function handle()
     {
-\Log::error("updating invoice payment");
+
         $invoices = $this->payment->invoices()->get();
 
         $invoices_total = $invoices->sum('balance');
-\Log::error("invoice total = {$invoices_total}");
+
         /* Simplest scenario - All invoices are paid in full*/
         if(strval($invoices_total) === strval($this->payment->amount))
         {
-            \Log::error("balances all equal");
             $invoices->each(function ($invoice){
                 
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
@@ -95,7 +94,6 @@ class UpdateInvoicePayment implements ShouldQueue
                 $invoices->each(function ($invoice){
 
                     if($invoice->hasPartial()) {
-            \Log::error("partials involved");
 
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1));
                         UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1);
@@ -113,7 +111,6 @@ class UpdateInvoicePayment implements ShouldQueue
                     }
                     else
                     {
-            \Log::error("full invoice amount involved");
 
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
                         UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
@@ -133,7 +130,6 @@ class UpdateInvoicePayment implements ShouldQueue
 
             }
             else {
-            \Log::error("illegal payment amount");
 
                 SystemLogger::dispatch(
                     [
