@@ -22,6 +22,7 @@ use App\Http\Requests\Payment\ShowPaymentRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Jobs\Entity\ActionEntity;
+use App\Jobs\Invoice\ReverseInvoicePayment;
 use App\Models\Payment;
 use App\Repositories\BaseRepository;
 use App\Repositories\PaymentRepository;
@@ -483,10 +484,12 @@ class PaymentController extends BaseController
     public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
 
+        ReverseInvoicePayment::dispatchNow($payment);
+
         $payment->is_deleted = true;
         $payment->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($payment);
 
     }
 

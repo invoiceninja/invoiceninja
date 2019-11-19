@@ -43,12 +43,17 @@ trait CompanySettingsSaver
 		$company_settings = CompanySettings::defaults();
 
 		//Iterate and set CURRENT settings
-		foreach($this->settings as $key => $value)
-			$company_settings->{$key} = $value;
+		// foreach($this->settings as $key => $value)
+		// 	$company_settings->{$key} = $value;
 
 		//Iterate and set NEW settings
- 		foreach($settings as $key => $value)
-			$company_settings->{$key} = $value;
+ 		foreach($settings as $key => $value) {
+
+ 			if(is_null($settings->{$key}))
+ 				$company_settings->{$key} = '';
+ 			else
+				$company_settings->{$key} = $value;
+ 		}
 
 		$entity->settings = $company_settings;
 		$entity->save();

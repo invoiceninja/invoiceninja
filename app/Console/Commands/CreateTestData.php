@@ -16,6 +16,7 @@ use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\CompanyToken;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\User;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Console\Command;
@@ -74,12 +75,17 @@ class CreateTestData extends Command
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = factory(\App\Models\User::class)->create([
-        //    'account_id' => $account->id,
-            'email' => 'user@example.com.'.rand(0,100),
-            'confirmation_code' => $this->createDbHash(config('database.default'))
-        ]);
+        $user = User::whereEmail('user@example.com')->first();
 
+        if(!$user)
+        {    
+            $user = factory(\App\Models\User::class)->create([
+            //    'account_id' => $account->id,
+                'email' => 'user@example.com',
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+        }
+        
         $token = \Illuminate\Support\Str::random(64);
 
         $company_token = CompanyToken::create([
