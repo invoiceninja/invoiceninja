@@ -487,6 +487,7 @@ class PaymentController extends BaseController
         ReverseInvoicePayment::dispatchNow($payment);
 
         $payment->is_deleted = true;
+        $payment->save();
         $payment->delete();
 
         return $this->itemResponse($payment);
