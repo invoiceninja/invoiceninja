@@ -12,6 +12,7 @@
 namespace App\Jobs\Invoice;
 
 use App\Jobs\Client\UpdateClientBalance;
+use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
@@ -58,15 +59,14 @@ class UpdateInvoicePayment implements ShouldQueue
             $invoices->each(function ($invoice){
                 
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
+                UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+                UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->balance);
 
                 $invoice->pivot->amount = $invoice->balance;
                 $invoice->pivot->save();
 
                 $invoice->clearPartial();
                 $invoice->updateBalance($invoice->balance*-1);
-                
-
-                UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
 
             });
 
@@ -96,7 +96,8 @@ class UpdateInvoicePayment implements ShouldQueue
                     if($invoice->hasPartial()) {
 
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1));
-        
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1);
+                        UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->partial);
                         $invoice->pivot->amount = $invoice->partial;
                         $invoice->pivot->save();
 
@@ -105,12 +106,15 @@ class UpdateInvoicePayment implements ShouldQueue
                         $invoice->setDueDate();
                         $invoice->setStatus(Invoice::STATUS_PARTIAL);
 
-                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1);
-                        
+
+
                     }
                     else
                     {
+
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+                        UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->balance);
 
                         $invoice->pivot->amount = $invoice->balance;
                         $invoice->pivot->save();
@@ -118,7 +122,7 @@ class UpdateInvoicePayment implements ShouldQueue
                         $invoice->clearPartial();
                         $invoice->updateBalance($invoice->balance*-1);
 
-                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
+
 
                     }
 
@@ -140,7 +144,12 @@ class UpdateInvoicePayment implements ShouldQueue
                     $this->payment->client
                 );
 
-                throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total}");
+                throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total} reversing payment");
+
+                $this->payment->invoice()->delete();
+                $this->payment->is_deleted=true;
+                $this->payment->save();
+                $this->payment->delete();
             }
 
 

@@ -44,7 +44,6 @@ class UpdateClientBalance
     {
 
         $this->client->balance += $this->amount;
-        $this->client->paid_to_date += $this->amount;
         $this->client->save();
 
     }

@@ -62,6 +62,7 @@ class Payment extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'is_deleted' => 'bool',
     ];
 
     public function client()

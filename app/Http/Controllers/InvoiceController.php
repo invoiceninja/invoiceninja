@@ -625,6 +625,10 @@ class InvoiceController extends BaseController
                 $invoice = MarkInvoicePaid::dispatchNow($invoice);
                     return $this->itemResponse($invoice);
                 break;
+            case 'mark_sent':
+                $invoice->markSent();
+                    return $this->itemResponse($invoice);
+                break;
             case 'download':
                 # code...
                 break;
