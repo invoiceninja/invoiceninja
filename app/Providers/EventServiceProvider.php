@@ -30,6 +30,7 @@ use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Invoice\UpdateInvoicePayment;
+use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -82,7 +83,7 @@ class EventServiceProvider extends ServiceProvider
         //Invoices
         
         InvoiceWasMarkedSent::class => [
-            CreateInvoiceInvitation::class,
+            CreateInvoiceHtmlBackup::class,
         ],
         InvoiceWasUpdated::class => [
             UpdateInvoiceActivity::class,

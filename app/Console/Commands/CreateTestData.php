@@ -119,8 +119,10 @@ class CreateTestData extends Command
 
     private function createClient($company, $user)
     {
-        $client = ClientFactory::create($company->id, $user->id);
-        $client->save();
+        $client = factory(\App\Models\Client::class)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id
+        ]);
 
 
             factory(\App\Models\ClientContact::class,1)->create([

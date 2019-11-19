@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
@@ -398,6 +399,8 @@ class Invoice extends BaseModel
         $this->status_id = Invoice::STATUS_SENT;
 
         $this->markInvitationsSent();
+
+        event(new InvoiceWasMarkedSent($this));
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance);
         

@@ -14,6 +14,8 @@ namespace App\Repositories;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
+use App\Models\Invoice;
+use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,7 +23,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ActivityRepository extends BaseRepository
 {
-
+	use MakesInvoiceHtml;
 	/**
 	 * Save the Activity
 	 *
@@ -65,6 +67,11 @@ class ActivityRepository extends BaseRepository
 			$entity->load('company');
 		else
 			$entity->load('company','client');
+
+
+		if(get_class($entity) == Invoice::class && ($activity->activity_type_id == Activity::MARK_SENT_INVOICE || $activity->activity_type_id == Activity::PAID_INVOICE))
+			$backup->html_backup = $this->generateInvoiceHtml($entity->design(), $entity);
+
 
 		$backup->activity_id = $activity->id;
 		$backup->json_backup = $entity->toJson();

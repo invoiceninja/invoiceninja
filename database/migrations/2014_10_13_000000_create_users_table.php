@@ -15,6 +15,9 @@ class CreateUsersTable extends Migration
     public function up()
     {
 
+    DB::raw("SET GLOBAL innodb_file_per_table=1;");
+    DB::raw("SET GLOBAL innodb_file_format=Barracuda;");
+
         Schema::create('languages', function ($table) {
             $table->increments('id');
             $table->string('name');
@@ -896,7 +899,8 @@ class CreateUsersTable extends Migration
         Schema::create('backups', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('activity_id');
-            $table->mediumText('json_backup')->nullable();
+            $table->longText('json_backup')->nullable();
+            $table->longText('html_backup')->nullable();
             $table->timestamps(6);
 
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');

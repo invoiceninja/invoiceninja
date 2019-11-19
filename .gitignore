@@ -21,3 +21,4 @@ yarn-error.log
 .env.dusk.local
 /public/vendors/*
 public/mix-manifest.json
+*.log
