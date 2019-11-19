@@ -157,7 +157,7 @@ class InvoiceRepository extends BaseRepository
          */
         $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings());
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $this->balance);
+        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
 
         return $invoice;
 
