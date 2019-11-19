@@ -122,6 +122,20 @@ class CreateTestData extends Command
         $client = ClientFactory::create($company->id, $user->id);
         $client->save();
 
+
+            factory(\App\Models\ClientContact::class,1)->create([
+                'user_id' => $user->id,
+                'client_id' => $client->id,
+                'company_id' => $company->id,
+                'is_primary' => 1
+            ]);
+
+            factory(\App\Models\ClientContact::class,rand(1,50))->create([
+                'user_id' => $user->id,
+                'client_id' => $client->id,
+                'company_id' => $company->id
+            ]);
+
         $y = $this->count * rand(1,5);
 
         $this->info("Creating {$y} invoices");
