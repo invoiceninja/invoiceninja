@@ -272,7 +272,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('token')->nullable();
             $table->string('name')->nullable();
-
+            $table->string('user_agent')->nullable();
+            
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

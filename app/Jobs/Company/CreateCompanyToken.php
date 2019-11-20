@@ -55,6 +55,7 @@ class CreateCompanyToken implements ShouldQueue
             'token' => Str::random(64),
             'name' => $this->user->first_name. ' '. $this->user->last_name,
             'company_id' => $this->company->id,
+            'user_agent' => $this->company->account->user_agent,
         ]);
         
         return $ct;
