@@ -15,6 +15,7 @@ use App\Events\Client\ClientWasCreated;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
@@ -25,12 +26,12 @@ use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\CreateInvoiceActivity;
+use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Invoice\UpdateInvoicePayment;
-use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -60,10 +61,10 @@ class EventServiceProvider extends ServiceProvider
         PaymentWasCreated::class => [
             PaymentCreatedActivity::class,
             //UpdateInvoicePayment::class,
-            UpdateInvoiceInvitations::class,
+            //UpdateInvoiceInvitations::class,
         ],
         PaymentWasDeleted::class => [
-            PaymentDeletedActivity::class
+            PaymentDeletedActivity::class,
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
@@ -93,6 +94,9 @@ class EventServiceProvider extends ServiceProvider
             CreateInvoiceActivity::class,
             CreateInvoicePdf::class,
         ],
+        InvoiceWasPaid::class => [
+            CreateInvoiceHtmlBackup::class,
+        ]
     ];
 
     /**

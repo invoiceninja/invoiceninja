@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -95,8 +96,11 @@ class ApplyPaymentToInvoice implements ShouldQueue
         $this->invoice->balance = $this->invoice->balance + $adjustment;
 
         /* Update Invoice Status */
-        if($this->invoice->balance == 0)
+        if($this->invoice->balance == 0){
             $this->invoice->status_id = Invoice::STATUS_PAID;
+            $this->invoice->save();
+            event(new InvoiceWasPaid($this->invoice));
+        }
         elseif($this->payment->amount > 0 && $this->invoice->balance > 0)
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;
 
