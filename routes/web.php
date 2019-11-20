@@ -163,6 +163,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('migration/password_confirmation', 'Migration\PasswordConfirmationController@index');
     Route::post('migration/password_confirmation', 'Migration\PasswordConfirmationController@verify');
 
+    Route::get('migration/importing', 'Migration\ImportingController@index');
     // migration-routes-end
 
     Route::resource('clients', 'ClientController');

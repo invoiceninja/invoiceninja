@@ -28,8 +28,10 @@ class CompaniesController extends BaseController
      */
     public function store(MigrationOptionRequest $request)
     {
-        /** Save migration option for future use. */
-        session(['migration_type' => $request->migration_option]);
+        session([
+            'migration_type' => $request->migration_option,
+            'companies' => $request->companies,
+        ]);
 
         return redirect('/migration/password_confirmation');
     }

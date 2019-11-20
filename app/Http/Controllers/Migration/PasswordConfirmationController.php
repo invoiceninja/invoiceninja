@@ -32,8 +32,16 @@ class PasswordConfirmationController extends BaseController
         $authentication->handle();
 
         if ($authentication->wasSuccessful()) {
-            return 'Authentication was successful!';
+
+            session([
+                'password_confirmed' => true,
+                'password' => encrypt($request->password),
+            ]);
+
+            return redirect('/migration/importing');
         }
+
+        session(['password_confirmed' => false]);
 
         return back()->with('failure', 'Oops, looks like that didn\'t worked. Please try again.');
     }

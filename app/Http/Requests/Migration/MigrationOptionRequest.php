@@ -28,7 +28,7 @@ class MigrationOptionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'companies' => ['required'],
         ];
     }
 }
