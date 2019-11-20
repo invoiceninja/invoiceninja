@@ -74,6 +74,12 @@ class MigrationTest extends TestCase
 
         $this->assertNotNull($this->company);
 
+    	$co = Client::whereCompanyId($this->company->id)->get();
+    	$inv = Invoice::whereCompanyId($this->company->id)->get();
+
+    	$this->assertEquals($co->count(),1);
+    	$this->assertEquals($inv->count(),1);
+
 		DB::statement( 'DELETE FROM `clients` WHERE `company_id`=:company_id', array('company_id' => $this->company->id) );
 
     	$co = Client::whereCompanyId($this->company->id)->get();

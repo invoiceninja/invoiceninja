@@ -327,7 +327,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPermission($permission) : bool
     { 
 
-        return $this->permissionsFlat()->contains($permission);
+
+        return (stripos($this->user_company()->permissions, $permission) !== false);
+            
+
+       // return $this->permissionsFlat()->contains($permission);
 
     }
 

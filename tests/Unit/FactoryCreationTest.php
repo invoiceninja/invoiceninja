@@ -9,10 +9,12 @@ use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
 use App\Models\Client;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -22,6 +24,7 @@ class FactoryCreationTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
+    use MockAccountData;
 
     public function setUp() :void
     {
@@ -34,21 +37,8 @@ class FactoryCreationTest extends TestCase
 
         Model::reguard();
 
-
-        $this->account = factory(\App\Models\Account::class)->create();
-                $this->company = factory(\App\Models\Company::class)->create([
-                    'account_id' => $this->account->id,
-                                'domain' => 'ninja.test',
-
-                ]);
-
-        $this->account->default_company_id = $this->company->id;
-        $this->account->save();
-
-        $this->user = factory(\App\Models\User::class)->create([
-        //    'account_id' => $account->id,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
-        ]);
+        $this->makeTestData();
+        
     }
 
     /**
@@ -120,13 +110,13 @@ class FactoryCreationTest extends TestCase
      */
     public function testClientCreate()
     {
-        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
 
-        $client->save();
+        $cliz->save();
 
-        $this->assertNotNull($client);
+        $this->assertNotNull($cliz);
 
-        $this->assertInternalType("int", $client->id);
+        $this->assertInternalType("int", $cliz->id);
     }
 
     /**
@@ -136,33 +126,13 @@ class FactoryCreationTest extends TestCase
     public function testClientContactCreate()
     {
 
-    factory(\App\Models\Client::class)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c){
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
 
-            factory(\App\Models\ClientContact::class,1)->create([
-                'user_id' => $this->user->id,
-                'client_id' => $c->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1
-            ]);
+        $cliz->save();
 
-            factory(\App\Models\ClientContact::class,2)->create([
-                'user_id' => $this->user->id,
-                'client_id' => $c->id,
-                'company_id' => $this->company->id
-            ]);
-
-        });
-
-        $client = Client::whereUserId($this->user->id)->whereCompanyId($this->company->id)->first();
-
-
-        $contact = ClientContactFactory::create($this->company->id, $this->user->id);
-        $contact->client_id = $client->id;
-        $contact->save();
-
-        $this->assertNotNull($contact);
-
-        $this->assertInternalType("int", $contact->id);
+        $this->assertNotNull($cliz->contacts);
+        $this->assertEquals(1, $cliz->contacts->count());
+        $this->assertInternalType("int", $cliz->contacts->first()->id);
 
     }
 

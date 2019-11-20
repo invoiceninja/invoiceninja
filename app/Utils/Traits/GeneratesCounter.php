@@ -18,7 +18,6 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Timezone;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class GeneratesCounter
@@ -43,7 +42,6 @@ trait GeneratesCounter
 
 		//todo handle if we have specific client patterns in the future
 		$pattern = $client->getSetting('invoice_number_pattern');
-
 		//Determine if we are using client_counters
 		if(strpos($pattern, 'clientCounter'))
 		{
@@ -65,9 +63,11 @@ trait GeneratesCounter
 		$pattern = $client->getSetting('invoice_number_pattern');
 		$prefix = $client->getSetting('invoice_number_prefix');
 		$padding = $client->getSetting('counter_padding');
+		
 		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $prefix, $pattern);
 
 		$this->incrementCounter($counter_entity, 'invoice_number_counter');
+
 
 		return $invoice_number;
 	}
@@ -173,7 +173,7 @@ trait GeneratesCounter
 	public function hasSharedCounter(Client $client) : bool
 	{
 
-		return $client->getSettingsByKey('shared_invoice_quote_counter') === TRUE;
+		return $client->getSetting('shared_invoice_quote_counter') === TRUE;
 
 	}
 
@@ -213,6 +213,7 @@ trait GeneratesCounter
 
 		} while ($check);
 
+
         return $number;
 	}
 
@@ -235,6 +236,7 @@ trait GeneratesCounter
 
 	private function prefixCounter($counter, $prefix) : string
 	{
+
 		if(strlen($prefix) == 0)
 			return $counter;
 
@@ -330,6 +332,7 @@ trait GeneratesCounter
      */
     private function applyNumberPattern(Client $client, string $counter, $pattern) :string
     {
+
     	if(!$pattern)
 			return $counter;
 

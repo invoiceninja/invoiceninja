@@ -2,12 +2,15 @@
 
 namespace Tests\Unit;
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\DefaultSettings;
+use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
+use App\Models\User;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesHash;
@@ -15,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -26,7 +30,7 @@ class GeneratesCounterTest extends TestCase
 	use GeneratesCounter;
     use DatabaseTransactions;
     use MakesHash;
-    //use MockAccountData;
+    use MockAccountData;
 
     public function setUp() :void
     {
@@ -36,49 +40,8 @@ class GeneratesCounterTest extends TestCase
         Session::start();
         $this->faker = \Faker\Factory::create();
         Model::reguard();
-                $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
-            'account_id' => $account->id,
-                        'domain' => 'ninja.test',
 
-        ]);
-        $account->default_company_id = $company->id;
-        $account->save();
-        $user = factory(\App\Models\User::class)->create([
-        //    'account_id' => $account->id,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
-        ]);
-        $userPermissions = collect([
-                                    'view_invoice',
-                                    'view_client',
-                                    'edit_client',
-                                    'edit_invoice',
-                                    'create_invoice',
-                                    'create_client'
-                                ]);
-        $userSettings = DefaultSettings::userSettings();
-        $user->companies()->attach($company->id, [
-            'account_id' => $account->id,
-            'is_owner' => 1,
-            'is_admin' => 1,
-            'permissions' => $userPermissions->toJson(),
-            'settings' => json_encode($userSettings),
-            'is_locked' => 0,
-        ]);
-        factory(\App\Models\Client::class)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-            factory(\App\Models\ClientContact::class,1)->create([
-                'user_id' => $user->id,
-                'client_id' => $c->id,
-                'company_id' => $company->id,
-                'is_primary' => 1
-            ]);
-            factory(\App\Models\ClientContact::class,2)->create([
-                'user_id' => $user->id,
-                'client_id' => $c->id,
-                'company_id' => $company->id
-            ]);
-        });
-        $this->client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
+        $this->makeTestData();
     }
 
 
@@ -92,11 +55,11 @@ class GeneratesCounterTest extends TestCase
 
     	$invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, 1);
+        $this->assertEquals($invoice_number, 0007);
 
     	$invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, 2);
+        $this->assertEquals($invoice_number, '0008');
 
     }
 
@@ -110,6 +73,10 @@ class GeneratesCounterTest extends TestCase
         $this->client->company->settings = $settings;
         $this->client->company->save();
 
+        $this->client->settings = $settings;
+        $this->client->save();
+        $this->client->fresh();
+
         $invoice_number = $this->getNextInvoiceNumber($this->client);
         $invoice_number2 = $this->getNextInvoiceNumber($this->client);
 
@@ -121,70 +88,86 @@ class GeneratesCounterTest extends TestCase
 
     public function testInvoiceClientNumberPattern()
     {
-        $settings = $this->client->company->settings;
+        $settings = $this->company->settings;
+        $settings->client_number_prefix = '';
+        $settings->client_number_pattern = '{$year}-{$clientCounter}';
+        $settings->client_number_counter = 10;
 
-        $settings->invoice_number_prefix = '';
-        $settings->invoice_number_pattern = '{$year}-{$clientCounter}';
-        $this->client->company->settings = $settings;
-        $this->client->company->save();
+        $this->company->settings = $settings;
+        $this->company->save();
 
         $settings = $this->client->settings;
-        $settings->invoice_number_counter = 10;
+        $settings->client_number_pattern = '{$year}-{$clientCounter}';
+        $settings->client_number_counter = 10;
         $this->client->settings = $settings;
         $this->client->save();
+        $this->client->fresh();
 
-        $this->assertEquals($this->client->settings->invoice_number_counter,10);
+        $this->assertEquals($this->client->settings->client_number_counter,10);
+        $this->assertEquals($this->client->getSetting('client_number_pattern'), '{$year}-{$clientCounter}');
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $invoice_number = $this->getNextClientNumber($this->client);
 
-        $this->assertEquals($invoice_number, '2019-0010');
+        $this->assertEquals($invoice_number, '2019-0001');
         
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
-		$this->assertEquals($invoice_number, '2019-0011');
+        $invoice_number = $this->getNextClientNumber($this->client);
+		$this->assertEquals($invoice_number, '2019-0002');
         
        
     }
 
     public function testInvoicePadding()
     {
-        $settings = $this->client->company->settings;
+        $settings = $this->company->settings;
         $settings->counter_padding = 5;
-        $this->client->company->settings = $settings;
-        $this->client->push();
+        $settings->invoice_number_counter = 7;
+        //$this->client->settings = $settings;
+        $this->company->settings = $settings;
+        $this->company->save();
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
+        $cliz->settings = ClientSettings::defaults();
+        $cliz->save();
+        $invoice_number = $this->getNextInvoiceNumber($cliz);
 
-        $this->assertEquals($this->client->company->settings->counter_padding, 5);
+        $this->assertEquals($cliz->getSetting('counter_padding'), 5);
+        $this->assertEquals($invoice_number, '00007');
         $this->assertEquals(strlen($invoice_number), 5);
-        $this->assertEquals($invoice_number, '00001');
 
-
-        $settings = $this->client->company->settings;
+        $settings = $this->company->settings;
         $settings->counter_padding = 10;
-        $this->client->company->settings = $settings;
-        $this->client->push();
+        $this->company->settings = $settings;
+        $this->company->save();
+        
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
+        $cliz->settings = ClientSettings::defaults();
+        $cliz->save();
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $invoice_number = $this->getNextInvoiceNumber($cliz);
 
-        $this->assertEquals($this->client->company->settings->counter_padding, 10);
+        $this->assertEquals($cliz->getSetting('counter_padding'), 10);
         $this->assertEquals(strlen($invoice_number), 10);
-        $this->assertEquals($invoice_number, '0000000002');
+        $this->assertEquals($invoice_number, '0000000007');
 
 
     }
 
     public function testInvoicePrefix()
     {
-        $settings = $this->client->company->settings;
+        $settings = $this->company->settings;
         $settings->invoice_number_prefix = 'X';
-        $this->client->company->settings = $settings;
-        $this->client->company->save();    
+        $this->company->settings = $settings;
+        $this->company->save();    
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
+        $cliz->settings = ClientSettings::defaults();
+        $cliz->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($cliz);
     
         $this->assertEquals($invoice_number, 'X0001');
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $invoice_number = $this->getNextInvoiceNumber($cliz);
 
         $this->assertEquals($invoice_number, 'X0002');
 
@@ -206,16 +189,20 @@ class GeneratesCounterTest extends TestCase
 
     public function testClientNumberPrefix()
     {
-        $settings = $this->client->company->settings;
+        $settings = $this->company->settings;
         $settings->client_number_prefix = 'C';
-        $this->client->company->settings = $settings;
-        $this->client->company->save();    
+        $this->company->settings = $settings;
+        $this->company->save();    
 
-        $client_number = $this->getNextClientNumber($this->client);
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
+        $cliz->settings = ClientSettings::defaults();
+        $cliz->save();
+
+        $client_number = $this->getNextClientNumber($cliz);
     
         $this->assertEquals($client_number, 'C0001');
 
-        $client_number = $this->getNextClientNumber($this->client);
+        $client_number = $this->getNextClientNumber($cliz);
 
         $this->assertEquals($client_number, 'C0002');
 
@@ -224,21 +211,23 @@ class GeneratesCounterTest extends TestCase
 
     public function testClientNumberPattern()
     {
-        $settings = $this->client->company->settings;
+        $settings = $this->company->settings;
         $settings->client_number_prefix = '';
         $settings->client_number_pattern = '{$year}-{$user_id}-{$counter}';
-        $this->client->company->settings = $settings;
-        $this->client->company->save();  
-        $this->client->save();
-        $this->client->fresh();  
+        $this->company->settings = $settings;
+        $this->company->save();  
 
-        $client_number = $this->getNextClientNumber($this->client);
-    
-        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-0001');
+        $cliz = ClientFactory::create($this->company->id, $this->user->id);
+        $cliz->settings = ClientSettings::defaults();
+        $cliz->save();
 
-        $client_number = $this->getNextClientNumber($this->client);
+        $client_number = $this->getNextClientNumber($cliz);
     
-        $this->assertEquals($client_number, date('Y') . '-' . $this->client->user_id . '-0002');
+        $this->assertEquals($client_number, date('Y') . '-' . str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT) . '-0001');
+
+        $client_number = $this->getNextClientNumber($cliz);
+    
+        $this->assertEquals($client_number, date('Y') . '-' . str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT) . '-0002');
 
     }
 /*
