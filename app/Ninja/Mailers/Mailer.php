@@ -206,7 +206,7 @@ class Mailer
 
             if (! empty($data['proposal'])) {
                 $invitation->markSent($messageId);
-            } else {
+            } elseif($invoice) {
                 $invoice->markInvitationSent($invitation, $messageId, true, $notes);
             }
         }
