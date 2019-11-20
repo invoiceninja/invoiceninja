@@ -97,6 +97,7 @@ class RegisterService
              * asking user to enter them again.
              */
             session([
+                'email-address' => $this->data['email_address'],
                 'x-api-secret' => $this->data['x_api_secret'],
                 'api-endpoint' => $this->data['api_endpoint'],
             ]);

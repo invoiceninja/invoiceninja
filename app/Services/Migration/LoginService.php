@@ -92,6 +92,7 @@ class LoginService
              * asking user to enter them again.
              */
             session([
+                'email-address' => $this->email_address,
                 'x-api-secret' => $this->x_api_secret,
                 'api-endpoint' => $this->endpoint,
             ]);

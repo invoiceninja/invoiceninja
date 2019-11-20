@@ -23,14 +23,14 @@
 
             <div class="flex items-between my-5">
 
-                <button name="purge_without_settings" type="submit"
+                <button name="migration_option" value="purge_without_settings" type="submit"
                         class="w-1/2 bg-white shadow flex flex-col items-center justify-center hover:shadow-lg rounded-lg py-16 px-10 mxM-4">
                     <p class="text-center block text-2xl font-semibold">Purge all data and re-import</p>
                     <p class="block text-center mt-2">We'll wipe all information about the company and merge the one
                         from
                         V1.</p>
                 </button>
-                <button name="purge_with_settings" type="submit"
+                <button name="migration_option" value="purge_with_settings" type="submit"
                         class="w-1/2 bg-white shadow flex flex-col items-center justify-center hover:shadow-lg rounded-lg py-16 px-10 mx-4">
                     <p class="text-center block text-2xl text-center font-semibold">Purge all data, but save
                         settings</p>

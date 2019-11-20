@@ -159,6 +159,10 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('migration/companies', 'Migration\CompaniesController@index');
     Route::post('migration/companies', 'Migration\CompaniesController@store');
+
+    Route::get('migration/password_confirmation', 'Migration\PasswordConfirmationController@index');
+    Route::post('migration/password_confirmation', 'Migration\PasswordConfirmationController@verify');
+
     // migration-routes-end
 
     Route::resource('clients', 'ClientController');
