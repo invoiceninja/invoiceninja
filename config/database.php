@@ -41,11 +41,11 @@ return [
             'username'  => env('DB_USERNAME1', 'forge'),
             'password'  => env('DB_PASSWORD1', ''),
             'port'      => env('DB_PORT1', '3306'),
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
             'strict'    => env('DB_STRICT', false),
-            'engine'    => 'InnoDB',
+            'engine'    => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
 
         'sqlite' => [
@@ -92,7 +92,7 @@ return [
             'prefix'         => '',
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
-            'engine'         => 'InnoDB',
+            'engine'    => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
 
         'db-ninja-02' => [
@@ -107,7 +107,7 @@ return [
             'prefix'         => '',
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
-            'engine'         => 'InnoDB',
+            'engine'    => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
     ],
 

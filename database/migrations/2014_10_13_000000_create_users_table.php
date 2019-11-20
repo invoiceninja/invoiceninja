@@ -15,6 +15,9 @@ class CreateUsersTable extends Migration
     public function up()
     {
 
+    DB::raw("SET GLOBAL innodb_file_per_table=1;");
+    DB::raw("SET GLOBAL innodb_file_format=Barracuda;");
+
         Schema::create('languages', function ($table) {
             $table->increments('id');
             $table->string('name');
@@ -179,7 +182,7 @@ class CreateUsersTable extends Migration
 
         });
 
-        DB::statement('ALTER table companies key_block_size=8 row_format=compressed');
+        //DB::statement('ALTER table companies key_block_size=8 row_format=compressed');
 
 
         Schema::create('company_user', function (Blueprint $table) {
@@ -195,6 +198,7 @@ class CreateUsersTable extends Migration
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->index(['account_id', 'company_id']);
 
@@ -255,8 +259,7 @@ class CreateUsersTable extends Migration
 
             $table->unique(['oauth_user_id', 'oauth_provider_id']);
 
-
-           // $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('company_users')->onDelete('cascade');
 
         });
 
@@ -364,7 +367,6 @@ class CreateUsersTable extends Migration
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             //$table->unique(['company_id', 'email']);
         });
@@ -755,7 +757,7 @@ class CreateUsersTable extends Migration
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
             $t->foreign('company_gateway_id')->references('id')->on('company_gateways')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            ;
+            
             $t->foreign('payment_type_id')->references('id')->on('payment_types');
 
         });
@@ -766,6 +768,9 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('paymentable_id');
             $table->decimal('amount', 16, 4)->default(0);
             $table->string('paymentable_type');
+
+            $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
+
         });
 
         Schema::create('payment_libraries', function ($t) {
@@ -896,7 +901,8 @@ class CreateUsersTable extends Migration
         Schema::create('backups', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('activity_id');
-            $table->mediumText('json_backup')->nullable();
+            $table->longText('json_backup')->nullable();
+            $table->longText('html_backup')->nullable();
             $table->timestamps(6);
 
             $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');

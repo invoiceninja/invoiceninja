@@ -16,13 +16,13 @@ use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
@@ -30,7 +30,7 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class CreateInvoicePdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml;
 
     public $invoice;
 
@@ -89,67 +89,5 @@ class CreateInvoicePdf implements ShouldQueue
             //->savePdf('test.pdf');
     }
 
-    /**
-     * Generate the HTML invoice parsing variables 
-     * and generating the final invoice HTML
-     *     
-     * @param  string $design either the path to the design template, OR the full design template string
-     * @param  Collection $invoice  The invoice object
-     * 
-     * @return string           The invoice string in HTML format
-     */
-    private function generateInvoiceHtml($design, $invoice) :string
-    {
 
-        $variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
-        $design = str_replace(array_keys($variables), array_values($variables), $design);
-
-        $data['invoice'] = $invoice;
-
-        return $this->renderView($design, $data);
-
-        //return view($design, $data)->render();
-
-    }
-
-    /**
-     * Parses the blade file string and processes the template variables
-     * 
-     * @param  string $string The Blade file string
-     * @param  array $data   The array of template variables
-     * @return string         The return HTML string
-     * 
-     */
-    private function renderView($string, $data) :string
-    {
-        if (!$data) {
-        $data = [];
-        }
-
-        $data['__env'] = app(\Illuminate\View\Factory::class);
-
-        $php = Blade::compileString($string);
-
-        $obLevel = ob_get_level();
-        ob_start();
-        extract($data, EXTR_SKIP);
-
-        try {
-            eval('?' . '>' . $php);
-        } catch (\Exception $e) {
-            while (ob_get_level() > $obLevel) {
-                ob_end_clean();
-            }
-
-            throw $e;
-        } catch (\Throwable $e) {
-            while (ob_get_level() > $obLevel) {
-                ob_end_clean();
-            }
-
-            throw new FatalThrowableError($e);
-        }
-
-        return ob_get_clean();
-    }
 }

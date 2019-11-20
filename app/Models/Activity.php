@@ -67,7 +67,9 @@ class Activity extends StaticModel
     const ARCHIVE_USER=50;
     const DELETE_USER=51;
     const RESTORE_USER=52;
-
+    const MARK_SENT_INVOICE=53;
+    const PAID_INVOICE=54;
+    
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
