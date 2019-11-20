@@ -73,8 +73,8 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 
   Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
 
-  Route::post('migration/purge/{company}', 'MigrationController@purgeCompany');
-  Route::post('migration/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings');
+  Route::post('migration/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
+  Route::post('migration/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
 
   Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
 
