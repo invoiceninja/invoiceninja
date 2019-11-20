@@ -30,6 +30,7 @@ use App\Models\TaxRate;
 use App\Models\Timezone;
 use App\Models\Traits\AccountTrait;
 use App\Models\User;
+use App\Utils\Ninja;
 use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -245,5 +246,50 @@ class Company extends BaseModel
     {
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+
+    private function isThrottled()
+    {
+        if (Ninja::isSelfHost()) {
+            return false;
+        }
+
+        $key = $this->id;
+
+        // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
+        $day = 60 * 60 * 24;
+        $day_limit = $account->getDailyEmailLimit();
+        $day_throttle = Cache::get("email_day_throttle:{$key}", null);
+        $last_api_request = Cache::get("last_email_request:{$key}", 0);
+        $last_api_diff = time() - $last_api_request;
+
+        if (is_null($day_throttle)) {
+            $new_day_throttle = 0;
+        } else {
+            $new_day_throttle = $day_throttle - $last_api_diff;
+            $new_day_throttle = $new_day_throttle < 0 ? 0 : $new_day_throttle;
+            $new_day_throttle += $day / $day_limit;
+            $day_hits_remaining = floor(($day - $new_day_throttle) * $day_limit / $day);
+            $day_hits_remaining = $day_hits_remaining >= 0 ? $day_hits_remaining : 0;
+        }
+
+        Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60);
+        Cache::put("last_email_request:{$key}", time(), 60);
+
+        if ($new_day_throttle > $day) {
+            $errorEmail = env('ERROR_EMAIL');
+            if ($errorEmail && ! Cache::get("throttle_notified:{$key}")) {
+                Mail::raw('Account Throttle: ' . $account->account_key, function ($message) use ($errorEmail, $account) {
+                    $message->to($errorEmail)
+                            ->from(CONTACT_EMAIL)
+                            ->subject("Email throttle triggered for account " . $account->id);
+                });
+            }
+            Cache::put("throttle_notified:{$key}", true, 60 * 24);
+            return true;
+        }
+
+        return false;
     }
 }
