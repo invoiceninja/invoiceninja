@@ -15,7 +15,7 @@ use Postmark\Models\PostmarkAttachment;
 /**
  * Class TicketMailer.
  */
-class TicketMailer
+class TicketMailer extends Mailer
 {
     /**
      * @param $toEmail
@@ -51,7 +51,12 @@ class TicketMailer
             $fromEmail = $data['fromEmail'];
 
 
-        return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        if (strlen(config('services.postmark')) >=1) {
+            return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        } else {
+            return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
+        }
+        //return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
 
     }
 
