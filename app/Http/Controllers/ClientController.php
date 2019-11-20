@@ -260,7 +260,7 @@ class ClientController extends BaseController
         }
 
         if (request()->json) {
-            return dispatch(new GenerateStatementData($client, request()->all()));
+            return dispatch_now(new GenerateStatementData($client, request()->all()));
         }
 
         $data = [
