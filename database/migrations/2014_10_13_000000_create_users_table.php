@@ -198,7 +198,7 @@ class CreateUsersTable extends Migration
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+          //  $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->index(['account_id', 'company_id']);
 
@@ -259,7 +259,7 @@ class CreateUsersTable extends Migration
 
             $table->unique(['oauth_user_id', 'oauth_provider_id']);
 
-            $table->foreign('user_id')->references('user_id')->on('company_users')->onDelete('cascade');
+           // $table->foreign('user_id')->references('user_id')->on('company_users')->onDelete('cascade');
 
         });
 

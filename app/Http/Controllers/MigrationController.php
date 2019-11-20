@@ -80,7 +80,7 @@ class MigrationController extends BaseController
     public function purgeCompany(Company $company)
     {
        
-       $company->delete();
+            $company->delete();
 
             return response()->json(['message'=>'Company purged'], 200);
     }
@@ -133,8 +133,8 @@ class MigrationController extends BaseController
      */
     public function purgeCompanySaveSettings(Company $company)
     {
-        $company->client->delete()
-        $company->save()
+        $company->client->delete();
+        $company->save();
 
             return response()->json(['message'=>'Setting preserved'], 200);
 
