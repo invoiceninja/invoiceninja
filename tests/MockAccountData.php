@@ -28,6 +28,7 @@ use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\User;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -93,11 +94,15 @@ trait MockAccountData
         $this->account->default_company_id = $this->company->id;
         $this->account->save();
 
-        $this->user = factory(\App\Models\User::class)->create([
-        //    'account_id' => $account->id,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
-        ]);
+        $this->user = User::whereEmail('user@example.com')->first();
 
+        if(!$this->user){
+            $this->user = factory(\App\Models\User::class)->create([
+            //    'account_id' => $account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+        }
+        
         $this->token = \Illuminate\Support\Str::random(64);
 
         $company_token = CompanyToken::create([
