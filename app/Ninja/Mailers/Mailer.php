@@ -50,14 +50,14 @@ class Mailer
             $fromEmail = $data['fromEmail'];
         }
 
-        if (config('services.postmark')) {
+        if (strlen(config('services.postmark')) >=1) {
             return $this->sendPostmarkMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
         } else {
             return $this->sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data);
         }
     }
 
-    private function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
+    public function sendLaravelMail($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $views, $data = [])
     {
         if (Utils::isSelfHost()) {
             if (isset($data['account'])) {

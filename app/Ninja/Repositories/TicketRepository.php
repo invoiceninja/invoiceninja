@@ -276,7 +276,7 @@ class TicketRepository extends BaseRepository
          */
 
         if($input['action'] != TICKET_SAVE_ONLY)
-            $this->dispatch_now(new TicketAction($changedAttributes, $oldTicket, $ticket, $input['action']));
+            dispatch_now(new TicketAction($changedAttributes, $oldTicket, $ticket, $input['action']));
 
         return $ticket;
 
