@@ -53,6 +53,17 @@ class Company extends BaseModel
         'enable_product_cost',
         'enable_product_quantity',
         'default_quantity',
+        'enable_invoice_quantity',
+        'enabled_tax_rates',
+        'portal_mode',
+        'portal_domain',
+        'convert_products',
+        'update_products',
+        'custom_surcharge_taxes1',
+        'custom_surcharge_taxes2',
+        'custom_surcharge_taxes3',
+        'custom_surcharge_taxes4',
+
     ];
 
     protected $hidden = [

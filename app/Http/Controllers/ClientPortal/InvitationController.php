@@ -32,7 +32,7 @@ class InvitationController extends Controller
     public function router(string $entity, string $invitation_key)
     {
         $key = $entity.'_id';
-        $entity_obj = ucfirst($entity).'Invitation';
+        $entity_obj = 'App\Models\\'.ucfirst($entity).'Invitation';
 
         $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
 
@@ -40,7 +40,9 @@ class InvitationController extends Controller
 
             if((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false)
                 $this->middleware('auth:contact');
-
+            else
+                auth()->guard('contact')->login($invitation->contact, false);
+                
             $invitation->markViewed();
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);

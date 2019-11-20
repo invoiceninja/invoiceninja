@@ -152,6 +152,7 @@ class CreateUsersTable extends Migration
             $table->boolean('custom_surcharge_taxes2')->default(false);
             $table->boolean('custom_surcharge_taxes3')->default(false);
             $table->boolean('custom_surcharge_taxes4')->default(false);
+            $table->boolean('enable_invoice_quantity')->default(true);
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
 
