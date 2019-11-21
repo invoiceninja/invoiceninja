@@ -523,7 +523,6 @@ class UserController extends BaseController
 
         });
 
-        //todo need to return the updated dataset
         return $this->listResponse(User::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }

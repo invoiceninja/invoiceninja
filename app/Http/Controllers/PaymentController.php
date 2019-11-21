@@ -563,7 +563,6 @@ class PaymentController extends BaseController
 
         });
 
-        //todo need to return the updated dataset
         return $this->listResponse(Payment::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }

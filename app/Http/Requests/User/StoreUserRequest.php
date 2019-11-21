@@ -27,7 +27,7 @@ class StoreUserRequest extends Request
     public function authorize() : bool
     {
 
-        return auth()->user()->can('create', User::class);
+        return auth()->user()->isAdmin();
 
     }
 
@@ -40,7 +40,6 @@ class StoreUserRequest extends Request
             'first_name' => 'required|string|max:100',
             'last_name' =>  'required|string:max:100',
             'email' => new NewUniqueUserRule(),
-            'is_admin' => 'required',
         ];
 
     }
@@ -49,21 +48,34 @@ class StoreUserRequest extends Request
     {
         $input = $this->all();
 
-        if($input['company_user'])
+        if(isset($input['company_user']))
         {
-            sanitize
+
+            if(!isset($input['company_user']['permissions']))
+                $input['company_user']['permissions'] = '';
+
+            if(!isset($input['company_user']['settings']))
+                $input['company_user']['settings'] = json_encode(DefaultSettings::userSettings());
+
+        }
+        else{
+            $input['company_user'] = [
+                'settings' => json_encode(DefaultSettings::userSettings()),
+                'permissions' => '',
+            ];
         }
 
-        if(!isset($input['is_admin']))
-            $input['is_admin'] = null;
-
-        if(!isset($input['permissions']))
-            $input['permissions'] = '';
-
-        if(!isset($input['settings']))
-            $input['settings'] = json_encode(DefaultSettings::userSettings());
-
         $this->replace($input); 
+
+        return $this->all();
+
+    }
+
+    public function messages()
+    {
+        return [
+            'company_user' => 'T',
+        ]
     }
 
 
