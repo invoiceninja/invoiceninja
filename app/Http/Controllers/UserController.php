@@ -514,9 +514,7 @@ class UserController extends BaseController
         
         $ids = request()->input('ids');
 
-        $ids = $this->transformKeys($ids);
-
-        $users = User::withTrashed()->find($ids);
+        $users = User::withTrashed()->find($this->transformKeys($ids));
 
         $users->each(function ($user, $key) use($action){
 
@@ -526,7 +524,7 @@ class UserController extends BaseController
         });
 
         //todo need to return the updated dataset
-        return $this->listResponse(User::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(User::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 

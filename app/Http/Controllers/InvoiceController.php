@@ -519,7 +519,7 @@ class InvoiceController extends BaseController
         
         $ids = request()->input('ids');
 
-        $invoices = Invoice::withTrashed()->find($ids);
+        $invoices = Invoice::withTrashed()->find($this->transformKeys($ids));
 
         $invoices->each(function ($invoice, $key) use($action){
 
@@ -528,8 +528,7 @@ class InvoiceController extends BaseController
 
         });
 
-        //todo need to return the updated dataset
-        return $this->listResponse(Invoice::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 
