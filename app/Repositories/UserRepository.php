@@ -61,6 +61,10 @@ class UserRepository extends BaseRepository
             $account_id = $company->account->id;
 
             $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
+if($cu)
+    \Log::error('company user exists');
+
+\Log::error(print_r($cu,1));
 
             if(!$cu)
                 $cu = CompanyUserFactory::create($user->id, $company->id, $account_id);

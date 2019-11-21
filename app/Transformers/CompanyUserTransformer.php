@@ -51,8 +51,8 @@ class CompanyUserTransformer extends EntityTransformer
             'is_owner' => (bool) $company_user->is_owner,
             'is_admin' => (bool) $company_user->is_admin,
             'is_locked' => (bool) $company_user->is_locked,
-            'updated_at' => $company_user->updated_at,
-            'deleted_at' => $company_user->deleted_at,
+            'updated_at' => (int)$company_user->updated_at,
+            'deleted_at' => (int)$company_user->deleted_at,
             
         ];
     }
