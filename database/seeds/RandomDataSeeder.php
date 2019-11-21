@@ -93,7 +93,7 @@ class RandomDataSeeder extends Seeder
         ]);
 
 
-        factory(\App\Models\Client::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
+        factory(\App\Models\Client::class, 10)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $user->id,
@@ -102,7 +102,7 @@ class RandomDataSeeder extends Seeder
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,10)->create([
+            factory(\App\Models\ClientContact::class,5)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
@@ -111,10 +111,10 @@ class RandomDataSeeder extends Seeder
         });
 
         /** Product Factory */
-        factory(\App\Models\Product::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id]);
+        factory(\App\Models\Product::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /** Invoice Factory */
-        factory(\App\Models\Invoice::class,50)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Invoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
       
         $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
@@ -162,7 +162,7 @@ class RandomDataSeeder extends Seeder
         });
         
         /** Recurring Invoice Factory */
-        factory(\App\Models\RecurringInvoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\RecurringInvoice::class,10)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
        // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 

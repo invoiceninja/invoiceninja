@@ -66,7 +66,6 @@ class GeneratesCounterTest extends TestCase
     public function testInvoiceNumberPattern()
     {
         $settings = $this->client->company->settings;
-        $settings->invoice_number_prefix = '';
         $settings->invoice_number_counter = 1;
         $settings->invoice_number_pattern = '{$year}-{$counter}';
 
@@ -89,7 +88,6 @@ class GeneratesCounterTest extends TestCase
     public function testInvoiceClientNumberPattern()
     {
         $settings = $this->company->settings;
-        $settings->client_number_prefix = '';
         $settings->client_number_pattern = '{$year}-{$clientCounter}';
         $settings->client_number_counter = 10;
 
@@ -155,7 +153,6 @@ class GeneratesCounterTest extends TestCase
     public function testInvoicePrefix()
     {
         $settings = $this->company->settings;
-        $settings->invoice_number_prefix = 'X';
         $this->company->settings = $settings;
         $this->company->save();    
 
@@ -165,11 +162,11 @@ class GeneratesCounterTest extends TestCase
 
         $invoice_number = $this->getNextInvoiceNumber($cliz);
     
-        $this->assertEquals($invoice_number, 'X0001');
+        $this->assertEquals($invoice_number, '0007');
 
         $invoice_number = $this->getNextInvoiceNumber($cliz);
 
-        $this->assertEquals($invoice_number, 'X0002');
+        $this->assertEquals($invoice_number, '0008');
 
 
     }
@@ -190,7 +187,6 @@ class GeneratesCounterTest extends TestCase
     public function testClientNumberPrefix()
     {
         $settings = $this->company->settings;
-        $settings->client_number_prefix = 'C';
         $this->company->settings = $settings;
         $this->company->save();    
 
@@ -200,11 +196,11 @@ class GeneratesCounterTest extends TestCase
 
         $client_number = $this->getNextClientNumber($cliz);
     
-        $this->assertEquals($client_number, 'C0001');
+        $this->assertEquals($client_number, '0001');
 
         $client_number = $this->getNextClientNumber($cliz);
 
-        $this->assertEquals($client_number, 'C0002');
+        $this->assertEquals($client_number, '0002');
 
 
     }
@@ -212,7 +208,6 @@ class GeneratesCounterTest extends TestCase
     public function testClientNumberPattern()
     {
         $settings = $this->company->settings;
-        $settings->client_number_prefix = '';
         $settings->client_number_pattern = '{$year}-{$user_id}-{$counter}';
         $this->company->settings = $settings;
         $this->company->save();  

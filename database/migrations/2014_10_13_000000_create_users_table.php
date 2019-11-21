@@ -152,6 +152,7 @@ class CreateUsersTable extends Migration
             $table->boolean('custom_surcharge_taxes2')->default(false);
             $table->boolean('custom_surcharge_taxes3')->default(false);
             $table->boolean('custom_surcharge_taxes4')->default(false);
+            $table->boolean('enable_invoice_quantity')->default(true);
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
 
@@ -195,6 +196,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_locked')->default(false); // locks user out of account
+            $table->timestamps(6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -271,7 +273,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('token')->nullable();
             $table->string('name')->nullable();
-
+            $table->string('user_agent')->nullable();
+            
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

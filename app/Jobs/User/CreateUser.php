@@ -70,7 +70,7 @@ class CreateUser
             'is_owner' => $this->company_owner,
             'is_admin' => 1,
             'is_locked' => 0,
-            'permissions' => json_encode([]),
+            'permissions' => '',
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 

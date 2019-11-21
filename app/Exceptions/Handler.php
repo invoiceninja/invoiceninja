@@ -22,6 +22,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -70,15 +71,15 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
     
-        if ($exception instanceof ModelNotFoundException)
+        if ($exception instanceof ModelNotFoundException && $request->expectsJson())
         {
             return response()->json(['message'=>'Record not found'],400);
         }
-        else if($exception instanceof ThrottleRequestsException)
+        else if($exception instanceof ThrottleRequestsException && $request->expectsJson())
         {
             return response()->json(['message'=>'Too many requests'],429);
         }
-        else if($exception instanceof FatalThrowableError)
+        else if($exception instanceof FatalThrowableError && $request->expectsJson())
         {
             return response()->json(['message'=>'Fatal error'], 500);
         }
@@ -95,14 +96,17 @@ class Handler extends ExceptionHandler
                         'message' => ctrans('texts.token_expired'),
                         'message-type' => 'danger']);
         }   
-        else if ($exception instanceof NotFoundHttpException) {
+        else if ($exception instanceof NotFoundHttpException && $request->expectsJson()) {
             return response()->json(['message'=>'Route does not exist'],404);
         }
-        else if($exception instanceof MethodNotAllowedHttpException){
+        else if($exception instanceof MethodNotAllowedHttpException && $request->expectsJson()){
             return response()->json(['message'=>'Method not support for this route'],404);
         }
         else if ($exception instanceof ValidationException && $request->expectsJson()) {
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
+        }
+        else if ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
+            return response()->json(['message' => $exception->getMessage()], 400);
         }
 
         return parent::render($request, $exception);

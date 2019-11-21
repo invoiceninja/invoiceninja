@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
+use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
@@ -103,6 +104,11 @@ trait MockAccountData
             ]);
         }
         
+        $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->save();
+
         $this->token = \Illuminate\Support\Str::random(64);
 
         $company_token = CompanyToken::create([
@@ -113,14 +119,14 @@ trait MockAccountData
             'token' => $this->token,
         ]);
 
-        $this->user->companies()->attach($this->company->id, [
-            'account_id' => $this->account->id,
-            'is_owner' => 1,
-            'is_admin' => 1,
-            'is_locked' => 0,
-            'permissions' => json_encode([]),
-            'settings' => json_encode(DefaultSettings::userSettings()),
-        ]);
+        // $this->user->companies()->attach($this->company->id, [
+        //     'account_id' => $this->account->id,
+        //     'is_owner' => 1,
+        //     'is_admin' => 1,
+        //     'is_locked' => 0,
+        //     'permissions' => '',
+        //     'settings' => json_encode(DefaultSettings::userSettings()),
+        // ]);
 
         $this->client = ClientFactory::create($this->company->id, $this->user->id);
         $this->client->save();

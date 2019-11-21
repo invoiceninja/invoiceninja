@@ -139,6 +139,7 @@ class AccountController extends BaseController
         $account = CreateAccount::dispatchNow($request->all());
                 
         $ct = CompanyUser::whereUserId(auth()->user()->id);
+        
         return $this->listResponse($ct);
 
     }

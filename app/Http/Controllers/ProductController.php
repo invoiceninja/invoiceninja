@@ -470,17 +470,16 @@ class ProductController extends BaseController
         
         $ids = request()->input('ids');
 
-        $products = Product::withTrashed()->find($ids);
+        $products = Product::withTrashed()->find($this->transformKeys($ids));
 
         $products->each(function ($product, $key) use($action){
 
             if(auth()->user()->can('edit', $product))
-                ActionEntity::dispatchNow($product, $action);
+                $this->product_repo->{$action}($product);
 
         });
 
-        //todo need to return the updated dataset
-        return response()->json([], 200);
+        return $this->listResponse(Product::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 }

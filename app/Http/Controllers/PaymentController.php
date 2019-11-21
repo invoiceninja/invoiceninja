@@ -554,7 +554,7 @@ class PaymentController extends BaseController
         
         $ids = request()->input('ids');
 
-        $payments = Payment::withTrashed()->find($ids);
+        $payments = Payment::withTrashed()->find($this->transformKeys($ids));
 
         $payments->each(function ($payment, $key) use($action){
 
@@ -563,8 +563,7 @@ class PaymentController extends BaseController
 
         });
 
-        //todo need to return the updated dataset
-        return $this->listResponse(Payment::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(Payment::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 

@@ -68,6 +68,8 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
+        $std = new \stdClass;
+
         return [
             'id' => (string)$this->encodePrimaryKey($company->id),
             'company_key' => (string)$company->company_key ?: '',
@@ -81,7 +83,7 @@ class CompanyTransformer extends EntityTransformer
             'enable_product_cost' => (bool)$company->enable_product_cost,
             'enable_product_quantity' => (bool)$company->enable_product_quantity,
             'default_quantity' => (bool)$company->default_quantity,
-            'custom_fields' => (string) $company->custom_fields,
+            'custom_fields' => $company->custom_fields ?: $std,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
             'first_month_of_year' => (string) $company->first_month_of_year ?: '',

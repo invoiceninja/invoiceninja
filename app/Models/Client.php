@@ -59,6 +59,7 @@ class Client extends BaseModel
     ];
    
     protected $fillable = [
+        'currency_id',
         'name',
         'website',
         'private_notes',
