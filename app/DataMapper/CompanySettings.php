@@ -71,37 +71,28 @@ class CompanySettings extends BaseSettings
 	/* Counters */
 	public $invoice_number_pattern = '';
 	public $invoice_number_counter = 1;
-	public $invoice_number_prefix = '';
 
-	public $quote_number_prefix = '';
 	public $quote_number_pattern = '';
 	public $quote_number_counter = 1;
 
-	public $client_number_prefix = '';
 	public $client_number_pattern = '';
 	public $client_number_counter = 1;
 
-	public $credit_number_prefix = '';
 	public $credit_number_pattern = '';
 	public $credit_number_counter = 1;
 
-	public $task_number_prefix = '';
 	public $task_number_pattern = '';
 	public $task_number_counter = 1;
 
-	public $expense_number_prefix = '';
 	public $expense_number_pattern = '';
 	public $expense_number_counter = 1;
 
-	public $vendor_number_prefix = '';
 	public $vendor_number_pattern = '';
 	public $vendor_number_counter = 1;
 
-	public $ticket_number_prefix = '';
 	public $ticket_number_pattern = '';
 	public $ticket_number_counter = 1;
 
-	public $payment_number_prefix = '';
 	public $payment_number_pattern = '';
 	public $payment_number_counter = 1;
 
@@ -260,19 +251,14 @@ class CompanySettings extends BaseSettings
 		'embed_documents' => 'bool',
 		'all_pages_header' => 'bool',
 		'all_pages_footer' => 'bool',
-		'task_number_prefix' => 'string',	
 		'task_number_pattern' => 'string',
 		'task_number_counter' => 'int',
-		'expense_number_prefix' => 'string',
 		'expense_number_pattern' => 'string',
 		'expense_number_counter' => 'int',
-		'vendor_number_prefix' => 'string',
 		'vendor_number_pattern' => 'string',
 		'vendor_number_counter' => 'int',
-		'ticket_number_prefix' => 'string',
 		'ticket_number_pattern' => 'string',
 		'ticket_number_counter' => 'int',
-		'payment_number_prefix' => 'string',
 		'payment_number_pattern' => 'string',
 		'payment_number_counter' => 'int',
 		'reply_to_email' => 'string',
@@ -287,10 +273,8 @@ class CompanySettings extends BaseSettings
 		'city' => 'string',
 		'company_logo' => 'string',
 		'country_id' => 'string',
-		'client_number_prefix' => 'string',
 		'client_number_pattern' => 'string',
 		'client_number_counter' => 'integer',
-		'credit_number_prefix' => 'string',
 		'credit_number_pattern' => 'string',
 		'credit_number_counter' => 'integer',
 		'currency_id' => 'string',
@@ -320,7 +304,6 @@ class CompanySettings extends BaseSettings
 		'email_template_reminder_endless' => 'string',
 		'enable_client_portal_password' => 'bool',
 		'inclusive_taxes' => 'bool',
-		'invoice_number_prefix' => 'string',
 		'invoice_number_pattern' => 'string',
 		'invoice_number_counter' => 'integer',
 		'invoice_design_id' => 'string',
@@ -336,7 +319,6 @@ class CompanySettings extends BaseSettings
 		'phone' => 'string',
 		'postal_code' => 'string',
 		'quote_design_id' => 'string',
-		'quote_number_prefix' => 'string',
 		'quote_number_pattern' => 'string',
 		'quote_number_counter' => 'integer',
 		'quote_terms' => 'string',

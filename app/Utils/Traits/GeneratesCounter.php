@@ -61,10 +61,9 @@ trait GeneratesCounter
 
 		//Return a valid counter
 		$pattern = $client->getSetting('invoice_number_pattern');
-		$prefix = $client->getSetting('invoice_number_prefix');
 		$padding = $client->getSetting('counter_padding');
 		
-		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $prefix, $pattern);
+		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern);
 
 		$this->incrementCounter($counter_entity, 'invoice_number_counter');
 
@@ -126,9 +125,9 @@ trait GeneratesCounter
 
 		//Return a valid counter
 		$pattern = '';
-		$prefix = $client->company->settings->recurring_invoice_number_prefix;
-		$padding = $client->company->settings->counter_padding;
-		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $prefix, $pattern);
+		$padding = $client->getSetting('counter_padding');
+		$invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern);
+		$invoice_number = $this->prefixCounter($invoice_number, $client->getSetting('recurring_number_prefix'));
 
 		//increment the correct invoice_number Counter (company vs client)
 		if($is_client_counter)
@@ -155,7 +154,7 @@ trait GeneratesCounter
         $counter = $client->getSetting('client_number_counter' );
         $setting_entity = $client->getSettingEntity('client_number_counter');
 
-		$client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_prefix'), $client->getSetting('client_number_pattern'));
+		$client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_pattern'));
 
 		$this->incrementCounter($setting_entity, 'client_number_counter');
 
@@ -183,11 +182,10 @@ trait GeneratesCounter
 	 * @param      Collection  $entity   The entity ie App\Models\Client, Invoice, Quote etc
 	 * @param      integer  $counter  The counter
 	 * @param      integer   $padding  The padding
-	 * @param      string  $prefix   The prefix
-	 *
+	 * 	
 	 * @return     string   The padded and prefixed invoice number
 	 */
-	private function checkEntityNumber($class, $client, $counter, $padding, $prefix, $pattern)
+	private function checkEntityNumber($class, $client, $counter, $padding, $pattern)
 	{
 		$check = false;
 
@@ -195,10 +193,7 @@ trait GeneratesCounter
 
 			$number = $this->padCounter($counter, $padding);
 
-			if(isset($prefix) && strlen($prefix) >= 1)
-				$number = $this->prefixCounter($number, $prefix);
-			else
-				$number = $this->applyNumberPattern($client, $number, $pattern);
+			$number = $this->applyNumberPattern($client, $number, $pattern);
 		
 			if($class == Invoice::class || $class == RecurringInvoice::class)
 				$check = $class::whereCompanyId($client->company_id)->whereInvoiceNumber($number)->withTrashed()->first();
