@@ -52,14 +52,14 @@ trait Inviteable
 
 		switch ($this->company->portal_mode) {
 			case 'subdomain':
-				return $domain . $entity_type .'/'. $this->key;
+				return $domain .'client/'. $entity_type .'/'. $this->key;
 				break;
 			case 'iframe':
-				return $domain . $entity_type .'/'. $this->key;
+				return $domain .'client/'. $entity_type .'/'. $this->key;
 				//return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
 				break;
 			case 'domain':
-				return $domain . $entity_type .'/'. $this->key;
+				return $domain .'client/'. $entity_type .'/'. $this->key;
 				break;
 
 		}

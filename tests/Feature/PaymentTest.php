@@ -239,9 +239,7 @@ class PaymentTest extends TestCase
 
         }
         catch(ValidationException $e) {
-            \Log::error('in the validator');
             $message = json_decode($e->validator->getMessageBag(),1);
-            \Log::error($message);
             $this->assertNotNull($message);
 
         }

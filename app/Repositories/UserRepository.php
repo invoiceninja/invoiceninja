@@ -12,6 +12,8 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use App\Models\CompanyUser;
+use App\Factory\CompanyUserFactory;
 use Illuminate\Http\Request;
 
 /**
@@ -50,8 +52,23 @@ class UserRepository extends BaseRepository
 	{
 
         $user->fill($data);
-
         $user->save();
+
+        if($data['company_user'])
+        {
+            
+            $company = auth()->user()->company();
+            $account_id = $company->account->id;
+
+            $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
+
+            if(!$cu)
+                $cu = new CompanyUserFactory::create($user->id, $company->id, $account_id);
+            
+            $cu->fill($data['company_user']);
+            $cu->save();
+
+        }
 
         return $user;
         

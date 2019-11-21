@@ -23,10 +23,17 @@ class CompanyUser extends Pivot
      * @var array
      */
     protected $casts = [
-        'permissions' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+    ];
+
+    protected $fillable = [
+        'permissions',
+        'settings',
+        'is_admin',
+        'is_owner',
+        'is_locked'
     ];
 
     public function account()

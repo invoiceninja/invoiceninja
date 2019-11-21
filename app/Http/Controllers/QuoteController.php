@@ -507,17 +507,16 @@ class QuoteController extends BaseController
         
         $ids = request()->input('ids');
 
-        $quotes = Quote::withTrashed()->find($ids);
+        $quotes = Quote::withTrashed()->find($this->transformKeys($ids));
 
         $quotes->each(function ($quote, $key) use($action){
 
             if(auth()->user()->can('edit', $quote))
-                $this->quote_repo->{$action}($quote);
+                $this->product_repo->{$action}($quote);
 
         });
 
-        //todo need to return the updated dataset
-        return $this->listResponse(Quote::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 

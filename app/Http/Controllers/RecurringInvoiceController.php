@@ -517,7 +517,7 @@ class RecurringInvoiceController extends BaseController
         
         $ids = request()->input('ids');
 
-        $recurring_invoices = RecurringInvoice::withTrashed()->find($ids);
+        $recurring_invoices = RecurringInvoice::withTrashed()->find($this->transformKeys($ids));
 
         $recurring_invoices->each(function ($recurring_invoice, $key) use($action){
 
@@ -526,8 +526,7 @@ class RecurringInvoiceController extends BaseController
 
         });
 
-        //todo need to return the updated dataset
-        return $this->listResponse(RecurringInvoice::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(RecurringInvoice::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 
@@ -610,7 +609,7 @@ class RecurringInvoiceController extends BaseController
           //      return $this->itemResponse($recurring_invoice);
                 break;
             case 'clone_to_quote':
-            //    $quote = CloneRecurringInvoiceToQuoteFactory::create($recurring_invoice, auth()->user()->id);
+            //    $recurring_invoice = CloneRecurringInvoiceToQuoteFactory::create($recurring_invoice, auth()->user()->id);
                 // todo build the quote transformer and return response here 
                 break;
             case 'history':

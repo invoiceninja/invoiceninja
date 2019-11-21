@@ -178,11 +178,12 @@ class MultiDB
 
     public static function findAndSetDbByInvitation($entity, $invitation_key)
     {
-        $entity.'Invitation';
+
+        $class = 'App\Models\\'.ucfirst($entity).'Invitation';
 
         foreach (self::$dbs as $db)
         {
-            if($invite = $entity::on($db)->whereKey($invitation_key)->first())
+            if($invite = $class::on($db)->whereRaw("BINARY `key`= ?",[$invitation_key])->first())
             {
                 self::setDb($db);
                 return true;

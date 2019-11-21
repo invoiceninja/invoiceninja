@@ -515,7 +515,7 @@ class RecurringQuoteController extends BaseController
         
         $ids = request()->input('ids');
 
-        $recurring_quotes = RecurringQuote::withTrashed()->find($ids);
+        $recurring_quotes = RecurringQuote::withTrashed()->find($this->transformKeys($ids));
 
         $recurring_quotes->each(function ($recurring_quote, $key) use($action){
 
@@ -524,8 +524,7 @@ class RecurringQuoteController extends BaseController
 
         });
 
-        //todo need to return the updated dataset
-        return $this->listResponse(RecurringQuote::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(RecurringQuote::withTrashed()->whereIn('id', $this->transformKeys($ids)));
         
     }
 
