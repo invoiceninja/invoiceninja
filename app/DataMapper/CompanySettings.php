@@ -12,6 +12,7 @@
 namespace App\DataMapper;
 
 use App\DataMapper\CompanySettings;
+use App\DataMapper\EmailTemplateDefaults;
 use App\Models\Company;
 
 /**
@@ -399,6 +400,9 @@ class CompanySettings extends BaseSettings
 		$data->date_format_id = (string)config('ninja.i18n.date_format_id');
 		$data->country_id = (string)config('ninja.i18n.country_id');
 		$data->translations = (object) [];
+		
+		$data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
+		$data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
 		
 		return self::setCasts($data, self::$casts);
 
