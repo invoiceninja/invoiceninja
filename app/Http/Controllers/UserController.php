@@ -213,7 +213,7 @@ class UserController extends BaseController
             'settings' => $request->input('settings'),
         ]);
 
-        CreateCompanyToken::dispatchNow($company, $user);
+        CreateCompanyToken::dispatchNow($company, $user, request()->server('HTTP_USER_AGENT'));
 
         $user->load('companies');
 

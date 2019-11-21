@@ -80,7 +80,7 @@ class CreateAccount
         /*
          * Create token
          */
-        $company_token = CreateCompanyToken::dispatchNow($company, $user);
+        $company_token = CreateCompanyToken::dispatchNow($company, $user, $this->request['user_agent']);
         /*
          * Login user
          */

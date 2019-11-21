@@ -49,11 +49,16 @@ class StoreUserRequest extends Request
     {
         $input = $this->all();
 
+        if($input['company_user'])
+        {
+            sanitize
+        }
+
         if(!isset($input['is_admin']))
             $input['is_admin'] = null;
 
         if(!isset($input['permissions']))
-            $input['permissions'] = json_encode([]);
+            $input['permissions'] = '';
 
         if(!isset($input['settings']))
             $input['settings'] = json_encode(DefaultSettings::userSettings());
