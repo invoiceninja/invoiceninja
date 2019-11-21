@@ -63,7 +63,7 @@ class UserRepository extends BaseRepository
             $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
             if(!$cu)
-                $cu = new CompanyUserFactory::create($user->id, $company->id, $account_id);
+                $cu = CompanyUserFactory::create($user->id, $company->id, $account_id);
             
             $cu->fill($data['company_user']);
             $cu->save();

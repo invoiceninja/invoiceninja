@@ -29,6 +29,7 @@ class CompanyUser extends Pivot
     ];
 
     protected $fillable = [
+        'account_id',
         'permissions',
         'settings',
         'is_admin',
