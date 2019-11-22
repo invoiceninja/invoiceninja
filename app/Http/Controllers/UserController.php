@@ -22,6 +22,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Models\User;
+use App\DataMapper\DefaultSettings;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
@@ -200,24 +201,14 @@ class UserController extends BaseController
     {
 
         $company = auth()->user()->company();
-        //save user
         
-        $user = $this->user_repo->save($request->all(), UserFactory::create($company->id, auth()->user()->id));
+        $user = $this->user_repo->save($request->all(), UserFactory::create());
 
-        $user->companies()->attach($company->id, [
-            'account_id' => $company->account->id,
-            'is_owner' => 0,
-            'is_admin' => $request->input('is_admin'),
-            'is_locked' => 0,
-            'permissions' => $request->input('permissions'),
-            'settings' => $request->input('settings'),
-        ]);
+        $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
 
-        CreateCompanyToken::dispatchNow($company, $user, request()->server('HTTP_USER_AGENT'));
+        $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
-        $user->load('companies');
-
-        return $this->itemResponse($user);
+        return $this->itemResponse($user->fresh());
         
     }
 

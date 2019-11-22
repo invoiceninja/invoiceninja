@@ -15,7 +15,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class CompanyUser extends Pivot
 {
-    protected $guarded = ['id'];
+ //   protected $guarded = ['id'];
+
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
 
     /**
      * The attributes that should be cast to native types.
@@ -71,6 +74,7 @@ class CompanyUser extends Pivot
     public function token()
     {
         return $this->belongsTo(CompanyToken::class, 'user_id','user_id');
+
 
         /*
         return $this->hasOneThrough(

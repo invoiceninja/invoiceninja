@@ -46,6 +46,7 @@ class Company extends BaseModel
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $fillable = [
+        'fill_products',
         'industry_id',
         'domain',
         'size_id',

@@ -50,6 +50,8 @@ class StoreUserRequest extends Request
 
         if(isset($input['company_user']))
         {
+            if(!isset($input['company_user']['is_admin']))
+                $input['company_user']['is_admin'] = false;
 
             if(!isset($input['company_user']['permissions']))
                 $input['company_user']['permissions'] = '';
@@ -66,17 +68,11 @@ class StoreUserRequest extends Request
         }
 
         $this->replace($input); 
-
+\Log::error($input);
         return $this->all();
 
     }
 
-    public function messages()
-    {
-        return [
-            'company_user' => 'T',
-        ]
-    }
 
 
 }

@@ -37,45 +37,44 @@ class UserTest extends TestCase
 
         Model::reguard();
 
+        $this->makeTestData();
     }
 
     public function testUserList()
     {
 
-        $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'name' => $this->faker->company,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token(),
-            'privacy_policy' => 1,
-            'terms_of_service' => 1
-        ];
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup?include=account', $data);
-
-
-        $response->assertStatus(200);
-
-        $acc = $response->json();
-
-
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));        
-
-        $token = $account->default_company->tokens->first()->token;
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/users');
 
         $response->assertStatus(200);
 
     }
 
+    public function testUserStore()
+    {
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'bob@good.ole.boys.com',
+            'company_user' => [
+                    'is_admin' => false,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice'
+                ],
+        ];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/users?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+    }
 
 }
