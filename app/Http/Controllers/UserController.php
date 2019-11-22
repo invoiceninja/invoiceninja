@@ -201,19 +201,12 @@ class UserController extends BaseController
     {
 
         $company = auth()->user()->company();
-        //save user
         
         $user = $this->user_repo->save($request->all(), UserFactory::create());
 
         $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
-
-\DB::connection()->enableQueryLog();
-
-\Log::error($user->company_user);
-
-\Log::error(\DB::getQueryLog());
 
         return $this->itemResponse($user->fresh());
         
