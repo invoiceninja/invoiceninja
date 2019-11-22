@@ -52,7 +52,7 @@ class TokenAuth
             $user->setCompany($company_token->company); 
 
             //user who once existed, but has been soft deleted   
-            if($user->user_company()->is_locked){
+            if($user->company_user->is_locked){
 
                 $error = [
                     'message' => 'User access locked',

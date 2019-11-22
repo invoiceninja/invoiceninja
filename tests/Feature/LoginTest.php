@@ -171,9 +171,9 @@ class LoginTest extends TestCase
         $user->fresh();
 
         $this->assertTrue($user->companies !== null);
-        $this->assertTrue($user->user_companies !== null);
-        $this->assertTrue($user->user_companies->first() !== null);
-        $this->assertTrue($user->user_companies->first()->account !== null);
+        $this->assertTrue($user->company_users !== null);
+        $this->assertTrue($user->company_users->first() !== null);
+        $this->assertTrue($user->company_user->account !== null);
 
         $data = [
             'email' => 'test@example.com',

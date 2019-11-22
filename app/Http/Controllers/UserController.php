@@ -209,9 +209,13 @@ class UserController extends BaseController
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
-        $user->load('companies','company_user');
+\DB::connection()->enableQueryLog();
 
-        return $this->itemResponse($user);
+\Log::error($user->company_user);
+
+\Log::error(\DB::getQueryLog());
+
+        return $this->itemResponse($user->fresh());
         
     }
 

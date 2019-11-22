@@ -46,7 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
 
-    protected $with = ['companies','user_companies'];
+    protected $with = ['companies'];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
@@ -169,49 +169,31 @@ class User extends Authenticatable implements MustVerifyEmail
 
     }
 
-    /**
-     * Returns the pivot tables for Company / User
-     * 
-     * @return Collection
-     * 
-     */
-    public function user_companies()
+    public function company_users()
     {
         return $this->hasMany(CompanyUser::class);
     }
 
-    /**
-     * Alias of user_companies()
-     */
-    public function company_users()
-    {
-        return $this->user_companies();
-    }
-
-    /**
-     * Returns the current company by
-     * querying directly on the pivot table relationship
-     * 
-     * @return Collection
-     * @deprecated
-     */
-    public function user_company()
-    {
-    
-        return $this->user_companies->where('company_id', $this->companyId())->first();
-
-    }
-
     public function company_user()
     {
-        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
-            'user_id', // Foreign key on CompanyToken table...
-            'company_id', // Foreign key on CompanyUser table...
-            'id', // Local key on suppliers table...
-            'company_id' // Local key on CompanyToken table...
-        );
 
-       // return $this->user_companies->where('company_id', $this->companyId());
+        //return $this->belongsTo(CompanyUser::class,)
+
+        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
+        //     'user_id', // Foreign key on CompanyToken table...
+        //     'user_id', // Foreign key on CompanyUser table...
+        //     'id', // Local key on User table...
+        //     'company_id' // Local key on CompanyToken table...
+        // );
+
+
+        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
+        //     'user_id', // Foreign key on CompanyToken table...
+        //     'company_id', // Foreign key on CompanyUser table...
+        //     'id', // Local key on User table...
+        //     'company_id' // Local key on CompanyToken table...
+        // );
+
     }
 
 
@@ -235,7 +217,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         
-        $permissions = json_decode($this->user_company()->permissions);
+        $permissions = json_decode($this->company_user->permissions);
         
         if (! $permissions) 
             return [];
@@ -251,7 +233,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function settings()
     {
 
-        return json_decode($this->user_company()->settings);
+        return json_decode($this->company_user->settings);
 
     }
 
@@ -263,7 +245,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin() : bool
     {
 
-        return $this->user_company()->is_admin;
+        return $this->company_user->is_admin;
 
     }
 
@@ -328,7 +310,7 @@ class User extends Authenticatable implements MustVerifyEmail
     { 
 
 
-        return (stripos($this->user_company()->permissions, $permission) !== false);
+        return (stripos($this->company_user->permissions, $permission) !== false);
             
 
        // return $this->permissionsFlat()->contains($permission);

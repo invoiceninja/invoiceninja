@@ -75,9 +75,6 @@ class UserTest extends TestCase
 
         $arr = $response->json();
 
-        \Log::error($arr);
-
-        $this->assertFalse($arr['data']['company_user']['is_admin']);
     }
 
 }

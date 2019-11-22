@@ -93,7 +93,7 @@ class UserTransformer extends EntityTransformer
 
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        return $this->includeCollection($user->user_companies, $transformer, CompanyUser::class);
+        return $this->includeCollection($user->company_users, $transformer, CompanyUser::class);
 
     }
 

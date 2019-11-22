@@ -114,11 +114,11 @@ class UserFilters extends QueryFilters
     {
         //return $this->builder->user_companies()->whereCompanyId(auth()->user()->company()->id);
         //return $this->builder->whereCompanyId(auth()->user()->company()->id);
-        return $this->builder->whereHas('user_companies', function($q)
-                {
-                    $q->where('company_id', '=', auth()->user()->company()->id);
+        return $this->builder->whereHas('company_users', function($q)
+        {
+            $q->where('company_id', '=', auth()->user()->company()->id);
 
-                });
+        });
     }
 
 }

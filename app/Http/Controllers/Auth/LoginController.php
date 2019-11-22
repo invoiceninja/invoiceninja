@@ -173,7 +173,7 @@ class LoginController extends BaseController
 
             $user = $this->guard()->user();
             
-            $user->setCompany($user->user_companies->first()->account->default_company);
+            $user->setCompany($user->company_user->account->default_company);
 
             $ct = CompanyUser::whereUserId($user->id);
             return $this->listResponse($ct);
