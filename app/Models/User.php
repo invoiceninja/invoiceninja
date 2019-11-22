@@ -39,6 +39,12 @@ class User extends Authenticatable implements MustVerifyEmail
     use UserSessionAttributes;
     use UserSettings;
     use Filterable;
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+
+    public function company_user()
+    {
+        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id','id','company_id')->where('company_user.user_id', $this->id);
+    }
 
     protected $guard = 'user';
 
@@ -174,27 +180,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CompanyUser::class);
     }
 
-    public function company_user()
-    {
+    // public function company_user()
+    // {
 
-        //return $this->belongsTo(CompanyUser::class,)
+    //     //return $this->belongsTo(CompanyUser::class,)
 
-        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
-        //     'user_id', // Foreign key on CompanyToken table...
-        //     'user_id', // Foreign key on CompanyUser table...
-        //     'id', // Local key on User table...
-        //     'company_id' // Local key on CompanyToken table...
-        // );
+    //     // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
+    //     //     'user_id', // Foreign key on CompanyToken table...
+    //     //     'user_id', // Foreign key on CompanyUser table...
+    //     //     'id', // Local key on User table...
+    //     //     'company_id' // Local key on CompanyToken table...
+    //     // );
 
 
-        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
-        //     'user_id', // Foreign key on CompanyToken table...
-        //     'company_id', // Foreign key on CompanyUser table...
-        //     'id', // Local key on User table...
-        //     'company_id' // Local key on CompanyToken table...
-        // );
+    //     // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class,
+    //     //     'user_id', // Foreign key on CompanyToken table...
+    //     //     'company_id', // Foreign key on CompanyUser table...
+    //     //     'id', // Local key on User table...
+    //     //     'company_id' // Local key on CompanyToken table...
+    //     // );
 
-    }
+    // }
 
 
     /**

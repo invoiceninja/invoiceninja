@@ -41,6 +41,7 @@
         "sentry/sentry-laravel": "^1.0",
         "simshaun/recurr": "^4.0",
         "spatie/browsershot": "^3.29",
+        "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.0",
         "superbalist/laravel-google-cloud-storage": "^2.2",
         "webpatser/laravel-countries": "dev-master#75992ad",
