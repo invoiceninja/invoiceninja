@@ -24,7 +24,8 @@ class ShowUserRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('view', $this->user);
+        //return auth()->user()->can('view', $this->user);
+        return auth()->user()->isAdmin();
     }
 
 }

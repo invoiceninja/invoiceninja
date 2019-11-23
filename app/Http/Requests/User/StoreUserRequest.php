@@ -68,7 +68,7 @@ class StoreUserRequest extends Request
         }
 
         $this->replace($input); 
-\Log::error($input);
+
         return $this->all();
 
     }
