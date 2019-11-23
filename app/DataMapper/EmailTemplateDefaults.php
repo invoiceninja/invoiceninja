@@ -25,8 +25,81 @@ class EmailTemplateDefaults
         return Parsedown::instance()->line(self::transformText('invoice_message'));
     }
 
+    public static function emailQuoteSubject()
+    {
+        return Parsedown::instance()->line(self::transformText('quote_subject'));
+    }
+
+    public static function emailQuoteTemplate()
+    {
+        return Parsedown::instance()->line(self::transformText('quote_message'));
+    }
+
+    public static function emailPaymentSubject()
+    {
+        return Parsedown::instance()->line(self::transformText('payment_subject'));
+    }
+
+    public static function emailPaymentTemplate()
+    {
+        return Parsedown::instance()->line(self::transformText('payment_message'));
+    }
+
+    public static function emailReminder1Subject()
+    {
+        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+    }
+
+    public static function emailReminder1Template()
+    {
+        return Parsedown::instance()->line('First Email Reminder Text');
+    }
+
+    public static function emailReminder2Subject()
+    {
+        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+    }
+
+    public static function emailReminder2Template()
+    {
+        return Parsedown::instance()->line('Second Email Reminder Text');
+    }
+
+    public static function emailReminder3Subject()
+    {
+        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+    }
+
+    public static function emailReminder3Template()
+    {
+        return Parsedown::instance()->line('Third Email Reminder Text');
+    }
+
+    public static function emailReminderEndlessSubject()
+    {
+        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+    }
+
+    public static function emailReminderEndlessTemplate()
+    {
+        return Parsedown::instance()->line('Endless Email Reminder Text');
+    }
+
+    public static function emailStatementSubject()
+    {
+        return Parsedown::instance()->line('Statement Subject needs texts record!');
+    }
+
+    public static function emailStatementTemplate()
+    {
+        return Parsedown::instance()->line('Statement Templates needs texts record!');
+    }
+
+
     private static function transformText($string)
     {
         return str_replace(":", "$", ctrans('texts.'.$string));
     }
 }
+
+
