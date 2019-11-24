@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\GroupSetting;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -17,6 +18,7 @@ class GroupSettingsTest extends TestCase
 {
 	use MockAccountData;
     use DatabaseTransactions;
+    use ClientGroupSettingsSaver;
 
     public function setUp() :void
     {
@@ -202,4 +204,19 @@ class GroupSettingsTest extends TestCase
 		$this->assertEquals($this->client->getSetting('timezone_id'), 'COMPANY');
 		$this->assertEquals($this->client->getMergedSettings()->timezone_id, 'COMPANY');
 	}	
+
+	public function testDiscardingUnsetProperties()
+	{
+
+		$this->settings = $this->company->settings;
+
+		\Log::error(print_r($this->settings,1));
+
+		$this->assertTrue($this->validateSettings($this->settings));
+
+		$new_settings = $this->saveSettings($this->settings, $this->client);
+
+		\Log::error(print_r($new_settings,1));
+	}
+
 }

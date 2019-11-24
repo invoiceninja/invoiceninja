@@ -403,22 +403,20 @@ class CompanySettings extends BaseSettings
 		
 		$data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
 		$data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
-
-	$data->email_subject_quote = EmailTemplateDefaults::emailQuoteSubject();
-	$data->email_subject_payment = EmailTemplateDefaults::emailPaymentSubject();
-	$data->email_subject_statement = EmailTemplateDefaults::emailStatementSubject();
-	$data->email_template_quote = EmailTemplateDefaults::emailQuoteTemplate();
-	$data->email_template_payment = EmailTemplateDefaults::emailPaymentTemplate();
-	$data->email_template_statement = EmailTemplateDefaults::emailStatementTemplate();
-	$data->email_subject_reminder1 = EmailTemplateDefaults::emailReminder1Subject();
-	$data->email_subject_reminder2 = EmailTemplateDefaults::emailReminder2Subject();
-	$data->email_subject_reminder3 = EmailTemplateDefaults::emailReminder3Subject();
-	$data->email_subject_reminder_endless = EmailTemplateDefaults::emailReminderEndlessSubject();
-	$data->email_template_reminder1 = EmailTemplateDefaults::emailReminder1Template();
-	$data->email_template_reminder2 = EmailTemplateDefaults::emailReminder2Template();
-	$data->email_template_reminder3 = EmailTemplateDefaults::emailReminder3Template();
-	$data->email_template_reminder_endless = EmailTemplateDefaults::emailReminderEndlessTemplate();
-
+		$data->email_subject_quote = EmailTemplateDefaults::emailQuoteSubject();
+		$data->email_subject_payment = EmailTemplateDefaults::emailPaymentSubject();
+		$data->email_subject_statement = EmailTemplateDefaults::emailStatementSubject();
+		$data->email_template_quote = EmailTemplateDefaults::emailQuoteTemplate();
+		$data->email_template_payment = EmailTemplateDefaults::emailPaymentTemplate();
+		$data->email_template_statement = EmailTemplateDefaults::emailStatementTemplate();
+		$data->email_subject_reminder1 = EmailTemplateDefaults::emailReminder1Subject();
+		$data->email_subject_reminder2 = EmailTemplateDefaults::emailReminder2Subject();
+		$data->email_subject_reminder3 = EmailTemplateDefaults::emailReminder3Subject();
+		$data->email_subject_reminder_endless = EmailTemplateDefaults::emailReminderEndlessSubject();
+		$data->email_template_reminder1 = EmailTemplateDefaults::emailReminder1Template();
+		$data->email_template_reminder2 = EmailTemplateDefaults::emailReminder2Template();
+		$data->email_template_reminder3 = EmailTemplateDefaults::emailReminder3Template();
+		$data->email_template_reminder_endless = EmailTemplateDefaults::emailReminderEndlessTemplate();
 		
 		return self::setCasts($data, self::$casts);
 
