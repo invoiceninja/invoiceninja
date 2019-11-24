@@ -77,20 +77,20 @@ class CreateAccount
             auth()->login($user, false); 
 
         $user->setCompany($company);
+
         /*
          * Create token
          */
         $company_token = CreateCompanyToken::dispatchNow($company, $user, $this->request['user_agent']);
-        /*
-         * Login user
-         */
-        //Auth::loginUsingId($user->id, true);
+
         /*
          * Fire related events
          */
         if($user)
             event(new AccountCreated($user));
         
+        $user->fresh();
+
         Notification::route('slack', config('ninja.notification.slack'))
                     ->notify(new NewAccountCreated($user, $company));
 

@@ -76,7 +76,6 @@ class CreateUser
 
         event(new UserWasCreated($user, $this->company));
 
-
         return $user;
     }
 }
