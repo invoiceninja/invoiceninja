@@ -177,6 +177,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function company_user()
     {
+        if(!$this->id)
+            $this->id = auth()->user()->id;
+
         return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id','id','company_id')->where('company_user.user_id', $this->id);
     }
 

@@ -137,6 +137,9 @@ class BaseController extends Controller
 
 	protected function listResponse($query)
     {
+\DB::connection()->enableQueryLog();
+$queries = \DB::getQueryLog();
+     \Log::error(print_r($queries,1));
 
         $this->buildManager();
 
