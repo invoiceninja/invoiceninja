@@ -210,13 +210,10 @@ class GroupSettingsTest extends TestCase
 
 		$this->settings = $this->company->settings;
 
-		\Log::error(print_r($this->settings,1));
-
 		$this->assertTrue($this->validateSettings($this->settings));
 
 		$new_settings = $this->saveSettings($this->settings, $this->client);
 
-		\Log::error(print_r($new_settings,1));
 	}
 
 }

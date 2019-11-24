@@ -639,13 +639,15 @@ class InvoiceController extends BaseController
                     return response()->download(public_path($invoice->pdf_file_path()),null ,$headers);
                 break;
             case 'archive':
-                # code...
+                $this->invoice_repo->archive($invoice);
+                return $this->listResponse($invoice);
                 break;
             case 'delete':
-                # code...
+                $this->invoice_repo->delete($invoice);
+                return $this->listResponse($invoice);
                 break;
             case 'email':
-                //dispatch email to queue
+                return response()->json(['message'=>'email sent']);
                 break;
 
             default:

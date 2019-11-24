@@ -27,13 +27,21 @@ class Cors
 
 
     /* Work around for file downloads where the response cannot contain have headers set */
-    if($next($request) instanceOf BinaryFileResponse)
-      return $next($request);
+    // if($request instanceOf BinaryFileResponse)
+    //   return $next($request);
+    // else
+    // return $next($request)
+    //   ->header('Access-Control-Allow-Origin', '*')
+    //   ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    //   ->header('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
 
-    return $next($request)
-      ->header('Access-Control-Allow-Origin', '*')
-      ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-      ->header('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
+    $response = $next($request);
+
+    $response->headers->set('Access-Control-Allow-Origin' , '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    $response->headers->set('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
+
+    return $response;
 
   }
 
