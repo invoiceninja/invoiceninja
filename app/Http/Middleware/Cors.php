@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Response;
-
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Cors
 {
@@ -26,6 +26,9 @@ class Cors
         }
 
 
+    /* Work around for file downloads where the response cannot contain have headers set */
+    if($next($request) instanceOf BinaryFileResponse)
+      return $next($request);
 
     return $next($request)
       ->header('Access-Control-Allow-Origin', '*')

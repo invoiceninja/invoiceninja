@@ -604,7 +604,7 @@ class InvoiceController extends BaseController
         
         switch ($action) {
             case 'clone_to_invoice':
-                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
+                $invoice = CloneInvoiceFactory::create($invocie, auth()->user()->id);
                 return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
@@ -629,7 +629,14 @@ class InvoiceController extends BaseController
                     return $this->itemResponse($invoice);
                 break;
             case 'download':
-                # code...
+
+                    $headers = [
+                        ['Access-Control-Allow-Origin' , '*'],
+                        ['Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE'],
+                        ['Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application'],
+                    ];
+
+                    return response()->download(public_path($invoice->pdf_file_path()),null ,$headers);
                 break;
             case 'archive':
                 # code...
