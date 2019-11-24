@@ -47,12 +47,12 @@ class Product extends BaseModel
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
     }
     
     public function documents()

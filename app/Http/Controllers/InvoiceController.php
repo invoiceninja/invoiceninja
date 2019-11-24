@@ -647,11 +647,11 @@ class InvoiceController extends BaseController
                 return $this->listResponse($invoice);
                 break;
             case 'email':
-                return response()->json(['message'=>'email sent']);
+                return response()->json(['message'=>'email sent'],200);
                 break;
 
             default:
-                # code...
+                return response()->json(['message' => "The requested action `{$action}` is not available."],400);
                 break;
         }
     }

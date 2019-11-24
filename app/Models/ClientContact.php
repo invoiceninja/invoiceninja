@@ -114,7 +114,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function primary_contact()
@@ -129,7 +129,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function sendPasswordResetNotification($token)

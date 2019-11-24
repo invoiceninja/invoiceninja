@@ -67,7 +67,7 @@ class Account extends BaseModel
      */
     public function payment()
     {
-        return $this->belongsTo(Payment::class);
+        return $this->belongsTo(Payment::class)->withTrashed();
     }
 
     public function companies()

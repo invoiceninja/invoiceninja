@@ -133,12 +133,12 @@ class Invoice extends BaseModel
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
     }
     
     public function invitations()
@@ -148,7 +148,7 @@ class Invoice extends BaseModel
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function documents()
