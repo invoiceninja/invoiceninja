@@ -12,7 +12,7 @@
 namespace App\Http\Requests\GroupSetting;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -33,7 +33,7 @@ class UpdateGroupSettingRequest extends Request
     {
         $this->sanitize();
 
-        $rules['settings'] = new ValidSettingsRule();
+        $rules['settings'] = new ValidClientGroupSettingsRule();
         
         return $rules;
 

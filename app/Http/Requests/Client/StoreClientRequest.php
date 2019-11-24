@@ -13,7 +13,7 @@ namespace App\Http\Requests\Client;
 
 use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
@@ -43,7 +43,7 @@ class StoreClientRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
-        $rules['settings'] = new ValidSettingsRule();
+        $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'distinct';
 
         $contacts = request('contacts');

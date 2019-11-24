@@ -24,7 +24,7 @@ class UpdateUserRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->user);
+        return auth()->user()->id === $this->id || auth()->user()->isAdmin();
 
     }
 
@@ -34,24 +34,24 @@ class UpdateUserRequest extends Request
         $this->sanitize();
 
         $input = $this->all();
+        $rules = [];
 
-        return [
-            'first_name' => 'required|string|max:100',
-            'last_name' =>  'required|string:max:100',
-            'email' => ['required', new UniqueUserRule($this->user, $input['email'])],
-        ];
+        if(isset($input['email']))
+            $rules['email'] = ['sometimes', new UniqueUserRule($this->user, $input['email'])];
+
+        return $rules;
     }
 
     public function sanitize()
     {
         $input = $this->all();
 
-        if(!isset($input['email']))
-        {
-            $input['email'] = null;
-        }
+        if(isset($input['company_user']) && !auth()->user()->isAdmin())
+            unset($input['company_user']);
 
         $this->replace($input);     
+
+        return $this->all();
     }
 
 

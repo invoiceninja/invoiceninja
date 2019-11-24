@@ -404,6 +404,16 @@ class UserController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
+     *          name="token_name",
+     *          in="path",
+     *          description="Customized name for the Users API Token",
+     *          example="iOS Device 11 iPad",
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Parameter(
      *          name="id",
      *          in="path",
      *          description="The User Hashed ID",

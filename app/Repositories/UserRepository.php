@@ -54,7 +54,7 @@ class UserRepository extends BaseRepository
         $user->fill($data);
         $user->save();
 
-        if($data['company_user'])
+        if(isset($data['company_user']))
         {
             
             $company = auth()->user()->company();

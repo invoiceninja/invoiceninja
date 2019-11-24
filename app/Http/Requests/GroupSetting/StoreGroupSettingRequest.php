@@ -13,7 +13,7 @@ namespace App\Http\Requests\GroupSetting;
 
 use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\GroupSetting;
 use Illuminate\Support\Facades\Log;
 
@@ -37,7 +37,7 @@ class StoreGroupSettingRequest extends Request
         $this->sanitize();
 
         $rules['name'] = 'required';
-        $rules['settings'] = new ValidSettingsRule();
+        $rules['settings'] = new ValidClientGroupSettingsRule();
 
         return $rules;
     }
