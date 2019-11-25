@@ -612,7 +612,7 @@ class QuoteController extends BaseController
                 # code...
                 break;
             case 'download':
-                    return response()->download(public_path($quote->pdf_file_path()),null ,$headers);
+                    return response()->download(public_path($quote->pdf_file_path()));
                 break;
             case 'archive':
                 $this->invoice_repo->archive($quote);
@@ -625,7 +625,6 @@ class QuoteController extends BaseController
             case 'email':
                 return response()->json(['message'=>'email sent'],200);
                 break;
-
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."],400);
                 break;

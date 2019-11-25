@@ -629,14 +629,7 @@ class InvoiceController extends BaseController
                     return $this->itemResponse($invoice);
                 break;
             case 'download':
-
-                    $headers = [
-                        ['Access-Control-Allow-Origin' , '*'],
-                        ['Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE'],
-                        ['Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, X-Requested-With, Application'],
-                    ];
-
-                    return response()->download(public_path($invoice->pdf_file_path()),null ,$headers);
+                    return response()->download(public_path($invoice->pdf_file_path()));
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);
