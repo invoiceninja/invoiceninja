@@ -136,7 +136,7 @@ class MigrationController extends BaseController
         $company->client->delete();
         $company->save();
 
-            return response()->json(['message'=>'Setting preserved'], 200);
+            return response()->json(['message'=>'Settings preserved'], 200);
 
     }
 

@@ -81,7 +81,9 @@ class CreateAccount
         /*
          * Create token
          */
-        $company_token = CreateCompanyToken::dispatchNow($company, $user, $this->request['user_agent']);
+        $user_agent = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
+
+        $company_token = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
         /*
          * Fire related events

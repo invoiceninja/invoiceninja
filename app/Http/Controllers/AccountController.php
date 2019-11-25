@@ -71,6 +71,17 @@ class AccountController extends BaseController
      *      description="Attempts a new account signup and returns a CompanyUser object on success",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(
+     *          name="token_name",
+     *          in="path",
+     *          description="A custom name for the user company token",
+     *          example="Daves iOS Device",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      *      @OA\RequestBody(
      *         description="Signup credentials",
      *         required=true,
