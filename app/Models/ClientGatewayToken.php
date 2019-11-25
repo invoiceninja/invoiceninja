@@ -29,7 +29,7 @@ class ClientGatewayToken extends BaseModel
 
 	public function client()
 	{
-		return $this->hasOne(Client::class);
+		return $this->hasOne(Client::class)->withTrashed();
 	}
 
 	public function gateway()
@@ -49,7 +49,7 @@ class ClientGatewayToken extends BaseModel
 
 	public function user()
 	{
-		return $this->hasOne(User::class);
+		return $this->hasOne(User::class)->withTrashed();
 	}
 	
 }

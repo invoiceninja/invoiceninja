@@ -604,7 +604,7 @@ class InvoiceController extends BaseController
         
         switch ($action) {
             case 'clone_to_invoice':
-                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
+                $invoice = CloneInvoiceFactory::create($invocie, auth()->user()->id);
                 return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
@@ -629,20 +629,22 @@ class InvoiceController extends BaseController
                     return $this->itemResponse($invoice);
                 break;
             case 'download':
-                # code...
+                    return response()->download(public_path($invoice->pdf_file_path()));
                 break;
             case 'archive':
-                # code...
+                $this->invoice_repo->archive($invoice);
+                return $this->listResponse($invoice);
                 break;
             case 'delete':
-                # code...
+                $this->invoice_repo->delete($invoice);
+                return $this->listResponse($invoice);
                 break;
             case 'email':
-                //dispatch email to queue
+                return response()->json(['message'=>'email sent'],200);
                 break;
 
             default:
-                # code...
+                return response()->json(['message' => "The requested action `{$action}` is not available."],400);
                 break;
         }
     }

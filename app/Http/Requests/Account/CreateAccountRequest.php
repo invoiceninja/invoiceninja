@@ -24,7 +24,8 @@ class CreateAccountRequest extends Request
      */
     public function authorize()
     {
-        return ! auth()->user();
+        return true;
+        //return ! auth()->user();
     }
 
     /**

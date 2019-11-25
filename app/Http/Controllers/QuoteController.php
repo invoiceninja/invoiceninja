@@ -512,7 +512,7 @@ class QuoteController extends BaseController
         $quotes->each(function ($quote, $key) use($action){
 
             if(auth()->user()->can('edit', $quote))
-                $this->product_repo->{$action}($quote);
+                $this->quote_repo->{$action}($quote);
 
         });
 
@@ -611,18 +611,22 @@ class QuoteController extends BaseController
             case 'mark_paid':
                 # code...
                 break;
+            case 'download':
+                    return response()->download(public_path($quote->pdf_file_path()));
+                break;
             case 'archive':
-                # code...
+                $this->invoice_repo->archive($quote);
+                return $this->listResponse($quote);
                 break;
             case 'delete':
-                # code...
+                $this->quote_repo->delete($quote);
+                return $this->listResponse($quote);
                 break;
             case 'email':
-                //dispatch email to queue
+                return response()->json(['message'=>'email sent'],200);
                 break;
-
             default:
-                # code...
+                return response()->json(['message' => "The requested action `{$action}` is not available."],400);
                 break;
         }
     }

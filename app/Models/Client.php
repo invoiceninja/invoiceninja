@@ -194,8 +194,6 @@ class Client extends BaseModel
             return $item->id == $this->getSetting('currency_id');
         })->first();
 
-        //return Currency::find($this->getSetting('currency_id'));
-        //return $this->belongsTo(Currency::class);
     }
 
     /**

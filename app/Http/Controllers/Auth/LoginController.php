@@ -393,43 +393,4 @@ class LoginController extends BaseController
     }
 
 
-    /**
-     * Received the returning object from the provider
-     * which we will use to resolve the user, we return the response in JSON format
-     *
-     * @return json
-     
-    public function handleProviderCallbackApiUser(string $provider) 
-    {
-        $socialite_user = Socialite::driver($provider)->stateless()->user();
-
-        if($user = OAuth::handleAuth($socialite_user, $provider))
-        {
-            return $this->itemResponse($user);
-        }
-        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
-        {
-
-            return $this->errorResponse(['message'=>'User exists in system, but not with this authentication method'], 400);
-
-        }       
-        else {
-            //todo            
-            $name = OAuth::splitName($socialite_user->getName());
-
-            $new_account = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'password' => '',
-                'email' => $socialite_user->getEmail(),
-            ];
-
-            $account = CreateAccount::dispatchNow($new_account);
-
-            return $this->itemResponse($account->default_company->owner());
-        }
-
-
-    }
-    */
 }

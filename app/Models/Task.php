@@ -47,7 +47,18 @@ class Task extends BaseModel
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     
 }
