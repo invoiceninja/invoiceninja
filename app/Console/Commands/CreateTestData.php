@@ -63,8 +63,17 @@ class CreateTestData extends Command
 
         $this->warmCache();
 
+        $this->createSmallAccount();
+        $this->createMediumAccount();
+        $this->createLargeAccount();
 
-        $this->info('Creating Account and Company');
+    }
+
+
+    private function createSmallAccount()
+    {
+
+        $this->info('Creating Small Account and Company');
 
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
@@ -75,13 +84,13 @@ class CreateTestData extends Command
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = User::whereEmail('user@example.com')->first();
+        $user = User::whereEmail('small@example.com')->first();
 
         if(!$user)
         {    
             $user = factory(\App\Models\User::class)->create([
             //    'account_id' => $account->id,
-                'email' => 'user@example.com',
+                'email' => 'small@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }
@@ -101,7 +110,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
-            'permissions' => json_encode([]),
+            'permissions' => '',
             'settings' => json_encode(DefaultSettings::userSettings()),
         ]);
 
@@ -115,6 +124,121 @@ class CreateTestData extends Command
 
                 $this->createClient($company, $user);
         }
+
+    }
+
+    private function createMediumAccount()
+    {
+        $this->info('Creating Medium Account and Company');
+
+        $account = factory(\App\Models\Account::class)->create();
+        $company = factory(\App\Models\Company::class)->create([
+            'account_id' => $account->id,
+            'domain' => 'ninja.test:8000',
+        ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        $user = User::whereEmail('medium@example.com')->first();
+
+        if(!$user)
+        {    
+            $user = factory(\App\Models\User::class)->create([
+            //    'account_id' => $account->id,
+                'email' => 'medium@example.com',
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+        }
+        
+        $token = \Illuminate\Support\Str::random(64);
+
+        $company_token = CompanyToken::create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => $token,
+        ]);
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'settings' => json_encode(DefaultSettings::userSettings()),
+        ]);
+
+        $this->count = $this->count*10;
+
+        $this->info('Creating '.$this->count. ' clients');
+
+
+        for($x=0; $x<$this->count; $x++) {
+            $z = $x+1;
+            $this->info("Creating client # ".$z);
+
+                $this->createClient($company, $user);
+        }
+
+    }
+
+    private function createLargeAccount()
+    {
+       $this->info('Creating Large Account and Company');
+
+        $account = factory(\App\Models\Account::class)->create();
+        $company = factory(\App\Models\Company::class)->create([
+            'account_id' => $account->id,
+            'domain' => 'ninja.test:8000',
+        ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        $user = User::whereEmail('large@example.com')->first();
+
+        if(!$user)
+        {    
+            $user = factory(\App\Models\User::class)->create([
+            //    'account_id' => $account->id,
+                'email' => 'large@example.com',
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+        }
+        
+        $token = \Illuminate\Support\Str::random(64);
+
+        $company_token = CompanyToken::create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => $token,
+        ]);
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'settings' => json_encode(DefaultSettings::userSettings()),
+        ]);
+
+        $this->count = $this->count*100;
+
+        $this->info('Creating '.$this->count. ' clients');
+
+
+        for($x=0; $x<$this->count; $x++) {
+            $z = $x+1;
+            $this->info("Creating client # ".$z);
+
+                $this->createClient($company, $user);
+        }
+
     }
 
     private function createClient($company, $user)
