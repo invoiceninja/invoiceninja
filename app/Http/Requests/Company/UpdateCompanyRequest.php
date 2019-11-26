@@ -34,7 +34,7 @@ class UpdateCompanyRequest extends Request
 
     public function rules()
     {
-
+        
         $rules = [];
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb

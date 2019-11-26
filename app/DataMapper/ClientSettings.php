@@ -84,6 +84,8 @@ class ClientSettings extends BaseSettings
 	public static function buildClientSettings($company_settings, $client_settings) 
 	{
 
+		if(!$client_settings)
+			return $company_settings;
 		
 		foreach($company_settings as $key => $value)
 		{
