@@ -44,7 +44,6 @@ class CompanyTokenTransformer extends EntityTransformer
         return [
             'token' => $company_token->token,
             'name' => $company_token->name ?: '',
-            'user_agent' => $company_token->user_agent ?: 'Unidentified',
         ];
     }
 

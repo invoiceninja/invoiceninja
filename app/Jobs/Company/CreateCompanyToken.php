@@ -29,19 +29,19 @@ class CreateCompanyToken implements ShouldQueue
 
     protected $user;
 
-    protected $user_agent;
+    protected $custom_token_name;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Company $company, User $user, string $user_agent)
+    public function __construct(Company $company, User $user, string $custom_token_name)
     {
         $this->company = $company;
         
         $this->user = $user;
 
-        $this->user_agent = $user_agent;
+        $this->custom_token_name = $custom_token_name;
     }
 
     /**
@@ -51,14 +51,14 @@ class CreateCompanyToken implements ShouldQueue
      */
     public function handle() : ?CompanyToken
     {
+        $this->custom_token_name = $this->custom_token_name ?: $this->user->first_name. ' '. $this->user->last_name;
 
         $ct = CompanyToken::create([
             'user_id' => $this->user->id,
             'account_id' => $this->company->account->id,
             'token' => Str::random(64),
-            'name' => $this->user->first_name. ' '. $this->user->last_name,
+            'name' => $this->custom_token_name ?: $this->user->first_name. ' '. $this->user->last_name,
             'company_id' => $this->company->id,
-            'user_agent' => $this->user_agent,
         ]);
         
         return $ct;

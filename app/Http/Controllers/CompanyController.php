@@ -228,7 +228,9 @@ class CompanyController extends BaseController
         /*
          * Create token
          */
-        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user(), request()->server('HTTP_USER_AGENT'));
+        $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
+
+        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user(), $user_agent);
 
         $this->entity_transformer = CompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
