@@ -65,9 +65,10 @@ class ActivityController extends BaseController
     public function index()
     {
 
-        $activities = Activity::whereCompanyId(auth()->user()->company()->id)
-                                ->orderBy('created_at', 'DESC')
+        $activities = Activity::orderBy('created_at', 'DESC')->company()
                                 ->take(50);
+
+
 
         return $this->listResponse($activities);
 

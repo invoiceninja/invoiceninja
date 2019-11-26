@@ -130,9 +130,14 @@ class TemplateController extends BaseController
      */
     public function show($entity, $entity_id)
     {
-        $text = request()->input('text');
+        
+        $class = 'App\Models\\'.ucfirst($entity);
 
-    	return response()->json($text, 200);
+        $entity_obj = $class::find($entity_id)->company();
+
+        $markdown = request()->input('text');
+
+    	return response()->json($markdown, 200);
 
     }
 

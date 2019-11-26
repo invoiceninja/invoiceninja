@@ -67,9 +67,9 @@ class BaseModel extends Model
     /*
     V2 type of scope
      */
-    public function scopeCompany($query, $company_id)
+    public function scopeCompany($query)
     {
-        $query->where('company_id', $company_id);
+        $query->where('company_id', auth()->user()->companyId());
         
         return $query;
     }
