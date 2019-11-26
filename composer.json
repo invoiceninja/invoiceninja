@@ -23,6 +23,7 @@
         "asgrim/ofxparser": "^1.2",
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",
+        "google/apiclient": "^2.0",
         "hashids/hashids": "^3.0",
         "intervention/image": "^2.4",
         "laracasts/presenter": "^0.2.1",
