@@ -13,7 +13,7 @@ class GatewayTypesSeeder extends Seeder
             ['alias' => 'credit_card', 'name' => 'Credit Card'],
             ['alias' => 'bank_transfer', 'name' => 'Bank Transfer'],
             ['alias' => 'paypal', 'name' => 'PayPal'],
-            ['alias' => 'bitcoin', 'name' => 'Bitcoin'],
+            ['alias' => 'crypto', 'name' => 'Crypto'],
             ['alias' => 'dwolla', 'name' => 'Dwolla'],
             ['alias' => 'custom1', 'name' => 'Custom'],
             ['alias' => 'alipay', 'name' => 'Alipay'],

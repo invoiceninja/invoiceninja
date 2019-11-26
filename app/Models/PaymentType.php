@@ -42,7 +42,7 @@ class PaymentType extends StaticModel
     const SOFORT = 29;
     const SEPA = 30;
     const GOCARDLESS = 31;
-    const BITCOIN = 32;
+    const CRYPTO = 32;
 
     public static function parseCardType($cardName)
     {

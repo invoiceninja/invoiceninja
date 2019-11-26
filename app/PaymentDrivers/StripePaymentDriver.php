@@ -82,7 +82,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $types[] = GatewayType::SEPA;
         
         if ($this->company_gateway->getBitcoinEnabled()) 
-            $types[] = GatewayType::BITCOIN;
+            $types[] = GatewayType::CRYPTO;
         
         if ($this->company_gateway->getAlipayEnabled()) 
             $types[] = GatewayType::ALIPAY;
@@ -113,7 +113,7 @@ class StripePaymentDriver extends BasePaymentDriver
     		case GatewayType::SEPA:
     			return 'portal.default.gateways.stripe.sepa';
     			break;
-    		case GatewayType::BITCOIN:
+    		case GatewayType::CRYPTO:
     			return 'portal.default.gateways.stripe.other';
     			break;
     		case GatewayType::ALIPAY:
