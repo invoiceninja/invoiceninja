@@ -37,7 +37,7 @@ class StoreCompanyRequest extends Request
         //$rules['name'] = 'required';
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
-        $rules['portal_domain'] = 'url';
+    //    $rules['portal_domain'] = 'url';
         return $rules;
     }
 

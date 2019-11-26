@@ -43,7 +43,7 @@ class UpdateCompanyRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['work_email'] = 'email|nullable';
-        $rules['portal_domain'] = 'url';
+    //    $rules['portal_domain'] = 'url';
 
 
         return $rules;
