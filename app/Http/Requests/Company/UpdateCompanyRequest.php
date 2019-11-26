@@ -43,8 +43,11 @@ class UpdateCompanyRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['work_email'] = 'email|nullable';
-    //    $rules['portal_domain'] = 'url';
 
+        if(isset($rules['portal_mode']) && ($rules['portal_mode'] == 'domain' || $rules['portal_mode'] == 'iframe'))
+            $rules['portal_domain'] = 'sometimes|url';
+        else 
+            $rules['portal_domain'] = 'nullable|alpha_num';
 
         return $rules;
 
