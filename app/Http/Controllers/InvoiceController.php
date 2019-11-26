@@ -519,7 +519,10 @@ class InvoiceController extends BaseController
         
         $ids = request()->input('ids');
 
-        $invoices = Invoice::withTrashed()->find($this->transformKeys($ids));
+        $invoices = Invoice::withTrashed()->find($this->transformKeys($ids))->whereCompanyId(auth()->user()->companyId());
+
+        if(!$invoices)
+            return response()->json(['message'=>'No Invoices Found']);
 
         $invoices->each(function ($invoice, $key) use($action){
 
