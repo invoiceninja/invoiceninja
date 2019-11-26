@@ -87,7 +87,7 @@ class ClientTransformer extends EntityTransformer
             'group_settings_id' => isset($client->group_settings_id) ? (string)$this->encodePrimaryKey($client->group_settings_id) : '',
             'paid_to_date' => (float) $client->paid_to_date,
             'last_login' => (int)$client->last_login,
-            'currency_id' => (int)$client->currency_id,
+            'currency_id' => (string)$client->currency_id,
             'address1' => $client->address1 ?: '',
             'address2' => $client->address2 ?: '',
             'phone' => $client->phone ?: '',
