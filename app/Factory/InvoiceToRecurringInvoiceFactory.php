@@ -25,14 +25,14 @@ class InvoiceToRecurringInvoiceFactory
 
 		$recurring_invoice->status_id = RecurringInvoice::STATUS_DRAFT;
 		$recurring_invoice->discount = $invoice->discount;
-		$recurring_invoice->invoice_number = '';
+		$recurring_invoice->number = '';
 		$recurring_invoice->is_amount_discount = $invoice->is_amount_discount;
 		$recurring_invoice->po_number = $invoice->po_number;
 		$recurring_invoice->footer = $invoice->footer;
 		$recurring_invoice->terms = $invoice->terms;
 		$recurring_invoice->public_notes = $invoice->public_notes;
 		$recurring_invoice->private_notes = $invoice->private_notes;
-		$recurring_invoice->invoice_date = date_create()->format($invoice->client->date_format());
+		$recurring_invoice->date = date_create()->format($invoice->client->date_format());
 		$recurring_invoice->due_date = $invoice->due_date; //todo calculate based on terms
 		$recurring_invoice->is_deleted = $invoice->is_deleted;
 		$recurring_invoice->line_items = $invoice->line_items;

@@ -54,16 +54,16 @@ class ApplyInvoiceNumber implements ShouldQueue
     public function handle()
     {
         //return early
-        if($this->invoice->invoice_number != '')
+        if($this->invoice->number != '')
             return $this->invoice;
 
         switch ($this->settings->counter_number_applied) {
             case 'when_saved':
-                $this->invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
+                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
                 break;
             case 'when_sent':
                 if($this->invoice->status_id == Invoice::STATUS_SENT)
-                    $this->invoice->invoice_number = $this->getNextInvoiceNumber($this->invoice->client);
+                    $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
                 break;
             
             default:

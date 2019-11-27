@@ -22,7 +22,7 @@ $factory->define(App\Models\ClientContact::class, function (Faker $faker) {
         'email' => $faker->unique()->safeEmail,
         'password' => bcrypt('password'),
         'remember_token' => \Illuminate\Support\Str::random(10),
-        'token' => \Illuminate\Support\Str::random(64),
+        'contact_key' => \Illuminate\Support\Str::random(40),
     ];
 
 });

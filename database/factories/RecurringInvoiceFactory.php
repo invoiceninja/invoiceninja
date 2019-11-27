@@ -21,7 +21,7 @@ $factory->define(App\Models\RecurringInvoice::class, function (Faker $faker) {
 		'custom_value4' => $faker->numberBetween(1,4),
 		'is_deleted' => false,
 		'po_number' => $faker->text(10),
-		'invoice_date' => $faker->date(),
+		'date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => false,
 		'backup' => '', 

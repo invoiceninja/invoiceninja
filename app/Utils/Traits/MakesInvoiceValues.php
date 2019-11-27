@@ -46,9 +46,9 @@ trait MakesInvoiceValues
      * @var array
      */
 	private static $labels = [
-        'invoice_date',
+        'date',
         'due_date',
-        'invoice_number',
+        'number',
         'po_number',
         'discount',
         'taxes',
@@ -161,9 +161,9 @@ trait MakesInvoiceValues
             
         $data = [];
 
-            $data['$invoice_date'] = $this->invoice_date;
+            $data['$date'] = $this->date;
             $data['$due_date'] = $this->due_date;
-            $data['$invoice_number'] = $this->invoice_number;
+            $data['$invoice_number'] = $this->number;
             $data['$po_number'] = $this->po_number;
             $data['$line_taxes'] = $this->makeLineTaxes();
             $data['$total_taxes'] = $this->makeTotalTaxes();
@@ -196,7 +196,7 @@ trait MakesInvoiceValues
             // $data['$invoice_to'] = ;
             // $data['$quote_to'] = ;
             // $data['$details'] = ;
-            $data['$invoice_no'] = $this->invoice_number;
+            $data['$invoice_no'] = $this->number;
             // $data['$quote_no'] = ;
             // $data['$valid_until'] = ;
             $data['$client_name'] = $this->present()->clientName();

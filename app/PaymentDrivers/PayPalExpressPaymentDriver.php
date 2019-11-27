@@ -213,7 +213,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         
         foreach($input['invoices'] as $invoice)
         {
-            $invoice_numbers .= $invoice->invoice_number." ";
+            $invoice_numbers .= $invoice->number." ";
         }
 
         return ctrans('texts.invoice_number'). ": {$invoice_numbers}";

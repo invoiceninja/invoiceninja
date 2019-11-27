@@ -40,6 +40,19 @@ class RecurringInvoice extends BaseModel
     /**
      * Recurring intervals //todo MAP WHEN WE MIGRATE
      */
+    
+/* Make sure we support overflow!!!!!!!!!!
+$start = Carbon::today();
+$subscription = Carbon::parse('2017-12-31');
+
+foreach (range(1, 12) as $month) {
+    $day = $start->addMonthNoOverflow()->thisDayOrLast($subscription->day);
+
+    echo "You will be billed on {$day} in month {$month}\n";
+}
+ */
+
+
     const FREQUENCY_DAILY = 1;
     const FREQUENCY_WEEKLY = 2;
     const FREQUENCY_TWO_WEEKS = 3;
@@ -57,11 +70,11 @@ class RecurringInvoice extends BaseModel
     
 	protected $fillable = [
 		'client_id',
-        'invoice_number',
+        'number',
         'discount',
         'is_amount_discount',
         'po_number',
-        'invoice_date',
+        'date',
         'due_date',
         'line_items',
         'settings',
@@ -120,7 +133,7 @@ class RecurringInvoice extends BaseModel
     
     public function invoices()
     {
-        return $this->hasMany(Invoice::class, "id", "recurring_invoice_id")->withTrashed();
+        return $this->hasMany(Invoice::class, "id", "recurring_id")->withTrashed();
     }
 
     public function invitations()

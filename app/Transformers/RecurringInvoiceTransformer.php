@@ -91,7 +91,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'archived_at' => $invoice->deleted_at,
             'discount' => (float) $invoice->discount ?: '',
             'po_number' => $invoice->po_number ?: '',
-            'invoice_date' => $invoice->invoice_date ?: '',
+            'date' => $invoice->date ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',

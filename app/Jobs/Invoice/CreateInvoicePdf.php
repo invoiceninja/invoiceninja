@@ -53,7 +53,7 @@ class CreateInvoicePdf implements ShouldQueue
 
         $this->invoice->load('client');
         $path = 'public/' . $this->invoice->client->client_hash . '/invoices/'; 
-        $file_path = $path . $this->invoice->invoice_number . '.pdf';
+        $file_path = $path . $this->invoice->number . '.pdf';
 
         //get invoice design
         $html = $this->generateInvoiceHtml($this->invoice->design(), $this->invoice);

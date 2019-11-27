@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Models\RecurringQuote::class, function (Faker $faker) {
     return [
 		'status_id' => App\Models\RecurringQuote::STATUS_DRAFT,
-		'quote_number' => $faker->text(256),
+		'number' => $faker->text(256),
 		'discount' => $faker->numberBetween(1,10),
 		'is_amount_discount' => $faker->boolean(),
 		'tax_name1' => 'GST',
@@ -22,8 +22,8 @@ $factory->define(App\Models\RecurringQuote::class, function (Faker $faker) {
 		'custom_value4' => $faker->numberBetween(1,4),
 		'is_deleted' => false,
 		'po_number' => $faker->text(10),
-		'quote_date' => $faker->date(),
-		'valid_until' => $faker->date(),
+		'date' => $faker->date(),
+		'due_date' => $faker->date(),
 		'line_items' => false,
 		'backup' => '', 
 		'frequency_id' => App\Models\RecurringQuote::FREQUENCY_MONTHLY,

@@ -64,7 +64,7 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
 
         $client_contact_name = $this->client_contact->present()->name();
         $client_name = $this->client_contact->client->present()->name();
-        $recurring_invoice_number = $this->recurring_invoice->invoice_number;
+        $recurring_invoice_number = $this->recurring_invoice->number;
 
 
         return (new MailMessage)
@@ -93,7 +93,7 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
 
     $name = $this->client_contact->present()->name();
     $client_name = $this->client_contact->client->present()->name();
-    $recurring_invoice_number = $this->recurring_invoice->invoice_number;
+    $recurring_invoice_number = $this->recurring_invoice->number;
 
     return (new SlackMessage)
                 ->success()

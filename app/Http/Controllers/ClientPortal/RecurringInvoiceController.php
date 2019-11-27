@@ -62,7 +62,7 @@ class RecurringInvoiceController extends Controller
                     return RecurringInvoice::badgeForStatus($invoice->status);
                 })
                 ->editColumn('start_date', function ($invoice){
-                    return $this->formatDate($invoice->invoice_date, $invoice->client->date_format());
+                    return $this->formatDate($invoice->date, $invoice->client->date_format());
                 })
                 ->editColumn('next_send_date', function ($invoice){
                     return $this->formatDate($invoice->next_send_date, $invoice->client->date_format());

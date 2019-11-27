@@ -8,7 +8,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Models\Invoice::class, function (Faker $faker) {
     return [
 		'status_id' => App\Models\Invoice::STATUS_SENT,
-		'invoice_number' => $faker->ean13(),
+		'number' => $faker->ean13(),
 		'discount' => $faker->numberBetween(1,10),
 		'is_amount_discount' => (bool)random_int(0,1),
 		'tax_name1' => 'GST',
@@ -23,7 +23,7 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
 		// 'custom_value4' => $faker->numberBetween(1,4),
 		'is_deleted' => false,
 		'po_number' => $faker->text(10),
-		'invoice_date' => $faker->date(),
+		'date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => InvoiceItemFactory::generate(5),
 		'backup' => '', 

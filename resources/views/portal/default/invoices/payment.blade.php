@@ -29,7 +29,7 @@
                             @foreach($invoices as $invoice)
                                 <a class="list-group-item list-group-item-action flex-column align-items-start" href="javascript:void(0);">
                                     <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mr-4"># {{ $invoice->invoice_number }}</h5>
+                                    <h5 class="mr-4"># {{ $invoice->number }}</h5>
                                     <small>{{ $invoice->due_date }}</small>
                                     </div>
                                 <p class="mb-1 pull-right">{{ $invoice->balance }}</p>

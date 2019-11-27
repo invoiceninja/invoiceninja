@@ -30,7 +30,7 @@ class recurring_invoiceToInvoiceFactory
 		$invoice->terms = $recurring_invoice->terms;
 		$invoice->public_notes = $recurring_invoice->public_notes;
 		$invoice->private_notes = $recurring_invoice->private_notes;
-		$invoice->invoice_date = date_create()->format($client->date_format());
+		$invoice->date = date_create()->format($client->date_format());
 		$invoice->due_date = $recurring_invoice->due_date; //todo calculate based on terms
 		$invoice->is_deleted = $recurring_invoice->is_deleted;
 		$invoice->line_items = $recurring_invoice->line_items;
@@ -47,7 +47,7 @@ class recurring_invoiceToInvoiceFactory
 		$invoice->balance = $recurring_invoice->balance;
 		$invoice->user_id = $recurring_invoice->user_id;
 		$invoice->company_id = $recurring_invoice->company_id;
-		$invoice->recurring_invoice_id = $recurring_invoice->id;
+		$invoice->recurring_id = $recurring_invoice->id;
 		
 		return $invoice;
 	}

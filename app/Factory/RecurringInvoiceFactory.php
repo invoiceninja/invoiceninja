@@ -24,12 +24,12 @@ class RecurringInvoiceFactory
 		$invoice->discount = 0;
 		$invoice->is_amount_discount = true;
 		$invoice->po_number = '';
-		$invoice->invoice_number = '';
+		$invoice->number = '';
 		$invoice->footer = '';
 		$invoice->terms = '';
 		$invoice->public_notes = '';
 		$invoice->private_notes = '';
-		$invoice->invoice_date = null;
+		$invoice->date = null;
 		$invoice->due_date = null;
 		$invoice->partial_due_date = null;
 		$invoice->is_deleted = false;

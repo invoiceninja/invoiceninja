@@ -22,7 +22,7 @@ class InvoiceFactory
 	{
 		$invoice = new Invoice();
 		$invoice->status_id = Invoice::STATUS_DRAFT;
-		$invoice->invoice_number = null;
+		$invoice->number = null;
 		$invoice->discount = 0;
 		$invoice->is_amount_discount = true;
 		$invoice->po_number = '';
@@ -30,7 +30,7 @@ class InvoiceFactory
 		$invoice->terms = '';
 		$invoice->public_notes = '';
 		$invoice->private_notes = '';
-		$invoice->invoice_date = null;
+		$invoice->date = null;
 		$invoice->due_date = null;
 		$invoice->partial_due_date = null;
 		$invoice->is_deleted = false;
@@ -49,7 +49,7 @@ class InvoiceFactory
 		$invoice->partial = 0;
 		$invoice->user_id = $user_id;
 		$invoice->company_id = $company_id;
-		$invoice->recurring_invoice_id = null;
+		$invoice->recurring_id = null;
 		
 		return $invoice;
 	}
