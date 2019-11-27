@@ -101,9 +101,7 @@ class Company extends BaseModel
 
     public function users()
     {
-
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id');
-
     }
 
     /**
@@ -112,6 +110,11 @@ class Company extends BaseModel
     public function clients()
     {
         return $this->hasMany(Client::class)->withTrashed();
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
     }
 
     /**

@@ -51,6 +51,7 @@ class RecurringInvoice extends BaseModel
     const FREQUENCY_SIX_MONTHS = 9;
     const FREQUENCY_ANNUALLY = 10;
     const FREQUENCY_TWO_YEARS = 11;
+    const FREQUENCY_THREE_YEARS = 12;
 
     const RECURS_INDEFINITELY = -1;
     
@@ -164,6 +165,8 @@ class RecurringInvoice extends BaseModel
                 return Carbon::parse($this->next_send_date->addYear());
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
                 return Carbon::parse($this->next_send_date->addYears(2));
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                return Carbon::parse($this->next_send_date->addYears(3));
             default:
                 return null;
         }

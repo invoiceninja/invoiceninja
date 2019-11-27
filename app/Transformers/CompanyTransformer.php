@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 
 use App\Models\Account;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -20,6 +21,7 @@ use App\Models\CompanyUser;
 use App\Models\GroupSetting;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Transformers\ActivityTransformer;
 use App\Transformers\CompanyGatewayTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Transformers\GroupSettingTransformer;
@@ -58,6 +60,7 @@ class CompanyTransformer extends EntityTransformer
         'company_user',
         'groups',
         'company_gateways',
+        'activities'
     ];
 
 
@@ -105,6 +108,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new CompanyUserTransformer($this->serializer);
 
         return $this->includeItem($company->company_users->where('user_id', auth()->user()->id)->first(), $transformer, CompanyUser::class);
+    }
+
+    public function includeActivities(Company $company)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($company->activities, $transformer, Activity::class);
     }
 
     public function includeUsers(Company $company)
