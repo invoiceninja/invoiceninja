@@ -28,8 +28,8 @@ class RecurringQuoteFactory
 		$quote->terms = '';
 		$quote->public_notes = '';
 		$quote->private_notes = '';
-		$quote->quote_date = null;
-		$quote->valid_until = null;
+		$quote->date = null;
+		$quote->due_date = null;
 		$quote->partial_due_date = null;
 		$quote->is_deleted = false;
 		$quote->line_items = json_encode([]);

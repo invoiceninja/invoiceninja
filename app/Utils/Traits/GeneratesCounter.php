@@ -196,13 +196,13 @@ trait GeneratesCounter
 			$number = $this->applyNumberPattern($client, $number, $pattern);
 		
 			if($class == Invoice::class || $class == RecurringInvoice::class)
-				$check = $class::whereCompanyId($client->company_id)->whereInvoiceNumber($number)->withTrashed()->first();
+				$check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
 			elseif($class == Client::class)
 				$check = $class::whereCompanyId($client->company_id)->whereIdNumber($number)->withTrashed()->first();
 			elseif($class == Credit::class)
-				$check = $class::whereCompanyId($client->company_id)->whereCreditNumber($number)->withTrashed()->first();
+				$check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
 			elseif($class == Quote::class)
-				$check = $class::whereCompanyId($client->company_id)->whereQuoteNumber($number)->withTrashed()->first();
+				$check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
 
 			$counter++;
 

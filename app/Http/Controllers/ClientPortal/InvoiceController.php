@@ -60,8 +60,8 @@ class InvoiceController extends Controller
                 })
                 ->editColumn('status_id', function ($invoice){
                     return Invoice::badgeForStatus($invoice->status);
-                })->editColumn('invoice_date', function ($invoice){
-                    return $this->formatDate($invoice->invoice_date, $invoice->client->date_format());
+                })->editColumn('date', function ($invoice){
+                    return $this->formatDate($invoice->date, $invoice->client->date_format());
                 })->editColumn('due_date', function ($invoice){
                     return $this->formatDate($invoice->due_date, $invoice->client->date_format());
                 })->editColumn('balance', function ($invoice) {

@@ -407,21 +407,20 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
 
-            $t->unsignedInteger('recurring_invoice_id')->nullable();
+            $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
 
-            $t->string('invoice_number')->nullable();
+            $t->string('number')->nullable();
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(0);
 
             $t->string('po_number')->nullable();
-            $t->date('invoice_date')->nullable();
+            $t->date('date')->nullable();
             $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
-            //$t->text('settings')->nullable();
             $t->mediumText('backup')->nullable();
 
             $t->text('footer')->nullable();
@@ -468,7 +467,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->unique(['company_id', 'invoice_number']);
+            $t->unique(['company_id', 'number']);
         });
 
         Schema::create('recurring_invoices', function ($t) {
@@ -479,13 +478,13 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
 
             $t->unsignedInteger('status_id')->index();
-            $t->text('invoice_number')->nullable();
+            $t->text('number')->nullable();
 
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
 
             $t->string('po_number')->nullable();
-            $t->date('invoice_date')->nullable();
+            $t->date('date')->nullable();
             $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
@@ -545,11 +544,11 @@ class CreateUsersTable extends Migration
 
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
-            $t->string('quote_number')->nullable();
+            $t->string('number')->nullable();
 
             $t->string('po_number')->nullable();
-            $t->date('quote_date')->nullable();
-            $t->datetime('valid_until')->nullable();
+            $t->date('date')->nullable();
+            $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -602,15 +601,17 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
-            $t->unsignedInteger('design_id');
 
-            $t->string('quote_number')->nullable();
+            $t->unsignedInteger('recurring_id')->nullable();
+            $t->unsignedInteger('design_id')->nullable();
+
+            $t->string('number')->nullable();
             $t->float('discount')->default(0);
-            $t->boolean('is_amount_discount')->default(false);
+            $t->boolean('is_amount_discount')->default(0);
 
             $t->string('po_number')->nullable();
-            $t->date('quote_date')->nullable();
-            $t->datetime('valid_until')->nullable();
+            $t->date('date')->nullable();
+            $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -622,7 +623,6 @@ class CreateUsersTable extends Migration
             $t->text('private_notes')->nullable();
             $t->text('terms')->nullable();
 
-
             $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
@@ -632,13 +632,24 @@ class CreateUsersTable extends Migration
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
+            $t->boolean('uses_inclusive_taxes')->default(0);
+            
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
 
-            $t->decimal('amount', 16, 4)->default(0);
-            $t->decimal('balance', 16, 4)->default(0);
+            $t->string('custom_surcharge1')->nullable();
+            $t->string('custom_surcharge2')->nullable();
+            $t->string('custom_surcharge3')->nullable();
+            $t->string('custom_surcharge4')->nullable();
+            $t->boolean('custom_surcharge_tax1')->default(false);
+            $t->boolean('custom_surcharge_tax2')->default(false);
+            $t->boolean('custom_surcharge_tax3')->default(false);
+            $t->boolean('custom_surcharge_tax4')->default(false);
+
+            $t->decimal('amount', 16, 4);
+            $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();
             $t->datetime('partial_due_date')->nullable();
 
@@ -651,7 +662,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->unique(['company_id', 'quote_number']);
+            $t->unique(['company_id', 'number']);
         });
 
         Schema::create('invoice_invitations', function ($t) {

@@ -79,9 +79,9 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
 
         return  $this->builder->where(function ($query) use ($filter) {
-                    $query->where('invoices.invoice_number', 'like', '%'.$filter.'%')
+                    $query->where('invoices.number', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.po_number', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.invoice_date', 'like', '%'.$filter.'%')
+                          ->orWhere('invoices.date', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.amount', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.balance', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.custom_value1', 'like', '%'.$filter.'%')

@@ -22,7 +22,7 @@
 
                         <table class="table table-responsive-sm table-sm">
                         	@foreach($payment->invoices as $invoice)
-                        		<tr><td style="text-align: right;">{{ ctrans('texts.invoice_number')}}</td><td><a href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">{{ $invoice->invoice_number }}</a></td></tr>
+                        		<tr><td style="text-align: right;">{{ ctrans('texts.invoice_number')}}</td><td><a href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">{{ $invoice->number }}</a></td></tr>
                         	@endforeach
                         </table>
                     </div>

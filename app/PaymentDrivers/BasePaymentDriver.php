@@ -35,8 +35,8 @@ use Omnipay\Omnipay;
         'currency' => $invoice->getCurrencyCode(),
         'returnUrl' => $completeUrl,
         'cancelUrl' => $this->invitation->getLink(),
-        'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
-        'transactionId' => $invoice->invoice_number,
+        'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->number}",
+        'transactionId' => $invoice->number,
         'transactionType' => 'Purchase',
         'clientIp' => Request::getClientIp(),
     ];

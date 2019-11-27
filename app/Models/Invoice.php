@@ -54,10 +54,10 @@ class Invoice extends BaseModel
     ];
 
     protected $fillable = [
-        'invoice_number',
+        'number',
         'discount',
         'po_number',
-        'invoice_date',
+        'date',
         'due_date',
         'terms',
         'public_notes',
@@ -288,9 +288,9 @@ class Invoice extends BaseModel
     /** TODO// DOCUMENT THIS FUNCTIONALITY */
     public function pdf_url()
     {
-        $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
+        $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
-        $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
+        $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
         if(!Storage::exists($storage_path)) {
             event(new InvoiceWasUpdated($this));
@@ -301,7 +301,7 @@ class Invoice extends BaseModel
 
     public function pdf_file_path()
     {
-        $storage_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->invoice_number . '.pdf';
+        $storage_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
         if(!Storage::exists($storage_path)) {
             CreateInvoicePdf::dispatchNow($this);

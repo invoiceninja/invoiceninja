@@ -144,7 +144,7 @@ class InvoiceTest extends TestCase
     {
         $invoice = [
             'status_id' => 1,
-            'invoice_number' => 'dfdfd', 
+            'number' => 'dfdfd', 
             'discount' => 0,
             'is_amount_discount' => 1,
             'po_number' => '3434343',

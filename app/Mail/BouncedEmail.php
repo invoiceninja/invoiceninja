@@ -41,7 +41,7 @@ class BouncedEmail extends Mailable implements ShouldQueue
     {
         $entity_type = class_basename(lcfirst($this->invitation->getEntityType()));
 
-        $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $invoice->invoice_number]);
+        $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $invoice->number]);
 
         return
             $this->from($invitation->user->email)
