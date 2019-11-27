@@ -276,7 +276,8 @@ class CreateTestData extends Command
     {
         $invoice = InvoiceFactory::create($client->company->id,$client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
-
+        $invoice->date = now();
+        
         $invoice->line_items = $this->buildLineItems();
         $invoice->uses_inclusive_Taxes = false;
 
