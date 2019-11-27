@@ -29,4 +29,14 @@ class StaticModel extends Model
         return (string)$this->attributes['id'];
     }
 
+    /*
+    V2 type of scope
+     */
+    public function scopeCompany($query)
+    {
+        $query->where('company_id', auth()->user()->companyId());
+        
+        return $query;
+    }
+
 }

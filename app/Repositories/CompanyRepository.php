@@ -48,7 +48,7 @@ class CompanyRepository extends BaseRepository
     public function save(array $data, Company $company) : ?Company
 	{
 
-       if(isset($data['custom_fields']))
+       if(isset($data['custom_fields']) && is_array($data['custom_fields']))
            $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
 
         $company->fill($data);

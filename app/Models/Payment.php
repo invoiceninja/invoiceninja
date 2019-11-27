@@ -37,7 +37,7 @@ class Payment extends BaseModel
     const TYPE_CREDIT_CARD = 1;
     const TYPE_BANK_TRANSFER = 2;
     const TYPE_PAYPAL = 3;
-    const TYPE_BITCOIN = 4;
+    const TYPE_CRYPTO = 4;
     const TYPE_DWOLLA = 5;
     const TYPE_CUSTOM1 = 6;
     const TYPE_ALIPAY = 7;

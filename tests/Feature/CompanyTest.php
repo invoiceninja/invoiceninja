@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
@@ -39,6 +40,8 @@ class CompanyTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+
 
     }
 
@@ -124,13 +127,22 @@ class CompanyTest extends TestCase
         $settings->quote_design_id = 1;
 
         $company->settings = $settings;
+        // $this->withoutExceptionHandling();
 
+        // try{
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
         ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company->toArray())
         ->assertStatus(200)->decodeResponseJson();
+        // }
+        // catch(ValidationException $e) {
+        //    // \Log::error('in the validator');
+        //     $message = json_decode($e->validator->getMessageBag(),1);
+        //     \Log::error($message);
+        //     $this->assertNotNull($message);
 
+        // }
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

@@ -119,7 +119,7 @@ class PaymentFilters extends QueryFilters
         if(auth('contact')->user())
             return $this->contactViewFilter();
         else
-            return $this->builder->whereCompanyId(auth()->user()->company()->id);
+            return $this->builder->company();
     }
 
 
