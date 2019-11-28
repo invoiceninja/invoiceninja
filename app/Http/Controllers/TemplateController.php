@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use Parsedown;
 
 class TemplateController extends BaseController
 {
@@ -107,6 +108,26 @@ class TemplateController extends BaseController
      *              format="string",
      *          ),
      *      ),
+     *      @OA\RequestBody(
+     *         description="The template subject and body",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="subject",
+     *                     description="The email template subject",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="body",
+     *                     description="The email template body",
+     *                     type="string",
+     *                 ),
+     *             )
+     *         )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="The template response",
@@ -135,9 +156,13 @@ class TemplateController extends BaseController
 
         $entity_obj = $class::find($entity_id)->company();
 
-        $markdown = request()->input('text');
+        $subject = request()->input('subject');
+        $body = ;
 
-    	return response()->json($markdown, 200);
+        $body = Parsedown::instance()->text(request()->input('body'));
+        $subject = Parsedown::instance()->text(request()->input('subject'));
+
+    	return response()->json($body, 200);
 
     }
 

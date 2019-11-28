@@ -11,18 +11,19 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DestroyUserRequest;
+use App\Http\Requests\User\DetachCompanyUserRequest;
 use App\Http\Requests\User\EditUserRequest;
 use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Models\User;
-use App\DataMapper\DefaultSettings;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
@@ -528,4 +529,100 @@ class UserController extends BaseController
         
     }
 
+
+
+    /**
+     * Attach an existing user to a company.
+     *
+     * @OA\Post(
+     *      path="/api/v1/users/{user}/attachToCompany",
+     *      operationId="attachUser",
+     *      tags={"users"},
+     *      summary="Attach an existing user to a company",
+     *      description="Attach an existing user to a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(ref="#/components/schemas/CompanyUser"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved User object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function attach(AttachCompanyUserRequest $request, User $user)
+    {
+
+        $company = auth()->user()->company();
+        
+        $user->companies()->attach($company->id, $request->all());
+
+        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->user());
+
+        return $this->itemResponse($user->fresh());
+        
+    }
+
+    /**
+     * Detach an existing user to a company.
+     *
+     * @OA\Delete(
+     *      path="/api/v1/users/{user}/detachFromCompany",
+     *      operationId="detachUser",
+     *      tags={"users"},
+     *      summary="Detach an existing user to a company",
+     *      description="Detach an existing user from a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success response",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default", 
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function detach(DetachCompanyUserRequest $request, User $user)
+    {
+        $company_user = CompanyUser::whereUserId($user->id)
+                                    ->whereCompanyId(auth()->user()->id)->first();
+
+        $company_user->token->delete();
+        $company_user->delete();
+
+        return response()->json(['message' => 'User detached from company'], 200);
+
+    }
 }
