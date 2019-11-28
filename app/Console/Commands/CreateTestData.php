@@ -19,6 +19,7 @@ use App\Models\PaymentType;
 use App\Models\User;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\MakesHash;
+use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -47,6 +48,8 @@ class CreateTestData extends Command
         parent::__construct();
 
         $this->invoice_repo = $invoice_repo;
+
+
     }
 
     /**
@@ -274,9 +277,11 @@ class CreateTestData extends Command
 
     private function createInvoice($client)
     {
+        $faker = \Faker\Factory::create();
+
         $invoice = InvoiceFactory::create($client->company->id,$client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
-        $invoice->date = now();
+        $invoice->date = $faker->date();
         
         $invoice->line_items = $this->buildLineItems();
         $invoice->uses_inclusive_Taxes = false;
