@@ -40,6 +40,16 @@ class ActivityController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\Parameter(
+     *          name="rows",
+     *          in="path",
+     *          description="The number of activities to return",
+     *          example="50",
+     *          @OA\Schema(
+     *              type="number",
+     *              format="integer",
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="A list of actvities",
@@ -62,12 +72,12 @@ class ActivityController extends BaseController
      *     )
      *
      */
-    public function index()
+    public function index(Request $request)
     {
 
+        $default_activities = isset($request->input('rows')) ? $request->input('rows') : 50;
         $activities = Activity::orderBy('created_at', 'DESC')->company()
-                                ->take(50);
-
+                                ->take($default_activities);
 
 
         return $this->listResponse($activities);
