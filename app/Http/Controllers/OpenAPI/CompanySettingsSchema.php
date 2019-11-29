@@ -8,7 +8,7 @@
  *       @OA\Property(property="military_time", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="language_id", type="string", example="1", description="____________"),
  *       @OA\Property(property="show_currency_code", type="boolean", example=true, description="____________"),
- *       @OA\Property(property="currency_id", type="string", example=true, description="The settings currency id"),
+ *       @OA\Property(property="currency_id", type="string", example=true, description="The default currency id"),
  *       @OA\Property(property="payment_terms", type="integer", example="1", description="-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days"),
  *       @OA\Property(property="company_gateway_ids", type="string", example="1,2,3,4", description="A commad separate list of available gateways"),
  *       @OA\Property(property="custom_value1", type="string", example="Custom Label", description="____________"),

@@ -40,6 +40,7 @@ class CompanySettings extends BaseSettings
 	public $military_time = false;
 
 	public $language_id = '';
+	public $currency_id = '';
 	public $show_currency_code = false;
 
 	public $company_gateway_ids = '';
@@ -212,6 +213,7 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'currency_id' => 'string',
 		'counter_number_applied' => 'string',
 		'email_subject_custom1' => 'string',
 		'email_subject_custom2' => 'string',

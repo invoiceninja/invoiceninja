@@ -519,7 +519,7 @@ class InvoiceController extends BaseController
         
         $ids = request()->input('ids');
 
-        $invoices = Invoice::withTrashed()->find($this->transformKeys($ids))->company();
+        $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids));
 
         if(!$invoices)
             return response()->json(['message'=>'No Invoices Found']);
