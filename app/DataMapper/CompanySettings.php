@@ -40,7 +40,6 @@ class CompanySettings extends BaseSettings
 	public $military_time = false;
 
 	public $language_id = '';
-	public $currency_id = '';
 	public $show_currency_code = false;
 
 	public $company_gateway_ids = '';
