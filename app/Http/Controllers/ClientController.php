@@ -287,7 +287,7 @@ class ClientController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        return $this->itemResponse($client);
+        return $this->itemResponse($client->fresh());
 
     }
 
