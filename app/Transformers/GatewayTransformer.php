@@ -45,7 +45,7 @@ class GatewayTransformer extends EntityTransformer
             'provider' => (string)$gateway->provider ?: '',
             'visible' => (bool)$gateway->visible,
             'sort_order' => (int)$gateway->sort_order,
-            'default_gateway_type_id' => (int)$gateway->default_gateway_type_id,
+            'default_gateway_type_id' => (string)$gateway->default_gateway_type_id,
             'site_url' => (string)$gateway->site_url ?: '',
             'is_offsite' => (bool)$gateway->is_offsite,
             'is_secure' => (bool)$gateway->is_secure,

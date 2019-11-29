@@ -29,7 +29,7 @@ class ActivityTransformer extends EntityTransformer
             'activity_type_id' => (string) $activity->activity_type_id,
             'client_id' => $activity->client ? (string) $this->encodePrimaryKey($activity->client->id) : '',
             'company_id' => $activity->company ? (string) $this->encodePrimaryKey($activity->company->id) : '',
-            'user_id' => (string) $activity->user_id,
+            'user_id' => (string) $this->encodePrimaryKey($activity->user_id),
             'invoice_id' => $activity->invoice ? (string) $this->encodePrimaryKey($activity->invoice->id) : '',
             'payment_id' => $activity->payment ? (string) $this->encodePrimaryKey($activity->payment->id) : '',
             'credit_id' => $activity->credit ? (string) $this->encodePrimaryKey($activity->credit->id) : '',

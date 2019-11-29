@@ -70,7 +70,7 @@ class TemplateController extends BaseController
     public function create($entity)
     {
 
-    	return response()->json(request()->all(), 200);
+        return response()->json(request()->all(), 200);
     }
 
     /**
@@ -157,12 +157,12 @@ class TemplateController extends BaseController
         $entity_obj = $class::find($entity_id)->company();
 
         $subject = request()->input('subject');
-        $body = ;
+        $body = request()->input('body');
 
         $body = Parsedown::instance()->text(request()->input('body'));
         $subject = Parsedown::instance()->text(request()->input('subject'));
 
-    	return response()->json($body, 200);
+        return response()->json($body, 200);
 
     }
 

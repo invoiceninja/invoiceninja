@@ -29,6 +29,7 @@ class CompanyUser extends Pivot
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'settings' => 'object',
     ];
 
     protected $fillable = [

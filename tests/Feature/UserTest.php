@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 
+use App\Factory\UserFactory;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Company;
@@ -77,4 +78,21 @@ class UserTest extends TestCase
 
     }
 
+    public function testUserAttachAndDetach()
+    {
+        $user = UserFactory::create();
+        $user->first_name = 'Test';
+        $user->last_name = 'Palloni';
+        $user->save();
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attachToCompany?include=company_user');
+
+        $response->assertStatus(200);
+
+        $this->assertNotNull($user->company_user);
+        $this->assertEquals($user->company_user->company_id, $this->company->id)
+    }
 }
