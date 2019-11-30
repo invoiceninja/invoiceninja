@@ -89,8 +89,7 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 
   Route::post('refresh', 'Auth\LoginController@refresh');
 
-  Route::get('templates/{entity}/create', 'TemplateController@create')->name('templates.create');
-  Route::post('templates/{entity}/{entity_id}', 'TemplateController@show')->name('templates.show');
+  Route::post('templates', 'TemplateController@show')->name('templates.show');
 
 /*
   Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
