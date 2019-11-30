@@ -15,6 +15,7 @@ use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
+use App\Http\Requests\User\AttachCompanyUserRequest;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DestroyUserRequest;
 use App\Http\Requests\User\DetachCompanyUserRequest;
@@ -23,6 +24,7 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
@@ -571,10 +573,10 @@ class UserController extends BaseController
     {
 
         $company = auth()->user()->company();
-        
-        $user->companies()->attach($company->id, $request->all());
 
-        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->user());
+        $user->companies()->attach($company->id, array_merge($request->all(), ['account_id' => $company->account->id]));
+
+        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
 
         return $this->itemResponse($user->fresh());
         
@@ -617,8 +619,8 @@ class UserController extends BaseController
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
         $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->id)->first();
-
+                                    ->whereCompanyId(auth()->user()->companyId())->first();
+                                    
         $company_user->token->delete();
         $company_user->delete();
 

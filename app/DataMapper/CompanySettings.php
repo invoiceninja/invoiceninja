@@ -212,6 +212,7 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'currency_id' => 'string',
 		'counter_number_applied' => 'string',
 		'email_subject_custom1' => 'string',
 		'email_subject_custom2' => 'string',

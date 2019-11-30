@@ -298,7 +298,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('last_login')->nullable();
             $table->unsignedInteger('industry_id')->nullable();
             $table->unsignedInteger('size_id')->nullable();
-            $table->unsignedInteger('currency_id')->nullable();
+          //  $table->unsignedInteger('currency_id')->nullable();
 
             $table->string('address1')->nullable();
             $table->string('address2')->nullable();
@@ -330,7 +330,7 @@ class CreateUsersTable extends Migration
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
-            $table->foreign('currency_id')->references('id')->on('currencies');
+          //  $table->foreign('currency_id')->references('id')->on('currencies');
 
         });
 
@@ -764,6 +764,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
             $t->boolean('is_deleted')->default(false);
+            $t->boolean('is_manual')->default(false);
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');

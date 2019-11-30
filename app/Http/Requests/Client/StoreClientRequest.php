@@ -66,8 +66,9 @@ class StoreClientRequest extends Request
     public function sanitize()
     {
         $input = $this->all();
-        
-        $input['settings'] = ClientSettings::defaults();
+
+        if(!isset($input['settings']))
+            $input['settings'] = ClientSettings::defaults();
         
         if(isset($input['group_settings_id']))
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
