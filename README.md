@@ -12,7 +12,7 @@ We will be using the lessons learnt in Invoice Ninja 4.0 to build a bigger bette
 
 ## Quick Start
 
-Curently the client portal and API are of alpha quality, to get started:
+Currently the client portal and API are of alpha quality, to get started:
 
 ```bash
 git clone https://github.com/invoiceninja/invoiceninja.git
