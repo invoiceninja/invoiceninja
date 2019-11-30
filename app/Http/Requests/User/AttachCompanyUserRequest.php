@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\User;
 
+use App\DataMapper\DefaultSettings;
 use App\Http\Requests\Request;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -31,12 +32,16 @@ class AttachCompanyUserRequest extends Request
 
     protected function prepareForValidation()
     {
-
+        $is_admin = request()->has('is_admin') ? request()->input('is_admin') : false;
+        $permissions = request()->has('permissions') ? request()->input('permissions') : '';
+        $settings = request()->has('settings') ? request()->input('settings') : json_encode(DefaultSettings::userSettings());
+        $is_locked =request()->has('is_locked') ? request()->input('is_locked') : false;
+        
         $this->replace([
-            'is_admin' => isset($request->input('is_admin')) ? $request->input('is_admin') : false,
-            'permissions' => isset($request->input('permissions')) ? $request->input('permissions') : '',
-            'settings' => isset($request->input('settings')) ? $request->input('settings') : json_encode(DefaultSettings::userSettings()),
-            'is_locked' => isset($request->input('is_locked')) ? $request->input('is_locked') : false,
+            'is_admin' => $is_admin,
+            'permissions' => $permissions,
+            'settings' => $settings,
+            'is_locked' => $is_locked,
             'is_owner' => false,
         ]);
     }

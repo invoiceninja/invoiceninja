@@ -15,6 +15,7 @@ use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
+use App\Http\Requests\User\AttachCompanyUserRequest;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DestroyUserRequest;
 use App\Http\Requests\User\DetachCompanyUserRequest;
@@ -571,10 +572,10 @@ class UserController extends BaseController
     {
 
         $company = auth()->user()->company();
-        
-        $user->companies()->attach($company->id, $request->all());
 
-        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->user());
+        $user->companies()->attach($company->id, array_merge($request->all(), ['account_id' => $company->account->id]));
+
+        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
 
         return $this->itemResponse($user->fresh());
         

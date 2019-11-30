@@ -93,6 +93,7 @@ class UserTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertNotNull($user->company_user);
-        $this->assertEquals($user->company_user->company_id, $this->company->id)
+        $this->assertEquals($user->company_user->company_id, $this->company->id);
+        
     }
 }
