@@ -112,6 +112,6 @@ class UserTest extends TestCase
         $this->assertNull($cu);
         $this->assertNull($ct);
         $this->assertNotNull($user);
-        
+
     }
 }
