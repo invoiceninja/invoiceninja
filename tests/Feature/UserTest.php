@@ -8,6 +8,8 @@ use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Company;
 use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
@@ -94,6 +96,22 @@ class UserTest extends TestCase
 
         $this->assertNotNull($user->company_user);
         $this->assertEquals($user->company_user->company_id, $this->company->id);
+
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detachFromCompany?include=company_user');
+
+        $response->assertStatus(200);
+
+
+        $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
+        $ct = CompanyToken::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
+
+        $this->assertNull($cu);
+        $this->assertNull($ct);
+        $this->assertNotNull($user);
         
     }
 }

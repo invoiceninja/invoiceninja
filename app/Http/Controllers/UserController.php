@@ -24,6 +24,7 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
@@ -618,8 +619,8 @@ class UserController extends BaseController
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
         $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->id)->first();
-
+                                    ->whereCompanyId(auth()->user()->companyId())->first();
+                                    
         $company_user->token->delete();
         $company_user->delete();
 
