@@ -28,21 +28,30 @@ class ValidPayableInvoicesRule implements Rule
      * @param mixed $value
      * @return bool
      */
+    
+    private $error_msg;
+
     public function passes($attribute, $value)
     {
 
-        if(!is_array($value))
+        if(!is_array($value)){
+            $this->error_msg = "Invalid request";
             return false;
+        }
                     
-        $invoices = Invoice::whereIn('id', $value)->company()->get();
+        $invoices = Invoice::whereIn('id', array_column($value,'id'))->company()->get();
 
-        if(!$invoices || $invoices->count() == 0)
+        if(!$invoices || $invoices->count() == 0){
+            $this->error_msg = "No invoices found";
             return false;
+        }
 
         foreach ($invoices as $invoice) {
 
-        if(! $invoice->isPayable())
-            return false;
+            if(! $invoice->isPayable()) {
+                $this->error_msg = "One or more of these invoices have been paid";
+                return false;
+            }
         }
 
         return true;
@@ -53,7 +62,7 @@ class ValidPayableInvoicesRule implements Rule
      */
     public function message()
     {
-        return "One or more of these invoices have been paid";
+        return $this->error_msg;
     }
 
 }

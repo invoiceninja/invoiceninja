@@ -39,7 +39,7 @@ class PaymentRepository extends BaseRepository
         if($request->input('invoices')) 
         {
 
-            $invoices = Invoice::whereIn('id', $request->input('invoices'))->get();
+            $invoices = Invoice::whereIn('id', array_column($request->input('invoices'),'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
     

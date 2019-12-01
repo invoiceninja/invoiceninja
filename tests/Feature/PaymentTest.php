@@ -209,6 +209,14 @@ class PaymentTest extends TestCase
         if($response){
             $arr = $response->json();
             $response->assertStatus(200);
+
+            $payment_id = $arr['data']['id'];
+
+            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+
+            $this->assertNotNull($payment);
+            $this->assertNotNull($payment->invoices());
+            $this->assertEquals(1, $payment->invoices()->count());
         }
 
     }
