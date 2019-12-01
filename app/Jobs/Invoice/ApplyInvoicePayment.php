@@ -57,9 +57,6 @@ class ApplyInvoicePayment implements ShouldQueue
      */
     public function handle()
     {
-\Log::error("invoice = ".$this->invoice->id);
-\Log::error("total payment amount = ".$this->payment->amount);
-\Log::error("invoice amount paid = ".$this->amount);
 
         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->amount*-1));
         UpdateClientBalance::dispatchNow($this->payment->client, $this->amount*-1);
@@ -69,24 +66,18 @@ class ApplyInvoicePayment implements ShouldQueue
         $this->payment->invoices->each(function ($inv){
 
             if($inv->id == $this->invoice->id){
-                \Log::error("found the pivot with ID of ".$inv->id. " setting ". $this->amount ." to the pivot field which is currently ".$inv->pivot->amount);
                 $inv->pivot->amount = $this->amount;
                 $inv->pivot->save();
             }
 
         });
 
-        // $this->invoice->pivot->amount = $this->amount;
-        // $this->invoice->pivot->save();
 
         if($this->invoice->hasPartial())
         {
-            \Log::error("found has partial");
             //is partial and amount is exactly the partial amount
             if($this->invoice->partial == $this->amount)
             {
-            \Log::error("partial == amount");
-
                 $this->invoice->clearPartial();
                 $this->invoice->setDueDate();
                 $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
