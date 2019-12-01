@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Migration\Account;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Migration\Account\SelfLoginRequest;
-use App\Http\Requests\Migration\Account\SelfRegisterRequest;
-use App\Services\LoginService;
+use App\Services\Migration\Account\LoginService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;

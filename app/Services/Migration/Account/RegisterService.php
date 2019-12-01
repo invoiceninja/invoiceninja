@@ -70,7 +70,7 @@ class RegisterService
             ];
 
             $response = \Unirest\Request::post(
-                $this->data->self_hosted_url . '/api/v1/signup',
+                $this->data->self_hosted_url . '/api/v1/signup?include=token',
                 $headers,
                 json_encode($credentials)
             );
@@ -90,6 +90,8 @@ class RegisterService
 
 
             if ($response->code == 200) {
+                session('x_api_token', $response->body->token->token);
+
                 return $this->successful = true;
             }
 

@@ -74,7 +74,7 @@ class LoginService
             ];
 
             $response = \Unirest\Request::post(
-                $this->data->self_hosted_url . '/api/v1/login',
+                $this->data->self_hosted_url . '/api/v1/login?include=token',
                 $headers,
                 json_encode($credentials)
             );
@@ -96,6 +96,8 @@ class LoginService
 
 
             if ($response->code == 200) {
+                session('x_api_token', $response->body->token->token);
+
                 return $this->successful = true;
             }
 
