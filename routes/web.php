@@ -299,6 +299,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     /** Migration routes. */
     Route::get('migration', 'Migration\StartController');
+    Route::post('migration', 'Migration\StartController@select');
 });
 
 Route::group([
