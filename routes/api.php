@@ -70,8 +70,8 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 
 //  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
   Route::resource('users', 'UserController'); // name = (users. index / create / show / update / destroy / edit
-  Route::post('users/{user}/attachToCompany', 'UserController@attach');
-  Route::delete('users/{user}/detachFromCompany','UserController@detach');
+  Route::post('users/{user}/attach_to_company', 'UserController@attach');
+  Route::delete('users/{user}/detach_from_company','UserController@detach');
 
 
   Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');

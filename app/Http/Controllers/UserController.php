@@ -537,7 +537,7 @@ class UserController extends BaseController
      * Attach an existing user to a company.
      *
      * @OA\Post(
-     *      path="/api/v1/users/{user}/attachToCompany",
+     *      path="/api/v1/users/{user}/attach_to_company",
      *      operationId="attachUser",
      *      tags={"users"},
      *      summary="Attach an existing user to a company",
@@ -586,7 +586,7 @@ class UserController extends BaseController
      * Detach an existing user to a company.
      *
      * @OA\Delete(
-     *      path="/api/v1/users/{user}/detachFromCompany",
+     *      path="/api/v1/users/{user}/detach_from_company",
      *      operationId="detachUser",
      *      tags={"users"},
      *      summary="Detach an existing user to a company",
