@@ -296,6 +296,9 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('reports/calendar_events', 'CalendarController@loadEvents');
     Route::get('reports/emails', 'ReportController@showEmailReport');
     Route::get('reports/emails_report/{start_date}/{end_date}', 'ReportController@loadEmailReport');
+
+    /** Migration routes. */
+    Route::get('migration', 'Migration\StartController');
 });
 
 Route::group([

@@ -238,6 +238,16 @@
 			</div>
 		</div>
 
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Migrate to next version of InvoiceNinja</h3>
+			</div>
+			<div class="panel-body">
+				<p>We've been working on new version of InvoiceNinja. Click the button bellow to start the migration.</p>
+				<a class="btn btn-primary btn-lg" href="/migration">Start the migration</a>
+			</div>
+		</div>
+
 		{!! Former::close() !!}
 
 		@if (! Auth::user()->account->isNinjaOrLicenseAccount())
