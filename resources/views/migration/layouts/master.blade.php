@@ -34,20 +34,7 @@
                 </div>
             @endif
 
-            @if(session('success'))
-                <div class="alert alert-success">
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-
-
-            @if(session('danger'))
-                <div class="alert alert-danger">
-                    @foreach(session('danger') as $error)
-                        <p>{{ $error[0] }}</p>
-                    @endforeach
-                </div>
-            @endif
+            {{ dump(session('message')) }}
 
             @yield('content')
 

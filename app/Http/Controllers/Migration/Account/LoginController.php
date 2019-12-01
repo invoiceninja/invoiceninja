@@ -40,11 +40,11 @@ class LoginController extends BaseController
             $loginService = new LoginService($request->all());
             $loginService->login();
 
-            if ($loginService->successful) {
-                return back()->with('success', 'Login was successful.');
+            if ($loginService->getSuccessful()) {
+                return redirect('/migration/company')->with('message', 'Login was successful.');
             }
 
-            return back()->with('danger', $loginService->responseMessage);
+            return back()->with('message', $loginService->response);
 
         }
     }

@@ -16,7 +16,7 @@ class LoginService
 
     public $responseCode;
 
-    public $responseMessage;
+    public $response;
 
     public $successful;
 
@@ -56,54 +56,48 @@ class LoginService
     }
 
     /**
-     * @return bool
+     * @return void
      */
     private function loginSelfHosted()
     {
-        try {
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+            'X-API-SECRET' => $this->data->x_api_secret
+        ];
 
-            $headers = [
-                'Content-Type' => 'application/json',
-                'X-Requested-With' => 'XMLHttpRequest',
-                'X-API-SECRET' => $this->data->x_api_secret
-            ];
+        $credentials = [
+            'email' => $this->data->email,
+            'password' => $this->data->password,
+        ];
 
-            $credentials = [
-                'email' => $this->data->email,
-                'password' => $this->data->password,
-            ];
+        $response = \Unirest\Request::post(
+            $this->data->self_hosted_url . '/api/v1/login?include=token',
+            $headers,
+            json_encode($credentials)
+        );
 
-            $response = \Unirest\Request::post(
-                $this->data->self_hosted_url . '/api/v1/login?include=token',
-                $headers,
-                json_encode($credentials)
-            );
+        if ($response->code == 401) {
+            $this->responseCode = $response->code;
+            $this->response = $response->body;
 
-            if ($response->code == 401) {
-                $this->responseCode = $response->code;
-                $this->responseMessage = $response->body->message;
-
-                $this->successful = false;
-
-                throw new \Exception($response->body->message);
-
-            }
-
-            if ($response->code == 500) {
-                $this->successful = false;
-                throw new \Exception('Oops something went wrong. Please check the logs or contact our support.');
-            }
-
-
-            if ($response->code == 200) {
-                session('x_api_token', $response->body->token->token);
-
-                return $this->successful = true;
-            }
-
-        } catch (\Exception $e) {
             $this->successful = false;
-            Log::error($e);
         }
+
+        if ($response->code == 500) {
+            $this->successful = false;
+        }
+
+
+        if ($response->code == 200) {
+            session('x_api_token', $response->body->data[0]->token->token);
+            $this->successful = true;
+        }
+
+    }
+
+    public function getSuccessful()
+    {
+        return $this->successful;
     }
 }

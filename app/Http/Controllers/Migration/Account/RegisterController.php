@@ -32,11 +32,11 @@ class RegisterController extends BaseController
             $registerService = new RegisterService($request->all());
             $registerService->register();
 
-            if ($registerService->successful) {
-                return back()->with('success', 'Account has beeen created succesfully.');
+            if ($registerService->getSuccessful()) {
+                return redirect('/migration/company')->with('message', 'Account has beeen created succesfully.');
             }
 
-            return back()->with('danger', $registerService->response->errors);
+            return back()->flash('message', $registerService->response->errors);
         }
     }
 }

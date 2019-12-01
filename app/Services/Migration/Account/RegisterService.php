@@ -3,6 +3,7 @@
 namespace App\Services\Migration\Account;
 
 use Illuminate\Support\Facades\Log;
+use integration\PhpSpec\Console\Prompter\DialogTest;
 
 /**
  * @package App\Services\Migration\Account
@@ -14,10 +15,19 @@ class RegisterService
      */
     private $data;
 
+    /**
+     * @var bool
+     */
     public $successful;
 
+    /**
+     * @var int
+     */
     public $responseCode;
 
+    /**
+     * @var array
+     */
     public $response;
 
     /**
@@ -39,6 +49,9 @@ class RegisterService
         return $this->registerSelfHosted();
     }
 
+    /**
+     * @return void
+     */
     public function storeInSession()
     {
         session()->put('email', $this->data->email);
@@ -51,53 +64,53 @@ class RegisterService
         }
     }
 
+    /**
+     * @return void
+     */
     public function registerSelfHosted()
     {
-        try {
-            $headers = [
-                'Content-Type' => 'application/json',
-                'X-Requested-With' => 'XMLHttpRequest',
-                'X-API-SECRET' => $this->data->x_api_secret
-            ];
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+            'X-API-SECRET' => $this->data->x_api_secret
+        ];
 
-            $credentials = [
-                'first_name' => $this->data->first_name,
-                'last_name' => $this->data->last_name,
-                'email' => $this->data->email,
-                'password' => $this->data->password,
-                'terms_of_service' => 1,
-                'privacy_policy' => 1,
-            ];
+        $credentials = [
+            'first_name' => $this->data->first_name,
+            'last_name' => $this->data->last_name,
+            'email' => $this->data->email,
+            'password' => $this->data->password,
+            'terms_of_service' => 1,
+            'privacy_policy' => 1,
+        ];
 
-            $response = \Unirest\Request::post(
-                $this->data->self_hosted_url . '/api/v1/signup?include=token',
-                $headers,
-                json_encode($credentials)
-            );
+        $response = \Unirest\Request::post(
+            $this->data->self_hosted_url . '/api/v1/signup?include=token',
+            $headers,
+            json_encode($credentials)
+        );
 
-            if ($response->code == 401 || $response->code == 422) {
-                $this->responseCode = $response->code;
-                $this->response = $response->body;
-                $this->successful = false;
-
-                throw new \Exception($response->body->message);
-            }
-
-            if ($response->code == 500) {
-                $this->successful = false;
-                throw new \Exception('Oops something went wrong. Please check the logs or contact our support.');
-            }
-
-
-            if ($response->code == 200) {
-                session('x_api_token', $response->body->token->token);
-
-                return $this->successful = true;
-            }
-
-        } catch (\Exception $e) {
+        if ($response->code == 401 || $response->code == 422) {
+            $this->responseCode = $response->code;
+            $this->response = $response->body;
             $this->successful = false;
-            Log::error($e);
         }
+
+        if ($response->code == 500) {
+            $this->successful = false;
+        }
+
+        if ($response->code == 200) {
+            session('x_api_token', $response->body->token->token);
+            $this->successful = true;
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSuccessful()
+    {
+        return $this->successful;
     }
 }
