@@ -370,6 +370,7 @@ class Invoice extends BaseModel
         
         $balance_adjustment = floatval($balance_adjustment);
         
+        \Log::error("adjusting balance from ". $this->balance. " to ". ($this->balance + $balance_adjustment));
         $this->balance = $this->balance + $balance_adjustment;
 
         if($this->balance == 0) {
@@ -385,8 +386,7 @@ class Invoice extends BaseModel
 
     public function setDueDate()
     {
-
-        $this->due_date = Carbon::now()->addDays(PaymentTerm::find($this->company->settings->payment_terms_id)->num_days);
+        $this->due_date = Carbon::now()->addDays($this->client->getSetting('payment_terms'));
         $this->save();
     }
 

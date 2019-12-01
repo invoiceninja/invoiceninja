@@ -33,41 +33,43 @@ class StorePaymentRequest extends Request
 
     }
 
-    public function rules()
+    protected function prepareForValidation()
     {
-        $this->sanitize();
 
-        $rules = [
-            'amount' => 'numeric|required',
-            'payment_date' => 'required',
-            'client_id' => 'required',
-            'invoices' => 'required',
-            'invoices' => new ValidPayableInvoicesRule(),
-        ];
-
-        return $rules;
-            
-    }
-
-
-    public function sanitize()
-    {
         $input = $this->all();
 
         if(isset($input['client_id']))
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
-        if(isset($input['invoices']))
-            $input['invoices'] = $this->transformKeys(explode(",", $input['invoices']));
+        if(isset($input['invoices'])){
+
+            foreach($input['invoices'] as $key => $value)
+            {
+              $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+            }
+
+        }
+
 
         if(is_array($input['invoices']) === false)
             $input['invoices'] = null;
 
+        $this->replace($input);
 
-        $this->replace($input);   
+    }
 
-        return $this->all();
+    public function rules()
+    {
+        
+        $rules = [
+            'amount' => 'numeric|required',
+            'payment_date' => 'required',
+            'client_id' => 'required',
+            'invoices' => new ValidPayableInvoicesRule(),
+        ];
 
+        return $rules;
+            
     }
 
 

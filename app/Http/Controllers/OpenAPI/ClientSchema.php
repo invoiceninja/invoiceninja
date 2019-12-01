@@ -43,6 +43,7 @@
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="________"),
  *       @OA\Property(property="balance", type="number", format="float", example="10.00", description="________"),
  *       @OA\Property(property="paid_to_date", type="number", format="float", example="10.00", description="________"),
+ *       @OA\Property(property="credit_balance", type="number", format="float", example="10.00", description="An amount which is available to the client for future use."),
  *       @OA\Property(property="last_login", type="number", format="integer", example="134341234234", description="Timestamp"),
  *       @OA\Property(property="created_at", type="number", format="integer", example="134341234234", description="Timestamp"),
  *       @OA\Property(property="updated_at", type="number", format="integer", example="134341234234", description="Timestamp"),
