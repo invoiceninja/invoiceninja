@@ -307,8 +307,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('migration/account/create', 'Migration\Account\RegisterController@index');
     Route::post('migration/account/create', 'Migration\Account\RegisterController@register');
 
-    Route::get('migration/company', 'Migration\Account\RegisterController@index');
-    Route::post('migration/company', 'Migration\Account\RegisterController@register');
+    Route::get('migration/company', 'Migration\CompanyController@index');
+    Route::post('migration/company', 'Migration\CompanyController@store');
 });
 
 Route::group([

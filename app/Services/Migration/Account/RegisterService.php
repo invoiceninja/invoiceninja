@@ -42,7 +42,7 @@ class RegisterService
     {
         $this->storeInSession();
 
-        if (session('type') == 'hosted') {
+        if (session('version') == 'hosted') {
             return;
         }
 
@@ -56,11 +56,9 @@ class RegisterService
     {
         session()->put('email', $this->data->email);
 
-        if (session('type') == 'self_hosted') {
-            session()->put([
-                'x_api_secret' => $this->data->x_api_secret,
-                'self_hosted_url' => $this->data->self_hosted_url
-            ]);
+        if (session('version') == 'self_hosted') {
+            session()->put('x_api_secret', $this->data->x_api_secret);
+            session()->put('self_hosted_url', $this->data->self_hosted_url);
         }
     }
 
@@ -101,7 +99,7 @@ class RegisterService
         }
 
         if ($response->code == 200) {
-            session('x_api_token', $response->body->token->token);
+            session()->put('x_api_token', $response->body->data[0]->token->token);
             $this->successful = true;
         }
     }
