@@ -40,9 +40,12 @@
                 </div>
             @endif
 
+
             @if(session('danger'))
                 <div class="alert alert-danger">
-                    <span>{{ session('danger') }}</span>
+                    @foreach(session('danger') as $error)
+                        <p>{{ $error[0] }}</p>
+                    @endforeach
                 </div>
             @endif
 

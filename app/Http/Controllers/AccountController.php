@@ -50,7 +50,7 @@ use View;
 use App\Jobs\PurgeClientData;
 
 /**
- * Class AccountController.
+ * Class LoginController.
  */
 class AccountController extends BaseController
 {
@@ -80,7 +80,7 @@ class AccountController extends BaseController
     protected $paymentService;
 
     /**
-     * AccountController constructor.
+     * LoginController constructor.
      *
      * @param AccountRepository  $accountRepo
      * @param UserMailer         $userMailer

@@ -11,7 +11,7 @@ Route::get('/', 'HomeController@showIndex');
 Route::get('/log_error', 'HomeController@logError');
 Route::get('/invoice_now', 'HomeController@invoiceNow');
 Route::get('/keep_alive', 'HomeController@keepAlive');
-Route::post('/get_started', 'AccountController@getStarted');
+Route::post('/get_started', 'LoginController@getStarted');
 
 // Client auth
 Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
@@ -77,7 +77,7 @@ Route::group(['middleware' => 'lookup:license'], function () {
     Route::post('license', 'NinjaController@do_license_payment');
     Route::get('claim_license', 'NinjaController@claim_license');
     if (Utils::isNinja()) {
-        Route::post('/signup/register', 'AccountController@doRegister');
+        Route::post('/signup/register', 'LoginController@doRegister');
         Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     }
 });
@@ -127,22 +127,22 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
-    Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
+    Route::get('set_entity_filter/{entity_type}/{filter?}', 'LoginController@setEntityFilter');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-    Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
+    Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'LoginController@getSearchData']);
     Route::get('check_invoice_number/{invoice_id?}', 'InvoiceController@checkInvoiceNumber');
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
     Route::post('handle_command', 'BotController@handleCommand');
     Route::post('accept_terms', 'UserController@acceptTerms');
 
-    Route::post('signup/validate', 'AccountController@checkEmail');
-    Route::post('signup/submit', 'AccountController@submitSignup');
+    Route::post('signup/validate', 'LoginController@checkEmail');
+    Route::post('signup/submit', 'LoginController@submitSignup');
     Route::get('auth_unlink', 'Auth\AuthController@oauthUnlink');
 
-    Route::get('settings/user_details', 'AccountController@showUserDetails');
-    Route::post('settings/user_details', 'AccountController@saveUserDetails');
+    Route::get('settings/user_details', 'LoginController@showUserDetails');
+    Route::post('settings/user_details', 'LoginController@saveUserDetails');
     Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
@@ -258,7 +258,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
 
-    Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
+    Route::get('/resend_confirmation', 'LoginController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
 
     // vendor
@@ -300,6 +300,12 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     /** Migration routes. */
     Route::get('migration', 'Migration\StartController');
     Route::post('migration', 'Migration\StartController@select');
+
+    Route::get('migration/account', 'Migration\Account\LoginController@index');
+    Route::post('migration/account', 'Migration\Account\LoginController@login');
+
+    Route::get('migration/account/create', 'Migration\Account\RegisterController@index');
+    Route::post('migration/account/create', 'Migration\Account\RegisterController@register');
 });
 
 Route::group([
@@ -328,18 +334,18 @@ Route::group([
     Route::resource('tax_rates', 'TaxRateController');
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
-    Route::get('settings/email_preview', 'AccountController@previewEmail');
-    Route::post('settings/client_portal', 'AccountController@saveClientPortalSettings');
-    Route::post('settings/email_settings', 'AccountController@saveEmailSettings');
-    Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
+    Route::get('settings/email_preview', 'LoginController@previewEmail');
+    Route::post('settings/client_portal', 'LoginController@saveClientPortalSettings');
+    Route::post('settings/email_settings', 'LoginController@saveEmailSettings');
+    Route::get('company/{section}/{subSection?}', 'LoginController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
 
-    Route::post('settings/change_plan', 'AccountController@changePlan');
-    Route::post('settings/cancel_account', 'AccountController@cancelAccount');
-    Route::post('settings/purge_data', 'AccountController@purgeData');
-    Route::post('settings/company_details', 'AccountController@updateDetails');
-    Route::post('settings/{section?}', 'AccountController@doSection');
-    Route::post('remove_logo', 'AccountController@removeLogo');
+    Route::post('settings/change_plan', 'LoginController@changePlan');
+    Route::post('settings/cancel_account', 'LoginController@cancelAccount');
+    Route::post('settings/purge_data', 'LoginController@purgeData');
+    Route::post('settings/company_details', 'LoginController@updateDetails');
+    Route::post('settings/{section?}', 'LoginController@doSection');
+    Route::post('remove_logo', 'LoginController@removeLogo');
 
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
@@ -374,7 +380,7 @@ Route::group([
 });
 
 Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
-    Route::get('settings/{section?}', 'AccountController@showSection');
+    Route::get('settings/{section?}', 'LoginController@showSection');
 });
 
 // Redirects for legacy links
