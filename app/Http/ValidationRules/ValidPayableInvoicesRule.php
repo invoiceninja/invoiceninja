@@ -33,18 +33,11 @@ class ValidPayableInvoicesRule implements Rule
 
     public function passes($attribute, $value)
     {
+        /*If no invoices has been sent, then we apply the payment to the client account*/
+        $invoices = [];
 
-        if(!is_array($value)){
-            $this->error_msg = "Invalid request";
-            return false;
-        }
-                    
-        $invoices = Invoice::whereIn('id', array_column($value,'id'))->company()->get();
-
-        if(!$invoices || $invoices->count() == 0){
-            $this->error_msg = "No invoices found";
-            return false;
-        }
+        if(is_array($value))
+            $invoices = Invoice::whereIn('id', array_column($value,'id'))->company()->get();
 
         foreach ($invoices as $invoice) {
 

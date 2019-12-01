@@ -65,7 +65,6 @@ class StorePaymentRequest extends Request
             'amount' => 'numeric|required',
             'payment_date' => 'required',
             'client_id' => 'required',
-            'invoices' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
         ];
 

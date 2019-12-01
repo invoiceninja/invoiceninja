@@ -295,6 +295,7 @@ class CreateUsersTable extends Migration
 
             $table->decimal('balance', 16, 4)->default(0);
             $table->decimal('paid_to_date', 16, 4)->default(0);
+            $table->decimal('credit_balance', 16, 4)->default(0);
             $table->timestamp('last_login')->nullable();
             $table->unsignedInteger('industry_id')->nullable();
             $table->unsignedInteger('size_id')->nullable();
