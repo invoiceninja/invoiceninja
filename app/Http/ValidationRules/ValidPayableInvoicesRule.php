@@ -31,7 +31,10 @@ class ValidPayableInvoicesRule implements Rule
     public function passes($attribute, $value)
     {
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",",$value)))->get();
+        if(!is_array($value))
+            return false;
+                    
+        $invoices = Invoice::whereIn('id', $value)->company()->get();
 
         if(!$invoices || $invoices->count() == 0)
             return false;

@@ -33,10 +33,29 @@ class StorePaymentRequest extends Request
 
     }
 
+    protected function prepareForValidation()
+    {
+
+        $input = $this->all();
+
+        if(isset($input['client_id']))
+            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+
+        if(isset($input['invoices'])){
+            $invoices = array_column($input['invoices'], 'id');
+            $input['invoices'] = $this->transformKeys($invoices);
+        }
+
+        if(is_array($input['invoices']) === false)
+            $input['invoices'] = null;
+
+        $this->replace($input);
+
+    }
+
     public function rules()
     {
-        $this->sanitize();
-
+        
         $rules = [
             'amount' => 'numeric|required',
             'payment_date' => 'required',
@@ -47,27 +66,6 @@ class StorePaymentRequest extends Request
 
         return $rules;
             
-    }
-
-
-    public function sanitize()
-    {
-        $input = $this->all();
-
-        if(isset($input['client_id']))
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-
-        if(isset($input['invoices']))
-            $input['invoices'] = $this->transformKeys(explode(",", $input['invoices']));
-
-        if(is_array($input['invoices']) === false)
-            $input['invoices'] = null;
-
-
-        $this->replace($input);   
-
-        return $this->all();
-
     }
 
 

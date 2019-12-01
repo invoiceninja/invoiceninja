@@ -129,7 +129,12 @@ class PaymentTest extends TestCase
 
         $data = [
             'amount' => $this->invoice->amount,
-            'invoices' => $this->invoice->hashed_id,
+            'invoices' => [
+                [
+                'id' => $this->invoice->hashed_id,
+                'amount' => $this->invoice->amount
+                ],
+            ],
             'payment_date' => '2020/12/11',
 
         ];
@@ -174,11 +179,17 @@ class PaymentTest extends TestCase
         $data = [
             'amount' => $this->invoice->amount,
             'client_id' => $client->hashed_id,
-            'invoices' => $this->invoice->hashed_id,
+            'invoices' => [
+                [
+                'id' => $this->invoice->hashed_id,
+                'amount' => $this->invoice->amount
+                ],
+            ],
             'payment_date' => '2020/12/12',
 
         ];
 
+        $response = null;
 
         try {
             $response = $this->withHeaders([
@@ -194,12 +205,12 @@ class PaymentTest extends TestCase
             $this->assertNotNull($message);
 
         }
-
-            $arr = $response->json();
-           // \Log::error($arr);
-            $response->assertStatus(200);
         
-    
+        if($response){
+            $arr = $response->json();
+            $response->assertStatus(200);
+        }
+
     }
 
     public function testStorePaymentWithNoInvoiecs()
@@ -241,7 +252,6 @@ class PaymentTest extends TestCase
         catch(ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(),1);
             $this->assertNotNull($message);
-
         }
     
     }
