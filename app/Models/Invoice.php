@@ -370,7 +370,6 @@ class Invoice extends BaseModel
         
         $balance_adjustment = floatval($balance_adjustment);
         
-        \Log::error("adjusting balance from ". $this->balance. " to ". ($this->balance + $balance_adjustment));
         $this->balance = $this->balance + $balance_adjustment;
 
         if($this->balance == 0) {

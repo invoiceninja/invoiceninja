@@ -90,7 +90,7 @@ class UserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attachToCompany?include=company_user');
+            ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attach_to_company?include=company_user');
 
         $response->assertStatus(200);
 
@@ -101,7 +101,7 @@ class UserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detachFromCompany?include=company_user');
+            ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
 
         $response->assertStatus(200);
 

@@ -526,8 +526,10 @@ class InvoiceController extends BaseController
 
         $invoices->each(function ($invoice, $key) use($action){
 
+//      $this->invoice_repo->{$action}($invoice);
+
             if(auth()->user()->can('edit', $invoice))
-                $this->invoice_repo->{$action}($invoice);
+                $this->performAction($invoice, $action, true);
 
         });
 
@@ -605,9 +607,16 @@ class InvoiceController extends BaseController
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
     {
         
+        return $this->performAction($invoice, $action);
+
+    }
+ 
+    private function performAction(Invoice $invoice, $action, $bulk = false)
+    {
+        /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'clone_to_invoice':
-                $invoice = CloneInvoiceFactory::create($invocie, auth()->user()->id);
+                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
                 return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
@@ -625,10 +634,14 @@ class InvoiceController extends BaseController
                     return $this->errorResponse(['message' => 'Invoice has no balance owing'], 400);
 
                 $invoice = MarkInvoicePaid::dispatchNow($invoice);
+
+                if(!$bulk)
                     return $this->itemResponse($invoice);
                 break;
             case 'mark_sent':
                 $invoice->markSent();
+
+                if(!$bulk)
                     return $this->itemResponse($invoice);
                 break;
             case 'download':
@@ -636,13 +649,19 @@ class InvoiceController extends BaseController
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);
+
+                if(!$bulk)
                 return $this->listResponse($invoice);
                 break;
             case 'delete':
                 $this->invoice_repo->delete($invoice);
+
+                if(!$bulk)
                 return $this->listResponse($invoice);
                 break;
             case 'email':
+
+                if(!$bulk)
                 return response()->json(['message'=>'email sent'],200);
                 break;
 
@@ -651,5 +670,5 @@ class InvoiceController extends BaseController
                 break;
         }
     }
-    
+
 }
