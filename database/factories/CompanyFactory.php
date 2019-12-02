@@ -10,7 +10,7 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'ip' => $faker->ipv4,
         'db' => config('database.default'),
         'settings' => CompanySettings::defaults(),
-        'custom_fields' => (object) ['custom1' => '1', 'custom2' => '2', 'custom3'=>3],
+        'custom_fields' => (object) ['custom1' => '1', 'custom2' => '2', 'custom3'=>'3'],
 
         // 'address1' => $faker->secondaryAddress,
         // 'address2' => $faker->address,
