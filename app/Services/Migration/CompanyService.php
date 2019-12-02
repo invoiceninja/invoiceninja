@@ -33,8 +33,6 @@ class CompanyService
             'X-API-TOKEN' => session('x_api_token'),
         ];
 
-        dd(session()->all());
-
         $response = \Unirest\Request::get(
             session('self_hosted_url') . '/api/v1/companies',
             $headers,
@@ -49,7 +47,7 @@ class CompanyService
 
         if($this->responseCode == 200) {
             $this->successful = true;
-            $this->companies = $response->data;
+            $this->companies = $response->body;
         }
     }
 }

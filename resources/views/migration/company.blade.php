@@ -8,20 +8,16 @@
                 {{ csrf_field() }}
 
                 <div class="row text-center">
-                    <div class="col-md-6">
-                        <label for="version">
-                            <input type="radio" name="version" value="hosted">
-                            Hosted version
-                        </label>
-                        <p>Switch to official servers, and let us handle all the server managing.</p>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="version">
-                            <input type="radio" name="version" value="self_hosted">
-                            Self-hosted version
-                        </label>
-                        <p>Migrate data to your own server. Keep full control of your server.</p>
-                    </div>
+
+                    @foreach($companies as $index => $company)
+                        <div class="col-md-6">
+                            <label for="version">
+                                <input type="radio" name="company" value="{{ $company->id }}">
+                                {{ $index + 1 }} - {{ $company->settings->name }} (ID: {{ $company->id }})
+                            </label>
+                        </div>
+                    @endforeach
+
                 </div>
 
 
