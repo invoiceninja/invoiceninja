@@ -103,8 +103,8 @@ class TemplateController extends BaseController
         
         if(request()->has('entity') && request()->has('entity_id')){
 
-            $class = 'App\Models\\'.ucfirst($entity);
-            $entity_obj = $class::find($entity_id)->company())->first();
+            $class = 'App\Models\\'.ucfirst(request()->input('entity'));
+            $entity_obj = $class::whereId(request()->input('entity_id'))->company()->first();
    
         }
 
