@@ -656,7 +656,6 @@ class StripePaymentDriver extends BasePaymentDriver
             'charge.refunded',
             'customer.source.updated',
             'customer.source.deleted',
-            'customer.bank_account.deleted',
             'source.chargeable',
         ];
 
@@ -705,14 +704,14 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.refunded') {
                 $payment->recordRefund($source['amount_refunded'] / 100 - $payment->refunded);
             }
-        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
 
             if (! $paymentMethod) {
                 return false;
             }
 
-            if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+            if ($eventType == 'customer.source.deleted') {
                 $paymentMethod->delete();
             } elseif ($eventType == 'customer.source.updated') {
                 //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
