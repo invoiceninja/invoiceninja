@@ -103,7 +103,7 @@ class Company extends Eloquent
 
     public function hasActivePlan()
     {
-        return Carbon::parse($this->plan_expires) >= Carbon::today();
+        return $this->plan_expires && Carbon::parse($this->plan_expires) >= Carbon::today();
     }
 
     public function hasExpiredPlan($plan)

@@ -193,7 +193,7 @@ class PaymentService extends BaseService
             $successful = 0;
 
             foreach ($payments as $payment) {
-                if (Auth::user()->can('edit', $payment)) {
+                if (Auth::user()->can('edit', $payment) && !$payment->is_deleted) {
                     $amount = ! empty($params['refund_amount']) ? floatval($params['refund_amount']) : null;
                     $sendEmail = ! empty($params['refund_email']) ? boolval($params['refund_email']) : false;
                     $paymentDriver = false;
