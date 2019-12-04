@@ -60,7 +60,6 @@ return [
         'paypal' => env('PAYPAL_KEYS', ''),
         'travis' => env('TRAVIS', false),
     ],
-
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
         'from_name' => env('MAIL_FROM_NAME'),
