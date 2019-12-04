@@ -249,7 +249,7 @@ class LoginController extends BaseController
         if(request()->has('code'))
             return $this->handleProviderCallback($provider);
         else
-            return Socialite::driver($provider)->scopes('gmail.send')->redirect();
+            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirect();
     }
 
 
@@ -261,7 +261,7 @@ class LoginController extends BaseController
         if(request()->has('code'))
             return $this->handleProviderCallbackAndCreate($provider);
         else
-            return Socialite::driver($provider)->scopes('gmail.send')->redirectUrl($redirect_url)->redirect();
+            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirectUrl($redirect_url)->redirect();
 
         
     }
@@ -270,7 +270,10 @@ class LoginController extends BaseController
     
     public function handleProviderCallbackAndCreate(string $provider)
     {
+        $redirect_url = config('services.' . $provider . '.redirect') . '/create';
+
         $socialite_user = Socialite::driver($provider)
+                                    ->redirectUrl($redirect_url)
                                     ->stateless()
                                     ->user();
 
@@ -320,7 +323,11 @@ class LoginController extends BaseController
      */
     public function handleProviderCallback(string $provider) 
     {
+
+        $redirect_url = config('services.' . $provider . '.redirect');
+
         $socialite_user = Socialite::driver($provider)
+                                    ->redirectUrl($redirect_url)
                                     ->stateless()
                                     ->user();
 
