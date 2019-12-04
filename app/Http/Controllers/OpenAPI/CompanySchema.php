@@ -14,6 +14,7 @@
  *       @OA\Property(property="enable_invoice_quantity", type="boolean", example=true, description="Toggles filling a product description based on product key"),
  *       @OA\Property(property="convert_products", type="boolean", example=true, description="___________"),
  *       @OA\Property(property="update_products", type="boolean", example=true, description="Toggles updating a product description which description changes"),
+ *       @OA\Property(property="show_product_details", type="boolean", example=true, description="Toggles showing a product description which description changes"),
  *       @OA\Property(property="custom_fields", type="object", description="Custom fields map"),
  *       @OA\Property(property="enable_product_cost", type="boolean", example=true, description="______________"),
  *       @OA\Property(property="enable_product_quantity", type="boolean", example=true, description="______________"),
