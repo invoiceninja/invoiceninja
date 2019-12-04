@@ -298,6 +298,7 @@ class LoginController extends BaseController
                 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
+                'oauth_user_token' => $socialite_user->token,
                 'oauth_provider_id' => $provider
             ];
 
@@ -346,6 +347,7 @@ class LoginController extends BaseController
                 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
+                'oauth_user_token' => $socialite_user->token,
                 'oauth_provider_id' => $provider
             ];
 
