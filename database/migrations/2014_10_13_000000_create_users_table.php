@@ -244,6 +244,7 @@ class CreateUsersTable extends Migration
             $table->smallInteger('failed_logins')->nullable();
             $table->string('referral_code')->nullable();
             $table->string('oauth_user_id',100)->nullable();
+            $table->string('oauth_user_token')->nullable();
             $table->string('oauth_provider_id')->nullable();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
@@ -438,6 +439,8 @@ class CreateUsersTable extends Migration
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
+            $t->decimal('total_taxes', 13, 3)->default(0);
+
             $t->boolean('uses_inclusive_taxes')->default(0);
             
             $t->string('custom_value1')->nullable();
@@ -508,6 +511,9 @@ class CreateUsersTable extends Migration
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
+            $t->decimal('total_taxes', 13, 3)->default(0);
+
+
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -569,6 +575,9 @@ class CreateUsersTable extends Migration
 
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
+
+            $t->decimal('total_taxes', 13, 3)->default(0);
+
 
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
@@ -632,6 +641,8 @@ class CreateUsersTable extends Migration
 
             $t->string('tax_name3')->nullable();
             $t->decimal('tax_rate3', 13, 3)->default(0);
+
+            $t->decimal('total_taxes', 13, 3)->default(0);
 
             $t->boolean('uses_inclusive_taxes')->default(0);
             

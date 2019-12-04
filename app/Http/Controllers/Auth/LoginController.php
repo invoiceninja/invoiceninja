@@ -249,7 +249,7 @@ class LoginController extends BaseController
         if(request()->has('code'))
             return $this->handleProviderCallback($provider);
         else
-            return Socialite::driver($provider)->scopes('gmail.send')->redirect();
+            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirect();
     }
 
 
@@ -261,7 +261,7 @@ class LoginController extends BaseController
         if(request()->has('code'))
             return $this->handleProviderCallbackAndCreate($provider);
         else
-            return Socialite::driver($provider)->scopes('gmail.send')->redirectUrl($redirect_url)->redirect();
+            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirectUrl($redirect_url)->redirect();
 
         
     }
@@ -270,13 +270,18 @@ class LoginController extends BaseController
     
     public function handleProviderCallbackAndCreate(string $provider)
     {
+        $redirect_url = config('services.' . $provider . '.redirect') . '/create';
+
         $socialite_user = Socialite::driver($provider)
+                                    ->redirectUrl($redirect_url)
                                     ->stateless()
                                     ->user();
 
         /* Handle existing users who attempt to create another account with existing OAuth credentials */
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
+            $user->oauth_user_token = $socialite_user->refreshToken;
+            $user->save();
             Auth::login($user, true);
             
             return redirect($this->redirectTo);
@@ -298,9 +303,12 @@ class LoginController extends BaseController
                 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
+                'oauth_user_token' => $socialite_user->refreshToken,
                 'oauth_provider_id' => $provider
             ];
 
+            MultiDB::setDefaultDatabase();
+            
             $account = CreateAccount::dispatchNow($new_account);
 
             Auth::login($account->default_company->owner(), true);
@@ -319,12 +327,18 @@ class LoginController extends BaseController
      */
     public function handleProviderCallback(string $provider) 
     {
+
+        $redirect_url = config('services.' . $provider . '.redirect');
+
         $socialite_user = Socialite::driver($provider)
+                                    ->redirectUrl($redirect_url)
                                     ->stateless()
                                     ->user();
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
+            $user->oauth_user_token = $socialite_user->token;
+            $user->save();
             Auth::login($user, true);
             
             return redirect($this->redirectTo);
@@ -346,6 +360,7 @@ class LoginController extends BaseController
                 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
+                'oauth_user_token' => $socialite_user->token,
                 'oauth_provider_id' => $provider
             ];
 

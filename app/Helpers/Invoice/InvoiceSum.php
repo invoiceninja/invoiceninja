@@ -195,6 +195,8 @@ class InvoiceSum
 		/* Set new calculated total */
 		$this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
 
+		$this->invoice->total_taxes = $this->getTotalTaxes();
+
 		return $this;
 	}
 

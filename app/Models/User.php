@@ -72,6 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'accepted_terms_version',
         'oauth_user_id',
         'oauth_provider_id',
+        'oauth_user_token',
     ];
 
     /**
