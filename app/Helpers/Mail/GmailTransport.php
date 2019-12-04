@@ -28,16 +28,21 @@ class GmailTransport extends Transport
      */
     protected $gmail;
 
-
+    /**
+     * The GMail OAuth Token
+     * @var string token
+     */
+    protected $token;
     /**
      * Create a new Gmail transport instance.
      *
 
      * @return void
      */
-    public function __construct(Mail $gmail)
+    public function __construct(Mail $gmail, string $token)
     {
         $this->gmail = $gmail;
+        $this->token = $token
     }
 
 
@@ -45,6 +50,7 @@ class GmailTransport extends Transport
     {
         $this->beforeSendPerformed($message);
 
+        $this->gmail->using($this->token);
         $this->gmail->to($message->getTo());
         $this->gmail->from($message->getFrom());
         $this->gmail->subject($message->getSubject());

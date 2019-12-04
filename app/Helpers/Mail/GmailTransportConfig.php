@@ -11,9 +11,11 @@
 
 namespace App\Helpers\Mail;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use App\Libraries\MultiDB;
+use App\Models\User;
+use App\Providers\MailServiceProvider;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * GmailTransportConfig
@@ -30,13 +32,9 @@ class GmailTransportConfig
 
 	   	$user = MultiDB::hasUser($query);
 
-	    $transport = (new \Swift_SmtpTransport('smtp.gmail.com', 587, 'tls'))
-	        ->setAuthMode('XOAUTH2')
-	        ->setUsername($user->email)
-	        ->setPassword($user->oauth_user_token);
-
-	    // set new swift mailer
-	    Mail::setSwiftMailer(new \Swift_Mailer($transport));
+		Config::set('mail.driver', 'gmail');
+		Config::set('services.gmail.token', $user->oauth_user_token);
+		(new MailServiceProvider(app()))->register();   
 
 
 	    Mail::to('david@romulus.com.au')
