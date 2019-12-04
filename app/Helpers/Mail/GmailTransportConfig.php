@@ -49,10 +49,17 @@ class GmailTransportConfig
 
 /********************* We may need to fetch a new token on behalf of the client ******************************/
 
+        $query = [
+            'email' => 'david@invoicninja.com',
+            'oauth_provider_id'=>'google'
+        ];
+
+        $user = MultiDB::hasUser($query);
+
 		$transport = (new Swift_SmtpTransport('smtp.gmail.com', 587, 'tls'))
 		    ->setAuthMode('XOAUTH2')
-		    ->setUsername('turbo124@gmail.com')
-		    ->setPassword('');
+		    ->setUsername($user->email)
+		    ->setPassword($user->oauth_user_token);
 
 		// set new swift mailer
 		Mail::setSwiftMailer(new \Swift_Mailer($transport));

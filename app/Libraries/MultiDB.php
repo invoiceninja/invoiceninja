@@ -201,5 +201,10 @@ class MultiDB
         config(['database.default' => $database]);
     }
 
+    public static function setDefaultDatabase()
+    {
+        config(['database.default' => config('ninja.db.default')]);
+    }
+
 
 }
