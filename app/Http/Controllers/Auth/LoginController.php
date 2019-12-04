@@ -307,6 +307,8 @@ class LoginController extends BaseController
                 'oauth_provider_id' => $provider
             ];
 
+            MultiDB::setDefaultDatabase();
+            
             $account = CreateAccount::dispatchNow($new_account);
 
             Auth::login($account->default_company->owner(), true);
