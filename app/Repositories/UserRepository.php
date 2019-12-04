@@ -69,6 +69,11 @@ class UserRepository extends BaseRepository
                 $user->companies()->attach($company->id, $data['company_user']);
 
             }
+            else
+            {
+                $cu->fill($data['company_user']);
+                $cu->save();
+            }
             
         }
 
