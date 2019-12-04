@@ -13,6 +13,20 @@ namespace App\Helpers\Mail;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use App\Libraries\MultiDB;
+
+/**
+ * GmailTransportConfig
+ */
+class GmailTransportConfig
+{
+
+namespace App\Helpers\Mail;
+
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Libraries\MultiDB;
+use App\Mail\SupportMessageSent;
 
 
 /**
@@ -21,56 +35,31 @@ use Illuminate\Support\Facades\Mail;
 class GmailTransportConfig
 {
 
-	public function test()
+    public function test()
     {
-
-// $transport = (new Swift_SmtpTransport('smtp.googlemail.com', 465, 'ssl'))
-//   ->setUsername('YOUR_GMAIL_USERNAME')
-//   ->setPassword('YOUR_GMAIL_PASSWORD')
-// ;
-// 
-//		$transport = \Swift_SmtpTransport::newInstance($host, $port);
-		// set encryption
-		// if (isset($encryption)) $transport->setEncryption($encryption);
-		// // set username and password
-		// if (isset($username))
-		// {
-		//     $transport->setUsername($username);
-		//     $transport->setPassword($password);
-		// }
- 
-// 
-// 
-// // Create the Transport
-
-
-// // Create the Mailer using your created Transport
-// $mailer = new Swift_Mailer($transport);
-
 /********************* We may need to fetch a new token on behalf of the client ******************************/
+		$query = [
+		    'email' => 'david@invoiceninja.com',
+		];
 
-        $query = [
-            'email' => 'david@invoicninja.com',
-            'oauth_provider_id'=>'google'
-        ];
+	   	$user = MultiDB::hasUser($query);
 
-        $user = MultiDB::hasUser($query);
+	    $transport = (new \Swift_SmtpTransport('smtp.gmail.com', 587, 'tls'))
+	        ->setAuthMode('XOAUTH2')
+	        ->setUsername($user->email)
+	        ->setPassword($user->oauth_user_token);
 
-		$transport = (new Swift_SmtpTransport('smtp.gmail.com', 587, 'tls'))
-		    ->setAuthMode('XOAUTH2')
-		    ->setUsername($user->email)
-		    ->setPassword($user->oauth_user_token);
-
-		// set new swift mailer
-		Mail::setSwiftMailer(new \Swift_Mailer($transport));
+	    // set new swift mailer
+	    Mail::setSwiftMailer(new \Swift_Mailer($transport));
 
 
-		Mail::to('david@romulus.com.au')
-	    ->send('test');
+	    Mail::to('david@romulus.com.au')
+	    ->send(new SupportMessageSent('a cool message'));
     }
 
 
 }
+
 
 
 
