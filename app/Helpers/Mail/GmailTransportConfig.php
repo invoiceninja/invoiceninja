@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Mail;
 class GmailTransportConfig
 {
 
-	public function __invoke()
+	public function test()
     {
 
 // $transport = (new Swift_SmtpTransport('smtp.googlemail.com', 465, 'ssl'))
