@@ -244,6 +244,7 @@ class CreateUsersTable extends Migration
             $table->smallInteger('failed_logins')->nullable();
             $table->string('referral_code')->nullable();
             $table->string('oauth_user_id',100)->nullable();
+            $table->string('oauth_user_token')->nullable();
             $table->string('oauth_provider_id')->nullable();
             $table->string('google_2fa_secret')->nullable();
             $table->string('accepted_terms_version')->nullable();
