@@ -62,13 +62,17 @@ class UserRepository extends BaseRepository
 
             $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-
+            /*No company user exists - attach the user*/
             if(!$cu){
-                //$cu = CompanyUserFactory::create($user->id, $company->id, $account_id);
-                $data['company_user']['account_id'] = $account_id;
-                
+
+                $data['company_user']['account_id'] = $account_id;                
                 $user->companies()->attach($company->id, $data['company_user']);
 
+            }
+            else
+            {
+                $cu->fill($data['company_user']);
+                $cu->save();
             }
             
         }

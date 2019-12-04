@@ -408,7 +408,8 @@ class UserController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
      *          name="token_name",
-     *          in="path",
+     *          in="query",
+     *          required=false,
      *          description="Customized name for the Users API Token",
      *          example="iOS Device 11 iPad",
      *          @OA\Schema(
@@ -546,7 +547,22 @@ class UserController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\RequestBody(ref="#/components/schemas/CompanyUser"),
+     *      @OA\Parameter(
+     *          name="user",
+     *          in="path",
+     *          description="The user hashed_id",
+     *          example="FD767dfd7",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\RequestBody(
+     *         description="The company user object",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
+     *     ),     
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved User object",
@@ -595,6 +611,17 @@ class UserController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="user",
+     *          in="path",
+     *          description="The user hashed_id",
+     *          example="FD767dfd7",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Success response",

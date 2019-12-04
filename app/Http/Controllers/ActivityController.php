@@ -42,9 +42,10 @@ class ActivityController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Parameter(
      *          name="rows",
-     *          in="path",
+     *          in="query",
      *          description="The number of activities to return",
      *          example="50",
+     *          required=false,
      *          @OA\Schema(
      *              type="number",
      *              format="integer",

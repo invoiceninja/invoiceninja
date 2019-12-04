@@ -1,9 +1,10 @@
 <?php
 
-namespace Tests\Feature;
+namespace Feature;
 
 
 use App\Factory\UserFactory;
+use App\Factory\CompanyUserFactory;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Company;
@@ -78,6 +79,7 @@ class UserTest extends TestCase
 
         $arr = $response->json();
 
+        $this->assertNotNull($arr['data']['company_user']);
     }
 
     public function testUserAttachAndDetach()
@@ -112,6 +114,112 @@ class UserTest extends TestCase
         $this->assertNull($cu);
         $this->assertNull($ct);
         $this->assertNotNull($user);
+
+    }
+
+    public function testAttachUserToMultipleCompanies()
+    {
+
+        /* Create New Company */
+        $company2 = factory(\App\Models\Company::class)->create([
+            'account_id' => $this->account->id,
+            'domain' => 'ninja.test:8000',
+        ]);
+
+        /* Create New Company Token*/
+        $user_1_company_token = CompanyToken::create([
+            'user_id' => $this->user->id,
+            'company_id' => $company2->id,
+            'account_id' => $this->account->id,
+            'name' => 'test token',
+            'token' => \Illuminate\Support\Str::random(64),
+        ]);
+
+        /*Manually link this user to the company*/
+        $cu = CompanyUserFactory::create($this->user->id, $company2->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->save();
+
+        /*Create New Blank User and Attach to Company 2*/
+        $new_user = UserFactory::create();
+        $new_user->first_name = 'Test';
+        $new_user->last_name = 'Palloni';
+        $new_user->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $user_1_company_token->token,
+        ])->post('/api/v1/users/'.$this->encodePrimaryKey($new_user->id).'/attach_to_company?include=company_user');
+
+        $response->assertStatus(200);
+
+        $this->assertNotNull($new_user->company_user);
+        $this->assertEquals($new_user->company_user->company_id, $company2->id);
+
+
+        /*Create brand new user manually with company_user object and attach to a different company*/
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'bob@good.ole.boys.co2.com',
+            'company_user' => [
+                    'is_admin' => false,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice'
+                ],
+        ];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $user_1_company_token->token,
+            ])->post('/api/v1/users?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data']['company_user']);
+        $this->assertFalse($arr['data']['company_user']['is_admin']);
+        $this->assertFalse($arr['data']['company_user']['is_owner']);
+        $this->assertEquals($arr['data']['company_user']['permissions'], 'create_client,create_invoice');
+
+        $user = User::whereEmail('bob@good.ole.boys.co2.com')->first();
+
+        $this->assertNotNull($user);
+
+        $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company2->id)->first();
+
+        $this->assertNotNull($cu);
+
+
+
+        /*Update the user permissions of this user*/
+        $data = [
+            'first_name' => 'Captain',
+            'last_name' => 'Morgain',
+            'email' => 'bob@good.ole.boys.co2.com',
+            'company_user' => [
+                    'is_admin' => true,
+                    'is_owner' => false,
+                    'permissions' => 'create_invoice,create_invoice'
+                ],
+        ];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $user_1_company_token->token,
+            ])->put('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data']['company_user']);
+        $this->assertTrue($arr['data']['company_user']['is_admin']);
+        $this->assertFalse($arr['data']['company_user']['is_owner']);
+        $this->assertEquals($arr['data']['company_user']['permissions'], 'create_invoice,create_invoice');
+
 
     }
 }

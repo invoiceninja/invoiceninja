@@ -85,13 +85,13 @@ class ApplyInvoicePayment implements ShouldQueue
             }
             elseif($this->invoice->partial > 0 && $this->invoice->partial > $this->amount) //partial amount exists, but the amount is less than the partial amount
             {
-            \Log::error("partial > amount");
+
                 $this->invoice->partial -= $this->amount;
                 $this->invoice->updateBalance($this->amount*-1);
             }
             elseif($this->invoice->partial > 0 && $this->invoice->partial < $this->amount) //partial exists and the amount paid is GREATER than the partial amount
             {
-            \Log::error("partial < amount");
+
                 $this->invoice->clearPartial();
                 $this->invoice->setDueDate();
                 $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
@@ -101,7 +101,6 @@ class ApplyInvoicePayment implements ShouldQueue
         }
         elseif($this->invoice->amount == $this->invoice->balance) //total invoice paid.
         {
-            \Log::error("balance == amount");
 
             $this->invoice->clearPartial();
             $this->invoice->setDueDate();
