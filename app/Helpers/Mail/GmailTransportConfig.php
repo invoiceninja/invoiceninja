@@ -21,20 +21,6 @@ use App\Libraries\MultiDB;
 class GmailTransportConfig
 {
 
-namespace App\Helpers\Mail;
-
-use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-use App\Libraries\MultiDB;
-use App\Mail\SupportMessageSent;
-
-
-/**
- * GmailTransportConfig
- */
-class GmailTransportConfig
-{
-
     public function test()
     {
 /********************* We may need to fetch a new token on behalf of the client ******************************/
