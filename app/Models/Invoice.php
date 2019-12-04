@@ -279,7 +279,7 @@ class Invoice extends BaseModel
         if($this->uses_inclusive_taxes)
             $invoice_calc = new InvoiceSumInclusive($this);
         else
-            $invoice_calc = new InvoiceSum($this, $this);
+            $invoice_calc = new InvoiceSum($this);
         
         return $invoice_calc->build();
 

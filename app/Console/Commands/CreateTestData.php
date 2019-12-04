@@ -284,7 +284,25 @@ class CreateTestData extends Command
         $invoice->date = $faker->date();
         
         $invoice->line_items = $this->buildLineItems();
-        $invoice->uses_inclusive_Taxes = false;
+        $invoice->uses_inclusive_taxes = false;
+
+        if(rand(0,1))
+        {
+            $invoice->tax_name1 = 'GST';
+            $invoice->tax_rate1 = 10.00;
+        }
+
+        if(rand(0,1))
+        {
+            $invoice->tax_name2 = 'VAT';
+            $invoice->tax_rate2 = 17.50;
+        }
+
+        if(rand(0,1))
+        {
+            $invoice->tax_name3 = 'CA Sales Tax';
+            $invoice->tax_rate3 = 5;
+        }
 
         $invoice->save();
 
@@ -329,6 +347,24 @@ class CreateTestData extends Command
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost =10;
+
+        if(rand(0, 1)) 
+        {
+            $item->tax_name1 = 'GST';
+            $item->tax_rate1 = 10.00;
+        }
+
+        if(rand(0, 1)) 
+        {
+            $item->tax_name1 = 'VAT';
+            $item->tax_rate1 = 17.50;
+        }
+
+        if(rand(0, 1)) 
+        {
+            $item->tax_name1 = 'Sales Tax';
+            $item->tax_rate1 = 5;
+        }
 
         $line_items[] = $item;
 
