@@ -15,6 +15,7 @@ use App\Libraries\MultiDB;
 use App\Models\User;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\Transport\Transport;
+use Swift_Mime_SimpleMessage;
 
 /**
  * GmailTransport
@@ -42,7 +43,7 @@ class GmailTransport extends Transport
     public function __construct(Mail $gmail, string $token)
     {
         $this->gmail = $gmail;
-        $this->token = $token
+        $this->token = $token;
     }
 
 
@@ -54,8 +55,8 @@ class GmailTransport extends Transport
         $this->gmail->to($message->getTo());
         $this->gmail->from($message->getFrom());
         $this->gmail->subject($message->getSubject());
-        //$this->gmail->message($message->getBody());
-        $this->gmail->message($message->toString());
+        $this->gmail->message($message->getBody());
+        //$this->gmail->message($message->toString());
         $this->gmail->cc($message->getCc());
         $this->gmail->bcc($message->getBcc());
 
@@ -65,3 +66,4 @@ class GmailTransport extends Transport
 
         return $this->numberOfRecipients($message);
     }
+}
