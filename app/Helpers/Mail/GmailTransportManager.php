@@ -12,8 +12,8 @@ class GmailTransportManager extends TransportManager
     {
         $token = $this->app['config']->get('services.gmail.token', []);
         $mail = new Mail;
-        
-        return new GmailTransport($mail, string $token);
+
+        return new GmailTransport($mail, $token);
     }
 
 }
