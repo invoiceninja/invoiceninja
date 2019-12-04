@@ -130,7 +130,7 @@ class OAuth
         $oauth_user_id = $this->provider_instance->harvestSubField($payload);
 
          $query = [
-            'oauth_user_id' => oauth_user_id,
+            'oauth_user_id' => $oauth_user_id,
             'oauth_provider_id'=> $this->provider_id
         ];
 

@@ -280,6 +280,8 @@ class LoginController extends BaseController
         /* Handle existing users who attempt to create another account with existing OAuth credentials */
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
+            $user->token = $socialite_user->token;
+            $user->save();
             Auth::login($user, true);
             
             return redirect($this->redirectTo);
@@ -333,6 +335,8 @@ class LoginController extends BaseController
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
+            $user->token = $socialite_user->token;
+            $user->save();
             Auth::login($user, true);
             
             return redirect($this->redirectTo);
