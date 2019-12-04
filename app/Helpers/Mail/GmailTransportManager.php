@@ -11,8 +11,9 @@ class GmailTransportManager extends TransportManager
     protected function createGmailDriver()
     {
         $token = $this->app['config']->get('services.gmail.token', []);
-
-        return new GmailTransport(Mail $mail, string $token);
+        $mail = new Mail;
+        
+        return new GmailTransport($mail, string $token);
     }
 
 }

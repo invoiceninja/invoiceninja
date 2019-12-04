@@ -12,10 +12,12 @@
 namespace App\Helpers\Mail;
 
 use App\Libraries\MultiDB;
+use App\Mail\SupportMessageSent;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
 
 /**
  * GmailTransportConfig
@@ -30,7 +32,11 @@ class GmailTransportConfig
 		    'email' => 'david@invoiceninja.com',
 		];
 
-	   	$user = MultiDB::hasUser($query);
+        $user = MultiDB::hasUser($query);
+        // $oauth_user = Socialite::driver('google')->stateless()->userFromToken($user->oauth_user_token);
+
+        // $user->oauth_user_token = $oauth_user->refreshToken;
+        // $user->save();
 
 		Config::set('mail.driver', 'gmail');
 		Config::set('services.gmail.token', $user->oauth_user_token);
