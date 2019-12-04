@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Mail;
 class GmailTransportConfig
 {
 
-	public function __invoke(User $user)
+	public function __invoke()
     {
 
 // $transport = (new Swift_SmtpTransport('smtp.googlemail.com', 465, 'ssl'))
@@ -31,13 +31,13 @@ class GmailTransportConfig
 // 
 //		$transport = \Swift_SmtpTransport::newInstance($host, $port);
 		// set encryption
-		if (isset($encryption)) $transport->setEncryption($encryption);
-		// set username and password
-		if (isset($username))
-		{
-		    $transport->setUsername($username);
-		    $transport->setPassword($password);
-		}
+		// if (isset($encryption)) $transport->setEncryption($encryption);
+		// // set username and password
+		// if (isset($username))
+		// {
+		//     $transport->setUsername($username);
+		//     $transport->setPassword($password);
+		// }
  
 // 
 // 
