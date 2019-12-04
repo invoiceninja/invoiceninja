@@ -1,6 +1,3 @@
-@extends('layouts.master', ['header' => $header])
-
-@section('body')
     <main class="main">
         <!-- Breadcrumb-->
         {{ Breadcrumbs::render('dashboard') }}
@@ -16,4 +13,3 @@
 
         </div>
     </main>
-@endsection
