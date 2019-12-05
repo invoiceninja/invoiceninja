@@ -111,10 +111,12 @@ class TemplateController extends BaseController
         $subject = request()->input('subject');
         $body = request()->input('body');
 
-        $body = Parsedown::instance()->text(request()->input('body'));
-        $subject = Parsedown::instance()->text(request()->input('subject'));
+        $data = [
+            'subject' => Parsedown::instance()->text(request()->input('subject')),
+            'body' => Parsedown::instance()->text(request()->input('body')),
+        ];
 
-        return response()->json($body, 200);
+        return response()->json($data, 200);
 
     }
 

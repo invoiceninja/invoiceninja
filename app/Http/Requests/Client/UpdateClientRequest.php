@@ -44,7 +44,7 @@ class UpdateClientRequest extends Request
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         $rules['settings'] = new ValidClientGroupSettingsRule();
-        $rules['contacts.*.email'] = 'distinct';
+        $rules['contacts.*.email'] = 'nullable|distinct';
 
         $contacts = request('contacts');
 

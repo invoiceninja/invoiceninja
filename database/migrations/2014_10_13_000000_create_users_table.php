@@ -146,8 +146,10 @@ class CreateUsersTable extends Migration
             $table->string('company_key',100)->unique();
             $table->string('logo')->nullable();
             $table->boolean('convert_products')->default(false);
-            $table->boolean('fill_products')->default(false);
-            $table->boolean('update_products')->default(false);
+            $table->boolean('fill_products')->default(true);
+            $table->boolean('update_products')->default(true);
+            $table->boolean('show_product_details')->default(true);
+            
             $table->boolean('custom_surcharge_taxes1')->default(false);
             $table->boolean('custom_surcharge_taxes2')->default(false);
             $table->boolean('custom_surcharge_taxes3')->default(false);
