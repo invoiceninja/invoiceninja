@@ -25,6 +25,7 @@
  *       @OA\Property(property="tax_rate2", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="tax_name3", type="string", example="", description="________"),
  *       @OA\Property(property="tax_rate3", type="number", format="float", example="10.00", description="_________"),
+ *       @OA\Property(property="total_taxes", type="number", format="float", example="10.00", description="The total taxes for the invoice"),
  *       @OA\Property(property="line_items", type="object", example="", description="_________"),
  *       @OA\Property(property="amount", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="balance", type="number", format="float", example="10.00", description="_________"),
