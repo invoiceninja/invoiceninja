@@ -86,6 +86,7 @@ class CompanyTransformer extends EntityTransformer
             'show_product_cost' => (bool)$company->show_product_cost,
             'enable_invoice_quantity' => (bool)$company->enable_invoice_quantity,
             'enable_product_cost' => (bool)$company->enable_product_cost,
+            'show_product_details' => (bool)$company->show_product_details,
             'enable_product_quantity' => (bool)$company->enable_product_quantity,
             'default_quantity' => (bool)$company->default_quantity,
             'custom_fields' => $company->custom_fields ?: $std,
