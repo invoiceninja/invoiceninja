@@ -328,4 +328,13 @@ class PaymentTest extends TestCase
             
     }
 
+    public function testPaymentGreaterThanPartial()
+    {
+
+    }
+
+    public function testPaymentLessThanPartialAmount()
+    {
+
+    }
 }
