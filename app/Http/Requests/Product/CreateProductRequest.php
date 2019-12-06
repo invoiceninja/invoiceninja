@@ -31,7 +31,7 @@ class CreateProductRequest extends Request
     {
     	return [
     		'product_key' => 'required',
-    	]
+    	];
     }
 
 }
