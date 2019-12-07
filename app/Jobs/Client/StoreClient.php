@@ -30,7 +30,8 @@ class StoreClient
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param array $data
+     * @param Client $client
      */
 
     public function __construct(array $data, Client $client)
@@ -43,10 +44,12 @@ class StoreClient
     /**
      * Execute the job.
      *
-     * @return void
+     * @param ClientRepository $client_repo
+     * @param ClientContactRepository $client_contact_repo
+     * @return Client|null
      */
-    public function handle(ClientRepository $client_repo, ClientContactRepository $client_contact_repo) : ?Client
-    
+    public function handle(ClientRepository $client_repo, ClientContactRepository $client_contact_repo) : ?Client {
+
         $client =  $client_repo->save($this->data, $this->client);
 
         $contacts = $client_contact_repo->save($data['contacts']), $client);
