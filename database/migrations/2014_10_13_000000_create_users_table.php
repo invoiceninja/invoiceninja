@@ -705,6 +705,7 @@ class CreateUsersTable extends Migration
             $t->softDeletes('deleted_at', 6);
 
             $t->index(['deleted_at', 'invoice_id']);
+            $t->unique(['client_contact_id', 'invoice_id']);
 
         });
 
