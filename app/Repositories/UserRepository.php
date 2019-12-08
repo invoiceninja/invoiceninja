@@ -48,7 +48,7 @@ class UserRepository extends BaseRepository
      *
      * @return     user|\App\Models\user|null  user Object
      */
-    public function save(array $data, User $user) : ?user
+    public function save(array $data, User $user) : ?User
 	{
 
         $user->fill($data);

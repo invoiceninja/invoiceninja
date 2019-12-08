@@ -204,8 +204,8 @@ class UserController extends BaseController
     {
 
         $company = auth()->user()->company();
-        
-        $user = $this->user_repo->save($request->all(), UserFactory::create());
+
+        $user = $this->user_repo->save($request->all(), $request->fetchUser());
 
         $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
 

@@ -71,8 +71,7 @@ class ClientRepository extends BaseRepository
 
         if(isset($data['contacts']))
             $contacts = $this->contact_repo->save($data['contacts'], $client);
-
-
+        
         if(empty($data['name']))
             $data['name'] = $client->present()->name();
 

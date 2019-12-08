@@ -19,19 +19,21 @@ class CompanyFactory
 {
 	use MakesHash;
 
-	public static function create(int $account_id) :Company
+    /**
+     * @param int $account_id
+     * @return Company
+     */
+    public function create(int $account_id) :Company
 	{
-
         $company = new Company;
-//        $company->name = '';
+        // $company->name = '';
         $company->account_id = $account_id;
         $company->company_key = $this->createHash();
         $company->settings = CompanySettings::defaults();
         $company->db = config('database.default');
         $company->custom_fields = (object) ['custom1' => '1', 'custom2' => '2', 'custom3'=>'3'];
         $company->domain = '';
-        
+
         return $company;
-        
     }
 }

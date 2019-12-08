@@ -84,6 +84,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'custom_value3',
         'custom_value4',
         'email',
+        'is_primary',
     ];
     
     public function getHashedIdAttribute()

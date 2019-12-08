@@ -2,9 +2,11 @@
 
 namespace Tests\Integration;
 
+use App\Factory\CompanyUserFactory;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -53,7 +55,8 @@ class MultiDBUserTest extends TestCase
         $company->setHidden(['settings', 'settings_object', 'hashed_id']);
         $company2->setHidden(['settings', 'settings_object', 'hashed_id']);
         
-        Company::on('db-ninja-01')->create($company->toArray());
+        $coco = Company::on('db-ninja-01')->create($company->toArray());
+
         Company::on('db-ninja-02')->create($company2->toArray());
 
         $user = [
@@ -82,8 +85,27 @@ class MultiDBUserTest extends TestCase
 
         ];
 
-        User::on('db-ninja-01')->create($user);
+        $user = User::on('db-ninja-01')->create($user);
+
+        $cu = CompanyUserFactory::create($user->id, $coco->id, $account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->save();
+
         User::on('db-ninja-02')->create($user2);
+
+        $this->token = \Illuminate\Support\Str::random(40);
+
+        $this->company_token = CompanyToken::on('db-ninja-01')->create([
+            'user_id' => $user->id,
+            'company_id' => $coco->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => $this->token,
+        ]);
+
+        User::unguard(false);
+
     }
 
     public function test_oauth_user_db2_exists()
@@ -135,9 +157,85 @@ class MultiDBUserTest extends TestCase
         $this->expectNotToPerformAssertions(MultiDB::setDB('db-ninja-01'));
     }
 
+    public function test_cross_db_user_linking_fails_appropriately()
+    {
+
+    //$this->withoutExceptionHandling();
+
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'db2@example.com',
+            'company_user' => [
+                    'is_admin' => false,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice'
+                ],
+        ];
+
+         try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/users?include=company_user', $data);
+
+
+         }
+         catch(ValidationException $e) {
+             \Log::error('in the validator');
+             $message = json_decode($e->validator->getMessageBag(),1);
+             \Log::error($message);
+             $this->assertNotNull($message);
+
+         }
+
+        if($response)
+            $response->assertStatus(302);
+
+    }
+
+
+    public function test_cross_db_user_linking_succeeds_appropriately()
+    {
+
+    //$this->withoutExceptionHandling();
+
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'db1@example.com',
+            'company_user' => [
+                    'is_admin' => false,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice'
+                ],
+        ];
+
+         try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/users?include=company_user', $data);
+
+
+         }
+         catch(ValidationException $e) {
+             \Log::error('in the validator');
+             $message = json_decode($e->validator->getMessageBag(),1);
+             \Log::error($message);
+             $this->assertNotNull($message);
+
+         }
+
+        if($response)
+            $response->assertStatus(200);
+
+    }
+
     public function tearDown() :void
     {
          DB::connection('db-ninja-01')->table('users')->delete();
          DB::connection('db-ninja-02')->table('users')->delete();
+         
     }
 }

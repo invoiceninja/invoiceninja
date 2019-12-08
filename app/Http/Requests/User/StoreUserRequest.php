@@ -12,8 +12,11 @@
 namespace App\Http\Requests\User;
 
 use App\DataMapper\DefaultSettings;
+use App\Factory\UserFactory;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\NewUniqueUserRule;
+use App\Http\ValidationRules\ValidUserForCompany;
+use App\Libraries\MultiDB;
 use App\Models\User;
 
 class StoreUserRequest extends Request
@@ -36,11 +39,17 @@ class StoreUserRequest extends Request
 
         $this->sanitize();
 
-        return [
-            'first_name' => 'required|string|max:100',
-            'last_name' =>  'required|string:max:100',
-            'email' => new NewUniqueUserRule(),
-        ];
+        $rules = [];
+
+        $rules['first_name'] = 'required|string|max:100';
+        $rules['last_name'] = 'required|string|max:100';
+
+        if (config('ninja.db.multi_db_enabled'))
+        {
+            $rules['email'] = new ValidUserForCompany();
+        }
+
+        return $rules;
 
     }
 
@@ -74,5 +83,14 @@ class StoreUserRequest extends Request
     }
 
 
+    public function fetchUser() :User
+    {
+        $user = MultiDB::hasUser(['email' => $this->input('email')]);
+
+        if(!$user)
+            $user = UserFactory::create();
+
+        return $user;
+    }
 
 }

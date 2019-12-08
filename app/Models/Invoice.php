@@ -41,7 +41,7 @@ class Invoice extends BaseModel
     use MakesDates;
     use PresentableTrait;
     use MakesInvoiceValues;
-    
+
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
     protected $hidden = [
@@ -109,7 +109,7 @@ class Invoice extends BaseModel
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
 
-    
+
     public function getStatusAttribute()
     {
 
@@ -125,7 +125,7 @@ class Invoice extends BaseModel
             return $this->status_id;
 
     }
-    
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -140,7 +140,7 @@ class Invoice extends BaseModel
     {
         return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function invitations()
     {
         return $this->hasMany(InvoiceInvitation::class);
@@ -171,9 +171,9 @@ class Invoice extends BaseModel
     /* ---------------- */
 
     /**
-     * If True, prevents an invoice from being 
+     * If True, prevents an invoice from being
      * modified once it has been marked as sent
-     * 
+     *
      * @return boolean isLocked
      */
     public function isLocked() : bool
@@ -181,30 +181,30 @@ class Invoice extends BaseModel
         return $this->client->getSetting('lock_sent_invoices');
     }
 
-    /**
-     * Determines if invoice overdue.
-     *
-     * @param      float    $balance   The balance
-     * @param      date.    $due_date  The due date
-     *
-     * @return     boolean  True if overdue, False otherwise.
-     */
-    public static function isOverdue($balance, $due_date)
-    {
-        if (! $this->formatValue($balance,2) > 0 || ! $due_date) {
-            return false;
-        }
-
-        // it isn't considered overdue until the end of the day
-        return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
-    }
+//    /**
+//     * Determines if invoice overdue.
+//     *
+//     * @param      float    $balance   The balance
+//     * @param      date.    $due_date  The due date
+//     *
+//     * @return     boolean  True if overdue, False otherwise.
+//     */
+//    public static function isOverdue($balance, $due_date)
+//    {
+//        if (! $this->formatValue($balance,2) > 0 || ! $due_date) {
+//            return false;
+//        }
+//
+//        // it isn't considered overdue until the end of the day
+//        return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
+//    }
 
     public function markViewed() :void
     {
         $this->last_viewed = Carbon::now()->format('Y-m-d H:i');
         $this->save();
     }
-    
+
     public function isPayable() : bool
     {
 
@@ -243,10 +243,10 @@ class Invoice extends BaseModel
                 break;
             case Invoice::STATUS_UNPAID:
                 return '<h5><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h5>';
-                break;      
+                break;
             case Invoice::STATUS_REVERSED:
                 return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
-                break;           
+                break;
             default:
                 # code...
                 break;
@@ -255,7 +255,7 @@ class Invoice extends BaseModel
 
     /**
      * Returns the template for the invoice
-     * 
+     *
      * @return string Either the template view, OR the template HTML string
      * @todo  this needs attention, invoice->settings needs clarification
      */
@@ -269,7 +269,7 @@ class Invoice extends BaseModel
 
     /**
      * Access the invoice calculator object
-     * 
+     *
      * @return object The invoice calculator object getters
      */
     public function calc()
@@ -280,7 +280,7 @@ class Invoice extends BaseModel
             $invoice_calc = new InvoiceSumInclusive($this);
         else
             $invoice_calc = new InvoiceSum($this);
-        
+
         return $invoice_calc->build();
 
     }
@@ -307,7 +307,7 @@ class Invoice extends BaseModel
             CreateInvoicePdf::dispatchNow($this);
         }
 
-        return $storage_path;        
+        return $storage_path;
     }
 
     /**
@@ -350,7 +350,7 @@ class Invoice extends BaseModel
 
     /**
      * Clear partial fields
-     * @return void 
+     * @return void
      */
     public function clearPartial() : void
     {
@@ -365,11 +365,11 @@ class Invoice extends BaseModel
     public function updateBalance($balance_adjustment)
     {
 
-        if ($this->is_deleted) 
+        if ($this->is_deleted)
             return;
-        
+
         $balance_adjustment = floatval($balance_adjustment);
-        
+
         $this->balance = $this->balance + $balance_adjustment;
 
         if($this->balance == 0) {
@@ -408,7 +408,7 @@ class Invoice extends BaseModel
         event(new InvoiceWasMarkedSent($this));
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance);
-        
+
         $this->save();
     }
 
