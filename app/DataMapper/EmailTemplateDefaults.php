@@ -17,7 +17,8 @@ class EmailTemplateDefaults
 {
     public static function emailInvoiceSubject()
     {
-        return Parsedown::instance()->line(self::transformText('invoice_subject'));
+        return ctrans('invoice_subject', ['number'=>'$number', 'account'=>'$company']);
+        //return Parsedown::instance()->line(self::transformText('invoice_subject'));
     }
 
     public static function emailInvoiceTemplate()
@@ -27,7 +28,9 @@ class EmailTemplateDefaults
 
     public static function emailQuoteSubject()
     {
-        return Parsedown::instance()->line(self::transformText('quote_subject'));
+        return ctrans('quote_subject', ['number'=>'$number', 'account'=>'$company']);
+
+        //return Parsedown::instance()->line(self::transformText('quote_subject'));
     }
 
     public static function emailQuoteTemplate()
@@ -37,7 +40,8 @@ class EmailTemplateDefaults
 
     public static function emailPaymentSubject()
     {
-        return Parsedown::instance()->line(self::transformText('payment_subject'));
+        return ctrans('texts.payment_subject');
+        //return Parsedown::instance()->line(self::transformText('payment_subject'));
     }
 
     public static function emailPaymentTemplate()
@@ -47,7 +51,9 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Subject()
     {
-        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+        return ctrans('reminder_subject', ['invoice'=>'$number', 'account'=>'$company']);
+
+    //    return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminder1Template()
@@ -57,7 +63,8 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Subject()
     {
-        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+        return ctrans('reminder_subject', ['invoice'=>'$number', 'account'=>'$company']);
+//        return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminder2Template()
@@ -67,7 +74,8 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Subject()
     {
-        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+        return ctrans('reminder_subject', ['invoice'=>'$number', 'account'=>'$company']);
+//        return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminder3Template()
@@ -77,7 +85,8 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessSubject()
     {
-        return Parsedown::instance()->line(self::transformText('reminder_subject'));
+        return ctrans('reminder_subject', ['invoice'=>'$number', 'account'=>'$company']);
+//        return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminderEndlessTemplate()
