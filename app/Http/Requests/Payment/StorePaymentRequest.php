@@ -51,7 +51,7 @@ class StorePaymentRequest extends Request
         }
 
 
-        if(is_array($input['invoices']) === false)
+        if(isset($input['invoices']) && is_array($input['invoices']) === false)
             $input['invoices'] = null;
 
         $this->replace($input);

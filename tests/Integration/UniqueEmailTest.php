@@ -24,36 +24,40 @@ class UniqueEmailTest extends TestCase
     {
         parent::setUp();
 
+        User::unguard();
+
         if (! config('ninja.db.multi_db_enabled'))
             $this->markTestSkipped('Multi DB not enabled - skipping');
-
-         DB::connection('db-ninja-01')->table('users')->delete();
-         DB::connection('db-ninja-02')->table('users')->delete();
 
         $this->rule = new NewUniqueUserRule();
 
         $ac = factory(\App\Models\Account::class)->make();
-
         $ac->setHidden(['hashed_id']);
 
         $account = Account::on('db-ninja-01')->create($ac->toArray());
-        $account2 = Account::on('db-ninja-02')->create($ac->toArray());
 
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
             'domain' => 'ninja.test',
         ]);
 
+        $company->setHidden(['settings', 'settings_object', 'hashed_id']);
+        
+        Company::on('db-ninja-01')->create($company->toArray());
+
+
+        $ac2 = factory(\App\Models\Account::class)->make();
+        $ac2->setHidden(['hashed_id']);
+        $account2 = Account::on('db-ninja-02')->create($ac2->toArray());
+
         $company2 = factory(\App\Models\Company::class)->make([
             'account_id' => $account2->id,
-                        'domain' => 'ninja.test',
+            'domain' => 'ninja.test',
 
         ]);
 
-        $company->setHidden(['settings', 'settings_object', 'hashed_id']);
         $company2->setHidden(['settings', 'settings_object', 'hashed_id']);
 
-        Company::on('db-ninja-01')->create($company->toArray());
         Company::on('db-ninja-02')->create($company2->toArray());
 
 
@@ -91,9 +95,8 @@ class UniqueEmailTest extends TestCase
     }
 
     public function tearDown() :void
-    {
-        DB::connection('db-ninja-01')->table('users')->delete();
-        DB::connection('db-ninja-02')->table('users')->delete();
+    {         
+         DB::connection('db-ninja-01')->table('users')->delete();
+         DB::connection('db-ninja-02')->table('users')->delete();
     }
-
 }
