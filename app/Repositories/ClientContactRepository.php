@@ -34,14 +34,12 @@ class ClientContactRepository extends BaseRepository
 
 		});
 
+		$this->is_primary = true;
 		/* Set first record to primary - always */
-		$contacts = $contacts->sortBy('is_primary');
-
-		$contacts->first(function($contact){
-
-			$contact['is_primary'] = true;
-		//	$contact->save();
-
+		$contacts = $contacts->sortBy('is_primary')->map(function ($contact){
+			$contact['is_primary'] = $this->is_primary;
+			$this->is_primary = false;
+			return $contact;
 		});
 
 		//loop and update/create contacts
@@ -65,6 +63,8 @@ class ClientContactRepository extends BaseRepository
 
 			$update_contact->save();
 		});
+
+
 
 		//always made sure we have one blank contact to maintain state
 		if($contacts->count() == 0)
