@@ -18,6 +18,21 @@ use App\Models\User;
 
 /**
  * Class MultiDB
+ *
+ * Caution!
+ * 
+ * When we perform scans across databases, 
+ * we need to remember that if we don't 
+ * return a DB 'HIT' the DB connection will
+ * be set to the last DB in the chain,
+ * 
+ * So for these cases, we need to reset the
+ * DB connection to the default connection.
+ * 
+ * Even that may be problematic, and we
+ * may need to know the current DB connection
+ * so that we can fall back gracefully.
+ * 
  * @package App\Libraries
  */
 class MultiDB
@@ -53,6 +68,7 @@ class MultiDB
                     return false;
             }
 
+            self::setDefaultDatabase();
             return true;
     }
 
@@ -71,8 +87,42 @@ class MultiDB
                     return true;
             }
 
+            self::setDefaultDatabase();
             return false;
 
+    }
+
+    /**
+     * A user and company must co exists on the same database.
+     * 
+     * This function will check that if a user exists on the system,
+     * the company is also located on the same database.
+     * 
+     * If no user is found, then we also return true as this must be 
+     * a new user request.
+     *     
+     * @param  string $email       The user email
+     * @param  stirng $company_key The company key
+     * @return bool             True|False
+     */
+    public static function checkUserAndCompanyCoExist($email, $company_key) :bool
+    {
+
+        foreach (self::$dbs as $db)
+        {
+            if(User::on($db)->where(['email' => $email])->get()->count() >=1) // if user already exists, validation will fail
+            {
+                if(Company::on($db)->where(['company_key' => $company_key])->get()->count() >=1)
+                    return true;
+                else{
+                    self::setDefaultDatabase();
+                    return false;
+                }
+            }
+        }
+
+        self::setDefaultDatabase();
+        return true;
     }
 
     /**
@@ -101,6 +151,7 @@ class MultiDB
 
             }
 
+            self::setDefaultDatabase();
             return null;
     }
 
@@ -119,6 +170,8 @@ class MultiDB
             }
 
         }
+
+        self::setDefaultDatabase();
         return false;
 
     }
@@ -172,6 +225,8 @@ class MultiDB
             }
 
         }
+
+        self::setDefaultDatabase();
         return false;
 
     }
@@ -189,6 +244,8 @@ class MultiDB
                 return true;
             }
         }
+
+        self::setDefaultDatabase();
         return false;
     }
 
