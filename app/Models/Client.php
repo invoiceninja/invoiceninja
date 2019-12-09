@@ -23,6 +23,7 @@ use App\Models\DatetimeFormat;
 use App\Models\Filterable;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
+use App\Models\Language;
 use App\Models\Timezone;
 use App\Models\User;
 use App\Utils\Traits\CompanyGatewaySettings;
@@ -172,6 +173,16 @@ class Client extends BaseModel
     public function timezone()
     {
         return Timezone::find($this->getSetting('timezone_id'));
+    }
+
+    public function language()
+    {
+        return Language::find($this->getSetting('language_id'));
+    }
+
+    public function locale()
+    {
+        return $this->language()->locale;
     }
 
     public function date_format()
