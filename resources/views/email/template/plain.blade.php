@@ -1,0 +1,4 @@
+{{ $body }}
+<br>
+<br>
+{{ $footer}}
