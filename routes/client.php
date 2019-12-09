@@ -2,16 +2,16 @@
 
 Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.login'); //catch all
 
-Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login');
+Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware('locale');
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
 
-Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request');
-Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email');
-Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset');
-Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update');
+Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware('locale');
+Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('locale');
+Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware('locale');
+Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware('locale');
 
 //todo implement domain DB
-Route::group(['middleware' => ['auth:contact'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
 	Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
