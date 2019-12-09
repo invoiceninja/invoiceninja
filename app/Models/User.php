@@ -90,7 +90,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $casts = [
         'settings' => 'object',
-        'permissions' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -197,19 +196,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns a object of user permissions
+     * Returns a comma separated list of user permissions
      * 
-     * @return stdClass
+     * @return comma separated list
      */
     public function permissions()
     {
         
-        $permissions = json_decode($this->company_user->permissions);
-        
-        if (! $permissions) 
-            return [];
+        return $this->company_user->permissions;
 
-        return $permissions;
     }
 
     /**
@@ -274,18 +269,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     }
 
-    /**
-     * Flattens a stdClass representation of the User Permissions
-     * into a Collection
-     * 
-     * @return Collection
-     */
-    public function permissionsFlat() :Collection
-    {
-
-        return collect($this->permissions())->flatten();
-
-    }
 
     /**
      * Returns true if permissions exist in the map
@@ -296,27 +279,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPermission($permission) : bool
     { 
 
-
         return (stripos($this->company_user->permissions, $permission) !== false);
             
-
-       // return $this->permissionsFlat()->contains($permission);
-
-    }
-
-    /**
-     * Returns a array of permission for the mobile application
-     * 
-     * @return array
-     */
-    public function permissionsMap() : array
-    {
-        
-        $keys = array_values((array) $this->permissions());
-        $values = array_fill(0, count($keys), true);
-
-        return array_combine($keys, $values);
-
     }
 
     public function documents()
