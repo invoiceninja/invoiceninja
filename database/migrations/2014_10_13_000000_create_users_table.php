@@ -773,6 +773,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('payment_type_id')->nullable();
             $t->unsignedInteger('status_id')->index();
             $t->decimal('amount', 16, 4)->default(0);
+            $t->decimal('refunded', 16, 4)->default(0);
             $t->datetime('payment_date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
