@@ -81,7 +81,6 @@ class CreateTestData extends Command
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
-            'domain' => 'ninja.test:8000',
         ]);
 
         $account->default_company_id = $company->id;
@@ -137,7 +136,6 @@ class CreateTestData extends Command
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
-            'domain' => 'ninja.test:8000',
         ]);
 
         $account->default_company_id = $company->id;
@@ -194,7 +192,6 @@ class CreateTestData extends Command
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
-            'domain' => 'ninja.test:8000',
         ]);
 
         $account->default_company_id = $company->id;

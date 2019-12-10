@@ -94,7 +94,7 @@ class CompanyTransformer extends EntityTransformer
             'industry_id' => (string) $company->industry_id ?: '',
             'first_month_of_year' => (string) $company->first_month_of_year ?: '',
             'first_day_of_week' => (string) $company->first_day_of_week ?: '',
-            'domain' => (string) $company->domain ?: '',
+            'subdomain' => (string) $company->subdomain ?: '',
             'portal_mode' => (string) $company->portal_mode ?: '',
             'portal_domain' => (string) $company->portal_domain ?: '',
             'settings' => $company->settings ?: '',

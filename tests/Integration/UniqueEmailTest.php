@@ -38,7 +38,6 @@ class UniqueEmailTest extends TestCase
 
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
-            'domain' => 'ninja.test',
         ]);
 
         $company->setHidden(['settings', 'settings_object', 'hashed_id']);
@@ -52,8 +51,6 @@ class UniqueEmailTest extends TestCase
 
         $company2 = factory(\App\Models\Company::class)->make([
             'account_id' => $account2->id,
-            'domain' => 'ninja.test',
-
         ]);
 
         $company2->setHidden(['settings', 'settings_object', 'hashed_id']);
