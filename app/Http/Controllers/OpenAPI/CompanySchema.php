@@ -7,7 +7,7 @@
  *       @OA\Property(property="size_id", type="string", example="1", description="The company size ID"),
  *       @OA\Property(property="industry_id", type="string", example="1", description="The company industry ID"),
  *       @OA\Property(property="portal_mode", type="string", example="subdomain", description="Determines the client facing urls ie: subdomain,domain,iframe"),
- *       @OA\Property(property="domain", type="string", example="http://acmeco.invoicing.co", description="Determines the client facing url "),
+ *       @OA\Property(property="subdomain", type="string", example="aceme", description="Specifies the first part of the company domain ie acme in acme.domain.com"),
  *       @OA\Property(property="portal_domain", type="string", example="https://subdomain.invoicing.co", description="The fully qualified domain for client facing URLS"),
  *       @OA\Property(property="enabled_tax_rates", type="integer", example="1", description="Number of taxes rates used per entity"),
  *       @OA\Property(property="fill_products", type="boolean", example=true, description="Toggles filling a product description based on product key"),

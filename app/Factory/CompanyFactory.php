@@ -32,7 +32,7 @@ class CompanyFactory
         $company->settings = CompanySettings::defaults();
         $company->db = config('database.default');
         $company->custom_fields = (object) ['custom1' => '1', 'custom2' => '2', 'custom3'=>'3'];
-        $company->domain = '';
+        $company->subdomain = '';
 
         return $company;
     }

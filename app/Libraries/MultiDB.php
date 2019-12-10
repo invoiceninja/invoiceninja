@@ -53,18 +53,18 @@ class MultiDB
 
     }
 
-    public static function checkDomainAvailable($domain) : bool
+    public static function checkDomainAvailable($subdomain) : bool
     {
 
         if (! config('ninja.db.multi_db_enabled'))
         {
-            return Company::whereDomain($domain)->get()->count() == 0;
+            return Company::whereSubdomain($subdomain)->get()->count() == 0;
         }
 
             //multi-db active
             foreach (self::$dbs as $db)
             {
-                if(Company::whereDomain($domain)->get()->count() >=1)
+                if(Company::whereSubdomain($subdomain)->get()->count() >=1)
                     return false;
             }
 
@@ -209,14 +209,14 @@ class MultiDB
 
     }
 
-    public static function findAndSetDbByDomain($domain) :bool
+    public static function findAndSetDbByDomain($subdomain) :bool
     {
     //\Log::error("searching for {$domain}");
 
         foreach (self::$dbs as $db)
         {
 
-            if($company = Company::on($db)->whereDomain($domain)->first()) 
+            if($company = Company::on($db)->whereSubdomain($subdomain)->first()) 
             {
 
                 self::setDb($company->db);
