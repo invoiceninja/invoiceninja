@@ -32,7 +32,7 @@ Route::group(['api_secret_check','email_db'], function () {
 
 });
 
-Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['api_db','api_secret_check','token_auth','locale'], 'prefix' =>'api/v1', 'as' => 'api.'], function () {
 
   Route::resource('activities', 'ActivityController'); // name = (clients. index / create / show / update / destroy / edit
 
@@ -110,7 +110,5 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth'], 'prefi
 */
    Route::post('support/messages/send', 'Support\Messages\SendingController');
 });
-
-Route::get('test_email', '\App\Helpers\Mail\GmailTransportConfig@test');
 
 Route::fallback('BaseController@notFound');

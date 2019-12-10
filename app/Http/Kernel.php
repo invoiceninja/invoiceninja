@@ -72,15 +72,6 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\StartupCheck::class,
             \App\Http\Middleware\QueryLogging::class,
         ],
-        'api_db' => [
-            \App\Http\Middleware\SetDb::class,
-        ],
-        'web_db' => [
-            \App\Http\Middleware\SetWebDb::class,
-        ],
-        'url_db' => [
-            \App\Http\Middleware\UrlSetDb::class,
-        ]
     ];
 
     /**
@@ -111,5 +102,9 @@ class Kernel extends HttpKernel
         'password_protected' => \App\Http\Middleware\PasswordProtection::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'portal_enabled' => \App\Http\Middleware\ClientPortalEnabled::class,
+        'url_db' =>  \App\Http\Middleware\UrlSetDb::class,
+        'web_db' => \App\Http\Middleware\SetWebDb::class,
+        'api_db' => \App\Http\Middleware\SetDb::class,
+        'locale' => \App\Http\Middleware\Locale::class,
     ];
 }

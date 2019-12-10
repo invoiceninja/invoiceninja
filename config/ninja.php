@@ -59,6 +59,7 @@ return [
         'stripe' => env('STRIPE_KEYS',''),
         'paypal' => env('PAYPAL_KEYS', ''),
         'travis' => env('TRAVIS', false),
+        'test_email' => env('TEST_EMAIL',''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
