@@ -50,7 +50,7 @@ class Company extends BaseModel
     protected $fillable = [
         'fill_products',
         'industry_id',
-        'domain',
+        'subdomain',
         'size_id',
         'custom_fields',
         'enable_product_cost',
@@ -265,5 +265,9 @@ class Company extends BaseModel
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
+    public function domain()
+    {
+        return 'https://' . $this->subdomain . config('ninja.app_domain');
+    }
 
 }

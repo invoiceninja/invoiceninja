@@ -123,7 +123,6 @@ class UserTest extends TestCase
         /* Create New Company */
         $company2 = factory(\App\Models\Company::class)->create([
             'account_id' => $this->account->id,
-            'domain' => 'ninja.test:8000',
         ]);
 
         /* Create New Company Token*/

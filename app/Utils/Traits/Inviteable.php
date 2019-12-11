@@ -48,7 +48,7 @@ trait Inviteable
 		//$this->with('company','contact',$this->entity_type);
 		$this->with('company');
 
-		$domain = isset($this->company->portal_domain) ?: $this->company->domain;
+		$domain = isset($this->company->portal_domain) ?: $this->company->domain();
 
 		switch ($this->company->portal_mode) {
 			case 'subdomain':

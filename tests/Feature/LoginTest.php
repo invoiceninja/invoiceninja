@@ -51,8 +51,6 @@ class LoginTest extends TestCase
         ]);
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
-                        'domain' => 'ninja.test',
-
         ]);
 
         $user->companies()->attach($company->id, [
@@ -85,8 +83,6 @@ class LoginTest extends TestCase
         ]);
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
-                        'domain' => 'ninja.test',
-
         ]);
 
         $user->companies()->attach($company->id, [
@@ -117,8 +113,6 @@ class LoginTest extends TestCase
         ]);
         $company = factory(\App\Models\Company::class)->make([
             'account_id' => $account->id,
-                        'domain' => 'ninja.test',
-
         ]);
 
         $user->companies()->attach($company->id, [
@@ -146,8 +140,6 @@ class LoginTest extends TestCase
 
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
-            'domain' => 'ninja.test',
-
         ]);
 
         $account->default_company_id = $account->id;
