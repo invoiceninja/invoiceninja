@@ -1,4 +1,4 @@
 {{ $body }}
 <br>
 <br>
-{{ $footer}}
+{{ $footer }}

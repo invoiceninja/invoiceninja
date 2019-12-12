@@ -129,12 +129,15 @@ class CompanySettings extends BaseSettings
 	public $require_quote_signature = false;
 
 	//email settings
+	public $email_sending_method = 'default'; //enum 'default','gmail'
+	public $gmail_sending_user_id = '';
+	
 	public $reply_to_email = '';
 	public $bcc_email = '';
 	public $pdf_email_attachment = false;
 	public $ubl_email_attachment = false;
 
-	public $email_style = ''; //plain, light, dark, custom
+	public $email_style = 'plain'; //plain, light, dark, custom
 	public $email_style_custom = ''; //the template itself
 	public $email_subject_invoice = '';
 	public $email_subject_quote = '';
@@ -212,6 +215,8 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'email_sending_method' => 'string',
+		'gmail_sending_user_id' => 'string',
 		'currency_id' => 'string',
 		'counter_number_applied' => 'string',
 		'email_subject_custom1' => 'string',

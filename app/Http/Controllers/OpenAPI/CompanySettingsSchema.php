@@ -80,6 +80,8 @@
  *       @OA\Property(property="custom_fields", type="string", example="{}", description="JSON string of custom fields"),
  *       @OA\Property(property="invoice_fields", type="string", example="{}", description="JSON string of invoice fields"),
  *       @OA\Property(property="email_footer", type="string", example="A default email footer", description="The default email footer"),
+ *       @OA\Property(property="email_sending_method", type="string", example="default", description="The email driver to use to send email, options include default, gmail"),
+ *       @OA\Property(property="gmail_sending_user_id", type="string", example="F76sd34D", description="The hashed_id of the user account to send email from"),
  *       @OA\Property(property="email_subject_invoice", type="string", example="Your Invoice Subject", description=""),
  *       @OA\Property(property="email_subject_quote", type="string", example="Your Quote Subject", description=""),
  *       @OA\Property(property="email_subject_payment", type="string", example="Your Payment Subject", description=""),
