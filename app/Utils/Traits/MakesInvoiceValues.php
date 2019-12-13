@@ -162,8 +162,10 @@ trait MakesInvoiceValues
         $data = [];
 
             $data['$date'] = $this->date;
+            $data['$invoice.date'] = &$data['$date'];
             $data['$due_date'] = $this->due_date;
-            $data['$invoice_number'] = $this->number;
+            $data['$invoice.due_date'] = &$data['$due_date'];
+            $data['$number'] = $this->number;
             $data['$po_number'] = $this->po_number;
             $data['$line_taxes'] = $this->makeLineTaxes();
             $data['$total_taxes'] = $this->makeTotalTaxes();
@@ -175,6 +177,7 @@ trait MakesInvoiceValues
             // $data['$line_total'] = ;
     //        $data['$paid_to_date'] = ;
             $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client);
+            $data['$invoice.discount'] = &$data['$discount'];
             $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client);
             $data['$balance_due'] = Number::formatMoney($this->balance, $this->client);
             $data['$partial_due'] = Number::formatMoney($this->partial, $this->client);

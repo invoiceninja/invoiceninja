@@ -33,6 +33,7 @@ class InvoiceEmailTest extends TestCase
     public function test_initial_email_sends()
     {
 
+        \Log::error($this->invoice->makeValues());
     }
 
 
@@ -73,7 +74,8 @@ class InvoiceEmailTest extends TestCase
             $reminder_template = $this->calculateTemplate($invoice);
 
         //Need to determine which email template we are producing
-        $email_data = $this->generateTemplateData($invoice, $reminder_template)
+        $email_data = $this->generateTemplateData($invoice, $reminder_template);
+
 
     }
 
@@ -95,6 +97,11 @@ class InvoiceEmailTest extends TestCase
     private function parseTemplate($invoice, $template_data) :string
     {
 
+        //process variables
+        
+
+        //process markdown
+        
     }
 
     private function calculateTemplate(Invoice $invoice) :string

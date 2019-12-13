@@ -253,6 +253,38 @@ class Invoice extends BaseModel
         }
     }
 
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case Invoice::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case Invoice::STATUS_SENT:
+                return ctrans('texts.sent');
+                break;
+            case Invoice::STATUS_PARTIAL:
+                return ctrans('texts.partial');
+                break;
+            case Invoice::STATUS_PAID:
+                return ctrans('texts.paid');
+                break;
+            case Invoice::STATUS_CANCELLED:
+                return ctrans('texts.cancelled');
+                break;
+            case Invoice::STATUS_OVERDUE:
+                return ctrans('texts.overdue');
+                break;
+            case Invoice::STATUS_UNPAID:
+                return ctrans('texts.unpaid');
+                break;
+            case Invoice::STATUS_REVERSED:
+                return ctrans('texts.reversed');
+                break;
+            default:
+                # code...
+                break;
+        }
+    }
     /**
      * Returns the template for the invoice
      *
@@ -428,4 +460,36 @@ class Invoice extends BaseModel
 
         });
     }
+
+    /**
+     * @deprecated
+     * 
+     * we can use the trait -> makeValues()
+     * 
+     */
+    public function getVariables() :array
+    {
+
+        return [
+            '$number' => $this->number,
+            '$amount' => $this->amount,
+            '$date' => $this->date,
+            '$due_date' => $this->due_date,
+            '$balance' => $this->balance,
+            '$status' => $this->textStatus(),
+            '$invoice.number' => $this->number,
+            '$invoice.amount' => $this->amount,
+            '$invoice.date' => $this->date,
+            '$invoice.due_date' => $this->due_date,
+            '$invoice.balance' => $this->balance,
+            '$invoice.status' => $this->textStatus(),
+        ];
+
+    }
+
+    public function getVariableByKey($key)
+    {
+
+    }
+    
 }
