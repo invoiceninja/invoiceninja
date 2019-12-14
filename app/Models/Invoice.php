@@ -461,35 +461,4 @@ class Invoice extends BaseModel
         });
     }
 
-    /**
-     * @deprecated
-     * 
-     * we can use the trait -> makeValues()
-     * 
-     */
-    public function getVariables() :array
-    {
-
-        return [
-            '$number' => $this->number,
-            '$amount' => $this->amount,
-            '$date' => $this->date,
-            '$due_date' => $this->due_date,
-            '$balance' => $this->balance,
-            '$status' => $this->textStatus(),
-            '$invoice.number' => $this->number,
-            '$invoice.amount' => $this->amount,
-            '$invoice.date' => $this->date,
-            '$invoice.due_date' => $this->due_date,
-            '$invoice.balance' => $this->balance,
-            '$invoice.status' => $this->textStatus(),
-        ];
-
-    }
-
-    public function getVariableByKey($key)
-    {
-
-    }
-    
 }

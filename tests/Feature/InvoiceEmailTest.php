@@ -2,10 +2,13 @@
 
 namespace Feature;
 
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
+use Parsedown;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -33,7 +36,28 @@ class InvoiceEmailTest extends TestCase
     public function test_initial_email_sends()
     {
 
-        \Log::error($this->invoice->makeValues());
+      //  \Log::error($this->invoice->makeValues());
+
+        $this->invoice->date = now();
+        $this->invoice->due_date = now()->addDays(7);
+
+        $message_array = $this->getEmailData($this->invoice);
+
+        //iterate through the senders list and send from here
+        
+        $this->invoice->invitations->each(function($invitation) {
+
+            $contact = ClientContact::find($invitation->client_contact_id)->first();
+
+            if($contact->send_invoice)
+            {
+
+            }
+            
+        });
+        
+
+
     }
 
 
@@ -61,9 +85,9 @@ class InvoiceEmailTest extends TestCase
      * Builds the correct template to send
      * @param  App\Models\Invoice $invoice The Invoice Model
      * @param  string $reminder_template The template name ie reminder1
-     * @return void                   
+     * @return array                   
      */
-    private function invoiceEmailWorkFlow($invoice, $reminder_template = null)
+    private function getEmailData(Invoice $invoice, $reminder_template = null) :array
     {
         //client
         $client = $invoice->client;
@@ -76,6 +100,7 @@ class InvoiceEmailTest extends TestCase
         //Need to determine which email template we are producing
         $email_data = $this->generateTemplateData($invoice, $reminder_template);
 
+        return $email_data;
 
     }
 
@@ -88,20 +113,24 @@ class InvoiceEmailTest extends TestCase
         $body_template = $client->getSetting('email_template_'.$reminder_template);
         $subject_template = $client->getSetting('email_subject_'.$reminder_template);
 
-        $data['message'] = $this->parseTemplate($invoice, $body_template);
-        $data['subject'] = $this->parseTemplate($invoice, $subject_template);
+        $data['message'] = $this->parseTemplate($invoice, $body_template, false);
+        $data['subject'] = $this->parseTemplate($invoice, $subject_template, true);
 
         return $data;
     }
 
-    private function parseTemplate($invoice, $template_data) :string
+    private function parseTemplate(Invoice $invoice, string $template_data, bool $is_markdown = true) :string
     {
+        $invoice_variables = $invoice->makeValues();
 
         //process variables
-        
+        $data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);
 
         //process markdown
-        
+        if($is_markdown)
+            $data = Parsedown::instance()->line($data);
+
+        return $data;
     }
 
     private function calculateTemplate(Invoice $invoice) :string

@@ -21,6 +21,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -127,9 +128,25 @@ trait MockAccountData
         //     'settings' => json_encode(DefaultSettings::userSettings()),
         // ]);
 
-        $this->client = ClientFactory::create($this->company->id, $this->user->id);
-        $this->client->save();
+         $this->client = ClientFactory::create($this->company->id, $this->user->id);
+         $this->client->save();
 
+            factory(\App\Models\ClientContact::class,1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_invoice' => true,
+            ]);
+
+            factory(\App\Models\ClientContact::class,5)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'send_invoice' => true
+            ]);
+
+        
         $gs = new GroupSetting;
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;
@@ -153,6 +170,10 @@ trait MockAccountData
 		$this->invoice = $this->invoice_calc->getInvoice();
 
         $this->invoice->save();
+
+        $this->invoice->markSent();
+        
+        CreateInvoiceInvitations::dispatchNow($this->invoice);
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount);
 
