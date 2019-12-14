@@ -71,9 +71,7 @@
             "App\\": "app/"
         },
         "files": [
-            "app/Libraries/OFX.php",
-            "app/Constants.php"
-        ]
+            "app/Libraries/OFX.php"        ]
     },
     "autoload-dev": {
         "psr-4": {

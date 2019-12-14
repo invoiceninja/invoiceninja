@@ -12,19 +12,19 @@ class DateFormatsSeeder extends Seeder
 
         // Date formats
         $formats = [
-            ['format' => 'd/M/Y', 'format_moment' => 'DD/MMM/YYYY', 'format_dart' => 'dd/MMM/yyyy'],
-            ['format' => 'd-M-Y',  'format_moment' => 'DD-MMM-YYYY', 'format_dart' => 'dd-MMM-yyyy'],
-            ['format' => 'd/F/Y',  'format_moment' => 'DD/MMMM/YYYY', 'format_dart' => 'dd/MMMM/yyyy'],
-            ['format' => 'd-F-Y',  'format_moment' => 'DD-MMMM-YYYY', 'format_dart' => 'dd-MMMM-yyyy'],
-            ['format' => 'M j, Y',  'format_moment' => 'MMM D, YYYY', 'format_dart' => 'MMM d, yyyy'],
-            ['format' => 'F j, Y',  'format_moment' => 'MMMM D, YYYY', 'format_dart' => 'MMMM d, yyyy'],
-            ['format' => 'D M j, Y',  'format_moment' => 'ddd MMM Do, YYYY', 'format_dart' => 'EEE MMM d, yyyy'],
-            ['format' => 'Y-m-d',  'format_moment' => 'YYYY-MM-DD', 'format_dart' => 'yyyy-MM-dd'],
-            ['format' => 'd-m-Y',  'format_moment' => 'DD-MM-YYYY', 'format_dart' => 'dd-MM-yyyy'],
-            ['format' => 'm/d/Y',  'format_moment' => 'MM/DD/YYYY', 'format_dart' => 'MM/dd/yyyy'],
-            ['format' => 'd.m.Y',  'format_moment' => 'D.MM.YYYY', 'format_dart' => 'dd.MM.yyyy'],
-            ['format' => 'j. M. Y',  'format_moment' => 'DD. MMM. YYYY', 'format_dart' => 'd. MMM. yyyy'],
-            ['format' => 'j. F Y',  'format_moment' => 'DD. MMMM YYYY', 'format_dart' => 'd. MMMM yyyy'],
+            ['id' => 1, 'format' => 'd/M/Y', 'format_moment' => 'DD/MMM/YYYY', 'format_dart' => 'dd/MMM/yyyy'],
+            ['id' => 2, 'format' => 'd-M-Y',  'format_moment' => 'DD-MMM-YYYY', 'format_dart' => 'dd-MMM-yyyy'],
+            ['id' => 3, 'format' => 'd/F/Y',  'format_moment' => 'DD/MMMM/YYYY', 'format_dart' => 'dd/MMMM/yyyy'],
+            ['id' => 4, 'format' => 'd-F-Y',  'format_moment' => 'DD-MMMM-YYYY', 'format_dart' => 'dd-MMMM-yyyy'],
+            ['id' => 5, 'format' => 'M j, Y',  'format_moment' => 'MMM D, YYYY', 'format_dart' => 'MMM d, yyyy'],
+            ['id' => 6, 'format' => 'F j, Y',  'format_moment' => 'MMMM D, YYYY', 'format_dart' => 'MMMM d, yyyy'],
+            ['id' => 7, 'format' => 'D M j, Y',  'format_moment' => 'ddd MMM Do, YYYY', 'format_dart' => 'EEE MMM d, yyyy'],
+            ['id' => 8, 'format' => 'Y-m-d',  'format_moment' => 'YYYY-MM-DD', 'format_dart' => 'yyyy-MM-dd'],
+            ['id' => 9, 'format' => 'd-m-Y',  'format_moment' => 'DD-MM-YYYY', 'format_dart' => 'dd-MM-yyyy'],
+            ['id' => 10, 'format' => 'm/d/Y',  'format_moment' => 'MM/DD/YYYY', 'format_dart' => 'MM/dd/yyyy'],
+            ['id' => 11, 'format' => 'd.m.Y',  'format_moment' => 'D.MM.YYYY', 'format_dart' => 'dd.MM.yyyy'],
+            ['id' => 12, 'format' => 'j. M. Y',  'format_moment' => 'DD. MMM. YYYY', 'format_dart' => 'd. MMM. yyyy'],
+            ['id' => 13, 'format' => 'j. F Y',  'format_moment' => 'DD. MMMM YYYY', 'format_dart' => 'd. MMMM yyyy'],
         ];
 
         foreach ($formats as $format) {
@@ -41,19 +41,19 @@ class DateFormatsSeeder extends Seeder
 
         // Date/time formats
         $formats = [
-            ['format' => 'd/M/Y g:i a', 'format_moment' => 'DD/MMM/YYYY h:mm:ss a', 'format_dart' => 'dd/MMM/yyyy h:mm a'],
-            ['format' => 'd-M-Y g:i a', 'format_moment' => 'DD-MMM-YYYY h:mm:ss a', 'format_dart' => 'dd-MMM-yyyy h:mm a'],
-            ['format' => 'd/F/Y g:i a', 'format_moment' => 'DD/MMMM/YYYY h:mm:ss a', 'format_dart' => 'dd/MMMM/yyyy h:mm a'],
-            ['format' => 'd-F-Y g:i a', 'format_moment' => 'DD-MMMM-YYYY h:mm:ss a', 'format_dart' => 'dd-MMMM-yyyy h:mm a'],
-            ['format' => 'M j, Y g:i a', 'format_moment' => 'MMM D, YYYY h:mm:ss a', 'format_dart' => 'MMM d, yyyy h:mm a'],
-            ['format' => 'F j, Y g:i a', 'format_moment' => 'MMMM D, YYYY h:mm:ss a', 'format_dart' => 'MMMM d, yyyy h:mm a'],
-            ['format' => 'D M jS, Y g:i a', 'format_moment' => 'ddd MMM Do, YYYY h:mm:ss a', 'format_dart' => 'EEE MMM d, yyyy h:mm a'],
-            ['format' => 'Y-m-d g:i a', 'format_moment' => 'YYYY-MM-DD h:mm:ss a', 'format_dart' => 'yyyy-MM-dd h:mm a'],
-            ['format' => 'd-m-Y g:i a', 'format_moment' => 'DD-MM-YYYY h:mm:ss a', 'format_dart' => 'dd-MM-yyyy h:mm a'],
-            ['format' => 'm/d/Y g:i a', 'format_moment' => 'MM/DD/YYYY h:mm:ss a', 'format_dart' => 'MM/dd/yyyy h:mm a'],
-            ['format' => 'd.m.Y g:i a', 'format_moment' => 'D.MM.YYYY h:mm:ss a', 'format_dart' => 'dd.MM.yyyy h:mm a'],
-            ['format' => 'j. M. Y g:i a', 'format_moment' => 'DD. MMM. YYYY h:mm:ss a', 'format_dart' => 'd. MMM. yyyy h:mm a'],
-            ['format' => 'j. F Y g:i a', 'format_moment' => 'DD. MMMM YYYY h:mm:ss a', 'format_dart' => 'd. MMMM yyyy h:mm a'],
+            ['id' => 1, 'format' => 'd/M/Y g:i a', 'format_moment' => 'DD/MMM/YYYY h:mm:ss a', 'format_dart' => 'dd/MMM/yyyy h:mm a'],
+            ['id' => 2, 'format' => 'd-M-Y g:i a', 'format_moment' => 'DD-MMM-YYYY h:mm:ss a', 'format_dart' => 'dd-MMM-yyyy h:mm a'],
+            ['id' => 3, 'format' => 'd/F/Y g:i a', 'format_moment' => 'DD/MMMM/YYYY h:mm:ss a', 'format_dart' => 'dd/MMMM/yyyy h:mm a'],
+            ['id' => 4, 'format' => 'd-F-Y g:i a', 'format_moment' => 'DD-MMMM-YYYY h:mm:ss a', 'format_dart' => 'dd-MMMM-yyyy h:mm a'],
+            ['id' => 5, 'format' => 'M j, Y g:i a', 'format_moment' => 'MMM D, YYYY h:mm:ss a', 'format_dart' => 'MMM d, yyyy h:mm a'],
+            ['id' => 6, 'format' => 'F j, Y g:i a', 'format_moment' => 'MMMM D, YYYY h:mm:ss a', 'format_dart' => 'MMMM d, yyyy h:mm a'],
+            ['id' => 7, 'format' => 'D M jS, Y g:i a', 'format_moment' => 'ddd MMM Do, YYYY h:mm:ss a', 'format_dart' => 'EEE MMM d, yyyy h:mm a'],
+            ['id' => 8, 'format' => 'Y-m-d g:i a', 'format_moment' => 'YYYY-MM-DD h:mm:ss a', 'format_dart' => 'yyyy-MM-dd h:mm a'],
+            ['id' => 9, 'format' => 'd-m-Y g:i a', 'format_moment' => 'DD-MM-YYYY h:mm:ss a', 'format_dart' => 'dd-MM-yyyy h:mm a'],
+            ['id' => 10, 'format' => 'm/d/Y g:i a', 'format_moment' => 'MM/DD/YYYY h:mm:ss a', 'format_dart' => 'MM/dd/yyyy h:mm a'],
+            ['id' => 11, 'format' => 'd.m.Y g:i a', 'format_moment' => 'D.MM.YYYY h:mm:ss a', 'format_dart' => 'dd.MM.yyyy h:mm a'],
+            ['id' => 12, 'format' => 'j. M. Y g:i a', 'format_moment' => 'DD. MMM. YYYY h:mm:ss a', 'format_dart' => 'd. MMM. yyyy h:mm a'],
+            ['id' => 13, 'format' => 'j. F Y g:i a', 'format_moment' => 'DD. MMMM YYYY h:mm:ss a', 'format_dart' => 'd. MMMM yyyy h:mm a'],
         ];
 
         foreach ($formats as $format) {

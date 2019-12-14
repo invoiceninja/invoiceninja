@@ -10,19 +10,19 @@ class GatewayTypesSeeder extends Seeder
         Eloquent::unguard();
 
         $gateway_types = [
-            ['alias' => 'credit_card', 'name' => 'Credit Card'],
-            ['alias' => 'bank_transfer', 'name' => 'Bank Transfer'],
-            ['alias' => 'paypal', 'name' => 'PayPal'],
-            ['alias' => 'crypto', 'name' => 'Crypto'],
-            ['alias' => 'dwolla', 'name' => 'Dwolla'],
-            ['alias' => 'custom1', 'name' => 'Custom'],
-            ['alias' => 'alipay', 'name' => 'Alipay'],
-            ['alias' => 'sofort', 'name' => 'Sofort'],
-            ['alias' => 'sepa', 'name' => 'SEPA'],
-            ['alias' => 'gocardless', 'name' => 'GoCardless'],
-            ['alias' => 'apple_pay', 'name' => 'Apple Pay'],
-            ['alias' => 'custom2', 'name' => 'Custom'],
-            ['alias' => 'custom3', 'name' => 'Custom'],
+            ['id' => 1, 'alias' => 'credit_card', 'name' => 'Credit Card'],
+            ['id' => 2, 'alias' => 'bank_transfer', 'name' => 'Bank Transfer'],
+            ['id' => 3, 'alias' => 'paypal', 'name' => 'PayPal'],
+            ['id' => 4, 'alias' => 'crypto', 'name' => 'Crypto'],
+            ['id' => 5, 'alias' => 'dwolla', 'name' => 'Dwolla'],
+            ['id' => 6, 'alias' => 'custom1', 'name' => 'Custom'],
+            ['id' => 7, 'alias' => 'alipay', 'name' => 'Alipay'],
+            ['id' => 8, 'alias' => 'sofort', 'name' => 'Sofort'],
+            ['id' => 9, 'alias' => 'sepa', 'name' => 'SEPA'],
+            ['id' => 10, 'alias' => 'gocardless', 'name' => 'GoCardless'],
+            ['id' => 11, 'alias' => 'apple_pay', 'name' => 'Apple Pay'],
+            ['id' => 12, 'alias' => 'custom2', 'name' => 'Custom'],
+            ['id' => 13, 'alias' => 'custom3', 'name' => 'Custom'],
         ];
 
         foreach ($gateway_types as $gateway_type) {

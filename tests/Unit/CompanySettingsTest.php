@@ -24,7 +24,7 @@ class CompanySettingsTest extends TestCase
 	public function testTimezoneId()
 	{
 		
-		$this->assertEquals($this->company_settings->timezone_id, 15);
+		$this->assertEquals($this->company_settings->timezone_id, 1);
 
 	}
 

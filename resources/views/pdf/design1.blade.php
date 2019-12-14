@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>$invoice_number</title>
+    <title>$number</title>
     <link href="{{asset('/vendors/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{asset('/vendors/css/coreui.min.css') }}" rel="stylesheet">
     <style>
@@ -62,9 +62,9 @@
                 </div>
 
                 <div class="col-md-4 ml-auto">
-                $invoice_number_label:  $invoice_number <br>
-                $invoice_date_label:  $invoice_date <br>
-                $invoice_due_date_label:  $due_date 
+                $number_label:  $number <br>
+                $date_label:  $date <br>
+                $due_date_label:  $due_date 
                 </div>
         </div>
 

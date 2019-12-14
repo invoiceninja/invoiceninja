@@ -244,10 +244,10 @@ class ClientTest extends TestCase
             $this->assertNotNull($client);
 
             /* Make sure we have a valid settings object*/
-            $this->assertEquals($client->getSetting('timezone_id'), 15);            
+            $this->assertEquals($client->getSetting('timezone_id'), 1);            
 
             /* Make sure we are harvesting valid data */
-            $this->assertEquals($client->timezone()->name, 'US/Eastern');
+            $this->assertEquals($client->timezone()->name, 'Pacific/Midway');
 
             /* Make sure NULL settings return the correct count (0) instead of throwing an exception*/
             $this->assertEquals($client->contacts->count(), 3);

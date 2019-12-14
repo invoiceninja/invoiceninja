@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Mail\TemplateEmail;
+use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class SendTestEmails extends Command
@@ -71,4 +73,5 @@ class SendTestEmails extends Command
             //->replyTo(also_available_if_needed)
             ->send(new TemplateEmail($message, $template, $user));
     }
+
 }
