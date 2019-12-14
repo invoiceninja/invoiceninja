@@ -130,7 +130,7 @@ class CompanySettings extends BaseSettings
 
 	//email settings
 	public $email_sending_method = 'default'; //enum 'default','gmail'
-	public $gmail_sending_user_id = '';
+	public $gmail_sending_user_id = '0';
 	
 	public $reply_to_email = '';
 	public $bcc_email = '';

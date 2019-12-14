@@ -793,7 +793,7 @@ class CreateUsersTable extends Migration
         });
 
         Schema::create('paymentables', function ($table) { //allows multiple invoices to one payment
-           // $table->increments('id');
+            $table->increments('id');
             $table->unsignedInteger('payment_id');
             $table->unsignedInteger('paymentable_id');
             $table->decimal('amount', 16, 4)->default(0);

@@ -3,8 +3,8 @@
 namespace Feature;
 
 
-use App\Factory\UserFactory;
 use App\Factory\CompanyUserFactory;
+use App\Factory\UserFactory;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Company;
@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -42,6 +43,10 @@ class UserTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
     }
 
     public function testUserList()

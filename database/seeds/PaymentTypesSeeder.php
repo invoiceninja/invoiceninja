@@ -60,17 +60,22 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'Crypto', 'gateway_type_id' => self::GATEWAY_TYPE_CRYPTO],
         ];
 
+        $x=1;
         foreach ($paymentTypes as $paymentType) {
             $record = PaymentType::where('name', '=', $paymentType['name'])->first();
 
             if ($record) {
+                $record->id = $x;
                 $record->name = $paymentType['name'];
                 $record->gateway_type_id = ! empty($paymentType['gateway_type_id']) ? $paymentType['gateway_type_id'] : null;
 
                 $record->save();
             } else {
+                $paymentType['id'] = $x;
                 PaymentType::create($paymentType);
             }
+
+            $x++;
         }
     }
 }

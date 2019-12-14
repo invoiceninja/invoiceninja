@@ -38,7 +38,7 @@ return [
     ],
 
     'i18n' => [
-        'timezone_id' => env('DEFAULT_TIMEZONE', 15),
+        'timezone_id' => env('DEFAULT_TIMEZONE', 1),
         'country_id' => env('DEFAULT_COUNTRY', 840), // United Stated
         'currency_id' => env('DEFAULT_CURRENCY', 1),
         'language_id' => env('DEFAULT_LANGUAGE', 1), //en
