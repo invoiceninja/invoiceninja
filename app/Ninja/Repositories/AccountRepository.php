@@ -138,6 +138,11 @@ class AccountRepository
             return;
         }
 
+        // Checkout.com
+        if ($ip == '80.227.4.234') {
+            return;
+        }
+
         $count = Account::whereIp($ip)->whereHas('users', function ($query) {
             $query->whereRegistered(true);
         })->count();
