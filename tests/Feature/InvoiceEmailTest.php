@@ -2,11 +2,15 @@
 
 namespace Feature;
 
+use App\Mail\TemplateEmail;
+use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Parsedown;
 use Tests\MockAccountData;
@@ -42,18 +46,37 @@ class InvoiceEmailTest extends TestCase
         $this->invoice->due_date = now()->addDays(7);
 
         $message_array = $this->getEmailData($this->invoice);
+        $message_array['title'] = 'The title';
+        $message_array['footer'] = 'The Footer';
 
+        $template_style = $this->client->getSetting('email_style');
+
+        $template_style = 'light';
         //iterate through the senders list and send from here
-        
-        $this->invoice->invitations->each(function($invitation) {
+
+        $invitations = InvoiceInvitation::whereInvoiceId($this->invoice->id)->get();
+
+        $invitations->each(function($invitation) use($message_array, $template_style) {
 
             $contact = ClientContact::find($invitation->client_contact_id)->first();
 
-            if($contact->send_invoice)
+            if($contact->send_invoice && $contact->email)
             {
+                //there may be template variables left over for the specific contact? need to reparse here
+                
+                //change the runtime config of the mail provider here:
+                
+                //send message
+                Mail::to($contact->email)
+                ->send(new TemplateEmail($message_array, $template_style, $this->user));
 
+                //fire any events
+                
+
+                sleep(5);
+                
             }
-            
+
         });
         
 
@@ -92,8 +115,6 @@ class InvoiceEmailTest extends TestCase
         //client
         $client = $invoice->client;
 
-        $template_style = $client->getSetting('email_style');
-
         if(!$reminder_template)
             $reminder_template = $this->calculateTemplate($invoice);
 
@@ -113,7 +134,7 @@ class InvoiceEmailTest extends TestCase
         $body_template = $client->getSetting('email_template_'.$reminder_template);
         $subject_template = $client->getSetting('email_subject_'.$reminder_template);
 
-        $data['message'] = $this->parseTemplate($invoice, $body_template, false);
+        $data['body'] = $this->parseTemplate($invoice, $body_template, false);
         $data['subject'] = $this->parseTemplate($invoice, $subject_template, true);
 
         return $data;

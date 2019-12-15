@@ -17,6 +17,7 @@ use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
@@ -28,6 +29,7 @@ use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\User;
@@ -139,7 +141,7 @@ trait MockAccountData
                 'send_invoice' => true,
             ]);
 
-            factory(\App\Models\ClientContact::class,5)->create([
+            factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -173,7 +175,26 @@ trait MockAccountData
 
         $this->invoice->markSent();
         
-        CreateInvoiceInvitations::dispatchNow($this->invoice);
+        $contacts = $this->invoice->client->contacts;
+
+        $contacts->each(function ($contact) {
+
+            $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
+                                        ->whereClientContactId($contact->id)
+                                        ->whereInvoiceId($this->invoice->id)
+                                        ->first();
+
+            if(!$invitation && $contact->send_invoice) {
+                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->invoice_id = $this->invoice->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->save();
+            }
+            else if($invitation && !$contact->send_invoice) {
+                $invitation->delete();
+            }
+
+        });
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount);
 

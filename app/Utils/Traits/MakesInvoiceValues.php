@@ -193,6 +193,9 @@ trait MakesInvoiceValues
             $data['$invoice.partial_due'] = &$data['$partial_due'];
             $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client);
             $data['$invoice.total'] = &$data['$total'];
+            $data['$amount'] = &$data['$total'];
+            $data['$invoice.amount'] = &$data['$total'];
+
             $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client);
             $data['$invoice.balance'] = &$data['$balance'];
             $data['$taxes'] = Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client);

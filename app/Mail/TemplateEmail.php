@@ -22,7 +22,7 @@ class TemplateEmail extends Mailable
     {
         $this->message = $message;
         $this->template = $template;
-        $this->user = $user;
+        $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
     }
 
     /**
