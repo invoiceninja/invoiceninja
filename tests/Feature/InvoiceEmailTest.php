@@ -6,6 +6,7 @@ use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -23,6 +24,7 @@ class InvoiceEmailTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+    use GeneratesCounter;
 
     public function setUp() :void
     {
@@ -44,9 +46,10 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
 
         $message_array = $this->getEmailData($this->invoice);
-        $message_array['title'] = 'The title';
+        $message_array['title'] = &$message_array['subject'];
         $message_array['footer'] = 'The Footer';
 
         $template_style = $this->client->getSetting('email_style');
@@ -68,7 +71,7 @@ class InvoiceEmailTest extends TestCase
                 
                 //send message
                 Mail::to($contact->email)
-                ->send(new TemplateEmail($message_array, $template_style, $this->user));
+                ->send(new TemplateEmail($message_array, $template_style, $this->user, $this->client));
 
                 //fire any events
                 

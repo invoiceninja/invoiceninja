@@ -153,6 +153,10 @@ trait MockAccountData
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;
         $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+
+        $gs_settings = $gs->settings;
+        $gs_settings->website = 'http://staging.invoicing.co';
+        $gs->settings = $gs_settings;
         $gs->save();
 
         $this->client->group_settings_id = $gs->id;

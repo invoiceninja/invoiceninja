@@ -28,15 +28,21 @@ class CompanyPresenter extends EntityPresenter
         return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
-    public function logo($settings)
+    public function logo($settings = null)
     {
+        if(!$settings)
+            $settings = $this->entity->settings;
+
         return strlen($settings->company_logo > 0) ? $settings->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
     }
 
-    public function address($settings)
+    public function address($settings = null)
     {
         $str = '';
         $company = $this->entity;
+
+        if(!$settings)
+            $settings = $this->entity->settings;
 
         if ($address1 = $settings->address1) {
             $str .= e($address1) . '<br/>';
@@ -60,8 +66,11 @@ class CompanyPresenter extends EntityPresenter
         return $str;
     }
 
-    public function getCompanyCityState($settings)
+    public function getCompanyCityState($settings = null)
     {
+        if(!$settings)
+            $settings = $this->entity->settings;
+
         $country = Country::find($settings->country_id)->first();
 
         $swap = $country && $country->swap_postal_code;
