@@ -47,6 +47,7 @@ class TemplateEmail extends Mailable
 
         return $this->from($this->user->email, $this->user->present()->name()) //todo this needs to be fixed to handle the hosted version
             ->subject($this->message['subject'])
+            ->text('email.template.plain', ['body' => $this->message['body'], 'footer' => $this->message['footer']])
             ->view($template_name, [
                 'body' => $this->message['body'],
                 'footer' => $this->message['footer'],
