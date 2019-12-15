@@ -42,7 +42,7 @@ class TemplateEmail extends Mailable
         $template_name = 'email.template.'.$this->template;
 
         $settings = $this->client->getMergedSettings();
-\Log::error(print_r($settings,1));
+
         $company = $this->client->company;
 
         return $this->from($this->user->email, $this->user->present()->name()) //todo this needs to be fixed to handle the hosted version
