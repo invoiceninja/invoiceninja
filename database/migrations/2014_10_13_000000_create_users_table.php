@@ -211,7 +211,10 @@ class CreateUsersTable extends Migration
         Schema::create('documents', function (Blueprint $table){
             $table->increments('id');
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('assigned_user_id');
             $table->unsignedInteger('company_id')->index();
+            $table->unsignedInteger('project_id')->nullable();
+            $table->unsignedInteger('vendor_id')->nullable();
             $table->string('path')->nullable();
             $table->string('preview')->nullable();
             $table->string('name')->nullable();
@@ -222,6 +225,10 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('width')->nullable();
             $table->unsignedInteger('height')->nullable();
             $table->boolean('is_default')->default(0);
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
 
             $table->unsignedInteger('documentable_id');
             $table->string('documentable_type');
@@ -258,7 +265,11 @@ class CreateUsersTable extends Migration
             $table->mediumText('signature')->nullable();
             $table->string('password');
             $table->rememberToken();
-            
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
@@ -378,6 +389,22 @@ class CreateUsersTable extends Migration
         });
 
 
+        Schema::create('projects', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id');
+            $t->unsignedInteger('company_id')->index();
+            $t->unsignedInteger('client_id')->nullable();
+            $t->string('name');
+            $t->string('description');
+            $t->timestamps();
+            $t->softDeletes();
+
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $t->foreign('company_id')->references('id')->on('companies');
+            
+        });
+
         Schema::create('company_gateways', function($table)
         {
             $table->increments('id');
@@ -391,7 +418,11 @@ class CreateUsersTable extends Migration
             $table->boolean('update_details')->default(false)->nullable();
             $table->mediumText('config');
             $table->text('fees_and_limits');
-
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+            
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
@@ -410,7 +441,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
-
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
 
@@ -449,6 +481,7 @@ class CreateUsersTable extends Migration
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
+            $t->datetime('next_send_date')->nullable();
 
             $t->string('custom_surcharge1')->nullable();
             $t->string('custom_surcharge2')->nullable();
@@ -482,6 +515,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
 
             $t->unsignedInteger('status_id')->index();
             $t->text('number')->nullable();
@@ -548,7 +583,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
-
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('status_id')->index();
 
             $t->float('discount')->default(0);
@@ -613,7 +649,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('status_id');
-
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
 
@@ -624,6 +661,7 @@ class CreateUsersTable extends Migration
             $t->string('po_number')->nullable();
             $t->date('date')->nullable();
             $t->datetime('due_date')->nullable();
+            $t->datetime('next_send_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
@@ -731,7 +769,8 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('assigned_user_id')->nullable();
-
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -765,16 +804,18 @@ class CreateUsersTable extends Migration
             $t->increments('id');                                             
             $t->unsignedInteger('company_id')->index();
             $t->unsignedInteger('client_id')->index();
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('user_id')->nullable();
             $t->unsignedInteger('assigned_user_id')->nullable();
             $t->unsignedInteger('client_contact_id')->nullable();
             $t->unsignedInteger('invitation_id')->nullable();
             $t->unsignedInteger('company_gateway_id')->nullable();
-            $t->unsignedInteger('payment_type_id')->nullable();
+            $t->unsignedInteger('type_id')->nullable();
             $t->unsignedInteger('status_id')->index();
             $t->decimal('amount', 16, 4)->default(0);
             $t->decimal('refunded', 16, 4)->default(0);
-            $t->datetime('payment_date')->nullable();
+            $t->date('date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
             $t->timestamps(6);
@@ -788,7 +829,7 @@ class CreateUsersTable extends Migration
             $t->foreign('company_gateway_id')->references('id')->on('company_gateways')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
-            $t->foreign('payment_type_id')->references('id')->on('payment_types');
+            $t->foreign('type_id')->references('id')->on('payment_types');
 
         });
 
@@ -819,6 +860,9 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('invoice_id')->nullable();
+            $table->unsignedInteger('project_id')->nullable();
+            $table->unsignedInteger('vendor_id')->nullable();
+
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
@@ -902,6 +946,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('client_contact_id')->nullable();
             $table->unsignedInteger('account_id')->nullable();
+            $table->unsignedInteger('project_id')->nullable();
+            $table->unsignedInteger('vendor_id')->nullable();
             $table->unsignedInteger('payment_id')->nullable();
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('invitation_id')->nullable();
@@ -914,6 +960,8 @@ class CreateUsersTable extends Migration
             $table->text('notes');
             $table->timestamps(6);
 
+            $table->index(['vendor_id', 'company_id']);
+            $table->index(['project_id', 'company_id']);
             $table->index(['user_id', 'company_id']);
             $table->index(['client_id', 'company_id']);
             $table->index(['payment_id', 'company_id']);

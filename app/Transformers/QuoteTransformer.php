@@ -93,6 +93,7 @@ class QuoteTransformer extends EntityTransformer
             'discount' => (float) $quote->discount ?: '',
             'po_number' => $quote->po_number ?: '',
             'quote_date' => $quote->quote_date ?: '',
+            'next_send_date' => $quote->date ?: '',
             'valid_until' => $quote->valid_until ?: '',
             'terms' => $quote->terms ?: '',
             'public_notes' => $quote->public_notes ?: '',

@@ -276,7 +276,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $client_contact_id = $client_contact ? $client_contact->id : null;
 
         $payment->amount = $data['PAYMENTINFO_0_AMT'];
-        $payment->payment_type_id = PaymentType::PAYPAL;
+        $payment->type_id = PaymentType::PAYPAL;
         $payment->transaction_reference = $data['PAYMENTINFO_0_TRANSACTIONID'];
         $payment->client_contact_id = $client_contact_id;
         $payment->save();

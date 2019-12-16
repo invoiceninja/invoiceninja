@@ -15,6 +15,8 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Transformers\PaymentableTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PaymentTransformer extends EntityTransformer
@@ -28,6 +30,7 @@ class PaymentTransformer extends EntityTransformer
     protected $availableIncludes = [
         'client',
         'invoices',
+        'paymentables'
     ];
 
     public function __construct($serializer = null)
@@ -50,7 +53,15 @@ class PaymentTransformer extends EntityTransformer
 
         return $this->includeItem($payment->client, $transformer, Client::class);
     }
-//todo incomplete
+
+    public function includePaymentables(Payment $payment)
+    {
+        $transformer = new PaymentableTransformer($this->serializer);
+
+        return $this->includeCollection($payment->paymentables, $transformer, Paymentable::class);
+    }
+
+
     public function transform(Payment $payment)
     {
         return  [
@@ -58,14 +69,22 @@ class PaymentTransformer extends EntityTransformer
             'user_id' => $this->encodePrimaryKey($payment->user_id),
             'assigned_user_id' => $this->encodePrimaryKey($payment->assigned_user_id),
             'amount' => (float) $payment->amount,
+            'refunded' => (float) $payment->refunded,
             'transaction_reference' => $payment->transaction_reference ?: '',
-            'payment_date' => $payment->payment_date ?: '',
+            'date' => $payment->date ?: '',
+            'is_manual' => (bool) $payment->is_manual,
             'updated_at' => $payment->updated_at,
             'archived_at' => $payment->deleted_at,
             'is_deleted' => (bool) $payment->is_deleted,
-            'payment_type_id' => (string) $payment->payment_type_id ?: '',
+            'type_id' => (string) $payment->payment_type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',
             'client_id' => (string) $this->encodePrimaryKey($payment->client_id),
+            'client_contact_id' => (string) $this->encodePrimaryKey($payment->client_contact_id),
+            'company_gateway_id' => (string) $this->encodePrimaryKey($payment->company_gateway_id),
+            'status_id'=> (string) $payment->status_id,
+            'type_id'=> (string) $payment->type_id,
+            'project_id' => (string) $this->encodePrimaryKey($payment->project_id),
+            'vendor_id' => (string) $this->encodePrimaryKey($payment->vendor_id),
 /*
             'private_notes' => $payment->private_notes ?: '',
             'exchange_rate' => (float) $payment->exchange_rate,

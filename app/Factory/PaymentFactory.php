@@ -29,10 +29,10 @@ class PaymentFactory
 		$payment->client_contact_id = null;
 		$payment->invitation_id = null;
 		$payment->company_gateway_id = null;
-		$payment->payment_type_id = null;
+		$payment->type_id = null;
 		$payment->is_deleted = false;
 		$payment->amount = 0;
-		$payment->payment_date = Carbon::now()->format('Y-m-d');
+		$payment->date = Carbon::now()->format('Y-m-d');
 		$payment->transaction_reference = null;
 		$payment->payer_id = null;
 		$payment->status_id = Payment::STATUS_PENDING;

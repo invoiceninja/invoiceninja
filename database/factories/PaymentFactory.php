@@ -10,9 +10,9 @@ $factory->define(App\Models\Payment::class, function (Faker $faker) {
     return [
 		'is_deleted' => false,
 		'amount' => $faker->numberBetween(1,10),
-		'payment_date' => $faker->date(),
+		'date' => $faker->date(),
 		'transaction_reference' => $faker->text(10),
-		'payment_type_id' => Payment::TYPE_CREDIT_CARD,
+		'type_id' => Payment::TYPE_CREDIT_CARD,
 		'status_id' => Payment::STATUS_COMPLETED
     ];
     

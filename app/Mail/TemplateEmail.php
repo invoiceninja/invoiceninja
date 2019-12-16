@@ -18,11 +18,15 @@ class TemplateEmail extends Mailable
 
     private $user; //the user the email will be sent from
 
-    public function __construct($message, $template, $user)
+    private $client;
+
+
+    public function __construct($message, $template, $user, $client)
     {
         $this->message = $message;
         $this->template = $template;
-        $this->user = $user;
+        $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
+        $this->client = $client;
     }
 
     /**
@@ -37,12 +41,19 @@ class TemplateEmail extends Mailable
         //if using a system level template
         $template_name = 'email.template.'.$this->template;
 
+        $settings = $this->client->getMergedSettings();
+
+        $company = $this->client->company;
+
         return $this->from($this->user->email, $this->user->present()->name()) //todo this needs to be fixed to handle the hosted version
             ->subject($this->message['subject'])
+            ->text('email.template.plain', ['body' => $this->message['body'], 'footer' => $this->message['footer']])
             ->view($template_name, [
                 'body' => $this->message['body'],
                 'footer' => $this->message['footer'],
                 'title' => $this->message['title'],
+                'settings' => $settings,
+                'company' => $company
             ]);
 
     }

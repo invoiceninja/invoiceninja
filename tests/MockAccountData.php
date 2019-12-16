@@ -17,16 +17,19 @@ use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\User;
@@ -127,13 +130,33 @@ trait MockAccountData
         //     'settings' => json_encode(DefaultSettings::userSettings()),
         // ]);
 
-        $this->client = ClientFactory::create($this->company->id, $this->user->id);
-        $this->client->save();
+         $this->client = ClientFactory::create($this->company->id, $this->user->id);
+         $this->client->save();
 
+            factory(\App\Models\ClientContact::class,1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_invoice' => true,
+            ]);
+
+            factory(\App\Models\ClientContact::class,1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'send_invoice' => true
+            ]);
+
+        
         $gs = new GroupSetting;
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;
         $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
+
+        $gs_settings = $gs->settings;
+        $gs_settings->website = 'http://staging.invoicing.co';
+        $gs->settings = $gs_settings;
         $gs->save();
 
         $this->client->group_settings_id = $gs->id;
@@ -153,6 +176,29 @@ trait MockAccountData
 		$this->invoice = $this->invoice_calc->getInvoice();
 
         $this->invoice->save();
+
+        $this->invoice->markSent();
+        
+        $contacts = $this->invoice->client->contacts;
+
+        $contacts->each(function ($contact) {
+
+            $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
+                                        ->whereClientContactId($contact->id)
+                                        ->whereInvoiceId($this->invoice->id)
+                                        ->first();
+
+            if(!$invitation && $contact->send_invoice) {
+                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->invoice_id = $this->invoice->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->save();
+            }
+            else if($invitation && !$contact->send_invoice) {
+                $invitation->delete();
+            }
+
+        });
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount);
 

@@ -22,6 +22,7 @@ use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\PaymentTerm;
 use App\Utils\Number;
+use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\NumberFormatter;
@@ -41,7 +42,8 @@ class Invoice extends BaseModel
     use MakesDates;
     use PresentableTrait;
     use MakesInvoiceValues;
-
+    use InvoiceEmailBuilder;
+    
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
     protected $hidden = [
@@ -461,35 +463,4 @@ class Invoice extends BaseModel
         });
     }
 
-    /**
-     * @deprecated
-     * 
-     * we can use the trait -> makeValues()
-     * 
-     */
-    public function getVariables() :array
-    {
-
-        return [
-            '$number' => $this->number,
-            '$amount' => $this->amount,
-            '$date' => $this->date,
-            '$due_date' => $this->due_date,
-            '$balance' => $this->balance,
-            '$status' => $this->textStatus(),
-            '$invoice.number' => $this->number,
-            '$invoice.amount' => $this->amount,
-            '$invoice.date' => $this->date,
-            '$invoice.due_date' => $this->due_date,
-            '$invoice.balance' => $this->balance,
-            '$invoice.status' => $this->textStatus(),
-        ];
-
-    }
-
-    public function getVariableByKey($key)
-    {
-
-    }
-    
 }

@@ -96,6 +96,7 @@ class InvoiceTransformer extends EntityTransformer
             'discount' => (float) $invoice->discount,
             'po_number' => $invoice->po_number ?: '',
             'date' => $invoice->date ?: '',
+            'next_send_date' => $invoice->date ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',

@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Models\BaseModel;
 use App\Models\DateFormat;
 use App\Models\Filterable;
+use App\Models\Paymentable;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -51,9 +52,9 @@ class Payment extends BaseModel
 
     protected $fillable = [
 		'client_id',
-        'payment_type_id',
+        'type_id',
         'amount',
-        'payment_date',
+        'date',
         'transaction_reference'
 	];
 
@@ -102,7 +103,12 @@ class Payment extends BaseModel
 
     public function type()
     {
-        return $this->hasOne(PaymentType::class,'id','payment_type_id');
+        return $this->hasOne(PaymentType::class,'id','type_id');
+    }
+
+    public function paymentables()
+    {
+        return $this->hasMany(Paymentable::class);
     }
 
     public function formattedAmount()
@@ -112,12 +118,12 @@ class Payment extends BaseModel
 
     public function clientPaymentDate()
     {
-        if(!$this->payment_date)
+        if(!$this->date)
             return '';
 
         $date_format = DateFormat::find($this->client->getSetting('date_format_id'));
 
-        return $this->createClientDate($this->payment_date, $this->client->timezone()->name)->format($date_format->format);
+        return $this->createClientDate($this->date, $this->client->timezone()->name)->format($date_format->format);
     }
 
     public static function badgeForStatus(int $status)

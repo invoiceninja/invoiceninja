@@ -179,6 +179,8 @@ class CompanySettings extends BaseSettings
 	public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
 	public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
 
+	public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders 
+
 	public $late_fee_amount1 = 0;
 	public $late_fee_amount2 = 0;
 	public $late_fee_amount3 = 0;
@@ -215,6 +217,7 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'reminder_send_time' => 'int',
 		'email_sending_method' => 'string',
 		'gmail_sending_user_id' => 'string',
 		'currency_id' => 'string',

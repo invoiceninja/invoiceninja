@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Models\Country;
 use App\Utils\Number;
 
 /**
@@ -158,7 +159,9 @@ trait MakesInvoiceValues
             throw new Exception(debug_backtrace()[1]['function'], 1);
             exit;
         }
-            
+        
+        $settings = $this->client->getMergedSettings();
+
         $data = [];
 
             $data['$date'] = $this->date;
@@ -166,9 +169,13 @@ trait MakesInvoiceValues
             $data['$due_date'] = $this->due_date;
             $data['$invoice.due_date'] = &$data['$due_date'];
             $data['$number'] = $this->number;
+            $data['$invoice.number'] = &$data['$number'];
             $data['$po_number'] = $this->po_number;
+            $data['$invoice.po_number'] = &$data['$po_number'];
             $data['$line_taxes'] = $this->makeLineTaxes();
+            $data['$invoice.line_taxes'] = &$data['$line_taxes'];
             $data['$total_taxes'] = $this->makeTotalTaxes();
+            $data['$invoice.total_taxes'] = &$data['$total_taxes'];
             // $data['$tax'] = ;
             // $data['$item'] = ;
             // $data['$description'] = ;
@@ -179,12 +186,22 @@ trait MakesInvoiceValues
             $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client);
             $data['$invoice.discount'] = &$data['$discount'];
             $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client);
+            $data['$invoice.subtotal'] = &$data['$subtotal'];
             $data['$balance_due'] = Number::formatMoney($this->balance, $this->client);
+            $data['$invoice.balance_due'] = &$data['$balance_due'];
             $data['$partial_due'] = Number::formatMoney($this->partial, $this->client);
+            $data['$invoice.partial_due'] = &$data['$partial_due'];
             $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client);
+            $data['$invoice.total'] = &$data['$total'];
+            $data['$amount'] = &$data['$total'];
+            $data['$invoice.amount'] = &$data['$total'];
+
             $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client);
+            $data['$invoice.balance'] = &$data['$balance'];
             $data['$taxes'] = Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client);
+            $data['$invoice.taxes'] = &$data['$taxes'];
             $data['$terms'] = $this->terms;
+            $data['$invoice.terms'] = &$data['$terms'];
             // $data['$your_invoice'] = ;
             // $data['$quote'] = ;
             // $data['$your_quote'] = ;
@@ -200,34 +217,48 @@ trait MakesInvoiceValues
             // $data['$quote_to'] = ;
             // $data['$details'] = ;
             $data['$invoice_no'] = $this->number;
+            $data['$invoice.invoice_no'] = &$data['$invoice_no'];
             // $data['$quote_no'] = ;
             // $data['$valid_until'] = ;
             $data['$client_name'] = $this->present()->clientName();
+            $data['$client.name'] = &$data['$client_name'];
             $data['$client_address'] = $this->present()->address();
+            $data['$client.address'] = &$data['$client_address'];
             $data['$address1'] = $this->client->address1;
+            $data['$client.address1'] = &$data['$address1'];
             $data['$address2'] = $this->client->address2;
+            $data['$client.address2'] = &$data['$address2'];
             $data['$id_number'] = $this->client->id_number;
+            $data['$client.id_number'] = &$data['$id_number'];
             $data['$vat_number'] = $this->client->vat_number;
+            $data['$client.vat_number'] = &$data['$vat_number'];
             $data['$website'] = $this->client->present()->website();
+            $data['$client.website'] = &$data['$website'];
             $data['$phone'] = $this->client->present()->phone();
+            $data['$client.phone'] = &$data['$phone'];
             $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, FALSE);
+            $data['$client.city_state_postal'] = &$data['$city_state_postal'];
             $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, TRUE);
+            $data['$client.postal_city_state'] = &$data['$postal_city_state'];
             $data['$country'] = isset($this->client->country->name) ?: 'No Country Set';
+            $data['$client.country'] = &$data['$country'];
             $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
+            $data['$client.email'] = &$data['$email'];
             $data['$contact_name'] = $this->client->present()->primary_contact_name();
-            $data['$company_name'] = $this->company->present()->name();
-            $data['$company_address1'] = $this->company->address1;
-            $data['$company_address2'] = $this->company->address2;
-            $data['$company_city'] = $this->company->city;
-            $data['$company_state'] = $this->company->state;
-            $data['$company_postal_code'] = $this->company->postal_code;
-            $data['$company_country'] = $this->company->country() ? $this->company->country()->name : '';
-            $data['$company_phone'] = $this->company->phone;
-            $data['$company_email'] = $this->company->email;
-            $data['$company_vat_number'] = $this->company->vat_number;
-            $data['$company_id_number'] = $this->company->id_number;
-            $data['$company_address'] = $this->company->present()->address();
-            $data['$company_logo'] = $this->company->present()->logo();
+            $data['$contact.name'] = &$data['$contact_name'];
+            $data['$company.name'] = $this->company->present()->name();
+            $data['$company.address1'] = $settings->address1;
+            $data['$company.address2'] = $settings->address2;
+            $data['$company.city'] = $settings->city;
+            $data['$company.state'] = $settings->state;
+            $data['$company.postal_code'] = $settings->postal_code;
+            $data['$company.country'] = Country::find($settings->country_id)->first()->name;
+            $data['$company.phone'] = $settings->phone;
+            $data['$company.email'] = $settings->email;
+            $data['$company.vat_number'] = $settings->vat_number;
+            $data['$company.id_number'] = $settings->id_number;
+            $data['$company.address'] = $this->company->present()->address($settings);
+            $data['$company.logo'] = $this->company->present()->logo($settings);
             //$data['$blank'] = ;
             //$data['$surcharge'] = ;
             /*
