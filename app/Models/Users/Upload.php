@@ -11,11 +11,18 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models\Users
  */
-class Uploads extends BaseModel
+class Upload extends BaseModel
 {
     /** Types for file uploads. */
-    protected static $AVATAR = 'avatar';
-    protected static $ATTACHMENT = 'attachment';
+    const AVATAR = 'avatar';
+    const ATTACHMENT = 'attachment';
+
+    /**
+     * Guarded data, for mass insert.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 
     /**
      * @var string

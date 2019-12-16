@@ -19,6 +19,8 @@ class CreateUploadsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('title');
             $table->string('path');
+            $table->string('extension');
+            $table->string('size');
             $table->softDeletes();
             $table->timestamps();
 
