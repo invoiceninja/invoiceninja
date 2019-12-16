@@ -31,15 +31,13 @@ trait InvoiceEmailBuilder
     public function getEmailData($reminder_template = null) :array
     {
         //client
-        $client = $this->client;
+        //$client = $this->client;
 
         if(!$reminder_template)
             $reminder_template = $this->calculateTemplate();
 
         //Need to determine which email template we are producing
-        $email_data = $this->generateTemplateData($reminder_template);
-
-        return $email_data;
+        return $this->generateTemplateData($reminder_template);
 
     }
 
