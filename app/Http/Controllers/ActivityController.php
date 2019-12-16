@@ -75,14 +75,13 @@ class ActivityController extends BaseController
      */
     public function index(Request $request)
     {
+        $default_activities = $request->has('rows') ? $request->input('rows') : 50;
 
-        $default_activities = isset($request->input('rows')) ? $request->input('rows') : 50;
         $activities = Activity::orderBy('created_at', 'DESC')->company()
                                 ->take($default_activities);
 
 
         return $this->listResponse($activities);
-
     }
 
 }
