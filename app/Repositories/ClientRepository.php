@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Repositories\ClientContactRepository;
 use App\Utils\Traits\GeneratesCounter;
@@ -71,14 +72,26 @@ class ClientRepository extends BaseRepository
 
         if(isset($data['contacts']))
             $contacts = $this->contact_repo->save($data['contacts'], $client);
-        
+
         if(empty($data['name']))
             $data['name'] = $client->present()->name();
 
 
         return $client;
-        
+
 	}
 
+    /**
+     * Store clients in bulk.
+     *
+     * @param array $client
+     * @return Client|null
+     */
+	public function create($client): ?Client
+    {
+        return $this->save(
+            $client, ClientFactory::create(auth()->user()->company()->id, auth()->user()->id)
+        );
+    }
 
 }

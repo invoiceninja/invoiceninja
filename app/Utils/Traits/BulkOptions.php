@@ -14,6 +14,20 @@ trait BulkOptions
     public static $STORE_METHOD = 'create';
 
     /**
+     * Default chunk size.
+     *
+     * @var int
+     */
+    public static $CHUNK_SIZE = 100;
+
+    /**
+     * Default queue for bulk processing.
+     *
+     * @var string
+     */
+    public static $DEFAULT_QUEUE = 'bulk_processing';
+
+    /**
      * Available bulk options - used in requests (eg. BulkClientRequests)
      *
      * @return array

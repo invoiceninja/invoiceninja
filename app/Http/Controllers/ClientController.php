@@ -24,6 +24,7 @@ use App\Http\Requests\Client\UpdateClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
 use App\Jobs\Entity\ActionEntity;
+use App\Jobs\Util\ProcessBulk;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -33,6 +34,7 @@ use App\Models\Size;
 use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
+use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
@@ -48,7 +50,8 @@ class ClientController extends BaseController
 {
     use MakesHash;
     use Uploadable;
-    
+    use BulkOptions;
+
     protected $entity_type = Client::class;
 
     protected $entity_transformer = ClientTransformer::class;
@@ -99,7 +102,7 @@ class ClientController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -108,9 +111,9 @@ class ClientController extends BaseController
      */
     public function index(ClientFilters $filters)
     {
-        
+
         $clients = Client::filter($filters);
-        
+
         return $this->listResponse($clients);
 
     }
@@ -158,7 +161,7 @@ class ClientController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -168,7 +171,7 @@ class ClientController extends BaseController
     public function show(ShowClientRequest $request, Client $client)
     {
 
-        return $this->itemResponse($client);    
+        return $this->itemResponse($client);
 
     }
 
@@ -178,7 +181,7 @@ class ClientController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/clients/{id}/edit",
      *      operationId="editClient",
@@ -215,7 +218,7 @@ class ClientController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -236,8 +239,8 @@ class ClientController extends BaseController
      * @param  App\Models\Client $client
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Put(
      *      path="/api/v1/clients/{id}",
      *      operationId="updateClient",
@@ -274,7 +277,7 @@ class ClientController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -297,8 +300,8 @@ class ClientController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/clients/create",
      *      operationId="getClientsCreate",
@@ -324,7 +327,7 @@ class ClientController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -333,7 +336,7 @@ class ClientController extends BaseController
      */
     public function create(CreateClientRequest $request)
     {
-        
+
         $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($client);
@@ -373,7 +376,7 @@ class ClientController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -399,7 +402,7 @@ class ClientController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/clients/{id}",
      *      operationId="deleteClient",
@@ -435,7 +438,7 @@ class ClientController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -452,10 +455,11 @@ class ClientController extends BaseController
 
     /**
      * Perform bulk actions on the list view
-     * 
-     * @return Collection
      *
-     * 
+     * @param BulkClientRequest $request
+     * @return \Illuminate\Http\Response
+     *
+     *
      * @OA\Post(
      *      path="/api/v1/clients/bulk",
      *      operationId="bulkClients",
@@ -493,39 +497,50 @@ class ClientController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk(BulkClientRequest $request)
     {
+        $action = $request->action;
+        $ids = [];
 
-        $action = request()->input('action');
-        
-        $ids = request()->input('ids');
+        if ($request->action !== self::$STORE_METHOD) {
 
-        $clients = Client::withTrashed()->find($this->transformKeys($ids));
-        
-        $clients->each(function ($client, $key) use($action){
+            $ids = $request->ids;
 
-            if(auth()->user()->can('edit', $client))
-                $this->client_repo->{$action}($client);
+            $clients = Client::withTrashed()->find($this->transformKeys($ids));
 
-        });
+            $clients->each(function ($client, $key) use ($request, $action) {
+
+                if (auth()->user()->can($request->action, $client))
+                    $this->client_repo->{$action}($client);
+
+            });
+
+        }
+
+        if($request->action == self::$STORE_METHOD) {
+
+            /** Small hunks of data (originally 100) */
+            $chunks = array_chunk($request->clients, self::$CHUNK_SIZE);
+
+            foreach($chunks as $data) {
+                dispatch(new ProcessBulk($data, $this->client_repo, self::$STORE_METHOD))->onQueue(self::$DEFAULT_QUEUE);
+            }
+        }
 
         return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
-        
     }
 
     /**
      * Returns a client statement
-     * 
+     *
      * @return [type] [description]
      */
     public function statement()

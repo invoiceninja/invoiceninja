@@ -65,7 +65,7 @@ class ClientTest extends TestCase
         $acc = $response->json();
 
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));        
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $token = $account->default_company->tokens->first()->token;
 
@@ -102,13 +102,13 @@ class ClientTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $company_token = $account->default_company->tokens()->first();
 
         $token = $company_token->token;
         $company = $company_token->company;
-        
+
         $user = $company_token->user;
 
         //$company_user = $company->company_users()->first();
@@ -244,7 +244,7 @@ class ClientTest extends TestCase
             $this->assertNotNull($client);
 
             /* Make sure we have a valid settings object*/
-            $this->assertEquals($client->getSetting('timezone_id'), 1);            
+            $this->assertEquals($client->getSetting('timezone_id'), 1);
 
             /* Make sure we are harvesting valid data */
             $this->assertEquals($client->timezone()->name, 'Pacific/Midway');
@@ -280,8 +280,11 @@ class ClientTest extends TestCase
         $token = $account->default_company->tokens->first()->token;
 
         $body = [
-            ['name' => $this->faker->firstName, 'website' => 'my-awesome-website-1.com'],
-            ['name' => $this->faker->firstName, 'website' => 'my-awesome-website-2.com'],
+            'action' => 'create',
+            'clients' => [
+                ['name' => $this->faker->firstName, 'website' => 'my-awesome-website-1.com'],
+                ['name' => $this->faker->firstName, 'website' => 'my-awesome-website-2.com'],
+            ],
         ];
 
         $response = $this->withHeaders([
@@ -290,8 +293,6 @@ class ClientTest extends TestCase
         ])->post(route('clients.bulk'), $body);
 
         // $response->assertStatus(200);
-
-        dd($response->json()); 
 
         $first_record = Client::where('website', 'my-awesome-website-1.com')->first();
         $second_record = Client::where('website', 'my-awesome-website-2.com')->first();

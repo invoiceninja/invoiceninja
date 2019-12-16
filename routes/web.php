@@ -35,7 +35,7 @@ Route::get('auth/{provider}/create', 'Auth\LoginController@redirectToProviderAnd
  * Authenticated User Routes
  */
 
-Route::group(['middleware' => ['auth:user']], function () {
+Route::group(['middleware' => ['auth:user', 'web_db']], function () {
 
 	Route::resource('dashboard', 'DashboardController'); // name = (dashboard. index / create / show / update / destroy / edit
 
