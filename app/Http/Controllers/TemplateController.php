@@ -28,7 +28,7 @@ class TemplateController extends BaseController
      * @return \Illuminate\Http\Response
      *
      * @OA\Post(
-     *      path="/api/v1/templates/{entity}/{entity_id}",
+     *      path="/api/v1/templates",
      *      operationId="getShowTemplate",
      *      tags={"templates"},
      *      summary="Returns a entity template with the template variables replaced with the Entities",

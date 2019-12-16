@@ -37,7 +37,7 @@ class PaymentFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
                     $query->where('payments.amount', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.payment_date', 'like', '%'.$filter.'%')
+                          ->orWhere('payments.date', 'like', '%'.$filter.'%')
                           ->orWhere('payments.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('payments.custom_value2', 'like' , '%'.$filter.'%')
                           ->orWhere('payments.custom_value3', 'like' , '%'.$filter.'%')

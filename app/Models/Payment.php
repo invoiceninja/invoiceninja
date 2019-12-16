@@ -51,9 +51,9 @@ class Payment extends BaseModel
 
     protected $fillable = [
 		'client_id',
-        'payment_type_id',
+        'type_id',
         'amount',
-        'payment_date',
+        'date',
         'transaction_reference'
 	];
 
@@ -102,7 +102,7 @@ class Payment extends BaseModel
 
     public function type()
     {
-        return $this->hasOne(PaymentType::class,'id','payment_type_id');
+        return $this->hasOne(PaymentType::class,'id','type_id');
     }
 
     public function formattedAmount()
@@ -112,12 +112,12 @@ class Payment extends BaseModel
 
     public function clientPaymentDate()
     {
-        if(!$this->payment_date)
+        if(!$this->date)
             return '';
 
         $date_format = DateFormat::find($this->client->getSetting('date_format_id'));
 
-        return $this->createClientDate($this->payment_date, $this->client->timezone()->name)->format($date_format->format);
+        return $this->createClientDate($this->date, $this->client->timezone()->name)->format($date_format->format);
     }
 
     public static function badgeForStatus(int $status)

@@ -20,7 +20,7 @@ class PaymentTransaction
 
 	public $account_gateway_id;
 
-	public $payment_type_id;
+	public $type_id;
 
 	public $status; // prepayment|payment|response|completed
 

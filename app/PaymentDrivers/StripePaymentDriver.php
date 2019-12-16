@@ -408,7 +408,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $client_contact_id = $client_contact ? $client_contact->id : null;
 
         $payment->amount = $this->convertFromStripeAmount($data['amount'], $this->client->currency()->precision);
-        $payment->payment_type_id = $data['payment_type'];
+        $payment->type_id = $data['payment_type'];
         $payment->transaction_reference = $data['payment_method'];
         $payment->client_contact_id = $client_contact_id;
         $payment->save();

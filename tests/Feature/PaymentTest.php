@@ -135,7 +135,7 @@ class PaymentTest extends TestCase
                 'amount' => $this->invoice->amount
                 ],
             ],
-            'payment_date' => '2020/12/11',
+            'date' => '2020/12/11',
 
         ];
 
@@ -185,7 +185,7 @@ class PaymentTest extends TestCase
                 'amount' => $this->invoice->amount
                 ],
             ],
-            'payment_date' => '2020/12/12',
+            'date' => '2020/12/12',
 
         ];
 
@@ -245,10 +245,12 @@ class PaymentTest extends TestCase
             'amount' => $this->invoice->amount,
             'client_id' => $client->hashed_id,
             'invoices' => '',
-            'payment_date' => '2020/12/12',
+            'date' => '2020/12/12',
 
         ];
 
+
+        $response = false;
 
         try {
             $response = $this->withHeaders([
@@ -300,17 +302,30 @@ class PaymentTest extends TestCase
                 'amount' => 2.0
                 ],
             ],
-            'payment_date' => '2019/12/12',
+            'date' => '2019/12/12',
         ];
 
+        $response = false;
+        
+        try {
 
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/payments?include=invoices', $data);
 
-            $arr = $response->json();
+
+        }
+        catch(ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(),1);
+            $this->assertNotNull($message);
+            \Log::error($message);
+        }
+    
+        if($response) {
             $response->assertStatus(200);
+
+            $arr = $response->json();
 
             $payment_id = $arr['data']['id'];
 
@@ -325,6 +340,7 @@ class PaymentTest extends TestCase
             $this->assertEquals($pivot_invoice->partial, 0);
             $this->assertEquals($pivot_invoice->amount, 10.0000);
             $this->assertEquals($pivot_invoice->balance, 8.0000);
+        }
             
     }
 
@@ -364,7 +380,7 @@ class PaymentTest extends TestCase
                 'amount' => 6.0
                 ],
             ],
-            'payment_date' => '2019/12/12',
+            'date' => '2019/12/12',
         ];
 
             $response = $this->withHeaders([
@@ -425,7 +441,7 @@ class PaymentTest extends TestCase
                 'amount' => 2.0
                 ],
             ],
-            'payment_date' => '2019/12/12',
+            'date' => '2019/12/12',
         ];
 
             $response = $this->withHeaders([

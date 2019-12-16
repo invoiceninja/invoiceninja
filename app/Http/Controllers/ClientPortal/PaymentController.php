@@ -52,20 +52,20 @@ class PaymentController extends Controller
 
             return DataTables::of($payments)->addColumn('action', function ($payment) {
                     return '<a href="/client/payments/'. $payment->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
-                })->editColumn('payment_type_id', function ($payment) {
+                })->editColumn('type_id', function ($payment) {
                     return $payment->type->name;
                 })
                 ->editColumn('status_id', function ($payment){
                     return Payment::badgeForStatus($payment->status_id);
                 })
-                ->editColumn('payment_date', function ($payment){
-                    //return $payment->payment_date;
-                    return $payment->formatDate($payment->payment_date, $payment->client->date_format());
+                ->editColumn('date', function ($payment){
+                    //return $payment->date;
+                    return $payment->formatDate($payment->date, $payment->client->date_format());
                 })
                 ->editColumn('amount', function ($payment) {
                     return Number::formatMoney($payment->amount, $payment->client);
                 })
-                ->rawColumns(['action', 'status_id','payment_type_id'])
+                ->rawColumns(['action', 'status_id','type_id'])
                 ->make(true);
         
         }

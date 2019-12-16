@@ -200,7 +200,7 @@ class PaymentController extends BaseController
      *                     format="float",
      *                 ),
      *                 @OA\Property(
-     *                     property="payment_date",
+     *                     property="date",
      *                     example="2019/12/1",
      *                     description="The payment date",
      *                     type="string",

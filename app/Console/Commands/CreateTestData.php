@@ -321,11 +321,11 @@ class CreateTestData extends Command
             if(rand(0, 1)) {
 
                 $payment = PaymentFactory::create($client->company->id, $client->user->id);
-                $payment->payment_date = now();
+                $payment->date = now();
                 $payment->client_id = $client->id;
                 $payment->amount = $invoice->balance;
                 $payment->transaction_reference = rand(0,500);
-                $payment->payment_type_id = PaymentType::CREDIT_CARD_OTHER;
+                $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
                 $payment->status_id = Payment::STATUS_COMPLETED;
                 $payment->save();
 
