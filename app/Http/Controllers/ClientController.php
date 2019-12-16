@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
+use App\Http\Requests\Client\BulkClientRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -502,7 +503,7 @@ class ClientController extends BaseController
      *     )
      *
      */
-    public function bulk()
+    public function bulk(BulkClientRequest $request)
     {
 
         $action = request()->input('action');
@@ -531,7 +532,5 @@ class ClientController extends BaseController
     {
         //todo
     }
-
-
 
 }
