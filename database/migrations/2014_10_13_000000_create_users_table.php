@@ -225,6 +225,10 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('width')->nullable();
             $table->unsignedInteger('height')->nullable();
             $table->boolean('is_default')->default(0);
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
 
             $table->unsignedInteger('documentable_id');
             $table->string('documentable_type');
@@ -261,7 +265,11 @@ class CreateUsersTable extends Migration
             $table->mediumText('signature')->nullable();
             $table->string('password');
             $table->rememberToken();
-            
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
@@ -410,7 +418,11 @@ class CreateUsersTable extends Migration
             $table->boolean('update_details')->default(false)->nullable();
             $table->mediumText('config');
             $table->text('fees_and_limits');
-
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+            
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
