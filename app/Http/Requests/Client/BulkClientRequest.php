@@ -38,7 +38,7 @@ class BulkClientRequest extends FormRequest
         $rules = $this->getGlobalRules();
 
         /** We don't require IDs on bulk storing. */
-        if ($this->action !== 'create') {
+        if ($this->action !== self::$STORE_METHOD) {
             $rules['ids'] = ['required'];
         }
 
