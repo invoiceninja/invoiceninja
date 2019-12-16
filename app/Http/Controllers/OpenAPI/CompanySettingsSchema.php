@@ -37,6 +37,7 @@
  *       @OA\Property(property="translations", type="object", example="", description="JSON payload of customized translations"),
  *       @OA\Property(property="task_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the task number pattern"),
  *       @OA\Property(property="task_number_counter", type="integer", example="1", description="____________"),
+ *       @OA\Property(property="reminder_send_time", type="integer", example="32400", description="Time from UTC +0 when the email will be sent to the client"),
  *       @OA\Property(property="expense_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the expense number pattern"),
  *       @OA\Property(property="expense_number_counter", type="integer", example="1", description="____________"),
  *       @OA\Property(property="vendor_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the vendor number pattern"),

@@ -469,6 +469,7 @@ class CreateUsersTable extends Migration
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
             $t->string('custom_value4')->nullable();
+            $t->datetime('next_send_date')->nullable();
 
             $t->string('custom_surcharge1')->nullable();
             $t->string('custom_surcharge2')->nullable();
@@ -648,6 +649,7 @@ class CreateUsersTable extends Migration
             $t->string('po_number')->nullable();
             $t->date('date')->nullable();
             $t->datetime('due_date')->nullable();
+            $t->datetime('next_send_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
 
