@@ -55,7 +55,7 @@ class InvoiceEmailTest extends TestCase
         $message_array['title'] = &$message_array['subject'];
         $message_array['footer'] = 'The Footer';
 
-        $template_style = $this->client->getSetting('email_style');
+ //       $template_style = $this->client->getSetting('email_style');
 
         $template_style = 'light';
         //iterate through the senders list and send from here
