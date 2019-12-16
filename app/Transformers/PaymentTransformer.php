@@ -15,6 +15,8 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Transformers\PaymentableTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PaymentTransformer extends EntityTransformer
@@ -28,6 +30,7 @@ class PaymentTransformer extends EntityTransformer
     protected $availableIncludes = [
         'client',
         'invoices',
+        'paymentables'
     ];
 
     public function __construct($serializer = null)
@@ -50,6 +53,14 @@ class PaymentTransformer extends EntityTransformer
 
         return $this->includeItem($payment->client, $transformer, Client::class);
     }
+
+    public function includePaymentables(Payment $payment)
+    {
+        $transformer = new PaymentableTransformer($this->serializer);
+
+        return $this->includeCollection($payment->paymentables, $transformer, Paymentable::class);
+    }
+
 
     public function transform(Payment $payment)
     {

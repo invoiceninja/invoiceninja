@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Models\BaseModel;
 use App\Models\DateFormat;
 use App\Models\Filterable;
+use App\Models\Paymentable;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -103,6 +104,11 @@ class Payment extends BaseModel
     public function type()
     {
         return $this->hasOne(PaymentType::class,'id','type_id');
+    }
+
+    public function paymentables()
+    {
+        return $this->hasMany(Paymentable::class);
     }
 
     public function formattedAmount()

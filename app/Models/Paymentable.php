@@ -19,5 +19,7 @@ class Paymentable extends Pivot
 
     // public $incrementing = true;
 
+    protected $table = 'paymentables';
+
 
 }
