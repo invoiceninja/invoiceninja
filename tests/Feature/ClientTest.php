@@ -292,7 +292,7 @@ class ClientTest extends TestCase
             'X-API-TOKEN' => $token,
         ])->post(route('clients.bulk'), $body);
 
-        // $response->assertStatus(200);
+        $response->assertStatus(200);
 
         $first_record = Client::where('website', 'my-awesome-website-1.com')->first();
         $second_record = Client::where('website', 'my-awesome-website-2.com')->first();
