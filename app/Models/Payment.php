@@ -55,7 +55,8 @@ class Payment extends BaseModel
         'type_id',
         'amount',
         'date',
-        'transaction_reference'
+        'transaction_reference',
+        'number'
 	];
 
     protected $casts = [
