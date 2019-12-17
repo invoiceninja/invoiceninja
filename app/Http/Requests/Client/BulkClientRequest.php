@@ -25,7 +25,7 @@ class BulkClientRequest extends FormRequest
             return false;
         }
 
-        return auth()->user()->can($this->action, Client::class);
+        return auth()->user()->can(auth()->user()->isAdmin(), Client::class);
     }
 
     /**
