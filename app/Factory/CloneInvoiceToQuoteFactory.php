@@ -47,8 +47,8 @@ class CloneInvoiceToQuoteFactory
 		$quote->last_viewed = $invoice->last_viewed;
 
 		$quote->status_id = Quote::STATUS_DRAFT;
-		$quote->quote_number = '';
-		$quote->quote_date = null;
+		$quote->number = '';
+		$quote->date = null;
 		$quote->due_date = null;
 		$quote->partial_due_date = null;
 		$quote->balance = $invoice->amount;

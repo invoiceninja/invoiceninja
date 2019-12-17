@@ -1,19 +1,19 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Quote Ninja (https://invoiceninja.com)
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2019. Quote Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Quote;
 
-use App\Factory\InvoiceInvitationFactory;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
+use App\Factory\QuoteInvitationFactory;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,39 +21,39 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
-class CreateInvoiceInvitations implements ShouldQueue
+class CreateQuoteInvitations implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $invoice;
+    private $quote;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Quote $quote)
     {
 
-        $this->invoice = $invoice;
+        $this->quote = $quote;
 
     }
 
     public function handle()
     {
         
-        $contacts = $this->invoice->client->contacts;
+        $contacts = $this->quote->client->contacts;
 
         $contacts->each(function ($contact) {
 
-            $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
+            $invitation = QuoteInvitation::whereCompanyId($this->quote->company_id)
                                         ->whereClientContactId($contact->id)
-                                        ->whereInvoiceId($this->invoice->id)
+                                        ->whereQuoteId($this->quote->id)
                                         ->first();
 
             if(!$invitation && $contact->send_invoice) {
-                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-                $ii->invoice_id = $this->invoice->id;
+                $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
+                $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             }

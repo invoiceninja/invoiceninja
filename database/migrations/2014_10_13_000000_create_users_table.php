@@ -747,6 +747,38 @@ class CreateUsersTable extends Migration
 
         });
 
+
+
+        Schema::create('quote_invitations', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('company_id');
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('client_contact_id');
+            $t->unsignedInteger('quote_id')->index();
+            $t->string('key')->index();
+            $t->string('transaction_reference')->nullable();
+            $t->string('message_id')->nullable();
+            $t->mediumText('email_error')->nullable();
+            $t->text('signature_base64')->nullable();
+            $t->datetime('signature_date')->nullable();
+
+            $t->datetime('sent_date')->nullable();
+            $t->datetime('viewed_date')->nullable();
+            $t->datetime('opened_date')->nullable();
+
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
+            $t->foreign('quote_id')->references('id')->on('quotes')->onDelete('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+            $t->timestamps(6);
+            $t->softDeletes('deleted_at', 6);
+
+            $t->index(['deleted_at', 'quote_id']);
+            $t->unique(['client_contact_id', 'quote_id']);
+
+        });
+
         Schema::create('tax_rates', function ($t) {
 
             $t->increments('id');

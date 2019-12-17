@@ -22,7 +22,7 @@ class QuoteFactory
 	{
 		$quote = new Quote();
 		$quote->status_id = Quote::STATUS_DRAFT;
-		$quote->quote_number = '';
+		$quote->number = '';
 		$quote->discount = 0;
 		$quote->is_amount_discount = true;
 		$quote->po_number = '';
@@ -30,8 +30,8 @@ class QuoteFactory
 		$quote->terms = '';
 		$quote->public_notes = '';
 		$quote->private_notes = '';
-		$quote->quote_date = null;
-		$quote->valid_until = null;
+		$quote->date = null;
+		$quote->due_date = null;
 		$quote->partial_due_date = null;
 		$quote->is_deleted = false;
 		$quote->line_items = json_encode([]);

@@ -6,6 +6,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -110,7 +111,7 @@ class QuoteTest extends TestCase
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-                  'name' => $this->faker->company,
+          'name' => $this->faker->company,
         'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
@@ -197,6 +198,26 @@ class QuoteTest extends TestCase
 
         $response->assertStatus(200);
 
+        $client_contact = ClientContact::whereClientId($client->id)->first();
+
+        $data = [
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'date' => "2019-12-14",
+            'line_items' => [],
+            'invitations' => [
+                ['client_contact_id' => $this->encodePrimaryKey($client_contact->id)]
+            ],
+        ];
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->post('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
     }
 
 }
+
+

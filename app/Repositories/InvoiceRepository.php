@@ -91,7 +91,10 @@ class InvoiceRepository extends BaseRepository
 
             foreach($data['invitations'] as $invitation)
             {
-                $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+                $inv = false;
+
+                if(array_key_exists ('key', $invitation))
+                    $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
 
                 if(!$inv)
                 {
