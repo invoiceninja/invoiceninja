@@ -422,7 +422,7 @@ class CreateUsersTable extends Migration
             $table->string('custom_value2')->nullable();
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
-            
+
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
@@ -815,9 +815,11 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('status_id')->index();
             $t->decimal('amount', 16, 4)->default(0);
             $t->decimal('refunded', 16, 4)->default(0);
+            $t->decimal('applied', 16, 4)->default(0);
             $t->date('date')->nullable();
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
+            $t->string('number')->nullable();
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
             $t->boolean('is_deleted')->default(false);
