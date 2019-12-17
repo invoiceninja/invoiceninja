@@ -202,7 +202,7 @@ class QuoteController extends BaseController
     public function store(StoreQuoteRequest $request)
     {
         
-        $quote = $this->quote_repo->save($request, QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($quote);
 
@@ -381,7 +381,7 @@ class QuoteController extends BaseController
     public function update(UpdateQuoteRequest $request, Quote $quote)
     {
 
-        $quote = $this->quote_repo->save(request(), $quote);
+        $quote = $this->quote_repo->save($request->all(), $quote);
 
         return $this->itemResponse($quote);
 
