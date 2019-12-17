@@ -405,7 +405,7 @@ Nu găsești factura? Ai nevoie de asistență suplimentară? Suntem aici sa aju
     'payment_cvv' => '*Acesta este numărul de 3-4 cifre de pe spatele cardului bancar',
     'payment_footer1' => '*Adresa de facturare trebuie să se potrivească cu cea de pe Card',
     'payment_footer2' => '*Apasă doar o dată pe "PLĂTEȘTE ACUM" - tranzacția poate dura până la 1 minut pentru a fi procesată.',
-    'id_number' => 'Nr. Reg. Com.',
+    'id_number' => 'C.I.F.',
     'white_label_link' => 'White label',
     'white_label_header' => 'White Label',
     'bought_white_label' => 'Successfully enabled white label license',
