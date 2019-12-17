@@ -58,6 +58,10 @@ class UserTransformer extends EntityTransformer
             'phone' => $user->phone ?: '',
             'email_verified_at' => $user->getEmailVerifiedAt(),
             'signature' => $user->signature ?: '',
+            'custom_value1' => $user->custom_value1 ?: '',
+            'custom_value2' => $user->custom_value2 ?: '',
+            'custom_value3' => $user->custom_value3 ?: '',
+            'custom_value4' => $user->custom_value4 ?: '',
         ];
     }
 

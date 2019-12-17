@@ -37,6 +37,10 @@ class CompanyGateway extends BaseModel
         'update_details',
         'config',
         'fees_and_limits',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
     ];
 
     public static $credit_cards = [
