@@ -34,8 +34,7 @@ class QuoteRepository extends BaseRepository
     
 	public function save($data, Quote $quote) : ?Quote
 	{
-\Log::error("repo");
-\Log::error($data);
+        
         /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
         $starting_amount = $quote->amount;
 
