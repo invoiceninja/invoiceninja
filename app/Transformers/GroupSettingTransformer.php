@@ -41,7 +41,7 @@ class GroupSettingTransformer extends EntityTransformer
         return [
             'id' => $this->encodePrimaryKey($group_setting->id),
             'name' => (string)$group_setting->name ?: '',
-            'settings' => $group_setting->settings ?: '',
+            'settings' => $group_setting->settings ?: new \stdClass,
         ];
     }
 }
