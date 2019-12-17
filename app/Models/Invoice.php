@@ -439,11 +439,18 @@ class Invoice extends BaseModel
 
         $this->markInvitationsSent();
 
+        $this->sentReminder();
+
         event(new InvoiceWasMarkedSent($this));
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance);
 
         $this->save();
+    }
+
+    public function setReminder()
+    {
+        $settings = $this->client->getMergedSettings();
     }
 
     /**
