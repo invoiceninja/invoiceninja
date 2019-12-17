@@ -26,6 +26,9 @@ class ClientModelTest extends TestCase
 
         if(config('ninja.testvars.travis') !== false)
             $this->markTestSkipped('Skip test for Travis');
+
+        if(!config('ninja.testvars.stripe'))
+            $this->markTestSkipped('Skip test no company gateways installed');
 	}
 
 
