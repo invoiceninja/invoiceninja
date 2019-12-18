@@ -24,7 +24,7 @@ class DestroyUserRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->user);
+        return auth()->user()->isOwner();
     }
 
 }

@@ -235,6 +235,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     }
 
+    public function isOwner() : bool
+    {
+
+        return $this->company_user->is_owner;
+
+    }
+
     /**
      * Returns all user created contacts
      * 
