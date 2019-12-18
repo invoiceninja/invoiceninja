@@ -104,7 +104,7 @@ class Payment extends BaseModel
 
     public function type()
     {
-        return $this->hasOne(PaymentType::class,'id','type_id');
+        return $this->belongsTo(PaymentType::class);
     }
 
     public function paymentables()

@@ -66,8 +66,8 @@ $(function() {
         },
         columns: [
 
-            {data: 'payment_date', name: 'payment_date', title: '{{ctrans('texts.payment_date')}}', visible: true},
-            {data: 'payment_type_id', name: 'payment_type_id', title: '{{ctrans('texts.payment_type_id')}}', visible: true},
+            {data: 'date', name: 'date', title: '{{ctrans('texts.payment_date')}}', visible: true},
+            {data: 'type_id', name: 'type_id', title: '{{ctrans('texts.payment_type_id')}}', visible: true},
             {data: 'amount', name: 'amount', title: '{{ctrans('texts.amount')}}', visible: true},
             {data: 'transaction_reference', name: 'transaction_reference', title: '{{ctrans('texts.transaction_reference')}}', visible: true},
             {data: 'status_id', name: 'status_id', title: '{{ctrans('texts.status')}}', visible: true},
