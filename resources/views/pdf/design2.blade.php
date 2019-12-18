@@ -118,12 +118,12 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="$company_logo" style="width:100%; max-width:150px;">
+                                <img src="$company.logo" style="width:100%; max-width:150px;">
                             </td>
                             
                             <td>
-                                $invoice_number_label:  $invoice_number <br>
-                                $invoice_date_label:  $invoice_date <br>
+                                $invoice_number_label:  $number <br>
+                                $invoice_date_label:  $date <br>
                                 $invoice_due_date_label:  $due_date 
                                 
                             </td>
