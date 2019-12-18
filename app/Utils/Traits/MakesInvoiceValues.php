@@ -49,7 +49,7 @@ trait MakesInvoiceValues
 	private static $labels = [
         'date',
         'due_date',
-        'number',
+        'invoice_number',
         'po_number',
         'discount',
         'taxes',
@@ -138,6 +138,8 @@ trait MakesInvoiceValues
      */
     public function makeLabels() :array
     {
+        //todo we might want to translate like this
+        //trans('texts.labe', [], null, $this->client->locale());
     	$data = [];
 
     	foreach(self::$labels as $label)

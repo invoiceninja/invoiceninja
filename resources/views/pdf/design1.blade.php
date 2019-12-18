@@ -58,11 +58,11 @@
         <div class="row mt-4">
 
                 <div class="col-md-4">
-                    <img src="$company_logo" style="width:100%; max-width:150px;">
+                    <img src="$company.logo" style="width:100%; max-width:150px;">
                 </div>
 
                 <div class="col-md-4 ml-auto">
-                $number_label:  $number <br>
+                $invoice_number_label:  $number <br>
                 $date_label:  $date <br>
                 $due_date_label:  $due_date 
                 </div>
@@ -80,8 +80,8 @@
             </div>
 
             <div class="col-md-4 ml-auto">
-                $company_name<br>
-                $company_address<br>
+                $company.name<br>
+                $company.address<br>
                 $phone<br>
                 $email<br>
             </div>
