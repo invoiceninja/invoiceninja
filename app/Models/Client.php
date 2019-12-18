@@ -182,7 +182,7 @@ class Client extends BaseModel
 
     public function locale()
     {
-        return $this->language()->locale;
+        return $this->language()->locale ?:  'en';
     }
 
     public function date_format()
