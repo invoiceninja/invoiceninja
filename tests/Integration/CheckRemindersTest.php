@@ -48,9 +48,7 @@ class CheckRemindersTest extends TestCase
         $this->invoice->markSent();
         $this->invoice->setReminder($settings);
 
-        $inv = Invoice::find($this->invoice->id);
-
-        $this->assertEquals($inv->next_send_date, Carbon::now()->addDays(7));
+        $this->assertEquals(0, Carbon::now()->addDays(7)->diffInDays($this->invoice->next_send_date));
     }
 
     public function test_no_reminders_sent_to_paid_invoices()
@@ -74,9 +72,7 @@ class CheckRemindersTest extends TestCase
         $this->invoice->setStatus(Invoice::STATUS_PAID);
         $this->invoice->setReminder($settings);
 
-        $inv = Invoice::find($this->invoice->id);
-
-        $this->assertEquals($inv->next_send_date, null);
+        $this->assertEquals($this->invoice->next_send_date, null);
     }
 
     public function test_before_due_date_reminder()
@@ -99,9 +95,7 @@ class CheckRemindersTest extends TestCase
         $this->invoice->markSent();
         $this->invoice->setReminder($settings);
 
-        $inv = Invoice::find($this->invoice->id);
-
-        $this->assertEquals($inv->next_send_date, Carbon::parse($this->invoice->due_date)->subDays(29));
+        $this->assertEquals(0, Carbon::parse($this->invoice->due_date)->subDays(29)->diffInDays($this->invoice->next_send_date));
     }
 
     public function test_after_due_date_reminder()
@@ -124,9 +118,7 @@ class CheckRemindersTest extends TestCase
         $this->invoice->markSent();
         $this->invoice->setReminder($settings);
 
-        $inv = Invoice::find($this->invoice->id);
-
-        $this->assertEquals($inv->next_send_date, Carbon::parse($this->invoice->due_date)->addDays(1));
+        $this->assertEquals(0, Carbon::parse($this->invoice->due_date)->addDays(1)->diffInDays($this->invoice->next_send_date));
     }
 
     public function test_turning_off_reminders()
@@ -149,8 +141,29 @@ class CheckRemindersTest extends TestCase
         $this->invoice->markSent();
         $this->invoice->setReminder($settings);
 
-        $inv = Invoice::find($this->invoice->id);
+        $this->assertEquals($this->invoice->next_send_date, null);
+    }
 
-        $this->assertEquals($inv->next_send_date, null);
+    public function test_edge_case_num_days_equals_zero_reminders()
+    {
+        $this->invoice->date = now();
+        $this->invoice->due_date = Carbon::now()->addDays(30);
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = false;
+        $settings->schedule_reminder1 = 'after_invoice_date';
+        $settings->num_days_reminder1 = 0;
+        $settings->enable_reminder2 = false;
+        $settings->schedule_reminder2 = 'before_due_date';
+        $settings->num_days_reminder2 = 0;
+        $settings->enable_reminder3 = false;
+        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->num_days_reminder3 = 0;
+
+        $this->company->settings = $settings;
+        $this->invoice->markSent();
+        $this->invoice->setReminder($settings);
+
+        $this->assertEquals($this->invoice->next_send_date, null);
     }
 }
