@@ -25,6 +25,7 @@ use App\Utils\Number;
 use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
+use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -43,7 +44,8 @@ class Invoice extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
     use InvoiceEmailBuilder;
-    
+    use MakesReminders;
+
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
     protected $hidden = [
@@ -439,18 +441,13 @@ class Invoice extends BaseModel
 
         $this->markInvitationsSent();
 
-        $this->sentReminder();
+        $this->setReminder();
 
         event(new InvoiceWasMarkedSent($this));
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance);
 
         $this->save();
-    }
-
-    public function setReminder()
-    {
-        $settings = $this->client->getMergedSettings();
     }
 
     /**
