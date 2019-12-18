@@ -103,7 +103,7 @@ class ClientRepository extends BaseRepository
         }
 
         // convert currency code to id
-        if (isset($data['currency_code'])) {
+        if (isset($data['currency_code']) && $data['currency_code']) {
             $currencyCode = strtolower($data['currency_code']);
             $currency = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
                 return strtolower($item->code) == $currencyCode;

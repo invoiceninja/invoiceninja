@@ -921,6 +921,10 @@ class BasePaymentDriver
             $amount = $payment->getCompletedAmount();
         }
 
+        if ($payment->is_deleted) {
+            return false;
+        }
+
         if (! $amount) {
             return false;
         }

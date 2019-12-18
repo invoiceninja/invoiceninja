@@ -110,9 +110,9 @@ class CurrenciesSeeder extends Seeder
             ['name' => 'Azerbaijan Manat', 'code' => 'AZN', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Bosnia and Herzegovina Convertible Mark', 'code' => 'BAM', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Belarusian Ruble', 'code' => 'BYN', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Moldovan Leu', 'code' => '', 'symbol' => 'MDL', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Kazakhstani Tenge', 'code' => '', 'symbol' => 'KZT', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Gibraltar Pound', 'code' => '', 'symbol' => 'GIP', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Gibraltar Pound', 'code' => 'GIP', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Moldovan Leu', 'code' => 'MDL', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Kazakhstani Tenge', 'code' => 'KZT', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {

@@ -42,7 +42,7 @@ You can either download the zip file below or checkout the code from our GitHub 
 
 https://download.invoiceninja.com
 
-.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $20 per year white-label license to remove our branding.
+.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $30 per year white-label license to remove our branding.
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
 
