@@ -31,7 +31,6 @@ class UpdateUserRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
 
         $input = $this->all();
         $rules = [];
@@ -42,7 +41,7 @@ class UpdateUserRequest extends Request
         return $rules;
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -50,8 +49,6 @@ class UpdateUserRequest extends Request
             unset($input['company_user']);
 
         $this->replace($input);     
-
-        return $this->all();
     }
 
 

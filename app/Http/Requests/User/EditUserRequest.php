@@ -35,15 +35,5 @@ class EditUserRequest extends Request
     }
 
 
-    public function sanitize()
-    {
-        $input = $this->all();
-
-        //$input['id'] = $this->encodePrimaryKey($input['id']);
-
-        //$this->replace($input);
-
-        return $this->all();
-    }
 
 }

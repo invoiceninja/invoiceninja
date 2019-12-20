@@ -34,7 +34,6 @@ class UpdateClientRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
-        $this->sanitize();
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
@@ -70,7 +69,7 @@ class UpdateClientRequest extends Request
         ];
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
         
@@ -80,7 +79,6 @@ class UpdateClientRequest extends Request
 
         $this->replace($input);
 
-        return $this->all();
     }
 
 }

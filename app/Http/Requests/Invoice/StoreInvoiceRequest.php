@@ -35,8 +35,6 @@ class StoreInvoiceRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
-
         return [
             'client_id' => 'required',
            // 'invoice_type_id' => 'integer',
@@ -44,7 +42,7 @@ class StoreInvoiceRequest extends Request
         ];
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -52,8 +50,6 @@ class StoreInvoiceRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);
-
-        return $this->all();
     }
 
 }

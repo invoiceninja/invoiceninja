@@ -34,8 +34,6 @@ class StoreCompanyGatewayRequest extends Request
     public function rules()
     {
 
-        $this->sanitize();
-
         $rules = [
             'gateway_key' => 'required',
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
@@ -44,7 +42,7 @@ class StoreCompanyGatewayRequest extends Request
         return $rules;
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -56,7 +54,6 @@ class StoreCompanyGatewayRequest extends Request
 
         $this->replace($input);
 
-        return $this->all();
     }
 }
 

@@ -35,15 +35,13 @@ class EditCompanyGatewayRequest extends Request
     }
 
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
         //$input['id'] = $this->encodePrimaryKey($input['id']);
 
-        //$this->replace($input);
-
-        return $this->all();
+        $this->replace($input);
     }
 
 }

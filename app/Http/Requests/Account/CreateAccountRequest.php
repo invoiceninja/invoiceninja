@@ -35,7 +35,6 @@ class CreateAccountRequest extends Request
      */
     public function rules()
     {
-        $this->sanitize();
 
         return [
             //'email' => 'required|string|email|max:100',
@@ -49,15 +48,15 @@ class CreateAccountRequest extends Request
         ];
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
+
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
 
         $this->replace($input);
 
-        return $this->all();
     }
 
 }

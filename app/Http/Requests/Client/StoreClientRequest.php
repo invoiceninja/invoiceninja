@@ -38,7 +38,6 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
 
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
@@ -63,7 +62,7 @@ class StoreClientRequest extends Request
     }
 
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -74,9 +73,6 @@ class StoreClientRequest extends Request
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
 
         $this->replace($input);   
-
-        return $this->all();
-
     }
 
     public function messages()

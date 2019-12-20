@@ -38,14 +38,12 @@ class UpdateQuoteRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
-
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -56,8 +54,6 @@ class UpdateQuoteRequest extends Request
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
         $this->replace($input);
-
-        return $this->all();
     }
 
 }
