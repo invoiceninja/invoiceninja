@@ -34,7 +34,6 @@ class StoreGroupSettingRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
 
         $rules['name'] = 'required';
         $rules['settings'] = new ValidClientGroupSettingsRule();
@@ -42,7 +41,7 @@ class StoreGroupSettingRequest extends Request
         return $rules;
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
         

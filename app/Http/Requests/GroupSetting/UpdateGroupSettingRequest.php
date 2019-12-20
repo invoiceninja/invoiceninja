@@ -31,7 +31,6 @@ class UpdateGroupSettingRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
         
@@ -39,13 +38,11 @@ class UpdateGroupSettingRequest extends Request
 
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
         $this->replace($input);   
-
-        return $this->all();
 
     }
 

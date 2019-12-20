@@ -36,7 +36,7 @@ class StoreRecurringInvoiceRequest extends Request
     }
 
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         //do post processing of RecurringInvoice request here, ie. RecurringInvoice_items
     }

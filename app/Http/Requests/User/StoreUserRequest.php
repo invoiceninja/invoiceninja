@@ -37,8 +37,6 @@ class StoreUserRequest extends Request
     public function rules()
     {
 
-        $this->sanitize();
-
         $rules = [];
 
         $rules['first_name'] = 'required|string|max:100';
@@ -53,7 +51,7 @@ class StoreUserRequest extends Request
 
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -77,8 +75,6 @@ class StoreUserRequest extends Request
         }
 
         $this->replace($input); 
-
-        return $this->all();
 
     }
 

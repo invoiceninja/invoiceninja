@@ -34,16 +34,4 @@ class EditInvoiceRequest extends Request
         return $rules;
     }
 
-
-    public function sanitize()
-    {
-        $input = $this->all();
-
-        //$input['id'] = $this->encodePrimaryKey($input['id']);
-
-        //$this->replace($input);
-
-        return $this->all();
-    }
-
 }

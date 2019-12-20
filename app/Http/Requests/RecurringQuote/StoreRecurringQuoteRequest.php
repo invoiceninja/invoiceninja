@@ -37,16 +37,5 @@ class StoreRecurringQuoteRequest extends Request
     }
 
 
-    public function sanitize()
-    {
-        //do post processing of RecurringQuote request here, ie. RecurringQuote_items
-    }
-
-    public function messages()
-    {
-
-    }
-
-
 }
 

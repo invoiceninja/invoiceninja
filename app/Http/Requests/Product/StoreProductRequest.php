@@ -29,7 +29,6 @@ class StoreProductRequest extends Request
 
     public function rules()
     {
-        $this->sanitize();
 
         return [
             'product_key' => 'required|unique:products,product_key,null,null,company_id,'.auth()->user()->companyId(),
@@ -39,7 +38,7 @@ class StoreProductRequest extends Request
         ];
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -48,7 +47,6 @@ class StoreProductRequest extends Request
 
         $this->replace($input);
 
-        return $this->all();
     }
     
 }

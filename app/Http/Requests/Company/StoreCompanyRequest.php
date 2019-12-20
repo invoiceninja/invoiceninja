@@ -31,9 +31,7 @@ class StoreCompanyRequest extends Request
 
     public function rules()
     {
-        //$this->sanitize();
         $rules = [];
-        $input = $this->all();
 
         //$rules['name'] = 'required';
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb

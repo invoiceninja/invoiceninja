@@ -84,7 +84,6 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Africa/Cairo', 'location' => '(GMT+02:00) Cairo', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Africa/Harare', 'location' => '(GMT+02:00) Harare', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Helsinki', 'location' => '(GMT+02:00) Helsinki', 'utc_offset' => 7200];
-        $timezones[] = ['name'=>'Europe/Istanbul', 'location' => '(GMT+02:00) Istanbul', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Asia/Jerusalem', 'location' => '(GMT+02:00) Jerusalem', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Kiev', 'location' => '(GMT+02:00) Kyiv', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Minsk', 'location' => '(GMT+02:00) Minsk', 'utc_offset' => 7200];
@@ -92,6 +91,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Europe/Sofia', 'location' => '(GMT+02:00) Sofia', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Tallinn', 'location' => '(GMT+02:00) Tallinn', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Vilnius', 'location' => '(GMT+02:00) Vilnius', 'utc_offset' => 7200];
+        $timezones[] = ['name'=>'Europe/Istanbul', 'location' => '(GMT+03:00) Istanbul', 'utc_offset' => 10800];
         $timezones[] = ['name'=>'Asia/Baghdad', 'location' => '(GMT+03:00) Baghdad', 'utc_offset' => 10800];
         $timezones[] = ['name'=>'Asia/Kuwait', 'location' => '(GMT+03:00) Kuwait', 'utc_offset' => 10800];
         $timezones[] = ['name'=>'Africa/Nairobi', 'location' => '(GMT+03:00) Nairobi', 'utc_offset' => 10800];

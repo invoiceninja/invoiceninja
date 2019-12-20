@@ -34,8 +34,6 @@ class UpdateCompanyGatewayRequest extends Request
     public function rules()
     {
 
-        $this->sanitize();
-
         $rules = [
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
@@ -43,7 +41,7 @@ class UpdateCompanyGatewayRequest extends Request
         return $rules;
     }
 
-    public function sanitize()
+    protected function prepareForValidation()
     {
         $input = $this->all();
 
@@ -53,8 +51,6 @@ class UpdateCompanyGatewayRequest extends Request
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
 
         $this->replace($input);
-
-        return $this->all();
     }
 
 }

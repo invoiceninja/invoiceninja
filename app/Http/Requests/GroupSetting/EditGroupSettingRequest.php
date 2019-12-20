@@ -27,15 +27,5 @@ class EditGroupSettingRequest extends Request
         return auth()->user()->can('edit', $this->group_setting);
     }
 
-    public function sanitize()
-    {
-        $input = $this->all();
-
-        //$input['id'] = $this->encodePrimaryKey($input['id']);
-
-        //$this->replace($input);
-
-        return $this->all();
-    }
 
 }

@@ -27,15 +27,14 @@ class EditClientRequest extends Request
         return auth()->user()->can('edit', $this->client);
     }
 
-    public function sanitize()
-    {
-        $input = $this->all();
+    // public function prepareForValidation()
+    // {
+    //     $input = $this->all();
 
-        //$input['id'] = $this->encodePrimaryKey($input['id']);
+    //     //$input['id'] = $this->encodePrimaryKey($input['id']);
 
-        //$this->replace($input);
+    //     $this->replace($input);
 
-        return $this->all();
-    }
+    // }
 
 }
