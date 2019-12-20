@@ -96,14 +96,14 @@ trait GeneratesCounter
 		return $credit_number;
 	}
 
-	public function getNextQuoteNumber()
+	public function getNextQuoteNumber(Client $client)
 	{
 		//Reset counters if enabled
 		$this->resetCounters($client);
 
 		$used_counter = 'quote_number_counter';
 
-		if($this->hasSharedCounter())
+		if($this->hasSharedCounter($client))
 			$used_counter = 'invoice_number_counter';
 
 		//todo handle if we have specific client patterns in the future
@@ -134,7 +134,6 @@ trait GeneratesCounter
 		$this->incrementCounter($counter_entity, $used_counter);
 
 		return $quote_number;
-		
 	}
 
 	public function getNextRecurringInvoiceNumber()
@@ -206,9 +205,10 @@ trait GeneratesCounter
 	 * @return     boolean             True if has shared counter, False otherwise.
 	 */
 	public function hasSharedCounter(Client $client) : bool
-	{
-
-		return $client->getSetting('shared_invoice_quote_counter') === TRUE;
+ 	{
+// \Log::error((bool) $client->getSetting('shared_invoice_quote_counter'));
+// \Log::error($client->getSetting('shared_invoice_quote_counter'));
+		return (bool) $client->getSetting('shared_invoice_quote_counter');
 
 	}
 
