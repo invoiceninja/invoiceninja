@@ -98,7 +98,43 @@ trait GeneratesCounter
 
 	public function getNextQuoteNumber()
 	{
+		//Reset counters if enabled
+		$this->resetCounters($client);
 
+		$used_counter = 'quote_number_counter';
+
+		if($this->hasSharedCounter())
+			$used_counter = 'invoice_number_counter';
+
+		//todo handle if we have specific client patterns in the future
+		$pattern = $client->getSetting('quote_number_pattern');
+		//Determine if we are using client_counters
+		if(strpos($pattern, 'clientCounter'))
+		{
+			$counter = $client->settings->{$used_counter};
+			$counter_entity = $client;
+		}
+		elseif(strpos($pattern, 'groupCounter'))
+		{
+			$counter = $client->group_settings->{$used_counter};
+			$counter_entity = $client->group_settings;
+		}
+		else 
+		{
+			$counter = $client->company->settings->{$used_counter};
+			$counter_entity = $client->company;
+		}
+
+		//Return a valid counter
+		$pattern = $client->getSetting('quote_number_pattern');
+		$padding = $client->getSetting('counter_padding');
+		
+		$quote_number = $this->checkEntityNumber(Quote::class, $client, $counter, $padding, $pattern);
+
+		$this->incrementCounter($counter_entity, $used_counter);
+
+		return $quote_number;
+		
 	}
 
 	public function getNextRecurringInvoiceNumber()
