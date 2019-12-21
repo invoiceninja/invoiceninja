@@ -14,7 +14,7 @@ class TemplateEmail extends Mailable
 
     private $template; //the template to use
 
-    private $message; //the message array (subject and body)
+    private $message; //the message array  // ['body', 'footer', 'title', 'files']
 
     private $user; //the user the email will be sent from
 
@@ -45,7 +45,7 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        return $this->from($this->user->email, $this->user->present()->name()) //todo this needs to be fixed to handle the hosted version
+        $message = $this->from($this->user->email, $this->user->present()->name()) //todo this needs to be fixed to handle the hosted version
             ->subject($this->message['subject'])
             ->text('email.template.plain', ['body' => $this->message['body'], 'footer' => $this->message['footer']])
             ->view($template_name, [
@@ -56,5 +56,14 @@ class TemplateEmail extends Mailable
                 'company' => $company
             ]);
 
+
+        //conditionally attach files
+        if($settings->pdf_email_attachment !== false && array_key_exists($this->message['files'])){
+
+            foreach($this->message['files'] as $file)
+                $message->attach($file);
+        }
+
+        return $message;
     }
 }
