@@ -254,7 +254,7 @@ class Client extends BaseModel
         if($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)){
            return $this->group_settings->settings->{$setting};
         }
-        
+
         /*Company Settings*/
         if((property_exists($this->company->settings, $setting) != false ) && (isset($this->company->settings->{$setting}) !== false) ){
             return $this->company->settings->{$setting};

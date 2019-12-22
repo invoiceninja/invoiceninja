@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Factory\QuoteInvitationFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Quote\ApplyQuoteNumber;
 use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -99,8 +100,8 @@ class QuoteRepository extends BaseRepository
         $quote->save();
 
         $finished_amount = $quote->amount;
-//todo need answers on this
-//        $quote = ApplyInvoiceNumber::dispatchNow($quote, $quote->client->getMergedSettings());
+
+        $quote = ApplyQuoteNumber::dispatchNow($quote, $quote->client->getMergedSettings());
 
         return $quote->fresh();
 	}

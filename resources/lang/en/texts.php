@@ -801,6 +801,7 @@ $LANG = array(
     'activity_54' => ':user reopened ticket :ticket',
     'activity_55' => ':contact replied ticket :ticket',
     'activity_56' => ':user viewed ticket :ticket',
+    'activity_57' => ':invoice failed to send to :client',
 
     'payment' => 'Payment',
     'system' => 'System',

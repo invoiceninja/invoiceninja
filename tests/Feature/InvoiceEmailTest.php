@@ -55,6 +55,7 @@ class InvoiceEmailTest extends TestCase
         $message_array['title'] = &$message_array['subject'];
         $message_array['footer'] = 'The Footer';
 
+
  //       $template_style = $this->client->getSetting('email_style');
 
         $template_style = 'light';
@@ -62,24 +63,24 @@ class InvoiceEmailTest extends TestCase
 
         $invitations = InvoiceInvitation::whereInvoiceId($this->invoice->id)->get();
 
-        $invitations->each(function($invitation) use($message_array, $template_style) {
+        $invitations->each(function($invitation) use($message_array, $template_styles) {
 
-            $contact = ClientContact::find($invitation->client_contact_id)->first();
+            $contact = $invitation->contact;
 
             if($contact->send_invoice && $contact->email)
             {
                 //there may be template variables left over for the specific contact? need to reparse here
-                
+        
                 //change the runtime config of the mail provider here:
                 
                 //send message
                 Mail::to($contact->email)
-                ->send(new TemplateEmail($message_array, $template_style, $this->user, $this->client));
+                ->send(new TemplateEmail($message_array, $template_style, $this->user, $contact->client));
 
                 //fire any events
                 
 
-                sleep(5);
+                sleep(5);//here to cope with mailtrap time delays
                 
             }
 

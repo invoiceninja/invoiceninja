@@ -65,9 +65,11 @@ trait InvoiceEmailBuilder
 
         }
 
-
         $data['body'] = $this->parseTemplate($body_template, false);
         $data['subject'] = $this->parseTemplate($subject_template, true);
+
+        if($client->getSetting('pdf_email_attachment') !== false)
+            $data['files'][] = $this->pdf_file_path();
 
         return $data;
     }
@@ -108,8 +110,11 @@ trait InvoiceEmailBuilder
         {
             return 'template3';
         }
+        else
+            return 'invoice';
+
         //also implement endless reminders here
-        //
+        
            
     }
 

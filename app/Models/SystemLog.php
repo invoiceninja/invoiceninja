@@ -17,6 +17,7 @@ class SystemLog extends Model
 {
     /* Category IDs */
     const CATEGORY_GATEWAY_RESPONSE = 1;
+    const CATEGORY_MAIL = 2;
 
     /* Event IDs*/
     const EVENT_PAYMENT_RECONCILIATION_FAILURE = 10;
@@ -26,10 +27,13 @@ class SystemLog extends Model
     const EVENT_GATEWAY_FAILURE = 22;
     const EVENT_GATEWAY_ERROR = 23;
 
+    const EVENT_MAIL_SEND = 30;
+
     /*Type IDs*/
     const TYPE_PAYPAL = 300;
     const TYPE_STRIPE = 301;
     const TYPE_LEDGER = 302;
+    const TYPE_FAILURE = 303;
 
     protected $fillable = [
         'client_id',

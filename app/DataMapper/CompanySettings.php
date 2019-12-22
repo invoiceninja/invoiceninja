@@ -69,6 +69,7 @@ class CompanySettings extends BaseSettings
 	public $translations;
 
 	public $counter_number_applied = 'when_saved'; // when_saved , when_sent , when_paid 
+	public $quote_number_applied = 'when_saved'; // when_saved , when_sent
 	/* Counters */
 	public $invoice_number_pattern = '';
 	public $invoice_number_counter = 1;
@@ -222,6 +223,7 @@ class CompanySettings extends BaseSettings
 		'gmail_sending_user_id' => 'string',
 		'currency_id' => 'string',
 		'counter_number_applied' => 'string',
+		'quote_number_applied' => 'string',
 		'email_subject_custom1' => 'string',
 		'email_subject_custom2' => 'string',
 		'email_subject_custom3' => 'string',

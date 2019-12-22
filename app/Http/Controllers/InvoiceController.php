@@ -25,6 +25,7 @@ use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Jobs\Entity\ActionEntity;
+use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Models\Invoice;
@@ -660,7 +661,7 @@ class InvoiceController extends BaseController
                 return $this->listResponse($invoice);
                 break;
             case 'email':
-
+                EmailInvoice::dispatch($invoice);
                 if(!$bulk)
                 return response()->json(['message'=>'email sent'],200);
                 break;

@@ -21,10 +21,11 @@
  *       @OA\Property(property="email_style", type="string", example="light", description="options include plain,light,dark,custom"),
  *       @OA\Property(property="reply_to_email", type="string", example="email@gmail.com", description="The reply to email address"),
  *       @OA\Property(property="bcc_email", type="string", example="email@gmail.com, contact@gmail.com", description="A comma separate list of BCC emails"),
- *       
  *       @OA\Property(property="pdf_email_attachment", type="boolean", example=true, description="Toggles whether to attach PDF as attachment"),
  *       @OA\Property(property="ubl_email_attachment", type="boolean", example=true, description="Toggles whether to attach UBL as attachment"),
  *       @OA\Property(property="email_style_custom", type="string", example="<HTML></HTML>", description="The custom template"),
+ *       @OA\Property(property="counter_number_applied", type="string", example="when_sent", description="enum when the invoice number counter is set, ie when_saved, when_sent, when_paid"),
+ *       @OA\Property(property="quote_number_applied", type="string", example="when_sent", description="enum when the quote number counter is set, ie when_saved, when_sent"),
  *       @OA\Property(property="custom_message_dashboard", type="string", example="Please pay invoices immediately", description="____________"),
  *       @OA\Property(property="custom_message_unpaid_invoice", type="string", example="Please pay invoices immediately", description="____________"),
  *       @OA\Property(property="custom_message_paid_invoice", type="string", example="Thanks for paying this invoice!", description="____________"),
@@ -44,7 +45,6 @@
  *       @OA\Property(property="vendor_number_counter", type="integer", example="1", description="____________"),
  *       @OA\Property(property="ticket_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the ticket number pattern"),
  *       @OA\Property(property="ticket_number_counter", type="integer", example="1", description="____________"),
- *
  *       @OA\Property(property="payment_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the payment number pattern"),
  *       @OA\Property(property="payment_number_counter", type="integer", example="1", description="____________"),
  *       @OA\Property(property="invoice_number_pattern", type="string", example="{$year}-{$counter}", description="Allows customisation of the invoice number pattern"),
