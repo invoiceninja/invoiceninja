@@ -257,7 +257,7 @@ class CreateTestData extends Command
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,rand(1,50))->create([
+            factory(\App\Models\ClientContact::class,rand(1,5))->create([
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'company_id' => $company->id
@@ -318,7 +318,7 @@ class CreateTestData extends Command
             $this->invoice_repo->markSent($invoice);
 
                 CreateInvoiceInvitations::dispatch($invoice);
-                
+
             if(rand(0, 1)) {
 
                 $payment = PaymentFactory::create($client->company->id, $client->user->id);

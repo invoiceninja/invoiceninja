@@ -51,7 +51,7 @@ trait InvoiceEmailBuilder
 
         /* Use default translations if a custom message has not been set*/
         if(iconv_strlen($body_template) == 0){
-            $body_template = trans('texts.invoice_message', [], null, $this->client->locale());
+            $body_template = trans('texts.invoice_message', ['amount'=>$this->present()->amount(),'account'=>$this->company->present()->name()], null, $this->client->locale());
         }
 
         $subject_template = $client->getSetting('email_subject_'.$reminder_template);
@@ -59,9 +59,9 @@ trait InvoiceEmailBuilder
         if(iconv_strlen($subject_template) == 0){
 
             if($reminder_template == 'invoice') 
-                $subject_template = trans('texts.invoice_subject', [], null, $this->client->locale());
+                $subject_template = trans('texts.invoice_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
             else
-                $subject_template = trans('texts.reminder_subject', [], null, $this->client->locale());
+                $subject_template = trans('texts.reminder_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
 
         }
 

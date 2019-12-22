@@ -30,6 +30,22 @@ class InvoicePresenter extends EntityPresenter
 {
 	use MakesDates;
 
+
+	public function amount()
+	{
+		return Number::formatMoney($this->balance, $this->client);
+	}
+
+	public function invoice_number()
+	{
+
+		if($this->number != '')
+			return $this->number;
+		else
+			return '';
+
+	}
+
 	public function clientName()
 	{
 		return $this->client->present()->name();

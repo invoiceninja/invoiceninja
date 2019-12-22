@@ -53,10 +53,12 @@ class EmailInvoice implements ShouldQueue
         /*Jobs are not multi-db aware, need to set! */
         MultiDB::setDB($this->invoice->company->db);
 
+        //todo - change runtime config of mail driver if necessary
+        
         $message_array = $this->invoice->getEmailData();
         $message_array['title'] = &$message_array['subject'];
         $message_array['footer'] = 'The Footer';
-        //
+        
 
         $variables = array_merge($this->invoice->makeLabels(), $this->invoice->makeValues());
 
@@ -87,7 +89,7 @@ class EmailInvoice implements ShouldQueue
                 //fire any events
                 event(new InvoiceWasEmailed($this->invoice));
 
-                sleep(5);
+                //sleep(5);
                 
             }
 
