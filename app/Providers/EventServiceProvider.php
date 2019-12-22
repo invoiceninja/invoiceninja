@@ -14,6 +14,7 @@ namespace App\Providers;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasUpdated;
@@ -96,7 +97,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasPaid::class => [
             CreateInvoiceHtmlBackup::class,
-        ]
+        ],
+        InvoiceWasEmailed::class => [
+        ],
+        InvoiceWasEmailedAndFailed::class => [
+        ],
+        
     ];
 
     /**

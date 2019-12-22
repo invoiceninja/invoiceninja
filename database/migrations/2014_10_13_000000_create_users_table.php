@@ -452,6 +452,8 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number')->nullable();
             $t->date('date')->nullable();
+            $t->date('last_sent_date')->nullable();
+
             $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
@@ -660,6 +662,8 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number')->nullable();
             $t->date('date')->nullable();
+            $t->date('last_sent_date')->nullable();
+            
             $t->datetime('due_date')->nullable();
             $t->datetime('next_send_date')->nullable();
 

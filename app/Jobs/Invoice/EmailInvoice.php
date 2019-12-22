@@ -13,6 +13,7 @@ namespace App\Jobs\Invoice;
 
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -48,7 +49,56 @@ class EmailInvoice implements ShouldQueue
         /*Jobs are not multi-db aware, need to set! */
         MultiDB::setDB($this->invoice->company->db);
 
+        $message_array = $this->invoice->getEmailData();
+        $message_array['title'] = &$message_array['subject'];
+        //$message_array['footer'] = 'The Footer';
+        //
 
+        $variables = array_merge($this->makeLabels(), $this->makeValues());
+
+        $template_style = $this->invoice->client->getSetting('email_style');
+        
+        $invoice->invitations->each(function ($invitation) use($message_array, $template_style){
+
+            if($contact->send_invoice && $contact->email)
+            {
+                //there may be template variables left over for the specific contact? need to reparse here
+                $message_array['body'] = str_replace(array_keys($variables), array_values($variables), $message_array['body']);
+                $message_array['subject'] = str_replace(array_keys($variables), array_values($variables), $message_array['subject']);
+
+                //change the runtime config of the mail provider here:
+                
+                //send message
+                Mail::to($contact->email)
+                ->send(new TemplateEmail($message_array, $template_style, $this->user, $this->client));
+
+                if( count(Mail::failures()) > 0 ) {
+
+                   $this->logMailError($errors);
+
+                }
+
+                //fire any events
+                
+
+                sleep(5);
+                
+            }
+
+        });
+
+    }
+
+    private function logMailError($errors)
+    {
+
+        SystemLogger::dispatch(
+            $errors,
+            SystemLog::CATEGORY_MAIL,
+            SystemLog::EVENT_MAIL_SEND,
+            SystemLog::TYPE_FAILURE,
+            $this->invoice->client
+        );
 
     }
 
