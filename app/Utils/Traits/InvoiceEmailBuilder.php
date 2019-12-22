@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Models\ClientContact;
 use App\Models\Invoice;
 use Illuminate\Support\Carbon;
 use Parsedown;
@@ -28,7 +29,7 @@ trait InvoiceEmailBuilder
      * @param  string $reminder_template The template name ie reminder1
      * @return array                   
      */
-    public function getEmailData($reminder_template = null) :array
+    public function getEmailData($reminder_template = null, $contact = null) :array
     {
         //client
         //$client = $this->client;
@@ -37,11 +38,11 @@ trait InvoiceEmailBuilder
             $reminder_template = $this->calculateTemplate();
 
         //Need to determine which email template we are producing
-        return $this->generateTemplateData($reminder_template);
+        return $this->generateTemplateData($reminder_template, $contact);
 
     }
 
-    private function generateTemplateData(string $reminder_template) :array
+    private function generateTemplateData(string $reminder_template, $contact) :array
     {
         $data = [];
 
@@ -65,8 +66,8 @@ trait InvoiceEmailBuilder
 
         }
 
-        $data['body'] = $this->parseTemplate($body_template, false);
-        $data['subject'] = $this->parseTemplate($subject_template, true);
+        $data['body'] = $this->parseTemplate($body_template, false, $contact);
+        $data['subject'] = $this->parseTemplate($subject_template, true, $contact);
 
         if($client->getSetting('pdf_email_attachment') !== false)
             $data['files'][] = $this->pdf_file_path();
@@ -74,9 +75,9 @@ trait InvoiceEmailBuilder
         return $data;
     }
 
-    private function parseTemplate(string $template_data, bool $is_markdown = true) :string
+    private function parseTemplate(string $template_data, bool $is_markdown = true, $contact) :string
     {
-        $invoice_variables = $this->makeValues();
+        $invoice_variables = $this->makeValues($contact);
 
         //process variables
         $data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);

@@ -30,6 +30,8 @@ class EmailInvoice implements ShouldQueue
 
     public $invoice;
 
+    public $message_array = [];
+    
     /**
      * Create a new job instance.
      *
@@ -54,28 +56,22 @@ class EmailInvoice implements ShouldQueue
         MultiDB::setDB($this->invoice->company->db);
 
         //todo - change runtime config of mail driver if necessary
-        
-        $message_array = $this->invoice->getEmailData();
-        $message_array['title'] = &$message_array['subject'];
-        $message_array['footer'] = 'The Footer';
-        
-
-        $variables = array_merge($this->invoice->makeLabels(), $this->invoice->makeValues());
 
         $template_style = $this->invoice->client->getSetting('email_style');
         
-        $this->invoice->invitations->each(function ($invitation) use($message_array, $template_style, $variables){
+        $this->invoice->invitations->each(function ($invitation) use($template_style){
 
             if($invitation->contact->send_invoice && $invitation->contact->email)
             {
-                //there may be template variables left over for the specific contact? need to reparse here //todo this wont work, as if the variables existed, they'll be overwritten already!
-                $message_array['body'] = str_replace(array_keys($variables), array_values($variables), $message_array['body']);
-                $message_array['subject'] = str_replace(array_keys($variables), array_values($variables), $message_array['subject']);
 
+                $message_array = $this->invoice->getEmailData('', $invitation->contact);
+                $message_array['title'] = &$message_array['subject'];
+                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
+                
                 //change the runtime config of the mail provider here:
                 
                 //send message
-                Mail::to($invitation->contact->email)
+                Mail::to($invitation->contact->email, $invitation->contact->present()->name())
                 ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
 
                 if( count(Mail::failures()) > 0 ) {

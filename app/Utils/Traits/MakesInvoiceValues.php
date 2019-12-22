@@ -155,7 +155,7 @@ trait MakesInvoiceValues
      * @return array returns an array 
      * of keyed labels (appended with _label)
      */
-    public function makeValues() :array
+    public function makeValues($contact = null) :array
     {
         if(!$this->client->currency() || !$this->client){
             throw new Exception(debug_backtrace()[1]['function'], 1);
@@ -246,8 +246,16 @@ trait MakesInvoiceValues
             $data['$client.country'] = &$data['$country'];
             $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
             $data['$client.email'] = &$data['$email'];
+
+            if($contact) {
+            $data['$contact_name'] = $contact->present()->name();
+            $data['$contact.name'] = &$data['$contact_name'];
+            }
+            else {
             $data['$contact_name'] = $this->client->present()->primary_contact_name();
             $data['$contact.name'] = &$data['$contact_name'];
+            }
+
             $data['$company.name'] = $this->company->present()->name();
             $data['$company.address1'] = $settings->address1;
             $data['$company.address2'] = $settings->address2;
