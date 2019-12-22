@@ -138,7 +138,7 @@ class UpdateInvoicePayment implements ShouldQueue
                         'invoices_total' => $invoices_total,
                         'payment_amount' => $this->payment->amount,
                         'partial_check_amount' => $total,
-                    ],                    ],
+                    ],                    
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE,
                     SystemLog::TYPE_LEDGER,

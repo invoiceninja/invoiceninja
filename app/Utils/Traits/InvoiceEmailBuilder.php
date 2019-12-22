@@ -110,8 +110,11 @@ trait InvoiceEmailBuilder
         {
             return 'template3';
         }
+        else
+            return 'invoice';
+
         //also implement endless reminders here
-        //
+        
            
     }
 

@@ -11,6 +11,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\CompanyToken;
@@ -316,8 +317,8 @@ class CreateTestData extends Command
 
             $this->invoice_repo->markSent($invoice);
 
-            event(new InvoiceWasMarkedSent($invoice));
-
+                CreateInvoiceInvitations::dispatch($invoice);
+                
             if(rand(0, 1)) {
 
                 $payment = PaymentFactory::create($client->company->id, $client->user->id);

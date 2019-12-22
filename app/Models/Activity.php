@@ -69,6 +69,7 @@ class Activity extends StaticModel
     const RESTORE_USER=52;
     const MARK_SENT_INVOICE=53;
     const PAID_INVOICE=54;
+    const EMAIL_INVOICE_FAILED=57;
     
     protected $casts = [
         'is_system' => 'boolean',

@@ -11,7 +11,10 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Libraries\MultiDB;
+use App\Mail\TemplateEmail;
 use App\Models\Invoice;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
@@ -19,12 +22,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 
 class EmailInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $invoice;
+    public $invoice;
 
     /**
      * Create a new job instance.
@@ -51,35 +55,37 @@ class EmailInvoice implements ShouldQueue
 
         $message_array = $this->invoice->getEmailData();
         $message_array['title'] = &$message_array['subject'];
-        //$message_array['footer'] = 'The Footer';
+        $message_array['footer'] = 'The Footer';
         //
 
-        $variables = array_merge($this->makeLabels(), $this->makeValues());
+        $variables = array_merge($this->invoice->makeLabels(), $this->invoice->makeValues());
 
         $template_style = $this->invoice->client->getSetting('email_style');
         
-        $invoice->invitations->each(function ($invitation) use($message_array, $template_style){
+        $this->invoice->invitations->each(function ($invitation) use($message_array, $template_style, $variables){
 
-            if($contact->send_invoice && $contact->email)
+            if($invitation->contact->send_invoice && $invitation->contact->email)
             {
-                //there may be template variables left over for the specific contact? need to reparse here
+                //there may be template variables left over for the specific contact? need to reparse here //todo this wont work, as if the variables existed, they'll be overwritten already!
                 $message_array['body'] = str_replace(array_keys($variables), array_values($variables), $message_array['body']);
                 $message_array['subject'] = str_replace(array_keys($variables), array_values($variables), $message_array['subject']);
 
                 //change the runtime config of the mail provider here:
                 
                 //send message
-                Mail::to($contact->email)
-                ->send(new TemplateEmail($message_array, $template_style, $this->user, $this->client));
+                Mail::to($invitation->contact->email)
+                ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
 
                 if( count(Mail::failures()) > 0 ) {
 
-                   $this->logMailError($errors);
+                    event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
+                    
+                    return $this->logMailError($errors);
 
                 }
 
                 //fire any events
-                
+                event(new InvoiceWasEmailed($this->invoice));
 
                 sleep(5);
                 

@@ -30,6 +30,8 @@ use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
+use App\Listeners\Invoice\InvoiceEmailActivity;
+use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Invoice\UpdateInvoicePayment;
@@ -99,8 +101,10 @@ class EventServiceProvider extends ServiceProvider
             CreateInvoiceHtmlBackup::class,
         ],
         InvoiceWasEmailed::class => [
+            InvoiceEmailActivity::class,
         ],
         InvoiceWasEmailedAndFailed::class => [
+            InvoiceEmailFailedActivity::class,
         ],
         
     ];

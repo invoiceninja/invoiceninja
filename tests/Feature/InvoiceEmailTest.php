@@ -63,7 +63,7 @@ class InvoiceEmailTest extends TestCase
 
         $invitations = InvoiceInvitation::whereInvoiceId($this->invoice->id)->get();
 
-        $invitations->each(function($invitation) use($message_array, $template_style, $variables) {
+        $invitations->each(function($invitation) use($message_array, $template_styles) {
 
             $contact = $invitation->contact;
 

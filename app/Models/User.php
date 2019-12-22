@@ -199,6 +199,11 @@ class User extends Authenticatable implements MustVerifyEmail
         
     }
 
+    public function clients()
+    {
+        return $this->hasMany(Client::class);
+    }
+
     /**
      * Returns a comma separated list of user permissions
      * 

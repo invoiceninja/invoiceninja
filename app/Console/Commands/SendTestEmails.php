@@ -2,7 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Factory\ClientFactory;
 use App\Mail\TemplateEmail;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -43,7 +46,9 @@ class SendTestEmails extends Command
     public function handle()
     {
         $this->sendTemplateEmails('plain');
+        sleep(5);
         $this->sendTemplateEmails('light');
+        sleep(5);
         $this->sendTemplateEmails('dark');
     }
 
@@ -57,21 +62,48 @@ class SendTestEmails extends Command
         ];
 
         $user = User::whereEmail('user@example.com')->first();
+        $client = Client::all()->first();
 
         if(!$user){
             $user = factory(\App\Models\User::class)->create([
                 'confirmation_code' => '123',
+                'email' => 'admin@business.com',
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+            ]);
+        }
+
+        if(!$client) {
+             
+             $client = ClientFactory::create($user->company()->id, $user->id);
+             $client->save();
+
+            factory(\App\Models\ClientContact::class,1)->create([
+                'user_id' => $user->id,
+                'client_id' => $client->id,
+                'company_id' => $company->id,
+                'is_primary' => 1,
+                'send_invoice' => true,
+                'email' => 'exy@example.com',
+            ]);
+
+            factory(\App\Models\ClientContact::class,1)->create([
+                'user_id' => $user->id,
+                'client_id' => $client->id,
+                'company_id' => $company->id,
+                'send_invoice' => true,
+                'email' => 'exy2@example.com',
             ]);
         }
 
          $cc_emails = [config('ninja.testvars.test_email')];
          $bcc_emails = [config('ninja.testvars.test_email')];
 
-        Mail::to(config('ninja.testvars.test_email'))
+        Mail::to(config('ninja.testvars.test_email'),'Mr Test')
             ->cc($cc_emails)
             ->bcc($bcc_emails)
             //->replyTo(also_available_if_needed)
-            ->send(new TemplateEmail($message, $template, $user));
+            ->send(new TemplateEmail($message, $template, $user, $client));
     }
 
 }

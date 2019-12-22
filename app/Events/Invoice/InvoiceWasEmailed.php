@@ -27,18 +27,12 @@ class InvoiceWasEmailed
     public $invoice;
 
     /**
-     * @var string
-     */
-    public $notes;
-
-    /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice, $notes)
+    public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
-        $this->notes = $notes;
     }
 }

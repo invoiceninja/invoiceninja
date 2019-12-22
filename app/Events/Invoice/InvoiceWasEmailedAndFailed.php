@@ -15,7 +15,7 @@ use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class InvoiceWasEmailed.
+ * Class InvoiceWasEmailedAndFailed.
  */
 class InvoiceWasEmailedAndFailed 
 {
@@ -27,18 +27,19 @@ class InvoiceWasEmailedAndFailed
     public $invoice;
 
     /**
-     * @var string
+     * @var array
      */
-    public $notes;
+    public $errors;
 
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice, $notes)
+    public function __construct(Invoice $invoice, array $errors)
     {
         $this->invoice = $invoice;
-        $this->notes = $notes;
+        
+        $this->errors = $errors;
     }
 }
