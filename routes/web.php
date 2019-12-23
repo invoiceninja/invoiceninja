@@ -148,17 +148,17 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
-    Route::get('migration', 'Migration\StartController');
-    Route::post('migration', 'Migration\StartController@select');
+    // Route::get('migration', 'Migration\StartController');
+    // Route::post('migration', 'Migration\StartController@select');
 
-    Route::get('migration/account', 'Migration\Account\LoginController@index');
-    Route::post('migration/account', 'Migration\Account\LoginController@login');
+    // Route::get('migration/account', 'Migration\Account\LoginController@index');
+    // Route::post('migration/account', 'Migration\Account\LoginController@login');
 
-    Route::get('migration/account/create', 'Migration\Account\RegisterController@index');
-    Route::post('migration/account/create', 'Migration\Account\RegisterController@register');
+    // Route::get('migration/account/create', 'Migration\Account\RegisterController@index');
+    // Route::post('migration/account/create', 'Migration\Account\RegisterController@register');
 
-    Route::get('migration/company', 'Migration\CompanyController@index');
-    Route::post('migration/company', 'Migration\CompanyController@store');
+    // Route::get('migration/company', 'Migration\CompanyController@index');
+    // Route::post('migration/company', 'Migration\CompanyController@store');
 
     Route::get('migration/steps/{step}', 'Migration\StepsController@index');
     Route::post('migration/steps/{step}', 'Migration\StepsController@handle');

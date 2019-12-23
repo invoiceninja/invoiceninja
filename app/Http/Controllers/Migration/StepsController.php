@@ -14,7 +14,7 @@ class StepsController extends BaseController
     public function __construct()
     {
         $this->availableSteps = [
-            'settings', 'clients',
+           'option', 'settings', 'clients',
         ];
     }
 
