@@ -34,6 +34,18 @@
                 </div>
             @endif
 
+           @if(session('responseErrors'))
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach(session('responseErrors') as $error)
+                            @foreach($error as $childError)
+                                <li>{{ $childError }}</li>
+                            @endforeach
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{ dump(session('message')) }}
 
             @yield('content')

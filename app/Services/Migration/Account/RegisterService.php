@@ -2,9 +2,6 @@
 
 namespace App\Services\Migration\Account;
 
-use Illuminate\Support\Facades\Log;
-use integration\PhpSpec\Console\Prompter\DialogTest;
-
 /**
  * @package App\Services\Migration\Account
  */
@@ -88,7 +85,7 @@ class RegisterService
             json_encode($credentials)
         );
 
-        if ($response->code == 401 || $response->code == 422) {
+        if ($response->code == 401 || $response->code == 422 || $response->code == 403) {
             $this->responseCode = $response->code;
             $this->response = $response->body;
             $this->successful = false;

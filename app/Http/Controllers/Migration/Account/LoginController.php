@@ -6,7 +6,6 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\Migration\Account\SelfLoginRequest;
 use App\Services\Migration\Account\LoginService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class LoginController extends BaseController
@@ -44,7 +43,7 @@ class LoginController extends BaseController
                 return redirect('/migration/company')->with('message', 'Login was successful.');
             }
 
-            return back()->with('message', $loginService->response);
+            return back()->with('message', $loginService->response->message);
 
         }
     }

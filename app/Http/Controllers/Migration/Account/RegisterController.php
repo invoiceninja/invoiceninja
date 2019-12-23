@@ -6,7 +6,6 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\Migration\Account\SelfRegisterRequest;
 use App\Services\Migration\Account\RegisterService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends BaseController
@@ -36,7 +35,11 @@ class RegisterController extends BaseController
                 return redirect('/migration/company')->with('message', 'Account has beeen created succesfully.');
             }
 
-            return back()->flash('message', $registerService->response->errors);
+            if(isset($registerService->response->errors)) {
+                $request->session()->flash('responseErrors', $registerService->response->errors);
+            }
+
+            return back()->with('message', $registerService->response->message);
         }
     }
 }
