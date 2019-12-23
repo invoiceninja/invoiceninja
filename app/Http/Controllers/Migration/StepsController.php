@@ -14,7 +14,7 @@ class StepsController extends BaseController
     public function __construct()
     {
         $this->availableSteps = [
-           'option', 'settings', 'clients',
+           'option', 'login', 'settings', 'clients',
         ];
     }
 
@@ -50,6 +50,10 @@ class StepsController extends BaseController
 
         $serviceClass = "App\Services\Migration\Steps\\{$service}StepService";
         $service = new $serviceClass($request);
+
+        if(method_exists($service, 'validate')) {
+            $request->validate($service->validate());
+        }
 
         $service->start();
 

@@ -3,7 +3,6 @@
 
 namespace App\Services\Migration\Steps;
 
-
 class OptionStepService
 {
     private $request;
