@@ -3,7 +3,7 @@
 
 namespace App\Services\Migration\Steps;
 
-class LoginStepService
+class RegisterStepService
 {
     private $request;
 
@@ -21,6 +21,8 @@ class LoginStepService
     public function validate()
     {
         $rules = [
+            'first_name' => ['required'],
+            'last_name' => ['required'],
             'email' => ['required'],
             'password' => ['required'],
         ];
@@ -35,13 +37,13 @@ class LoginStepService
 
     public function start()
     {
-        $this->data = (object) $this->request->all();
+        $this->data = (object)$this->request->all();
 
         if (session()->get('migration_option') == 'self_hosted') {
-            return $this->loginSelfHosted();
+            return $this->registerSelfHosted();
         }
 
-        return $this->loginHosted();
+        return $this->registerHosted();
     }
 
     public function getSuccessful()
@@ -61,10 +63,10 @@ class LoginStepService
 
     public function onFailure()
     {
-        return '/migration/steps/login';
+        return '/migration/steps/register';
     }
 
-    private function loginSelfHosted()
+    private function registerSelfHosted()
     {
         $headers = [
             'Content-Type' => 'application/json',
@@ -73,32 +75,39 @@ class LoginStepService
         ];
 
         $credentials = [
+            'first_name' => $this->data->first_name,
+            'last_name' => $this->data->last_name,
             'email' => $this->data->email,
             'password' => $this->data->password,
+            'terms_of_service' => 1,
+            'privacy_policy' => 1,
         ];
 
         $response = \Unirest\Request::post(
-            $this->data->self_hosted_url . '/api/v1/login?include=token',
+            $this->data->self_hosted_url . '/api/v1/signup?include=token',
             $headers,
             json_encode($credentials)
         );
 
-        if(in_array($response->code, [401, 422, 500])) {
+        if (in_array($response->code, [401, 422, 500])) {
             $this->successful = false;
         }
 
-        if($response->code == 200) {
+        if ($response->code == 200) {
             $this->successful = true;
+
+            session()->put('X_API_SECRET', $this->data->x_api_secret);
+            session()->put('X_API_TOKEN', $response->body->data[0]->token->token);
         }
 
         $this->response = [
             'code' => $response->code,
-            'type' => is_array($response->body->message) ? 'array' : 'single',
-            'content' => $this->successful ? 'You authenticated successfully!' : $response->body->message,
+            'type' => $this->successful ? 'single' : 'array',
+            'content' => $this->successful ? 'Account created successfully!' : ($response->body->message) ?? null,
         ];
     }
 
-    public function loginHosted()
+    public function registerHosted()
     {
         // ..
     }
