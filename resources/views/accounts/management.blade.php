@@ -244,7 +244,7 @@
 			</div>
 			<div class="panel-body">
 				<p>We've been working on new version of InvoiceNinja. Click the button bellow to start the migration.</p>
-				<a class="btn btn-primary btn-lg" href="/migration">Start the migration</a>
+				<a class="btn btn-primary btn-lg" href="/migration/steps/option">Start the migration</a>
 			</div>
 		</div>
 

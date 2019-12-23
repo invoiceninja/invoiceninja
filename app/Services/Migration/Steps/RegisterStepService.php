@@ -98,6 +98,7 @@ class RegisterStepService
 
             session()->put('X_API_SECRET', $this->data->x_api_secret);
             session()->put('X_API_TOKEN', $response->body->data[0]->token->token);
+            session()->put('SELF_HOSTED_URL', $this->data->self_hosted_url);
         }
 
         $this->response = [

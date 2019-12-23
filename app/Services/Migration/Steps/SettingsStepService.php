@@ -21,15 +21,25 @@ class SettingsStepService
     public function start()
     {
         if (!in_array($this->request->settings, ['remove_everything', 'keep_settings'])) {
-            $this->response = 'You have to chose one of available options.';
             $this->successful = false;
+
+            $this->response = [
+                'code' => 200,
+                'type' => 'single',
+                'content' => 'You have to chose one of available options.',
+            ];
 
             return;
         }
 
         if ($this->request->settings == 'remove_everything') {
             $this->successful = true;
-            $this->response = 'Awesome! Let\'s migrate the clients now. TODO: Create generator for "blank" company on V2.';
+
+            $this->response = [
+                'code' => 200,
+                'type' => 'single',
+                'content' => 'Awesome! Let\'s migrate the clients now.',
+            ];
 
             return;
         }
@@ -160,25 +170,29 @@ class SettingsStepService
         $headers = [
             'Content-Type' => 'application/json',
             'X-Requested-With' => 'XMLHttpRequest',
-            'X-API-SECRET' => session('x_api_secret'),
-            'X-API-TOKEN' => session('x_api_token'),
+            'X-API-SECRET' => session('X_API_SECRET'),
+            'X-API-TOKEN' => session('X_API_TOKEN'),
         ];
 
-        $response = \Unirest\Request::get(
-            session('self_hosted_url') . '/api/v1/companies',
+        $response = \Unirest\Request::post(
+            session('SELF_HOSTED_URL') . '/api/v1/companies',
             $headers,
             json_encode($data)
         );
 
-        if ($response->code == 200) {
-            $this->successful = true;
-            $this->response = 'Settings migrated successfully. Now let\'s do the same for clients.';
+        if(in_array($response->code, [401, 422, 500])) {
+            $this->successful = false;
         }
 
-        if ($response->code == 500) {
-            $this->successful = false;
-            throw new \Exception($response->body->message);
+        if ($response->code == 200) {
+            $this->successful = true;
         }
+
+        $this->response = [
+            'code' => $response->code,
+            'type' => is_array($response->body->message) ? 'array' : 'single',
+            'content' => $this->successful ? 'Settings migrated successfully. Now let\'s migrate clients.' : $response->body->message,
+        ];
 
         return true;
     }
