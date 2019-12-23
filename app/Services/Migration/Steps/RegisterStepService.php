@@ -53,7 +53,7 @@ class RegisterStepService
 
     public function onSuccess()
     {
-        return '/migration/steps/clients';
+        return '/migration/steps/settings';
     }
 
     public function getResponse()
