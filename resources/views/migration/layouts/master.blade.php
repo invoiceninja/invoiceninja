@@ -41,7 +41,7 @@
 
                 @if(session('message') && session()->get('message')['type'] == 'array')
                     <div class="alert alert-info">
-                        @foreach(session()->get('message')['content'] as $error)
+                        @foreach(session()->get('message')['errors'] as $error)
                             @if(is_array($error))
                                 @foreach($error as $suberror)
                                     <li>{{ $suberror }}</li>

@@ -105,6 +105,7 @@ class RegisterStepService
             'code' => $response->code,
             'type' => $this->successful ? 'single' : 'array',
             'content' => $this->successful ? 'Account created successfully!' : ($response->body->message) ?? null,
+            'errors' => $response->body->errors,
         ];
     }
 
