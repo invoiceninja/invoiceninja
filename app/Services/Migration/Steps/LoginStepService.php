@@ -97,7 +97,7 @@ class LoginStepService
 
         $this->response = [
             'code' => $response->code,
-            'type' => ' single',
+            'type' => 'single',
             'content' => $this->successful ? 'You authenticated successfully!' : $response->body->message,
         ];
     }
