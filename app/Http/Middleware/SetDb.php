@@ -33,6 +33,7 @@ class SetDb
             'errors' => []
         ];
 
+
         if( $request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) 
         {
 
@@ -43,6 +44,10 @@ class SetDb
 
             }
         
+        }
+        else if(!config('ninja.db.multi_db_enabled')){
+
+            return $next($request);
         }
         else {
 
