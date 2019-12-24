@@ -16,6 +16,7 @@ class RegisterStepService
     public function __construct($request)
     {
         $this->request = $request;
+        $this->successful = false;
     }
 
     public function validate()
@@ -89,10 +90,6 @@ class RegisterStepService
             json_encode($credentials)
         );
 
-        if (in_array($response->code, [401, 422, 500])) {
-            $this->successful = false;
-        }
-
         if ($response->code == 200) {
             $this->successful = true;
 
@@ -105,7 +102,7 @@ class RegisterStepService
             'code' => $response->code,
             'type' => $this->successful ? 'single' : 'array',
             'content' => $this->successful ? 'Account created successfully!' : ($response->body->message) ?? null,
-            'errors' => $response->body->errors,
+            'errors' => $this->successful ? [] : $response->body->errors,
         ];
     }
 
