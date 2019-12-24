@@ -16,6 +16,7 @@ class SettingsStepService
     public function __construct($request)
     {
         $this->request = $request;
+        $this->successful = false;
     }
 
     public function start()
@@ -69,7 +70,7 @@ class SettingsStepService
 
     public function updateCompanyProperties()
     {
-        $account = auth()->user();
+        $account = auth()->user()->account; 
 
         $data = [
             'company_key' => $account->account_key,
@@ -146,7 +147,7 @@ class SettingsStepService
                 'client_number_counter' => $account->client_number_counter,
                 'client_number_pattern' => $account->client_number_pattern,
                 'payment_terms' => $account->payment_terms,
-                'reset_counter_frequency_id' => $account->reset_counter_frequency_id,
+                // 'reset_counter_frequency_id' => $account->reset_counter_frequency_id, (reset_counter_frequency_id is not a valid integer)
                 'reset_counter_date' => $account->reset_counter_date,
                 'payment_type_id' => $account->payment_type_id,
                 'tax_name1' => $account->tax_name1,
@@ -180,18 +181,15 @@ class SettingsStepService
             json_encode($data)
         );
 
-        if(in_array($response->code, [401, 422, 500])) {
-            $this->successful = false;
-        }
-
         if ($response->code == 200) {
             $this->successful = true;
         }
 
         $this->response = [
             'code' => $response->code,
-            'type' => is_array($response->body->message) ? 'array' : 'single',
+            'type' => $this->successful ? 'single' : 'array',
             'content' => $this->successful ? 'Settings migrated successfully. Now let\'s migrate clients.' : $response->body->message,
+            'errors' => $this->successful ? [] : $response->body->errors,
         ];
 
         return true;
