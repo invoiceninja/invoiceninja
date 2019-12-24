@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\GroupSetting;
@@ -141,6 +142,23 @@ class Company extends BaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function quotes()
+    {
+        return $this->hasMany(Quote::class)->withTrashed();
+    }
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function credits()
+    {
+        return $this->hasMany(Credit::class)->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function company_gateways()
     {
         return $this->hasMany(CompanyGateway::class);
@@ -231,7 +249,7 @@ class Company extends BaseModel
      */
     public function expenses()
     {
-        return $this->hasMany(Expense::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(Expense::class)->withTrashed();
     }
 
     /**
@@ -239,7 +257,7 @@ class Company extends BaseModel
      */
     public function payments()
     {
-        return $this->hasMany(Payment::class, 'account_id', 'id')->withTrashed();
+        return $this->hasMany(Payment::class)->withTrashed();
     }
 
     public function tokens()

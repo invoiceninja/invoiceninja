@@ -511,6 +511,83 @@ class CreateUsersTable extends Migration
             $t->unique(['company_id', 'number']);
         });
 
+        Schema::create('credits', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('client_id')->index();
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('assigned_user_id')->nullable();
+            $t->unsignedInteger('company_id')->index();
+            $t->unsignedInteger('status_id');
+            $t->unsignedInteger('project_id')->nullable();
+            $t->unsignedInteger('vendor_id')->nullable();
+            $t->unsignedInteger('recurring_id')->nullable();
+            $t->unsignedInteger('design_id')->nullable();
+
+            $t->string('number')->nullable();
+            $t->float('discount')->default(0);
+            $t->boolean('is_amount_discount')->default(0);
+
+            $t->string('po_number')->nullable();
+            $t->date('date')->nullable();
+            $t->date('last_sent_date')->nullable();
+
+            $t->datetime('due_date')->nullable();
+
+            $t->boolean('is_deleted')->default(false);
+
+            $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
+
+            $t->text('footer')->nullable();
+            $t->text('public_notes')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->text('terms')->nullable();
+
+            $t->string('tax_name1')->nullable();
+            $t->decimal('tax_rate1', 13, 3)->default(0);
+
+            $t->string('tax_name2')->nullable();
+            $t->decimal('tax_rate2', 13, 3)->default(0);
+
+            $t->string('tax_name3')->nullable();
+            $t->decimal('tax_rate3', 13, 3)->default(0);
+
+            $t->decimal('total_taxes', 13, 3)->default(0);
+
+            $t->boolean('uses_inclusive_taxes')->default(0);
+            
+            $t->string('custom_value1')->nullable();
+            $t->string('custom_value2')->nullable();
+            $t->string('custom_value3')->nullable();
+            $t->string('custom_value4')->nullable();
+            $t->datetime('next_send_date')->nullable();
+
+            $t->string('custom_surcharge1')->nullable();
+            $t->string('custom_surcharge2')->nullable();
+            $t->string('custom_surcharge3')->nullable();
+            $t->string('custom_surcharge4')->nullable();
+            $t->boolean('custom_surcharge_tax1')->default(false);
+            $t->boolean('custom_surcharge_tax2')->default(false);
+            $t->boolean('custom_surcharge_tax3')->default(false);
+            $t->boolean('custom_surcharge_tax4')->default(false);
+
+            $t->decimal('amount', 16, 4);
+            $t->decimal('balance', 16, 4);
+            $t->decimal('partial', 16, 4)->nullable();
+            $t->datetime('partial_due_date')->nullable();
+
+            $t->datetime('last_viewed')->nullable();
+
+            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $t->timestamps(6);
+            $t->softDeletes('deleted_at', 6);
+
+            $t->unique(['company_id', 'number']);
+        });
+
         Schema::create('recurring_invoices', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('client_id')->index();
