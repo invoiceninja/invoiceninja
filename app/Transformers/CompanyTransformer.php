@@ -19,13 +19,10 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
 use App\Models\GroupSetting;
+use App\Models\Payment;
+use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
-use App\Transformers\ActivityTransformer;
-use App\Transformers\CompanyGatewayTransformer;
-use App\Transformers\CompanyUserTransformer;
-use App\Transformers\GroupSettingTransformer;
-use App\Transformers\TaxRateTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -168,6 +165,24 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new TaxRateTransformer($this->serializer);
 
         return $this->includeCollection($company->tax_rates, $transformer, TaxRate::class);
+    
+    }
+
+    public function includeProducts(Company $company)
+    {
+
+        $transformer = new ProductTransformer($this->serializer);
+
+        return $this->includeCollection($company->products, $transformer, Product::class);
+    
+    }
+
+    public function includePayments(Company $company)
+    {
+
+        $transformer = new PaymentTransformer($this->serializer);
+
+        return $this->includeCollection($company->payments, $transformer, Payment::class);
     
     }
 }

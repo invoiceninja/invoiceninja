@@ -18,6 +18,8 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTokenTransformer;
+use App\Transformers\UserTransformer;
+use App\Transformers\CompanyTransformer;
 
 class CompanyUserTransformer extends EntityTransformer
 {

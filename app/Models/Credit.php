@@ -11,10 +11,20 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Credit extends BaseModel
 {
+    use MakesHash;
+    use Filterable;
+    use MakesDates;
+    use SoftDeletes;
+    
+    
     public function assigned_user()
     {
         return $this->belongsTo(User::class ,'assigned_user_id', 'id');

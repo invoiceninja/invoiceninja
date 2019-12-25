@@ -66,7 +66,7 @@
  *       @OA\Property(property="invoice_terms", type="string", example="Invoice Terms are...", description="The default invoice terms"),
  *       @OA\Property(property="quote_terms", type="string", example="Quote Terms are...", description="The default quote terms"),
  *       @OA\Property(property="invoice_taxes", type="number", example="1", description="Taxes can be applied to the invoice"),
- *       @OA\Property(property="invoice_item_taxes", type="number", example="1", description="Taxes can be applied to the invoice items"),
+ *       @OA\Property(property="enabled_item_tax_rates", type="number", example="1", description="Taxes can be applied to the invoice items"),
  *       @OA\Property(property="invoice_design_id", type="string", example="1", description="The default design id (invoice, quote etc)"),
  *       @OA\Property(property="quote_design_id", type="string", example="1", description="The default design id (invoice, quote etc)"),
  *       @OA\Property(property="invoice_footer", type="string", example="1", description="The default invoice footer"),
