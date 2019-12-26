@@ -9,10 +9,12 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
+use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\CompanyToken;
 use App\Models\Payment;
@@ -265,11 +267,12 @@ class CreateTestData extends Command
 
         $y = $this->count * rand(1,5);
 
-        $this->info("Creating {$y} invoices");
+        $this->info("Creating {$y} invoices & quotes");
 
         for($x=0; $x<$y; $x++){
 
             $this->createInvoice($client);
+            $this->createQuote($client);
         }
     }
 
@@ -336,6 +339,50 @@ class CreateTestData extends Command
 
                 UpdateInvoicePayment::dispatchNow($payment);
             }
+    }
+
+
+    private function createQuote($client)
+    {
+        $faker = \Faker\Factory::create();
+
+        $quote = QuoteFactory::create($client->company->id,$client->user->id);//stub the company and user_id
+        $quote->client_id = $client->id;
+        $quote->date = $faker->date();
+        
+        $quote->line_items = $this->buildLineItems();
+        $quote->uses_inclusive_taxes = false;
+
+        if(rand(0,1))
+        {
+            $quote->tax_name1 = 'GST';
+            $quote->tax_rate1 = 10.00;
+        }
+
+        if(rand(0,1))
+        {
+            $quote->tax_name2 = 'VAT';
+            $quote->tax_rate2 = 17.50;
+        }
+
+        if(rand(0,1))
+        {
+            $quote->tax_name3 = 'CA Sales Tax';
+            $quote->tax_rate3 = 5;
+        }
+
+        $quote->save();
+
+        $quote_calc = new InvoiceSum($quote);
+        $quote_calc->build();
+
+        $quote = $quote_calc->getInvoice();
+
+        $quote->save();
+            
+            CreateQuoteInvitations::dispatch($quote);
+
+
     }
 
     private function buildLineItems()

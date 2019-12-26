@@ -22,7 +22,7 @@ class QuoteFactory
 	{
 		$quote = new Quote();
 		$quote->status_id = Quote::STATUS_DRAFT;
-		$quote->number = '';
+		$quote->number = null;
 		$quote->discount = 0;
 		$quote->is_amount_discount = true;
 		$quote->po_number = '';
