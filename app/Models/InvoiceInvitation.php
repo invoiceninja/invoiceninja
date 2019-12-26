@@ -30,6 +30,10 @@ class InvoiceInvitation extends BaseModel
         'client_contact_id',
     ];
 
+    protected $with = [
+        'company',
+    ];
+
     public function entityType()
     {
         return Invoice::class;

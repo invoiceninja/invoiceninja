@@ -62,6 +62,7 @@ class CompanySettings extends BaseSettings
 	public $custom_message_unapproved_quote = '';
 	public $auto_archive_quote = false;
 	public $auto_convert_quote = false;
+	public $auto_email_invoice = true;
 
 	public $inclusive_taxes = false;
 	public $quote_footer = '';
@@ -218,6 +219,7 @@ class CompanySettings extends BaseSettings
 
 
 	public static $casts = [
+		'auto_email_invoice' => 'bool',
 		'reminder_send_time' => 'int',
 		'email_sending_method' => 'string',
 		'gmail_sending_user_id' => 'string',
