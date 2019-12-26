@@ -52,7 +52,7 @@ class InvoiceItem
 
     public $custom_value4 = '';
 
-    public $invoice_item_type_id = 1;
+    public $invoice_item_type_id = 1; //1 = product, 2 = service
 
     public static $casts = [
         'invoice_item_type_id' => 'string',
