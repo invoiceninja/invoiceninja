@@ -21,12 +21,13 @@ use App\Models\CompanyUser;
 use App\Models\GroupSetting;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 
 /**
- * Class AccountTranCompanyTransformersformer.
+ * Class CompanyTransformer.
  */
 class CompanyTransformer extends EntityTransformer
 {
@@ -57,7 +58,8 @@ class CompanyTransformer extends EntityTransformer
         'company_user',
         'groups',
         'company_gateways',
-        'activities'
+        'activities',
+        'quotes',
     ];
 
 
@@ -148,6 +150,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new InvoiceTransformer($this->serializer);
 
         return $this->includeCollection($company->invoices, $transformer, Invoice::class);
+    }
+
+    public function includeQuotes(Company $company)
+    {
+        $transformer = new QuoteTransformer($this->serializer);
+
+        return $this->includeCollection($company->quotes, $transformer, Quote::class);
     }
 
     public function includeAccount(Company $company)
