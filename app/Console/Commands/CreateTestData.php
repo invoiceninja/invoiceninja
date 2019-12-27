@@ -335,7 +335,7 @@ class CreateTestData extends Command
 
                 $payment->invoices()->save($invoice);
 
-                event(new PaymentWasCreated($payment));
+                event(new PaymentWasCreated($payment, $payment->company));
 
                 UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }

@@ -69,7 +69,52 @@ class BaseController extends Controller
     {
         $include = '';
 
-        if(request()->input('include') !== null)
+        if(request()->has('first_load') && request()->input('first_load') == 'true')
+        {
+
+            if(auth()->user()->getCompany()->clients->count() > 1000)
+            {
+                $include = [
+                  'account',
+                  'user.company_user',
+                  'token',
+                  'company.activities',
+                  'company.users.company_user',
+                  'company.tax_rates',
+                  'company.groups',
+                  'company.company_gateways.gateway',
+                  // 'company.clients',
+                  // 'company.products',
+                  // 'company.invoices',
+                  // 'company.payments',
+                  // 'company.quotes',
+              ];
+            }
+            else
+            {
+                $include = [
+                  'account',
+                  'user.company_user',
+                  'token',
+                  'company.activities',
+                  'company.users.company_user',
+                  'company.tax_rates',
+                  'company.groups',
+                  'company.company_gateways.gateway',
+                  'company.clients',
+                  'company.products',
+                  'company.invoices',
+                  'company.payments',
+                  'company.quotes',
+              ];
+            }
+
+            $include = array_merge($this->forced_includes, $include);
+
+            $include = implode(",", $include);
+
+        }
+        else if(request()->input('include') !== null)
         {
 
             $request_include = explode(",", request()->input('include'));

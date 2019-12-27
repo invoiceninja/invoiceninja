@@ -53,14 +53,14 @@ class StoreInvoice implements ShouldQueue
      *  We expect the Invoice object along with
      *  the request in array form
      *
-     *  Embedded in the request may be additionals
-     *  attributes which require additional work to be 
+     *  Embedded in the request may be additional
+     *  attributes which require additional work to be
      *  done in this job, these include - but are not limited to:
      *
      *  1. email_invoice - Email the Invoice
      *  2. mark_paid - Mark the invoice as paid (Generates a payment against the invoice)
      *  3. ......
-     * 
+     *
      * @return NULL|Invoice
      */
     public function handle(InvoiceRepository $invoice_repo) : ?Invoice
@@ -76,8 +76,8 @@ class StoreInvoice implements ShouldQueue
         //    $this->invoice = $invoice_repo->markSent($this->invoice);
 
         //    //fire autobill - todo - the PAYMENT class will update the INVOICE status.
-        //    // $payment = 
-           
+        //    // $payment =
+
         // }
 
         if(isset($this->data['email_invoice']) && (bool)$this->data['email_invoice'])
@@ -97,7 +97,7 @@ class StoreInvoice implements ShouldQueue
 
             // generate a manual payment against the invoice
             // the PAYMENT class will update the INVOICE status.
-            //$payment =             
+            //$payment =
 
         }
 
@@ -106,7 +106,7 @@ class StoreInvoice implements ShouldQueue
         {
             //fire payment notifications here
             PaymentNotification::dispatch($payment, $payment->company);
-            
+
         }
 
         if(isset($data['download_invoice']) && (bool)$this->data['download_invoice'])

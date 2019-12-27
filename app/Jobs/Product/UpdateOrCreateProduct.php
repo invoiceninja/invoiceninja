@@ -39,6 +39,7 @@ class UpdateOrCreateProduct implements ShouldQueue
     {
 
         $this->products = $products;
+        
         $this->invoice = $invoice;
 
     }
@@ -60,6 +61,8 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->product_key = $item->product_key;
             $product->notes = $item->notes;
             $product->cost = $item->cost;
+            $product->price = $item->price;
+            $product->quantity = $item->quantity;
             $product->tax_name1 = $item->tax_name1;
             $product->tax_rate1 = $item->tax_rate1;
             $product->tax_name2 = $item->tax_name2;
