@@ -41,7 +41,7 @@ class RandomDataSeeder extends Seeder
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
-        
+
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
@@ -63,7 +63,7 @@ class RandomDataSeeder extends Seeder
                 }
             }
         }
-        
+
 
         $this->command->info('Running RandomDataSeeder');
 
@@ -141,7 +141,7 @@ class RandomDataSeeder extends Seeder
 
         /** Invoice Factory */
         factory(\App\Models\Invoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
-      
+
         $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
 
@@ -151,15 +151,15 @@ class RandomDataSeeder extends Seeder
 
             if($invoice->uses_inclusive_taxes)
                 $invoice_calc = new InvoiceSumInclusive($invoice);
-            else 
+            else
                 $invoice_calc = new InvoiceSum($invoice);
 
             $invoice = $invoice_calc->build()->getInvoice();
-            
+
             $invoice->save();
 
             event(new CreateInvoiceInvitation($invoice));
-            
+
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
 
             $invoice_repo->markSent($invoice);
@@ -169,8 +169,8 @@ class RandomDataSeeder extends Seeder
             if(rand(0, 1)) {
                 $payment = App\Models\Payment::create([
                     'date' => now(),
-                    'user_id' => $user->id, 
-                    'company_id' => $company->id, 
+                    'user_id' => $user->id,
+                    'company_id' => $company->id,
                     'client_id' => $client->id,
                     'amount' => $invoice->balance,
                     'transaction_reference' => rand(0,500),
@@ -180,13 +180,13 @@ class RandomDataSeeder extends Seeder
 
                 $payment->invoices()->save($invoice);
 
-                event(new PaymentWasCreated($payment));
+                event(new PaymentWasCreated($payment, $payment->company));
 
                 UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
-            
+
         });
-        
+
         /** Recurring Invoice Factory */
         factory(\App\Models\RecurringInvoice::class,10)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
@@ -210,7 +210,7 @@ class RandomDataSeeder extends Seeder
             'settings' =>  ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()),
             'name' => 'Default Client Settings',
         ]);
-        
+
 
         if(config('ninja.testvars.stripe'))
         {

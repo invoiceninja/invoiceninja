@@ -92,14 +92,14 @@ class CreateTestData extends Command
         $user = User::whereEmail('small@example.com')->first();
 
         if(!$user)
-        {    
+        {
             $user = factory(\App\Models\User::class)->create([
             //    'account_id' => $account->id,
                 'email' => 'small@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }
-        
+
         $token = \Illuminate\Support\Str::random(64);
 
         $company_token = CompanyToken::create([
@@ -147,14 +147,14 @@ class CreateTestData extends Command
         $user = User::whereEmail('medium@example.com')->first();
 
         if(!$user)
-        {    
+        {
             $user = factory(\App\Models\User::class)->create([
             //    'account_id' => $account->id,
                 'email' => 'medium@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }
-        
+
         $token = \Illuminate\Support\Str::random(64);
 
         $company_token = CompanyToken::create([
@@ -203,14 +203,14 @@ class CreateTestData extends Command
         $user = User::whereEmail('large@example.com')->first();
 
         if(!$user)
-        {    
+        {
             $user = factory(\App\Models\User::class)->create([
             //    'account_id' => $account->id,
                 'email' => 'large@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }
-        
+
         $token = \Illuminate\Support\Str::random(64);
 
         $company_token = CompanyToken::create([
@@ -283,7 +283,7 @@ class CreateTestData extends Command
         $invoice = InvoiceFactory::create($client->company->id,$client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
         $invoice->date = $faker->date();
-        
+
         $invoice->line_items = $this->buildLineItems();
         $invoice->uses_inclusive_taxes = false;
 
@@ -315,7 +315,7 @@ class CreateTestData extends Command
         $invoice->save();
 
             event(new CreateInvoiceInvitation($invoice));
-            
+
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
 
             $this->invoice_repo->markSent($invoice);
@@ -335,7 +335,7 @@ class CreateTestData extends Command
 
                 $payment->invoices()->save($invoice);
 
-                event(new PaymentWasCreated($payment));
+                event(new PaymentWasCreated($payment, $payment->company));
 
                 UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
@@ -349,7 +349,7 @@ class CreateTestData extends Command
         $quote = QuoteFactory::create($client->company->id,$client->user->id);//stub the company and user_id
         $quote->client_id = $client->id;
         $quote->date = $faker->date();
-        
+
         $quote->line_items = $this->buildLineItems();
         $quote->uses_inclusive_taxes = false;
 
@@ -379,7 +379,7 @@ class CreateTestData extends Command
         $quote = $quote_calc->getInvoice();
 
         $quote->save();
-            
+
             CreateQuoteInvitations::dispatch($quote, $quote->company);
 
 
@@ -393,19 +393,19 @@ class CreateTestData extends Command
         $item->quantity = 1;
         $item->cost =10;
 
-        if(rand(0, 1)) 
+        if(rand(0, 1))
         {
             $item->tax_name1 = 'GST';
             $item->tax_rate1 = 10.00;
         }
 
-        if(rand(0, 1)) 
+        if(rand(0, 1))
         {
             $item->tax_name1 = 'VAT';
             $item->tax_rate1 = 17.50;
         }
 
-        if(rand(0, 1)) 
+        if(rand(0, 1))
         {
             $item->tax_name1 = 'Sales Tax';
             $item->tax_rate1 = 5;
@@ -421,7 +421,7 @@ class CreateTestData extends Command
     {
                 /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
-        
+
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
