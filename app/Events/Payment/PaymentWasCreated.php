@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class PaymentWasCreated.
  */
-class PaymentWasCreated 
+class PaymentWasCreated
 {
     use SerializesModels;
 
@@ -33,9 +33,9 @@ class PaymentWasCreated
      *
      * @param Payment $payment
      */
-    public function __construct(Payment $payment, Company $company)
+    public function __construct(Payment $payment, Company $company = null)
     {
         $this->payment = $payment;
-        $this->company = $company;
+        $this->company = $company ?? $payment->company;
     }
 }
