@@ -11,16 +11,17 @@
 
 namespace App\Jobs\Util;
 
+use App\Libraries\MultiDB;
 use App\Models\Document;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 
 class UploadFile implements ShouldQueue
 {
@@ -57,6 +58,7 @@ class UploadFile implements ShouldQueue
      */
     public function handle() : ?Document
     {
+        MultiDB::setDB($this->company->db);
 
         $path = $this->encodePrimaryKey($this->company->id);
 

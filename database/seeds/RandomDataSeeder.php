@@ -182,7 +182,7 @@ class RandomDataSeeder extends Seeder
 
                 event(new PaymentWasCreated($payment));
 
-                UpdateInvoicePayment::dispatchNow($payment);
+                UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
             
         });

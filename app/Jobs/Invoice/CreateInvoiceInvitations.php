@@ -12,6 +12,8 @@
 namespace App\Jobs\Invoice;
 
 use App\Factory\InvoiceInvitationFactory;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use Illuminate\Bus\Queueable;
@@ -27,21 +29,25 @@ class CreateInvoiceInvitations implements ShouldQueue
 
     private $invoice;
 
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, Company $company)
     {
 
         $this->invoice = $invoice;
-
+        $this->company = $company;
+        
     }
 
     public function handle()
     {
-        
+        MultiDB::setDB($this->company->db);
+
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {

@@ -23,6 +23,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
+//todo - ensure we are MultiDB Aware in dispatched jobs
+
 class MarkOpened implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter;

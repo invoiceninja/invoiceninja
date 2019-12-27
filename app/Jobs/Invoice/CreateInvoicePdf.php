@@ -11,12 +11,14 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Repositories\InvoiceRepository;
-use App\Utils\Traits\NumberFormatter;
 use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,16 +42,18 @@ class CreateInvoicePdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, Company $company)
     {
 
         $this->invoice = $invoice;
 
+        $this->company = $company;
     }
 
     public function handle()
     {
 
+        MultiDB::setDB($this->company->db);
 
         $this->invoice->load('client');
         $path = 'public/' . $this->invoice->client->client_hash . '/invoices/'; 

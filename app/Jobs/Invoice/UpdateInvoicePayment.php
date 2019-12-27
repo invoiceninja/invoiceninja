@@ -16,6 +16,8 @@ use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Utils\Traits\SystemLogTrait;
@@ -30,14 +32,18 @@ class UpdateInvoicePayment implements ShouldQueue
     use SystemLogTrait, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $payment;
+
+    private $company;
+
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(Payment $payment)
+    public function __construct(Payment $payment, Company $company)
     {
         $this->payment = $payment;
+        $this->company = $company;
     }
 
     /**
@@ -48,6 +54,7 @@ class UpdateInvoicePayment implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDB($this->company->db);
 
         $invoices = $this->payment->invoices()->get();
 

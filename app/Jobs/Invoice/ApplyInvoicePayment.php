@@ -17,6 +17,8 @@ use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Invoice\ApplyPaymentToInvoice;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\InvoiceRepository;
@@ -35,17 +37,21 @@ class ApplyInvoicePayment implements ShouldQueue
     public $payment;
 
     public $amount;
+
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Payment $payment, float $amount)
+    public function __construct(Invoice $invoice, Payment $payment, float $amount, Company $company)
     {
 
         $this->invoice = $invoice;
         $this->payment = $payment;
         $this->amount = $amount;
+        $this->company = $company;
 
     }
 
@@ -57,6 +63,8 @@ class ApplyInvoicePayment implements ShouldQueue
      */
     public function handle()
     {
+
+        MultiDB::setDB($this->company->db);
 
         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->amount*-1));
         UpdateClientBalance::dispatchNow($this->payment->client, $this->amount*-1);

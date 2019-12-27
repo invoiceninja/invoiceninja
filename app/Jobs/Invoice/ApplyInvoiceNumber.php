@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -32,17 +33,20 @@ class ApplyInvoiceNumber implements ShouldQueue
 
     public $settings;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, $settings)
+    public function __construct(Invoice $invoice, $settings, $company)
     {
 
         $this->invoice = $invoice;
 
         $this->settings = $settings;
+
+        $this->company = $company;
     }
 
     /**
@@ -53,6 +57,10 @@ class ApplyInvoiceNumber implements ShouldQueue
      */
     public function handle()
     {
+
+        MultiDB::setDB($this->company->db);
+
+
         //return early
         if($this->invoice->number != '')
             return $this->invoice;

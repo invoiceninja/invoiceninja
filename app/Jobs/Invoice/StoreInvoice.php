@@ -13,6 +13,8 @@ namespace App\Jobs\Invoice;
 
 use App\Jobs\Invoice\InvoiceNotification;
 use App\Jobs\Payment\PaymentNotification;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
@@ -29,18 +31,20 @@ class StoreInvoice implements ShouldQueue
 
     protected $data;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, array $data)
+    public function __construct(Invoice $invoice, array $data, Company $company)
     {
 
         $this->invoice = $invoice;
 
         $this->data = $data;
 
+        $this->company = $company;
     }
 
     /**
@@ -61,6 +65,7 @@ class StoreInvoice implements ShouldQueue
      */
     public function handle(InvoiceRepository $invoice_repo) : ?Invoice
     {
+        MultiDB::setDB($this->company->db);
 
         $payment = false;
 
@@ -81,7 +86,7 @@ class StoreInvoice implements ShouldQueue
             $this->invoice = $invoice_repo->markSent($this->invoice);
 
             //fire invoice job (the job performs the filtering logic of the email recipients... if any.)
-            InvoiceNotification::dispatch($invoice);
+            InvoiceNotification::dispatch($invoice, $invoice->company);
 
         }
 
@@ -100,7 +105,7 @@ class StoreInvoice implements ShouldQueue
         if($payment)
         {
             //fire payment notifications here
-            PaymentNotification::dispatch($payment);
+            PaymentNotification::dispatch($payment, $payment->company);
             
         }
 

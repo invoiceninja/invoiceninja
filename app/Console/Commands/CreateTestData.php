@@ -320,7 +320,7 @@ class CreateTestData extends Command
 
             $this->invoice_repo->markSent($invoice);
 
-                CreateInvoiceInvitations::dispatch($invoice);
+                CreateInvoiceInvitations::dispatch($invoice, $invoice->company);
 
             if(rand(0, 1)) {
 
@@ -337,7 +337,7 @@ class CreateTestData extends Command
 
                 event(new PaymentWasCreated($payment));
 
-                UpdateInvoicePayment::dispatchNow($payment);
+                UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
     }
 
@@ -380,7 +380,7 @@ class CreateTestData extends Command
 
         $quote->save();
             
-            CreateQuoteInvitations::dispatch($quote);
+            CreateQuoteInvitations::dispatch($quote, $quote->company);
 
 
     }
