@@ -505,36 +505,19 @@ class ClientController extends BaseController
      *       ),
      *     )
      */
-    public function bulk(BulkClientRequest $request)
+    public function bulk()
     {
-        $action = $request->action;
-        $ids = [];
 
-        if ($request->action !== self::$STORE_METHOD) {
-
-            $ids = $request->ids;
-
-            $clients = Client::withTrashed()->find($this->transformKeys($ids));
-
-            $clients->each(function ($client, $key) use ($request, $action) {
-
-                if (auth()->user()->can($request->action, $client))
-                    $this->client_repo->{$action}($client);
-
-            });
-
-        }
-
-        if($request->action == self::$STORE_METHOD) {
-
-            /** Small hunks of data (originally 100) */
-            $chunks = array_chunk($request->clients, self::$CHUNK_SIZE);
-
-            foreach($chunks as $data) {
-                dispatch(new ProcessBulk($data, $this->client_repo, self::$STORE_METHOD))->onQueue(self::$DEFAULT_QUEUE);
-            }
-        }
-
+        $action = request()->input('action');
+        
+        $ids = request()->input('ids');
+        $clients = Client::withTrashed()->find($this->transformKeys($ids));
+        
+        $clients->each(function ($client, $key) use($action){
+            if(auth()->user()->can('edit', $client))
+                $this->client_repo->{$action}($client);
+        });
+        
         return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 

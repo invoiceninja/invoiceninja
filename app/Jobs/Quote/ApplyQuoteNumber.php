@@ -11,9 +11,11 @@
 
 namespace App\Jobs\Quote;
 
-use App\Models\Quote;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
+use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\NumberFormatter;
@@ -32,17 +34,20 @@ class ApplyQuoteNumber implements ShouldQueue
 
     private $settings;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Quote $quote, $settings)
+    public function __construct(Quote $quote, $settings, Company $company)
     {
 
         $this->quote = $quote;
 
         $this->settings = $settings;
+
+        $this->company = $company;
     }
 
     /**
@@ -53,6 +58,8 @@ class ApplyQuoteNumber implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDB($this->company->db);
+
         //return early
         if($this->quote->number != '')
             return $this->quote;

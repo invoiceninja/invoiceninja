@@ -15,6 +15,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
@@ -32,15 +33,19 @@ class EmailInvoice implements ShouldQueue
 
     public $message_array = [];
     
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, Company $company)
     {
 
         $this->invoice = $invoice;
+
+        $this->company = $company;
 
     }
 
@@ -53,7 +58,7 @@ class EmailInvoice implements ShouldQueue
     public function handle()
     {
         /*Jobs are not multi-db aware, need to set! */
-        MultiDB::setDB($this->invoice->company->db);
+        MultiDB::setDB($this->company->db);
 
         //todo - change runtime config of mail driver if necessary
 

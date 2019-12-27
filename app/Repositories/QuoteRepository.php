@@ -93,7 +93,7 @@ class QuoteRepository extends BaseRepository
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if($quote->invitations->count() == 0)
-            CreateQuoteInvitations::dispatchNow($quote);
+            CreateQuoteInvitations::dispatchNow($quote, $quote->company);
 
         $quote = $quote->calc()->getInvoice();
         
@@ -101,7 +101,7 @@ class QuoteRepository extends BaseRepository
 
         $finished_amount = $quote->amount;
 
-        $quote = ApplyQuoteNumber::dispatchNow($quote, $quote->client->getMergedSettings());
+        $quote = ApplyQuoteNumber::dispatchNow($quote, $quote->client->getMergedSettings(), $quote->company);
 
         return $quote->fresh();
 	}

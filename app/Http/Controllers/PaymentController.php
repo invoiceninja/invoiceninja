@@ -484,7 +484,7 @@ class PaymentController extends BaseController
     public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
 
-        ReverseInvoicePayment::dispatchNow($payment);
+        ReverseInvoicePayment::dispatchNow($payment, $payment->company);
 
         $payment->is_deleted = true;
         $payment->save();

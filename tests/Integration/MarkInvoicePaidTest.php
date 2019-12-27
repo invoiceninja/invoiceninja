@@ -37,7 +37,7 @@ class MarkInvoicePaidTest extends TestCase
     public function testMarkInvoicePaidInvoice()
     {
 
-        MarkInvoicePaid::dispatchNow($this->invoice);
+        MarkInvoicePaid::dispatchNow($this->invoice, $this->company);
 
         $invoice = Invoice::find($this->invoice->id);
 

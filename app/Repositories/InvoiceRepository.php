@@ -113,7 +113,7 @@ class InvoiceRepository extends BaseRepository
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if($invoice->invitations->count() == 0)
-            CreateInvoiceInvitations::dispatchNow($invoice);
+            CreateInvoiceInvitations::dispatchNow($invoice, $invoice->company);
 
         $invoice = $invoice->calc()->getInvoice();
         
@@ -125,7 +125,7 @@ class InvoiceRepository extends BaseRepository
         if($finished_amount != $starting_amount)
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
 
-        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings());
+        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
 
         if($invoice->company->update_products !== false)
             UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice);
@@ -150,7 +150,7 @@ class InvoiceRepository extends BaseRepository
          * When marked as sent it becomes a ledgerable item.
          *
          */
-        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings());
+        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
 

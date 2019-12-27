@@ -12,6 +12,8 @@
 namespace App\Jobs\Quote;
 
 use App\Factory\QuoteInvitationFactory;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use Illuminate\Bus\Queueable;
@@ -27,21 +29,26 @@ class CreateQuoteInvitations implements ShouldQueue
 
     private $quote;
 
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Quote $quote)
+    public function __construct(Quote $quote, Company $company)
     {
 
         $this->quote = $quote;
+
+        $this->company = $company;
 
     }
 
     public function handle()
     {
-        
+        MultiDB::setDB($this->company->db);
+
         $contacts = $this->quote->client->contacts;
 
         $contacts->each(function ($contact) {

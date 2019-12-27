@@ -13,6 +13,8 @@ namespace App\Jobs\Invoice;
 
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Jobs\Invoice\ApplyInvoiceNumber;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -33,18 +35,21 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
     public $payment;
 
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment, Invoice $invoice)
+    public function __construct(Payment $payment, Invoice $invoice, Company $company)
     {
 
         $this->invoice = $invoice;
 
         $this->payment = $payment;
 
+        $this->company = $company;
     }
 
     /**
@@ -55,6 +60,8 @@ class ApplyPaymentToInvoice implements ShouldQueue
      */
     public function handle()
     {
+
+        MultiDB::setDB($this->company->db);
 
         /* The amount we are adjusting the invoice by*/
         $adjustment = $this->payment->amount * -1;
@@ -113,7 +120,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
         $this->invoice->save();
 
-        $this->invoice = ApplyInvoiceNumber::dispatchNow($this->invoice, $invoice->client->getMergedSettings());
+        $this->invoice = ApplyInvoiceNumber::dispatchNow($this->invoice, $invoice->client->getMergedSettings(), $this->invoice->company);
 
         return $this->invoice;
     }

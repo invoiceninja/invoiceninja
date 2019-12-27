@@ -11,6 +11,8 @@
 
 namespace App\Jobs\Payment;
 
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Payment;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
@@ -25,15 +27,18 @@ class PaymentNotification implements ShouldQueue
 
     public $payment;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment)
+    public function __construct(Payment $payment, Company $company)
     {
 
         $this->payment = $payment;
+
+        $this->company = $company;
 
     }
 
@@ -45,6 +50,7 @@ class PaymentNotification implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDB($this->company->db);
 
         //notification for the payment.
         //

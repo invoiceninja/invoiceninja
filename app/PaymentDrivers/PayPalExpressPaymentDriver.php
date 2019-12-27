@@ -166,7 +166,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         event(new PaymentWasCreated($payment));
         
-        UpdateInvoicePayment::dispatchNow($payment);
+        UpdateInvoicePayment::dispatchNow($payment, $payment->company);
 
         return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
 

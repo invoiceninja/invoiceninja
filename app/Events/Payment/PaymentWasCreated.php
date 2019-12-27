@@ -11,6 +11,7 @@
 
 namespace App\Events\Payment;
 
+use App\Models\Company;
 use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
@@ -26,13 +27,15 @@ class PaymentWasCreated
      */
     public $payment;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      */
-    public function __construct(Payment $payment)
+    public function __construct(Payment $payment, Company $company)
     {
         $this->payment = $payment;
+        $this->company = $company;
     }
 }

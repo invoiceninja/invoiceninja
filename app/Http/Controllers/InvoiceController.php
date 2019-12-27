@@ -214,7 +214,7 @@ class InvoiceController extends BaseController
         
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $invoice = StoreInvoice::dispatchNow($invoice, $request->all()); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
         event(new InvoiceWasCreated($invoice));
 
@@ -396,7 +396,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-        event(new InvoiceWasUpdated($invoice));
+        event(new InvoiceWasUpdated($invoice, $invoice->company));
 
         return $this->itemResponse($invoice);
 
@@ -634,7 +634,7 @@ class InvoiceController extends BaseController
                 if($invoice->balance <= 0 || $invoice->status_id == Invoice::STATUS_PAID)
                     return $this->errorResponse(['message' => 'Invoice has no balance owing'], 400);
 
-                $invoice = MarkInvoicePaid::dispatchNow($invoice);
+                $invoice = MarkInvoicePaid::dispatchNow($invoice, $invoice->company);
 
                 if(!$bulk)
                     return $this->itemResponse($invoice);
@@ -661,7 +661,7 @@ class InvoiceController extends BaseController
                 return $this->listResponse($invoice);
                 break;
             case 'email':
-                EmailInvoice::dispatch($invoice);
+                EmailInvoice::dispatch($invoice, $invoice->company);
                 if(!$bulk)
                 return response()->json(['message'=>'email sent'],200);
                 break;

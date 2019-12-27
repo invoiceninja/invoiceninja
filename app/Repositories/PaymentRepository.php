@@ -51,17 +51,17 @@ class PaymentRepository extends BaseRepository
                 $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
 
                 if($invoice)
-                    ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount']);
+                    ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
 
             }
 
         }
         else {
             //paid is made, but not to any invoice, therefore we are applying the payment to the clients credit
-            ApplyClientPayment::dispatchNow($payment);
+            ApplyClientPayment::dispatchNow($payment, $payment->company);
         }
 
-        event(new PaymentWasCreated($payment));
+        event(new PaymentWasCreated($payment, $payment->company));
 
         //UpdateInvoicePayment::dispatchNow($payment);
 

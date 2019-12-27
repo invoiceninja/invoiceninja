@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
@@ -41,6 +42,7 @@ class UpdateInvoiceActivity implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDB($event->company->db);
 
         $fields = new \stdClass;
 
