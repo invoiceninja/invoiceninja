@@ -54,12 +54,12 @@ use Omnipay\Common\Item;
   'PAYMENTINFO_0_PROTECTIONELIGIBILITYTYPE' => 'None',
   'PAYMENTINFO_0_ERRORCODE' => '0',
   'PAYMENTINFO_0_ACK' => 'Success',
-)  
+)
  */
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    
+
   	use MakesHash;
 
     protected $refundable = false;
@@ -80,7 +80,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     /**
      * Processes the payment with this gateway
-     *             
+     *
      * @var $data['invoices']
      * @var $data['amount']
      * @var $data['fee']
@@ -88,13 +88,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      * @var $data['token']
      * @var $data['payment_method_id']
      * @var $data['hashed_ids']
-     * 
+     *
      * @param  array  $data variables required to build payment page
      * @return view   Gateway and payment method specific view
      */
     public function processPaymentView(array $data)
     {
-      
+
         $response = $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
 
 
@@ -103,14 +103,14 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             $response->redirect();
         } elseif ($response->isSuccessful()) {
             // payment was successful: update database
-            /* for this driver this method wont be hit*/ 
+            /* for this driver this method wont be hit*/
         } else {
             // payment failed: display message to customer
 
             SystemLogger::dispatch([
               'server_response' => $response->getData(),
               'data' => $data
-            ], 
+            ],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_PAYPAL,
@@ -118,7 +118,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             );
 
             throw new \Exception("Error Processing Payment", 1);
-            
+
         }
     }
 
@@ -131,13 +131,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         if ($response->isCancelled()) {
             return redirect()->route('client.invoices.index')->with('warning',ctrans('texts.status_voided'));
-        } 
+        }
         elseif($response->isSuccessful()){
-          
+
             SystemLogger::dispatch([
                 'server_response' => $response->getData(),
                 'data' => $request->all()
-              ], 
+              ],
               SystemLog::CATEGORY_GATEWAY_RESPONSE,
               SystemLog::EVENT_GATEWAY_SUCCESS,
               SystemLog::TYPE_PAYPAL,
@@ -145,12 +145,12 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             );
         }
         elseif (! $response->isSuccessful()) {
-            
-            
+
+
             SystemLogger::dispatch([
               'data' => $request->all(),
               'server_response' => $response->getData()
-            ], 
+            ],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_PAYPAL,
@@ -164,8 +164,8 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $this->attachInvoices($payment, $request->input('hashed_ids'));
 
-        event(new PaymentWasCreated($payment));
-        
+        event(new PaymentWasCreated($payment, $payment->company));
+
         UpdateInvoicePayment::dispatchNow($payment, $payment->company);
 
         return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
@@ -193,7 +193,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     {
         $url = $this->client->company->domain() . "client/payments/process/response";
         $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
-        $url .= "&hashed_ids=" . implode(",", $input['hashed_ids']); 
+        $url .= "&hashed_ids=" . implode(",", $input['hashed_ids']);
         $url .= "&amount=".$input['amount'];
         $url .= "&fee=".$input['fee'];
 
@@ -210,7 +210,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     private function buildDescription($input) : string
     {
         $invoice_numbers = "";
-        
+
         foreach($input['invoices'] as $invoice)
         {
             $invoice_numbers .= $invoice->number." ";
@@ -222,7 +222,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     private function buildTransactionId($input) : string
     {
-        return implode(",", $input['hashed_ids']);    
+        return implode(",", $input['hashed_ids']);
     }
 
     private function paymentItems($input) : array
@@ -231,7 +231,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $items = [];
         $total = 0;
 
-        foreach ($input['invoices'] as $invoice) 
+        foreach ($input['invoices'] as $invoice)
         {
             foreach($invoice->line_items as $invoiceItem)
             {
@@ -266,7 +266,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         return $items;
     }
-    
+
     public function createPayment($data) : Payment
     {
 
