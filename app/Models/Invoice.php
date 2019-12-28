@@ -17,6 +17,8 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
+use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Currency;
 use App\Models\Filterable;
@@ -446,9 +448,15 @@ class Invoice extends BaseModel
 
         event(new InvoiceWasMarkedSent($this));
 
-        UpdateClientBalance::dispatchNow($this->client, $this->balance);
+        UpdateClientBalance::dispatchNow($this->client, $this->balance, $this->company);
+
+        ApplyInvoiceNumber::dispatchNow($this, $invoice->client->getMergedSettings(), $this->company);
+
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this, $this->balance, $this->company);
 
         $this->save();
+
+        return $this;
     }
 
     /**

@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Product;
 
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\Product;
@@ -30,18 +31,21 @@ class UpdateOrCreateProduct implements ShouldQueue
 
     private $invoice;
 
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($products, $invoice)
+    public function __construct($products, $invoice, $company)
     {
 
         $this->products = $products;
         
         $this->invoice = $invoice;
 
+        $this->company = $company;
     }
 
     /**
@@ -52,6 +56,7 @@ class UpdateOrCreateProduct implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDB($this->company->db);
 
         foreach($this->products as $item)
         {

@@ -31,9 +31,15 @@ class PaymentRepository extends BaseRepository
         return Payment::class;
     }
     
+    /**
+     * Saves
+     * @param  Request $request [description]
+     * @param  Payment $payment [description]
+     * @return [type]           [description]
+     */
 	public function save(Request $request, Payment $payment) : ?Payment
 	{
-
+        //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
         $payment->fill($request->input());
 
         $payment->save();

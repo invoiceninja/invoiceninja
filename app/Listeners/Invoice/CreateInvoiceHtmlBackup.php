@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,6 +38,7 @@ class CreateInvoiceHtmlBackup implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDB($event->company->db);
 
         $fields = new \stdClass;
 
