@@ -330,6 +330,7 @@ class Invoice extends BaseModel
 
         if(!Storage::exists($storage_path)) {
             event(new InvoiceWasUpdated($this, $this->company));
+            CreateInvoicePdf::dispatch($this, $this->company);
         }
 
         return $public_path;
