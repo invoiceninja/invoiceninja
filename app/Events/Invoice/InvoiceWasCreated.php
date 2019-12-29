@@ -27,7 +27,7 @@ class InvoiceWasCreated
      */
     public $invoice;
 
-    public $company
+    public $company;
     /**
      * Create a new event instance.
      *
