@@ -62,7 +62,7 @@ class MultiDBUserTest extends TestCase
             'last_name' => 'user_db_1-s',
             'phone' => '55555',
             'email_verified_at' => now(),
-            'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
+            'password' => 'ALongAndBriliantPassword', // secret
             'remember_token' => \Illuminate\Support\Str::random(10),
             'email' => 'db1@example.com',
             'oauth_user_id' => '123',
@@ -75,7 +75,7 @@ class MultiDBUserTest extends TestCase
             'last_name'         => 'user_db_2-s',
             'phone'             => '55555',
             'email_verified_at' => now(),
-            'password'          => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
+            'password' => 'ALongAndBriliantPassword', // secret
             'remember_token'    => \Illuminate\Support\Str::random(10),
             'email'             => 'db2@example.com',
             'oauth_user_id'     => 'abc',
@@ -165,7 +165,7 @@ class MultiDBUserTest extends TestCase
             'last_name' => 'you',
             'email' => 'db2@example.com',
             'company_user' => [
-                    'is_admin' => false,
+                    'is_admin' => true,
                     'is_owner' => false,
                     'permissions' => 'create_client,create_invoice'
                 ],
@@ -175,8 +175,8 @@ class MultiDBUserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->post('/api/v1/users?include=company_user', $data);
-
 
          }
          catch(ValidationException $e) {
