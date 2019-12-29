@@ -47,7 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $presenter = 'App\Models\Presenters\UserPresenter';
 
-    protected $with = ['companies'];
+    protected $with = []; // ? companies also
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
@@ -104,7 +104,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->encodePrimaryKey($this->id);
     }
-
 
     /**
      * Returns a account.

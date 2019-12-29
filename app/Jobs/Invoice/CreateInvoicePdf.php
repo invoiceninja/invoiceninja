@@ -36,7 +36,7 @@ class CreateInvoicePdf implements ShouldQueue
 
     public $invoice;
 
-
+    public $company;
     /**
      * Create a new job instance.
      *

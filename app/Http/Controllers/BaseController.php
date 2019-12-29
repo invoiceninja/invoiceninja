@@ -72,26 +72,10 @@ class BaseController extends Controller
         if(request()->has('first_load') && request()->input('first_load') == 'true')
         {
 
+            /* For very large accounts, we reduce the includes automatically */
             if(auth()->user()->getCompany()->clients->count() > 1000)
             {
-                $include = [
-                  'account',
-                  'user.company_user',
-                  'token',
-                  'company.activities',
-                  'company.users.company_user',
-                  'company.tax_rates',
-                  'company.groups',
-                  'company.company_gateways.gateway',
-                  // 'company.clients',
-                  // 'company.products',
-                  // 'company.invoices',
-                  // 'company.payments',
-                  // 'company.quotes',
-              ];
-            }
-            else
-            {
+
                 $include = [
                   'account',
                   'user.company_user',
@@ -107,6 +91,27 @@ class BaseController extends Controller
                   'company.payments',
                   'company.quotes',
               ];
+
+            }
+            else
+            {
+
+                $include = [
+                  'account',
+                  'user.company_user',
+                  'token',
+                  'company.activities',
+                  'company.users.company_user',
+                  'company.tax_rates',
+                  'company.groups',
+                  // 'company.company_gateways.gateway',
+                  // 'company.clients',
+                  // 'company.products',
+                  // 'company.invoices',
+                  // 'company.payments',
+                  // 'company.quotes',
+              ];
+
             }
 
             $include = array_merge($this->forced_includes, $include);
@@ -147,6 +152,7 @@ class BaseController extends Controller
             $this->manager->setSerializer(new ArraySerializer());
 
         }
+
     }
 
     /**
@@ -157,8 +163,8 @@ class BaseController extends Controller
     {
 
         return response()->json(['message' => '404 | Nothing to see here!'], 404)
-                         ->header('X-Api-Version', config('ninja.api_version'))
-                         ->header('X-App-Version', config('ninja.app_version'));
+                         ->header('X-API-VERSION', config('ninja.api_version'))
+                         ->header('X-APP-VERSION', config('ninja.app_version'));
 
     }
 
@@ -188,6 +194,7 @@ class BaseController extends Controller
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
+
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
