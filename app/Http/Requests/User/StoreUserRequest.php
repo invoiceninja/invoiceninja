@@ -64,12 +64,12 @@ class StoreUserRequest extends Request
                 $input['company_user']['permissions'] = '';
 
             if(!isset($input['company_user']['settings']))
-                $input['company_user']['settings'] = json_encode(DefaultSettings::userSettings());
+                $input['company_user']['settings'] = DefaultSettings::userSettings();
 
         }
         else{
             $input['company_user'] = [
-                'settings' => json_encode(DefaultSettings::userSettings()),
+                'settings' => DefaultSettings::userSettings(),
                 'permissions' => '',
             ];
         }

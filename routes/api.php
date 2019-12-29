@@ -69,7 +69,7 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth','locale'
   Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
 
 //  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
-  Route::resource('users', 'UserController'); // name = (users. index / create / show / update / destroy / edit
+  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
   Route::post('users/{user}/attach_to_company', 'UserController@attach');
   Route::delete('users/{user}/detach_from_company','UserController@detach');
 

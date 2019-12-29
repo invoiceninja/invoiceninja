@@ -11,7 +11,6 @@
 
 namespace App\Utils\Traits;
 
-
 /**
  * Class UserSessionAttributes
  * @package App\Utils\Traits
@@ -34,5 +33,4 @@ trait UserSessionAttributes
     {
         return session('current_company_id');
     }
-
 }

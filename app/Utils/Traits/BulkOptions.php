@@ -3,7 +3,6 @@
 
 namespace App\Utils\Traits;
 
-
 trait BulkOptions
 {
     /**

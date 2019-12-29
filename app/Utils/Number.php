@@ -32,10 +32,10 @@ class Number
 
     /**
      * Formats a given value based on the clients currency
-     *     
+     *
      * @param  float $value    The number to be formatted
      * @param  object $currency The client currency object
-     * 
+     *
      * @return float           The formatted value
      */
     public static function formatValue($value, $currency) : float
@@ -47,16 +47,15 @@ class Number
         $precision = $currency->precision;
 
         return number_format($value, $precision, $decimal, $thousand);
-
     }
 
     /**
      * Formats a given value based on the clients currency AND country
-     *     
+     *
      * @param  floatval $value    The number to be formatted
      * @param  object $currency The client currency object
      * @param  object $country The client country
-     * 
+     *
      * @return string           The formatted value
      */
     public static function formatMoney($value, $client) :string
@@ -69,15 +68,18 @@ class Number
         $code = $currency->code;
         $swapSymbol = $currency->swap_currency_symbol;
 
-            /* Country settings override client settings */
-            if(isset($client->country->thousand_separator))
-                $thousand = $client->country->thousand_separator;
+        /* Country settings override client settings */
+        if (isset($client->country->thousand_separator)) {
+            $thousand = $client->country->thousand_separator;
+        }
             
-            if(isset($client->country->decimal_separator))
-                $decimal = $client->country->decimal_separator;
+        if (isset($client->country->decimal_separator)) {
+            $decimal = $client->country->decimal_separator;
+        }
 
-            if(isset($client->country->swap_currency_symbol))
-                $swapSymbol = $client->country->swap_currency_symbol;
+        if (isset($client->country->swap_currency_symbol)) {
+            $swapSymbol = $client->country->swap_currency_symbol;
+        }
 
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
