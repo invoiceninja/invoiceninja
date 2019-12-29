@@ -66,9 +66,9 @@ class ApplyInvoicePayment implements ShouldQueue
 
         MultiDB::setDB($this->company->db);
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->amount*-1));
-        UpdateClientBalance::dispatchNow($this->payment->client, $this->amount*-1);
-        UpdateClientPaidToDate::dispatchNow($this->payment->client, $this->amount);
+        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->amount*-1), $this->company);
+        UpdateClientBalance::dispatchNow($this->payment->client, $this->amount*-1, $this->company);
+        UpdateClientPaidToDate::dispatchNow($this->payment->client, $this->amount, $this->company);
 
         /* Update Pivot Record amount */
         $this->payment->invoices->each(function ($inv){
@@ -86,16 +86,19 @@ class ApplyInvoicePayment implements ShouldQueue
             //is partial and amount is exactly the partial amount
             if($this->invoice->partial == $this->amount)
             {
+
                 $this->invoice->clearPartial();
                 $this->invoice->setDueDate();
                 $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
                 $this->invoice->updateBalance($this->amount*-1);
+
             }
             elseif($this->invoice->partial > 0 && $this->invoice->partial > $this->amount) //partial amount exists, but the amount is less than the partial amount
             {
 
                 $this->invoice->partial -= $this->amount;
                 $this->invoice->updateBalance($this->amount*-1);
+
             }
             elseif($this->invoice->partial > 0 && $this->invoice->partial < $this->amount) //partial exists and the amount paid is GREATER than the partial amount
             {
@@ -104,6 +107,7 @@ class ApplyInvoicePayment implements ShouldQueue
                 $this->invoice->setDueDate();
                 $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
                 $this->invoice->updateBalance($this->amount*-1);
+
             }
 
         }
@@ -114,6 +118,7 @@ class ApplyInvoicePayment implements ShouldQueue
             $this->invoice->setDueDate();
             $this->invoice->setStatus(Invoice::STATUS_PAID);
             $this->invoice->updateBalance($this->amount*-1);
+            
         }
 
 

@@ -17,6 +17,8 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
+use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
+use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Currency;
 use App\Models\Filterable;
@@ -330,6 +332,7 @@ class Invoice extends BaseModel
 
         if(!Storage::exists($storage_path)) {
             event(new InvoiceWasUpdated($this, $this->company));
+            CreateInvoicePdf::dispatch($this, $this->company);
         }
 
         return $public_path;
@@ -443,11 +446,17 @@ class Invoice extends BaseModel
 
         $this->setReminder();
 
-        event(new InvoiceWasMarkedSent($this));
+        event(new InvoiceWasMarkedSent($this, $this->company));
 
-        UpdateClientBalance::dispatchNow($this->client, $this->balance);
+        UpdateClientBalance::dispatchNow($this->client, $this->balance, $this->company);
+
+        ApplyInvoiceNumber::dispatchNow($this, $this->client->getMergedSettings(), $this->company);
+
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this, $this->balance, $this->company);
 
         $this->save();
+
+        return $this;
     }
 
     /**

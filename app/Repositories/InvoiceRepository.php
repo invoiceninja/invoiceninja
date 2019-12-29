@@ -122,13 +122,13 @@ class InvoiceRepository extends BaseRepository
         $finished_amount = $invoice->amount;
 
         /**/
-        if($finished_amount != $starting_amount)
-            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
+        if(($finished_amount != $starting_amount) && ($invoice->status_id != Invoice::STATUS_DRAFT))
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount), $invoice->company);
 
         $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
 
         if($invoice->company->update_products !== false)
-            UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice);
+            UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice, $invoice->company);
 
         return $invoice->fresh();
 
@@ -143,18 +143,8 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-        $invoice->markSent();
 
-        /*
-         * Why? because up until this point the invoice was a draft.
-         * When marked as sent it becomes a ledgerable item.
-         *
-         */
-        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
-
-        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
-
-        return $invoice;
+        return $invoice->markSent();
 
     }
 

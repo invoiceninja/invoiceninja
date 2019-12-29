@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Product;
 
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\Product;
@@ -30,18 +31,21 @@ class UpdateOrCreateProduct implements ShouldQueue
 
     private $invoice;
 
+    private $company;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($products, $invoice)
+    public function __construct($products, $invoice, $company)
     {
 
         $this->products = $products;
         
         $this->invoice = $invoice;
 
+        $this->company = $company;
     }
 
     /**
@@ -52,6 +56,7 @@ class UpdateOrCreateProduct implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDB($this->company->db);
 
         foreach($this->products as $item)
         {
@@ -59,18 +64,18 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product = Product::firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
                 
             $product->product_key = $item->product_key;
-            $product->notes = $item->notes;
-            $product->cost = $item->cost;
-            $product->price = $item->price;
-            $product->quantity = $item->quantity;
-            $product->tax_name1 = $item->tax_name1;
-            $product->tax_rate1 = $item->tax_rate1;
-            $product->tax_name2 = $item->tax_name2;
-            $product->tax_rate2 = $item->tax_rate2;
-            $product->custom_value1 = $item->custom_value1;
-            $product->custom_value2 = $item->custom_value2;
-            $product->custom_value3 = $item->custom_value3;
-            $product->custom_value4 = $item->custom_value4;  
+            $product->notes = isset($item->notes) ? $item->notes : '';
+            $product->cost = isset($item->cost) ? $item->cost : 0;
+            $product->price = isset($item->price) ? $item->price : 0;
+            $product->quantity = isset($item->quantity) ? $item->quantity : 0;
+            $product->tax_name1 = isset($item->tax_name1) ? $item->tax_name1 : '';
+            $product->tax_rate1 = isset($item->tax_rate1) ? $item->tax_rate1 : 0 ;
+            $product->tax_name2 = isset($item->tax_name2) ? $item->tax_name2 : '';
+            $product->tax_rate2 = isset($item->tax_rate2) ? $item->tax_rate2 : 0;
+            $product->custom_value1 = isset($item->custom_value1) ? $item->custom_value1 : '';
+            $product->custom_value2 = isset($item->custom_value2) ? $item->custom_value2 : '';
+            $product->custom_value3 = isset($item->custom_value3) ? $item->custom_value3 : '';
+            $product->custom_value4 = isset($item->custom_value4) ? $item->custom_value4 : '';  
             $product->user_id = $this->invoice->user_id;
             $product->company_id = $this->invoice->company_id;
             $product->project_id = $this->invoice->project_id;

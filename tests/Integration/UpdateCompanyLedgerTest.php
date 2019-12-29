@@ -45,7 +45,7 @@ class UpdateCompanyLedgerTest extends TestCase
                                 ->orderBy('id', 'DESC')
                                 ->first();
 
-        $payment = $ledger->adjustment * -1;
+        $payment = $ledger->adjustment * - 1;
         $this->assertEquals($invoice->amount, $payment);
 
     }
@@ -63,7 +63,7 @@ class UpdateCompanyLedgerTest extends TestCase
                                     ->whereCompanyId($this->invoice->company_id)
                                     ->get();
 
-        $this->assertEquals(1, count($ledger));
+        $this->assertGreaterThan(1, count($ledger));
     }
 
 

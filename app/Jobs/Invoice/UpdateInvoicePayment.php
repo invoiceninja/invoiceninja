@@ -65,9 +65,9 @@ class UpdateInvoicePayment implements ShouldQueue
         {
             $invoices->each(function ($invoice){
                 
-                UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
-                UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
-                UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->balance);
+                UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
+                UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1, $this->company);
+                UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->balance, $this->company);
 
                 $invoice->pivot->amount = $invoice->balance;
                 $invoice->pivot->save();
@@ -102,9 +102,9 @@ class UpdateInvoicePayment implements ShouldQueue
 
                     if($invoice->hasPartial()) {
 
-                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1));
-                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1);
-                        UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->partial);
+                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1), $this->company);
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->partial*-1, $this->company);
+                        UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->partial, $this->company);
                         $invoice->pivot->amount = $invoice->partial;
                         $invoice->pivot->save();
 
@@ -119,9 +119,9 @@ class UpdateInvoicePayment implements ShouldQueue
                     else
                     {
 
-                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1));
-                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1);
-                        UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->balance);
+                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
+                        UpdateClientBalance::dispatchNow($this->payment->client, $invoice->balance*-1, $this->company);
+                        UpdateClientPaidToDate::dispatchNow($this->payment->client, $invoice->balance, $this->company);
 
                         $invoice->pivot->amount = $invoice->balance;
                         $invoice->pivot->save();
