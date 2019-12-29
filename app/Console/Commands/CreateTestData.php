@@ -316,7 +316,7 @@ class CreateTestData extends Command
 
             event(new CreateInvoiceInvitation($invoice));
 
-            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
             $this->invoice_repo->markSent($invoice);
 

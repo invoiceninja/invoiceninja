@@ -200,7 +200,7 @@ trait MockAccountData
 
         });
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount);
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
         $recurring_invoice->next_send_date = Carbon::now();

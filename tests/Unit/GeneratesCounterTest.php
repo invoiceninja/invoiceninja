@@ -76,11 +76,11 @@ class GeneratesCounterTest extends TestCase
 
     	$invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, 0007);
+        $this->assertEquals($invoice_number, '0008');
 
     	$invoice_number = $this->getNextInvoiceNumber($this->client);
 
-        $this->assertEquals($invoice_number, '0008');
+        $this->assertEquals($invoice_number, '0009');
 
     }
 
@@ -242,11 +242,11 @@ class GeneratesCounterTest extends TestCase
 
         $invoice_number = $this->getNextInvoiceNumber($cliz);
     
-        $this->assertEquals($invoice_number, '0007');
+        $this->assertEquals($invoice_number, '0008');
 
         $invoice_number = $this->getNextInvoiceNumber($cliz);
 
-        $this->assertEquals($invoice_number, '0008');
+        $this->assertEquals($invoice_number, '0009');
 
 
     }

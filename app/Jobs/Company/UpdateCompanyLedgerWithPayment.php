@@ -12,6 +12,8 @@
 namespace App\Jobs\Company;
 
 use App\Factory\CompanyLedgerFactory;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -28,19 +30,21 @@ class UpdateCompanyLedgerWithPayment
 
     public $payment;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @return void
      */
 
-    public function __construct(Payment $payment, float $adjustment)
+    public function __construct(Payment $payment, float $adjustment, Company $company)
     {
 
         $this->payment = $payment;
 
         $this->adjustment = $adjustment;
 
+        $this->company = $company;
     }
 
     /**
@@ -50,6 +54,9 @@ class UpdateCompanyLedgerWithPayment
      */
     public function handle() 
     {
+        MultiDB::setDB($this->company->db);
+
+
         $balance = 0;
         
         /* Get the last record for the client and set the current balance*/

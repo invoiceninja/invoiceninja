@@ -160,11 +160,11 @@ class RandomDataSeeder extends Seeder
 
             event(new CreateInvoiceInvitation($invoice));
 
-            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance);
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
             $invoice_repo->markSent($invoice);
 
-            event(new InvoiceWasMarkedSent($invoice));
+            event(new InvoiceWasMarkedSent($invoice, $company));
 
             if(rand(0, 1)) {
                 $payment = App\Models\Payment::create([

@@ -446,11 +446,11 @@ class Invoice extends BaseModel
 
         $this->setReminder();
 
-        event(new InvoiceWasMarkedSent($this));
+        event(new InvoiceWasMarkedSent($this, $this->company));
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance, $this->company);
 
-        ApplyInvoiceNumber::dispatchNow($this, $invoice->client->getMergedSettings(), $this->company);
+        ApplyInvoiceNumber::dispatchNow($this, $this->client->getMergedSettings(), $this->company);
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this, $this->balance, $this->company);
 
