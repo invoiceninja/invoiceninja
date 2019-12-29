@@ -16,7 +16,6 @@ use App\Utils\Traits\MakesHash;
 
 class GroupSettingRepository
 {
-
     use MakesHash;
     /**
      * Gets the class name.
@@ -25,28 +24,21 @@ class GroupSettingRepository
      */
     public function getClassName()
     {
-
         return GroupSetting::class;
-
     }
 
-	public function save($data, GroupSetting $group_setting) :?GroupSetting
-	{
+    public function save($data, GroupSetting $group_setting) :?GroupSetting
+    {
+        $group_setting->fill($data);
+        $group_setting->save();
 
-		$group_setting->fill($data);
-		$group_setting->save();
-
-        if(array_key_exists('company_logo', $data) && $data['company_logo'] == '')
-        {
-        
+        if (array_key_exists('company_logo', $data) && $data['company_logo'] == '') {
             $settings = $group_setting->settings;
             unset($settings->company_logo);
             $group_setting->settings = $settings;
             $group_setting->save();
-
         }
 
-		return $group_setting;
-	}
-
+        return $group_setting;
+    }
 }

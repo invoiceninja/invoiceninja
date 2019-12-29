@@ -17,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class InvoiceWasEmailed.
  */
-class InvoiceWasEmailed 
+class InvoiceWasEmailed
 {
     use SerializesModels;
 

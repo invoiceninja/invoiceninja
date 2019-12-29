@@ -29,15 +29,12 @@ class UpdateInvoiceRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->invoice);
-
     }
 
 
     public function rules()
     {
-
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
             //'client_id' => 'required|integer',
@@ -49,8 +46,9 @@ class UpdateInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if(isset($input['client_id']))
+        if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 

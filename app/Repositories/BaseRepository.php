@@ -15,9 +15,9 @@ use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 
 /**
- * 
+ *
  */
-class BaseRepository 
+class BaseRepository
 {
     use MakesHash;
     /**
@@ -54,16 +54,17 @@ class BaseRepository
      */
     public function archive($entity)
     {
-        if ($entity->trashed()) 
+        if ($entity->trashed()) {
             return;
+        }
         
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
 
-        if (class_exists($className)) 
+        if (class_exists($className)) {
             event(new $className($entity));
-        
+        }
     }
 
     /**
@@ -87,9 +88,9 @@ class BaseRepository
 
         $className = $this->getEventClass($entity, 'Restored');
 
-        if (class_exists($className)) 
+        if (class_exists($className)) {
             event(new $className($entity, $fromDeleted));
-        
+        }
     }
 
     /**
@@ -156,6 +157,5 @@ class BaseRepository
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
-    }	
-
+    }
 }

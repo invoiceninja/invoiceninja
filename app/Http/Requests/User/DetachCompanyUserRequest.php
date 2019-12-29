@@ -28,5 +28,4 @@ class DetachCompanyUserRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

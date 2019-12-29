@@ -25,18 +25,17 @@ class UpdateUserRequest extends Request
     public function authorize() : bool
     {
         return auth()->user()->id === $this->id || auth()->user()->isAdmin();
-
     }
 
 
     public function rules()
     {
-
         $input = $this->all();
         $rules = [];
 
-        if(isset($input['email']))
+        if (isset($input['email'])) {
             $rules['email'] = ['sometimes', new UniqueUserRule($this->user, $input['email'])];
+        }
 
         return $rules;
     }
@@ -45,11 +44,10 @@ class UpdateUserRequest extends Request
     {
         $input = $this->all();
 
-        if(isset($input['company_user']) && !auth()->user()->isAdmin())
+        if (isset($input['company_user']) && !auth()->user()->isAdmin()) {
             unset($input['company_user']);
+        }
 
-        $this->replace($input);     
+        $this->replace($input);
     }
-
-
 }

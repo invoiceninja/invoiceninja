@@ -26,5 +26,4 @@ class ShowPaymentRequest extends Request
     {
         return auth()->user()->can('view', $this->payment);
     }
-
 }

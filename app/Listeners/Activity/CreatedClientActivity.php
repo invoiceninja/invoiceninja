@@ -37,7 +37,6 @@ class CreatedClientActivity implements ShouldQueue
      */
     public function handle($event)
     {
-
         $fields = new \stdClass;
 
         $fields->client_id = $event->client->id;

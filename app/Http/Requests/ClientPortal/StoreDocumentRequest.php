@@ -29,17 +29,13 @@ class StoreDocumentRequest extends Request
 
     public function rules()
     {
-
         return [
             'file' => 'required|max:10000|mimes:png,svg,jpeg,gif,jpg,bmp'
         ];
-        
     }
 
     public function response(array $errors)
     {
         return new JsonResponse(['error' => $errors], 400);
     }
-
 }
-

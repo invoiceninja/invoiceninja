@@ -26,5 +26,4 @@ class CreateRecurringInvoiceRequest extends Request
     {
         return auth()->user()->can('create', RecurringInvoice::class);
     }
-
 }

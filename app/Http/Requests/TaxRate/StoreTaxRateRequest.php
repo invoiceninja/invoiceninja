@@ -35,6 +35,4 @@ class StoreTaxRateRequest extends Request
             'rate' => 'required|numeric',
         ];
     }
-
-    
 }

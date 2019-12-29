@@ -43,5 +43,4 @@ class EditRecurringInvoiceRequest extends Request
 
         $this->replace($input);
     }
-
 }

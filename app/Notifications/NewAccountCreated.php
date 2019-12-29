@@ -68,17 +68,15 @@ class NewAccountCreated extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
+        $user_name = $this->user->first_name . " " . $this->user->last_name;
+        $email = $this->user->email;
+        $ip = $this->user->ip;
 
-    $user_name = $this->user->first_name . " " . $this->user->last_name;
-    $email = $this->user->email;
-    $ip = $this->user->ip;
-
-    return (new SlackMessage)
+        return (new SlackMessage)
                 ->success()
                 ->to("#devv2")
                 ->from("System")
                 ->image('https://app.invoiceninja.com/favicon.png')
                 ->content("A new account has been created by {$user_name} - {$email} - from IP: {$ip}");
     }
-
 }

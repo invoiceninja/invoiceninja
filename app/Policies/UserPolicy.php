@@ -21,32 +21,28 @@ use App\Models\User;
  */
 class UserPolicy extends EntityPolicy
 {
-	/**
-	 *  Checks if the user has create permissions
-	 *  
-	 * @param  User $user
-	 * @return bool
-	 */
-	public function create(User $user) : bool
-	{
-
-		return $user->isAdmin() || $user->hasPermission('create_user') || $user->hasPermission('create_all');
-
-	}
+    /**
+     *  Checks if the user has create permissions
+     *
+     * @param  User $user
+     * @return bool
+     */
+    public function create(User $user) : bool
+    {
+        return $user->isAdmin() || $user->hasPermission('create_user') || $user->hasPermission('create_all');
+    }
 
 
-	/*
-	*
-	* We need to override as User does not have the company_id property!!!!!
-	*
-	* We use the CompanyUser table as a proxy
-	*/
-	public function edit(User $user, $user_entity) : bool
-	{
-		$company_user = CompanyUser::whereUserId($user_entity->id)->company()->first();
+    /*
+    *
+    * We need to override as User does not have the company_id property!!!!!
+    *
+    * We use the CompanyUser table as a proxy
+    */
+    public function edit(User $user, $user_entity) : bool
+    {
+        $company_user = CompanyUser::whereUserId($user_entity->id)->company()->first();
 
-		return ($user->isAdmin() && $company_user);
-    
-	}
-
+        return ($user->isAdmin() && $company_user);
+    }
 }

@@ -19,10 +19,8 @@ use Illuminate\Http\Request;
  */
 class CompanyRepository extends BaseRepository
 {
-
     public function __construct()
     {
-
     }
 
     /**
@@ -32,12 +30,10 @@ class CompanyRepository extends BaseRepository
      */
     public function getClassName()
     {
-
         return Company::class;
-
     }
 
-	/**
+    /**
      * Saves the client and its contacts
      *
      * @param      array                           $data    The data
@@ -46,27 +42,24 @@ class CompanyRepository extends BaseRepository
      * @return     Client|\App\Models\Company|null  Company Object
      */
     public function save(array $data, Company $company) : ?Company
-	{
-
-       if(isset($data['custom_fields']) && is_array($data['custom_fields']))
-           $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
+    {
+        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+            $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
+        }
 
         $company->fill($data);
 
         $company->save();
 
         return $company;
-        
-	}
+    }
 
     private function parseCustomFields($fields) :array
     {
-        foreach($fields as &$value)
-        {
-             $value = (string)$value;
+        foreach ($fields as &$value) {
+            $value = (string)$value;
         }
 
         return $fields;
     }
-
 }

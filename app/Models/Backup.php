@@ -18,8 +18,8 @@ use Laracasts\Presenter\PresentableTrait;
 
 class Backup extends BaseModel
 {
-	public function activity()
-	{
-		return $this->belongsTo(Activity::class);
-	}
+    public function activity()
+    {
+        return $this->belongsTo(Activity::class);
+    }
 }

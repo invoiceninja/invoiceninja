@@ -72,6 +72,6 @@ class ContactResetPasswordController extends Controller
 
     public function broker()
     {
-      return Password::broker('contacts'); 
+        return Password::broker('contacts');
     }
 }

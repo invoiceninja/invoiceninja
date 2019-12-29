@@ -42,7 +42,6 @@ class ApplyQuoteNumber implements ShouldQueue
      */
     public function __construct(Quote $quote, $settings, Company $company)
     {
-
         $this->quote = $quote;
 
         $this->settings = $settings;
@@ -53,7 +52,7 @@ class ApplyQuoteNumber implements ShouldQueue
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
@@ -61,16 +60,18 @@ class ApplyQuoteNumber implements ShouldQueue
         MultiDB::setDB($this->company->db);
 
         //return early
-        if($this->quote->number != '')
+        if ($this->quote->number != '') {
             return $this->quote;
+        }
 
         switch ($this->settings->quote_number_applied) {
             case 'when_saved':
                 $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
                 break;
             case 'when_sent':
-                if($this->quote->status_id == Quote::STATUS_SENT)
+                if ($this->quote->status_id == Quote::STATUS_SENT) {
                     $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+                }
                 break;
             
             default:
@@ -81,8 +82,5 @@ class ApplyQuoteNumber implements ShouldQueue
         $this->quote->save();
             
         return $this->quote;
-
     }
-
-
 }

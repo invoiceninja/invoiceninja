@@ -30,9 +30,7 @@ class UpdateQuoteRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->quote);
-
     }
 
 
@@ -50,10 +48,10 @@ class UpdateQuoteRequest extends Request
         // if(isset($input['client_id']))
         //     $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
-        if(isset($input['line_items']))
+        if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
 
         $this->replace($input);
     }
-
 }

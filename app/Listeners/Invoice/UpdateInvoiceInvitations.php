@@ -35,19 +35,15 @@ class UpdateInvoiceInvitations implements ShouldQueue
      */
     public function handle($event)
     {
+        $payment = $event->payment;
+        $invoices = $payment->invoices;
 
-    	$payment = $event->payment;
-    	$invoices = $payment->invoices;
 
-
-		/**
-		* Move this into an event
-		*/
-		$invoices->each(function ($invoice) use($payment) {
-
-			$invoice->invitations()->update(['transaction_reference' => $payment->transaction_reference]);
-
-		});
-
+        /**
+        * Move this into an event
+        */
+        $invoices->each(function ($invoice) use ($payment) {
+            $invoice->invitations()->update(['transaction_reference' => $payment->transaction_reference]);
+        });
     }
 }

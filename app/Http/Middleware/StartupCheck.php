@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 
-
 /**
  * Class StartupCheck.
  */
@@ -37,13 +36,14 @@ class StartupCheck
      */
     public function handle(Request $request, Closure $next)
     {
-       // $start = microtime(true);
-       // Log::error('start up check');
+        // $start = microtime(true);
+        // Log::error('start up check');
 
         $cached_tables = config('ninja.cached_tables');
 
-        if (Input::has('clear_cache')) 
+        if (Input::has('clear_cache')) {
             Session::flash('message', 'Cache cleared');
+        }
         
         foreach ($cached_tables as $name => $class) {
             if (Input::has('clear_cache') || ! Cache::has($name)) {

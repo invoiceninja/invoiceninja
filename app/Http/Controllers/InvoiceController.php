@@ -43,7 +43,6 @@ use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends BaseController
 {
-
     use MakesHash;
 
     protected $entity_type = Invoice::class;
@@ -62,11 +61,9 @@ class InvoiceController extends BaseController
      */
     public function __construct(InvoiceRepository $invoice_repo)
     {
-
         parent::__construct();
 
         $this->invoice_repo = $invoice_repo;
-
     }
 
     /**
@@ -75,7 +72,7 @@ class InvoiceController extends BaseController
      * @param      \App\Filters\InvoiceFilters  $filters  The filters
      *
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/invoices",
      *      operationId="getInvoices",
@@ -103,7 +100,7 @@ class InvoiceController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -112,11 +109,9 @@ class InvoiceController extends BaseController
      */
     public function index(InvoiceFilters $filters)
     {
-        
         $invoices = Invoice::filter($filters);
       
         return $this->listResponse($invoices);
-
     }
 
     /**
@@ -125,8 +120,8 @@ class InvoiceController extends BaseController
      * @param      \App\Http\Requests\Invoice\CreateInvoiceRequest  $request  The request
      *
      * @return \Illuminate\Http\Response
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/invoices/create",
      *      operationId="getInvoicesCreate",
@@ -152,7 +147,7 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -161,11 +156,9 @@ class InvoiceController extends BaseController
      */
     public function create(CreateInvoiceRequest $request)
     {
-
         $invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($invoice);
-
     }
 
 
@@ -175,8 +168,8 @@ class InvoiceController extends BaseController
      * @param      \App\Http\Requests\Invoice\StoreInvoiceRequest  $request  The request
      *
      * @return \Illuminate\Http\Response
-     * 
-     * 
+     *
+     *
      * @OA\Post(
      *      path="/api/v1/invoices",
      *      operationId="storeInvoice",
@@ -202,16 +195,15 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */     
+     */
     public function store(StoreInvoiceRequest $request)
     {
-        
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
@@ -219,7 +211,6 @@ class InvoiceController extends BaseController
         event(new InvoiceWasCreated($invoice, $invoice->company));
 
         return $this->itemResponse($invoice);
-
     }
 
     /**
@@ -229,8 +220,8 @@ class InvoiceController extends BaseController
      * @param      \App\Models\Invoice                            $invoice  The invoice
      *
      * @return \Illuminate\Http\Response
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/invoices/{id}",
      *      operationId="showInvoice",
@@ -267,18 +258,16 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
-
         return $this->itemResponse($invoice);
-
     }
 
     /**
@@ -288,7 +277,7 @@ class InvoiceController extends BaseController
      * @param      \App\Models\Invoice                            $invoice  The invoice
      *
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/invoices/{id}/edit",
      *      operationId="editInvoice",
@@ -325,18 +314,16 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function edit(EditInvoiceRequest $request, Invoice $invoice)
     {
-
         return $this->itemResponse($invoice);
-
     }
     
     /**
@@ -346,8 +333,8 @@ class InvoiceController extends BaseController
      * @param      \App\Models\Invoice                              $invoice  The invoice
      *
      * @return \Illuminate\Http\Response
-     * 
-     * 
+     *
+     *
      * @OA\Put(
      *      path="/api/v1/invoices/{id}",
      *      operationId="updateInvoice",
@@ -384,32 +371,30 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
-
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company));
 
         return $this->itemResponse($invoice);
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\Invoice\DestroyInvoiceRequest  $request  
-     * @param      \App\Models\Invoice                               $invoice  
+     * @param      \App\Http\Requests\Invoice\DestroyInvoiceRequest  $request
+     * @param      \App\Models\Invoice                               $invoice
      *
      * @return     \Illuminate\Http\Response
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/invoices/{id}",
      *      operationId="deleteInvoice",
@@ -445,7 +430,7 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -454,18 +439,16 @@ class InvoiceController extends BaseController
      */
     public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
-
         $invoice->delete();
 
         return response()->json([], 200);
-
     }
 
     /**
      * Perform bulk actions on the list view
-     * 
+     *
      * @return Collection
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/invoices/bulk",
      *      operationId="bulkInvoices",
@@ -506,7 +489,7 @@ class InvoiceController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -515,38 +498,37 @@ class InvoiceController extends BaseController
      */
     public function bulk()
     {
-
         $action = request()->input('action');
         
         $ids = request()->input('ids');
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids));
 
-        if(!$invoices)
+        if (!$invoices) {
             return response()->json(['message'=>'No Invoices Found']);
+        }
 
-        $invoices->each(function ($invoice, $key) use($action){
+        $invoices->each(function ($invoice, $key) use ($action) {
 
 //      $this->invoice_repo->{$action}($invoice);
 
-            if(auth()->user()->can('edit', $invoice))
+            if (auth()->user()->can('edit', $invoice)) {
                 $this->performAction($invoice, $action, true);
-
+            }
         });
 
         return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids)));
-        
     }
 
     /**
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/invoices/{id}/{action}",
      *      operationId="actionInvoice",
      *      tags={"invoices"},
      *      summary="Performs a custom action on an invoice",
      *      description="Performs a custom action on an invoice.
-        
+
         The current range of actions are as follows
         - clone_to_invoice
         - clone_to_quote
@@ -582,7 +564,7 @@ class InvoiceController extends BaseController
      *              type="string",
      *              format="string",
      *          ),
-     *      ),     
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns the invoice object",
@@ -598,7 +580,7 @@ class InvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -607,9 +589,7 @@ class InvoiceController extends BaseController
      */
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
     {
-        
         return $this->performAction($invoice, $action);
-
     }
  
     private function performAction(Invoice $invoice, $action, $bulk = false)
@@ -622,7 +602,7 @@ class InvoiceController extends BaseController
                 break;
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
-                // todo build the quote transformer and return response here 
+                // todo build the quote transformer and return response here
                 break;
             case 'history':
                 # code...
@@ -631,19 +611,22 @@ class InvoiceController extends BaseController
                 # code...
                 break;
             case 'mark_paid':
-                if($invoice->balance <= 0 || $invoice->status_id == Invoice::STATUS_PAID)
+                if ($invoice->balance <= 0 || $invoice->status_id == Invoice::STATUS_PAID) {
                     return $this->errorResponse(['message' => 'Invoice has no balance owing'], 400);
+                }
 
                 $invoice = MarkInvoicePaid::dispatchNow($invoice, $invoice->company);
 
-                if(!$bulk)
+                if (!$bulk) {
                     return $this->itemResponse($invoice);
+                }
                 break;
             case 'mark_sent':
                 $invoice->markSent();
 
-                if(!$bulk)
+                if (!$bulk) {
                     return $this->itemResponse($invoice);
+                }
                 break;
             case 'download':
                     return response()->download(public_path($invoice->pdf_file_path()));
@@ -651,25 +634,27 @@ class InvoiceController extends BaseController
             case 'archive':
                 $this->invoice_repo->archive($invoice);
 
-                if(!$bulk)
-                return $this->listResponse($invoice);
+                if (!$bulk) {
+                    return $this->listResponse($invoice);
+                }
                 break;
             case 'delete':
                 $this->invoice_repo->delete($invoice);
 
-                if(!$bulk)
-                return $this->listResponse($invoice);
+                if (!$bulk) {
+                    return $this->listResponse($invoice);
+                }
                 break;
             case 'email':
                 EmailInvoice::dispatch($invoice, $invoice->company);
-                if(!$bulk)
-                return response()->json(['message'=>'email sent'],200);
+                if (!$bulk) {
+                    return response()->json(['message'=>'email sent'], 200);
+                }
                 break;
 
             default:
-                return response()->json(['message' => "The requested action `{$action}` is not available."],400);
+                return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
         }
     }
-
 }

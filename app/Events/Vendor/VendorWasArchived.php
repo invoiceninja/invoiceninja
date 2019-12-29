@@ -17,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class VendorWasArchived.
  */
-class VendorWasArchived 
+class VendorWasArchived
 {
     // vendor
     use SerializesModels;

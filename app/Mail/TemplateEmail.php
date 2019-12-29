@@ -58,10 +58,10 @@ class TemplateEmail extends Mailable
 
 
         //conditionally attach files
-        if($settings->pdf_email_attachment !== false && array_key_exists($this->message['files'])){
-
-            foreach($this->message['files'] as $file)
+        if ($settings->pdf_email_attachment !== false && array_key_exists($this->message['files'])) {
+            foreach ($this->message['files'] as $file) {
                 $message->attach($file);
+            }
         }
 
         return $message;

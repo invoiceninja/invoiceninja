@@ -27,9 +27,9 @@ class Locale
             App::setLocale(auth('contact')->user()->client->locale());
         } elseif (auth()->user()) {
             App::setLocale(auth()->user()->company()->getLocale());
-        }
-        else
+        } else {
             App::setLocale(config('ninja.i18n.locale'));
+        }
 
         return $next($request);
     }

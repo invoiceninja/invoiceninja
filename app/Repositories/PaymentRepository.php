@@ -25,7 +25,6 @@ use Illuminate\Http\Request;
  */
 class PaymentRepository extends BaseRepository
 {
-
     public function getClassName()
     {
         return Payment::class;
@@ -37,32 +36,26 @@ class PaymentRepository extends BaseRepository
      * @param  Payment $payment [description]
      * @return [type]           [description]
      */
-	public function save(Request $request, Payment $payment) : ?Payment
-	{
+    public function save(Request $request, Payment $payment) : ?Payment
+    {
         //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
         $payment->fill($request->input());
 
         $payment->save();
         
-        if($request->input('invoices')) 
-        {
-
-            $invoices = Invoice::whereIn('id', array_column($request->input('invoices'),'id'))->company()->get();
+        if ($request->input('invoices')) {
+            $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
     
-            foreach($request->input('invoices') as $paid_invoice)
-            {
-
+            foreach ($request->input('invoices') as $paid_invoice) {
                 $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
 
-                if($invoice)
+                if ($invoice) {
                     ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
-
+                }
             }
-
-        }
-        else {
+        } else {
             //paid is made, but not to any invoice, therefore we are applying the payment to the clients credit
             ApplyClientPayment::dispatchNow($payment, $payment->company);
         }
@@ -72,7 +65,5 @@ class PaymentRepository extends BaseRepository
         //UpdateInvoicePayment::dispatchNow($payment);
 
         return $payment->fresh();
-
-	}
-
+    }
 }

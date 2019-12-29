@@ -26,15 +26,13 @@ use Illuminate\Http\Request;
  */
 class QuoteRepository extends BaseRepository
 {
-
-
     public function getClassName()
     {
         return Quote::class;
     }
     
-	public function save($data, Quote $quote) : ?Quote
-	{
+    public function save($data, Quote $quote) : ?Quote
+    {
         
         /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
         $starting_amount = $quote->amount;
@@ -43,12 +41,9 @@ class QuoteRepository extends BaseRepository
 
         $quote->save();
 
-        if(isset($data['client_contacts']))
-        {
-            foreach($data['client_contacts'] as $contact)
-            {
-                if($contact['send_invoice'] == 1)
-                {
+        if (isset($data['client_contacts'])) {
+            foreach ($data['client_contacts'] as $contact) {
+                if ($contact['send_invoice'] == 1) {
                     $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
                     $client_contact->send_invoice = true;
                     $client_contact->save();
@@ -57,43 +52,37 @@ class QuoteRepository extends BaseRepository
         }
 
 
-        if(isset($data['invitations']))
-        {
-
+        if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
 
             /* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
-            collect($quote->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function($invitation){
-
+            collect($quote->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
                 QuoteInvitation::destroy($invitation);
-
             });
 
 
-            foreach($data['invitations'] as $invitation)
-            {
+            foreach ($data['invitations'] as $invitation) {
                 $inv = false;
 
-                if(array_key_exists ('key', $invitation))
+                if (array_key_exists('key', $invitation)) {
                     $inv = QuoteInvitation::whereKey($invitation['key'])->first();
+                }
 
-                if(!$inv)
-                {
+                if (!$inv) {
                     $invitation['client_contact_id'] = $this->decodePrimaryKey($invitation['client_contact_id']);
 
                     $new_invitation = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
                     $new_invitation->fill($invitation);
                     $new_invitation->quote_id = $quote->id;
                     $new_invitation->save();
-
                 }
             }
-
         }
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
-        if($quote->invitations->count() == 0)
+        if ($quote->invitations->count() == 0) {
             CreateQuoteInvitations::dispatchNow($quote, $quote->company);
+        }
 
         $quote = $quote->calc()->getInvoice();
         
@@ -104,6 +93,5 @@ class QuoteRepository extends BaseRepository
         $quote = ApplyQuoteNumber::dispatchNow($quote, $quote->client->getMergedSettings(), $quote->company);
 
         return $quote->fresh();
-	}
-
+    }
 }

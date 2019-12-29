@@ -26,7 +26,7 @@ class Product extends BaseModel
         'custom_value1',
         'custom_value2',
         'custom_value3',
-        'custom_value4',      
+        'custom_value4',
         'product_key',
         'notes',
         'cost',
@@ -52,13 +52,11 @@ class Product extends BaseModel
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
     
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-
-
 }

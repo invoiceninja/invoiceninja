@@ -32,17 +32,11 @@ class UpdateContactRequest extends Request
 
     public function rules()
     {
-
         return [
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:client_contacts,email,' . auth()->user()->id,
             'password' => 'sometimes|nullable|min:6|confirmed',
         ];
-
     }
-
-    
-
 }
-

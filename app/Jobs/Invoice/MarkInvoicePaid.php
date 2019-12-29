@@ -42,16 +42,14 @@ class MarkInvoicePaid implements ShouldQueue
      */
     public function __construct(Invoice $invoice, Company $company)
     {
-
         $this->invoice = $invoice;
         $this->company = $company;
-
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
@@ -69,7 +67,7 @@ class MarkInvoicePaid implements ShouldQueue
         /* Create a payment relationship to the invoice entity */
         $payment->save();
 
-        $payment->invoices()->attach($this->invoice->id,[
+        $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount
         ]);
 

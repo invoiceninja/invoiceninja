@@ -68,5 +68,4 @@ class CompanyGatewayTransformer extends EntityTransformer
 
         return $this->includeItem($company_gateway->gateway, $transformer, Gateway::class);
     }
-
 }

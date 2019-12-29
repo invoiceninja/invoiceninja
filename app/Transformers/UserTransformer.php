@@ -46,7 +46,6 @@ class UserTransformer extends EntityTransformer
 
     public function transform(User $user)
     {
-
         return [
             'id' => $this->encodePrimaryKey($user->id),
             'first_name' => $user->first_name ?: '',
@@ -67,38 +66,30 @@ class UserTransformer extends EntityTransformer
 
     public function includeCompanies(User $user)
     {
-
         $transformer = new CompanyTransformer($this->serializer);
 
         return $this->includeCollection($user->companies, $transformer, Company::class);
-
     }
 
     public function includeToken(User $user)
     {
-
         $transformer = new CompanyTokenTransformer($this->serializer);
 
         return $this->includeItem($user->token, $transformer, CompanyToken::class);
-
     }
 
     public function includeCompanyTokens(User $user)
     {
-
         $transformer = new CompanyTokenTransformer($this->serializer);
 
         return $this->includeCollection($user->tokens, $transformer, CompanyToken::class);
-
     }
 
     public function includeCompanyUsers(User $user)
     {
-
         $transformer = new CompanyUserTransformer($this->serializer);
 
         return $this->includeCollection($user->company_users, $transformer, CompanyUser::class);
-
     }
 
     public function includeCompanyUser(User $user)
@@ -106,6 +97,5 @@ class UserTransformer extends EntityTransformer
         $transformer = new CompanyUserTransformer($this->serializer);
 
         return $this->includeItem($user->company_user, $transformer, CompanyUser::class);
-
     }
 }

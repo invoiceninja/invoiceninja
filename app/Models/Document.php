@@ -25,7 +25,7 @@ class Document extends BaseModel
     ];
 
 
-	/**
+    /**
      * @var array
      */
     public static $types = [
@@ -89,5 +89,4 @@ class Document extends BaseModel
     {
         return $this->morphTo();
     }
-
 }

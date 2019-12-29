@@ -26,5 +26,4 @@ class ShowActivityRequest extends Request
     {
         return auth()->user()->can('view', Activity::class);
     }
-
 }

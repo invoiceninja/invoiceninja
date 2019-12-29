@@ -41,16 +41,16 @@ class RecurringInvoice extends BaseModel
      * Recurring intervals //todo MAP WHEN WE MIGRATE
      */
     
-/* Make sure we support overflow!!!!!!!!!!
-$start = Carbon::today();
-$subscription = Carbon::parse('2017-12-31');
-
-foreach (range(1, 12) as $month) {
-    $day = $start->addMonthNoOverflow()->thisDayOrLast($subscription->day);
-
-    echo "You will be billed on {$day} in month {$month}\n";
-}
- */
+    /* Make sure we support overflow!!!!!!!!!!
+    $start = Carbon::today();
+    $subscription = Carbon::parse('2017-12-31');
+    
+    foreach (range(1, 12) as $month) {
+        $day = $start->addMonthNoOverflow()->thisDayOrLast($subscription->day);
+    
+        echo "You will be billed on {$day} in month {$month}\n";
+    }
+     */
 
 
     const FREQUENCY_DAILY = 1;
@@ -68,8 +68,8 @@ foreach (range(1, 12) as $month) {
 
     const RECURS_INDEFINITELY = -1;
     
-	protected $fillable = [
-		'client_id',
+    protected $fillable = [
+        'client_id',
         'number',
         'discount',
         'is_amount_discount',
@@ -96,7 +96,7 @@ foreach (range(1, 12) as $month) {
         'partial',
         'frequency_id',
         'start_date',
-	];
+    ];
 
     protected $casts = [
         'settings' => 'object',
@@ -128,7 +128,7 @@ foreach (range(1, 12) as $month) {
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
     
     public function invoices()
@@ -143,21 +143,18 @@ foreach (range(1, 12) as $month) {
 
     public function getStatusAttribute()
     {
-
-        if($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->start_date > Carbon::now()) //marked as active, but yet to fire first cycle
+        if ($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->start_date > Carbon::now()) { //marked as active, but yet to fire first cycle
             return RecurringInvoice::STATUS_PENDING;
-        else if($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->next_send_date > Carbon::now())
+        } elseif ($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) {
             return RecurringInvoice::STATUS_COMPLETED;
-        else
+        } else {
             return $this->status_id;
-
+        }
     }
 
     public function nextSendDate() :?Carbon
     {
-
-        switch ($this->frequency_id) 
-        {
+        switch ($this->frequency_id) {
             case RecurringInvoice::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date->addWeek());
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
@@ -183,27 +180,23 @@ foreach (range(1, 12) as $month) {
             default:
                 return null;
         }
-
     }
 
     public function remainingCycles() : int
     {
-
-        if($this->remaining_cycles == 0)
+        if ($this->remaining_cycles == 0) {
             return 0;
-        else
+        } else {
             return $this->remaining_cycles - 1;
-
+        }
     }
 
     public function setCompleted() :  void
     {
-
         $this->status_id = self::STATUS_COMPLETED;
         $this->next_send_date = null;
         $this->remaining_cycles = 0;
         $this->save();
-
     }
 
     public static function badgeForStatus(int $status)
@@ -223,7 +216,7 @@ foreach (range(1, 12) as $month) {
                 break;
             case RecurringInvoice::STATUS_CANCELLED:
                 return '<h4><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h4>';
-                break;       
+                break;
             default:
                 # code...
                 break;
@@ -262,14 +255,13 @@ foreach (range(1, 12) as $month) {
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
                 return ctrans('texts.freq_two_years');
-                break;            
+                break;
             case RecurringInvoice::RECURS_INDEFINITELY:
                 return ctrans('texts.freq_indefinitely');
-                break;  
+                break;
             default:
                 # code...
                 break;
         }
     }
-    
 }

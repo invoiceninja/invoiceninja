@@ -29,53 +29,47 @@ class StoreUserRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->isAdmin();
-
     }
 
     public function rules()
     {
-
         $rules = [];
 
         $rules['first_name'] = 'required|string|max:100';
         $rules['last_name'] = 'required|string|max:100';
 
-        if (config('ninja.db.multi_db_enabled'))
-        {
+        if (config('ninja.db.multi_db_enabled')) {
             $rules['email'] = new ValidUserForCompany();
         }
 
         return $rules;
-
     }
 
     protected function prepareForValidation()
     {
         $input = $this->all();
 
-        if(isset($input['company_user']))
-        {
-            if(!isset($input['company_user']['is_admin']))
+        if (isset($input['company_user'])) {
+            if (!isset($input['company_user']['is_admin'])) {
                 $input['company_user']['is_admin'] = false;
+            }
 
-            if(!isset($input['company_user']['permissions']))
+            if (!isset($input['company_user']['permissions'])) {
                 $input['company_user']['permissions'] = '';
+            }
 
-            if(!isset($input['company_user']['settings']))
+            if (!isset($input['company_user']['settings'])) {
                 $input['company_user']['settings'] = DefaultSettings::userSettings();
-
-        }
-        else{
+            }
+        } else {
             $input['company_user'] = [
                 'settings' => DefaultSettings::userSettings(),
                 'permissions' => '',
             ];
         }
 
-        $this->replace($input); 
-
+        $this->replace($input);
     }
 
 
@@ -83,10 +77,10 @@ class StoreUserRequest extends Request
     {
         $user = MultiDB::hasUser(['email' => $this->input('email')]);
 
-        if(!$user)
+        if (!$user) {
             $user = UserFactory::create();
+        }
 
         return $user;
     }
-
 }

@@ -37,13 +37,13 @@ class RestoredUserActivity
      */
     public function handle($event)
     {
-
         $fields = new \stdClass;
 
-        if(auth()->user()->id)
+        if (auth()->user()->id) {
             $fields->user_id = auth()->user()->id;
-        else
+        } else {
             $fields->user_id = $event->user->id;
+        }
         
         $fields->company_id = $event->user->company_id;
         $fields->activity_type_id = Activity::RESTORE_USER;

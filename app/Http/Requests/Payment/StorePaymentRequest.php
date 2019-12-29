@@ -28,39 +28,33 @@ class StorePaymentRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('create', Payment::class);
-
     }
 
     protected function prepareForValidation()
     {
-
         $input = $this->all();
 
-        if(isset($input['client_id']))
+        if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
 
-        if(isset($input['invoices'])){
-
-            foreach($input['invoices'] as $key => $value)
-            {
-              $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+        if (isset($input['invoices'])) {
+            foreach ($input['invoices'] as $key => $value) {
+                $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
             }
-
         }
 
 
-        if(isset($input['invoices']) && is_array($input['invoices']) === false)
+        if (isset($input['invoices']) && is_array($input['invoices']) === false) {
             $input['invoices'] = null;
+        }
 
         $this->replace($input);
-
     }
 
     public function rules()
     {
-        
         $rules = [
             'amount' => 'numeric|required',
             'date' => 'required',
@@ -70,8 +64,5 @@ class StorePaymentRequest extends Request
         ];
 
         return $rules;
-            
     }
-
-
 }

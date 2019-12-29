@@ -19,9 +19,9 @@ class TaxRate extends BaseModel
     use MakesHash;
     
     protected $fillable = [
-		'name',
+        'name',
         'rate'
-	];
+    ];
 
     protected $appends = ['tax_rate_id'];
 
@@ -34,5 +34,4 @@ class TaxRate extends BaseModel
     {
         return $this->encodePrimaryKey($this->id);
     }
-
 }

@@ -25,9 +25,7 @@ class UpdateRecurringQuoteRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->recurring_quote);
-
     }
 
 
@@ -39,5 +37,4 @@ class UpdateRecurringQuoteRequest extends Request
 
         ];
     }
-    
 }

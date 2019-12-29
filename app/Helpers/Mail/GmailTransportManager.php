@@ -15,5 +15,4 @@ class GmailTransportManager extends TransportManager
 
         return new GmailTransport($mail, $token);
     }
-
 }

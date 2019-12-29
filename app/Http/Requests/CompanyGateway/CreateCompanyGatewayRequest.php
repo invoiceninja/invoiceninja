@@ -24,10 +24,6 @@ class CreateCompanyGatewayRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->isAdmin();
-
     }
-
-
 }

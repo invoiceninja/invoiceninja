@@ -39,7 +39,6 @@ class StoreInvoice implements ShouldQueue
      */
     public function __construct(Invoice $invoice, array $data, Company $company)
     {
-
         $this->invoice = $invoice;
 
         $this->data = $data;
@@ -80,41 +79,31 @@ class StoreInvoice implements ShouldQueue
 
         // }
 
-        if(isset($this->data['email_invoice']) && (bool)$this->data['email_invoice'])
-        {
-
+        if (isset($this->data['email_invoice']) && (bool)$this->data['email_invoice']) {
             $this->invoice = $invoice_repo->markSent($this->invoice);
 
             //fire invoice job (the job performs the filtering logic of the email recipients... if any.)
             InvoiceNotification::dispatch($invoice, $invoice->company);
-
         }
 
-        if(isset($this->data['mark_paid']) && (bool)$this->data['mark_paid'])
-        {
-
+        if (isset($this->data['mark_paid']) && (bool)$this->data['mark_paid']) {
             $this->invoice = $invoice_repo->markSent($this->invoice);
 
             // generate a manual payment against the invoice
             // the PAYMENT class will update the INVOICE status.
             //$payment =
-
         }
 
         /* Payment Notifications */
-        if($payment)
-        {
+        if ($payment) {
             //fire payment notifications here
             PaymentNotification::dispatch($payment, $payment->company);
-
         }
 
-        if(isset($data['download_invoice']) && (bool)$this->data['download_invoice'])
-        {
+        if (isset($data['download_invoice']) && (bool)$this->data['download_invoice']) {
             //fire invoice download and return PDF response from here
         }
 
         return $this->invoice;
-
     }
 }

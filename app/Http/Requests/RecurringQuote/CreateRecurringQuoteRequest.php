@@ -26,5 +26,4 @@ class CreateRecurringQuoteRequest extends Request
     {
         return auth()->user()->can('create', RecurringQuote::class);
     }
-
 }

@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Activity extends StaticModel
 {
-
     const CREATE_CLIENT=1;
     const ARCHIVE_CLIENT=2;
     const DELETE_CLIENT=3;
@@ -80,7 +79,7 @@ class Activity extends StaticModel
 
     public function backup()
     {
-    	return $this->hasOne(Backup::class);
+        return $this->hasOne(Backup::class);
     }
 
     /**

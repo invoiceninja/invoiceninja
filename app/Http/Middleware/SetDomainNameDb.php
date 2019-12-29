@@ -26,24 +26,21 @@ class SetDomainNameDb
     
     public function handle($request, Closure $next)
     {
-
-            $error = [
+        $error = [
                 'message' => 'Invalid token',
                 'errors' => []
             ];
-        /* 
+        /*
          * Use the host name to set the active DB
          **/
-        if( $request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByDomain($request->getSchemeAndHttpHost())) 
-        {
-            if(request()->json)
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
-            else
+        if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByDomain($request->getSchemeAndHttpHost())) {
+            if (request()->json) {
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+            } else {
                 abort(404);
+            }
         }
 
         return $next($request);
     }
-
-
 }

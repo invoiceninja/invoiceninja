@@ -12,7 +12,7 @@
  *       @OA\Property(property="config", type="string", example="dfadsfdsafsafd", description="The configuration map for the gateway"),
  *       @OA\Property(property="update_details", type="boolean", example=true, description="______"),
  *       @OA\Property(
- *       	property="fees_and_limits", 
+ *       	property="fees_and_limits",
  *        	type="array",
  *        	description="A mapped collection of the fees and limits for the configured gateway",
  *        	@OA\Items(
@@ -21,4 +21,3 @@
  *       ),
  * )
  */
-     

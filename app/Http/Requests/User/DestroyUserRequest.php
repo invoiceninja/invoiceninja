@@ -26,5 +26,4 @@ class DestroyUserRequest extends Request
     {
         return auth()->user()->isOwner();
     }
-
 }

@@ -43,5 +43,4 @@ class EditCompanyRequest extends Request
 
         $this->replace($input);
     }
-
 }

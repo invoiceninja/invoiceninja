@@ -21,14 +21,12 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class UniqueUserRule implements Rule
 {
-
     public $user;
 
     public $new_email;
 
     public function __construct($user, $new_email)
     {
-    
         $this->user= $user;
     
         $this->new_email = $new_email;
@@ -43,10 +41,11 @@ class UniqueUserRule implements Rule
     {
         /* If the input has not changed, return early! */
 
-        if($this->user->email == $this->new_email)
+        if ($this->user->email == $this->new_email) {
             return true;
-        else
-            return ! $this->checkIfEmailExists($value); //if it exists, return false!
+        } else {
+            return ! $this->checkIfEmailExists($value);
+        } //if it exists, return false!
     }
 
     /**
@@ -65,5 +64,4 @@ class UniqueUserRule implements Rule
     {
         return MultiDB::checkUserEmailExists($email);
     }
-
 }

@@ -35,13 +35,12 @@ class ValidClientGroupSettingsRule implements Rule
     {
         $data = $this->validateSettings($value);
 
-        if (is_array($data))
-        {
+        if (is_array($data)) {
             $this->return_data = $data;
             return false;
-        }
-        else
+        } else {
             return true;
+        }
     }
 
     /**
@@ -50,9 +49,5 @@ class ValidClientGroupSettingsRule implements Rule
     public function message()
     {
         return $this->return_data[0]." is not a valid ".$this->return_data[1];
-
     }
-
-
-
 }

@@ -60,15 +60,12 @@ class ReverseInvoicePayment implements ShouldQueue
         $invoices = $this->payment->invoices()->get();
         $client = $this->payment->client;
 
-        $invoices->each(function($invoice){
-
-            if($invoice->pivot->amount > 0)
-            {
+        $invoices->each(function ($invoice) {
+            if ($invoice->pivot->amount > 0) {
                 $invoice->status_id = Invoice::STATUS_SENT;
                 $invoice->balance = $invoice->pivot->amount;
                 $invoice->save();
             }
-
         });
 
         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->payment->amount), $this->company);
@@ -77,5 +74,4 @@ class ReverseInvoicePayment implements ShouldQueue
 
         UpdateClientPaidToDate::dispatchNow($client, $this->payment->amount*-1, $this->company);
     }
-
 }

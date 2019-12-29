@@ -26,5 +26,4 @@ class DestroyGroupSettingRequest extends Request
     {
         return auth()->user()->can('edit', $this->group_setting);
     }
-
 }

@@ -26,5 +26,4 @@ class ShowRecurringInvoiceRequest extends Request
     {
         return auth()->user()->can('view', $this->recurring_invoice);
     }
-
 }

@@ -26,5 +26,4 @@ class ActionPaymentRequest extends Request
     {
         return auth()->user()->can('edit', $this->payment);
     }
-
 }

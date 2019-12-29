@@ -17,7 +17,6 @@ class SupportMessageSent extends Mailable
     public function __construct($message)
     {
         $this->message = $message;
-
     }
 
     /**
@@ -35,7 +34,7 @@ class SupportMessageSent extends Mailable
          * we are going to bundle system-level info
          * and last 10 lines of laravel.log file.
          */
-        if(Ninja::isSelfHost()) {
+        if (Ninja::isSelfHost()) {
             $system_info = Ninja::getDebugInfo();
 
             $log_file = new \SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
@@ -56,4 +55,3 @@ class SupportMessageSent extends Mailable
             ]);
     }
 }
-

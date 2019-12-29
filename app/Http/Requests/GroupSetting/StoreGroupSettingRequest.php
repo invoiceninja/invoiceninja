@@ -27,14 +27,11 @@ class StoreGroupSettingRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('create', GroupSetting::class);
-
     }
 
     public function rules()
     {
-
         $rules['name'] = 'required';
         $rules['settings'] = new ValidClientGroupSettingsRule();
 
@@ -47,8 +44,7 @@ class StoreGroupSettingRequest extends Request
         
         $input['settings'] = ClientSettings::defaults();
         
-        $this->replace($input);   
-
+        $this->replace($input);
     }
 
 
@@ -58,6 +54,4 @@ class StoreGroupSettingRequest extends Request
             'settings' => 'settings must be a valid json structure'
         ];
     }
-
-
 }

@@ -40,7 +40,7 @@ class UserController extends BaseController
 {
     use VerifiesUserEmail;
 
-	use MakesHash;
+    use MakesHash;
 
     protected $entity_type = User::class;
 
@@ -48,18 +48,16 @@ class UserController extends BaseController
 
     protected $user_repo;
 
-	/**
+    /**
      * Constructor
      *
      * @param      \App\Repositories\UserRepository  $user_repo  The user repo
      */
     public function __construct(UserRepository $user_repo)
     {
-    
         parent::__construct();
 
         $this->user_repo = $user_repo;
-
     }
     
     /**
@@ -67,7 +65,7 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/users",
      *      operationId="getUsers",
@@ -95,7 +93,7 @@ class UserController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -105,11 +103,9 @@ class UserController extends BaseController
 
     public function index(UserFilters $filters)
     {
-
         $users = User::filter($filters);
         
         return $this->listResponse($users);
-
     }
 
     /**
@@ -117,8 +113,8 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/users/create",
      *      operationId="getUsersCreate",
@@ -144,7 +140,7 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -153,11 +149,9 @@ class UserController extends BaseController
      */
     public function create(CreateUserRequest $request)
     {
-
         $user = UserFactory::create();
 
         return $this->itemResponse($user);
-
     }
 
     /**
@@ -193,7 +187,7 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -202,7 +196,6 @@ class UserController extends BaseController
      */
     public function store(StoreUserRequest $request)
     {
-
         $company = auth()->user()->company();
 
         $user = $this->user_repo->save($request->all(), $request->fetchUser());
@@ -212,7 +205,6 @@ class UserController extends BaseController
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
         return $this->itemResponse($user->fresh());
-        
     }
 
     /**
@@ -258,18 +250,16 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function show(ShowUserRequest $request, User $user)
     {
-    
         return $this->itemResponse($user);
-    
     }
 
     /**
@@ -278,7 +268,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/users/{id}/edit",
      *      operationId="editUser",
@@ -315,18 +305,16 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function edit(EditUserRequest $request, User $user)
     {
-
         return $this->itemResponse($user);
-
     }
 
     /**
@@ -336,7 +324,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/users/{id}",
      *      operationId="updateUser",
@@ -373,20 +361,18 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function update(UpdateUserRequest $request, User $user)
     {
-
         $user = $this->user_repo->save($request->all(), $user);
 
         return $this->itemResponse($user);
-
     }
 
     /**
@@ -395,7 +381,7 @@ class UserController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/users/{id}",
      *      operationId="deleteUser",
@@ -442,7 +428,7 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -451,20 +437,18 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
-
         $user->delete();
         
         return response()->json([], 200);
-
     }
 
     /**
      * Perform bulk actions on the list view
-     * 
+     *
      * @return Collection
      *
-     * 
-     * 
+     *
+     *
      * @OA\Post(
      *      path="/api/v1/users/bulk",
      *      operationId="bulkUsers",
@@ -505,7 +489,7 @@ class UserController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -514,22 +498,19 @@ class UserController extends BaseController
      */
     public function bulk()
     {
-
         $action = request()->input('action');
         
         $ids = request()->input('ids');
 
         $users = User::withTrashed()->find($this->transformKeys($ids));
 
-        $users->each(function ($user, $key) use($action){
-
-            if(auth()->user()->can('edit', $user))
+        $users->each(function ($user, $key) use ($action) {
+            if (auth()->user()->can('edit', $user)) {
                 $this->user_repo->{$action}($user);
-
+            }
         });
 
         return $this->listResponse(User::withTrashed()->whereIn('id', $this->transformKeys($ids)));
-        
     }
 
 
@@ -562,7 +543,7 @@ class UserController extends BaseController
      *         description="The company user object",
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *     ),     
+     *     ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved User object",
@@ -578,7 +559,7 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -587,7 +568,6 @@ class UserController extends BaseController
      */
     public function attach(AttachCompanyUserRequest $request, User $user)
     {
-
         $company = auth()->user()->company();
 
         $user->companies()->attach($company->id, array_merge($request->all(), ['account_id' => $company->account->id]));
@@ -595,7 +575,6 @@ class UserController extends BaseController
         $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
 
         return $this->itemResponse($user->fresh());
-        
     }
 
     /**
@@ -636,7 +615,7 @@ class UserController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -652,6 +631,5 @@ class UserController extends BaseController
         $company_user->delete();
 
         return response()->json(['message' => 'User detached from company'], 200);
-
     }
 }

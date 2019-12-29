@@ -24,9 +24,6 @@ class CreateCompanyRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('create', Company::class);
-
     }
-
 }

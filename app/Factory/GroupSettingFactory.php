@@ -15,10 +15,8 @@ use App\Models\GroupSetting;
 
 class GroupSettingFactory
 {
-
-	public static function create(int $company_id, int $user_id) :GroupSetting
-	{
-
+    public static function create(int $company_id, int $user_id) :GroupSetting
+    {
         $gs = new GroupSetting;
         $gs->name = '';
         $gs->company_id = $company_id;
@@ -26,6 +24,5 @@ class GroupSettingFactory
         $gs->settings = '{}';
         
         return $gs;
-        
     }
 }

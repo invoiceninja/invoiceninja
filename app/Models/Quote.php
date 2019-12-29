@@ -83,7 +83,7 @@ class Quote extends BaseModel
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
     
     public function invitations()
@@ -105,13 +105,12 @@ class Quote extends BaseModel
     {
         $quote_calc = null;
 
-        if($this->uses_inclusive_taxes)
+        if ($this->uses_inclusive_taxes) {
             $quote_calc = new InvoiceSumInclusive($this);
-        else
+        } else {
             $quote_calc = new InvoiceSum($this);
+        }
 
         return $quote_calc->build();
-
     }
-
 }

@@ -18,6 +18,4 @@ use Laracasts\Presenter\Presenter;
  */
 class AccountPresenter extends Presenter
 {
-
-
 }

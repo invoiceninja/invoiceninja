@@ -25,9 +25,7 @@ class UpdateRecurringInvoiceRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->recurring_invoice);
-
     }
 
 
@@ -39,5 +37,4 @@ class UpdateRecurringInvoiceRequest extends Request
 
         ];
     }
-    
 }

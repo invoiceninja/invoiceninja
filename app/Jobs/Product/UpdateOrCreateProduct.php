@@ -40,7 +40,6 @@ class UpdateOrCreateProduct implements ShouldQueue
      */
     public function __construct($products, $invoice, $company)
     {
-
         $this->products = $products;
         
         $this->invoice = $invoice;
@@ -51,16 +50,14 @@ class UpdateOrCreateProduct implements ShouldQueue
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
     {
         MultiDB::setDB($this->company->db);
 
-        foreach($this->products as $item)
-        {
-
+        foreach ($this->products as $item) {
             $product = Product::firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
                 
             $product->product_key = $item->product_key;
@@ -75,15 +72,12 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->custom_value1 = isset($item->custom_value1) ? $item->custom_value1 : '';
             $product->custom_value2 = isset($item->custom_value2) ? $item->custom_value2 : '';
             $product->custom_value3 = isset($item->custom_value3) ? $item->custom_value3 : '';
-            $product->custom_value4 = isset($item->custom_value4) ? $item->custom_value4 : '';  
+            $product->custom_value4 = isset($item->custom_value4) ? $item->custom_value4 : '';
             $product->user_id = $this->invoice->user_id;
             $product->company_id = $this->invoice->company_id;
             $product->project_id = $this->invoice->project_id;
             $product->vendor_id = $this->invoice->vendor_id;
             $product->save();
-                
         }
-
     }
-
 }

@@ -26,5 +26,4 @@ class ShowQuoteRequest extends Request
     {
         return auth()->user()->can('view', $this->quote);
     }
-
 }

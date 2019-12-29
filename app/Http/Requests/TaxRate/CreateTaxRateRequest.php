@@ -26,6 +26,4 @@ class CreateTaxRateRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
-
 }

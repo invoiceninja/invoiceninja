@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Log;
 
 class SendRecurring
 {
-
     use GeneratesCounter;
     
     public $recurring_invoice;
@@ -36,10 +35,8 @@ class SendRecurring
 
     public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
     {
-
         $this->recurring_invoice = $recurring_invoice;
         $this->db = $db;
-
     }
 
     /**
@@ -57,30 +54,25 @@ class SendRecurring
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->save();
 
-        // Queue: Emails for invoice  
+        // Queue: Emails for invoice
         // foreach invoice->invitations
         
         // Fire Payment if auto-bill is enabled
-        if($this->recurring_invoice->settings->auto_bill)
+        if ($this->recurring_invoice->settings->auto_bill) {
             //PAYMENT ACTION HERE TODO
 
-        // Clean up recurring invoice object
+            // Clean up recurring invoice object
         
-        $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
+            $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
+        }
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
 
-        if($this->recurring_invoice->remaining_cycles != 0)
+        if ($this->recurring_invoice->remaining_cycles != 0) {
             $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
-        else 
+        } else {
             $this->recurring_invoice->setCompleted();
+        }
         
-        $this->recurring_invoice->save(); 
-
+        $this->recurring_invoice->save();
     }
-
-
- 
-           
-    
-
 }

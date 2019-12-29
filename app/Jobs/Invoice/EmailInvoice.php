@@ -42,17 +42,15 @@ class EmailInvoice implements ShouldQueue
      */
     public function __construct(Invoice $invoice, Company $company)
     {
-
         $this->invoice = $invoice;
 
         $this->company = $company;
-
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
@@ -64,11 +62,8 @@ class EmailInvoice implements ShouldQueue
 
         $template_style = $this->invoice->client->getSetting('email_style');
         
-        $this->invoice->invitations->each(function ($invitation) use($template_style){
-
-            if($invitation->contact->send_invoice && $invitation->contact->email)
-            {
-
+        $this->invoice->invitations->each(function ($invitation) use ($template_style) {
+            if ($invitation->contact->send_invoice && $invitation->contact->email) {
                 $message_array = $this->invoice->getEmailData('', $invitation->contact);
                 $message_array['title'] = &$message_array['subject'];
                 $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
@@ -79,28 +74,22 @@ class EmailInvoice implements ShouldQueue
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
                 ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
 
-                if( count(Mail::failures()) > 0 ) {
-
+                if (count(Mail::failures()) > 0) {
                     event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
                     
                     return $this->logMailError($errors);
-
                 }
 
                 //fire any events
                 event(new InvoiceWasEmailed($this->invoice));
 
                 //sleep(5);
-                
             }
-
         });
-
     }
 
     private function logMailError($errors)
     {
-
         SystemLogger::dispatch(
             $errors,
             SystemLog::CATEGORY_MAIL,
@@ -108,7 +97,5 @@ class EmailInvoice implements ShouldQueue
             SystemLog::TYPE_FAILURE,
             $this->invoice->client
         );
-
     }
-
 }

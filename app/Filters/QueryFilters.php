@@ -59,9 +59,7 @@ abstract class QueryFilters
      */
     public function __construct(Request $request)
     {
-
         $this->request = $request;
-
     }
 
     /**
@@ -100,20 +98,17 @@ abstract class QueryFilters
      */
     public function filters()
     {
-
         return $this->request->all();
-
     }
 
     /**
      * Explodes the value by delimiter
-     * 
+     *
      * @param  string $value
-     * @return stdClass 
+     * @return stdClass
      */
     public function split($value) : stdClass
     {
-
         $exploded_array = explode(":", $value);
 
         $parts = new stdClass;
@@ -122,18 +117,16 @@ abstract class QueryFilters
         $parts->operator = $this->operatorConvertor($exploded_array[1]);
 
         return $parts;
-
     }
 
     /**
      * String to operator convertor
-     * 
+     *
      * @param  string $value
      * @return string
      */
     private function operatorConvertor(string $operator) : string
     {
-
         switch ($operator) {
             case 'lt':
                 return '<';
@@ -159,15 +152,16 @@ abstract class QueryFilters
 
     /**
      * Filters the query by the contact's client_id.
-     * 
+     *
      * -Can only be used on contact routes
-     * 
+     *
      * @param       $client_id The client Id
      * @param      Illuminate\Database\Query\Builder
      */
     public function clientFilter()
     {
-        if(auth('contact')->user())
+        if (auth('contact')->user()) {
             return $this->builder->whereClientId(auth('contact')->user()->client->id);
+        }
     }
 }

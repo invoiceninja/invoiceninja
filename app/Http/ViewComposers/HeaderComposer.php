@@ -36,24 +36,24 @@ class HeaderComposer
      */
     private function headerData()
     {
-        if(!auth()->user())
+        if (!auth()->user()) {
             return [];
+        }
         
         $companies = auth()->user()->companies;
 
         //companies
         $data['current_company'] = $companies->first();
         $data['companies'] = $companies;
-/*
-        $data['current_company'] = $companies->first(function ($company){
-            return $company->id == auth()->user()->company()->id;
-        });
-
-        $data['companies'] = $companies->reject(function ($company){
-            return $company->id == auth()->user()->company()->id;
-        });
-*/
+        /*
+                $data['current_company'] = $companies->first(function ($company){
+                    return $company->id == auth()->user()->company()->id;
+                });
+        
+                $data['companies'] = $companies->reject(function ($company){
+                    return $company->id == auth()->user()->company()->id;
+                });
+        */
         return $data;
     }
-
 }

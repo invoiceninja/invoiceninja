@@ -39,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //           
+        //
         parent::boot();
     }
 
@@ -88,13 +88,13 @@ class RouteServiceProvider extends ServiceProvider
              ->group(base_path('routes/api.php'));
     }
     
-   /**
-     * Define the "api" routes for the application.
-     *
-     * These routes are typically stateless.
-     *
-     * @return void
-     */
+    /**
+      * Define the "api" routes for the application.
+      *
+      * These routes are typically stateless.
+      *
+      * @return void
+      */
     protected function mapContactApiRoutes()
     {
         Route::prefix('')
@@ -117,5 +117,4 @@ class RouteServiceProvider extends ServiceProvider
              ->namespace($this->namespace)
              ->group(base_path('routes/client.php'));
     }
-    
 }

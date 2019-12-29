@@ -33,7 +33,4 @@ class EditUserRequest extends Request
         
         return $rules;
     }
-
-
-
 }

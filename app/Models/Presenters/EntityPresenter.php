@@ -39,7 +39,6 @@ class EntityPresenter extends Presenter
      */
     public function url()
     {
-
     }
 
     /**
@@ -47,7 +46,6 @@ class EntityPresenter extends Presenter
      */
     public function path()
     {
-
     }
 
     /**
@@ -62,7 +60,6 @@ class EntityPresenter extends Presenter
      */
     public function statusLabel($label = false)
     {
-
     }
 
     /**
@@ -70,7 +67,6 @@ class EntityPresenter extends Presenter
      */
     public function statusColor()
     {
-
     }
 
     /**
@@ -78,7 +74,6 @@ class EntityPresenter extends Presenter
      */
     public function link()
     {
-
     }
 
     /**
@@ -86,7 +81,6 @@ class EntityPresenter extends Presenter
      */
     public function titledName()
     {
-
     }
 
     /**
@@ -94,7 +88,6 @@ class EntityPresenter extends Presenter
      */
     public function calendarEvent($subColors = false)
     {
-
     }
 
     public function getCityState()

@@ -13,7 +13,6 @@ namespace App\Transformers;
 
 class InvoiceItemTransformer extends EntityTransformer
 {
-
     public function transform($item)
     {
         return [

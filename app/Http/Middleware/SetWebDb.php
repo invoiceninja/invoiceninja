@@ -17,12 +17,8 @@ class SetWebDb
      */
     public function handle($request, Closure $next)
     {
-        
-        if (config('ninja.db.multi_db_enabled'))
-        {
-
+        if (config('ninja.db.multi_db_enabled')) {
             MultiDB::setDB(Cookie::get('db'));
-        
         }
 
 

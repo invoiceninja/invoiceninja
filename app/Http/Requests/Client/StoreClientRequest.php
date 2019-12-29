@@ -31,9 +31,7 @@ class StoreClientRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('create', Client::class);
-
     }
 
     public function rules()
@@ -47,18 +45,14 @@ class StoreClientRequest extends Request
 
         $contacts = request('contacts');
 
-        if(is_array($contacts))
-        {
-
+        if (is_array($contacts)) {
             for ($i = 0; $i < count($contacts); $i++) {
 
                 //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
             }
-
         }
 
         return $rules;
-            
     }
 
 
@@ -66,13 +60,15 @@ class StoreClientRequest extends Request
     {
         $input = $this->all();
 
-        if(!isset($input['settings']))
+        if (!isset($input['settings'])) {
             $input['settings'] = ClientSettings::defaults();
+        }
         
-        if(isset($input['group_settings_id']))
+        if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
 
-        $this->replace($input);   
+        $this->replace($input);
     }
 
     public function messages()
@@ -83,6 +79,4 @@ class StoreClientRequest extends Request
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
         ];
     }
-
-
 }

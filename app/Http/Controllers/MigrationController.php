@@ -29,14 +29,13 @@ class MigrationController extends BaseController
     public function __construct()
     {
         parent::__construct();
-
     }
 
 
     /**
      *
      * Purge Company
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/migration/purge/{company}",
      *      operationId="postPurgeCompany",
@@ -71,7 +70,7 @@ class MigrationController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -79,10 +78,9 @@ class MigrationController extends BaseController
      */
     public function purgeCompany(Company $company)
     {
-       
-            $company->delete();
+        $company->delete();
 
-            return response()->json(['message'=>'Company purged'], 200);
+        return response()->json(['message'=>'Company purged'], 200);
     }
 
 
@@ -90,7 +88,7 @@ class MigrationController extends BaseController
     /**
      *
      * Purge Company but save settings
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/migration/purge_save_settings/{company}",
      *      operationId="postPurgeCompanySaveSettings",
@@ -125,7 +123,7 @@ class MigrationController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -136,9 +134,6 @@ class MigrationController extends BaseController
         $company->client->delete();
         $company->save();
 
-            return response()->json(['message'=>'Settings preserved'], 200);
-
+        return response()->json(['message'=>'Settings preserved'], 200);
     }
-
-
 }

@@ -25,21 +25,17 @@ class ApiSecretCheck
      */
     public function handle($request, Closure $next)
     {
-
-        if( $request->header('X-API-SECRET') && ($request->header('X-API-SECRET') == config('ninja.api_secret')) )
+        if ($request->header('X-API-SECRET') && ($request->header('X-API-SECRET') == config('ninja.api_secret'))) {
             return $next($request);
-        else {
-
+        } else {
             $error = [
                 'message' => 'Invalid secret',
                 'errors' => []
             ];
             return response()
-            ->json(json_encode($error, JSON_PRETTY_PRINT) ,403)
+            ->json(json_encode($error, JSON_PRETTY_PRINT), 403)
             ->header('X-App-Version', config('ninja.app_version'))
             ->header('X-Api-Version', config('ninja.api_version'));
         }
-
-        
     }
 }

@@ -35,11 +35,9 @@ class UpdateUserLastLogin
      */
     public function handle($event)
     {
+        $user = $event->user;
 
-       $user = $event->user;
-
-       $user->last_login = now();
-       $user->save();
-       
+        $user->last_login = now();
+        $user->save();
     }
 }

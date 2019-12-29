@@ -20,7 +20,7 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class ValidCompanyGatewayFeesAndLimitsRule implements Rule
 {
-	use CompanyGatewayFeesAndLimitsSaver;
+    use CompanyGatewayFeesAndLimitsSaver;
 
     /**
      * @param string $attribute
@@ -34,13 +34,12 @@ class ValidCompanyGatewayFeesAndLimitsRule implements Rule
     {
         $data = $this->validateFeesAndLimits($value);
 
-        if (is_array($data))
-        {
+        if (is_array($data)) {
             $this->return_data = $data;
             return false;
-        }
-        else
+        } else {
             return true;
+        }
     }
 
     /**
@@ -48,8 +47,6 @@ class ValidCompanyGatewayFeesAndLimitsRule implements Rule
      */
     public function message()
     {
-
         return $this->return_data[0]." is not a valid ".$this->return_data[1];
-
     }
 }

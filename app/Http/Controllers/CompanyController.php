@@ -60,11 +60,9 @@ class CompanyController extends BaseController
      */
     public function __construct(CompanyRepository $company_repo)
     {
-    
         parent::__construct();
 
         $this->company_repo = $company_repo;
-
     }
 
     /**
@@ -99,7 +97,7 @@ class CompanyController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -108,11 +106,9 @@ class CompanyController extends BaseController
      */
     public function index()
     {
-
         $companies = Company::whereAccountId(auth()->user()->company()->account->id);
 
         return $this->listResponse($companies);
-
     }
 
     /**
@@ -120,8 +116,8 @@ class CompanyController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/companies/create",
      *      operationId="getCompaniesCreate",
@@ -147,7 +143,7 @@ class CompanyController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -156,7 +152,6 @@ class CompanyController extends BaseController
      */
     public function create(CreateCompanyRequest $request)
     {
-
         $company = CompanyFactory::create(auth()->user()->company()->account->id);
         
         return $this->itemResponse($company);
@@ -194,7 +189,7 @@ class CompanyController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -240,7 +235,6 @@ class CompanyController extends BaseController
         $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
         
         return $this->listResponse($ct);
-
     }
 
     /**
@@ -286,7 +280,7 @@ class CompanyController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -295,9 +289,7 @@ class CompanyController extends BaseController
      */
     public function show(ShowCompanyRequest $request, Company $company)
     {
-
         return $this->itemResponse($company);
-
     }
 
     /**
@@ -306,7 +298,7 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/companies/{id}/edit",
      *      operationId="editCompany",
@@ -343,7 +335,7 @@ class CompanyController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -352,9 +344,7 @@ class CompanyController extends BaseController
      */
     public function edit(EditCompanyRequest $request, Company $company)
     {
-
-        return $this->itemResponse($company);       
-
+        return $this->itemResponse($company);
     }
 
     /**
@@ -364,7 +354,7 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/companies/{id}",
      *      operationId="updateCompany",
@@ -401,7 +391,7 @@ class CompanyController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -425,7 +415,7 @@ class CompanyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/companies/{id}",
      *      operationId="deleteCompany",
@@ -461,7 +451,7 @@ class CompanyController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -470,7 +460,6 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-
         $company->delete();
 
         return response()->json([], 200);

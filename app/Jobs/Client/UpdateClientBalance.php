@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Client;
 
-
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
@@ -45,12 +44,11 @@ class UpdateClientBalance
      *
      * @return void
      */
-    public function handle() 
+    public function handle()
     {
         MultiDB::setDB($this->company->db);
 
         $this->client->balance += $this->amount;
         $this->client->save();
-
     }
 }

@@ -29,7 +29,6 @@ class ClientGatewayTokenTransformer extends EntityTransformer
      */
     public function transform(ClientGatewayToken $cgt)
     {
-
         return [
             'id' => $this->encodePrimaryKey($cgt->id),
             'token' => (string)$cgt->token ?: '',

@@ -38,8 +38,6 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         $schedule->job(new RecurringInvoicesCron)->hourly();
-
-
     }
 
     /**

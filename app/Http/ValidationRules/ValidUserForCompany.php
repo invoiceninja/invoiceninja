@@ -40,6 +40,4 @@ class ValidUserForCompany implements Rule
         return 'This user is unable to be attached to this company. Perhaps they have already registered a user on another account?';
         //return ctrans('texts.email_already_register');
     }
-
-
 }

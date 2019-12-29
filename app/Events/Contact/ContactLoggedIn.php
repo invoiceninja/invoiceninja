@@ -40,9 +40,7 @@ class ContactLoggedIn
      */
     public function __construct(ClientContact $client_contact)
     {
-
         $this->client_contact = $client_contact;
-        
     }
 
     /**

@@ -34,11 +34,11 @@ class StoreQuoteRequest extends Request
     {
         $input = $this->all();
 
-        if(isset($input['client_id']))
+        if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
 
         $this->replace($input);
-
     }
 
     public function rules()
@@ -48,7 +48,4 @@ class StoreQuoteRequest extends Request
             'client_id' => 'required',
         ];
     }
-
-
 }
-

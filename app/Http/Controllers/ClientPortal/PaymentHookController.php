@@ -17,14 +17,10 @@ use Illuminate\Http\Request;
 
 class PaymentHookController extends Controller
 {
+    public function process($company_gateway_id, $gateway_type_id)
+    {
+        $gateway = Gateway::find($company_gateway_id);
 
-	public function process($company_gateway_id, $gateway_type_id)
-	{
-
-		$gateway = Gateway::find($company_gateway_id);
-
-		dd(request()->input());
-
-	}
-	
+        dd(request()->input());
+    }
 }

@@ -28,7 +28,6 @@ use Illuminate\Http\Request;
  */
 class TaxRateController extends BaseController
 {
-
     protected $entity_type = TaxRate::class;
 
     protected $entity_transformer = TaxRateTransformer::class;
@@ -36,7 +35,6 @@ class TaxRateController extends BaseController
     public function __construct()
     {
         parent::__construct();
-
     }
     
     /**
@@ -62,7 +60,7 @@ class TaxRateController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -85,8 +83,8 @@ class TaxRateController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/tax_rates/create",
      *      operationId="getTaxRateCreate",
@@ -111,7 +109,7 @@ class TaxRateController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -122,7 +120,6 @@ class TaxRateController extends BaseController
     {
         $tax_rate = TaxRateFactory::create(auth()->user()->company()->id, auth()->user()->id);
         return $this->itemResponse($tax_rate);
-
     }
 
     /**
@@ -182,7 +179,7 @@ class TaxRateController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -200,7 +197,7 @@ class TaxRateController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/tax_rates/{id}/edit",
      *      operationId="editTaxRate",
@@ -236,7 +233,7 @@ class TaxRateController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -255,8 +252,8 @@ class TaxRateController extends BaseController
      * @param  App\Models\Client $client
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Put(
      *      path="/api/v1/tax_rates/{id}",
      *      operationId="updateTaxRate",
@@ -292,7 +289,7 @@ class TaxRateController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -305,7 +302,6 @@ class TaxRateController extends BaseController
         $tax_rate->save();
 
         return $this->itemResponse($tax_rate);
-
     }
 
     /**
@@ -314,7 +310,7 @@ class TaxRateController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/tax_rates/{id}",
      *      operationId="deleteTaxRate",
@@ -349,7 +345,7 @@ class TaxRateController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -361,6 +357,5 @@ class TaxRateController extends BaseController
         $tax_rate->delete();
 
         return response()->json([], 200);
-
     }
 }

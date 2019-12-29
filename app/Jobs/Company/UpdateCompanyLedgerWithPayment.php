@@ -39,7 +39,6 @@ class UpdateCompanyLedgerWithPayment
 
     public function __construct(Payment $payment, float $adjustment, Company $company)
     {
-
         $this->payment = $payment;
 
         $this->adjustment = $adjustment;
@@ -52,7 +51,7 @@ class UpdateCompanyLedgerWithPayment
      *
      * @return void
      */
-    public function handle() 
+    public function handle()
     {
         MultiDB::setDB($this->company->db);
 
@@ -65,8 +64,9 @@ class UpdateCompanyLedgerWithPayment
                                 ->orderBy('id', 'DESC')
                                 ->first();
 
-        if($ledger)
+        if ($ledger) {
             $balance = $ledger->balance;
+        }
 
 
         $company_ledger = CompanyLedgerFactory::create($this->payment->company_id, $this->payment->user_id);
@@ -76,6 +76,5 @@ class UpdateCompanyLedgerWithPayment
         $company_ledger->save();
 
         $this->payment->company_ledger()->save($company_ledger); //todo add model directive here
-
     }
 }

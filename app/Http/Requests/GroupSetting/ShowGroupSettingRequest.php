@@ -26,5 +26,4 @@ class ShowGroupSettingRequest extends Request
     {
         return auth()->user()->can('view', $this->group_setting);
     }
-
 }

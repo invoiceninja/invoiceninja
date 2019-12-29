@@ -47,16 +47,13 @@ class UpdateClientRequest extends Request
 
         $contacts = request('contacts');
 
-            if(is_array($contacts))
-            {
-                // for ($i = 0; $i < count($contacts); $i++) {
+        if (is_array($contacts)) {
+            // for ($i = 0; $i < count($contacts); $i++) {
                 // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
                 //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
                 // }
-            }
-            return $rules;
-            
-
+        }
+        return $rules;
     }
 
     public function messages()
@@ -74,11 +71,10 @@ class UpdateClientRequest extends Request
         $input = $this->all();
         
 
-        if(isset($input['group_settings_id']))
+        if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
 
         $this->replace($input);
-
     }
-
 }

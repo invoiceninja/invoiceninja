@@ -36,7 +36,6 @@ class UpdateCompanyLedgerWithInvoice
 
     public function __construct(Invoice $invoice, float $adjustment, Company $company)
     {
-
         $this->invoice = $invoice;
 
         $this->adjustment = $adjustment;
@@ -49,7 +48,7 @@ class UpdateCompanyLedgerWithInvoice
      *
      * @return void
      */
-    public function handle() 
+    public function handle()
     {
         MultiDB::setDB($this->company->db);
 
@@ -60,8 +59,9 @@ class UpdateCompanyLedgerWithInvoice
                                 ->orderBy('id', 'DESC')
                                 ->first();
 
-        if($ledger)
+        if ($ledger) {
             $balance = $ledger->balance;
+        }
 
         $adjustment = $balance + $this->adjustment;
         
@@ -72,6 +72,5 @@ class UpdateCompanyLedgerWithInvoice
         $company_ledger->save();
 
         $this->invoice->company_ledger()->save($company_ledger);
-
     }
 }

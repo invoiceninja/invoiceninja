@@ -36,5 +36,4 @@ class EditClientRequest extends Request
     //     $this->replace($input);
 
     // }
-
 }

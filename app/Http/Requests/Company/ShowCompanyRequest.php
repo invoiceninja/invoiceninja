@@ -26,5 +26,4 @@ class ShowCompanyRequest extends Request
     {
         return auth()->user()->can('view', $this->company);
     }
-
 }

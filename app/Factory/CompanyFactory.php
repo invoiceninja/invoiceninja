@@ -17,14 +17,14 @@ use App\Utils\Traits\MakesHash;
 
 class CompanyFactory
 {
-	use MakesHash;
+    use MakesHash;
 
     /**
      * @param int $account_id
      * @return Company
      */
     public function create(int $account_id) :Company
-	{
+    {
         $company = new Company;
         // $company->name = '';
         $company->account_id = $account_id;

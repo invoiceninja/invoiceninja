@@ -25,9 +25,7 @@ class UpdateProductRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('create', Product::class);
-
     }
 
     public function rules()
@@ -45,11 +43,10 @@ class UpdateProductRequest extends Request
     {
         $input = $this->all();
 
-        if(!isset($input['quantity']) || $input['quantity'] < 1)
+        if (!isset($input['quantity']) || $input['quantity'] < 1) {
             $input['quantity'] = 1;
+        }
 
         $this->replace($input);
-
     }
 }
-

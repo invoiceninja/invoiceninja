@@ -44,7 +44,6 @@ class CreateInvoicePdf implements ShouldQueue
      */
     public function __construct(Invoice $invoice, Company $company)
     {
-
         $this->invoice = $invoice;
 
         $this->company = $company;
@@ -52,11 +51,10 @@ class CreateInvoicePdf implements ShouldQueue
 
     public function handle()
     {
-
         MultiDB::setDB($this->company->db);
 
         $this->invoice->load('client');
-        $path = 'public/' . $this->invoice->client->client_hash . '/invoices/'; 
+        $path = 'public/' . $this->invoice->client->client_hash . '/invoices/';
         $file_path = $path . $this->invoice->number . '.pdf';
 
         //get invoice design
@@ -66,32 +64,28 @@ class CreateInvoicePdf implements ShouldQueue
         Storage::makeDirectory($path, 0755);
 
         //create pdf
-        $pdf = $this->makePdf(null,null,$html);
+        $pdf = $this->makePdf(null, null, $html);
 
         $path = Storage::put($file_path, $pdf);
-
-
     }
 
     /**
      * Returns a PDF stream
-     * 
+     *
      * @param  string $header Header to be included in PDF
      * @param  string $footer Footer to be included in PDF
      * @param  string $html   The HTML object to be converted into PDF
-     * 
+     *
      * @return string        The PDF string
      */
-    private function makePdf($header, $footer, $html) 
+    private function makePdf($header, $footer, $html)
     {
-            return Browsershot::html($html)
+        return Browsershot::html($html)
             //->showBrowserHeaderAndFooter()
             //->headerHtml($header)
             //->footerHtml($footer)
             ->waitUntilNetworkIdle(false)->pdf();
-            //->margins(10,10,10,10)
+        //->margins(10,10,10,10)
             //->savePdf('test.pdf');
     }
-
-
 }

@@ -19,6 +19,4 @@ use App\Models\User;
  */
 class ActivityPolicy extends EntityPolicy
 {
-
-
 }

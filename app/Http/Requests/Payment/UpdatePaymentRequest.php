@@ -24,9 +24,7 @@ class UpdatePaymentRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->payment);
-
     }
 
 
@@ -40,5 +38,4 @@ class UpdatePaymentRequest extends Request
             'date' => 'required',
         ];
     }
-    
 }

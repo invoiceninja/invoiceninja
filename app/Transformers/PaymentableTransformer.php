@@ -27,9 +27,7 @@ class PaymentableTransformer extends EntityTransformer
 
     public function __construct($serializer = null)
     {
-
         $this->serializer = $serializer;
-
     }
 
     public function transform(Paymentable $paymentable)

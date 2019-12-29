@@ -26,5 +26,4 @@ class ActionRecurringInvoiceRequest extends Request
     {
         return auth()->user()->can('edit', $this->recurring_invoice);
     }
-
 }

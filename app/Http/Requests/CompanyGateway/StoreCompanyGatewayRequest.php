@@ -26,14 +26,11 @@ class StoreCompanyGatewayRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->isAdmin();
-
     }
 
     public function rules()
     {
-
         $rules = [
             'gateway_key' => 'required',
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
@@ -46,14 +43,14 @@ class StoreCompanyGatewayRequest extends Request
     {
         $input = $this->all();
 
-        if(isset($input['config']))
+        if (isset($input['config'])) {
             $input['config'] = encrypt($input['config']);
+        }
 
-        if(isset($input['fees_and_limits']))
+        if (isset($input['fees_and_limits'])) {
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
+        }
 
         $this->replace($input);
-
     }
 }
-

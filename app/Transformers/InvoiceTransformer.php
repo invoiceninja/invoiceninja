@@ -37,48 +37,48 @@ class InvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->invitations, $transformer, InvoiceInvitation::class);
     }
-/*
-    public function includeInvoiceItems(Invoice $invoice)
-    {
-        $transformer = new InvoiceItemTransformer($this->serializer);
-
-        return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
-    }
-
-
-
-    public function includePayments(Invoice $invoice)
-    {
-        $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
-
-        return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
-    }
-
-    public function includeClient(Invoice $invoice)
-    {
-        $transformer = new ClientTransformer($this->account, $this->serializer);
-
-        return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
-    }
-
-    public function includeExpenses(Invoice $invoice)
-    {
-        $transformer = new ExpenseTransformer($this->account, $this->serializer);
-
-        return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
-    }
-
-    public function includeDocuments(Invoice $invoice)
-    {
-        $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-        $invoice->documents->each(function ($document) use ($invoice) {
-            $document->setRelation('invoice', $invoice);
-        });
-
-        return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
-    }
-*/
+    /*
+        public function includeInvoiceItems(Invoice $invoice)
+        {
+            $transformer = new InvoiceItemTransformer($this->serializer);
+    
+            return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
+        }
+    
+    
+    
+        public function includePayments(Invoice $invoice)
+        {
+            $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
+    
+            return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
+        }
+    
+        public function includeClient(Invoice $invoice)
+        {
+            $transformer = new ClientTransformer($this->account, $this->serializer);
+    
+            return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
+        }
+    
+        public function includeExpenses(Invoice $invoice)
+        {
+            $transformer = new ExpenseTransformer($this->account, $this->serializer);
+    
+            return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
+        }
+    
+        public function includeDocuments(Invoice $invoice)
+        {
+            $transformer = new DocumentTransformer($this->account, $this->serializer);
+    
+            $invoice->documents->each(function ($document) use ($invoice) {
+                $document->setRelation('invoice', $invoice);
+            });
+    
+            return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
+        }
+    */
     public function transform(Invoice $invoice)
     {
         return [

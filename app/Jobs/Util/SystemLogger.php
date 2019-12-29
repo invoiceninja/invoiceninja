@@ -48,8 +48,7 @@ class SystemLogger implements ShouldQueue
 
     public function handle() :void
     {
-
-       $sl = [
+        $sl = [
             'client_id' => $this->client->id,
             'company_id' => $this->client->company->id,
             'user_id' => $this->client->user_id,
@@ -61,5 +60,4 @@ class SystemLogger implements ShouldQueue
 
         SystemLog::create($sl);
     }
-
 }

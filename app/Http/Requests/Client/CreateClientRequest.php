@@ -26,5 +26,4 @@ class CreateClientRequest extends Request
     {
         return auth()->user()->can('create', Client::class);
     }
-
 }

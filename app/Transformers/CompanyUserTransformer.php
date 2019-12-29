@@ -65,7 +65,6 @@ class CompanyUserTransformer extends EntityTransformer
 
     public function includeAccount(CompanyUser $company_user)
     {
-
         $transformer = new AccountTransformer($this->serializer);
 
         return $this->includeItem($company_user->account, $transformer, Account::class);
@@ -73,29 +72,22 @@ class CompanyUserTransformer extends EntityTransformer
 
     public function includeCompany(CompanyUser $company_user)
     {
-
         $transformer = new CompanyTransformer($this->serializer);
 
         return $this->includeItem($company_user->company, $transformer, Company::class);
-    
     }
 
     public function includeUser(CompanyUser $company_user)
     {
-
         $transformer = new UserTransformer($this->serializer);
 
         return $this->includeItem($company_user->user, $transformer, User::class);
-    
     }
 
     public function includeToken(CompanyUser $company_user)
     {
-
         $transformer = new CompanyTokenTransformer($this->serializer);
 
         return $this->includeItem($company_user->token, $transformer, CompanyToken::class);
-
     }
-
 }

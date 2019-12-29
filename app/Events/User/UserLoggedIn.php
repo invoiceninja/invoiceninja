@@ -39,9 +39,7 @@ class UserLoggedIn
      */
     public function __construct($user)
     {
-
         $this->user = $user;
-        
     }
 
     /**

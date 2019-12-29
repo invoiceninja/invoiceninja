@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Lang;
 class ClientContactResetPassword extends Notification
 {
     use Queueable;
- /**
-     * The password reset token.
-     *
-     * @var string
-     */
+    /**
+        * The password reset token.
+        *
+        * @var string
+        */
     public $token;
 
     /**

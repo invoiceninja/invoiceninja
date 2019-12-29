@@ -27,4 +27,3 @@
  *       @OA\Property(property="settings",ref="#/components/schemas/CompanySettings"),
  * )
  */
-

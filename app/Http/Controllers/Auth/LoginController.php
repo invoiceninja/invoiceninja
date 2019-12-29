@@ -40,16 +40,16 @@ class LoginController extends BaseController
     |
     */
    
-   /**
-     * @OA\Tag(
-     *     name="login",
-     *     description="Authentication",
-     *     @OA\ExternalDocumentation(
-     *         description="Find out more",
-     *         url="http://docs.invoiceninja.com"
-     *     )
-     * )
-     */
+    /**
+      * @OA\Tag(
+      *     name="login",
+      *     description="Authentication",
+      *     @OA\ExternalDocumentation(
+      *         description="Find out more",
+      *         url="http://docs.invoiceninja.com"
+      *     )
+      * )
+      */
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
@@ -72,9 +72,7 @@ class LoginController extends BaseController
      */
     public function __construct()
     {
-
         parent::__construct();
-
     }
 
     /**
@@ -97,7 +95,7 @@ class LoginController extends BaseController
      *
      * @return     Response|User Process user login.
      *
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/login",
      *      operationId="postLogin",
@@ -146,7 +144,7 @@ class LoginController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -170,17 +168,13 @@ class LoginController extends BaseController
         }
 
         if ($this->attemptLogin($request)) {
-
             $user = $this->guard()->user();
             
             $user->setCompany($user->company_user->account->default_company);
 
             $ct = CompanyUser::whereUserId($user->id);
             return $this->listResponse($ct);
-
-        }
-        else {
-
+        } else {
             $this->incrementLoginAttempts($request);
 
             return response()
@@ -188,15 +182,14 @@ class LoginController extends BaseController
             ->header('X-App-Version', config('ninja.app_version'))
             ->header('X-Api-Version', config('ninja.api_version'));
         }
-
     }
 
     /**
      * Refreshes the data feed with the current Company User
-     *     
+     *
      * @return     CompanyUser Refresh Feed.
      *
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/refresh",
      *      operationId="refresh",
@@ -224,7 +217,7 @@ class LoginController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -233,8 +226,8 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-         $ct = CompanyUser::whereUserId(auth()->user()->id);
-            return $this->listResponse($ct);
+        $ct = CompanyUser::whereUserId(auth()->user()->id);
+        return $this->listResponse($ct);
     }
 
     /**
@@ -242,28 +235,27 @@ class LoginController extends BaseController
      *
      * @return void
      */
-    public function redirectToProvider(string $provider) 
+    public function redirectToProvider(string $provider)
     {
         //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
         //
-        if(request()->has('code'))
+        if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
-        else
+        } else {
             return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirect();
+        }
     }
 
 
     public function redirectToProviderAndCreate(string $provider)
     {
-
         $redirect_url = config('services.' . $provider . '.redirect') . '/create';
 
-        if(request()->has('code'))
+        if (request()->has('code')) {
             return $this->handleProviderCallbackAndCreate($provider);
-        else
+        } else {
             return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirectUrl($redirect_url)->redirect();
-
-        
+        }
     }
 
 
@@ -278,23 +270,20 @@ class LoginController extends BaseController
                                     ->user();
 
         /* Handle existing users who attempt to create another account with existing OAuth credentials */
-        if($user = OAuth::handleAuth($socialite_user, $provider))
-        {
+        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
             $user->oauth_user_token = $socialite_user->refreshToken;
             $user->save();
             Auth::login($user, true);
             
             return redirect($this->redirectTo);
-        }
-        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
-        {
+        } elseif (MultiDB::checkUserEmailExists($socialite_user->getEmail())) {
             Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
 
             return view('auth.login');
-        }       
+        }
         /** 3. Automagically creating a new account here. */
         else {
-            //todo            
+            //todo
             $name = OAuth::splitName($socialite_user->getName());
 
             $new_account = [
@@ -317,17 +306,15 @@ class LoginController extends BaseController
 
             return redirect($this->redirectTo)->withCookie($cookie);
         }
-
     }
 
     /**
      * We use this function when OAUTHING via the web interface
-     * 
-     * @return redirect 
+     *
+     * @return redirect
      */
-    public function handleProviderCallback(string $provider) 
+    public function handleProviderCallback(string $provider)
     {
-
         $redirect_url = config('services.' . $provider . '.redirect');
 
         $socialite_user = Socialite::driver($provider)
@@ -335,23 +322,20 @@ class LoginController extends BaseController
                                     ->stateless()
                                     ->user();
 
-        if($user = OAuth::handleAuth($socialite_user, $provider))
-        {
+        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
             $user->oauth_user_token = $socialite_user->token;
             $user->save();
             Auth::login($user, true);
             
             return redirect($this->redirectTo);
-        }
-        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
-        {
+        } elseif (MultiDB::checkUserEmailExists($socialite_user->getEmail())) {
             Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
 
             return view('auth.login');
-        }       
+        }
         /** 3. Automagically creating a new account here. */
         else {
-            //todo            
+            //todo
             $name = OAuth::splitName($socialite_user->getName());
 
             $new_account = [
@@ -372,25 +356,22 @@ class LoginController extends BaseController
 
             return redirect($this->redirectTo)->withCookie($cookie);
         }
-
-
     }
 
     /**
-     * A client side authentication has taken place. 
+     * A client side authentication has taken place.
      * We now digest the token and confirm authentication with
      * the authentication server, the correct user object
      * is returned to us here and we send back the correct
      * user object payload - or error.
      *
-     * This can be extended to a create route also - need to pass a ?create query parameter and 
+     * This can be extended to a create route also - need to pass a ?create query parameter and
      * then process the signup
-     * 
+     *
      * return   User $user
      */
     public function oauthApiLogin()
     {
-
         $user = false;
 
         $oauth = new OAuth();
@@ -400,12 +381,9 @@ class LoginController extends BaseController
         if ($user) {
             $ct = CompanyUser::whereUserId($user);
             return $this->listResponse($ct);
-          //  return $this->itemResponse($user);
-        }
-        else
+        //  return $this->itemResponse($user);
+        } else {
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
-
+        }
     }
-
-
 }

@@ -38,11 +38,9 @@ class CreateQuoteInvitations implements ShouldQueue
      */
     public function __construct(Quote $quote, Company $company)
     {
-
         $this->quote = $quote;
 
         $this->company = $company;
-
     }
 
     public function handle()
@@ -52,23 +50,19 @@ class CreateQuoteInvitations implements ShouldQueue
         $contacts = $this->quote->client->contacts;
 
         $contacts->each(function ($contact) {
-
             $invitation = QuoteInvitation::whereCompanyId($this->quote->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->whereQuoteId($this->quote->id)
                                         ->first();
 
-            if(!$invitation && $contact->send_invoice) {
+            if (!$invitation && $contact->send_invoice) {
                 $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
                 $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            }
-            else if($invitation && !$contact->send_invoice) {
+            } elseif ($invitation && !$contact->send_invoice) {
                 $invitation->delete();
             }
-
         });
-
     }
 }

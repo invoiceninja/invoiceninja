@@ -20,15 +20,14 @@ use App\Models\User;
  */
 class InvoicePolicy extends EntityPolicy
 {
-	/**
-	 *  Checks if the user has create permissions
-	 *  
-	 * @param  User $user
-	 * @return bool
-	 */
-	public function create(User $user) : bool
-	{
-		return $user->isAdmin() || $user->hasPermission('create_invoice') || $user->hasPermission('create_all');
-	}
-
+    /**
+     *  Checks if the user has create permissions
+     *
+     * @param  User $user
+     * @return bool
+     */
+    public function create(User $user) : bool
+    {
+        return $user->isAdmin() || $user->hasPermission('create_invoice') || $user->hasPermission('create_all');
+    }
 }

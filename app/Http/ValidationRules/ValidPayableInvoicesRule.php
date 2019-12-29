@@ -36,12 +36,12 @@ class ValidPayableInvoicesRule implements Rule
         /*If no invoices has been sent, then we apply the payment to the client account*/
         $invoices = [];
 
-        if(is_array($value))
-            $invoices = Invoice::whereIn('id', array_column($value,'id'))->company()->get();
+        if (is_array($value)) {
+            $invoices = Invoice::whereIn('id', array_column($value, 'id'))->company()->get();
+        }
 
         foreach ($invoices as $invoice) {
-
-            if(! $invoice->isPayable()) {
+            if (! $invoice->isPayable()) {
                 $this->error_msg = "One or more of these invoices have been paid";
                 return false;
             }
@@ -57,5 +57,4 @@ class ValidPayableInvoicesRule implements Rule
     {
         return $this->error_msg;
     }
-
 }

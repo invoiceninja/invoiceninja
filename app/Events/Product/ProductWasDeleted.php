@@ -14,7 +14,7 @@ namespace App\Events\Product;
 use App\Models\Product;
 use Illuminate\Queue\SerializesModels;
 
-class ProductWasDeleted 
+class ProductWasDeleted
 {
     use SerializesModels;
 

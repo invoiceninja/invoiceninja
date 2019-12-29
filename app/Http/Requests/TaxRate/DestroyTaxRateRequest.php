@@ -25,5 +25,4 @@ class DestroyTaxRateRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

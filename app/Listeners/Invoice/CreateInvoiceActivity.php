@@ -41,7 +41,6 @@ class CreateInvoiceActivity implements ShouldQueue
      */
     public function handle($event)
     {
-
         $fields = new \stdClass;
 
         $fields->invoice_id = $event->invoice->id;

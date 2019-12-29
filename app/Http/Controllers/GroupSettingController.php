@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Factory\GroupSettingFactory;
 use App\Http\Requests\GroupSetting\CreateGroupSettingRequest;
 use App\Http\Requests\GroupSetting\DestroyGroupSettingRequest;
@@ -49,7 +48,7 @@ class GroupSettingController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/group_settings",
      *      operationId="getGroupSettings",
@@ -77,7 +76,7 @@ class GroupSettingController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -96,8 +95,8 @@ class GroupSettingController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/group_settings/create",
      *      operationId="getGroupSettingsCreate",
@@ -123,7 +122,7 @@ class GroupSettingController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -170,7 +169,7 @@ class GroupSettingController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -189,7 +188,6 @@ class GroupSettingController extends BaseController
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
 
         return $this->itemResponse($group_setting);
-
     }
 
     /**
@@ -235,7 +233,7 @@ class GroupSettingController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -253,7 +251,7 @@ class GroupSettingController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/group_settings/{id}/edit",
      *      operationId="editGroupSetting",
@@ -290,7 +288,7 @@ class GroupSettingController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -309,7 +307,7 @@ class GroupSettingController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/group_settings/{id}",
      *      operationId="updateGroupSetting",
@@ -346,7 +344,7 @@ class GroupSettingController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -355,13 +353,11 @@ class GroupSettingController extends BaseController
      */
     public function update(UpdateGroupSettingRequest $request, GroupSetting $group_setting)
     {
-
         $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
     
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
 
-       return $this->itemResponse($group_setting);
-
+        return $this->itemResponse($group_setting);
     }
 
     /**
@@ -370,7 +366,7 @@ class GroupSettingController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/group_settings/{id}",
      *      operationId="deleteGroupSetting",
@@ -406,7 +402,7 @@ class GroupSettingController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -418,6 +414,5 @@ class GroupSettingController extends BaseController
         $group_setting->delete();
 
         return response()->json([], 200);
-
     }
 }

@@ -25,5 +25,4 @@ class ClientContactPresenter extends EntityPresenter
     {
         return $this->entity->first_name . ' ' . $this->entity->last_name;
     }
-
 }

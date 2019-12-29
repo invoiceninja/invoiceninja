@@ -45,6 +45,4 @@ class AttachCompanyUserRequest extends Request
             'is_owner' => false,
         ]);
     }
-
-
 }
