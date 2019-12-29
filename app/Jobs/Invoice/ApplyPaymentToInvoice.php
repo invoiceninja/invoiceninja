@@ -106,7 +106,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
         if($this->invoice->balance == 0){
             $this->invoice->status_id = Invoice::STATUS_PAID;
             $this->invoice->save();
-            event(new InvoiceWasPaid($this->invoice));
+            event(new InvoiceWasPaid($this->invoice, $this->invoice->company));
         }
         elseif($this->payment->amount > 0 && $this->invoice->balance > 0)
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;

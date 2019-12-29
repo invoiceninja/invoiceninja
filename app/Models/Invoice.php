@@ -414,7 +414,7 @@ class Invoice extends BaseModel
         if($this->balance == 0) {
             $this->status_id = self::STATUS_PAID;
             $this->save();
-            event(new InvoiceWasPaid($this));
+            event(new InvoiceWasPaid($this, $this->company));
 
             return;
         }
