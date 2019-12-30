@@ -196,7 +196,7 @@ class Company extends BaseModel
     }
 
     /**
-     * 
+     *
      */
     public function timezone()
     {
@@ -273,7 +273,7 @@ class Company extends BaseModel
 
     public function owner()
     {
-        $c = $this->company_users->where('is_owner',true)->first();
+        $c = $this->company_users->where('is_owner', true)->first();
 
         return User::find($c->user_id);
     }
@@ -288,5 +288,4 @@ class Company extends BaseModel
     {
         return 'https://' . $this->subdomain . config('ninja.app_domain');
     }
-
 }

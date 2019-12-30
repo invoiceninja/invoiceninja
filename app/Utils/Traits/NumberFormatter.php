@@ -17,16 +17,13 @@ namespace App\Utils\Traits;
  */
 trait NumberFormatter
 {
-    
-	private function formatValue($value, $precision) : string
-	{
-
+    private function formatValue($value, $precision) : string
+    {
         return number_format($this->parseFloat($value), $precision, '.', '');
+    }
 
-	}
 
-
-	/**
+    /**
      * Parse a float value that may be delimited with either a comma or decimal point
      *
      * @param      string $value  The value
@@ -44,7 +41,5 @@ trait NumberFormatter
         $value = preg_replace('/[^0-9\.\-]/', '', $value);
 
         return floatval($value);
-
     }
-
 }

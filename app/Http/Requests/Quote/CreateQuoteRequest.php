@@ -26,5 +26,4 @@ class CreateQuoteRequest extends Request
     {
         return auth()->user()->can('create', Quote::class);
     }
-
 }

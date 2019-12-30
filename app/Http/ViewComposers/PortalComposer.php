@@ -29,9 +29,7 @@ class PortalComposer
      */
     public function compose(View $view) :void
     {
-
-       $view->with($this->portalData());
-
+        $view->with($this->portalData());
     }
 
     /**
@@ -39,9 +37,9 @@ class PortalComposer
      */
     private function portalData() :array
     {
-
-        if(!auth()->user())
+        if (!auth()->user()) {
             return [];
+        }
 
         $data['sidebar'] = $this->sidebarMenu();
         $data['header'] = [];
@@ -51,15 +49,13 @@ class PortalComposer
         $data['client'] = auth()->user()->client;
         $data['settings'] = auth()->user()->client->getMergedSettings();
 
-//\Log::error(print_r($data['settings'],1));
+        //\Log::error(print_r($data['settings'],1));
 
         return $data;
-
     }
 
     private function sidebarMenu() :array
     {
-
         $data = [];
 
         $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'fa fa-tachometer fa-fw fa-2x'];
@@ -69,7 +65,5 @@ class PortalComposer
         $data[] = [ 'title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'fa fa-cc-stripe fa-fw fa-2x'];
 
         return $data;
-        
     }
-
 }

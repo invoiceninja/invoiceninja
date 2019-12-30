@@ -11,13 +11,14 @@
 
 namespace App\Events\Invoice;
 
+use App\Models\Company;
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Class InvoiceWasUpdated.
  */
-class InvoiceWasUpdated 
+class InvoiceWasUpdated
 {
     use SerializesModels;
 
@@ -26,13 +27,15 @@ class InvoiceWasUpdated
      */
     public $invoice;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, Company $company)
     {
         $this->invoice = $invoice;
+        $this->company = $company;
     }
 }

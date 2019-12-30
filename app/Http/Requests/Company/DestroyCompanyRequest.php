@@ -26,5 +26,4 @@ class DestroyCompanyRequest extends Request
     {
         return auth()->user()->isOwner();
     }
-
 }

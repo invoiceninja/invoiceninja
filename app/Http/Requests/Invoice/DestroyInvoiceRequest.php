@@ -26,5 +26,4 @@ class DestroyInvoiceRequest extends Request
     {
         return auth()->user()->can('edit', $this->invoice);
     }
-
 }

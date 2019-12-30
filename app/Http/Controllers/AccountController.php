@@ -43,8 +43,7 @@ class AccountController extends BaseController
      */
     public function index()
     {
-       // return view('signup.index');
-
+        // return view('signup.index');
     }
 
     /**
@@ -113,7 +112,7 @@ class AccountController extends BaseController
      *                     property="privacy_policy",
      *                     description="The user accepted the privacy policy",
      *                     type="boolean",
-     *                 ), 
+     *                 ),
      *                 @OA\Property(
      *                     property="password",
      *                     example="1234567",
@@ -138,7 +137,7 @@ class AccountController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -146,13 +145,11 @@ class AccountController extends BaseController
      */
     public function store(CreateAccountRequest $request)
     {
-
         $account = CreateAccount::dispatchNow($request->all());
                 
         $ct = CompanyUser::whereUserId(auth()->user()->id);
         
         return $this->listResponse($ct);
-
     }
 
     /**

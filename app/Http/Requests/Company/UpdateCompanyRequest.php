@@ -26,15 +26,12 @@ class UpdateCompanyRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->company);
-
     }
 
 
     public function rules()
     {
-        
         $rules = [];
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
@@ -44,15 +41,12 @@ class UpdateCompanyRequest extends Request
         $rules['country_id'] = 'integer|nullable';
         $rules['work_email'] = 'email|nullable';
 
-        if(isset($rules['portal_mode']) && ($rules['portal_mode'] == 'domain' || $rules['portal_mode'] == 'iframe'))
+        if (isset($rules['portal_mode']) && ($rules['portal_mode'] == 'domain' || $rules['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
-        else 
+        } else {
             $rules['portal_domain'] = 'nullable|alpha_num';
+        }
 
         return $rules;
-
     }
-    
 }
-
-

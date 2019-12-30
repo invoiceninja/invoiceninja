@@ -26,5 +26,4 @@ class CreatePaymentRequest extends Request
     {
         return auth()->user()->can('create', Payment::class);
     }
-
 }

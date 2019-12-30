@@ -30,7 +30,7 @@ class ProductPolicy extends EntityPolicy
 
     /**
      *  Checks if the user has create permissions
-     *  
+     *
      * @param  User $user
      * @return bool
      */
@@ -38,5 +38,4 @@ class ProductPolicy extends EntityPolicy
     {
         return $user->isAdmin() || $user->hasPermission('create_product') || $user->hasPermission('create_all');
     }
-
 }

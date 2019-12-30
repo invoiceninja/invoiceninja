@@ -23,5 +23,4 @@ class Currency extends StaticModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
 }

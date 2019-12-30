@@ -27,33 +27,19 @@ class ContactSetDb
     
     public function handle($request, Closure $next)
     {
-
-
         $error = [
                 'message' => 'Invalid Token',
                 'errors' => []
             ];
 
-        if( $request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) 
-        {
-
-            if(! MultiDB::contactFindAndSetDb($request->header('X-API-TOKEN')))
-            {
-
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
-
+        if ($request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) {
+            if (! MultiDB::contactFindAndSetDb($request->header('X-API-TOKEN'))) {
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
             }
-        
-        }
-        else {
-
-
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
-            
+        } else {
+            return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
         }
 
         return $next($request);
     }
-
-
 }

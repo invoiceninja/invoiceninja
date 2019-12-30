@@ -16,14 +16,13 @@ use Illuminate\Support\Facades\Cache;
  * falls back on defaults if no string exists
  *
  * //Cache::forever($custom_company_translated_string, 'mogly');
- * 
+ *
  * @param  string translation string key
  * @return string
  */
 function ctrans(string $string, $replace = [], $locale = null) : string
 {
-	//todo pass through the cached version of the custom strings here else return trans();
-	
+    //todo pass through the cached version of the custom strings here else return trans();
+    
     return trans($string, $replace, $locale);
-
 }

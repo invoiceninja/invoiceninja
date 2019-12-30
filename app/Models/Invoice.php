@@ -118,18 +118,17 @@ class Invoice extends BaseModel
 
     public function getStatusAttribute()
     {
-
-        if($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now())
+        if ($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now()) {
             return Invoice::STATUS_UNPAID;
-        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now())
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
             return Invoice::STATUS_UNPAID;
-        else if($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now())
+        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now()) {
             return Invoice::STATUS_OVERDUE;
-        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now())
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
             return Invoice::STATUS_OVERDUE;
-        else
+        } else {
             return $this->status_id;
-
+        }
     }
 
     public function company()
@@ -144,7 +143,7 @@ class Invoice extends BaseModel
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
     public function invitations()
@@ -213,17 +212,17 @@ class Invoice extends BaseModel
 
     public function isPayable() : bool
     {
-
-        if($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now())
+        if ($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now()) {
             return true;
-        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now())
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
             return true;
-        else if($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now())
+        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now()) {
             return true;
-        else if($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now())
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     public static function badgeForStatus(int $status)
@@ -299,10 +298,11 @@ class Invoice extends BaseModel
      */
     public function design() :string
     {
-        if($this->client->getSetting('design'))
+        if ($this->client->getSetting('design')) {
             return File::exists(resource_path($this->client->getSetting('design'))) ? File::get(resource_path($this->client->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
-        else
+        } else {
             return File::get(resource_path('views/pdf/design1.blade.php'));
+        }
     }
 
     /**
@@ -314,13 +314,13 @@ class Invoice extends BaseModel
     {
         $invoice_calc = null;
 
-        if($this->uses_inclusive_taxes)
+        if ($this->uses_inclusive_taxes) {
             $invoice_calc = new InvoiceSumInclusive($this);
-        else
+        } else {
             $invoice_calc = new InvoiceSum($this);
+        }
 
         return $invoice_calc->build();
-
     }
 
     /** TODO// DOCUMENT THIS FUNCTIONALITY */
@@ -330,7 +330,7 @@ class Invoice extends BaseModel
 
         $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
-        if(!Storage::exists($storage_path)) {
+        if (!Storage::exists($storage_path)) {
             event(new InvoiceWasUpdated($this, $this->company));
             CreateInvoicePdf::dispatch($this, $this->company);
         }
@@ -342,7 +342,7 @@ class Invoice extends BaseModel
     {
         $storage_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
-        if(!Storage::exists($storage_path)) {
+        if (!Storage::exists($storage_path)) {
             CreateInvoicePdf::dispatchNow($this, $this->company);
         }
 
@@ -403,15 +403,15 @@ class Invoice extends BaseModel
      */
     public function updateBalance($balance_adjustment)
     {
-
-        if ($this->is_deleted)
+        if ($this->is_deleted) {
             return;
+        }
 
         $balance_adjustment = floatval($balance_adjustment);
 
         $this->balance = $this->balance + $balance_adjustment;
 
-        if($this->balance == 0) {
+        if ($this->balance == 0) {
             $this->status_id = self::STATUS_PAID;
             $this->save();
             event(new InvoiceWasPaid($this, $this->company));
@@ -437,8 +437,9 @@ class Invoice extends BaseModel
     public function markSent()
     {
         /* Return immediately if status is not draft */
-        if($this->status_id != Invoice::STATUS_DRAFT)
+        if ($this->status_id != Invoice::STATUS_DRAFT) {
             return $this;
+        }
 
         $this->status_id = Invoice::STATUS_SENT;
 
@@ -465,15 +466,11 @@ class Invoice extends BaseModel
      */
     private function markInvitationsSent()
     {
-        $this->invitations->each(function($invitation) {
-
-            if(!isset($invitation->sent_date))
-            {
+        $this->invitations->each(function ($invitation) {
+            if (!isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
                 $invitation->save();
             }
-
         });
     }
-
 }

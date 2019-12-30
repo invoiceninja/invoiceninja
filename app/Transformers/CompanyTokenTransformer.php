@@ -46,6 +46,4 @@ class CompanyTokenTransformer extends EntityTransformer
             'name' => $company_token->name ?: '',
         ];
     }
-
-
 }

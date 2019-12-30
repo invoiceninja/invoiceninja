@@ -13,10 +13,12 @@ namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
 use App\Models\Product;
+use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Support\Facades\Log;
 
 class UpdateProductRequest extends Request
 {
+    use ChecksEntityStatus;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,9 +27,7 @@ class UpdateProductRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('create', Product::class);
-
     }
 
     public function rules()
@@ -45,11 +45,10 @@ class UpdateProductRequest extends Request
     {
         $input = $this->all();
 
-        if(!isset($input['quantity']) || $input['quantity'] < 1)
+        if (!isset($input['quantity']) || $input['quantity'] < 1) {
             $input['quantity'] = 1;
+        }
 
         $this->replace($input);
-
     }
 }
-

@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class GroupSetting extends StaticModel
 {
-	use MakesHash;
-	
-	public $timestamps = false;
+    use MakesHash;
+    
+    public $timestamps = false;
 
     protected $casts = [
         'settings' => 'object',
@@ -35,24 +35,24 @@ class GroupSetting extends StaticModel
     ];
 
     protected $fillable = [
-    	'name',
-    	'settings'
+        'name',
+        'settings'
     ];
 
-	public function company()
-	{
-		return $this->belongsTo(Company::class);
-	}
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 
-	public function user()
-	{
-		return $this->belongsTo(User::class);
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
-	public function clients()
-	{
-		return $this->hasMany(Client::class, 'id', 'group_settings_id');
-	}
+    public function clients()
+    {
+        return $this->hasMany(Client::class, 'id', 'group_settings_id');
+    }
 
     /**
      * Retrieve the model for a bound value.

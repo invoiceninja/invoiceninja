@@ -70,7 +70,6 @@ class ClientController extends BaseController
         parent::__construct();
 
         $this->client_repo = $client_repo;
-
     }
 
     /**
@@ -111,11 +110,9 @@ class ClientController extends BaseController
      */
     public function index(ClientFilters $filters)
     {
-
         $clients = Client::filter($filters);
 
         return $this->listResponse($clients);
-
     }
 
     /**
@@ -170,9 +167,7 @@ class ClientController extends BaseController
      */
     public function show(ShowClientRequest $request, Client $client)
     {
-
         return $this->itemResponse($client);
-
     }
 
     /**
@@ -227,9 +222,7 @@ class ClientController extends BaseController
      */
     public function edit(EditClientRequest $request, Client $client)
     {
-
         return $this->itemResponse($client);
-
     }
 
     /**
@@ -286,13 +279,14 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
+        if($request->entityIsDeleted($client))
+            return $request->disallowUpdate();
 
         $client = $this->client_repo->save($request->all(), $client);
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
         return $this->itemResponse($client->fresh());
-
     }
 
     /**
@@ -336,11 +330,9 @@ class ClientController extends BaseController
      */
     public function create(CreateClientRequest $request)
     {
-
         $client = ClientFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($client);
-
     }
 
     /**
@@ -385,7 +377,6 @@ class ClientController extends BaseController
      */
     public function store(StoreClientRequest $request)
     {
-
         $client = $this->client_repo->save($request->all(), ClientFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $client->load('contacts', 'primary_contact');
@@ -393,7 +384,6 @@ class ClientController extends BaseController
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
         return $this->itemResponse($client);
-
     }
 
     /**
@@ -507,15 +497,15 @@ class ClientController extends BaseController
      */
     public function bulk()
     {
-
         $action = request()->input('action');
         
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->find($this->transformKeys($ids));
         
-        $clients->each(function ($client, $key) use($action){
-            if(auth()->user()->can('edit', $client))
+        $clients->each(function ($client, $key) use ($action) {
+            if (auth()->user()->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
+            }
         });
         
         return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
@@ -530,5 +520,4 @@ class ClientController extends BaseController
     {
         //todo
     }
-
 }

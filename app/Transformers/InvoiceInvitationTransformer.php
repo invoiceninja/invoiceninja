@@ -21,7 +21,6 @@ class InvoiceInvitationTransformer extends EntityTransformer
 
     public function transform(InvoiceInvitation $invitation)
     {
-
         return [
             'id' => $this->encodePrimaryKey($invitation->id),
             'client_contact_id' => $this->encodePrimaryKey($invitation->client_contact_id),

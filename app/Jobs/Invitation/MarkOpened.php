@@ -40,17 +40,15 @@ class MarkOpened implements ShouldQueue
      */
     public function __construct(string $message_id, string $entity)
     {
-
         $this->message_id = $message_id;
 
         $this->entity = $entity;
-
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
@@ -65,6 +63,5 @@ class MarkOpened implements ShouldQueue
 
         $invitation->email_error = $error;
         $invitation->save();
-
     }
 }

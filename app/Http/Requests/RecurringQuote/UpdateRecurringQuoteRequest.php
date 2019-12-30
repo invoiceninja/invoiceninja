@@ -12,11 +12,14 @@
 namespace App\Http\Requests\RecurringQuote;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateRecurringQuoteRequest extends Request
 {
+    use ChecksEntityStatus;
+    
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,9 +28,7 @@ class UpdateRecurringQuoteRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->recurring_quote);
-
     }
 
 
@@ -39,5 +40,4 @@ class UpdateRecurringQuoteRequest extends Request
 
         ];
     }
-    
 }

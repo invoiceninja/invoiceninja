@@ -43,5 +43,4 @@ class ShowCompanyGatewayRequest extends Request
 
         $this->replace($input);
     }
-
 }

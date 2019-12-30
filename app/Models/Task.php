@@ -19,14 +19,14 @@ class Task extends BaseModel
     use MakesHash;
     
     protected $fillable = [
-		'client_id',
+        'client_id',
         'invoice_id',
         'custom_value1',
         'custom_value2',
         'description',
         'is_running',
         'time_log',
-	];
+    ];
 
     protected $appends = ['task_id'];
 
@@ -47,7 +47,7 @@ class Task extends BaseModel
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
     public function user()
@@ -59,6 +59,4 @@ class Task extends BaseModel
     {
         return $this->belongsTo(Client::class);
     }
-
-    
 }

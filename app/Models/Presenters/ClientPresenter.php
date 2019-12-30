@@ -29,8 +29,9 @@ class ClientPresenter extends EntityPresenter
 
         $contact_name = 'No Contact Set';
 
-        if($contact)
+        if ($contact) {
             $contact_name = $contact->first_name. ' '. $contact->last_name;
+        }
 
         return $this->entity->name ?: $contact_name;
     }
@@ -98,12 +99,11 @@ class ClientPresenter extends EntityPresenter
     }
 
     /**
-     * Calculated company data fields 
+     * Calculated company data fields
      * using settings
      */
     public function company_name()
     {
-
         $settings = $this->entity->getMergedSettings();
 
         return $settings->name ?: ctrans('texts.untitled_account');
@@ -111,7 +111,6 @@ class ClientPresenter extends EntityPresenter
 
     public function company_address()
     {
-
         $settings = $this->entity->getMergedSettings();
 
         $str = '';
@@ -130,7 +129,6 @@ class ClientPresenter extends EntityPresenter
         }
 
         return $str;
-
     }
 
     public function getCityState()
@@ -139,8 +137,9 @@ class ClientPresenter extends EntityPresenter
 
         $country = false;
 
-        if($settings->country_id)
+        if ($settings->country_id) {
             $country = Country::find($settings->country_id);
+        }
 
         $swap = $country && $country->swap_postal_code;
 

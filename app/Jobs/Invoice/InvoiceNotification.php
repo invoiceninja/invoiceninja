@@ -32,15 +32,13 @@ class InvoiceNotification implements ShouldQueue
      */
     public function __construct(Invoice $invoice)
     {
-
         $this->invoice = $invoice;
-
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
@@ -49,6 +47,5 @@ class InvoiceNotification implements ShouldQueue
         //notification for the invoice.
         //
         //could mean a email, sms, slack, push
-
     }
 }

@@ -27,32 +27,19 @@ class SetEmailDb
     
     public function handle($request, Closure $next)
     {
-
         $error = [
             'message' => 'Email not set or not found',
             'errors' => []
         ];
 
-        if( $request->input('email') && config('ninja.db.multi_db_enabled')) 
-        {
-
-            if(! MultiDB::userFindAndSetDb($request->input('email')))
-            {
-
+        if ($request->input('email') && config('ninja.db.multi_db_enabled')) {
+            if (! MultiDB::userFindAndSetDb($request->input('email'))) {
                 return response()->json($error, 403);
-
             }
-        
-        }
-        else {
-
-
-                return response()->json($error, 403);
-            
+        } else {
+            return response()->json($error, 403);
         }
 
         return $next($request);
     }
-
-
 }

@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\Notification;
 
 class CreateAccount
 {
-
     use Dispatchable;
 
     protected $request;
@@ -40,9 +39,7 @@ class CreateAccount
 
     public function __construct(array $request)
     {
-
         $this->request = $request;
-
     }
 
     /**
@@ -73,8 +70,9 @@ class CreateAccount
         /*
          * Required dependencies
          */
-        if($user)
-            auth()->login($user, false); 
+        if ($user) {
+            auth()->login($user, false);
+        }
 
         $user->setCompany($company);
 
@@ -88,8 +86,9 @@ class CreateAccount
         /*
          * Fire related events
          */
-        if($user)
+        if ($user) {
             event(new AccountCreated($user));
+        }
         
         $user->fresh();
 

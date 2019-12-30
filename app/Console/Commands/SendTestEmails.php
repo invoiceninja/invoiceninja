@@ -64,7 +64,7 @@ class SendTestEmails extends Command
         $user = User::whereEmail('user@example.com')->first();
         $client = Client::all()->first();
 
-        if(!$user){
+        if (!$user) {
             $user = factory(\App\Models\User::class)->create([
                 'confirmation_code' => '123',
                 'email' => 'admin@business.com',
@@ -73,12 +73,11 @@ class SendTestEmails extends Command
             ]);
         }
 
-        if(!$client) {
-             
-             $client = ClientFactory::create($user->company()->id, $user->id);
-             $client->save();
+        if (!$client) {
+            $client = ClientFactory::create($user->company()->id, $user->id);
+            $client->save();
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'company_id' => $company->id,
@@ -87,7 +86,7 @@ class SendTestEmails extends Command
                 'email' => 'exy@example.com',
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'company_id' => $company->id,
@@ -96,14 +95,13 @@ class SendTestEmails extends Command
             ]);
         }
 
-         $cc_emails = [config('ninja.testvars.test_email')];
-         $bcc_emails = [config('ninja.testvars.test_email')];
+        $cc_emails = [config('ninja.testvars.test_email')];
+        $bcc_emails = [config('ninja.testvars.test_email')];
 
-        Mail::to(config('ninja.testvars.test_email'),'Mr Test')
+        Mail::to(config('ninja.testvars.test_email'), 'Mr Test')
             ->cc($cc_emails)
             ->bcc($bcc_emails)
             //->replyTo(also_available_if_needed)
             ->send(new TemplateEmail($message, $template, $user, $client));
     }
-
 }

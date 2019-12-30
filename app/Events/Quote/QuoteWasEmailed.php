@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class QuoteWasEmailed.
  */
-class QuoteWasEmailed 
+class QuoteWasEmailed
 {
     use SerializesModels;
     public $quote;

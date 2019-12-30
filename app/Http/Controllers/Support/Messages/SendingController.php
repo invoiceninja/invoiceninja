@@ -56,7 +56,7 @@ class SendingController extends Controller
      *          )
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -76,5 +76,4 @@ class SendingController extends Controller
             'success' => true
         ]);
     }
-
 }

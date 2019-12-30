@@ -35,7 +35,4 @@ class UpdateTaxRateRequest extends Request
             'rate' => 'numeric',
         ];
     }
-
-   
 }
-

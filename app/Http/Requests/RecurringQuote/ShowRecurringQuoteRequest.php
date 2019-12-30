@@ -26,5 +26,4 @@ class ShowRecurringQuoteRequest extends Request
     {
         return auth()->user()->can('view', $this->recurring_quote);
     }
-
 }

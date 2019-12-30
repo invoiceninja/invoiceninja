@@ -24,7 +24,7 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class CreateInvoiceInvitation implements ShouldQueue
 {
-	/**
+    /**
      * Handle the event.
      *
      * @param  object  $event
@@ -32,29 +32,24 @@ class CreateInvoiceInvitation implements ShouldQueue
      */
     public function handle($event)
     {
-
         $invoice = $event->invoice;
 
         $contacts = $invoice->client->contacts;
 
-        $contacts->each(function ($contact) use($invoice){
-
+        $contacts->each(function ($contact) use ($invoice) {
             $invitation = InvoiceInvitation::whereCompanyId($invoice->company_id)
-            							->whereClientContactId($contact->id)
-            							->whereInvoiceId($invoice->id)
-            							->first();
+                                        ->whereClientContactId($contact->id)
+                                        ->whereInvoiceId($invoice->id)
+                                        ->first();
 
-            if(!$invitation && $contact->send_invoice) {
-		        $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-		        $ii->invoice_id = $invoice->id;
-		        $ii->client_contact_id = $contact->id;
-		        $ii->save();
-		    }
-		    else if($invitation && !$contact->send_invoice) {
-		    	$invitation->delete();
-		    }
-
+            if (!$invitation && $contact->send_invoice) {
+                $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+                $ii->invoice_id = $invoice->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->save();
+            } elseif ($invitation && !$contact->send_invoice) {
+                $invitation->delete();
+            }
         });
-
     }
 }

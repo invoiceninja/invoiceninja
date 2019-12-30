@@ -35,39 +35,39 @@ class QuoteTransformer extends EntityTransformer
 
         return $this->includeCollection($quote->invitations, $transformer, QuoteInvitation::class);
     }
-/*
-    public function includePayments(quote $quote)
-    {
-        $transformer = new PaymentTransformer($this->account, $this->serializer, $quote);
-
-        return $this->includeCollection($quote->payments, $transformer, ENTITY_PAYMENT);
-    }
-
-    public function includeClient(quote $quote)
-    {
-        $transformer = new ClientTransformer($this->account, $this->serializer);
-
-        return $this->includeItem($quote->client, $transformer, ENTITY_CLIENT);
-    }
-
-    public function includeExpenses(quote $quote)
-    {
-        $transformer = new ExpenseTransformer($this->account, $this->serializer);
-
-        return $this->includeCollection($quote->expenses, $transformer, ENTITY_EXPENSE);
-    }
-
-    public function includeDocuments(quote $quote)
-    {
-        $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-        $quote->documents->each(function ($document) use ($quote) {
-            $document->setRelation('quote', $quote);
-        });
-
-        return $this->includeCollection($quote->documents, $transformer, ENTITY_DOCUMENT);
-    }
-*/
+    /*
+        public function includePayments(quote $quote)
+        {
+            $transformer = new PaymentTransformer($this->account, $this->serializer, $quote);
+    
+            return $this->includeCollection($quote->payments, $transformer, ENTITY_PAYMENT);
+        }
+    
+        public function includeClient(quote $quote)
+        {
+            $transformer = new ClientTransformer($this->account, $this->serializer);
+    
+            return $this->includeItem($quote->client, $transformer, ENTITY_CLIENT);
+        }
+    
+        public function includeExpenses(quote $quote)
+        {
+            $transformer = new ExpenseTransformer($this->account, $this->serializer);
+    
+            return $this->includeCollection($quote->expenses, $transformer, ENTITY_EXPENSE);
+        }
+    
+        public function includeDocuments(quote $quote)
+        {
+            $transformer = new DocumentTransformer($this->account, $this->serializer);
+    
+            $quote->documents->each(function ($document) use ($quote) {
+                $document->setRelation('quote', $quote);
+            });
+    
+            return $this->includeCollection($quote->documents, $transformer, ENTITY_DOCUMENT);
+        }
+    */
     public function transform(Quote $quote)
     {
         return [

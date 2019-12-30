@@ -26,24 +26,21 @@ class SetInviteDb
     
     public function handle($request, Closure $next)
     {
-
-            $error = [
+        $error = [
                 'message' => 'Invalid URL',
                 'errors' => []
             ];
-        /* 
+        /*
          * Use the host name to set the active DB
          **/
-        if( $request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByInvitation($request->route('entity'),$request->route('invitation_key'))) 
-        {
-            if(request()->json)
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT) ,403);
-            else
+        if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByInvitation($request->route('entity'), $request->route('invitation_key'))) {
+            if (request()->json) {
+                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+            } else {
                 abort(404);
+            }
         }
 
         return $next($request);
     }
-
-
 }

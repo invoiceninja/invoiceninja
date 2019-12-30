@@ -56,7 +56,8 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/users');
+                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->get('/api/v1/users');
 
         $response->assertStatus(200);
 
@@ -78,7 +79,8 @@ class UserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/users?include=company_user', $data);
+                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 
@@ -97,7 +99,8 @@ class UserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attach_to_company?include=company_user');
+                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attach_to_company?include=company_user');
 
         $response->assertStatus(200);
 
@@ -108,7 +111,8 @@ class UserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
+                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
 
         $response->assertStatus(200);
 
@@ -213,6 +217,7 @@ class UserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $user_1_company_token->token,
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->put('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
 
         $response->assertStatus(200);

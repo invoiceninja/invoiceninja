@@ -28,7 +28,6 @@ class RecurringInvoicesCron
 
     public function __construct()
     {
-
     }
 
     /**
@@ -40,43 +39,27 @@ class RecurringInvoicesCron
     {
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
         
-        if (! config('ninja.db.multi_db_enabled'))
-        {
+        if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
 
-            Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = '. $recurring_invoices->count() );
+            Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = '. $recurring_invoices->count());
 
             $recurring_invoices->each(function ($recurring_invoice, $key) {
-                
                 SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
-
             });
-        }
-        else
-        {
-            //multiDB environment, need to 
-            foreach (MultiDB::$dbs as $db)
-            {
+        } else {
+            //multiDB environment, need to
+            foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-               $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
+                $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
 
                 Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = '. $recurring_invoices->count() . 'On Database # '. $db);
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
-                    
                     SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
-
                 });
-
             }
         }
-
     }
-
-
- 
-           
-    
-
 }

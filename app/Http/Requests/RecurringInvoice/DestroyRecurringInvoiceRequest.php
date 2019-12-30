@@ -26,5 +26,4 @@ class DestroyRecurringInvoiceRequest extends Request
     {
         return auth()->user()->can('edit', $this->recurring_invoice);
     }
-
 }

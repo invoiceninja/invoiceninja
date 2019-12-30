@@ -53,7 +53,7 @@
  *           example="include_static=true"
  *         )
  *     ),
- * 
+ *
  *     @OA\Parameter(
  *         name="clear_cache",
  *         in="query",
@@ -73,7 +73,7 @@
  *           example="user"
  *         )
  *     ),
- * 
+ *
  *     @OA\Parameter(
  *         name="",
  *         in="query",
@@ -83,7 +83,5 @@
  *           example="user"
  *         )
  *     ),
- * 
+ *
  */
-
-

@@ -7,7 +7,6 @@ namespace App\Models;
  */
 class DateFormat extends StaticModel
 {
-
     public static $days_of_the_week = [
       0 => 'sunday',
       1 => 'monday',

@@ -48,5 +48,4 @@ class NewUniqueUserRule implements Rule
     {
         return MultiDB::checkUserEmailExists($email);
     }
-
 }

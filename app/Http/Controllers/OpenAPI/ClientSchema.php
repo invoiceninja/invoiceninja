@@ -8,10 +8,10 @@
  *       @OA\Property(property="company_id", type="string", example="", description="________"),
  *       @OA\Property(property="client_id", type="string", example="", description="________"),
  *       @OA\Property(
- *       	property="contacts", 
+ *       	property="contacts",
  *        	type="array",
  *        	@OA\Items(
- *          	
+ *
  *           	ref="#/components/schemas/ClientContact",
  *          ),
  *       ),

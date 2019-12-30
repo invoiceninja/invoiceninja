@@ -18,21 +18,21 @@ namespace App\Utils\Traits;
 trait UserSettings
 {
 
-	/**
-	 * @param string $entity
-	 * @return \stdClass
+    /**
+     * @param string $entity
+     * @return \stdClass
      */
-	public function getEntity(string $entity) : \stdClass
-	{
-		return $this->settings()->{$entity};
-	}
+    public function getEntity(string $entity) : \stdClass
+    {
+        return $this->settings()->{$entity};
+    }
 
-	/**
-	 * @param string $entity
-	 * @return \stdClass
+    /**
+     * @param string $entity
+     * @return \stdClass
      */
-	public function getColumnVisibility(string $entity) : \stdClass
-	{
-		return $this->settings()->{class_basename($entity)}->datatable->column_visibility;
-	}
+    public function getColumnVisibility(string $entity) : \stdClass
+    {
+        return $this->settings()->{class_basename($entity)}->datatable->column_visibility;
+    }
 }

@@ -22,9 +22,7 @@ class TranslationController extends BaseController
 {
     public function __construct()
     {
-    
         parent::__construct();
-
     }
     
     /**
@@ -53,7 +51,8 @@ class TranslationController extends BaseController
         exit();
     }
 
-    private function easyMinify($javascript){
+    private function easyMinify($javascript)
+    {
         return preg_replace(array("/\s+\n/", "/\n\s+/", "/ +/"), array("\n", "\n ", " "), $javascript);
     }
 

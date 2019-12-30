@@ -22,7 +22,6 @@ class ComposerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        
         view()->composer('portal.*', 'App\Http\ViewComposers\PortalComposer');
         
         //view()->composer('*', 'App\Http\ViewComposers\HeaderComposer');
@@ -34,7 +33,6 @@ class ComposerServiceProvider extends ServiceProvider
             'App\Http\ViewComposers\TranslationComposer'
         );
   */
-       
     }
 
     /**

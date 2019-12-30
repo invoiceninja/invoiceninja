@@ -26,5 +26,4 @@ class ShowInvoiceRequest extends Request
     {
         return auth()->user()->can('view', $this->invoice);
     }
-
 }

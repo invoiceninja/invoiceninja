@@ -54,7 +54,6 @@ class CreateUser
      */
     public function handle() : ?User
     {
-
         $user = new User();
         $user->password = bcrypt($this->request['password']);
         $user->accepted_terms_version = config('ninja.terms_version');

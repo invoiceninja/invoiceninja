@@ -51,6 +51,5 @@ class SendVerificationNotification implements ShouldQueue
             //->cc('')
             //->bcc('')
             ->queue(new VerifyUser($event->user));
-            
     }
 }

@@ -108,5 +108,3 @@ class EmailTemplateDefaults
         return str_replace(":", "$", ctrans('texts.'.$string));
     }
 }
-
-

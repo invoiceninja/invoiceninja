@@ -20,8 +20,7 @@ use Illuminate\Support\Carbon;
 
 class InvoiceInvitation extends BaseModel
 {
-
-	use MakesDates;
+    use MakesDates;
     use SoftDeletes;
     use Inviteable;
 
@@ -52,7 +51,7 @@ class InvoiceInvitation extends BaseModel
      */
     public function contact()
     {
-        return $this->belongsTo(ClientContact::class,'client_contact_id','id')->withTrashed();
+        return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
     }
 
     /**

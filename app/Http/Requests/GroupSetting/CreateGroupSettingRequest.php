@@ -27,6 +27,4 @@ class CreateGroupSettingRequest extends Request
     {
         return auth()->user()->can('create', GroupSetting::class);
     }
-
-
 }

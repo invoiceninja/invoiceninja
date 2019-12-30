@@ -15,15 +15,12 @@ use App\Models\CompanyGateway;
 
 class CompanyGatewayFactory
 {
-
-	public static function create(int $company_id, int $user_id) :CompanyGateway
-	{
-
+    public static function create(int $company_id, int $user_id) :CompanyGateway
+    {
         $company_gateway = new CompanyGateway;
         $company_gateway->company_id = $company_id;
         $company_gateway->user_id = $user_id;
 
         return $company_gateway;
-        
     }
 }

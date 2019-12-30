@@ -43,5 +43,4 @@ class EditPaymentRequest extends Request
 
         $this->replace($input);
     }
-
 }

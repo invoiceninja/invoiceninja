@@ -10,6 +10,7 @@
  */
 
 namespace App\Http\Requests\Product;
+
 use App\Http\Requests\Request;
 
 class ShowProductRequest extends Request

@@ -26,5 +26,4 @@ class CreateInvoiceRequest extends Request
     {
         return auth()->user()->can('create', Invoice::class);
     }
-
 }

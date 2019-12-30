@@ -57,7 +57,7 @@ class BaseModel extends Model
             if (config()->has($configPath)) {
                 $function = config()->get($configPath);
 
-				return call_user_func_array(array($this, $function[0]), $function[1]);
+                return call_user_func_array(array($this, $function[0]), $function[1]);
             }
         }
 
@@ -79,7 +79,6 @@ class BaseModel extends Model
      */
     public function scopeScope($query)
     {
-
         $query->where($this->getTable() .'.company_id', '=', auth()->user()->company()->id);
 
         return $query;
@@ -95,8 +94,8 @@ class BaseModel extends Model
      * The following method will return the entire object of the property searched for
      * where a value exists for $key.
      *
-     * This object can then be mutated by the handling class, 
-     * to persist the new settings we will also need to pass back a 
+     * This object can then be mutated by the handling class,
+     * to persist the new settings we will also need to pass back a
      * reference to the parent class.
      *
      * @param      mixes  $key    The key of property
@@ -104,14 +103,11 @@ class BaseModel extends Model
     public function getSettingsByKey($key)
     {
         /* Does Setting Exist @ client level */
-        if(isset($this->getSettings()->{$key}))
-        {   
+        if (isset($this->getSettings()->{$key})) {
             return $this->getSettings()->{$key};
+        } else {
+            return (new CompanySettings($this->company->settings))->{$key};
         }
-        else {
-            return (new CompanySettings($this->company->settings))->{$key};  
-        }
-
     }
 
 
@@ -141,7 +137,7 @@ class BaseModel extends Model
      * Gets the settings.
      *
      * Generic getter for client settings
-     * 
+     *
      * @return     ClientSettings  The settings.
      */
     public function getSettings()

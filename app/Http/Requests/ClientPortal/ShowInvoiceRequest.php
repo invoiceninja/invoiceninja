@@ -26,5 +26,4 @@ class ShowInvoiceRequest extends Request
     {
         return auth()->user()->client->id === $this->invoice->client_id;
     }
-
 }

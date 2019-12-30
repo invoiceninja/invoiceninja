@@ -41,7 +41,7 @@ class PaymentTerm extends BaseModel
 
         $terms = self::scope()->get();
 
-        $terms->map(function($term) {
+        $terms->map(function ($term) {
             return $term['num_days'];
         });
 
@@ -51,7 +51,6 @@ class PaymentTerm extends BaseModel
         ->all();
         
         return $default_terms;
-
     }
 
     public static function getSelectOptions()

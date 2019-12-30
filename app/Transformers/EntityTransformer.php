@@ -50,6 +50,5 @@ class EntityTransformer extends TransformerAbstract
 
     protected function getDefaults($entity)
     {
-
     }
 }

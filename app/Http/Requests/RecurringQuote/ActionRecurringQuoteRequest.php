@@ -26,5 +26,4 @@ class ActionRecurringQuoteRequest extends Request
     {
         return auth()->user()->can('edit', $this->recurring_quote);
     }
-
 }

@@ -43,27 +43,23 @@ class ApplyClientPayment implements ShouldQueue
      */
     public function __construct(Payment $payment, Company $company)
     {
-
         $this->payment = $payment;
         $this->company = $company;
-
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
     {
-
         MultiDB::setDB($this->company->db);
         
         $client = $this->payment->client;
         $client->credit_balance += $this->payment->amount;
+        $client->paid_to_date += $this->payment->amount;
         $client->save();
-
     }
-
 }

@@ -12,11 +12,13 @@
 namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateRecurringInvoiceRequest extends Request
 {
+    use ChecksEntityStatus;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,9 +27,7 @@ class UpdateRecurringInvoiceRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->recurring_invoice);
-
     }
 
 
@@ -39,5 +39,4 @@ class UpdateRecurringInvoiceRequest extends Request
 
         ];
     }
-    
 }

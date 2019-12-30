@@ -43,5 +43,4 @@ class EditRecurringQuoteRequest extends Request
 
         $this->replace($input);
     }
-
 }

@@ -32,14 +32,14 @@ class QueryLogging
     public function handle(Request $request, Closure $next)
     {
         // Enable query logging for development
-        if(config('ninja.app_env') != 'production') {
+        if (config('ninja.app_env') != 'production') {
             DB::enableQueryLog();
             $timeStart = microtime(true);
         }
 
         $response = $next($request);
 
-        if(config('ninja.app_env') != 'production') {
+        if (config('ninja.app_env') != 'production') {
 
             // hide requests made by debugbar
             if (strstr($request->url(), '_debugbar') === false) {
@@ -49,10 +49,9 @@ class QueryLogging
                 $time = $timeEnd - $timeStart;
                 Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
                 
-           //     if($count > 50)
+                //     if($count > 50)
            //         Log::info($queries);
             }
-        
         }
         
         return $response;

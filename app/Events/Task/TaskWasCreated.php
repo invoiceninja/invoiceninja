@@ -17,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class TaskWasCreated.
  */
-class TaskWasCreated 
+class TaskWasCreated
 {
     use SerializesModels;
 

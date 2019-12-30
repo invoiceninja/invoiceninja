@@ -15,11 +15,9 @@ use Parsedown;
 
 class TemplateController extends BaseController
 {
-
     public function __construct()
     {
         parent::__construct();
-
     }
 
     /**
@@ -92,7 +90,7 @@ class TemplateController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -100,12 +98,9 @@ class TemplateController extends BaseController
      */
     public function show()
     {
-        
-        if(request()->has('entity') && request()->has('entity_id')){
-
+        if (request()->has('entity') && request()->has('entity_id')) {
             $class = 'App\Models\\'.ucfirst(request()->input('entity'));
             $entity_obj = $class::whereId(request()->input('entity_id'))->company()->first();
-   
         }
 
         $subject = request()->input('subject');
@@ -117,7 +112,5 @@ class TemplateController extends BaseController
         ];
 
         return response()->json($data, 200);
-
     }
-
 }

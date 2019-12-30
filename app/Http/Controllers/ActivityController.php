@@ -11,14 +11,12 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Activity;
 use App\Transformers\ActivityTransformer;
 use Illuminate\Http\Request;
 
 class ActivityController extends BaseController
 {
-
     protected $entity_type = Activity::class;
 
     protected $entity_transformer = ActivityTransformer::class;
@@ -66,7 +64,7 @@ class ActivityController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -83,5 +81,4 @@ class ActivityController extends BaseController
 
         return $this->listResponse($activities);
     }
-
 }

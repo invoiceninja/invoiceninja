@@ -16,7 +16,6 @@ use Omnipay\Omnipay;
 
 class Gateway extends StaticModel
 {
-
     protected $casts = [
         'is_offsite' => 'boolean',
         'is_secure' => 'boolean',
@@ -33,18 +32,14 @@ class Gateway extends StaticModel
      */
     public function getFields()
     {
-
-        if ($this->isCustom()) 
-        {
+        if ($this->isCustom()) {
             return [
                 'name' => '',
                 'text' => '',
             ];
-        } else 
-        {
+        } else {
             return Omnipay::create($this->provider)->getDefaultParameters();
         }
-
     }
 
     /**
@@ -53,11 +48,6 @@ class Gateway extends StaticModel
      */
     public function isCustom() :bool
     {
-
         return in_array($this->id, [62, 67, 68]); //static table ids of the custom gateways
-
     }
-
 }
-
-

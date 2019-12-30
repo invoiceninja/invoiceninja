@@ -27,5 +27,4 @@ class ShowUserRequest extends Request
         //return auth()->user()->can('view', $this->user);
         return auth()->user()->isAdmin();
     }
-
 }

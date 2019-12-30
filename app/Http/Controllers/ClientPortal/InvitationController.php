@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Auth;
 
 class InvitationController extends Controller
 {
-
     use MakesHash;
     use MakesDates;
 
@@ -36,26 +35,22 @@ class InvitationController extends Controller
 
         $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
 
-    	if($invitation){
-
-            if((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false)
+        if ($invitation) {
+            if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
                 $this->middleware('auth:contact');
-            else
+            } else {
                 auth()->guard('contact')->login($invitation->contact, false);
+            }
                 
             $invitation->markViewed();
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
-
-    	}
-    	else
-    		abort(404);
-
+        } else {
+            abort(404);
+        }
     }
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
     {
-
     }
-    
 }

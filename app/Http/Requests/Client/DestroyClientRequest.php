@@ -26,5 +26,4 @@ class DestroyClientRequest extends Request
     {
         return auth()->user()->can('edit', $this->client);
     }
-
 }

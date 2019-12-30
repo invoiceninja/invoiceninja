@@ -64,21 +64,18 @@ class UploadFile implements ShouldQueue
 
         $file_path = $path . '/' . $this->file->hashName();
 
-        Storage::put($path, $this->file); 
+        Storage::put($path, $this->file);
 
         $width = 0;
 
         $height = 0;
 
-        if (in_array($this->file->getClientOriginalExtension(),['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
-        {
-
+        if (in_array($this->file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
             $imageSize = getimagesize($this->file);
 
             $width = $imageSize[0];
 
             $height = $imageSize[1];
-
         }
 
         $document = new Document();
@@ -99,8 +96,7 @@ class UploadFile implements ShouldQueue
 
         $this->entity->documents()->save($document);
 
-            return $document;
-
+        return $document;
     }
 
     private function generatePreview($preview_path) : string
@@ -119,36 +115,29 @@ class UploadFile implements ShouldQueue
         
         $preview = '';
 
-        if (in_array($this->file->getClientOriginalExtension(),['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) 
-        {
+        if (in_array($this->file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
             $makePreview = false;
             $imageSize = getimagesize($this->file);
             $width = $imageSize[0];
             $height = $imageSize[1];
             $imgManagerConfig = [];
-            if (in_array($this->file->getClientOriginalExtension(), ['gif', 'bmp', 'tiff', 'psd'])) 
-            {
+            if (in_array($this->file->getClientOriginalExtension(), ['gif', 'bmp', 'tiff', 'psd'])) {
                 // Needs to be converted
                 $makePreview = true;
-            } elseif ($width > Document::DOCUMENT_PREVIEW_SIZE || $height > Document::DOCUMENT_PREVIEW_SIZE) 
-            {
+            } elseif ($width > Document::DOCUMENT_PREVIEW_SIZE || $height > Document::DOCUMENT_PREVIEW_SIZE) {
                 $makePreview = true;
             }
 
-            if (in_array($documentType, ['bmp', 'tiff', 'psd'])) 
-            {
-                if (! class_exists('Imagick')) 
-                {
+            if (in_array($documentType, ['bmp', 'tiff', 'psd'])) {
+                if (! class_exists('Imagick')) {
                     // Cant't read this
                     $makePreview = false;
-                } else 
-                {
+                } else {
                     $imgManagerConfig['driver'] = 'imagick';
                 }
             }
 
-            if ($makePreview) 
-            {
+            if ($makePreview) {
                 // We haven't created a preview yet
                 $imgManager = new ImageManager($imgManagerConfig);
 
@@ -169,17 +158,12 @@ class UploadFile implements ShouldQueue
 
                 $previewContent = (string) $img->encode($this->file->getClientOriginalExtension());
 
-                Storage::put($preview_path, $previewContent);  
+                Storage::put($preview_path, $previewContent);
 
-                $preview = $preview_path; 
-            } 
-
+                $preview = $preview_path;
+            }
         }
 
         return $preview;
-
     }
-           
-    
-
 }

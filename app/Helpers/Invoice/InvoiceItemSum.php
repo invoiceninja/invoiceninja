@@ -21,275 +21,261 @@ use Illuminate\Support\Collection;
 
 class InvoiceItemSum
 {
+    use NumberFormatter;
+    use Discounter;
+    use Taxer;
 
-	use NumberFormatter;
-	use Discounter;
-	use Taxer;
+    protected $invoice;
 
-	protected $invoice;
+    private $items;
 
-	private $items;
+    private $line_total;
 
-	private $line_total;
+    private $currency;
 
-	private $currency;
+    private $total_taxes;
 
-	private $total_taxes;
+    private $item;
 
-	private $item;
+    private $line_items;
 
-	private $line_items;
+    private $sub_total;
 
-	private $sub_total;
+    private $total_discount;
 
-	private $total_discount;
+    private $tax_collection;
 
-	private $tax_collection;
+    public function __construct($invoice)
+    {
+        $this->tax_collection = collect([]);
 
-	public function __construct($invoice)
-	{
+        $this->invoice = $invoice;
 
-		$this->tax_collection = collect([]);
+        $this->currency = $this->invoice->client->currency();
 
-		$this->invoice = $invoice;
+        $this->line_items = [];
+    }
 
-		$this->currency = $this->invoice->client->currency();
+    public function process()
+    {
+        if (!$this->invoice->line_items || !isset($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
+            $this->items = [];
+            return $this;
+        }
 
-		$this->line_items = [];
-	}
+        $this->calcLineItems();
 
-	public function process()
-	{
+        return $this;
+    }
 
-		if(!$this->invoice->line_items || !isset($this->invoice->line_items) || count($this->invoice->line_items) == 0){
-			$this->items = [];
-			return $this;
-		}
+    private function calcLineItems()
+    {
+        foreach ($this->invoice->line_items as $this->item) {
+            $this->cleanLineItem()
+                ->sumLineItem()
+                ->setDiscount()
+                ->calcTaxes()
+                ->push();
+        }
 
-		$this->calcLineItems();
+        return $this;
+    }
 
-		return $this;
-	}
+    private function push()
+    {
+        $this->sub_total += $this->getLineTotal();
 
-	private function calcLineItems()
-	{
-		foreach($this->invoice->line_items as $this->item)
-		{
-			$this->cleanLineItem()
-				->sumLineItem()
-				->setDiscount()
-				->calcTaxes()
-				->push();
-		}
+        $this->line_items[] = $this->item;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	private function push()
-	{
+    private function sumLineItem()
+    {
+        $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+        return $this;
+    }
 
-		$this->sub_total += $this->getLineTotal();
+    private function setDiscount()
+    {
+        if ($this->invoice->is_amount_discount) {
+            $this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision));
+        } else {
+            $this->setLineTotal($this->getLineTotal() - $this->formatValue(round($this->item->line_total * ($this->item->discount / 100), 2), $this->currency->precision));
+        }
 
-		$this->line_items[] = $this->item;
+        $this->item->is_amount_discount = $this->invoice->is_amount_discount;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	private function sumLineItem()
-	{
-		$this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
-		return $this;
-	}
+    private function calcTaxes()
+    {
+        $item_tax = 0;
 
-	private function setDiscount()
-	{
+        $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/100));
+        $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
-		if($this->invoice->is_amount_discount)
-		{	
-			$this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision));
-		}
-		else
-		{
-			$this->setLineTotal($this->getLineTotal() - $this->formatValue(round($this->item->line_total * ($this->item->discount / 100),2), $this->currency->precision));
-		}
+        $item_tax += $item_tax_rate1_total;
 
-		$this->item->is_amount_discount = $this->invoice->is_amount_discount;
-
-		return $this;
+        if ($item_tax_rate1_total > 0) {
+            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
+        }
         
-	}
+        $item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
 
-	private function calcTaxes()
-	{
+        $item_tax += $item_tax_rate2_total;
 
-		$item_tax = 0;
+        if ($item_tax_rate2_total > 0) {
+            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
+        }
 
-			$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/100));
-			$item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
+        $item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
 
-			$item_tax += $item_tax_rate1_total;
+        $item_tax += $item_tax_rate3_total;
 
-			if($item_tax_rate1_total > 0)
-				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
-		
-			$item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
-
-			$item_tax += $item_tax_rate2_total;
-
-			if($item_tax_rate2_total > 0)
-				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
-
-			$item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
-
-			$item_tax += $item_tax_rate3_total;
-
-			if($item_tax_rate3_total > 0)
-				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+        if ($item_tax_rate3_total > 0) {
+            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+        }
 
 
-		$this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
+        $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
-		return $this;
-	}
+        return $this;
+    }
 
-	private function groupTax($tax_name, $tax_rate, $tax_total) 
-	{
-		$group_tax = [];
+    private function groupTax($tax_name, $tax_rate, $tax_total)
+    {
+        $group_tax = [];
 
-		$key = str_replace(" ", "", $tax_name.$tax_rate);
+        $key = str_replace(" ", "", $tax_name.$tax_rate);
 
-		$group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate.'%']; 
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate.'%'];
 
-		$this->tax_collection->push(collect($group_tax));
-		
-	}
+        $this->tax_collection->push(collect($group_tax));
+    }
 
-	public function getTotalTaxes()
-	{
-		return $this->total_taxes;
-	}
+    public function getTotalTaxes()
+    {
+        return $this->total_taxes;
+    }
 
-	public function setTotalTaxes($total)
-	{
-		$this->total_taxes = $total;
+    public function setTotalTaxes($total)
+    {
+        $this->total_taxes = $total;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function setLineTotal($total)
-	{
-		$this->item->line_total = $total;
+    public function setLineTotal($total)
+    {
+        $this->item->line_total = $total;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getLineTotal()
-	{
-		return $this->item->line_total;
-	}
+    public function getLineTotal()
+    {
+        return $this->item->line_total;
+    }
 
-	public function getLineItems()
-	{
-		return $this->line_items;
-	}
+    public function getLineItems()
+    {
+        return $this->line_items;
+    }
 
-	public function getGroupedTaxes()
-	{ 
-		return $this->tax_collection;
-	}
+    public function getGroupedTaxes()
+    {
+        return $this->tax_collection;
+    }
 
-	public function setGroupedTaxes($group_taxes)
-	{
-		$this->tax_collection = $group_taxes;
+    public function setGroupedTaxes($group_taxes)
+    {
+        $this->tax_collection = $group_taxes;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getSubTotal()
-	{
-		return $this->sub_total;
-	}
+    public function getSubTotal()
+    {
+        return $this->sub_total;
+    }
 
-	public function setSubTotal($value)
-	{
-		$this->sub_total = $value;
-		return $this;
-	}
-
-
-	/**
-	 * Invoice Amount Discount
-	 *
-	 * The problem, when calculating invoice level discounts,
-	 * the tax collected changes.
-	 *
-	 * We need to synthetically reduce the line_total amounts 
-	 * and recalculate the taxes and then pass back
-	 * the updated map
-	 */
-	
-	public function calcTaxesWithAmountDiscount()
-	{
-		$this->setGroupedTaxes(collect([]));
-
-		$item_tax = 0;
-
-		foreach($this->line_items as $this->item)
-		{
-
-			if($this->item->line_total == 0)
-				continue;
-
-			$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
-			$item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
-
-			$item_tax += $item_tax_rate1_total;
-
-			if($item_tax_rate1_total > 0)
-				$this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
-		
-			$item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
-
-			$item_tax += $item_tax_rate2_total;
-
-			if($item_tax_rate2_total > 0)
-				$this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
-
-			$item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
-
-			$item_tax += $item_tax_rate3_total;
-
-			if($item_tax_rate3_total > 0)
-				$this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+    public function setSubTotal($value)
+    {
+        $this->sub_total = $value;
+        return $this;
+    }
 
 
-		}
+    /**
+     * Invoice Amount Discount
+     *
+     * The problem, when calculating invoice level discounts,
+     * the tax collected changes.
+     *
+     * We need to synthetically reduce the line_total amounts
+     * and recalculate the taxes and then pass back
+     * the updated map
+     */
+    
+    public function calcTaxesWithAmountDiscount()
+    {
+        $this->setGroupedTaxes(collect([]));
 
-		$this->setTotalTaxes($item_tax);
+        $item_tax = 0;
 
-	}
+        foreach ($this->line_items as $this->item) {
+            if ($this->item->line_total == 0) {
+                continue;
+            }
 
-	/**
-	 * Sets default values for the line_items
-	 * @return $this 
-	 */
-	private function cleanLineItem()
-	{
-		$invoice_item = (object)get_class_vars(InvoiceItem::class);
-		unset($invoice_item->casts);
+            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
+            $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
-		foreach($invoice_item as $key => $value)
-		{
+            $item_tax += $item_tax_rate1_total;
 
-			if(!property_exists($this->item, $key) || !isset($this->item->{$key})){
-				$this->item->{$key} = $value;
-				$this->item->{$key} = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
-			}			
+            if ($item_tax_rate1_total > 0) {
+                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
+            }
+        
+            $item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
+
+            $item_tax += $item_tax_rate2_total;
+
+            if ($item_tax_rate2_total > 0) {
+                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
+            }
+
+            $item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
+
+            $item_tax += $item_tax_rate3_total;
+
+            if ($item_tax_rate3_total > 0) {
+                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+            }
+        }
+
+        $this->setTotalTaxes($item_tax);
+    }
+
+    /**
+     * Sets default values for the line_items
+     * @return $this
+     */
+    private function cleanLineItem()
+    {
+        $invoice_item = (object)get_class_vars(InvoiceItem::class);
+        unset($invoice_item->casts);
+
+        foreach ($invoice_item as $key => $value) {
+            if (!property_exists($this->item, $key) || !isset($this->item->{$key})) {
+                $this->item->{$key} = $value;
+                $this->item->{$key} = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
+            }
+        }
 
 
-		}
-
-
-		return $this;
-	}
+        return $this;
+    }
 }

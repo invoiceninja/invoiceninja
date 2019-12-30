@@ -35,9 +35,7 @@ class PaymentTransformer extends EntityTransformer
 
     public function __construct($serializer = null)
     {
-
         $this->serializer = $serializer;
-
     }
 
     public function includeInvoices(Payment $payment)

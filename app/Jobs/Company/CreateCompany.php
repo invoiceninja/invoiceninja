@@ -35,11 +35,9 @@ class CreateCompany
 
     public function __construct(array $request, $account)
     {
-
         $this->request = $request;
 
         $this->account = $account;
-        
     }
 
     /**

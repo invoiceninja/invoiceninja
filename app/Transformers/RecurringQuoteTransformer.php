@@ -30,53 +30,53 @@ class RecurringQuoteTransformer extends EntityTransformer
     //    'documents',
     ];
 
-/*
-    public function includeInvoiceItems(Invoice $quote)
-    {
-        $transformer = new InvoiceItemTransformer($this->serializer);
-
-        return $this->includeCollection($quote->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
-    }
-
-    public function includeInvitations(Invoice $quote)
-    {
-        $transformer = new InvitationTransformer($this->account, $this->serializer);
-
-        return $this->includeCollection($quote->invitations, $transformer, ENTITY_INVITATION);
-    }
-
-    public function includePayments(Invoice $quote)
-    {
-        $transformer = new PaymentTransformer($this->account, $this->serializer, $quote);
-
-        return $this->includeCollection($quote->payments, $transformer, ENTITY_PAYMENT);
-    }
-
-    public function includeClient(Invoice $quote)
-    {
-        $transformer = new ClientTransformer($this->account, $this->serializer);
-
-        return $this->includeItem($quote->client, $transformer, ENTITY_CLIENT);
-    }
-
-    public function includeExpenses(Invoice $quote)
-    {
-        $transformer = new ExpenseTransformer($this->account, $this->serializer);
-
-        return $this->includeCollection($quote->expenses, $transformer, ENTITY_EXPENSE);
-    }
-
-    public function includeDocuments(Invoice $quote)
-    {
-        $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-        $quote->documents->each(function ($document) use ($quote) {
-            $document->setRelation('invoice', $quote);
-        });
-
-        return $this->includeCollection($quote->documents, $transformer, ENTITY_DOCUMENT);
-    }
-*/
+    /*
+        public function includeInvoiceItems(Invoice $quote)
+        {
+            $transformer = new InvoiceItemTransformer($this->serializer);
+    
+            return $this->includeCollection($quote->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
+        }
+    
+        public function includeInvitations(Invoice $quote)
+        {
+            $transformer = new InvitationTransformer($this->account, $this->serializer);
+    
+            return $this->includeCollection($quote->invitations, $transformer, ENTITY_INVITATION);
+        }
+    
+        public function includePayments(Invoice $quote)
+        {
+            $transformer = new PaymentTransformer($this->account, $this->serializer, $quote);
+    
+            return $this->includeCollection($quote->payments, $transformer, ENTITY_PAYMENT);
+        }
+    
+        public function includeClient(Invoice $quote)
+        {
+            $transformer = new ClientTransformer($this->account, $this->serializer);
+    
+            return $this->includeItem($quote->client, $transformer, ENTITY_CLIENT);
+        }
+    
+        public function includeExpenses(Invoice $quote)
+        {
+            $transformer = new ExpenseTransformer($this->account, $this->serializer);
+    
+            return $this->includeCollection($quote->expenses, $transformer, ENTITY_EXPENSE);
+        }
+    
+        public function includeDocuments(Invoice $quote)
+        {
+            $transformer = new DocumentTransformer($this->account, $this->serializer);
+    
+            $quote->documents->each(function ($document) use ($quote) {
+                $document->setRelation('invoice', $quote);
+            });
+    
+            return $this->includeCollection($quote->documents, $transformer, ENTITY_DOCUMENT);
+        }
+    */
     public function transform(RecurringQuote $quote)
     {
         return [

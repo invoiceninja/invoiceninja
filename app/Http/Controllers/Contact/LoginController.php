@@ -54,9 +54,7 @@ class LoginController extends BaseController
      */
     public function __construct()
     {
-
         parent::__construct();
-
     }
 
     /**
@@ -68,7 +66,6 @@ class LoginController extends BaseController
      */
     public function apiLogin(Request $request)
     {
-
         Auth::shouldUse('contact');
 
         $this->validateLogin($request);
@@ -79,15 +76,13 @@ class LoginController extends BaseController
             return response()->json(['message' => 'Too many login attempts, you are being throttled']);
         }
 
-        if ($this->attemptLogin($request))
+        if ($this->attemptLogin($request)) {
             return $this->itemResponse($this->guard()->user());
-        else {
-
+        } else {
             $this->incrementLoginAttempts($request);
 
             return response()->json(['message' => ctrans('texts.invalid_credentials')]);
         }
-
     }
 
     /**
@@ -95,28 +90,27 @@ class LoginController extends BaseController
      *
      * @return void
      */
-    public function redirectToProvider(string $provider) 
+    public function redirectToProvider(string $provider)
     {
         //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
         //
-        if(request()->has('code'))
+        if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
-        else
+        } else {
             return Socialite::driver($provider)->scopes()->redirect();
+        }
     }
 
 
     public function redirectToProviderAndCreate(string $provider)
     {
-
         $redirect_url = config('services.' . $provider . '.redirect') . '/create';
 
-        if(request()->has('code'))
+        if (request()->has('code')) {
             return $this->handleProviderCallbackAndCreate($provider);
-        else
+        } else {
             return Socialite::driver($provider)->redirectUrl($redirect_url)->redirect();
-
-        
+        }
     }
 
 
@@ -130,7 +124,7 @@ class LoginController extends BaseController
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
             Auth::login($user, true);
-            
+
             return redirect($this->redirectTo);
         }
         else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
@@ -138,9 +132,9 @@ class LoginController extends BaseController
             Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
 
             return view('auth.login');
-        }       
+        }
         else {
-            //todo            
+            //todo
             $name = OAuth::splitName($socialite_user->getName());
 
             $new_account = [
@@ -155,7 +149,7 @@ class LoginController extends BaseController
             $account = CreateAccount::dispatchNow($new_account);
 
             Auth::login($account->default_company->owner(), true);
-            
+
             $cookie = cookie('db', $account->default_company->db);
 
             return redirect($this->redirectTo)->withCookie($cookie);
@@ -166,10 +160,10 @@ class LoginController extends BaseController
    
     /**
      * We use this function when OAUTHING via the web interface
-     * 
-     * @return redirect 
-     
-    public function handleProviderCallback(string $provider) 
+     *
+     * @return redirect
+
+    public function handleProviderCallback(string $provider)
     {
         $socialite_user = Socialite::driver($provider)
                                     ->stateless()
@@ -178,7 +172,7 @@ class LoginController extends BaseController
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
             Auth::login($user, true);
-            
+
             return redirect($this->redirectTo);
         }
         else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
@@ -186,9 +180,9 @@ class LoginController extends BaseController
             Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
 
             return view('auth.login');
-        }       
+        }
         else {
-            //todo            
+            //todo
             $name = OAuth::splitName($socialite_user->getName());
 
             $new_account = [
@@ -203,7 +197,7 @@ class LoginController extends BaseController
             $account = CreateAccount::dispatchNow($new_account);
 
             Auth::login($account->default_company->owner(), true);
-            
+
             $cookie = cookie('db', $account->default_company->db);
 
             return redirect($this->redirectTo)->withCookie($cookie);
@@ -212,31 +206,30 @@ class LoginController extends BaseController
     }
     */
     /**
-     * A client side authentication has taken place. 
+     * A client side authentication has taken place.
      * We now digest the token and confirm authentication with
      * the authentication server, the correct user object
      * is returned to us here and we send back the correct
      * user object payload - or error.
      *
-     * This can be extended to a create route also - need to pass a ?create query parameter and 
+     * This can be extended to a create route also - need to pass a ?create query parameter and
      * then process the signup
-     * 
+     *
      * return   User $user
      */
     public function oauthApiLogin()
     {
-
         $user = false;
 
         $oauth = new OAuth();
 
         $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('token'));
 
-        if ($user) 
+        if ($user) {
             return $this->itemResponse($user);
-        else
+        } else {
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
-
+        }
     }
 
 
@@ -245,8 +238,8 @@ class LoginController extends BaseController
      * which we will use to resolve the user, we return the response in JSON format
      *
      * @return json
-     
-    public function handleProviderCallbackApiUser(string $provider) 
+
+    public function handleProviderCallbackApiUser(string $provider)
     {
         $socialite_user = Socialite::driver($provider)->stateless()->user();
 
@@ -259,9 +252,9 @@ class LoginController extends BaseController
 
             return $this->errorResponse(['message'=>'User exists in system, but not with this authentication method'], 400);
 
-        }       
+        }
         else {
-            //todo            
+            //todo
             $name = OAuth::splitName($socialite_user->getName());
 
             $new_account = [

@@ -19,7 +19,6 @@ use Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-
 class TranslationComposer
 {
     /**
@@ -31,7 +30,6 @@ class TranslationComposer
      */
     public function compose(View $view) :void
     {
-        
         $view->with('industries', TranslationHelper::getIndustries());
 
         $view->with('countries', TranslationHelper::getCountries());
@@ -43,7 +41,5 @@ class TranslationComposer
         $view->with('currencies', TranslationHelper::getCurrencies());
 
         $view->with('payment_terms', TranslationHelper::getPaymentTerms());
-
     }
-
 }

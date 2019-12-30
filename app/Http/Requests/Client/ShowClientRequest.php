@@ -26,5 +26,4 @@ class ShowClientRequest extends Request
     {
         return auth()->user()->can('view', $this->client);
     }
-
 }

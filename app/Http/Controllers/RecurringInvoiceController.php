@@ -38,7 +38,6 @@ use Illuminate\Support\Facades\Log;
 
 class RecurringInvoiceController extends BaseController
 {
-
     use MakesHash;
 
     protected $entity_type = RecurringInvoice::class;
@@ -59,11 +58,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function __construct(RecurringInvoiceRepository $recurring_invoice_repo)
     {
-
         parent::__construct();
 
         $this->recurring_invoice_repo = $recurring_invoice_repo;
-
     }
 
     /**
@@ -73,7 +70,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/recurring_invoices",
      *      operationId="getRecurringInvoices",
@@ -101,7 +98,7 @@ class RecurringInvoiceController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -110,11 +107,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function index(RecurringInvoiceFilters $filters)
     {
-        
         $recurring_invoices = RecurringInvoice::filter($filters);
       
         return $this->listResponse($recurring_invoices);
-
     }
 
     /**
@@ -124,8 +119,8 @@ class RecurringInvoiceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/recurring_invoices/create",
      *      operationId="getRecurringInvoicesCreate",
@@ -151,7 +146,7 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -160,11 +155,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function create(CreateRecurringInvoiceRequest $request)
     {
-
         $recurring_invoice = RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($recurring_invoice);
-
     }
 
 
@@ -202,7 +195,7 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -211,11 +204,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function store(StoreRecurringInvoiceRequest $request)
     {
-        
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($recurring_invoice);
-
     }
 
     /**
@@ -263,18 +254,16 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-
         return $this->itemResponse($recurring_invoice);
-
     }
 
     /**
@@ -285,7 +274,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/recurring_invoices/{id}/edit",
      *      operationId="editRecurringInvoice",
@@ -322,7 +311,7 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -331,9 +320,7 @@ class RecurringInvoiceController extends BaseController
      */
     public function edit(EditRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-
         return $this->itemResponse($recurring_invoice);
-
     }
     
     /**
@@ -344,7 +331,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/recurring_invoices/{id}",
      *      operationId="updateRecurringInvoice",
@@ -381,7 +368,7 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -390,22 +377,23 @@ class RecurringInvoiceController extends BaseController
      */
     public function update(UpdateRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-
+        if($request->entityIsDeleted($recurring_invoice))
+            return $request->disallowUpdate();
+        
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
         return $this->itemResponse($recurring_invoice);
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest  $request  
-     * @param      \App\Models\RecurringInvoice                               $recurring_invoice  
+     * @param      \App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest  $request
+     * @param      \App\Models\RecurringInvoice                               $recurring_invoice
      *
      * @return     \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/recurring_invoices/{id}",
      *      operationId="deleteRecurringInvoice",
@@ -441,7 +429,7 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -450,19 +438,17 @@ class RecurringInvoiceController extends BaseController
      */
     public function destroy(DestroyRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-
         $recurring_invoice->delete();
 
         return response()->json([], 200);
-
     }
 
     /**
      * Perform bulk actions on the list view
-     * 
+     *
      * @return Collection
      *
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/recurring_invoices/bulk",
      *      operationId="bulkRecurringInvoices",
@@ -503,7 +489,7 @@ class RecurringInvoiceController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -512,35 +498,32 @@ class RecurringInvoiceController extends BaseController
      */
     public function bulk()
     {
-
         $action = request()->input('action');
         
         $ids = request()->input('ids');
 
         $recurring_invoices = RecurringInvoice::withTrashed()->find($this->transformKeys($ids));
 
-        $recurring_invoices->each(function ($recurring_invoice, $key) use($action){
-
-            if(auth()->user()->can('edit', $recurring_invoice))
+        $recurring_invoices->each(function ($recurring_invoice, $key) use ($action) {
+            if (auth()->user()->can('edit', $recurring_invoice)) {
                 $this->recurring_invoice_repo->{$action}($recurring_invoice);
-
+            }
         });
 
         return $this->listResponse(RecurringInvoice::withTrashed()->whereIn('id', $this->transformKeys($ids)));
-        
     }
 
     /**
      * Recurring Invoice Actions
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/recurring_invoices/{id}/{action}",
      *      operationId="actionRecurringInvoice",
      *      tags={"recurring_invoices"},
      *      summary="Performs a custom action on an RecurringInvoice",
      *      description="Performs a custom action on an RecurringInvoice.
-        
+
         The current range of actions are as follows
         - clone_to_RecurringInvoice
         - clone_to_quote
@@ -576,7 +559,7 @@ class RecurringInvoiceController extends BaseController
      *              type="string",
      *              format="string",
      *          ),
-     *      ),     
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns the RecurringInvoice object",
@@ -592,17 +575,16 @@ class RecurringInvoiceController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
      
     public function action(ActionRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice, $action)
     {
-        
         switch ($action) {
             case 'clone_to_RecurringInvoice':
           //      $recurring_invoice = CloneRecurringInvoiceFactory::create($recurring_invoice, auth()->user()->id);
@@ -610,7 +592,7 @@ class RecurringInvoiceController extends BaseController
                 break;
             case 'clone_to_quote':
             //    $recurring_invoice = CloneRecurringInvoiceToQuoteFactory::create($recurring_invoice, auth()->user()->id);
-                // todo build the quote transformer and return response here 
+                // todo build the quote transformer and return response here
                 break;
             case 'history':
                 # code...
@@ -636,5 +618,4 @@ class RecurringInvoiceController extends BaseController
                 break;
         }
     }
-    
 }

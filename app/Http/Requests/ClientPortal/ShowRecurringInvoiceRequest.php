@@ -26,5 +26,4 @@ class ShowRecurringInvoiceRequest extends Request
     {
         return auth()->user()->client->id === $this->recurring_invoice->client_id;
     }
-
 }

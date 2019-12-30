@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class PaymentWasCreated.
  */
-class PaymentWasCreated 
+class PaymentWasCreated
 {
     use SerializesModels;
 

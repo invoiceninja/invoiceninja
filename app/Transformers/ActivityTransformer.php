@@ -5,7 +5,6 @@ namespace App\Transformers;
 use App\Models\Activity;
 use App\Utils\Traits\MakesHash;
 
-
 class ActivityTransformer extends EntityTransformer
 {
     use MakesHash;
@@ -38,8 +37,8 @@ class ActivityTransformer extends EntityTransformer
             'is_system' => (bool) $activity->is_system,
             'contact_id' => $activity->contact_id ? (string) $this->encodePrimaryKey($activity->contact_id) : '',
             'task_id' => $activity->task_id ? (string) $this->encodePrimaryKey($activity->task_id) : '',
-			'notes' => $activity->notes ? (string) $activity->notes : '',
-			'ip' => (string) $activity->ip,
+            'notes' => $activity->notes ? (string) $activity->notes : '',
+            'ip' => (string) $activity->ip,
 
         ];
     }

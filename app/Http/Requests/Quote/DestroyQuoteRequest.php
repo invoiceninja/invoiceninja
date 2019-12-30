@@ -26,5 +26,4 @@ class DestroyQuoteRequest extends Request
     {
         return auth()->user()->can('edit', $this->quote);
     }
-
 }

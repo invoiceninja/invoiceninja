@@ -27,7 +27,6 @@ use Illuminate\Http\Request;
 
 class ProductController extends BaseController
 {
-
     use MakesHash;
 
     protected $entity_type = Product::class;
@@ -36,12 +35,11 @@ class ProductController extends BaseController
 
     protected $product_repo;
 
-   /**
-     * ProductController constructor.
-     */
+    /**
+      * ProductController constructor.
+      */
     public function __construct(ProductRepository $product_repo)
     {
-
         parent::__construct();
 
         $this->product_repo = $product_repo;
@@ -49,7 +47,7 @@ class ProductController extends BaseController
 
     /**
      *
-      * 
+      *
      * @OA\Get(
      *      path="/api/v1/products",
      *      operationId="getProducts",
@@ -77,7 +75,7 @@ class ProductController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -86,11 +84,9 @@ class ProductController extends BaseController
      */
     public function index(ProductFilters $filters)
     {
-        
         $products = Product::filter($filters);
         
         return $this->listResponse($products);
-
     }
 
 
@@ -99,8 +95,8 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/products/create",
      *      operationId="getProductsCreate",
@@ -126,7 +122,7 @@ class ProductController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -173,7 +169,7 @@ class ProductController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -230,7 +226,7 @@ class ProductController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -247,7 +243,7 @@ class ProductController extends BaseController
      *
      * @param  Product $product
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/products/{id}/edit",
      *      operationId="editProduct",
@@ -284,7 +280,7 @@ class ProductController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -303,7 +299,7 @@ class ProductController extends BaseController
      * @param  Product $product
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/products/{id}",
      *      operationId="updateProduct",
@@ -340,15 +336,19 @@ class ProductController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function update(UpdateProductRequest $request, Product $product)
     {
+
+        if($request->entityIsDeleted($product))
+            return $request->disallowUpdate();
+        
         $product = $this->product_repo->save($request, $product);
 
         return $this->itemResponse($product);
@@ -360,7 +360,7 @@ class ProductController extends BaseController
      * @param  Product  $product
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/products/{id}",
      *      operationId="deleteProduct",
@@ -396,7 +396,7 @@ class ProductController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -412,10 +412,10 @@ class ProductController extends BaseController
 
     /**
      * Perform bulk actions on the list view
-     * 
+     *
      * @return Collection
      *
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/products/bulk",
      *      operationId="bulkProducts",
@@ -456,7 +456,7 @@ class ProductController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -465,21 +465,18 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-
         $action = request()->input('action');
         
         $ids = request()->input('ids');
 
         $products = Product::withTrashed()->find($this->transformKeys($ids));
 
-        $products->each(function ($product, $key) use($action){
-
-            if(auth()->user()->can('edit', $product))
+        $products->each(function ($product, $key) use ($action) {
+            if (auth()->user()->can('edit', $product)) {
                 $this->product_repo->{$action}($product);
-
+            }
         });
 
         return $this->listResponse(Product::withTrashed()->whereIn('id', $this->transformKeys($ids)));
-        
     }
 }

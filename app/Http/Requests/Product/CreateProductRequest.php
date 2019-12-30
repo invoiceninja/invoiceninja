@@ -24,14 +24,13 @@ class CreateProductRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Product::Class);
+        return auth()->user()->can('create', Product::class);
     }
 
     public function rules() : array
     {
-    	return [
-    		'product_key' => 'required',
-    	];
+        return [
+            'product_key' => 'required',
+        ];
     }
-
 }

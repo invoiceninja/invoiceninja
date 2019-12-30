@@ -47,11 +47,9 @@ class CompanyGatewayController extends BaseController
      */
     public function __construct(CompanyRepository $company_repo)
     {
-    
         parent::__construct();
 
         $this->company_repo = $company_repo;
-
     }
 
     /**
@@ -59,8 +57,8 @@ class CompanyGatewayController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/company_gateways",
      *      operationId="getCompanyGateways",
@@ -88,7 +86,7 @@ class CompanyGatewayController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -100,7 +98,6 @@ class CompanyGatewayController extends BaseController
         $company_gateways = CompanyGateway::whereCompanyId(auth()->user()->company()->id);
 
         return $this->listResponse($company_gateways);
-
     }
 
     /**
@@ -108,8 +105,8 @@ class CompanyGatewayController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/company_gateways/create",
      *      operationId="getCompanyGatewaysCreate",
@@ -135,7 +132,7 @@ class CompanyGatewayController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -144,7 +141,6 @@ class CompanyGatewayController extends BaseController
      */
     public function create(CreateCompanyGatewayRequest $request)
     {
-
         $company_gateway = CompanyGatewayFactory::create(auth()->user()->company()->id, auth()->user()->id);
         
         return $this->itemResponse($company_gateway);
@@ -183,7 +179,7 @@ class CompanyGatewayController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -192,13 +188,11 @@ class CompanyGatewayController extends BaseController
      */
     public function store(StoreCompanyGatewayRequest $request)
     {
-        
         $company_gateway = CompanyGatewayFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $company_gateway->fill($request->all());
         $company_gateway->save();
 
         return $this->itemResponse($company_gateway);
-
     }
 
     /**
@@ -244,18 +238,16 @@ class CompanyGatewayController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function show(ShowCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
         return $this->itemResponse($company_gateway);
-
     }
 
     /**
@@ -264,7 +256,7 @@ class CompanyGatewayController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/company_gateways/{id}/edit",
      *      operationId="editCompanyGateway",
@@ -301,7 +293,7 @@ class CompanyGatewayController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -310,9 +302,7 @@ class CompanyGatewayController extends BaseController
      */
     public function edit(EditCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
-        return $this->itemResponse($company_gateway);       
-
+        return $this->itemResponse($company_gateway);
     }
 
     /**
@@ -322,7 +312,7 @@ class CompanyGatewayController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/company_gateways/{id}",
      *      operationId="updateCompanyGateway",
@@ -359,20 +349,20 @@ class CompanyGatewayController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function update(UpdateCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
         $company_gateway->fill($request->all());
 
-        if(!$request->has('fees_and_limits'))
+        if (!$request->has('fees_and_limits')) {
             $company_gateway->fees_and_limits = '';
+        }
 
         $company_gateway->save();
 
@@ -385,7 +375,7 @@ class CompanyGatewayController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/company_gateways/{id}",
      *      operationId="deleteCompanyGateway",
@@ -421,7 +411,7 @@ class CompanyGatewayController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -430,10 +420,8 @@ class CompanyGatewayController extends BaseController
      */
     public function destroy(DestroyCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
         $company_gateway->delete();
 
         return response()->json([], 200);
-        
     }
 }

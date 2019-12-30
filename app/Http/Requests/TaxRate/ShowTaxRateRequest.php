@@ -10,6 +10,7 @@
  */
 
 namespace App\Http\Requests\TaxRate;
+
 use App\Http\Requests\Request;
 
 class ShowTaxRateRequest extends Request

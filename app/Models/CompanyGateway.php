@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompanyGateway extends BaseModel
 {
-
     protected $casts = [
         'fees_and_limits' => 'object',
         'updated_at' => 'timestamp',
@@ -58,21 +57,21 @@ class CompanyGateway extends BaseModel
 
     public function company()
     {
-    	return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function gateway()
     {
-    	return $this->belongsTo(Gateway::class, 'gateway_key', 'key');
+        return $this->belongsTo(Gateway::class, 'gateway_key', 'key');
     }
 
     public function getTypeAlias($gateway_type_id)
     {
-
-        if($gateway_type_id == 'token')
+        if ($gateway_type_id == 'token') {
             $gateway_type_id = 1;
+        }
         
-    	return GatewayType::find($gateway_type_id)->alias;
+        return GatewayType::find($gateway_type_id)->alias;
     }
 
     /* This is the public entry point into the payment superclass */
@@ -202,7 +201,7 @@ class CompanyGateway extends BaseModel
 
     /**
      * Returns the formatted fee amount for the gateway
-     *     
+     *
      * @param  float $amount    The payment amount
      * @param  Client $client   The client object
      * @return string           The fee amount formatted in the client currency
@@ -211,12 +210,13 @@ class CompanyGateway extends BaseModel
     {
         $label = '';
 
-        if(!$this->feesEnabled())
+        if (!$this->feesEnabled()) {
             return $label;
+        }
 
         $fee = $this->calcGatewayFee($amount);
 
-        if($fee > 0 ){
+        if ($fee > 0) {
             $fee = Number::formatMoney(round($fee, 2), $client);
             $label = ' - ' . $fee . ' ' . ctrans('texts.fee');
         }
@@ -228,19 +228,23 @@ class CompanyGateway extends BaseModel
     {
         $fee = 0;
 
-        if ($this->fee_amount) 
+        if ($this->fee_amount) {
             $fee += $this->fee_amount;
+        }
         
-        if ($this->fee_percent)
+        if ($this->fee_percent) {
             $fee += $amount * $this->fee_percent / 100;
+        }
         
         $pre_tax_fee = $fee;
 
-        if ($this->fee_tax_rate1) 
+        if ($this->fee_tax_rate1) {
             $fee += $pre_tax_fee * $this->fee_tax_rate1 / 100;
+        }
         
-        if ($this->fee_tax_rate2) 
+        if ($this->fee_tax_rate2) {
             $fee += $pre_tax_fee * $this->fee_tax_rate2 / 100;
+        }
             
         
         return $fee;

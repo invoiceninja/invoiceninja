@@ -45,10 +45,10 @@ class ProfileController extends Controller
         /* Dropzone configuration */
         $data = [
             'params' => [
-                'is_avatar' => TRUE,
+                'is_avatar' => true,
             ],
             'url' => '/client/document',
-            'multi_upload' => FALSE,
+            'multi_upload' => false,
         ];
         
         return view('portal.default.profile.index', $data);
@@ -63,33 +63,31 @@ class ProfileController extends Controller
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {
-
         $client_contact->fill($request->all());
 
         //update password if needed
-        if($request->input('password'))
+        if ($request->input('password')) {
             $client_contact->password = Hash::make($request->input('password'));
+        }
 
         $client_contact->save();
 
-       // auth()->user()->fresh();
+        // auth()->user()->fresh();
 
         return back();
     }
 
     public function updateClient(UpdateClientRequest $request, ClientContact $client_contact)
     {
-
         $client = $client_contact->client;
 
         //update avatar if needed
-        if($request->file('logo')) 
-        {
+        if ($request->file('logo')) {
             $path = UploadAvatar::dispatchNow($request->file('logo'), auth()->user()->client->client_hash);
 
-            if($path)
+            if ($path) {
                 $client->logo = $path;
-            
+            }
         }
 
         $client->fill($request->all());

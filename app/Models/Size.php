@@ -10,8 +10,8 @@
  */
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Size.
@@ -23,5 +23,4 @@ class Size extends StaticModel
      * @var bool
      */
     public $timestamps = false;
-
 }

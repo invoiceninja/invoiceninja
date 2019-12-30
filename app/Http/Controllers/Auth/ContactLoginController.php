@@ -20,7 +20,6 @@ use Route;
 
 class ContactLoginController extends Controller
 {
-   
     use AuthenticatesUsers;
 
     protected $redirectTo = '/client/dashboard';
@@ -32,9 +31,7 @@ class ContactLoginController extends Controller
     
     public function showLoginForm()
     {
-
-      return view('portal.default.auth.login');
-    
+        return view('portal.default.auth.login');
     }
     
 
@@ -63,18 +60,17 @@ class ContactLoginController extends Controller
 
     public function authenticated(Request $request, ClientContact $client)
     {
-
         Auth::guard('contact')->login($client, true);
 
-        if(session()->get('url.intended'))
+        if (session()->get('url.intended')) {
             return redirect(session()->get('url.intended'));
+        }
               
         return redirect(route('client.dashboard'));
     }
     
     public function logout()
     {
-
         Auth::guard('contact')->logout();
 
         return redirect('/client/login');

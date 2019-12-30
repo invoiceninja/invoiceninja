@@ -29,7 +29,6 @@ class ClientContactTransformer extends EntityTransformer
      */
     public function transform(ClientContact $contact)
     {
-
         return [
             'id' => $this->encodePrimaryKey($contact->id),
             'first_name' => $contact->first_name ?: '',

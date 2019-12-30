@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Quote;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ class UpdateQuoteRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
+    use ChecksEntityStatus;
     
     /**
      * Determine if the user is authorized to make this request.
@@ -30,9 +32,7 @@ class UpdateQuoteRequest extends Request
 
     public function authorize() : bool
     {
-
         return auth()->user()->can('edit', $this->quote);
-
     }
 
 
@@ -50,10 +50,10 @@ class UpdateQuoteRequest extends Request
         // if(isset($input['client_id']))
         //     $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
-        if(isset($input['line_items']))
+        if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
 
         $this->replace($input);
     }
-
 }

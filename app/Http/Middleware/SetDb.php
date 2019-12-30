@@ -27,37 +27,22 @@ class SetDb
     
     public function handle($request, Closure $next)
     {
-
         $error = [
             'message' => 'Invalid Token',
             'errors' => []
         ];
 
 
-        if( $request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) 
-        {
-
-            if(! MultiDB::findAndSetDb($request->header('X-API-TOKEN')))
-            {
-
+        if ($request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) {
+            if (! MultiDB::findAndSetDb($request->header('X-API-TOKEN'))) {
                 return response()->json($error, 403);
-
             }
-        
-        }
-        else if(!config('ninja.db.multi_db_enabled')){
-
+        } elseif (!config('ninja.db.multi_db_enabled')) {
             return $next($request);
-        }
-        else {
-
-
-                return response()->json($error, 403);
-            
+        } else {
+            return response()->json($error, 403);
         }
 
         return $next($request);
     }
-
-
 }

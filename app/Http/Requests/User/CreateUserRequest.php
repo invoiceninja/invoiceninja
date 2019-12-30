@@ -24,7 +24,6 @@ class CreateUserRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('create', User::class);
+        return auth()->user()->isAdmin();
     }
-
 }

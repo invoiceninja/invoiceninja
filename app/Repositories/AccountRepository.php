@@ -13,5 +13,4 @@ namespace App\Repositories;
 
 class AccountRepository
 {
-
 }

@@ -30,8 +30,9 @@ class CompanyPresenter extends EntityPresenter
 
     public function logo($settings = null)
     {
-        if(!$settings)
+        if (!$settings) {
             $settings = $this->entity->settings;
+        }
 
         return iconv_strlen($settings->company_logo > 0) ? $settings->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
     }
@@ -41,8 +42,9 @@ class CompanyPresenter extends EntityPresenter
         $str = '';
         $company = $this->entity;
 
-        if(!$settings)
+        if (!$settings) {
             $settings = $this->entity->settings;
+        }
 
         if ($address1 = $settings->address1) {
             $str .= e($address1) . '<br/>';
@@ -68,8 +70,9 @@ class CompanyPresenter extends EntityPresenter
 
     public function getCompanyCityState($settings = null)
     {
-        if(!$settings)
+        if (!$settings) {
             $settings = $this->entity->settings;
+        }
 
         $country = Country::find($settings->country_id)->first();
 
@@ -85,5 +88,4 @@ class CompanyPresenter extends EntityPresenter
             return false;
         }
     }
-
 }

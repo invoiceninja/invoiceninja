@@ -39,7 +39,7 @@ class ProcessBulk implements ShouldQueue
      * @param $repo
      * @param string $method
      */
-    public function __construct(array $data, $repo,  string $method)
+    public function __construct(array $data, $repo, string $method)
     {
         $this->repo = $repo;
         $this->method = $method;
@@ -53,7 +53,7 @@ class ProcessBulk implements ShouldQueue
      */
     public function handle()
     {
-        foreach($this->data as $resource) {
+        foreach ($this->data as $resource) {
             $this->repo->{$this->method}($resource);
         }
     }

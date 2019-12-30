@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers;
 
-
 class DashboardController extends BaseController
 {
     /**
@@ -22,7 +21,6 @@ class DashboardController extends BaseController
     public function __construct()
     {
         $this->middleware('auth:user');
-
     }
 
     /**
@@ -32,9 +30,7 @@ class DashboardController extends BaseController
      */
     public function index()
     {
-       // dd(json_decode(auth()->user()->permissions(),true));
+        // dd(json_decode(auth()->user()->permissions(),true));
         return view('dashboard.index');
     }
-
-
 }

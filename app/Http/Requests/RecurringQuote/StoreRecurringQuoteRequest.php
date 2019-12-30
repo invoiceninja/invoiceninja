@@ -35,7 +35,4 @@ class StoreRecurringQuoteRequest extends Request
 
         ];
     }
-
-
 }
-

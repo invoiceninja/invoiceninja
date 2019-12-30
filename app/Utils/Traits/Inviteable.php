@@ -19,52 +19,52 @@ trait Inviteable
 {
 
 
-	/**
-	 * Gets the status.
-	 *
-	 * @return     string  The status.
-	 */
-	public function getStatus() : string
-	{
-		$status = '';
+    /**
+     * Gets the status.
+     *
+     * @return     string  The status.
+     */
+    public function getStatus() : string
+    {
+        $status = '';
 
-		if(isset($this->sent_date))
-			$status = ctrans('texts.invitation_status_sent');
+        if (isset($this->sent_date)) {
+            $status = ctrans('texts.invitation_status_sent');
+        }
 
-		if(isset($this->opened_date))
-			$status = ctrans('texts.invitation_status_opened');
+        if (isset($this->opened_date)) {
+            $status = ctrans('texts.invitation_status_opened');
+        }
 
-		if(isset($this->viewed_date))
-			$status = ctrans('texts.invitation_status_viewed');
-
-
-		return $status;
-	}
-
-	public function getLink() : string
-	{
-		$entity_type = strtolower(class_basename($this->entityType()));
-
-		//$this->with('company','contact',$this->entity_type);
-		$this->with('company');
-
-		$domain = isset($this->company->portal_domain) ?: $this->company->domain();
-
-		switch ($this->company->portal_mode) {
-			case 'subdomain':
-				return $domain .'/client/'. $entity_type .'/'. $this->key;
-				break;
-			case 'iframe':
-				return $domain .'/client/'. $entity_type .'/'. $this->key;
-				//return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
-				break;
-			case 'domain':
-				return $domain .'/client/'. $entity_type .'/'. $this->key;
-				break;
-
-		}
-
-	}
+        if (isset($this->viewed_date)) {
+            $status = ctrans('texts.invitation_status_viewed');
+        }
 
 
+        return $status;
+    }
+
+    public function getLink() : string
+    {
+        $entity_type = strtolower(class_basename($this->entityType()));
+
+        //$this->with('company','contact',$this->entity_type);
+        $this->with('company');
+
+        $domain = isset($this->company->portal_domain) ?: $this->company->domain();
+
+        switch ($this->company->portal_mode) {
+            case 'subdomain':
+                return $domain .'/client/'. $entity_type .'/'. $this->key;
+                break;
+            case 'iframe':
+                return $domain .'/client/'. $entity_type .'/'. $this->key;
+                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
+                break;
+            case 'domain':
+                return $domain .'/client/'. $entity_type .'/'. $this->key;
+                break;
+
+        }
+    }
 }

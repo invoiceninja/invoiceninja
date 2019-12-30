@@ -25,12 +25,11 @@ class ClientPortalEnabled
      */
     public function handle($request, Closure $next)
     {
-
-        if(auth()->user()->client->getSetting('enable_client_portal') === false)
+        if (auth()->user()->client->getSetting('enable_client_portal') === false) {
             return redirect()->to('client/dashboard');
+        }
 
 
         return $next($request);
-
     }
 }

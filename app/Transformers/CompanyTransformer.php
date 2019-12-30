@@ -11,7 +11,6 @@
 
 namespace App\Transformers;
 
-
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Client;
@@ -142,7 +141,7 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new GroupSettingTransformer($this->serializer);
 
-        return $this->includeCollection($company->groups, $transformer, GroupSetting::class);        
+        return $this->includeCollection($company->groups, $transformer, GroupSetting::class);
     }
 
     public function includeInvoices(Company $company)
@@ -161,37 +160,29 @@ class CompanyTransformer extends EntityTransformer
 
     public function includeAccount(Company $company)
     {
-
         $transformer = new AccountTransformer($this->serializer);
 
         return $this->includeItem($company->account, $transformer, Account::class);
-    
     }
 
     public function includeTaxRates(Company $company)
     {
-
         $transformer = new TaxRateTransformer($this->serializer);
 
         return $this->includeCollection($company->tax_rates, $transformer, TaxRate::class);
-    
     }
 
     public function includeProducts(Company $company)
     {
-
         $transformer = new ProductTransformer($this->serializer);
 
         return $this->includeCollection($company->products, $transformer, Product::class);
-    
     }
 
     public function includePayments(Company $company)
     {
-
         $transformer = new PaymentTransformer($this->serializer);
 
         return $this->includeCollection($company->payments, $transformer, Payment::class);
-    
     }
 }

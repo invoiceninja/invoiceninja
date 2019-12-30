@@ -31,21 +31,15 @@ class UpdateGroupSettingRequest extends Request
 
     public function rules()
     {
-
         $rules['settings'] = new ValidClientGroupSettingsRule();
         
         return $rules;
-
     }
 
     protected function prepareForValidation()
     {
         $input = $this->all();
 
-        $this->replace($input);   
-
+        $this->replace($input);
     }
-
-
-
 }

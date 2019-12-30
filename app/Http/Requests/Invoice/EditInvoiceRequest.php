@@ -33,5 +33,4 @@ class EditInvoiceRequest extends Request
         
         return $rules;
     }
-
 }

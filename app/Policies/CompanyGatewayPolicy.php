@@ -20,15 +20,14 @@ use App\Models\User;
  */
 class CompanyGatewayPolicy extends EntityPolicy
 {
-	/**
-	 *  Checks if the user has create permissions
-	 *  
-	 * @param  User $user
-	 * @return bool
-	 */
-	public function create(User $user) : bool
-	{
-		return $user->isAdmin();
-	}
-
+    /**
+     *  Checks if the user has create permissions
+     *
+     * @param  User $user
+     * @return bool
+     */
+    public function create(User $user) : bool
+    {
+        return $user->isAdmin();
+    }
 }

@@ -21,7 +21,6 @@ class QuoteInvitationTransformer extends EntityTransformer
 
     public function transform(QuoteInvitation $invitation)
     {
-
         return [
             'id' => $this->encodePrimaryKey($invitation->id),
             'client_contact_id' => $this->encodePrimaryKey($invitation->client_contact_id),

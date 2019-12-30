@@ -33,7 +33,7 @@ class InvoiceFilters extends QueryFilters
      * - unpaid
      * - overdue
      * - reversed
-     * 
+     *
      * @param      string client_status The invoice status as seen by the client
      * @return     Illuminate\Database\Query\Builder
      *
@@ -41,67 +41,74 @@ class InvoiceFilters extends QueryFilters
     
     public function client_status(string $value = '') :Builder
     {
-        if(strlen($value) == 0)
+        if (strlen($value) == 0) {
             return $this->builder;
+        }
 
         $status_parameters = explode(",", $value);
 
-        if (in_array('all', $status_parameters)) 
+        if (in_array('all', $status_parameters)) {
             return $this->builder;
+        }
         
-        if(in_array('paid', $status_parameters))
+        if (in_array('paid', $status_parameters)) {
             $this->builder->where('status_id', Invoice::STATUS_PAID);
+        }
 
-        if(in_array('unpaid', $status_parameters))
+        if (in_array('unpaid', $status_parameters)) {
             $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
-                            //->where('due_date', '>', Carbon::now())
-                            //->orWhere('partial_due_date', '>', Carbon::now());
+        }
+        //->where('due_date', '>', Carbon::now())
+        //->orWhere('partial_due_date', '>', Carbon::now());
 
-        if(in_array('overdue', $status_parameters))
+        if (in_array('overdue', $status_parameters)) {
             $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                             ->where('due_date', '<', Carbon::now())
                             ->orWhere('partial_due_date', '<', Carbon::now());
+        }
 
         return $this->builder;
     }
 
     /**
      * Filter based on search text
-     * 
+     *
      * @param  string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
-     *     
+     *
      */
     public function filter(string $filter = '') : Builder
     {
-        if(strlen($filter) == 0)
+        if (strlen($filter) == 0) {
             return $this->builder;
+        }
 
         return  $this->builder->where(function ($query) use ($filter) {
-                    $query->where('invoices.number', 'like', '%'.$filter.'%')
+            $query->where('invoices.number', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.po_number', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.date', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.amount', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.balance', 'like', '%'.$filter.'%')
                           ->orWhere('invoices.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value2', 'like' , '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value3', 'like' , '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value4', 'like' , '%'.$filter.'%');
-                });
+                          ->orWhere('invoices.custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('invoices.custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('invoices.custom_value4', 'like', '%'.$filter.'%');
+        });
     }
 
     /**
      * Filters the list based on the status
      * archived, active, deleted - legacy from V1
-     * 
+     *
      * @param  string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '') : Builder
     {
-        if(strlen($filter) == 0)
+        if (strlen($filter) == 0) {
             return $this->builder;
+        }
 
         $table = 'invoices';
         $filters = explode(',', $filter);
@@ -131,7 +138,7 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * Sorts the list based on $sort
-     * 
+     *
      * @param  string sort formatted as column|asc
      * @return Illuminate\Database\Query\Builder
      */
@@ -143,14 +150,13 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * Returns the base query
-     * 
+     *
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
      * @deprecated
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
-
     }
 
     /**
@@ -158,37 +164,31 @@ class InvoiceFilters extends QueryFilters
      *
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
-     * 
+     *
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
     public function entityFilter()
     {
-
-        if(auth('contact')->user())
+        if (auth('contact')->user()) {
             return $this->contactViewFilter();
-        else
+        } else {
             return $this->builder->company();
+        }
 
 //            return $this->builder->whereCompanyId(auth()->user()->company()->id);
-
     }
 
     /**
      * We need additional filters when showing invoices for the
      * client portal. Need to automatically exclude drafts and cancelled invoices
-     * 
+     *
      * @return Illuminate\Database\Query\Builder
      */
     private function contactViewFilter() : Builder
     {
-        
         return $this->builder
                     ->whereCompanyId(auth('contact')->user()->company->id)
                     ->whereNotIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_CANCELLED]);
-
     }
-
-
-
 }

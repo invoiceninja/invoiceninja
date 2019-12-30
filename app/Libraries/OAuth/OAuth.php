@@ -11,7 +11,6 @@
 
 namespace App\Libraries\OAuth;
 
-
 use App\Libraries\MultiDB;
 use App\Ninja\OAuth\Providers\Google;
 use Laravel\Socialite\Facades\Socialite;
@@ -46,13 +45,11 @@ class OAuth
             'oauth_provider_id'=>$provider
         ];
 
-        if($user = MultiDB::hasUser($query))
-        {
+        if ($user = MultiDB::hasUser($query)) {
             return $user;
-        }
-        else
+        } else {
             return false;
-
+        }
     }
 
     /* Splits a socialite user name into first and last names */
@@ -67,8 +64,7 @@ class OAuth
 
     public static function providerToString(int $social_provider) : string
     {
-        switch ($social_provider)
-        {
+        switch ($social_provider) {
             case SOCIAL_GOOGLE:
                 return 'google';
             case SOCIAL_FACEBOOK:
@@ -86,8 +82,7 @@ class OAuth
 
     public static function providerToInt(string $social_provider) : int
     {
-        switch ($social_provider)
-        {
+        switch ($social_provider) {
             case 'google':
                 return SOCIAL_GOOGLE;
             case 'facebook':
@@ -105,9 +100,8 @@ class OAuth
 
     public function getProvider($provider)
     {
-        switch ($provider)
-        {
-            case 'google';
+        switch ($provider) {
+            case 'google':
                 $this->provider_instance = new Google();
                 $this->provider_id = self::SOCIAL_GOOGLE;
                 return $this;
@@ -131,10 +125,10 @@ class OAuth
             'oauth_provider_id' => $this->provider_id
         ];
 
-        if($this->provider_instance)
+        if ($this->provider_instance) {
             $user = MultiDB::hasUser($data);
+        }
 
         return $user;
-
     }
 }

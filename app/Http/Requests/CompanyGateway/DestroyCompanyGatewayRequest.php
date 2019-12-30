@@ -42,7 +42,5 @@ class DestroyCompanyGatewayRequest extends Request
         //$input['id'] = $this->encodePrimaryKey($input['id']);
 
         $this->replace($input);
-
     }
-
 }

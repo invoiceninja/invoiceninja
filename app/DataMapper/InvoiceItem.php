@@ -13,7 +13,6 @@ namespace App\DataMapper;
 
 class InvoiceItem
 {
-
     public $quantity = 0;
 
     public $cost = 0;

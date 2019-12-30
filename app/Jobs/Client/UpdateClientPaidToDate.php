@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Client;
 
-
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
@@ -44,12 +43,11 @@ class UpdateClientPaidToDate
      *
      * @return void
      */
-    public function handle() 
+    public function handle()
     {
         MultiDB::setDB($this->company->db);
 
         $this->client->paid_to_date += $this->amount;
         $this->client->save();
-
     }
 }

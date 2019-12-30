@@ -35,17 +35,15 @@ class PaymentNotification implements ShouldQueue
      */
     public function __construct(Payment $payment, Company $company)
     {
-
         $this->payment = $payment;
 
         $this->company = $company;
-
     }
 
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
@@ -55,6 +53,5 @@ class PaymentNotification implements ShouldQueue
         //notification for the payment.
         //
         //could mean a email, sms, slack, push
-
     }
 }

@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-
 /**
  * Class Bank.
  */

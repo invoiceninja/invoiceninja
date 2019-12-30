@@ -17,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class VendorWasDeleted.
  */
-class VendorWasDeleted 
+class VendorWasDeleted
 {
     use SerializesModels;
 

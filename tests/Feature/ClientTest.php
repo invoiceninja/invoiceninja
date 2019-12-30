@@ -182,6 +182,19 @@ class ClientTest extends TestCase
 
         $response->assertStatus(200);
 
+        $client->is_deleted = true;
+        $client->save();
+
+
+        $client_update = [
+            'name' => 'Double Funk'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->put('/api/v1/clients/'.$this->encodePrimaryKey($client->id), $client_update)
+            ->assertStatus(400);
 
         }
 

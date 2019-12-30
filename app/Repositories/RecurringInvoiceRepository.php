@@ -20,15 +20,13 @@ use Illuminate\Http\Request;
  */
 class RecurringInvoiceRepository extends BaseRepository
 {
-
-
     public function getClassName()
     {
         return RecurringInvoice::class;
     }
     
-	public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
-	{
+    public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
+    {
         $invoice->fill($data);
         
         $invoice->save();
@@ -41,6 +39,5 @@ class RecurringInvoiceRepository extends BaseRepository
         //ie. client balance update...
         
         return $invoice;
-	}
-
+    }
 }

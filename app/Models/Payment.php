@@ -51,13 +51,13 @@ class Payment extends BaseModel
     const TYPE_TOKEN = 'token';
 
     protected $fillable = [
-		'client_id',
+        'client_id',
         'type_id',
         'amount',
         'date',
         'transaction_reference',
         'number'
-	];
+    ];
 
     protected $casts = [
         'settings' => 'object',
@@ -84,7 +84,7 @@ class Payment extends BaseModel
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id')->withTrashed();
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
     
     public function documents()
@@ -119,8 +119,9 @@ class Payment extends BaseModel
 
     public function clientPaymentDate()
     {
-        if(!$this->date)
+        if (!$this->date) {
             return '';
+        }
 
         $date_format = DateFormat::find($this->client->getSetting('date_format_id'));
 
@@ -147,7 +148,7 @@ class Payment extends BaseModel
                 break;
             case self::STATUS_REFUNDED:
                 return '<h6><span class="badge badge-primary">'.ctrans('texts.payment_status_6').'</span></h6>';
-                break;         
+                break;
             default:
                 # code...
                 break;

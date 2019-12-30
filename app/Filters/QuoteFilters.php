@@ -23,36 +23,38 @@ class QuoteFilters extends QueryFilters
 
     /**
      * Filter based on search text
-     * 
+     *
      * @param  string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
-     *     
+     *
      */
     public function filter(string $filter = '') : Builder
     {
-        if(strlen($filter) == 0)
+        if (strlen($filter) == 0) {
             return $this->builder;
+        }
 
         return  $this->builder->where(function ($query) use ($filter) {
-                    $query->where('quotes.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('quotes.custom_value2', 'like' , '%'.$filter.'%')
-                          ->orWhere('quotes.custom_value3', 'like' , '%'.$filter.'%')
-                          ->orWhere('quotes.custom_value4', 'like' , '%'.$filter.'%');
-                });
+            $query->where('quotes.custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('quotes.custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('quotes.custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('quotes.custom_value4', 'like', '%'.$filter.'%');
+        });
     }
 
     /**
      * Filters the list based on the status
      * archived, active, deleted
-     * 
+     *
      * @param  string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '') : Builder
     {
-        if(strlen($filter) == 0)
+        if (strlen($filter) == 0) {
             return $this->builder;
+        }
 
         $table = 'quotes';
         $filters = explode(',', $filter);
@@ -82,7 +84,7 @@ class QuoteFilters extends QueryFilters
 
     /**
      * Sorts the list based on $sort
-     * 
+     *
      * @param  string sort formatted as column|asc
      * @return Illuminate\Database\Query\Builder
      */
@@ -94,27 +96,23 @@ class QuoteFilters extends QueryFilters
 
     /**
      * Returns the base query
-     * 
+     *
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
      * @deprecated
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
-
     }
 
     /**
      * Filters the query by the users company ID
-     * 
+     *
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
-     public function entityFilter()
+    public function entityFilter()
     {
-        
-            return $this->builder->company();
-
+        return $this->builder->company();
     }
-
 }

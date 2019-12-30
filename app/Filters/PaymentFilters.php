@@ -24,38 +24,40 @@ class PaymentFilters extends QueryFilters
 
     /**
      * Filter based on search text
-     * 
+     *
      * @param  string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
-     *     
+     *
      */
     public function filter(string $filter = '') : Builder
     {
-        if(strlen($filter) == 0)
+        if (strlen($filter) == 0) {
             return $this->builder;
+        }
 
         return  $this->builder->where(function ($query) use ($filter) {
-                    $query->where('payments.amount', 'like', '%'.$filter.'%')
+            $query->where('payments.amount', 'like', '%'.$filter.'%')
                           ->orWhere('payments.date', 'like', '%'.$filter.'%')
                           ->orWhere('payments.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value2', 'like' , '%'.$filter.'%')
-                          ->orWhere('payments.custom_value3', 'like' , '%'.$filter.'%')
-                          ->orWhere('payments.custom_value4', 'like' , '%'.$filter.'%');
-                });
+                          ->orWhere('payments.custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('payments.custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('payments.custom_value4', 'like', '%'.$filter.'%');
+        });
     }
 
     /**
      * Filters the list based on the status
      * archived, active, deleted
-     * 
+     *
      * @param  string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '') : Builder
     {
-        if(strlen($filter) == 0)
+        if (strlen($filter) == 0) {
             return $this->builder;
+        }
 
         $table = 'payments';
         $filters = explode(',', $filter);
@@ -85,7 +87,7 @@ class PaymentFilters extends QueryFilters
 
     /**
      * Sorts the list based on $sort
-     * 
+     *
      * @param  string sort formatted as column|asc
      * @return Illuminate\Database\Query\Builder
      */
@@ -97,29 +99,28 @@ class PaymentFilters extends QueryFilters
 
     /**
      * Returns the base query
-     * 
+     *
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
      * @deprecated
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
-
     }
 
     /**
      * Filters the query by the users company ID
-     * 
+     *
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
-     public function entityFilter()
+    public function entityFilter()
     {
-        
-        if(auth('contact')->user())
+        if (auth('contact')->user()) {
             return $this->contactViewFilter();
-        else
+        } else {
             return $this->builder->company();
+        }
     }
 
 
@@ -127,15 +128,13 @@ class PaymentFilters extends QueryFilters
     /**
      * We need additional filters when showing invoices for the
      * client portal. Need to automatically exclude drafts and cancelled invoices
-     * 
+     *
      * @return Illuminate\Database\Query\Builder
      */
     private function contactViewFilter() : Builder
     {
-        
         return $this->builder
                     ->whereCompanyId(auth('contact')->user()->company->id)
                     ->whereIsDeleted(false);
-
     }
 }

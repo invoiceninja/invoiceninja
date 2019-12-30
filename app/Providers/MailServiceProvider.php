@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Providers;
 
@@ -13,5 +13,4 @@ class MailServiceProvider extends MailProvider
             return new GmailTransportManager($app);
         });
     }
-
 }

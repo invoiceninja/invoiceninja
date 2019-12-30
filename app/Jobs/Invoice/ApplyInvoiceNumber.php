@@ -41,7 +41,6 @@ class ApplyInvoiceNumber implements ShouldQueue
      */
     public function __construct(Invoice $invoice, $settings, $company)
     {
-
         $this->invoice = $invoice;
 
         $this->settings = $settings;
@@ -52,26 +51,27 @@ class ApplyInvoiceNumber implements ShouldQueue
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()
     {
-
         MultiDB::setDB($this->company->db);
 
 
         //return early
-        if($this->invoice->number != '')
+        if ($this->invoice->number != '') {
             return $this->invoice;
+        }
 
         switch ($this->settings->counter_number_applied) {
             case 'when_saved':
                 $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
                 break;
             case 'when_sent':
-                if($this->invoice->status_id == Invoice::STATUS_SENT)
+                if ($this->invoice->status_id == Invoice::STATUS_SENT) {
                     $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+                }
                 break;
             
             default:
@@ -82,8 +82,5 @@ class ApplyInvoiceNumber implements ShouldQueue
         $this->invoice->save();
             
         return $this->invoice;
-
     }
-
-
 }

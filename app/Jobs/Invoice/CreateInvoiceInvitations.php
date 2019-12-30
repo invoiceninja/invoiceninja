@@ -38,10 +38,8 @@ class CreateInvoiceInvitations implements ShouldQueue
      */
     public function __construct(Invoice $invoice, Company $company)
     {
-
         $this->invoice = $invoice;
         $this->company = $company;
-        
     }
 
     public function handle()
@@ -51,23 +49,19 @@ class CreateInvoiceInvitations implements ShouldQueue
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {
-
             $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->whereInvoiceId($this->invoice->id)
                                         ->first();
 
-            if(!$invitation && $contact->send_invoice) {
+            if (!$invitation && $contact->send_invoice) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            }
-            else if($invitation && !$contact->send_invoice) {
+            } elseif ($invitation && !$contact->send_invoice) {
                 $invitation->delete();
             }
-
         });
-
     }
 }

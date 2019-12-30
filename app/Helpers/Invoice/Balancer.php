@@ -16,17 +16,12 @@ namespace App\Helpers\Invoice;
  */
 trait Balancer
 {
-
-	public function balance($total, $invoice)
-	{
-
-		if(isset($this->invoice->id) && $this->invoice->id >= 1)
-		{
+    public function balance($total, $invoice)
+    {
+        if (isset($this->invoice->id) && $this->invoice->id >= 1) {
             return round($total - ($this->invoice->amount - $this->invoice->balance), 2);
-        } 
+        }
 
         return $total;
-        
-	}
-
+    }
 }

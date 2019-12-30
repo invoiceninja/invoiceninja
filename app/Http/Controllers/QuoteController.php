@@ -33,7 +33,6 @@ use Illuminate\Http\Request;
 
 class QuoteController extends BaseController
 {
-
     use MakesHash;
 
     protected $entity_type = Quote::class;
@@ -54,11 +53,9 @@ class QuoteController extends BaseController
      */
     public function __construct(QuoteRepository $quote_repo)
     {
-
         parent::__construct();
 
         $this->quote_repo = $quote_repo;
-
     }
 
     /**
@@ -66,7 +63,7 @@ class QuoteController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/quotes",
      *      operationId="getQuotes",
@@ -94,7 +91,7 @@ class QuoteController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -104,7 +101,6 @@ class QuoteController extends BaseController
    
     public function index(QuoteFilters $filters)
     {
-        
         $quotes = Quote::filter($filters);
       
         return $this->listResponse($quotes);
@@ -115,8 +111,8 @@ class QuoteController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/quotes/create",
      *      operationId="getQuotesCreate",
@@ -142,7 +138,7 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -151,11 +147,9 @@ class QuoteController extends BaseController
      */
     public function create(CreateQuoteRequest $request)
     {
-
         $quote = QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         return $this->itemResponse($quote);
-
     }
 
     /**
@@ -192,7 +186,7 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -201,11 +195,9 @@ class QuoteController extends BaseController
      */
     public function store(StoreQuoteRequest $request)
     {
-        
         $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($quote);
-
     }
 
     /**
@@ -253,7 +245,7 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -262,9 +254,7 @@ class QuoteController extends BaseController
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {
-
         return $this->itemResponse($quote);
-
     }
 
     /**
@@ -275,7 +265,7 @@ class QuoteController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Get(
      *      path="/api/v1/quotes/{id}/edit",
      *      operationId="editQuote",
@@ -312,18 +302,16 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function edit(EditQuoteRequest $request, Quote $quote)
     {
-
         return $this->itemResponse($quote);
-
     }
     
     /**
@@ -334,7 +322,7 @@ class QuoteController extends BaseController
      *
      * @return \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Put(
      *      path="/api/v1/quotes/{id}",
      *      operationId="updateQuote",
@@ -371,7 +359,7 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -380,22 +368,23 @@ class QuoteController extends BaseController
      */
     public function update(UpdateQuoteRequest $request, Quote $quote)
     {
-
+        if($request->entityIsDeleted($quote))
+            return $request->disallowUpdate();
+        
         $quote = $this->quote_repo->save($request->all(), $quote);
 
         return $this->itemResponse($quote);
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\Quote\DestroyQuoteRequest  $request  
-     * @param      \App\Models\Quote                               $quote  
+     * @param      \App\Http\Requests\Quote\DestroyQuoteRequest  $request
+     * @param      \App\Models\Quote                               $quote
      *
      * @return     \Illuminate\Http\Response
      *
-     * 
+     *
      * @OA\Delete(
      *      path="/api/v1/quotes/{id}",
      *      operationId="deleteQuote",
@@ -431,7 +420,7 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -440,19 +429,17 @@ class QuoteController extends BaseController
      */
     public function destroy(DestroyQuoteRequest $request, Quote $quote)
     {
-
         $quote->delete();
 
         return response()->json([], 200);
-
     }
 
     /**
      * Perform bulk actions on the list view
-     * 
+     *
      * @return Collection
      *
-     * 
+     *
      * @OA\Post(
      *      path="/api/v1/quotes/bulk",
      *      operationId="bulkQuotes",
@@ -493,7 +480,7 @@ class QuoteController extends BaseController
 
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
@@ -502,36 +489,33 @@ class QuoteController extends BaseController
      */
     public function bulk()
     {
-
         $action = request()->input('action');
         
         $ids = request()->input('ids');
 
         $quotes = Quote::withTrashed()->find($this->transformKeys($ids));
 
-        $quotes->each(function ($quote, $key) use($action){
-
-            if(auth()->user()->can('edit', $quote))
+        $quotes->each(function ($quote, $key) use ($action) {
+            if (auth()->user()->can('edit', $quote)) {
                 $this->quote_repo->{$action}($quote);
-
+            }
         });
 
         return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids)));
-        
     }
 
     /**
      * Quote Actions
-     * 
      *
-     * 
+     *
+     *
      * @OA\Get(
      *      path="/api/v1/quotes/{id}/{action}",
      *      operationId="actionQuote",
      *      tags={"quotes"},
      *      summary="Performs a custom action on an Quote",
      *      description="Performs a custom action on an Quote.
-        
+
         The current range of actions are as follows
         - clone_to_Quote
         - clone_to_quote
@@ -567,7 +551,7 @@ class QuoteController extends BaseController
      *              type="string",
      *              format="string",
      *          ),
-     *      ),     
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns the Quote object",
@@ -583,16 +567,15 @@ class QuoteController extends BaseController
      *
      *       ),
      *       @OA\Response(
-     *           response="default", 
+     *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
      *
-     */ 
+     */
     public function action(ActionQuoteRequest $request, Quote $quote, $action)
     {
-        
         switch ($action) {
             case 'clone_to_invoice':
                 //$quote = CloneInvoiceFactory::create($quote, auth()->user()->id);
@@ -600,7 +583,7 @@ class QuoteController extends BaseController
                 break;
             case 'clone_to_quote':
                 //$quote = CloneInvoiceToQuoteFactory::create($quote, auth()->user()->id);
-                // todo build the quote transformer and return response here 
+                // todo build the quote transformer and return response here
                 break;
             case 'history':
                 # code...
@@ -623,12 +606,11 @@ class QuoteController extends BaseController
                 return $this->listResponse($quote);
                 break;
             case 'email':
-                return response()->json(['message'=>'email sent'],200);
+                return response()->json(['message'=>'email sent'], 200);
                 break;
             default:
-                return response()->json(['message' => "The requested action `{$action}` is not available."],400);
+                return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
         }
     }
-    
 }

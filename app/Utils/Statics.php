@@ -21,10 +21,10 @@ use Illuminate\Support\Str;
  */
 class Statics
 {
-	/**
-	 * Date format types
-	 * @var array
-	 */
+    /**
+     * Date format types
+     * @var array
+     */
     public static $date = [
         ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'format_moment' => 'DD/MMM/YYYY', 'format_dart' => 'dd/MMM/yyyy'],
         ['format' => 'd-M-Y', 'picker_format' => 'dd-M-yyyy', 'format_moment' => 'DD-MMM-YYYY', 'format_dart' => 'dd-MMM-yyyy'],
@@ -45,7 +45,7 @@ class Statics
      * Date Time Format types
      * @var array
      */
-	public static $date_time = [
+    public static $date_time = [
         ['format' => 'd/M/Y g:i a', 'format_moment' => 'DD/MMM/YYYY h:mm:ss a', 'format_dart' => 'dd/MMM/yyyy h:mm a'],
         ['format' => 'd-M-Y g:i a', 'format_moment' => 'DD-MMM-YYYY h:mm:ss a', 'format_dart' => 'dd-MMM-yyyy h:mm a'],
         ['format' => 'd/F/Y g:i a', 'format_moment' => 'DD/MMMM/YYYY h:mm:ss a', 'format_dart' => 'dd/MMMM/yyyy h:mm a'],
@@ -60,7 +60,7 @@ class Statics
         ['format' => 'j. M. Y g:i a', 'format_moment' => 'DD. MMM. YYYY h:mm:ss a', 'format_dart' => 'd. MMM. yyyy h:mm a'],
         ['format' => 'j. F Y g:i a', 'format_moment' => 'DD. MMMM YYYY h:mm:ss a', 'format_dart' => 'd. MMMM yyyy h:mm a'],
     ];
-	
+    
 
     /**
      * Company statics
@@ -69,7 +69,6 @@ class Statics
      */
     public static function company($locale = false) :array
     {
-
         $data = [];
 
         foreach (config('ninja.cached_tables') as $name => $class) {
@@ -77,7 +76,6 @@ class Statics
         }
 
         if ($locale) {
-
             $data['industries'] = Cache::get('industries')->each(function ($industry) {
                 $industry->name = ctrans('texts.industry_'.$industry->name);
             })->sortBy(function ($industry) {
@@ -107,15 +105,8 @@ class Statics
             })->sortBy(function ($currency) {
                 return $currency->name;
             })->values();
-
         }
 
         return $data;
-
     }
-
 }
-
-
-
-

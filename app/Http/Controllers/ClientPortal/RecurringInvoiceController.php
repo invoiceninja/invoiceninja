@@ -33,7 +33,6 @@ use Yajra\DataTables\Html\Builder;
 
 class RecurringInvoiceController extends Controller
 {
-
     use MakesHash;
     use MakesDates;
     /**
@@ -52,33 +51,30 @@ class RecurringInvoiceController extends Controller
                                     ->get();
 
         if (request()->ajax()) {
-
             return DataTables::of($invoices)->addColumn('action', function ($invoice) {
-                    return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
-                })->addColumn('frequency_id', function ($invoice) {
-                    return RecurringInvoice::frequencyForKey($invoice->frequency_id);
-                })
-                ->editColumn('status_id', function ($invoice){
+                return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
+            })->addColumn('frequency_id', function ($invoice) {
+                return RecurringInvoice::frequencyForKey($invoice->frequency_id);
+            })
+                ->editColumn('status_id', function ($invoice) {
                     return RecurringInvoice::badgeForStatus($invoice->status);
                 })
-                ->editColumn('start_date', function ($invoice){
+                ->editColumn('start_date', function ($invoice) {
                     return $this->formatDate($invoice->date, $invoice->client->date_format());
                 })
-                ->editColumn('next_send_date', function ($invoice){
+                ->editColumn('next_send_date', function ($invoice) {
                     return $this->formatDate($invoice->next_send_date, $invoice->client->date_format());
                 })
-                ->editColumn('amount', function ($invoice){
+                ->editColumn('amount', function ($invoice) {
                     return Number::formatMoney($invoice->amount, $invoice->client);
                 })
                 ->rawColumns(['action', 'status_id'])
                 ->make(true);
-        
         }
 
         $data['html'] = $builder;
       
         return view('portal.default.recurring_invoices.index', $data);
-
     }
 
     /**
@@ -90,19 +86,16 @@ class RecurringInvoiceController extends Controller
      */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-
         $data = [
             'invoice' => $recurring_invoice->load('invoices'),
         ];
         
         return view('portal.default.recurring_invoices.show', $data);
-
     }
 
 
     public function requestCancellation(Request $request, RecurringInvoice $recurring_invoice)
     {
-
         $data = [
             'invoice' => $recurring_invoice
         ];
@@ -112,7 +105,5 @@ class RecurringInvoiceController extends Controller
         $recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 
         return view('portal.default.recurring_invoices.request_cancellation', $data);
-
     }
-
 }

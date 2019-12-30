@@ -16,27 +16,23 @@ use Illuminate\Support\Str;
 
 class QuoteInvitationFactory
 {
+    public static function create(int $company_id, int $user_id) :QuoteInvitation
+    {
+        $qi = new QuoteInvitation;
+        $qi->company_id = $company_id;
+        $qi->user_id = $user_id;
+        $qi->client_contact_id = null;
+        $qi->quote_id = null;
+        $qi->key = Str::random(config('ninja.key_length'));
+        $qi->transaction_reference = null;
+        $qi->message_id = null;
+        $qi->email_error = '';
+        $qi->signature_base64 = '';
+        $qi->signature_date = null;
+        $qi->sent_date = null;
+        $qi->viewed_date = null;
+        $qi->opened_date = null;
 
-      public static function create(int $company_id, int $user_id) :QuoteInvitation
-      {
-            $qi = new QuoteInvitation;
-            $qi->company_id = $company_id;
-            $qi->user_id = $user_id;
-            $qi->client_contact_id = null;
-            $qi->quote_id = null;
-            $qi->key = Str::random(config('ninja.key_length'));
-            $qi->transaction_reference = null;
-            $qi->message_id = null;
-            $qi->email_error = '';
-            $qi->signature_base64 = '';
-            $qi->signature_date = null;
-            $qi->sent_date = null;
-            $qi->viewed_date = null;
-            $qi->opened_date = null;
-
-            return $qi;
-      }
-      
+        return $qi;
+    }
 }
-
-           

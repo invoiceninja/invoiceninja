@@ -29,7 +29,6 @@ class StoreProductRequest extends Request
 
     public function rules()
     {
-
         return [
             'product_key' => 'required|unique:products,product_key,null,null,company_id,'.auth()->user()->companyId(),
             'cost' => 'numeric',
@@ -42,11 +41,10 @@ class StoreProductRequest extends Request
     {
         $input = $this->all();
 
-        if(!isset($input['quantity']) || $input['quantity'] < 1)
+        if (!isset($input['quantity']) || $input['quantity'] < 1) {
             $input['quantity'] = 1;
+        }
 
         $this->replace($input);
-
     }
-    
 }
