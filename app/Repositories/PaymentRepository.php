@@ -32,9 +32,9 @@ class PaymentRepository extends BaseRepository
     
     /**
      * Saves
-     * @param  Request $request [description]
-     * @param  Payment $payment [description]
-     * @return [type]           [description]
+     * @param  Request $request the request object
+     * @param  Payment $payment The Payment object
+     * @return Object       Payment $payment
      */
     public function save(Request $request, Payment $payment) : ?Payment
     {

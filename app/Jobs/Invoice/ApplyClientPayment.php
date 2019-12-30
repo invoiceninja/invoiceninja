@@ -59,6 +59,7 @@ class ApplyClientPayment implements ShouldQueue
         
         $client = $this->payment->client;
         $client->credit_balance += $this->payment->amount;
+        $client->paid_to_date += $this->payment->amount;
         $client->save();
     }
 }
