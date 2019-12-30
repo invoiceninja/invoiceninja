@@ -75,32 +75,33 @@ class ApplyInvoicePayment implements ShouldQueue
             }
         });
 
-    if ($this->invoice->hasPartial()) {
+        if ($this->invoice->hasPartial()) {
         //is partial and amount is exactly the partial amount
-        if ($this->invoice->partial == $this->amount) {
-            $this->invoice->clearPartial();
-            $this->invoice->setDueDate();
-            $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
-            $this->invoice->updateBalance($this->amount*-1);
-        } elseif ($this->invoice->partial > 0 && $this->invoice->partial > $this->amount) { //partial amount exists, but the amount is less than the partial amount
-            $this->invoice->partial -= $this->amount;
-            $this->invoice->updateBalance($this->amount*-1);
-        } elseif ($this->invoice->partial > 0 && $this->invoice->partial < $this->amount) { //partial exists and the amount paid is GREATER than the partial amount
-            $this->invoice->clearPartial();
-            $this->invoice->setDueDate();
-            $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
-            $this->invoice->updateBalance($this->amount*-1);
-        }
+            if ($this->invoice->partial == $this->amount) {
+                $this->invoice->clearPartial();
+                $this->invoice->setDueDate();
+                $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
+                $this->invoice->updateBalance($this->amount*-1);
+            } elseif ($this->invoice->partial > 0 && $this->invoice->partial > $this->amount) { //partial amount exists, but the amount is less than the partial amount
+                $this->invoice->partial -= $this->amount;
+                $this->invoice->updateBalance($this->amount*-1);
+            } elseif ($this->invoice->partial > 0 && $this->invoice->partial < $this->amount) { //partial exists and the amount paid is GREATER than the partial amount
+                $this->invoice->clearPartial();
+                $this->invoice->setDueDate();
+                $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
+                $this->invoice->updateBalance($this->amount*-1);
+            }
         } elseif ($this->invoice->amount == $this->invoice->balance) { //total invoice paid.
             $this->invoice->clearPartial();
             $this->invoice->setDueDate();
             $this->invoice->setStatus(Invoice::STATUS_PAID);
             $this->invoice->updateBalance($this->amount*-1);
         }
+    
+        /* Update Payment Applied Amount*/
+        $this->payment->applied += $this->amount;
+        $this->payment->save();
     }
 
-    /* Update Payment Applied Amount*/
-    $this->payment->applied += $this->amount;
-    $this->payment->save();
-
+    
 }
