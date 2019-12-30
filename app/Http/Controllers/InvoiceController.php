@@ -380,6 +380,9 @@ class InvoiceController extends BaseController
      */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
+        if($request->entityIsDeleted($invoice))
+            return $request->disallowUpdate();
+
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company));

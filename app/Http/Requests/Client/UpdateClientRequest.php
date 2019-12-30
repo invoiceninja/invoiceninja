@@ -12,7 +12,9 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\IsDeletedRule;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
+use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -20,6 +22,7 @@ use Illuminate\Validation\Rule;
 class UpdateClientRequest extends Request
 {
     use MakesHash;
+    use ChecksEntityStatus;
     /**
      * Determine if the user is authorized to make this request.
      *

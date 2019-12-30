@@ -345,6 +345,10 @@ class ProductController extends BaseController
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+
+        if($request->entityIsDeleted($product))
+            return $request->disallowUpdate();
+        
         $product = $this->product_repo->save($request, $product);
 
         return $this->itemResponse($product);

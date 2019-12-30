@@ -12,10 +12,13 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends Request
 {
+    use ChecksEntityStatus;
+    
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -279,6 +279,9 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
+        if($request->entityIsDeleted($client))
+            return $request->disallowUpdate();
+
         $client = $this->client_repo->save($request->all(), $client);
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);

@@ -13,10 +13,12 @@ namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
 use App\Models\Product;
+use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Support\Facades\Log;
 
 class UpdateProductRequest extends Request
 {
+    use ChecksEntityStatus;
     /**
      * Determine if the user is authorized to make this request.
      *

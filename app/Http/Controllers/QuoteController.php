@@ -368,6 +368,9 @@ class QuoteController extends BaseController
      */
     public function update(UpdateQuoteRequest $request, Quote $quote)
     {
+        if($request->entityIsDeleted($product))
+            return $request->disallowUpdate();
+        
         $quote = $this->quote_repo->save($request->all(), $quote);
 
         return $this->itemResponse($quote);

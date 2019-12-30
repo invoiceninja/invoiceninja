@@ -99,6 +99,7 @@ class Client extends BaseModel
     ];
     
     protected $casts = [
+        'is_deleted' => 'boolean',
         'country_id' => 'string',
         'settings' => 'object',
         'updated_at' => 'timestamp',

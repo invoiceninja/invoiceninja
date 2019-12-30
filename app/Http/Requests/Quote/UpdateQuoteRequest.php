@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Quote;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ class UpdateQuoteRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
+    use ChecksEntityStatus;
     
     /**
      * Determine if the user is authorized to make this request.
