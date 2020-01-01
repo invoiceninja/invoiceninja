@@ -51,10 +51,10 @@ class InvoiceItem
 
     public $custom_value4 = '';
 
-    public $invoice_item_type_id = 1; //1 = product, 2 = service
+    public $line_item_type_id = 1; //1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee
 
     public static $casts = [
-        'invoice_item_type_id' => 'string',
+        'line_item_type_id' => 'string',
         'quantity' => 'float',
         'cost' => 'float',
         'product_key' => 'string',
