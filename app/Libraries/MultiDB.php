@@ -59,13 +59,15 @@ class MultiDB
 
         //multi-db active
         foreach (self::$dbs as $db) {
+          
             if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >=1) {
                 return false;
             }
+          
         }
 
         self::setDefaultDatabase();
-        
+
         return true;
     }
 
