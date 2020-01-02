@@ -31,7 +31,9 @@ class PaymentRepository extends BaseRepository
     }
     
     /**
-     * Saves
+     * Saves a payment.
+     * 
+     * 
      * @param  Request $request the request object
      * @param  Payment $payment The Payment object
      * @return Object       Payment $payment
@@ -43,7 +45,7 @@ class PaymentRepository extends BaseRepository
 
         $payment->save();
         
-        if ($request->input('invoices')) {
+        if ($request->has('invoices')) {
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
@@ -56,7 +58,7 @@ class PaymentRepository extends BaseRepository
                 }
             }
         } else {
-            //paid is made, but not to any invoice, therefore we are applying the payment to the clients credit
+            //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
             ApplyClientPayment::dispatchNow($payment, $payment->company);
         }
 
@@ -66,4 +68,60 @@ class PaymentRepository extends BaseRepository
 
         return $payment->fresh();
     }
+
+    /**
+     * Updates
+     *
+     * The update code path is different to the save path
+     * additional considerations come into play when 'updating'
+     * a payment.
+     * 
+     * @param  Request $request the request object
+     * @param  Payment $payment The Payment object
+     * @return Object       Payment $payment
+     */
+    public function update(Request $request, Payment $payment) :?Payment
+    {
+        
+        if($payment->amount >= 0)
+            return $this->applyPayment($request, $payment);
+        
+        return $this->refundPayment($request, $payment);
+
+    }
+
+    private function applyPayment(Request $request, Payment $payment) :?Payment
+    {
+
+    }
+
+    private function refundPayment(Request $request, Payment $payment) :?Payment
+    {
+
+        $invoice_total_adjustment = 0;
+
+        if($request->has('invoices')){
+            
+            foreach($request->input('invoices') as $adjusted_invoice) {
+                //$invoice = Invoice::whereId($adjusted_invoice['id'])->company()->first();
+                $invoice_total_adjustment += $adjusted_invoice['amount'];
+
+                //todo - generate Credit Note for $amount on $invoice
+            }
+
+            if($request->input('amount') != $invoice_total_adjustment)
+                return 'Amount must equal the sum of invoice adjustments';
+        }
+
+
+        //adjust applied amount
+        $payment->applied += $invoice_total_adjustment;
+
+        //adjust clients paid to date
+        $client = $payment->client;
+        $client->paid_to_date += $invoice_total_adjustment;
+    
+    }
+
+    
 }
