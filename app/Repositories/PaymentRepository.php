@@ -43,6 +43,7 @@ class PaymentRepository extends BaseRepository
         //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
         $payment->fill($request->input());
 
+        $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
         
         if ($request->has('invoices')) {
@@ -97,16 +98,19 @@ class PaymentRepository extends BaseRepository
 
     private function refundPayment(Request $request, Payment $payment) :?Payment
     {
-
+        //temp variable to sum the total refund/credit amount
         $invoice_total_adjustment = 0;
 
         if($request->has('invoices')){
             
             foreach($request->input('invoices') as $adjusted_invoice) {
-                //$invoice = Invoice::whereId($adjusted_invoice['id'])->company()->first();
+                $invoice = Invoice::whereId($adjusted_invoice['id'])->company()->first();
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 
-                //todo - generate Credit Note for $amount on $invoice
+                if(!array_key_exists('credit', $adjusted_invoice)){
+                    //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
+                }
+
             }
 
             if($request->input('amount') != $invoice_total_adjustment)

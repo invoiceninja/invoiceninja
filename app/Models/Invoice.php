@@ -171,6 +171,12 @@ class Invoice extends BaseModel
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
+    public function credits()
+    {
+        return $this->morphedByMany(Credit::class, 'creditable')->withPivot('amount');
+    }
+
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */
