@@ -99,7 +99,7 @@ class RandomDataSeeder extends Seeder
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
-            'settings' => json_encode(DefaultSettings::userSettings()),
+            'settings' => DefaultSettings::userSettings(),
         ]);
 
         $client = factory(\App\Models\Client::class)->create([
