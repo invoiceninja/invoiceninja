@@ -29,4 +29,9 @@ class Credit extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
+
+    public function invoices()
+    {
+        return $this->morphToMany(Invoice::class, 'creditable');
+    }
 }

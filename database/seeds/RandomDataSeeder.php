@@ -116,6 +116,7 @@ class RandomDataSeeder extends Seeder
             'password' => Hash::make(config('ninja.testvars.password')),
             'email_verified_at' => now(),
             'client_id' =>$client->id,
+            'contact_key' => \Illuminate\Support\Str::random(40),
         ]);
 
 

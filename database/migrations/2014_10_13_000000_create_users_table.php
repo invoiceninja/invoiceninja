@@ -959,6 +959,18 @@ class CreateUsersTable extends Migration
 
         });
 
+
+        Schema::create('creditables', function ($table) { //allows multiple credits to one invoice
+            $table->increments('id');
+            $table->unsignedInteger('credit_id');
+            $table->unsignedInteger('creditable_id');
+            $table->decimal('amount', 16, 4)->default(0);
+            $table->string('creditable_type');
+
+            $table->foreign('credit_id')->references('id')->on('credits')->onDelete('cascade');
+
+        });
+
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
             $t->timestamps(6);
