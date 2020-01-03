@@ -13,11 +13,12 @@ namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
-use App\Jobs\Invoice\UpdateInvoicePayment;
-use App\Jobs\Invoice\ApplyInvoicePayment;
 use App\Jobs\Invoice\ApplyClientPayment;
+use App\Jobs\Invoice\ApplyInvoicePayment;
+use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Repositories\CreditRepository;
 use Illuminate\Http\Request;
 
 /**
@@ -25,6 +26,15 @@ use Illuminate\Http\Request;
  */
 class PaymentRepository extends BaseRepository
 {
+    protected $credit_repo;
+
+    public function __construct(CreditRepository $credit_repo)
+    {
+
+        $this->credit_repo = $credit_repo;
+
+    } 
+
     public function getClassName()
     {
         return Payment::class;
@@ -46,7 +56,8 @@ class PaymentRepository extends BaseRepository
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
         
-        if ($request->has('invoices')) {
+        if ($request->input('invoices')) {
+            \Log::error('invoices found');
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
@@ -104,11 +115,22 @@ class PaymentRepository extends BaseRepository
         if($request->has('invoices')){
             
             foreach($request->input('invoices') as $adjusted_invoice) {
+
                 $invoice = Invoice::whereId($adjusted_invoice['id'])->company()->first();
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 
-                if(!array_key_exists('credit', $adjusted_invoice)){
-                    //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
+                if(array_key_exists('credits', $adjusted_invoice)){
+                    
+                    //process and insert credit notes
+                    foreach($adjusted_invoice['credits'] as $credit){
+
+                        $credit = $this->credit_repo->save($credit, );
+
+                    }
+
+                }
+                else {
+                    //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund        
                 }
 
             }
