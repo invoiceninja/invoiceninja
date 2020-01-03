@@ -68,7 +68,7 @@ class InvoiceItemFactory
             $item->custom_value3 = $faker->realText(10);
             $item->custom_value4 = $faker->realText(10);
             $item->tax_name1 = 'GST';
-            $item->tax_rate1 = '10.00';
+            $item->tax_rate1 = 10.00;
             
             $data[] = $item;
         }
