@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-class InvoiceInvitation extends BaseModel
+class CreditInvitation extends BaseModel
 {
     use MakesDates;
     use SoftDeletes;
@@ -35,15 +35,15 @@ class InvoiceInvitation extends BaseModel
 
     public function entityType()
     {
-        return Invoice::class;
+        return Credit::class;
     }
 
     /**
      * @return mixed
      */
-    public function invoice()
+    public function credit()
     {
-        return $this->belongsTo(Invoice::class)->withTrashed();
+        return $this->belongsTo(Credit::class)->withTrashed();
     }
 
     /**
@@ -68,15 +68,6 @@ class InvoiceInvitation extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
-    }
-
-    public function signatureDiv()
-    {
-        if (! $this->signature_base64) {
-            return false;
-        }
-
-        return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, ctrans('texts.signed'), $this->createClientDate($this->signature_date, $this->contact->client->timezone()->name));
     }
 
     public function getName()

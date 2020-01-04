@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Factory\CreditFactory;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Invoice\ApplyClientPayment;
 use App\Jobs\Invoice\ApplyInvoicePayment;
@@ -55,11 +56,11 @@ class PaymentRepository extends BaseRepository
 
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->number = $payment->client->getNextPaymentNumber($payment->client);
-        
+
         $payment->save();
         
         if ($request->input('invoices')) {
-            \Log::error('invoices found');
+            
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
@@ -114,11 +115,12 @@ class PaymentRepository extends BaseRepository
         //temp variable to sum the total refund/credit amount
         $invoice_total_adjustment = 0;
 
-        if($request->has('invoices')){
+        if($request->has('invoices') && is_array($request->input('invoices')){
             
             foreach($request->input('invoices') as $adjusted_invoice) {
 
                 $invoice = Invoice::whereId($adjusted_invoice['id'])->company()->first();
+
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 
                 if(array_key_exists('credits', $adjusted_invoice)){
@@ -126,7 +128,7 @@ class PaymentRepository extends BaseRepository
                     //process and insert credit notes
                     foreach($adjusted_invoice['credits'] as $credit){
 
-                        $credit = $this->credit_repo->save($credit, );
+                        $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->company()->id, auth()->user()->id), $invoice);
 
                     }
 
