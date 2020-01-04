@@ -14,6 +14,7 @@ namespace App\Utils\Traits;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Timezone;
@@ -127,10 +128,10 @@ trait GeneratesCounter
         return $quote_number;
     }
 
-    public function getNextRecurringInvoiceNumber()
+    public function getNextRecurringInvoiceNumber(Client $client)
     {
 
-//Reset counters if enabled
+        //Reset counters if enabled
         $this->resetCounters($client);
 
         $is_client_counter = false;
@@ -160,6 +161,44 @@ trait GeneratesCounter
         }
 
         return $invoice_number;
+    }
+
+    /**
+     * Payment Number Generator
+     * @return string The payment number
+     */
+    public function getNextPaymentNumber(Client $client) :string
+    {
+
+        //Reset counters if enabled
+        $this->resetCounters($client);
+
+        $is_client_counter = false;
+
+        //todo handle if we have specific client patterns in the future
+        $pattern = $client->company->settings->payment_number_pattern;
+
+        //Determine if we are using client_counters
+        if (strpos($pattern, 'client_counter') === false) {
+            $counter = $client->company->settings->payment_number_counter;
+        } else {
+            $counter = $client->settings->payment_number_counter;
+            $is_client_counter = true;
+        }
+
+        //Return a valid counter
+        $pattern = '';
+        $padding = $client->getSetting('counter_padding');
+        $payment_number = $this->checkEntityNumber(Payment::class, $client, $counter, $padding, $pattern);
+
+        //increment the correct invoice_number Counter (company vs client)
+        if ($is_client_counter) {
+            $this->incrementCounter($client, 'payment_number_counter');
+        } else {
+            $this->incrementCounter($client->company, 'payment_number_counter');
+        }
+
+        return (string)$payment_number;
     }
 
     /**
@@ -225,9 +264,12 @@ trait GeneratesCounter
                 $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
             } elseif ($class == Quote::class) {
                 $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
+            } elseif ($class == Payment::class) {
+                $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
             }
 
             $counter++;
+
         } while ($check);
 
 

@@ -54,6 +54,8 @@ class PaymentRepository extends BaseRepository
         $payment->fill($request->input());
 
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->number = $payment->client->getNextPaymentNumber($payment->client);
+        
         $payment->save();
         
         if ($request->input('invoices')) {
