@@ -34,12 +34,12 @@ class StorePaymentRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
+        
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
-        if (isset($input['invoices'])) {
+        if (isset($input['invoices']) && is_array($input['invoices'])) {
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
             }

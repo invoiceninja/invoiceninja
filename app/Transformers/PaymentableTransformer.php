@@ -35,7 +35,7 @@ class PaymentableTransformer extends EntityTransformer
         return  [
             'id' => $this->encodePrimaryKey($paymentable->id),
             'invoice_id' => $this->encodePrimaryKey($paymentable->paymentable_id),
-            'amount' => $paymentable->amount,
+            'amount' => (float)$paymentable->amount,
         ];
     }
 }
