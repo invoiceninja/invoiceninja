@@ -11,6 +11,8 @@
 
 namespace App\Models;
 
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -33,5 +35,23 @@ class Credit extends BaseModel
     public function invoices()
     {
         return $this->morphToMany(Invoice::class, 'creditable');
+    }
+
+    /**
+     * Access the invoice calculator object
+     *
+     * @return object The invoice calculator object getters
+     */
+    public function calc()
+    {
+        $credit_calc = null;
+
+        if ($this->uses_inclusive_taxes) {
+            $credit_calc = new InvoiceSumInclusive($this);
+        } else {
+            $credit_calc = new InvoiceSum($this);
+        }
+
+        return $credit_calc->build();
     }
 }

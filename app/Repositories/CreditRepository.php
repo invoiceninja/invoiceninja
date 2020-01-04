@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
@@ -20,6 +21,8 @@ use Illuminate\Http\Request;
  */
 class CreditRepository extends BaseRepository
 {
+    use MakesHash;
+    
     public function __construct()
     {
     }
@@ -46,8 +49,9 @@ class CreditRepository extends BaseRepository
     {
 
         $credit->fill($data);
-
         $credit->save();
+
+        $credit->number = $credit->client->getNextCreditNumber($credit->client);
 
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
@@ -66,15 +70,28 @@ class CreditRepository extends BaseRepository
                 }
 
                 if (!$cred) {
-                    $invitation['client_contact_id'] = $this->decodePrimaryKey($invitation['client_contact_id']);
+                    //$invitation['client_contact_id'] = $this->decodePrimaryKey($invitation['client_contact_id']);
 
                     $new_invitation = CreditInvitationFactory::create($invoice->company_id, $invoice->user_id);
                     $new_invitation->fill($invitation);
                     $new_invitation->credit_id = $credit->id;
+                    $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
                     $new_invitation->save();
                 }
             }
         }
+
+        /**
+         * Perform calculations on the 
+         * credit note
+         */
+        
+        $credit = $credit->calc()->getInvoice();
+        
+        $credit->save();
+
+        return $credit;
+
     }
 
 }

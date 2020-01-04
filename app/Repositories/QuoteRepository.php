@@ -19,6 +19,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
@@ -26,6 +27,9 @@ use Illuminate\Http\Request;
  */
 class QuoteRepository extends BaseRepository
 {
+
+    use MakesHash;
+    
     public function getClassName()
     {
         return Quote::class;
@@ -69,11 +73,11 @@ class QuoteRepository extends BaseRepository
                 }
 
                 if (!$inv) {
-                    $invitation['client_contact_id'] = $this->decodePrimaryKey($invitation['client_contact_id']);
 
                     $new_invitation = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
                     $new_invitation->fill($invitation);
                     $new_invitation->quote_id = $quote->id;
+                    $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
                     $new_invitation->save();
                 }
             }

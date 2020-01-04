@@ -33,6 +33,7 @@ use Illuminate\Support\Carbon;
 class InvoiceRepository extends BaseRepository
 {
     use MakesHash;
+    
     /**
      * Gets the class name.
      *
@@ -89,11 +90,11 @@ class InvoiceRepository extends BaseRepository
                 }
 
                 if (!$inv) {
-                    $invitation['client_contact_id'] = $this->decodePrimaryKey($invitation['client_contact_id']);
 
                     $new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
                     $new_invitation->fill($invitation);
                     $new_invitation->invoice_id = $invoice->id;
+                    $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
                     $new_invitation->save();
                 }
             }

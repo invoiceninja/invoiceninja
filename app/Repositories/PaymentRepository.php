@@ -115,7 +115,7 @@ class PaymentRepository extends BaseRepository
         //temp variable to sum the total refund/credit amount
         $invoice_total_adjustment = 0;
 
-        if($request->has('invoices') && is_array($request->input('invoices')){
+        if($request->has('invoices') && is_array($request->input('invoices'))){
             
             foreach($request->input('invoices') as $adjusted_invoice) {
 
