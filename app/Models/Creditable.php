@@ -13,7 +13,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Paymentable extends Pivot
+class Creditable extends Pivot
 {
-    protected $table = 'paymentables';
+    protected $table = 'creditables';
 }

@@ -39,7 +39,8 @@ class StorePaymentRequest extends Request
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
-        if (isset($input['invoices'])) {
+
+        if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
             }

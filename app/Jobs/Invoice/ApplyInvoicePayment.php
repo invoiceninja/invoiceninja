@@ -91,13 +91,18 @@ class ApplyInvoicePayment implements ShouldQueue
                 $this->invoice->setStatus(Invoice::STATUS_PARTIAL);
                 $this->invoice->updateBalance($this->amount*-1);
             }
-        } elseif ($this->invoice->amount == $this->invoice->balance) { //total invoice paid.
+        } elseif ($this->amount == $this->invoice->balance) { //total invoice paid.
             $this->invoice->clearPartial();
-            $this->invoice->setDueDate();
+            //$this->invoice->setDueDate();
             $this->invoice->setStatus(Invoice::STATUS_PAID);
+            $this->invoice->updateBalance($this->amount*-1);
+        } elseif($this->amount < $this->invoice->balance) { //partial invoice payment made
+            $this->invoice->clearPartial();
             $this->invoice->updateBalance($this->amount*-1);
         }
     
+        $this->invoice->save();
+        
         /* Update Payment Applied Amount*/
         $this->payment->applied += $this->amount;
         $this->payment->save();
