@@ -35,10 +35,7 @@ class UpdatePaymentRequest extends Request
     {
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'integer|nullable',
-            'type_id' => 'integer|nullable',
-            'amount' => 'numeric',
-            'date' => 'required',
+            'client_id' => 'required',
         ];
     }
 }
