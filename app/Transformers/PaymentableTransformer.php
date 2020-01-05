@@ -11,6 +11,7 @@
 
 namespace App\Transformers;
 
+use App\Models\Credit;
 use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
@@ -32,9 +33,14 @@ class PaymentableTransformer extends EntityTransformer
 
     public function transform(Paymentable $paymentable)
     {
+        $entity_key = 'invoice_id';
+
+        if($paymentable->paymentable_type == Credit::class)
+            $entity_key = 'credit_id';
+        
         return  [
             'id' => $this->encodePrimaryKey($paymentable->id),
-            'invoice_id' => $this->encodePrimaryKey($paymentable->paymentable_id),
+            $entity_key => $this->encodePrimaryKey($paymentable->paymentable_id),
             'amount' => (float)$paymentable->amount,
         ];
     }
