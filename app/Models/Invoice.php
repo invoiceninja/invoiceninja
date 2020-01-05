@@ -173,7 +173,7 @@ class Invoice extends BaseModel
 
     public function credits()
     {
-        return $this->morphedByMany(Credit::class, 'creditable')->withPivot('amount');
+        return $this->belongsToMany(Credit::class)->using(Paymentable::class);
     }
 
 

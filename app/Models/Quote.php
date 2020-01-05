@@ -80,7 +80,6 @@ class Quote extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();

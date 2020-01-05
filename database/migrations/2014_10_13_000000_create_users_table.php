@@ -522,6 +522,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
+            $t->unsignedInteger('invoice_id')->nullable();
 
             $t->string('number')->nullable();
             $t->float('discount')->default(0);
@@ -615,7 +616,7 @@ class CreateUsersTable extends Migration
             $t->softDeletes('deleted_at', 6);
 
             $t->index(['deleted_at', 'credit_id']);
-            $t->unique(['client_contact_id', 'invoice_id']);
+            $t->unique(['client_contact_id', 'credit_id']);
 
         });
 
@@ -763,6 +764,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
+            $t->unsignedInteger('invoice_id')->nullable();
 
             $t->string('number')->nullable();
             $t->float('discount')->default(0);
@@ -984,23 +986,14 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('payment_id');
             $table->unsignedInteger('paymentable_id');
             $table->decimal('amount', 16, 4)->default(0);
+            $table->decimal('refunded', 16, 4)->default(0);
             $table->string('paymentable_type');
+            $table->timestamps();
 
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
 
         });
 
-
-        Schema::create('creditables', function ($table) { //allows multiple credits to one invoice
-            $table->increments('id');
-            $table->unsignedInteger('credit_id');
-            $table->unsignedInteger('creditable_id');
-            $table->decimal('amount', 16, 4)->default(0);
-            $table->string('creditable_type');
-
-            $table->foreign('credit_id')->references('id')->on('credits')->onDelete('cascade');
-
-        });
 
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
