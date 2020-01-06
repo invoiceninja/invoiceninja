@@ -42,10 +42,11 @@ class StepsController extends BaseController
     public function handleDownload(Request $request)
     {
         $date = date('Y-m-d');
+        $accontKey = Auth::user()->account->account_key;
 
         $output = fopen('php://output', 'w') or Utils::fatalError();
 
-        $fileName = "{$date}-invoiceninja";
+        $fileName = "{$accontKey}-{$date}-invoiceninja";
 
         header('Content-Type:application/json');
         header("Content-Disposition:attachment;filename={$fileName}.json");
