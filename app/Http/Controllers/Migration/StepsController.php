@@ -20,12 +20,17 @@ class StepsController extends BaseController
         return view('migration.start');
     }
 
+    public function import()
+    {
+        return view('migration.import');
+    }
+
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function download()
     {
-        return view('migration.download'); 
+        return view('migration.download');
     }
 
     /**
