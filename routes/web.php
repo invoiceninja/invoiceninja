@@ -169,6 +169,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
     Route::get('migration/start', 'Migration\StepsController@start'); 
+    Route::get('migration/download', 'Migration\StepsController@download'); 
+    Route::post('migration/download', 'Migration\StepsController@handleDownload'); 
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
