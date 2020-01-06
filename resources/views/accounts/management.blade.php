@@ -238,6 +238,24 @@
 			</div>
 		</div>
 
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Migration to Invoice Ninja v2</h3>
+			</div>
+			<div class="panel-body">
+
+				<div class="col-lg-8 col-sm-8">
+					<div clasS="form-group">
+						We've been working on the next version of the Invoice Ninja. Click the button below to start the migration.
+					</div>	
+				</div>
+
+				<div class="form-group">
+					<a class="btn btn-primary btn-lg" href="/migration/start">Start the migration</a>
+				</div>
+			</div>
+		</div>
+
 		{!! Former::close() !!}
 
 		@if (! Auth::user()->account->isNinjaOrLicenseAccount())
