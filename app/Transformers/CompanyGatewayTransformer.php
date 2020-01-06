@@ -54,7 +54,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'config' => (string) $company_gateway->getConfigTransformed(),
             'fees_and_limits' => $company_gateway->fees_and_limits ?: '',
             'updated_at' => $company_gateway->updated_at,
-            'deleted_at' => $company_gateway->deleted_at,
+            'archived_at' => $company_gateway->deleted_at,
             'custom_value1' => $company_gateway->custom_value1 ?: '',
             'custom_value2' => $company_gateway->custom_value2 ?: '',
             'custom_value3' => $company_gateway->custom_value3 ?: '',
