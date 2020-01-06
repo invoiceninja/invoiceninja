@@ -485,7 +485,7 @@
                 write: function(value) {
                     // When changing the converted amount we're updating
                     // the exchange rate rather than change the amount
-                    self.exchange_rate(roundSignificant(NINJA.parseFloat(value) / self.amount()));
+                    self.exchange_rate(roundExchangeRate(NINJA.parseFloat(value) / self.amount(), false, self.amount(), roundToTwo(value)));
                     //self.amount(roundToTwo(value / self.exchange_rate()));
                 }
             }, self);
@@ -498,7 +498,7 @@
                         from: fromCode,
                         to: toCode,
                     });
-                    self.exchange_rate(roundToFour(rate, true));
+                    self.exchange_rate(roundSignificant(rate, true));
                 } else {
                     self.exchange_rate(1);
                 }

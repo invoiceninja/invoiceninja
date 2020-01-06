@@ -1008,13 +1008,12 @@ function toggleDatePicker(field) {
 }
 
 function getPrecision(number) {
-  if (roundToPrecision(number, 3) != number) {
-    return 4;
-  } else if (roundToPrecision(number, 2) != number) {
-    return 3;
-  } else {
-    return 2;
+  if (typeof(number) == 'string'){ number = parseFloat(number); }
+  for (let i = 2; i <= 20; i++)
+  {
+    if (roundToPrecision(number, i) === number) { return i; }
   }
+  return 20;
 }
 
 function roundSignificant(number, toString) {
@@ -1031,6 +1030,25 @@ function roundToTwo(number, toString) {
 function roundToFour(number, toString) {
   var val = roundToPrecision(number, 4) || 0;
   return toString ? val.toFixed(4) : val;
+}
+
+function roundExchangeRate(number, toString, amount, convertedAmount) {
+  var val = roundToPrecision(number, 14) || 0;
+  var tmp;
+  var d = 14;
+
+  for (let i = 2; i < 13; i++)
+  {
+    tmp = roundToPrecision(number, i) || 0;
+    if (roundToTwo(amount * tmp) === convertedAmount)
+    {
+        val = tmp;
+        d = i;
+        break;
+    }
+  }
+
+  return toString ? val.toFixed(d) : val;
 }
 
 // https://stackoverflow.com/a/18358056/497368

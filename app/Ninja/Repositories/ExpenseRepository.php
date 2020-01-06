@@ -195,7 +195,7 @@ class ExpenseRepository extends BaseRepository
         }
 
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
-        $expense->exchange_rate = round($rate, 4);
+        $expense->exchange_rate = round($rate, 14);
         if (isset($input['amount'])) {
             $expense->amount = round(Utils::parseFloat($input['amount']), 2);
         }

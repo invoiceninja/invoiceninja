@@ -316,7 +316,7 @@
             },
             write: function(value) {
                 var amount = NINJA.parseFloat(value) / self.amount();
-                self.exchange_rate(roundSignificant(amount));
+                self.exchange_rate(roundExchangeRate(amount, false, self.amount(), roundToTwo(value)));
             }
         }, self);
 
@@ -329,7 +329,7 @@
                     from: fromCode,
                     to: toCode,
                 });
-                self.exchange_rate(roundToFour(rate, true));
+                self.exchange_rate(roundSignificant(rate, true));
             } else {
                 self.exchange_rate(1);
             }
