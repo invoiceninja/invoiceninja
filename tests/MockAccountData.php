@@ -37,6 +37,7 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -101,7 +102,7 @@ trait MockAccountData
 
         if(!$this->user){
             $this->user = factory(\App\Models\User::class)->create([
-                'password' => 'ALongAndBriliantPassword',
+                'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }

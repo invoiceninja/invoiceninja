@@ -62,7 +62,7 @@ class MultiDBUserTest extends TestCase
             'last_name' => 'user_db_1-s',
             'phone' => '55555',
             'email_verified_at' => now(),
-            'password' => 'ALongAndBriliantPassword', // secret
+            'password' => Hash::make('ALongAndBriliantPassword'), // secret
             'remember_token' => \Illuminate\Support\Str::random(10),
             'email' => 'db1@example.com',
             'oauth_user_id' => '123',

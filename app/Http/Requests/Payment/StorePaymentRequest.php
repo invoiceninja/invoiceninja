@@ -13,6 +13,7 @@ namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidPayableInvoicesRule;
+use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 
@@ -58,6 +59,7 @@ class StorePaymentRequest extends Request
     {
         $rules = [
             'amount' => 'numeric|required',
+            'amount' => new PaymentAmountsBalanceRule(),
             'date' => 'required',
             'client_id' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),

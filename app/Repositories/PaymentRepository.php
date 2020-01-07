@@ -61,7 +61,8 @@ class PaymentRepository extends BaseRepository
         $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
         $payment->save();
-        
+
+
         if ($request->input('invoices') && is_array($request->input('invoices'))) {
             
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
@@ -69,7 +70,7 @@ class PaymentRepository extends BaseRepository
             $payment->invoices()->saveMany($invoices);
     
             foreach ($request->input('invoices') as $paid_invoice) {
-                $invoice = Invoice::whereId($this->decodePrimaryKey($paid_invoice['id'])->company()->first();
+                $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
 
                 if ($invoice) {
                     ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
@@ -88,7 +89,7 @@ class PaymentRepository extends BaseRepository
 
             foreach ($request->input('credits') as $paid_credit) 
             {
-                $credit = Credit::whereId($this->decodePrimaryKey($paid_credit['id'])->company()->first();
+                $credit = Credit::whereId($paid_credit['id'])->company()->first();
 
                 if($credit)
                     ApplyCreditPayment::dispatchNow($paid_credit, $payment, $paid_credit['amount'], $credit->company);
@@ -123,6 +124,7 @@ class PaymentRepository extends BaseRepository
         return $this->refundPayment($request, $payment);
 
     }
+
 
     private function applyPayment(Request $request, Payment $payment) :?Payment
     {
