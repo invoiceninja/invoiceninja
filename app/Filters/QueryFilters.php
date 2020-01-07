@@ -88,7 +88,7 @@ abstract class QueryFilters
             }
         }
 
-        return $this->builder;
+        return $this->builder->withTrashed();
     }
 
     /**
