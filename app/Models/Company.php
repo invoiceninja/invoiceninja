@@ -103,7 +103,7 @@ class Company extends BaseModel
 
     public function users()
     {
-        return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTimestamps();
+        return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id');
     }
 
     /**
