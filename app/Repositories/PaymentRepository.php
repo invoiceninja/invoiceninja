@@ -17,6 +17,7 @@ use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Invoice\ApplyClientPayment;
 use App\Jobs\Invoice\ApplyInvoicePayment;
 use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\CreditRepository;
@@ -27,7 +28,9 @@ use Illuminate\Http\Request;
  */
 class PaymentRepository extends BaseRepository
 {
+
     protected $credit_repo;
+
 
     public function __construct(CreditRepository $credit_repo)
     {
@@ -59,14 +62,14 @@ class PaymentRepository extends BaseRepository
 
         $payment->save();
         
-        if ($request->input('invoices')) {
+        if ($request->input('invoices') && is_array($request->input('invoices'))) {
             
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
     
             foreach ($request->input('invoices') as $paid_invoice) {
-                $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
+                $invoice = Invoice::whereId($this->decodePrimaryKey($paid_invoice['id'])->company()->first();
 
                 if ($invoice) {
                     ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
@@ -75,6 +78,22 @@ class PaymentRepository extends BaseRepository
         } else {
             //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
             ApplyClientPayment::dispatchNow($payment, $payment->company);
+        }
+
+        if($request->input('credits') && is_array($request->input('credits')))
+        {
+            $credits = Credit::whereIn('id', array_column($request->input('credits'), 'id'))->company()->get();
+
+            $payment->credits()->saveMany($credits);
+
+            foreach ($request->input('credits') as $paid_credit) 
+            {
+                $credit = Credit::whereId($this->decodePrimaryKey($paid_credit['id'])->company()->first();
+
+                if($credit)
+                    ApplyCreditPayment::dispatchNow($paid_credit, $payment, $paid_credit['amount'], $credit->company);
+            }
+
         }
 
         event(new PaymentWasCreated($payment, $payment->company));
