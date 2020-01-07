@@ -36,7 +36,7 @@ class PasswordProtection
         ];
 
         if ($request->header('X-API-PASSWORD')) {
-            if (Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password)) {
+            if (!Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password)) {
                 return response()->json($error, 403);
             }
         } elseif (Cache::get(auth()->user()->email."_logged_in")) {
