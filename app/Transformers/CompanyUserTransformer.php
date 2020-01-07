@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -58,7 +58,7 @@ class CompanyUserTransformer extends EntityTransformer
             'is_admin' => (bool) $company_user->is_admin,
             'is_locked' => (bool) $company_user->is_locked,
             'updated_at' => (int)$company_user->updated_at,
-            'deleted_at' => (int)$company_user->deleted_at,
+            'archived_at' => (int)$company_user->deleted_at,
             
         ];
     }

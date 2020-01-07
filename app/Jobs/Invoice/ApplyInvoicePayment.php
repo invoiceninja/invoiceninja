@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -100,9 +100,7 @@ class ApplyInvoicePayment implements ShouldQueue
             $this->invoice->clearPartial();
             $this->invoice->updateBalance($this->amount*-1);
         }
-    
-        $this->invoice->save();
-        
+            
         /* Update Payment Applied Amount*/
         $this->payment->applied += $this->amount;
         $this->payment->save();

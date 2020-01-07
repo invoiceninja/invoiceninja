@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -98,7 +98,7 @@ class CompanyTransformer extends EntityTransformer
             'settings' => $company->settings ?: '',
             'enabled_tax_rates' => (int)$company->enabled_tax_rates,
             'updated_at' => (int)$company->updated_at,
-            'deleted_at' => (int)$company->deleted_at,
+            'archived_at' => (int)$company->deleted_at,
         ];
     }
 

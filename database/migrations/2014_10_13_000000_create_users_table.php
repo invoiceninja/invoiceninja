@@ -522,6 +522,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
+            $t->unsignedInteger('invoice_id')->nullable();
 
             $t->string('number')->nullable();
             $t->float('discount')->default(0);
@@ -586,6 +587,37 @@ class CreateUsersTable extends Migration
             $t->softDeletes('deleted_at', 6);
 
             $t->unique(['company_id', 'number']);
+        });
+
+
+        Schema::create('credit_invitations', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('company_id');
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('client_contact_id');
+            $t->unsignedInteger('credit_id')->index();
+            $t->string('key')->index();
+            $t->string('transaction_reference')->nullable();
+            $t->string('message_id')->nullable();
+            $t->mediumText('email_error')->nullable();
+            $t->text('signature_base64')->nullable();
+            $t->datetime('signature_date')->nullable();
+
+            $t->datetime('sent_date')->nullable();
+            $t->datetime('viewed_date')->nullable();
+            $t->datetime('opened_date')->nullable();
+
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade');
+            $t->foreign('credit_id')->references('id')->on('credits')->onDelete('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+            $t->timestamps(6);
+            $t->softDeletes('deleted_at', 6);
+
+            $t->index(['deleted_at', 'credit_id']);
+            $t->unique(['client_contact_id', 'credit_id']);
+
         });
 
         Schema::create('recurring_invoices', function ($t) {
@@ -732,6 +764,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('vendor_id')->nullable();
             $t->unsignedInteger('recurring_id')->nullable();
             $t->unsignedInteger('design_id')->nullable();
+            $t->unsignedInteger('invoice_id')->nullable();
 
             $t->string('number')->nullable();
             $t->float('discount')->default(0);
@@ -953,23 +986,14 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('payment_id');
             $table->unsignedInteger('paymentable_id');
             $table->decimal('amount', 16, 4)->default(0);
+            $table->decimal('refunded', 16, 4)->default(0);
             $table->string('paymentable_type');
+            $table->timestamps();
 
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade');
 
         });
 
-
-        Schema::create('creditables', function ($table) { //allows multiple credits to one invoice
-            $table->increments('id');
-            $table->unsignedInteger('credit_id');
-            $table->unsignedInteger('creditable_id');
-            $table->decimal('amount', 16, 4)->default(0);
-            $table->string('creditable_type');
-
-            $table->foreign('credit_id')->references('id')->on('credits')->onDelete('cascade');
-
-        });
 
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -70,7 +70,7 @@ class BaseController extends Controller
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
 
             /* For very large accounts, we reduce the includes automatically */
-            if (auth()->user()->getCompany()->clients->count() > 1000) {
+            if (auth()->user()->getCompany()->clients->count() < 1000) {
                 $include = [
                   'account',
                   'user.company_user',
@@ -83,7 +83,8 @@ class BaseController extends Controller
                   'company.clients',
                   'company.products',
                   'company.invoices',
-                  'company.payments',
+                  //'company.payments',
+                  'company.payments.paymentables',
                   'company.quotes',
               ];
             } else {
@@ -100,6 +101,7 @@ class BaseController extends Controller
                   // 'company.products',
                   // 'company.invoices',
                   // 'company.payments',
+                  // 'company.payments.paymentables',
                   // 'company.quotes',
               ];
             }

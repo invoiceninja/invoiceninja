@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -94,7 +94,12 @@ class Payment extends BaseModel
 
     public function invoices()
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount');
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
+    }
+
+    public function credits()
+    {
+        return $this->morphedByMany(Credit::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
     }
 
     public function company_ledger()

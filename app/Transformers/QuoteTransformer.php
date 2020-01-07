@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -79,6 +79,7 @@ class QuoteTransformer extends EntityTransformer
             'client_id' => (string) $this->encodePrimaryKey($quote->client_id),
             'status_id' => (string) ($quote->status_id ?: 1),
             'design_id' => (string) ($quote->design_id ?: 1),
+            'invoice_id' => (string) ($quote->invoice_id ?: 1),
             'updated_at' => $quote->updated_at,
             'archived_at' => $quote->deleted_at,
             'number' => $quote->number ?: '',

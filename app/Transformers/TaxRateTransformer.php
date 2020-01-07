@@ -19,7 +19,7 @@ class TaxRateTransformer extends EntityTransformer
             'name' => (string) $tax_rate->name,
             'rate' => (float) $tax_rate->rate,
             'updated_at' => $tax_rate->updated_at,
-            'deleted_at' => $tax_rate->deleted_at,
+            'archived_at' => $tax_rate->deleted_at,
         ];
     }
 }

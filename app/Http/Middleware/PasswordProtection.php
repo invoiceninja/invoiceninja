@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -36,7 +36,7 @@ class PasswordProtection
         ];
 
         if ($request->header('X-API-PASSWORD')) {
-            if ($request->header('X-API-PASSWORD') != auth()->user()->password) {
+            if (!Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password)) {
                 return response()->json($error, 403);
             }
         } elseif (Cache::get(auth()->user()->email."_logged_in")) {

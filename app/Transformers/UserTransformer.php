@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2019. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -53,7 +53,7 @@ class UserTransformer extends EntityTransformer
             'email' => $user->email ?: '',
             'last_login' => Carbon::parse($user->last_login)->timestamp,
             'updated_at' => $user->updated_at,
-            'deleted_at' => $user->deleted_at,
+            'archived_at' => $user->deleted_at,
             'phone' => $user->phone ?: '',
             'email_verified_at' => $user->getEmailVerifiedAt(),
             'signature' => $user->signature ?: '',
