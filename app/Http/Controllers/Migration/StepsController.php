@@ -195,7 +195,7 @@ class StepsController extends BaseController
 
         $invoices = [];
 
-        foreach ($this->account->invoices as $invoice) {
+        foreach ($this->account->invoices()->withTrashed()->get() as $invoice) {
             $invoices[] = [
                 'client_id' => $invoice->client_id,
                 'user_id' => $invoice->user_id,
