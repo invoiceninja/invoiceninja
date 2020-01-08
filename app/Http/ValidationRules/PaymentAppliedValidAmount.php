@@ -68,7 +68,7 @@ class PaymentAppliedValidAmount implements Rule
             }
         }
         
-        return  $payment_amounts === $invoice_amounts;
+        return  $payment_amounts >= $invoice_amounts;
 
     }
 }

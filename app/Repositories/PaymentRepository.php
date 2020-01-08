@@ -55,13 +55,15 @@ class PaymentRepository extends BaseRepository
      */
     public function save(Request $request, Payment $payment) : ?Payment
     {
+        \Log::error($request->input());
         //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
         $payment->fill($request->input());
-
         $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
         $payment->save();
+
+        if(!$payment->number)
+            $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         
         //we only ever update the ACTUAL amount of money transferred
         UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
@@ -147,6 +149,19 @@ class PaymentRepository extends BaseRepository
 
     private function applyPayment(Request $request, Payment $payment) :?Payment
     {
+        $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
+
+        $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
+
+        $payment->invoices()->saveMany($invoices);
+    
+        foreach ($request->input('invoices') as $paid_invoice) {
+            $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
+
+            if ($invoice) {
+                ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
+            }
+        }
 
     }
 

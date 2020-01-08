@@ -12,6 +12,8 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\PaymentAppliedValidAmount;
+use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Validation\Rule;
 
@@ -34,6 +36,7 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         return [
+            'invoices' => 'required|array|min:1',
             'amount' => [new PaymentAppliedValidAmount(),new ValidCreditsPresentRule()],
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
@@ -43,24 +46,23 @@ class UpdatePaymentRequest extends Request
     {
         $input = $this->all();
 
-        if(array_key_exists('client_id', $input)) 
+        if(isset($input['client_id']))
             unset($input['client_id']);
         
-        if(array_key_exists('amount', $input)) 
+        if(isset($input['amount'])) 
             unset($input['amount']);
 
-        if(array_key_exists('type_id', $input)) 
-                    unset($input['type_id']);
+        if(isset($input['type_id'])) 
+            unset($input['type_id']);
 
-        if(array_key_exists('date', $input)) 
-                    unset($input['date']);
+        if(isset($input['date'])) 
+            unset($input['date']);
 
-        if(array_key_exists('transaction_reference', $input)) 
-                    unset($input['transaction_reference']);
+        if(isset($input['transaction_reference'])) 
+            unset($input['transaction_reference']);
 
-        if(array_key_exists('amnumberount', $input)) 
-                    unset($input['number']);
-
+        if(isset($input['number'])) 
+            unset($input['number']);
 
         $this->replace($input);
     }

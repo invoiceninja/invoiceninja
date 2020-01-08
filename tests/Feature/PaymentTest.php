@@ -593,4 +593,127 @@ class PaymentTest extends TestCase
             $this->assertEquals($payment->applied, 2);
         }
     }
+
+    public function testUpdatePaymentValidationWorks()
+    {
+
+        $this->invoice = null;
+
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+        $this->invoice->markSent();
+        $this->invoice->save();
+
+        $payment = PaymentFactory::create($this->company->id, $this->user->id);
+        $payment->amount = 10;
+        $payment->client_id = $client->id;
+        $payment->date = now();
+        $payment->save();
+
+
+        $data = [
+            'amount' => 2.0,
+            'client_id' => $client->hashed_id,
+            'invoices' => [],
+            'date' => '2019/12/12',
+        ];
+
+    $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
+            
+        }
+        catch(ValidationException $e) {
+
+            $message = json_decode($e->validator->getMessageBag(),1);
+
+            $this->assertTrue(array_key_exists('invoices', $message));
+
+        }
+
+        
+    }
+
+
+    public function testUpdatePaymentValidationPasses()
+    {
+
+        $this->invoice = null;
+
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+        $this->invoice->markSent();
+        $this->invoice->save();
+
+        $payment = PaymentFactory::create($this->company->id, $this->user->id);
+        $payment->amount = 10;
+        $payment->client_id = $client->id;
+        $payment->date = now();
+        $payment->number = $client->getNextPaymentNumber($client);
+        $payment->save();
+
+
+        $data = [
+            'amount' => 10.0,
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'invoices' => [
+                'id' => $this->encodePrimaryKey($this->invoice->id),
+                'amount' => 10
+                ],
+            'date' => '2019/12/12',
+        ];
+
+    $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
+            
+        }
+        catch(ValidationException $e) {
+
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error(print_r($e->validator->getMessageBag(),1));
+
+            $this->assertTrue(array_key_exists('invoices', $message));
+
+        }
+
+        if($response)
+            $response->assertStatus(200);
+    }
 }
