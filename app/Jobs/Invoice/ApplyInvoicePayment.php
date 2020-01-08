@@ -65,7 +65,7 @@ class ApplyInvoicePayment implements ShouldQueue
 
         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->amount*-1), $this->company);
         UpdateClientBalance::dispatchNow($this->payment->client, $this->amount*-1, $this->company);
-        UpdateClientPaidToDate::dispatchNow($this->payment->client, $this->amount, $this->company);
+        //UpdateClientPaidToDate::dispatchNow($this->payment->client, $this->amount, $this->company);
 
         /* Update Pivot Record amount */
         $this->payment->invoices->each(function ($inv) {

@@ -14,6 +14,7 @@ namespace App\Http\Requests\Payment;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
+use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 
@@ -47,9 +48,18 @@ class StorePaymentRequest extends Request
             }
         }
 
-
         if (isset($input['invoices']) && is_array($input['invoices']) === false) {
             $input['invoices'] = null;
+        }
+
+        if (isset($input['credits']) && is_array($input['credits']) !== false) {
+            foreach ($input['credits'] as $key => $value) {
+                $input['credits'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+            }
+        }
+
+        if (isset($input['credits']) && is_array($input['credits']) === false) {
+            $input['credits'] = null;
         }
 
         $this->replace($input);
@@ -59,7 +69,7 @@ class StorePaymentRequest extends Request
     {
         $rules = [
             'amount' => 'numeric|required',
-            'amount' => new PaymentAmountsBalanceRule(),
+            'amount' => [new PaymentAmountsBalanceRule(),new ValidCreditsPresentRule()],
             'date' => 'required',
             'client_id' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),

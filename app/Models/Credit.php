@@ -130,4 +130,38 @@ class Credit extends BaseModel
 
         return $credit_calc->build();
     }
+
+
+
+
+    /**
+     * @param float $balance_adjustment
+     */
+    public function updateBalance($balance_adjustment)
+    {
+        if ($this->is_deleted) {
+            return;
+        }
+
+        $balance_adjustment = floatval($balance_adjustment);
+
+        $this->balance = $this->balance + $balance_adjustment;
+
+        if ($this->balance == 0) {
+            $this->status_id = self::STATUS_APPLIED;
+            $this->save();
+            //event(new InvoiceWasPaid($this, $this->company));//todo
+
+            return;
+        }
+
+        $this->save();
+    }
+
+    public function setStatus($status)
+    {
+        $this->status_id = $status;
+        $this->save();
+    }
+    
 }

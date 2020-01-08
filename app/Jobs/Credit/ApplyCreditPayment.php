@@ -63,10 +63,6 @@ class ApplyCreditPayment implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->amount*-1), $this->company);
-        UpdateClientBalance::dispatchNow($this->payment->client, $this->amount*-1, $this->company);
-        UpdateClientPaidToDate::dispatchNow($this->payment->client, $this->amount, $this->company);
-
         /* Update Pivot Record amount */
         $this->payment->credits->each(function ($cred) {
             if ($cred->id == $this->credit->id) {
@@ -75,34 +71,17 @@ class ApplyCreditPayment implements ShouldQueue
             }
         });
 
-        if ($this->credit->hasPartial()) {
-        //is partial and amount is exactly the partial amount
-            if ($this->credit->partial == $this->amount) {
-                $this->credit->clearPartial();
-                $this->credit->setDueDate();
-                $this->credit->setStatus(Credit::STATUS_PARTIAL);
-                $this->credit->updateBalance($this->amount*-1);
-            } elseif ($this->credit->partial > 0 && $this->credit->partial > $this->amount) { //partial amount exists, but the amount is less than the partial amount
-                $this->credit->partial -= $this->amount;
-                $this->credit->updateBalance($this->amount*-1);
-            } elseif ($this->credit->partial > 0 && $this->credit->partial < $this->amount) { //partial exists and the amount paid is GREATER than the partial amount
-                $this->credit->clearPartial();
-                $this->credit->setDueDate();
-                $this->credit->setStatus(Credit::STATUS_PARTIAL);
-                $this->credit->updateBalance($this->amount*-1);
-            }
-        } elseif ($this->amount == $this->credit->balance) { //total invoice paid.
-            $this->credit->clearPartial();
-            //$this->credit->setDueDate();
-            $this->credit->setStatus(Credit::STATUS_PAID);
-            $this->credit->updateBalance($this->amount*-1);
-        } elseif($this->amount < $this->credit->balance) { //partial invoice payment made
-            $this->credit->clearPartial();
-            $this->credit->updateBalance($this->amount*-1);
+        $credit_balance = $this->credit->balance*-1;
+
+        if ($this->amount == $credit_balance) { //total invoice paid.
+            $this->credit->setStatus(Credit::STATUS_APPLIED);
+            $this->credit->updateBalance($this->amount);
+        } elseif($this->amount < $credit_balance) { //compare number appropriately
+            $this->credit->setStatus(Credit::PARTIAL);
+            $this->credit->updateBalance($this->amount);
         }
             
         /* Update Payment Applied Amount*/
-        $this->payment->applied += $this->amount;
         $this->payment->save();
     }
 
