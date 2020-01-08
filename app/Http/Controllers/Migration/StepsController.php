@@ -58,9 +58,10 @@ class StepsController extends BaseController
         // header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
-            'company' => $this->exportCompany(),
-            'users' => $this->exportUsers(),
-            'clients' => $this->exportClients(),
+            'company' => $this->getCompany(),
+            'users' => $this->getUsers(),
+            'clients' => $this->getClients(),
+            'invoices' => $this->getInvoices(),
         ];
 
         return response()->json($data);
@@ -71,7 +72,7 @@ class StepsController extends BaseController
      *
      * @return array
      */
-    protected function exportCompany()
+    protected function getCompany()
     {
         // Notes: show_product_details, show_product_cost
         // What to do with: enabled_tax_rates, enable_product_costs, enable_product_quantity, portal_mode, portal_domain,
@@ -103,7 +104,7 @@ class StepsController extends BaseController
      *
      * @return array
      */
-    protected function exportClients()
+    protected function getClients()
     {
         $clients = [];
 
@@ -146,7 +147,7 @@ class StepsController extends BaseController
      *
      * @return array
      */
-    public function exportUsers()
+    public function getUsers()
     {
         // Missing, notes: device_token, ip, theme_id, oauth_user_token, avatar, signature,
 
@@ -178,5 +179,56 @@ class StepsController extends BaseController
         }
 
         return $transformed;
+    }
+
+    /**
+     * Export invoices and mappings for the v2.
+     */
+    protected function getInvoices()
+    {
+        // Confusions, what do to with: assigned_user_id, project_id, vendor_id,
+        // line_items, backup, total_taxes, uses_inclusive_taxes, custom_surcharge1, last_viewed,
+
+        // Questions: recurring_id, will be added when we split invoices by is_recurring?
+
+        $invoices = [];
+
+        foreach ($this->account->invoices as $invoice) {
+            $invoices[] = [
+                'client_id' => $invoice->client_id,
+                'user_id' => $invoice->user_id,
+                'company_id' => $invoice->account_id,
+                'status_id' => $invoice->invoice_status_id,
+                'design_id' => $invoice->invoice_design_id,
+                'number' => $invoice->invoice_number,
+                'discount' => $invoice->discount,
+                'is_amount_discount' => $invoice->is_amount_discount,
+                'po_number' => $invoice->po_number,
+                'date' => $invoice->invoice_date,
+                'last_sent_date' => $invoice->last_sent_date,
+                'due_date' => $invoice->due_date,
+                'is_deleted' => $invoice->is_deleted,
+                'footer' => $invoice->invoice_footer,
+                'public_notes' => $invoice->public_notes,
+                'private_notes' => $invoice->private_notes,
+                'terms' => $invoice->terms,
+                'tax_name1' => $invoice->tax_name1,
+                'tax_name2' => $invoice->tax_name2,
+                'tax_rate1' => $invoice->tax_rate1,
+                'tax_rate2' => $invoice->tax_rate2,
+                'custom_value1' => $invoice->custom_value1,
+                'custom_value2' => $invoice->custom_value2,
+                'next_send_date' => $invoice->due_date, // needs confirm,
+                'amount' => $invoice->amount,
+                'balance' => $invoice->balance,
+                'partial' => $invoice->partial,
+                'partial_due_date' => $invoice->partial_due_date,
+                'created_at' => $invoice->created_at,
+                'updated_at' => $invoice->updated_at,
+                'deleted_at' => $invoice->deleted_at,
+            ];
+        }
+
+        return $invoices;
     }
 }
