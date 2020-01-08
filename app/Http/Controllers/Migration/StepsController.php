@@ -58,6 +58,7 @@ class StepsController extends BaseController
 
         $data = [
             'company' => $this->exportCompany(),
+            'users' => $this->exportUsers(),
             'clients' => $this->exportClients(),
         ];
 
@@ -105,7 +106,7 @@ class StepsController extends BaseController
     {
         $clients = [];
 
-        foreach ($this->account->clients as $client) {
+        foreach ($this->account->clients()->withTrashed()->get() as $client) {
             $clients[] = [
                 'name' => $client->name,
                 'balance' => $client->balance,
@@ -137,5 +138,15 @@ class StepsController extends BaseController
         }
 
         return $clients;
+    }
+
+    /**
+     * Export needed users and map to v2 fields.
+     *
+     * @return array
+     */
+    public function exportUsers()
+    {
+        return [];
     }
 }
