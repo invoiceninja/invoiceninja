@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
 use App\Libraries\Utils;
+use App\Models\User;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use Illuminate\Http\Request;
@@ -147,6 +148,35 @@ class StepsController extends BaseController
      */
     public function exportUsers()
     {
-        return [];
+        // Missing, notes: device_token, ip, theme_id, oauth_user_token, avatar, signature,
+
+        $users = User::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        $transformed = [];
+
+        foreach ($users as $user) {
+            $transformed[] = [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'confirmation_code' => $user->confirmation_code,
+                'failed_logins' => $user->failed_logins,
+                'referral_code' => $user->referral_code,
+                'oauth_user_id' => $user->oauth_user_id,
+                'oauth_provider_id' => $user->oauth_provider_id,
+                'google_2fa_secret' => $user->google_2fa_secret,
+                'accepted_terms_version' => $user->accepted_terms_version,
+                'password' => $user->password,
+                'remember_token' => $user->remember_token,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'deleted_at' => $user->deleted_at,
+            ];
+        }
+
+        return $transformed;
     }
 }
