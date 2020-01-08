@@ -78,24 +78,26 @@ class StepsController extends BaseController
         // What to do with: enabled_tax_rates, enable_product_costs, enable_product_quantity, portal_mode, portal_domain,
 
         return [
-            'account_id' => Auth::id(),
-            'industry_id' => $this->account->industry_id,
-            'ip' => $this->account->ip,
-            'company_key' => $this->account->account_key,
-            'logo' => $this->account->logo,
-            'convert_products' => $this->account->convert_products,
-            'fill_products' => $this->account->fill_products,
-            'update_products' => $this->account->update_products,
-            'show_product_details' => $this->account->show_product_notes, // needs confirmation
-            'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1, // needs confirmation
-            'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2, // needs confirmation
-            'enable_invoice_quantity' => !$this->account->hide_quantity, // needs confirmation
-            'subdomain' => $this->account->subdomain,
-            'size_id' => $this->account->size_id,
-            'enable_modules' => $this->account->enabled_modules, // possible typo in v2? enable vs enabled,
-            'custom_fields' => $this->account->custom_fields,
-            'created_at' => $this->account->created_at,
-            'updated_at' => $this->account->updated_at,
+            [
+                'account_id' => Auth::id(),
+                'industry_id' => $this->account->industry_id,
+                'ip' => $this->account->ip,
+                'company_key' => $this->account->account_key,
+                'logo' => $this->account->logo,
+                'convert_products' => $this->account->convert_products,
+                'fill_products' => $this->account->fill_products,
+                'update_products' => $this->account->update_products,
+                'show_product_details' => $this->account->show_product_notes, // needs confirmation
+                'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1, // needs confirmation
+                'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2, // needs confirmation
+                'enable_invoice_quantity' => !$this->account->hide_quantity, // needs confirmation
+                'subdomain' => $this->account->subdomain,
+                'size_id' => $this->account->size_id,
+                'enable_modules' => $this->account->enabled_modules, // possible typo in v2? enable vs enabled,
+                'custom_fields' => $this->account->custom_fields,
+                'created_at' => $this->account->created_at,
+                'updated_at' => $this->account->updated_at,
+            ]
         ];
     }
 
