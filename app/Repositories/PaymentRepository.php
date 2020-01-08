@@ -66,9 +66,13 @@ class PaymentRepository extends BaseRepository
         //we only ever update the ACTUAL amount of money transferred
         UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
 
+        $invoice_totals = 0;
+        $credit_totals = 0;
 
         if ($request->input('invoices') && is_array($request->input('invoices'))) {
-            
+        
+        $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
+
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
@@ -87,6 +91,9 @@ class PaymentRepository extends BaseRepository
 
         if($request->input('credits') && is_array($request->input('credits')))
         {
+
+        $credit_totals = array_sum(array_column($request->input('credits'),'amount'));
+    
             $credits = Credit::whereIn('id', array_column($request->input('credits'), 'id'))->company()->get();
 
             $payment->credits()->saveMany($credits);
@@ -103,7 +110,15 @@ class PaymentRepository extends BaseRepository
 
         event(new PaymentWasCreated($payment, $payment->company));
 
+        $invoice_totals -= $credit_totals;
+
+        if($invoice_totals == $payment->amount)
+            $payment->applied = $payment->amount;
+        elseif($invoice_totals < $payment->amount)
+            $payment->applied = $invoice_totals;
+
         //UpdateInvoicePayment::dispatchNow($payment);
+        $payment->save();
 
         return $payment->fresh();
     }

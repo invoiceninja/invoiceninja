@@ -588,6 +588,9 @@ class PaymentTest extends TestCase
 
             $this->assertEquals($invoice->balance, 8);
 
+            $payment = $invoice->payments()->first();
+
+            $this->assertEquals($payment->applied, 2);
         }
     }
 }

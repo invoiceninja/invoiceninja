@@ -102,8 +102,8 @@ class ApplyInvoicePayment implements ShouldQueue
         }
             
         /* Update Payment Applied Amount*/
-        $this->payment->applied += $this->amount;
-        $this->payment->save();
+      //  $this->payment->applied += $this->amount;
+      //  $this->payment->save();
     }
 
     

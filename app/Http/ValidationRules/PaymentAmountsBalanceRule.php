@@ -40,8 +40,6 @@ class PaymentAmountsBalanceRule implements Rule
         return 'Amounts do not balance correctly.';
     }
 
-
-
     private function calculateAmounts() :bool
     {
         $data = [];
