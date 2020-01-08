@@ -250,8 +250,10 @@
 					</div>	
 				</div>
 
-				<div class="form-group">
-					<a class="btn btn-primary btn-lg" href="/migration/start">Start the migration</a>
+				<div class="col-md-12">
+					<div class="form-group">
+						<a class="btn btn-primary btn-lg" href="/migration/start">Start the migration</a>
+					</div>
 				</div>
 			</div>
 		</div>
