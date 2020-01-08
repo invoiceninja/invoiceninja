@@ -73,7 +73,7 @@ class StorePaymentRequest extends Request
             'date' => 'required',
             'client_id' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
-            'number' => 'nullable|unique',
+            'number' => 'nullable',
         ];
 
         return $rules;

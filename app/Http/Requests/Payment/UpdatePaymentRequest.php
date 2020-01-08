@@ -34,8 +34,34 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         return [
+            'amount' => [new PaymentAppliedValidAmount(),new ValidCreditsPresentRule()],
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'required',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(array_key_exists('client_id', $input)) 
+            unset($input['client_id']);
+        
+        if(array_key_exists('amount', $input)) 
+            unset($input['amount']);
+
+        if(array_key_exists('type_id', $input)) 
+                    unset($input['type_id']);
+
+        if(array_key_exists('date', $input)) 
+                    unset($input['date']);
+
+        if(array_key_exists('transaction_reference', $input)) 
+                    unset($input['transaction_reference']);
+
+        if(array_key_exists('amnumberount', $input)) 
+                    unset($input['number']);
+
+
+        $this->replace($input);
     }
 }
