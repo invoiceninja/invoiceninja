@@ -54,8 +54,8 @@ class StepsController extends BaseController
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        // header('Content-Type:application/json');
-        // header("Content-Disposition:attachment;filename={$fileName}.json");
+        header('Content-Type:application/json');
+        header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
             'company' => $this->getCompany(),
