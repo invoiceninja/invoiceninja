@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
+use App\Libraries\Utils;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use League\Fractal\Resource\Item;
 
 class StepsController extends BaseController
 {
+    private $account;
+
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -41,36 +44,65 @@ class StepsController extends BaseController
      */
     public function handleDownload(Request $request)
     {
+        $this->account = Auth::user()->account;
+
         $date = date('Y-m-d');
-        $accontKey = Auth::user()->account->account_key;
+        $accountKey = $this->account->account_key;
 
         $output = fopen('php://output', 'w') or Utils::fatalError();
 
-        $fileName = "{$accontKey}-{$date}-invoiceninja";
+        $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
+        // header('Content-Type:application/json');
+        // header("Content-Disposition:attachment;filename={$fileName}.json");
 
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-
-        // eager load data, include archived but exclude deleted
-        $account = Auth::user()->account;
-        $account->load(['clients' => function ($query) {
-            $query->withArchived()
-                ->with(['contacts', 'invoices' => function ($query) {
-                    $query->withArchived()
-                        ->with(['invoice_items', 'payments' => function ($query) {
-                            $query->withArchived();
-                        }]);
-                }]);
-        }]);
-
-        $resource = new Item($account, new AccountTransformer());
-        $data = $manager->parseIncludes('clients.invoices.payments')
-            ->createData($resource)
-            ->toArray();
+        $data = [
+            'clients' => $this->exportClients(),
+        ];
 
         return response()->json($data);
+    }
+
+    /**
+     * Export clients and map to the v2 fields.
+     *
+     * @return array
+     */
+    protected function exportClients()
+    {
+        $clients = [];
+
+        foreach ($this->account->clients as $client) {
+            $clients[] = [
+                'name' => $client->name,
+                'balance' => $client->balance,
+                'paid_to_date' => $client->paid_to_date,
+                'address1' => $client->address1,
+                'address2' => $client->address2,
+                'city' => $client->city,
+                'state' => $client->state,
+                'postal_code' => $client->postal_code,
+                'country_id' => $client->country_id,
+                'phone' => $client->work_phone,
+                'private_notes' => $client->private_notes,
+                'last_login' => $client->last_login,
+                'website' => $client->website,
+                'industry_id' => $client->industry_id,
+                'size_id' => $client->size_id,
+                'is_deleted' => $client->is_deleted,
+                'vat_number' => $client->vat_number,
+                'id_number' => $client->id_number,
+                'custom_value1' => $client->custom_value1,
+                'custom_value2' => $client->custom_value2,
+                'shipping_address1' => $client->shipping_address1,
+                'shipping_address2' => $client->shipping_address2,
+                'shipping_city' => $client->shipping_city,
+                'shipping_state' => $client->shipping_state,
+                'shipping_postal_code' => $client->shipping_postal_code,
+                'shipping_country_id' => $client->shipping_country_id,
+            ];
+        }
+
+        return $clients;
     }
 }
