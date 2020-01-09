@@ -12,13 +12,16 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\PaymentAppliedValidAmount;
+use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends Request
 {
     use ChecksEntityStatus;
-    
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -34,8 +37,38 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         return [
+            'invoices' => ['required','array','min:1',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'required',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['client_id']))
+            unset($input['client_id']);
+        
+        if(isset($input['amount'])) 
+            unset($input['amount']);
+
+        if(isset($input['type_id'])) 
+            unset($input['type_id']);
+
+        if(isset($input['date'])) 
+            unset($input['date']);
+
+        if(isset($input['transaction_reference'])) 
+            unset($input['transaction_reference']);
+
+        if(isset($input['number'])) 
+            unset($input['number']);
+
+        if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
+            foreach ($input['invoices'] as $key => $value) {
+                $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+            }
+        }
+        $this->replace($input);
     }
 }

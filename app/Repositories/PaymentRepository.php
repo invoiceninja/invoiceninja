@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
+use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Invoice\ApplyClientPayment;
 use App\Jobs\Invoice\ApplyInvoicePayment;
@@ -45,7 +46,7 @@ class PaymentRepository extends BaseRepository
     }
     
     /**
-     * Saves a payment.
+     * Saves and updates a payment. //todo refactor to handle refunds and payments.
      * 
      * 
      * @param  Request $request the request object
@@ -54,22 +55,32 @@ class PaymentRepository extends BaseRepository
      */
     public function save(Request $request, Payment $payment) : ?Payment
     {
-        //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
-        $payment->fill($request->input());
 
+        //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
+        $payment->fill($request->all());
         $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
         $payment->save();
+
+        if(!$payment->number)
+            $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         
+        //we only ever update the ACTUAL amount of money transferred
+        UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
+
+        $invoice_totals = 0;
+        $credit_totals = 0;
+
         if ($request->input('invoices') && is_array($request->input('invoices'))) {
-            
+        
+        $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
+
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
-    
+
             foreach ($request->input('invoices') as $paid_invoice) {
-                $invoice = Invoice::whereId($this->decodePrimaryKey($paid_invoice['id'])->company()->first();
+                $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
 
                 if ($invoice) {
                     ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
@@ -82,13 +93,16 @@ class PaymentRepository extends BaseRepository
 
         if($request->input('credits') && is_array($request->input('credits')))
         {
+
+        $credit_totals = array_sum(array_column($request->input('credits'),'amount'));
+    
             $credits = Credit::whereIn('id', array_column($request->input('credits'), 'id'))->company()->get();
 
             $payment->credits()->saveMany($credits);
 
             foreach ($request->input('credits') as $paid_credit) 
             {
-                $credit = Credit::whereId($this->decodePrimaryKey($paid_credit['id'])->company()->first();
+                $credit = Credit::whereId($paid_credit['id'])->company()->first();
 
                 if($credit)
                     ApplyCreditPayment::dispatchNow($paid_credit, $payment, $paid_credit['amount'], $credit->company);
@@ -98,7 +112,15 @@ class PaymentRepository extends BaseRepository
 
         event(new PaymentWasCreated($payment, $payment->company));
 
+        $invoice_totals -= $credit_totals;
+
+        if($invoice_totals == $payment->amount)
+            $payment->applied = $payment->amount;
+        elseif($invoice_totals < $payment->amount)
+            $payment->applied = $invoice_totals;
+
         //UpdateInvoicePayment::dispatchNow($payment);
+        $payment->save();
 
         return $payment->fresh();
     }
@@ -124,8 +146,22 @@ class PaymentRepository extends BaseRepository
 
     }
 
+
     private function applyPayment(Request $request, Payment $payment) :?Payment
     {
+        $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
+
+        $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
+
+        $payment->invoices()->saveMany($invoices);
+    
+        foreach ($request->input('invoices') as $paid_invoice) {
+            $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
+
+            if ($invoice) {
+                ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
+            }
+        }
 
     }
 
@@ -170,6 +206,8 @@ class PaymentRepository extends BaseRepository
         $client = $payment->client;
         $client->paid_to_date += $invoice_total_adjustment;
     
+        $payment->save();
+        $client->save();
     }
 
     

@@ -100,7 +100,7 @@ class ClientApiTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertNull($arr['data']['deleted_at']);
+        $this->assertNull($arr['data']['archived_at']);
     }
 
     public function testClientArchived()
@@ -117,7 +117,7 @@ class ClientApiTest extends TestCase
 
         $arr = $response->json();
 \Log::error($arr);
-        $this->assertNotNull($arr['data'][0]['deleted_at']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
     }
  
     public function testClientRestored()
@@ -134,7 +134,7 @@ class ClientApiTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertNull($arr['data'][0]['deleted_at']);
+        $this->assertNull($arr['data'][0]['archived_at']);
     }
 
     public function testClientDeleted()
