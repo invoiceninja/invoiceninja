@@ -55,9 +55,7 @@ class PaymentRepository extends BaseRepository
      */
     public function save(Request $request, Payment $payment) : ?Payment
     {
-            \Log::error($request);
 
-        //\Log::error($request->all());
         //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
         $payment->fill($request->all());
         $payment->status_id = Payment::STATUS_COMPLETED;
