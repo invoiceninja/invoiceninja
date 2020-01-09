@@ -18,7 +18,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
@@ -321,7 +320,7 @@ class PaymentTest extends TestCase
         catch(ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(),1);
             $this->assertNotNull($message);
-            \Log::error($message);
+            //\Log::error($message);
         }
     
         if($response) {
@@ -689,8 +688,10 @@ class PaymentTest extends TestCase
             'amount' => 10.0,
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
-                'id' => $this->encodePrimaryKey($this->invoice->id),
-                'amount' => 10
+                    [
+                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'amount' => 10,
+                    ]
                 ],
             'date' => '2019/12/12',
         ];

@@ -55,9 +55,11 @@ class PaymentRepository extends BaseRepository
      */
     public function save(Request $request, Payment $payment) : ?Payment
     {
-        \Log::error($request->input());
+            \Log::error($request);
+
+        //\Log::error($request->all());
         //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
-        $payment->fill($request->input());
+        $payment->fill($request->all());
         $payment->status_id = Payment::STATUS_COMPLETED;
 
         $payment->save();
@@ -78,7 +80,7 @@ class PaymentRepository extends BaseRepository
             $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
-    
+
             foreach ($request->input('invoices') as $paid_invoice) {
                 $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
 
@@ -206,6 +208,8 @@ class PaymentRepository extends BaseRepository
         $client = $payment->client;
         $client->paid_to_date += $invoice_total_adjustment;
     
+        $payment->save();
+        $client->save();
     }
 
     

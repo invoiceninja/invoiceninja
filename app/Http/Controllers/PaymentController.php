@@ -412,7 +412,7 @@ class PaymentController extends BaseController
         if($request->entityIsDeleted($payment))
             return $request->disallowUpdate();
         
-        $payment = $this->payment_repo->save(request(), $payment);
+        $payment = $this->payment_repo->save($request, $payment);
 
         return $this->itemResponse($payment);
     }

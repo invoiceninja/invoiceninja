@@ -15,12 +15,13 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\PaymentAppliedValidAmount;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends Request
 {
     use ChecksEntityStatus;
-    
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -64,6 +65,11 @@ class UpdatePaymentRequest extends Request
         if(isset($input['number'])) 
             unset($input['number']);
 
+        if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
+            foreach ($input['invoices'] as $key => $value) {
+                $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+            }
+        }
         $this->replace($input);
     }
 }
