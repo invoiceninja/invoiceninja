@@ -648,7 +648,8 @@ class PaymentTest extends TestCase
 
         }
 
-        
+        if($response)
+            $response->assertStatus(302);
     }
 
 
@@ -719,7 +720,7 @@ class PaymentTest extends TestCase
     }
 
 
-    public function doublePaymentTestWithInvalidAmounts()
+    public function testDoublePaymentTestWithInvalidAmounts()
     {
 
         $this->invoice = null;
@@ -754,20 +755,29 @@ class PaymentTest extends TestCase
             'date' => '2019/12/12',
         ];
 
+        $response = false;
+
+        try {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/', $data);
-        
-        $response->assertStatus(200);
+        }
+        catch(ValidationException $e) {
+
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error(print_r($e->validator->getMessageBag(),1));
+        }
+
+            $response->assertStatus(200);
              
             $arr = $response->json();
             
             $payment_id = $arr['data']['id'];
 
-            $payment = Payment::find($payment_id);
+            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
 
-            $this->assertEquals($payment->amount, 20);
+            $this->assertEquals($payment->amount, 15);
             $this->assertEquals($payment->applied, 10);
 
         $this->invoice = null;
@@ -814,12 +824,115 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(),1);
             \Log::error(print_r($e->validator->getMessageBag(),1));
 
-            $this->assertTrue(array_key_exists('amount', $message));
+            $this->assertTrue(array_key_exists('invoices', $message));
             \Log::error('hit error');
         }
 
-//todo this should fail!
+            //$response->assertStatus(302);
+    
+    }
+
+
+    public function testDoublePaymentTestWithValidAmounts()
+    {
+
+        $this->invoice = null;
+
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+        $this->invoice->markSent();
+
+        $data = [
+            'amount' => 20.0,
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'invoices' => [
+                    [
+                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'amount' => 10,
+                    ]
+                ],
+            'date' => '2019/12/12',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/', $data);
+        
+        $response->assertStatus(200);
+             
+            $arr = $response->json();
+            
+            $payment_id = $arr['data']['id'];
+
+            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+
+            $this->assertEquals($payment->amount, 20);
+            $this->assertEquals($payment->applied, 10);
+
+        $this->invoice = null;
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+        $this->invoice->markSent();
+
+
+        $data = [
+            'amount' => 20.0,
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'invoices' => [
+                    [
+                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'amount' => 10,
+                    ]
+                ],
+            'date' => '2019/12/12',
+        ];
+
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
+            
+        }
+        catch(ValidationException $e) {
+
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error(print_r($e->validator->getMessageBag(),1));
+
+            $this->assertTrue(array_key_exists('invoices', $message));
+            \Log::error('hit error');
+        }
 
         $response->assertStatus(200);
+    
     }
 }

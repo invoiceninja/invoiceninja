@@ -28,7 +28,7 @@ class PaymentAmountsBalanceRule implements Rule
      * @return bool
      */
     public function passes($attribute, $value)
-    {
+    { 
         return $this->calculateAmounts(); 
     }
 
@@ -66,7 +66,7 @@ class PaymentAmountsBalanceRule implements Rule
         else
             return true; // if no invoices are present, then this is an unapplied payment, let this pass validation!
 
-        return  $payment_amounts === $invoice_amounts;
+        return  $payment_amounts >= $invoice_amounts;
 
     }
 }

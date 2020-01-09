@@ -37,8 +37,7 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         return [
-            'invoices' => 'required|array|min:1',
-            'amount' => [new PaymentAppliedValidAmount(),new ValidCreditsPresentRule()],
+            'invoices' => ['required','array','min:1',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
     }

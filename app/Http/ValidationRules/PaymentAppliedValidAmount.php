@@ -12,6 +12,7 @@
 namespace App\Http\ValidationRules;
 
 use App\Libraries\MultiDB;
+use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
@@ -44,13 +45,17 @@ class PaymentAppliedValidAmount implements Rule
 
     private function calculateAmounts() :bool
     {
-    	$payment = Payment::find($this->decodePrimaryKey(request()->input('id')));
 
+    	$payment = Payment::whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
+
+        if(!$payment)
+            return false;
+        
         $data = [];
         $payment_amounts = 0;
         $invoice_amounts = 0;
 
-        $payment_amounts += ($payment->amount - $payment->applied);
+        $payment_amounts = $payment->amount - $payment->applied;
 
         if(request()->input('credits') && is_array(request()->input('credits')))
         {
@@ -67,7 +72,7 @@ class PaymentAppliedValidAmount implements Rule
                 $invoice_amounts =+ $invoice['amount'];
             }
         }
-        
+
         return  $payment_amounts >= $invoice_amounts;
 
     }
