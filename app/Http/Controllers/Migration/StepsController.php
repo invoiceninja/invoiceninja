@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Migration;
 use App\Http\Controllers\BaseController;
 use App\Libraries\Utils;
 use App\Models\User;
-use App\Ninja\Serializers\ArraySerializer;
-use App\Ninja\Transformers\AccountTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use League\Fractal\Manager;
-use League\Fractal\Resource\Item;
+use Illuminate\Support\Facades\Storage;
 
 class StepsController extends BaseController
 {
@@ -54,8 +51,8 @@ class StepsController extends BaseController
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
+        // header('Content-Type:application/json');
+        // header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
             'company' => $this->getCompany(),
@@ -63,6 +60,17 @@ class StepsController extends BaseController
             'clients' => $this->getClients(),
             'invoices' => $this->getInvoices(),
         ];
+
+        // @TODO: Replace with .env variable (where to store local migrations - disk()).
+        Storage::put("migrations/{$fileName}/migration.json", json_encode($data));
+
+        $logo = public_path(sprintf(
+            'logo%s%s', DIRECTORY_SEPARATOR, $this->account->logo
+        ));
+
+        if(Storage::exists('file.jpg')) {
+            Storage::copy(public_path("logo/{$this->account->logo}"), app_path("migrations/{$fileName}/{$this->account->logo}"));
+        }
 
         return response()->json($data);
     }
