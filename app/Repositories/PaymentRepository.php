@@ -149,19 +149,12 @@ class PaymentRepository extends BaseRepository
 
     private function applyPayment(Request $request, Payment $payment) :?Payment
     {
-        $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
-
-        $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
-
-        $payment->invoices()->saveMany($invoices);
-    
-        foreach ($request->input('invoices') as $paid_invoice) {
-            $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
-
-            if ($invoice) {
-                ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
-            }
-        }
+        
+        //Apply payment currently encompasses the save() function
+        //we need to refactor and push the save() into this method, and then 
+        //move the current 'update' function into the save() function
+        //to enable us to use a single ->save() on the repo to handle
+        //payments and refunds.
 
     }
 

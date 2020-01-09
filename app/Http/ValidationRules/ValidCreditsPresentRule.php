@@ -45,7 +45,6 @@ class ValidCreditsPresentRule implements Rule
 
     private function validCreditsPresent() :bool
     {
-        $data = [];
 //todo need to ensure the clients credits are here not random ones!
         
         if(request()->input('credits') && is_array(request()->input('credits')))
