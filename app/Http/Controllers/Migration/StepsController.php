@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
 use App\Libraries\Utils;
+use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,14 +52,15 @@ class StepsController extends BaseController
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
+        // header('Content-Type:application/json');
+        // header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
             'company' => $this->getCompany(),
             'users' => $this->getUsers(),
             'clients' => $this->getClients(),
             'invoices' => $this->getInvoices(),
+            'quotes' => $this->getQuotes(),
         ];
 
         // TODO: Replace with .env variable (where to store local migrations - disk()).
@@ -238,7 +240,7 @@ class StepsController extends BaseController
                 'tax_rate2' => $invoice->tax_rate2,
                 'custom_value1' => $invoice->custom_value1,
                 'custom_value2' => $invoice->custom_value2,
-                'next_send_date' => $invoice->due_date, // needs confirm,
+                'next_send_date' => null,
                 'amount' => $invoice->amount,
                 'balance' => $invoice->balance,
                 'partial' => $invoice->partial,
@@ -250,5 +252,57 @@ class StepsController extends BaseController
         }
 
         return $invoices;
+    }
+
+    /**
+     * Export quotes and mappings for the v2.
+     */
+    public function getQuotes()
+    {
+        $transformed = [];
+
+        $quotes = Invoice::where('account_id', $this->account->id)
+            ->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
+            ->withTrashed()
+            ->get();
+
+        // Notes: assigned_user_id, project_id,
+        foreach ($quotes as $quote) {
+            $transformed[] = [
+                'client_id' => $quote->client_id,
+                'user_id' => $quote->user_id,
+                'company_id' => $quote->account_id,
+                'status_id' => $quote->invoice_status_id,
+                'design_id' => $quote->invoice_design_id,
+                'number' => $quote->invoice_number,
+                'discount' => $quote->discount,
+                'is_amount_discount' => $quote->is_amount_discount,
+                'po_number' => $quote->po_number,
+                'date' => $quote->invoice_date,
+                'last_sent_date' => $quote->last_sent_date,
+                'due_date' => $quote->due_date,
+                'is_deleted' => $quote->is_deleted,
+                'footer' => $quote->invoice_footer,
+                'public_notes' => $quote->public_notes,
+                'private_notes' => $quote->private_notes,
+                'terms' => $quote->terms,
+                'tax_name1' => $quote->tax_name1,
+                'tax_name2' => $quote->tax_name2,
+                'tax_rate1' => $quote->tax_rate1,
+                'tax_rate2' => $quote->tax_rate2,
+                'custom_value1' => $quote->custom_value1,
+                'custom_value2' => $quote->custom_value2,
+                'next_send_date' => null,
+                'amount' => $quote->amount,
+                'balance' => $quote->balance,
+                'partial' => $quote->partial,
+                'partial_due_date' => $quote->partial_due_date,
+                'created_at' => $quote->created_at,
+                'updated_at' => $quote->updated_at,
+                'deleted_at' => $quote->deleted_at,
+            ];
+        }
+
+        return $transformed;
     }
 }
