@@ -51,8 +51,8 @@ class StepsController extends BaseController
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        // header('Content-Type:application/json');
-        // header("Content-Disposition:attachment;filename={$fileName}.json");
+        header('Content-Type:application/json');
+        header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
             'company' => $this->getCompany(),
@@ -61,16 +61,26 @@ class StepsController extends BaseController
             'invoices' => $this->getInvoices(),
         ];
 
-        // @TODO: Replace with .env variable (where to store local migrations - disk()).
+        // TODO: Replace with .env variable (where to store local migrations - disk()).
         Storage::put("migrations/{$fileName}/migration.json", json_encode($data));
 
         $logo = public_path(sprintf(
             'logo%s%s', DIRECTORY_SEPARATOR, $this->account->logo
         ));
 
-        if(Storage::exists('file.jpg')) {
-            Storage::copy(public_path("logo/{$this->account->logo}"), app_path("migrations/{$fileName}/{$this->account->logo}"));
+        // Storage::disk('local')->exists($logo) || Storage::exists($logo) shows false (file not found exception).
+        // Storage::copy, also fails because ^
+
+        // TODO: Needs refactor, to use official Storage facade methods.
+        if (file_exists($logo)) {
+            // Throws: failed to open stream: No such file or directory, even tho everything is okay. Any idea @turbo124?
+            // copy($logo, app_path("migrations/{$fileName}/{$this->account->logo}"));
         }
+
+        // $zip = new \ZipArchive();
+        // $zip->open("{$fileName}.zip", \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        // $migrationFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(app_path("migrations/{$fileName}")));
 
         return response()->json($data);
     }
