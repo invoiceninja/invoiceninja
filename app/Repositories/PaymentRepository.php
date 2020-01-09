@@ -46,7 +46,7 @@ class PaymentRepository extends BaseRepository
     }
     
     /**
-     * Saves a payment.
+     * Saves and updates a payment. //todo refactor to handle refunds and payments.
      * 
      * 
      * @param  Request $request the request object
