@@ -79,7 +79,7 @@ class StepsController extends BaseController
 
         return [
             [
-                'account_id' => Auth::id(),
+                'account_id' => $this->account->id,
                 'industry_id' => $this->account->industry_id,
                 'ip' => $this->account->ip,
                 'company_key' => $this->account->account_key,
@@ -87,13 +87,13 @@ class StepsController extends BaseController
                 'convert_products' => $this->account->convert_products,
                 'fill_products' => $this->account->fill_products,
                 'update_products' => $this->account->update_products,
-                'show_product_details' => $this->account->show_product_notes, // needs confirmation
-                'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1, // needs confirmation
-                'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2, // needs confirmation
-                'enable_invoice_quantity' => !$this->account->hide_quantity, // needs confirmation
+                'show_product_details' => $this->account->show_product_notes,
+                'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1,
+                'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2,
+                'enable_invoice_quantity' => !$this->account->hide_quantity,
                 'subdomain' => $this->account->subdomain,
                 'size_id' => $this->account->size_id,
-                'enable_modules' => $this->account->enabled_modules, // possible typo in v2? enable vs enabled,
+                'enable_modules' => $this->account->enabled_modules,
                 'custom_fields' => $this->account->custom_fields,
                 'created_at' => $this->account->created_at,
                 'updated_at' => $this->account->updated_at,
