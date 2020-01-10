@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Migration;
 use App\Http\Controllers\BaseController;
 use App\Libraries\Utils;
 use App\Models\Invoice;
+use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,11 +53,12 @@ class StepsController extends BaseController
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
+        // header('Content-Type:application/json');
+        // header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
             'company' => $this->getCompany(),
+            'tax_rates' => $this->getTaxRates(),
             'users' => $this->getUsers(),
             'clients' => $this->getClients(),
             'invoices' => $this->getInvoices(),
@@ -119,6 +121,32 @@ class StepsController extends BaseController
                 'updated_at' => $this->account->updated_at,
             ]
         ];
+    }
+
+    /**
+     * Export tax rates and map to the v2 fields.
+     */
+    public function getTaxRates()
+    {
+        $rates = TaxRate::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        $transformed = [];
+
+        foreach ($rates as $rate) {
+            $transformed[] = [
+                'name' => $rate->name,
+                'rate' => $rate->rate,
+                'company_id' => $rate->account_id,
+                'user_id' => $rate->user_id,
+                'created_at' => $rate->created_at,
+                'updated_at' => $rate->updated_at,
+                'deleted_at' => $rate->deleted_at,
+            ];
+        }
+
+        return $transformed;
     }
 
     /**
