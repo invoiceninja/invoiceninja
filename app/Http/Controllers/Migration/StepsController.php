@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Migration;
 use App\Http\Controllers\BaseController;
 use App\Libraries\Utils;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -61,6 +62,7 @@ class StepsController extends BaseController
             'tax_rates' => $this->getTaxRates(),
             'users' => $this->getUsers(),
             'clients' => $this->getClients(),
+            'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),
             'quotes' => $this->getQuotes(),
         ];
@@ -190,6 +192,42 @@ class StepsController extends BaseController
         }
 
         return $clients;
+    }
+
+    /**
+     * Export products and map to v2 fields.
+     */
+    protected function getProducts()
+    {
+        // Confusions: assigned_user_id, project_id, vendor_id, price,
+
+        $products = Product::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        $transformed = [];
+
+        foreach ($products as $product) {
+            $transformed[] = [
+                'company_id' => $product->account_id,
+                'user_id' => $product->user_id,
+                'custom_value1' => $product->custom_value1,
+                'custom_value2' => $product->custom_value2,
+                'product_key' => $product->product_key,
+                'notes' => $product->notes,
+                'cost' => $product->cost,
+                'quantity' => $product->qty,
+                'tax_name1' => $product->tax_name1,
+                'tax_name2' => $product->tax_name2,
+                'tax_rate1' => $product->tax_rate1,
+                'tax_rate2' => $product->tax_rate2,
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at,
+                'deleted_at' => $product->deleted_at,
+            ];
+        }
+
+        return $transformed;
     }
 
     /**
