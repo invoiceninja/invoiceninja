@@ -126,7 +126,7 @@ class StepsController extends BaseController
     }
 
     /**
-     * Export tax rates and map to the v2 fields.
+     * @return array
      */
     public function getTaxRates()
     {
@@ -152,8 +152,6 @@ class StepsController extends BaseController
     }
 
     /**
-     * Export clients and map to the v2 fields.
-     *
      * @return array
      */
     protected function getClients()
@@ -195,7 +193,7 @@ class StepsController extends BaseController
     }
 
     /**
-     * Export products and map to v2 fields.
+     * @return array
      */
     protected function getProducts()
     {
@@ -231,8 +229,6 @@ class StepsController extends BaseController
     }
 
     /**
-     * Export needed users and map to v2 fields.
-     *
      * @return array
      */
     public function getUsers()
@@ -270,7 +266,7 @@ class StepsController extends BaseController
     }
 
     /**
-     * Export invoices and mappings for the v2.
+     * @return array
      */
     protected function getInvoices()
     {
@@ -321,7 +317,7 @@ class StepsController extends BaseController
     }
 
     /**
-     * Export quotes and mappings for the v2.
+     * @return array
      */
     public function getQuotes()
     {
@@ -370,5 +366,13 @@ class StepsController extends BaseController
         }
 
         return $transformed;
+    }
+
+    /**
+     *
+     */
+    public function getPayments()
+    {
+        // ..
     }
 }
