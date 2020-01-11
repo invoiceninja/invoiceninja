@@ -87,12 +87,12 @@ class PaymentRepository extends BaseRepository
         
         $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
 
-            $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'id'))->company()->get();
+            $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'invoice_id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
 
             foreach ($request->input('invoices') as $paid_invoice) {
-                $invoice = Invoice::whereId($paid_invoice['id'])->company()->first();
+                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->company()->first();
 
                 if ($invoice) {
                     ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
@@ -108,13 +108,13 @@ class PaymentRepository extends BaseRepository
 
         $credit_totals = array_sum(array_column($request->input('credits'),'amount'));
     
-            $credits = Credit::whereIn('id', array_column($request->input('credits'), 'id'))->company()->get();
+            $credits = Credit::whereIn('id', array_column($request->input('credits'), 'credit_id'))->company()->get();
 
             $payment->credits()->saveMany($credits);
 
             foreach ($request->input('credits') as $paid_credit) 
             {
-                $credit = Credit::whereId($paid_credit['id'])->company()->first();
+                $credit = Credit::whereId($paid_credit['credit_id'])->company()->first();
 
                 if($credit)
                     ApplyCreditPayment::dispatchNow($paid_credit, $payment, $paid_credit['amount'], $credit->company);
@@ -147,7 +147,7 @@ class PaymentRepository extends BaseRepository
             
             foreach($request->input('invoices') as $adjusted_invoice) {
 
-                $invoice = Invoice::whereId($adjusted_invoice['id'])->company()->first();
+                $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->company()->first();
 
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 

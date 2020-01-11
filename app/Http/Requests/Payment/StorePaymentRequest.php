@@ -44,7 +44,7 @@ class StorePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-                $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+                $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
             }
         }
 
@@ -54,7 +54,7 @@ class StorePaymentRequest extends Request
 
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
-                $input['credits'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+                $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
             }
         }
 

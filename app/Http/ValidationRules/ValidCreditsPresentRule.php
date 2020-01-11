@@ -51,7 +51,7 @@ class ValidCreditsPresentRule implements Rule
         {
             foreach(request()->input('credits') as $credit)
             {
-                $cred = Credit::find($credit['id']);
+                $cred = Credit::find($credit['invoice_id']);
                 
                 if($cred->balance >= $credit['amount'])
                 	return false;

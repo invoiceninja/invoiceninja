@@ -37,7 +37,7 @@ class ValidPayableInvoicesRule implements Rule
         $invoices = [];
 
         if (is_array($value)) {
-            $invoices = Invoice::whereIn('id', array_column($value, 'id'))->company()->get();
+            $invoices = Invoice::whereIn('id', array_column($value, 'invoice_id'))->company()->get();
         }
 
         foreach ($invoices as $invoice) {
