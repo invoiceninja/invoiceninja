@@ -32,12 +32,9 @@ class PaymentRepository extends BaseRepository
 
     protected $credit_repo;
 
-
     public function __construct(CreditRepository $credit_repo)
     {
-
         $this->credit_repo = $credit_repo;
-
     } 
 
     public function getClassName()
@@ -56,7 +53,22 @@ class PaymentRepository extends BaseRepository
     public function save(Request $request, Payment $payment) : ?Payment
     {
 
-        //todo this save() only works for new payments... will fail if a Payment is updated and saved through here.
+        if($payment->amount >= 0)
+            return $this->applyPayment($request, $payment);
+        
+        return $this->refundPayment($request, $payment);
+
+    }
+
+    /**
+     * Handles a positive payment request
+     * @param  Request $request The request object
+     * @param  Payment $payment The $payment entity
+     * @return Payment          The updated/created payment object
+     */
+    private function applyPayment(Request $request, Payment $payment) :?Payment
+    {
+        
         $payment->fill($request->all());
         $payment->status_id = Payment::STATUS_COMPLETED;
 
@@ -123,38 +135,6 @@ class PaymentRepository extends BaseRepository
         $payment->save();
 
         return $payment->fresh();
-    }
-
-    /**
-     * Updates
-     *
-     * The update code path is different to the save path
-     * additional considerations come into play when 'updating'
-     * a payment.
-     * 
-     * @param  Request $request the request object
-     * @param  Payment $payment The Payment object
-     * @return Object       Payment $payment
-     */
-    public function update(Request $request, Payment $payment) :?Payment
-    {
-        
-        if($payment->amount >= 0)
-            return $this->applyPayment($request, $payment);
-        
-        return $this->refundPayment($request, $payment);
-
-    }
-
-
-    private function applyPayment(Request $request, Payment $payment) :?Payment
-    {
-        
-        //Apply payment currently encompasses the save() function
-        //we need to refactor and push the save() into this method, and then 
-        //move the current 'update' function into the save() function
-        //to enable us to use a single ->save() on the repo to handle
-        //payments and refunds.
 
     }
 
