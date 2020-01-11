@@ -51,7 +51,6 @@ class PaymentAppliedValidAmount implements Rule
         if(!$payment)
             return false;
         
-        $data = [];
         $payment_amounts = 0;
         $invoice_amounts = 0;
 

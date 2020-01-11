@@ -66,7 +66,7 @@ class UpdatePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-                $input['invoices'][$key]['id'] = $this->decodePrimaryKey($value['id']);
+                $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
             }
         }
         $this->replace($input);

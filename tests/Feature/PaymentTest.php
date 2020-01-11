@@ -132,7 +132,7 @@ class PaymentTest extends TestCase
             'amount' => $this->invoice->amount,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => $this->invoice->amount
                 ],
             ],
@@ -182,7 +182,7 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => $this->invoice->amount
                 ],
             ],
@@ -299,7 +299,7 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => 2.0
                 ],
             ],
@@ -377,7 +377,7 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => 6.0
                 ],
             ],
@@ -438,7 +438,7 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => 2.0
                 ],
             ],
@@ -499,7 +499,7 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => 2.0
                 ],
             ],
@@ -556,7 +556,7 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'id' => $this->invoice->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => 2.0
                 ],
             ],
@@ -690,7 +690,7 @@ class PaymentTest extends TestCase
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                     [
-                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
                     ]
                 ],
@@ -748,7 +748,7 @@ class PaymentTest extends TestCase
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                     [
-                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
                     ]
                 ],
@@ -802,7 +802,7 @@ class PaymentTest extends TestCase
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                     [
-                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
                     ]
                 ],
@@ -861,7 +861,7 @@ class PaymentTest extends TestCase
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                     [
-                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
                     ]
                 ],
@@ -906,7 +906,7 @@ class PaymentTest extends TestCase
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
                     [
-                        'id' => $this->encodePrimaryKey($this->invoice->id),
+                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
                     ]
                 ],

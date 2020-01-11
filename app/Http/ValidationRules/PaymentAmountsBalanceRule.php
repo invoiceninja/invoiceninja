@@ -42,7 +42,7 @@ class PaymentAmountsBalanceRule implements Rule
 
     private function calculateAmounts() :bool
     {
-        $data = [];
+
         $payment_amounts = 0;
         $invoice_amounts = 0;
 
