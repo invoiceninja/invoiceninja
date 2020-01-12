@@ -7,6 +7,7 @@ use App\Http\Requests\TaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Product;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Ninja\Datatables\TaskDatatable;
@@ -128,6 +129,7 @@ class TaskController extends BaseController
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
             'projectPublicId' => Input::old('project_id') ? Input::old('project_id') : ($request->project_id ?: 0),
+            'productPublicId' => Input::old('product_id') ? Input::old('product_id') : ($request->product_id ?: 0),
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
@@ -205,6 +207,7 @@ class TaskController extends BaseController
             'entity' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'projectPublicId' => $task->project ? $task->project->public_id : 0,
+            'productPublicId' => $task->product ? $task->product->public_id : 0,
             'method' => $method,
             'url' => $url,
             'title' => trans('texts.edit_task'),
@@ -241,6 +244,7 @@ class TaskController extends BaseController
             'clients' => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
             'projects' => Project::scope()->withActiveOrSelected($task ? $task->project_id : false)->with('client.contacts')->orderBy('name')->get(),
+            'products' => Product::scope()->withActiveOrSelected($task ? $task->product_id : false)->orderBy('product_key')->get(),
         ];
     }
 
@@ -330,12 +334,20 @@ class TaskController extends BaseController
 
                 $account = Auth::user()->account;
                 $showProject = $lastProjectId != $task->project_id;
-                $data[] = [
+                $item_data = [
                     'publicId' => $task->public_id,
                     'description' => $task->present()->invoiceDescription($account, $showProject),
                     'duration' => $task->getHours(),
                     'cost' => $task->getRate(),
+                    'productKey' => null,
                 ];
+
+                if (!empty($task->product_id)) {
+                    $item_data['productKey'] = $task->product->product_key;
+                }
+
+                $data[] = $item_data;
+
                 $lastProjectId = $task->project_id;
             }
 

@@ -58,12 +58,23 @@
                             ->label('project')
                             ->value($task->present()->project) !!}
                 @endif
+
+                @if ($task->product)
+                    {!! Former::plaintext()
+                            ->label('product')
+                            ->value($task->present()->product) !!}
+                @endif
             @else
                 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
                 {!! Former::select('project_id')
                         ->addOption('', '')
                         ->addGroupClass('project-select')
                         ->label(trans('texts.project')) !!}
+
+                {!! Former::select('product_id')
+                        ->addOption('', '')
+                        ->addGroupClass('product-select')
+                        ->label(trans('texts.product')) !!}
             @endif
 
             @include('partials/custom_fields', ['entityType' => ENTITY_TASK])
@@ -240,6 +251,7 @@
 
     var clients = {!! $clients !!};
     var projects = {!! $projects !!};
+    var products = {!! $products !!};
 
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)
@@ -552,9 +564,11 @@
         // setup clients and project comboboxes
         var clientId = {{ $clientPublicId }};
         var projectId = {{ $projectPublicId }};
+        var productId = {{ $productPublicId }};
 
         var clientMap = {};
         var projectMap = {};
+        var productMap = {};
         var projectsForClientMap = {};
         var projectsForAllClients = [];
         var $clientSelect = $('select#client');
@@ -638,7 +652,33 @@
             }
         });
 
+        var $productSelect = $('select#product_id').on('change', function(e) {
+            var productId = $('input[name=product_id]').val();
+            if (productId == '-1') {
+                $('input[name=product_name]').val('');
+            }
+            
+            $('select#project_id').combobox('refresh');
+        });
+
+        $productSelect.append(new Option('', ''));
+
+        for (var i=0; i<products.length; i++) {            
+            var product = products[i];
+            var productName = product.product_key;
+
+            productMap[product.public_id] = product;
+
+            if (!productName) {
+                continue;
+            }
+            $productSelect.append(new Option(productName, product.public_id));
+        }
+
+        $productSelect.trigger('change');
+
         @include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
+        @include('partials/entity_combobox', ['entityType' => ENTITY_PRODUCT])
 
         if (projectId) {
            var project = projectMap[projectId];
@@ -648,6 +688,14 @@
            }
         } else {
            $clientSelect.trigger('change');
+        }
+
+        if (productId) {
+            var product = productMap[productId];
+            if (product) {
+                setComboboxValue($('.product-select'), product.public_id, product.product_key);
+                $productSelect.trigger('change');
+            }
         }
 
         @if (!$task)
