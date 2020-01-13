@@ -160,6 +160,9 @@ class StepsController extends BaseController
 
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
             $clients[] = [
+                'company_id' => $client->account_id,
+                'user_id' => $client->user_id,
+                'assigned_user_id' => null, // Todo: What do to with this?
                 'name' => $client->name,
                 'balance' => $client->balance,
                 'paid_to_date' => $client->paid_to_date,
