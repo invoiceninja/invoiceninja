@@ -178,7 +178,7 @@ class ProductController extends BaseController
      */
     public function store(StoreProductRequest $request)
     {
-        $product = $this->product_repo->save($request, ProductFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $product = $this->product_repo->save($request->all(), ProductFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($product);
     }
