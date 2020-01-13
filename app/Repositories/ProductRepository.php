@@ -23,10 +23,15 @@ class ProductRepository extends BaseRepository
     {
         return Product::class;
     }
-    
-    public function save(Request $request, Product $product) : ?Product
+
+    /**
+     * @param array $data
+     * @param Product $product
+     * @return Product|null
+     */
+    public function save(array $data, Product $product) : ?Product
     {
-        $product->fill($request->input());
+        $product->fill($data);
         $product->save();
 
         return $product;
