@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Migration;
 
-use App\Http\Controllers\BaseController;
-use App\Libraries\Utils;
+use App\Models\User;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Models\User;
+use App\Libraries\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\BaseController;
 
 class StepsController extends BaseController
 {
@@ -65,6 +66,7 @@ class StepsController extends BaseController
             'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),
             'quotes' => $this->getQuotes(),
+            'payments' => $this->getPayments(),
         ];
 
         // TODO: Replace with .env variable (where to store local migrations - disk()).
@@ -371,11 +373,42 @@ class StepsController extends BaseController
         return $transformed;
     }
 
-    /**
-     *
-     */
     public function getPayments()
     {
-        // ..
+        $transformed = [];
+
+        $payments = Payment::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        // 'invoice_id' missing in the v2? 'project_id' from v2 missing in the v1?
+        // vendor_id, applied,
+
+        foreach ($payments as $payment) {
+            $transformed[] = [
+                'id' => $payment->id,
+                'invoice_id' => $payment->invoice_id,
+                'company_id' => $payment->account_id,
+                'client_id' => $payment->client_id,
+                'user_id' => $payment->user_id,
+                'client_contact_id' => $payment->contact_id,
+                'invitation_id' => $payment->invitation_id,
+                'company_gateway_id' => $payment->account_gateway_id,
+                'type_id' => $payment->payment_type_id,
+                'status_id' => $payment->payment_status_id,
+                'amount' => $payment->amount,
+                'refunded' => $payment->refunded,
+                'date' => $payment->payment_date,
+                'transaction_reference' => $payment->transaction_reference,
+                'payer_id' => $payment->payer_id,
+                'number' => $payment->routing_number, // @needs verification
+                'updated_at' => $payment->updated_at,
+                'created_at' => $payment->created_at,
+                'deleted_at' => $payment->deleted_at,
+                'is_deleted' => $payment->is_deleted,
+            ];
+        }
+
+        return $transformed;
     }
 }
