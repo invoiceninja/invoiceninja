@@ -312,6 +312,7 @@ class StepsController extends BaseController
                 'balance' => $invoice->balance,
                 'partial' => $invoice->partial,
                 'partial_due_date' => $invoice->partial_due_date,
+                'line_items' => $invoice->invoice_items,
                 'created_at' => $invoice->created_at,
                 'updated_at' => $invoice->updated_at,
                 'deleted_at' => $invoice->deleted_at,
