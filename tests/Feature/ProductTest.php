@@ -45,7 +45,7 @@ class ProductTest extends TestCase
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
              'name' => $this->faker->company,
-          'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail,
             'password' => 'ALongAndBrilliantPassword123',
             '_token' => csrf_token(),
             'privacy_policy' => 1,

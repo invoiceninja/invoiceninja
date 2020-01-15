@@ -349,7 +349,7 @@ class ProductController extends BaseController
         if($request->entityIsDeleted($product))
             return $request->disallowUpdate();
         
-        $product = $this->product_repo->save($request, $product);
+        $product = $this->product_repo->save($request->all(), $product);
 
         return $this->itemResponse($product);
     }

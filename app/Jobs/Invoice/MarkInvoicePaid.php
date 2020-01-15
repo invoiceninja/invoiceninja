@@ -56,7 +56,9 @@ class MarkInvoicePaid implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
-        
+        if($this->invoice->status_id == Invoice::STATUS_DRAFT)
+            $this->invoice->markSent();
+
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
