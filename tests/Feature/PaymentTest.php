@@ -369,6 +369,7 @@ class PaymentTest extends TestCase
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
         $this->invoice->markSent();
+        $this->invoice->is_deleted = false;
         $this->invoice->save();
 
 
@@ -384,10 +385,20 @@ class PaymentTest extends TestCase
             'date' => '2019/12/12',
         ];
 
+        $response = false;
+
+            try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/payments?include=invoices', $data);
+            }
+            catch(ValidationException $e) {
+
+                $message = json_decode($e->validator->getMessageBag(),1);
+
+                \Log::error($message);
+            }
 
             $arr = $response->json();
             $response->assertStatus(200);
@@ -822,10 +833,10 @@ class PaymentTest extends TestCase
         catch(ValidationException $e) {
 
             $message = json_decode($e->validator->getMessageBag(),1);
-            \Log::error(print_r($e->validator->getMessageBag(),1));
+           // \Log::error(print_r($e->validator->getMessageBag(),1));
 
             $this->assertTrue(array_key_exists('invoices', $message));
-            \Log::error('hit error');
+           // \Log::error('hit error');
         }
 
             //$response->assertStatus(302);

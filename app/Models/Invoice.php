@@ -218,13 +218,13 @@ class Invoice extends BaseModel
 
     public function isPayable() : bool
     {
-        if ($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now()) {
+        if ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
             return true;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->is_deleted == false) {
             return true;
-        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now()) {
+        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
             return true;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
+        } elseif ($this->status_id == Invoice::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
         } else {
             return false;
