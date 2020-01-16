@@ -106,7 +106,7 @@ class PaymentController extends BaseController
     public function index(PaymentFilters $filters)
     {
         $payments = Payment::filter($filters);
-      
+
         return $this->listResponse($payments);
     }
 
@@ -236,7 +236,7 @@ class PaymentController extends BaseController
      */
     public function store(StorePaymentRequest $request)
     {
-        $payment = $this->payment_repo->save($request, PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $payment = $this->payment_repo->save($request->all(), PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($payment);
     }
@@ -354,7 +354,7 @@ class PaymentController extends BaseController
     {
         return $this->itemResponse($payment);
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -411,7 +411,7 @@ class PaymentController extends BaseController
     {
         if($request->entityIsDeleted($payment))
             return $request->disallowUpdate();
-        
+
         $payment = $this->payment_repo->save($request, $payment);
 
         return $this->itemResponse($payment);
@@ -535,7 +535,7 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $payments = Payment::withTrashed()->find($this->transformKeys($ids));
