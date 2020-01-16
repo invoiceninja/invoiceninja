@@ -68,6 +68,7 @@ class StepsController extends BaseController
             'invoices' => $this->getInvoices(),
             'quotes' => $this->getQuotes(),
             'payments' => $this->getPayments(),
+            'credits' => $this->getCredits(),
         ];
 
         // TODO: Replace with .env variable (where to store local migrations - disk()).
