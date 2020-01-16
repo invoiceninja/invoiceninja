@@ -35,63 +35,63 @@ class PaymentRepository extends BaseRepository
     public function __construct(CreditRepository $credit_repo)
     {
         $this->credit_repo = $credit_repo;
-    } 
+    }
 
     public function getClassName()
     {
         return Payment::class;
     }
-    
+
     /**
      * Saves and updates a payment. //todo refactor to handle refunds and payments.
-     * 
-     * 
-     * @param  Request $request the request object
-     * @param  Payment $payment The Payment object
-     * @return Object       Payment $payment
+     *
+     *
+     * @param array $data the request object
+     * @param Payment $payment The Payment object
+     * @return Payment|null Payment $payment
      */
-    public function save(Request $request, Payment $payment) : ?Payment
+    public function save(array $data, Payment $payment) : ?Payment
     {
 
         if($payment->amount >= 0)
-            return $this->applyPayment($request, $payment);
-        
-        return $this->refundPayment($request, $payment);
+            return $this->applyPayment($data, $payment);
+
+        return $this->refundPayment($data, $payment);
 
     }
 
     /**
      * Handles a positive payment request
-     * @param  Request $request The request object
-     * @param  Payment $payment The $payment entity
+     * @param array $data The data object
+     * @param Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
      */
-    private function applyPayment(Request $request, Payment $payment) :?Payment
+    private function applyPayment(array $data, Payment $payment) :?Payment
     {
-        
-        $payment->fill($request->all());
+
+        $payment->fill($data);
         $payment->status_id = Payment::STATUS_COMPLETED;
 
         $payment->save();
 
         if(!$payment->number)
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
-        
+
         //we only ever update the ACTUAL amount of money transferred
         UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
 
         $invoice_totals = 0;
         $credit_totals = 0;
 
-        if ($request->input('invoices') && is_array($request->input('invoices'))) {
-        
-        $invoice_totals = array_sum(array_column($request->input('invoices'),'amount'));
+        if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
 
-            $invoices = Invoice::whereIn('id', array_column($request->input('invoices'), 'invoice_id'))->company()->get();
+        $invoice_totals = array_sum(array_column($data['invoices'],'amount'));
+
+            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->company()->get();
 
             $payment->invoices()->saveMany($invoices);
 
-            foreach ($request->input('invoices') as $paid_invoice) {
+            foreach ($data['invoices'] as $paid_invoice) {
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->company()->first();
 
                 if ($invoice) {
@@ -103,16 +103,16 @@ class PaymentRepository extends BaseRepository
             ApplyClientPayment::dispatchNow($payment, $payment->company);
         }
 
-        if($request->input('credits') && is_array($request->input('credits')))
+        if(array_key_exists('credits', $data) && is_array($data['credits']))
         {
 
-        $credit_totals = array_sum(array_column($request->input('credits'),'amount'));
-    
-            $credits = Credit::whereIn('id', array_column($request->input('credits'), 'credit_id'))->company()->get();
+        $credit_totals = array_sum(array_column($data['credits'],'amount'));
+
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->company()->get();
 
             $payment->credits()->saveMany($credits);
 
-            foreach ($request->input('credits') as $paid_credit) 
+            foreach ($data['credits'] as $paid_credit)
             {
                 $credit = Credit::whereId($paid_credit['credit_id'])->company()->first();
 
@@ -138,21 +138,21 @@ class PaymentRepository extends BaseRepository
 
     }
 
-    private function refundPayment(Request $request, Payment $payment) :?Payment
+    private function refundPayment(array $data, Payment $payment) :?Payment
     {
         //temp variable to sum the total refund/credit amount
         $invoice_total_adjustment = 0;
 
-        if($request->has('invoices') && is_array($request->input('invoices'))){
-            
-            foreach($request->input('invoices') as $adjusted_invoice) {
+        if(array_key_exists('invoices', $data) && is_array($data['invoices'])){
+
+            foreach($data['invoices'] as $adjusted_invoice) {
 
                 $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->company()->first();
 
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 
                 if(array_key_exists('credits', $adjusted_invoice)){
-                    
+
                     //process and insert credit notes
                     foreach($adjusted_invoice['credits'] as $credit){
 
@@ -162,12 +162,12 @@ class PaymentRepository extends BaseRepository
 
                 }
                 else {
-                    //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund        
+                    //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
                 }
 
             }
 
-            if($request->input('amount') != $invoice_total_adjustment)
+            if($data->input('amount') != $invoice_total_adjustment)
                 return 'Amount must equal the sum of invoice adjustments';
         }
 
@@ -178,10 +178,10 @@ class PaymentRepository extends BaseRepository
         //adjust clients paid to date
         $client = $payment->client;
         $client->paid_to_date += $invoice_total_adjustment;
-    
+
         $payment->save();
         $client->save();
     }
 
-    
+
 }
