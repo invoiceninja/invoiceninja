@@ -136,7 +136,7 @@ class PaymentRepository extends BaseRepository
 
     }
 
-    private function refundPayment(array $data, Payment $payment): ?Payment
+    private function refundPayment(array $data, Payment $payment): string
     {
         //temp variable to sum the total refund/credit amount
         $invoice_total_adjustment = 0;
@@ -164,7 +164,7 @@ class PaymentRepository extends BaseRepository
 
             }
 
-            if ($data->input('amount') != $invoice_total_adjustment)
+            if (array_key_exists('amount', $data) && $data['amount'] != $invoice_total_adjustment)
                 return 'Amount must equal the sum of invoice adjustments';
         }
 
