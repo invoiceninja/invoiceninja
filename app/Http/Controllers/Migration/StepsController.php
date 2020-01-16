@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Models\Credit;
 use App\Models\User;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -162,6 +163,7 @@ class StepsController extends BaseController
 
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
             $clients[] = [
+                'id' => $client->id,
                 'company_id' => $client->account_id,
                 'user_id' => $client->user_id,
                 'name' => $client->name,
@@ -407,6 +409,40 @@ class StepsController extends BaseController
                 'created_at' => $payment->created_at,
                 'deleted_at' => $payment->deleted_at,
                 'is_deleted' => $payment->is_deleted,
+            ];
+        }
+
+        return $transformed;
+    }
+
+    /**
+     * @return array
+     */
+    private function getCredits()
+    {
+        $credits = Credit::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();
+
+        $transformed = [];
+
+        // Notes: public_id & a lot of missing fields that are available only on v2
+
+        foreach ($credits as $credit) {
+            $transformed[] = [
+                'id' => $credit->id,
+                'client_id' => $credit->client_id,
+                'user_id' => $credit->user_id,
+                'company_id' => $credit->account_id,
+                'is_deleted' => $credit->is_deleted,
+                'amount' => $credit->amount,
+                'balance' => $credit->balance,
+                'credit_date' => $credit->date, // needs verification
+                'credit_number' => $credit->number, // needs verification
+                'private_notes' => $credit->private_notes,
+                'created_at' => $credit->created_at,
+                'updated_at' => $credit->updated_at,
+                'deleted_at' => $credit->deleted_at,
             ];
         }
 
