@@ -50,10 +50,10 @@ class PaymentRepository extends BaseRepository
      * @param Payment $payment The Payment object
      * @return Payment|null Payment $payment
      */
-    public function save(array $data, Payment $payment) : ?Payment
+    public function save(array $data, Payment $payment): ?Payment
     {
 
-        if($payment->amount >= 0)
+        if ($payment->amount >= 0)
             return $this->applyPayment($data, $payment);
 
         return $this->refundPayment($data, $payment);
@@ -66,7 +66,7 @@ class PaymentRepository extends BaseRepository
      * @param Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
      */
-    private function applyPayment(array $data, Payment $payment) :?Payment
+    private function applyPayment(array $data, Payment $payment): ?Payment
     {
 
         $payment->fill($data);
@@ -74,7 +74,7 @@ class PaymentRepository extends BaseRepository
 
         $payment->save();
 
-        if(!$payment->number)
+        if (!$payment->number)
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
         //we only ever update the ACTUAL amount of money transferred
@@ -85,7 +85,7 @@ class PaymentRepository extends BaseRepository
 
         if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
 
-        $invoice_totals = array_sum(array_column($data['invoices'],'amount'));
+            $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->company()->get();
 
@@ -103,20 +103,18 @@ class PaymentRepository extends BaseRepository
             ApplyClientPayment::dispatchNow($payment, $payment->company);
         }
 
-        if(array_key_exists('credits', $data) && is_array($data['credits']))
-        {
+        if (array_key_exists('credits', $data) && is_array($data['credits'])) {
 
-        $credit_totals = array_sum(array_column($data['credits'],'amount'));
+            $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
             $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->company()->get();
 
             $payment->credits()->saveMany($credits);
 
-            foreach ($data['credits'] as $paid_credit)
-            {
+            foreach ($data['credits'] as $paid_credit) {
                 $credit = Credit::whereId($paid_credit['credit_id'])->company()->first();
 
-                if($credit)
+                if ($credit)
                     ApplyCreditPayment::dispatchNow($paid_credit, $payment, $paid_credit['amount'], $credit->company);
             }
 
@@ -126,9 +124,9 @@ class PaymentRepository extends BaseRepository
 
         $invoice_totals -= $credit_totals;
 
-        if($invoice_totals == $payment->amount)
+        if ($invoice_totals == $payment->amount)
             $payment->applied = $payment->amount;
-        elseif($invoice_totals < $payment->amount)
+        elseif ($invoice_totals < $payment->amount)
             $payment->applied = $invoice_totals;
 
         //UpdateInvoicePayment::dispatchNow($payment);
@@ -138,36 +136,35 @@ class PaymentRepository extends BaseRepository
 
     }
 
-    private function refundPayment(array $data, Payment $payment) :?Payment
+    private function refundPayment(array $data, Payment $payment): ?Payment
     {
         //temp variable to sum the total refund/credit amount
         $invoice_total_adjustment = 0;
 
-        if(array_key_exists('invoices', $data) && is_array($data['invoices'])){
+        if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
 
-            foreach($data['invoices'] as $adjusted_invoice) {
+            foreach ($data['invoices'] as $adjusted_invoice) {
 
                 $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->company()->first();
 
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 
-                if(array_key_exists('credits', $adjusted_invoice)){
+                if (array_key_exists('credits', $adjusted_invoice)) {
 
                     //process and insert credit notes
-                    foreach($adjusted_invoice['credits'] as $credit){
+                    foreach ($adjusted_invoice['credits'] as $credit) {
 
                         $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->company()->id, auth()->user()->id), $invoice);
 
                     }
 
-                }
-                else {
+                } else {
                     //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
                 }
 
             }
 
-            if($data->input('amount') != $invoice_total_adjustment)
+            if ($data->input('amount') != $invoice_total_adjustment)
                 return 'Amount must equal the sum of invoice adjustments';
         }
 
