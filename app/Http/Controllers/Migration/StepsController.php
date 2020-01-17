@@ -315,7 +315,7 @@ class StepsController extends BaseController
                 'balance' => $invoice->balance,
                 'partial' => $invoice->partial,
                 'partial_due_date' => $invoice->partial_due_date,
-                'line_items' => $invoice->invoice_items,
+                'line_items' => $this->getInvoiceItems($invoice->invoice_items),
                 'created_at' => $invoice->created_at,
                 'updated_at' => $invoice->updated_at,
                 'deleted_at' => $invoice->deleted_at,
@@ -323,6 +323,36 @@ class StepsController extends BaseController
         }
 
         return $invoices;
+    }
+
+    /**
+     * @param $items
+     * @return array
+     */
+    public function getInvoiceItems($items)
+    {
+        $transformed = [];
+
+        // Missing on V1: is_amount_discount, sort_id, line_total
+
+        foreach ($items as $item) {
+            $transformed[] = [
+                'id' => $item->id,
+                'quantity' => $item->qty,
+                'cost' => $item->cost,
+                'product_key' => $item->product_key,
+                'notes' => $item->notes,
+                'discount' => $item->discount,
+                'tax_name1' => $item->tax_name1,
+                'tax_rate1' => $item->tax_rate1,
+                'date' => $item->created_at, // needs verification
+                'custom_value1' => $item->custom_value1,
+                'custom_value2' => $item->custom_value2,
+                'line_item_type_id' => $item->invoice_item_type_id, // needs verification
+            ];
+        }
+
+        return $transformed;
     }
 
     /**
