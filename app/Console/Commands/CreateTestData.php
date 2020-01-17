@@ -111,7 +111,7 @@ class CreateTestData extends Command
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
-            'settings' => json_encode(DefaultSettings::userSettings()),
+            'settings' => new \stdClass,
         ]);
 
 
@@ -164,7 +164,7 @@ class CreateTestData extends Command
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
-            'settings' => json_encode(DefaultSettings::userSettings()),
+            'settings' => new \stdClass,
         ]);
 
         $this->count = $this->count*10;
@@ -218,7 +218,7 @@ class CreateTestData extends Command
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
-            'settings' => json_encode(DefaultSettings::userSettings()),
+            'settings' => new \stdClass,
         ]);
 
         $this->count = $this->count*100;
