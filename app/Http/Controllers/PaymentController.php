@@ -181,36 +181,7 @@ class PaymentController extends BaseController
      *      @OA\RequestBody(
      *         description="The payment request",
      *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="amount",
-     *                     description="The payment amount",
-     *                     type="number",
-     *                     format="float",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="date",
-     *                     example="2019/12/1",
-     *                     description="The payment date",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="transation_reference",
-     *                     example="sdfasdfs98776d6kbkfd",
-     *                     description="The transaction reference for the payment",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="invoices",
-     *                     example="j7s76d,s8765afk,D8fj3Sfdj",
-     *                     description="A comma separated list of invoice hashed ids that this payment relates to",
-     *                     type="string",
-     *                 )
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/Payment"),
      *     ),
      *      @OA\Response(
      *          response=200,
