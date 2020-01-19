@@ -1,0 +1,47 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+namespace App\Transformers;
+
+use App\Models\VendorContact;
+use App\Utils\Traits\MakesHash;
+
+/**
+ * Class VendorContactTransformer.
+ *
+ */
+class VendorContactTransformer extends EntityTransformer
+{
+    use MakesHash;
+    /**
+     * @param ClientContact $vendor
+     *
+     * @return array
+     *
+     */
+    public function transform(VendorContact $vendor)
+    {
+        return [
+            'id' => $this->encodePrimaryKey($vendor->id),
+            'first_name' => $vendor->first_name ?: '',
+            'last_name' => $vendor->last_name ?: '',
+            'email' => $vendor->email ?: '',
+            'updated_at' => $vendor->updated_at,
+            'archived_at' => $vendor->deleted_at,
+            'is_primary' => (bool) $vendor->is_primary,
+            'phone' => $vendor->phone ?: '',
+            'custom_value1' => $vendor->custom_value1 ?: '',
+            'custom_value2' => $vendor->custom_value2 ?: '',
+            'custom_value3' => $vendor->custom_value3 ?: '',
+            'custom_value4' => $vendor->custom_value4 ?: '',
+        ];
+    }
+}

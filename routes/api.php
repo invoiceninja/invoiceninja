@@ -62,6 +62,14 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth','locale'
 
   Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
 
+  Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
+
+  Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
+
+  Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
+
+  Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
+
   Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
 
   Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
@@ -103,9 +111,7 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth','locale'
 
   Route::post('credits/bulk', 'CreditController@bulk')->name('credits.bulk');
 
-  Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
 
-  Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
 
   Route::get('settings', 'SettingsController@index')->name('user.settings');

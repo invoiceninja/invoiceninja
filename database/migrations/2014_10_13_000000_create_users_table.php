@@ -1228,6 +1228,7 @@ class CreateUsersTable extends Migration
             $table->timestamps(6);
             $table->softDeletes();
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('assigned_user_id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('currency_id')->nullable();
             $table->string('name')->nullable();
@@ -1299,6 +1300,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('vendor_id')->nullable();
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('assigned_user_id');
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('bank_id')->nullable();
