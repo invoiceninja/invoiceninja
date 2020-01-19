@@ -37,15 +37,21 @@ class StorePaymentRequest extends Request
     {
         $input = $this->all();
 
+        $invoices_total = 0;
+        $credits_total = 0;
+
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
-
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
+
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+                $invoices_total += $value['amount'];
             }
+
+            //if(!isset($input['amount']) || )
         }
 
         if (isset($input['invoices']) && is_array($input['invoices']) === false) {
@@ -55,11 +61,16 @@ class StorePaymentRequest extends Request
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
                 $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
+                $credits_total += $value['amount'];
             }
         }
 
         if (isset($input['credits']) && is_array($input['credits']) === false) {
             $input['credits'] = null;
+        }
+
+        if(!isset($input['amount'])){
+            $input['amount'] = $invoices_total - $credits_total;
         }
 
         $this->replace($input);
@@ -72,6 +83,10 @@ class StorePaymentRequest extends Request
             'amount' => [new PaymentAmountsBalanceRule(),new ValidCreditsPresentRule()],
             'date' => 'required',
             'client_id' => 'required',
+            'invoices.*.invoice_id' => 'required',
+            'invoices.*.amount' => 'required',
+            'credits.*.credit_id' => 'required',
+            'credits.*.amount' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => 'nullable',
         ];
