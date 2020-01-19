@@ -19,5 +19,23 @@
  *       @OA\Property(property="updated_at", type="number", format="integer", example="1434342123", description="Timestamp"),
  *       @OA\Property(property="archived_at", type="number", format="integer", example="1434342123", description="Timestamp"),
  *       @OA\Property(property="company_gateway_id", type="string", example="3", description="The company gateway id"),
+ *       @OA\Property(property="paymentables",ref="#/components/schemas/Paymentable"),
+ *       @OA\Property(
+ *       	property="invoices",
+ *        	type="array",
+ *        	description="",
+ *        	@OA\Items(
+ *           	ref="#/components/schemas/InvoicePaymentable",
+ *          ),
+ *       ),
+ *       @OA\Property(
+ *       	property="credits",
+ *        	type="array",
+ *        	description="",
+ *        	@OA\Items(
+ *           	ref="#/components/schemas/CreditPaymentable",
+ *          ),
+ *       ),
+ *       
  * )
  */
