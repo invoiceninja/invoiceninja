@@ -15,35 +15,25 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Expense extends BaseModel
+class Vendor extends BaseModel
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'client_id',
-        'vendor_id',
-        'expense_currency_id',
-        'expense_date',
-        'invoice_currency_id',
-        'amount',
-        'foreign_amount',
-        'exchange_rate',
+        'name',
+        'id_number',
+        'vat_number',
+        'work_phone',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
         'private_notes',
-        'public_notes',
-        'bank_id',
-        'transaction_id',
-        'expense_category_id',
-        'tax_rate1',
-        'tax_name1',
-        'tax_rate2',
-        'tax_name2',
-        'tax_rate3',
-        'tax_name3',
-        'payment_date',
-        'payment_type_id',
-        'transaction_reference',
-        'invoice_documents',
-        'should_be_invoiced',
+        'currency_id',
+        'website',
+        'transaction_name',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -52,12 +42,13 @@ class Expense extends BaseModel
 
 
     protected $casts = [
+        'country_id' => 'string',
+        'currency_id' => 'string',
         'is_deleted' => 'boolean',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-
 
     public function documents()
     {
@@ -68,4 +59,10 @@ class Expense extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
+
+    public function contacts()
+    {
+        return $this->hasMany(VendorContact::class)->orderBy('is_primary', 'desc');
+    }
 }
+
