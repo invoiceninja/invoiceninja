@@ -22,6 +22,7 @@ use App\Models\PaymentType;
 use App\Models\User;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -232,6 +233,17 @@ class CreateTestData extends Command
 
             $this->createClient($company, $user);
         }
+
+        foreach($company->clients as $client) {
+
+
+                $this->createInvoice($client);
+                $this->createQuote($client);
+                $this->createExpense($client);
+                $this->createVendor($client);    
+
+        }
+        
     }
 
     private function createClient($company, $user)
@@ -254,16 +266,8 @@ class CreateTestData extends Command
                 'company_id' => $company->id
             ]);
 
-        $y = $this->count * rand(1, 5);
 
-        $this->info("Creating {$y} invoices & quotes");
 
-        for ($x=0; $x<$y; $x++) {
-            $this->createInvoice($client);
-            $this->createQuote($client);
-            $this->createExpense($client);
-            $this->createVendor($client);
-        }
     }
 
     private function createExpense($client)
@@ -308,7 +312,8 @@ class CreateTestData extends Command
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
-        $invoice->date = $faker->date();
+//        $invoice->date = $faker->date();
+        $invoice->date = Carbon::now()->subDays(rand(0,90));
 
         $invoice->line_items = $this->buildLineItems();
         $invoice->uses_inclusive_taxes = false;
