@@ -11,7 +11,7 @@
 
 namespace App\DataMapper;
 
-use Parsedown;
+use League\CommonMark\CommonMarkConverter;
 
 class EmailTemplateDefaults
 {
@@ -23,7 +23,14 @@ class EmailTemplateDefaults
 
     public static function emailInvoiceTemplate()
     {
-        return Parsedown::instance()->line(self::transformText('invoice_message'));
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml(self::transformText('invoice_message'));
+
+        //return Parsedown::instance()->line(self::transformText('invoice_message'));
     }
 
     public static function emailQuoteSubject()
@@ -35,7 +42,13 @@ class EmailTemplateDefaults
 
     public static function emailQuoteTemplate()
     {
-        return Parsedown::instance()->line(self::transformText('quote_message'));
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml(self::transformText('quote_message'));
+        //return Parsedown::instance()->line(self::transformText('quote_message'));
     }
 
     public static function emailPaymentSubject()
@@ -56,7 +69,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Template()
     {
-        return Parsedown::instance()->line('First Email Reminder Text');
+      //  return Parsedown::instance()->line('First Email Reminder Text');
     }
 
     public static function emailReminder2Subject()
@@ -67,7 +80,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Template()
     {
-        return Parsedown::instance()->line('Second Email Reminder Text');
+      //  return Parsedown::instance()->line('Second Email Reminder Text');
     }
 
     public static function emailReminder3Subject()
@@ -78,7 +91,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Template()
     {
-        return Parsedown::instance()->line('Third Email Reminder Text');
+      //  return Parsedown::instance()->line('Third Email Reminder Text');
     }
 
     public static function emailReminderEndlessSubject()

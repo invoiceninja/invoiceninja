@@ -14,7 +14,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
-use Parsedown;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
