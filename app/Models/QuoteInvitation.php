@@ -12,12 +12,14 @@
 namespace App\Models;
 
 use App\Models\Quote;
+use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
 
 class QuoteInvitation extends BaseModel
 {
     use MakesDates;
+    use Inviteable;
 
     protected $fillable = [
         'id',
