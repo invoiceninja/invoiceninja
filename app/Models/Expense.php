@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Expense extends BaseModel
 {
     use SoftDeletes;
+    use Filterable;
 
     protected $fillable = [
         'client_id',
