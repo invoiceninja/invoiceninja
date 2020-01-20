@@ -241,7 +241,6 @@ class CreateTestData extends Command
             'company_id' => $company->id
         ]);
 
-
         factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $client->id,
@@ -262,7 +261,51 @@ class CreateTestData extends Command
         for ($x=0; $x<$y; $x++) {
             $this->createInvoice($client);
             $this->createQuote($client);
+            $this->createExpense($client);
+            $this->createVendor($client);
         }
+    }
+
+    private function createExpense($client)
+    {
+
+        factory(\App\Models\Expense::class, rand(10, 50))->create([
+                'user_id' => $client->user->id,
+                'client_id' => $client->id,
+                'company_id' => $client->company->id
+            ]);
+
+    }
+
+    private function createVendor($client)
+    {
+
+        $vendor = factory(\App\Models\Vendor::class)->create([
+                'user_id' => $client->user->id,
+                'company_id' => $client->company->id
+            ]);
+
+
+        factory(\App\Models\VendorContact::class, 1)->create([
+                'user_id' => $client->user->id,
+                'vendor_id' => $vendor->id,
+                'company_id' => $client->company->id,
+                'is_primary' => 1
+            ]);
+
+        factory(\App\Models\VendorContact::class, rand(1, 50))->create([
+                'user_id' => $client->user->id,
+                'vendor_id' => $vendor->id,
+                'company_id' => $client->company->id,
+                'is_primary' => 0
+            ]);
+
+        factory(\App\Models\Vendor::class, rand(10, 50))->create([
+                'user_id' => $client->user->id,
+                'company_id' => $client->company->id
+            ]);
+
+
     }
 
     private function createInvoice($client)

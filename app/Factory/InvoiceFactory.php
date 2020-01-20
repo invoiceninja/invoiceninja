@@ -40,6 +40,8 @@ class InvoiceFactory
         $invoice->tax_rate1 = 0;
         $invoice->tax_name2 = '';
         $invoice->tax_rate2 = 0;
+        $invoice->tax_name3 = '';
+        $invoice->tax_rate3 = 0;
         $invoice->custom_value1 = 0;
         $invoice->custom_value2 = 0;
         $invoice->custom_value3 = 0;

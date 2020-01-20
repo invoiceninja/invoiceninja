@@ -86,6 +86,8 @@ class BaseController extends Controller
                   //'company.payments',
                   'company.payments.paymentables',
                   'company.quotes',
+                  'company.vendors',
+                  'company.expenses',
               ];
             } else {
                 $include = [

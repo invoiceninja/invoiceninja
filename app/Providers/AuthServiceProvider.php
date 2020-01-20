@@ -15,6 +15,7 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -24,10 +25,12 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Policies\ActivityPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
+use App\Policies\ExpensePolicy;
 use App\Policies\GroupSettingPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
@@ -37,6 +40,7 @@ use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
 use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
+use App\Policies\VendorPolicy;
 use Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -62,6 +66,8 @@ class AuthServiceProvider extends ServiceProvider
         GroupSetting::class => GroupSettingPolicy::class,
         CompanyGateway::class => CompanyGatewayPolicy::class,
         TaxRate::class => TaxRatePolicy::class,
+        Vendor::class => VendorPolicy::class,
+        Expense::class => ExpensePolicy::class,
     ];
 
     /**

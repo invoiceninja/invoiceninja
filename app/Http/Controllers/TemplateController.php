@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use Parsedown;
+use League\CommonMark\CommonMarkConverter;
 
 class TemplateController extends BaseController
 {
@@ -106,9 +106,14 @@ class TemplateController extends BaseController
         $subject = request()->input('subject');
         $body = request()->input('body');
 
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
         $data = [
             'subject' => request()->input('subject'),
-            'body' => Parsedown::instance()->text(request()->input('body')),
+            'body' => $converter->convertToHtml(request()->input('body')),
         ];
 
         return response()->json($data, 200);

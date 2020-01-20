@@ -1222,6 +1222,122 @@ class CreateUsersTable extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
 
         });
+
+        Schema::create('vendors', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps(6);
+            $table->softDeletes();
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('assigned_user_id');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('currency_id')->nullable();
+            $table->string('name')->nullable();
+            $table->string('address1');
+            $table->string('address2');
+            $table->string('city');
+            $table->string('state');
+            $table->string('postal_code');
+            $table->unsignedInteger('country_id')->nullable();
+            $table->string('work_phone');
+            $table->text('private_notes');
+            $table->string('website');
+            $table->tinyInteger('is_deleted')->default(0);
+            $table->string('vat_number')->nullable();
+            $table->string('transaction_name')->nullable();
+            $table->string('id_number')->nullable();
+
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('country_id')->references('id')->on('countries');
+            $table->foreign('currency_id')->references('id')->on('currencies');
+        });
+
+        Schema::create('vendor_contacts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('vendor_id')->index();
+            $table->timestamps(6);
+            $table->softDeletes();
+
+            $table->boolean('is_primary')->default(0);
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+
+            $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+        });
+
+        Schema::create('expense_categories', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('company_id')->index();
+            $table->timestamps(6);
+            $table->softDeletes();
+            $table->string('name')->nullable();
+        });
+
+        Schema::create('expenses', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps(6);
+            $table->softDeletes();
+
+            $table->unsignedInteger('company_id')->index();
+            $table->unsignedInteger('vendor_id')->nullable();
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('assigned_user_id');
+            $table->unsignedInteger('invoice_id')->nullable();
+            $table->unsignedInteger('client_id')->nullable();
+            $table->unsignedInteger('bank_id')->nullable();
+            $table->unsignedInteger('invoice_currency_id')->nullable(false);
+            $table->unsignedInteger('expense_currency_id')->nullable(false);
+            $table->unsignedInteger('invoice_category_id')->nullable();
+            $table->unsignedInteger('payment_type_id')->nullable();
+            $table->unsignedInteger('recurring_expense_id')->nullable();
+            $table->boolean('is_deleted')->default(false);
+            $table->decimal('amount', 13, 2);
+            $table->decimal('foreign_amount', 13, 2);
+            $table->decimal('exchange_rate', 13, 4);
+            $table->string('tax_name1')->nullable();
+            $table->decimal('tax_rate1', 13, 3)->default(0);
+            $table->string('tax_name2')->nullable();
+            $table->decimal('tax_rate2', 13, 3)->default(0);
+            $table->string('tax_name3')->nullable();
+            $table->decimal('tax_rate3', 13, 3)->default(0);
+            $table->date('expense_date')->nullable();
+            $table->date('payment_date')->nullable();
+            $table->text('private_notes');
+            $table->text('public_notes');
+            $table->text('transaction_reference');
+            $table->boolean('should_be_invoiced')->default(false);
+            $table->boolean('invoice_documents')->default();
+            $table->string('transaction_id')->nullable();
+
+            $table->string('custom_value1')->nullable();
+            $table->string('custom_value2')->nullable();
+            $table->string('custom_value3')->nullable();
+            $table->string('custom_value4')->nullable();
+
+            // Relations
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+        });
     }
   
     /**

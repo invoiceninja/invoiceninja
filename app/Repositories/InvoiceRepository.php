@@ -72,7 +72,6 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
 
@@ -80,7 +79,6 @@ class InvoiceRepository extends BaseRepository
             collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
                 InvoiceInvitation::destroy($invitation);
             });
-
 
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
@@ -96,6 +94,7 @@ class InvoiceRepository extends BaseRepository
                     $new_invitation->invoice_id = $invoice->id;
                     $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
                     $new_invitation->save();
+                    
                 }
             }
         }

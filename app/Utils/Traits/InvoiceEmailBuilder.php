@@ -14,6 +14,7 @@ namespace App\Utils\Traits;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use Illuminate\Support\Carbon;
+use League\CommonMark\CommonMarkConverter;
 use Parsedown;
 
 /**
@@ -84,7 +85,14 @@ trait InvoiceEmailBuilder
 
         //process markdown
         if ($is_markdown) {
-            $data = Parsedown::instance()->line($data);
+            //$data = Parsedown::instance()->line($data);
+
+            $converter = new CommonMarkConverter([
+                'html_input' => 'strip',
+                'allow_unsafe_links' => false,
+            ]);
+
+            $data = $converter->convertToHtml($data);
         }
 
         return $data;
