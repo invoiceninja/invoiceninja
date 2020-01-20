@@ -42,10 +42,9 @@ class StepsController extends BaseController
     /**
      * Handle data downloading for the migration.
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function handleDownload(Request $request)
+    public function handleDownload()
     {
         $this->account = Auth::user()->account;
 
@@ -55,9 +54,6 @@ class StepsController extends BaseController
         $output = fopen('php://output', 'w') or Utils::fatalError();
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
-
-        header('Content-Type:application/json');
-        header("Content-Disposition:attachment;filename={$fileName}.json");
 
         $data = [
             'company' => $this->getCompany(),
@@ -71,26 +67,19 @@ class StepsController extends BaseController
             'credits' => $this->getCredits(),
         ];
 
-        // TODO: Replace with .env variable (where to store local migrations - disk()).
-        Storage::put("migrations/{$fileName}/migration.json", json_encode($data));
+        $file = storage_path("{$fileName}.zip");
 
-        $logo = public_path(sprintf(
-            'logo%s%s', DIRECTORY_SEPARATOR, $this->account->logo
-        ));
+        $zip = new \ZipArchive();
+        $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip->addFromString('migration.json', json_encode($data));
+        $zip->close();
 
-        // Storage::disk('local')->exists($logo) || Storage::exists($logo) shows false (file not found exception).
-        // Storage::copy, also fails because ^
+        header('Content-Type: application/zip');
+        header('Content-Length: ' . filesize($file));
+        header("Content-Disposition: attachment; filename={$fileName}.zip");
 
-        // TODO: Needs refactor, to use official Storage facade methods.
-        if (file_exists($logo)) {
-            // Throws: failed to open stream: No such file or directory, even tho everything is okay. Any idea @turbo124?
-            // copy($logo, app_path("migrations/{$fileName}/{$this->account->logo}"));
-        }
-
-        // $zip = new \ZipArchive();
-        // $zip->open("{$fileName}.zip", \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-
-        // $migrationFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(app_path("migrations/{$fileName}")));
+        readfile($file);
+        unlink($file);
 
         return response()->json($data);
     }
