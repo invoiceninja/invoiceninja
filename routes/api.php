@@ -74,6 +74,8 @@ Route::group(['middleware' => ['api_db','api_secret_check','token_auth','locale'
 
   Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
 
+  Route::post('payments/refund', 'PaymentController@refund')->name('payments.refund');
+
   Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
 
 //  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit

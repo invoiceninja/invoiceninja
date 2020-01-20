@@ -116,7 +116,7 @@ class ClientApiTest extends TestCase
             ])->post('/api/v1/clients/bulk?action=archive', $data);
 
         $arr = $response->json();
-\Log::error($arr);
+
         $this->assertNotNull($arr['data'][0]['archived_at']);
     }
  
