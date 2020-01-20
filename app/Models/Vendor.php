@@ -11,6 +11,8 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
+use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Vendor extends BaseModel
 {
     use SoftDeletes;
+    use Filterable;
 
     protected $fillable = [
         'name',

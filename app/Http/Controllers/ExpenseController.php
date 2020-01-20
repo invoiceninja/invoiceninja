@@ -11,16 +11,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\VendorFilters;
+use App\Filters\ExpenseFilters;
 use App\Jobs\Entity\ActionEntity;
 use App\Jobs\Util\ProcessBulk;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\Country;
 use App\Models\Currency;
+use App\Models\Expense;
 use App\Models\Size;
-use App\Models\Vendor;
 use App\Repositories\BaseRepository;
-use App\Transformers\VendorTransformer;
+use App\Repositories\ExpenseRepository;
+use App\Transformers\ExpenseTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
@@ -29,45 +30,45 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class VendorController
+ * Class ExpenseController
  * @package App\Http\Controllers
- * @covers App\Http\Controllers\VendorController
+ * @covers App\Http\Controllers\ExpenseController
  */
-class VendorController extends BaseController
+class ExpenseController extends BaseController
 {
     use MakesHash;
     use Uploadable;
     use BulkOptions;
 
-    protected $entity_type = Vendor::class;
+    protected $entity_type = Expense::class;
 
-    protected $entity_transformer = VendorTransformer::class;
-
-    /**
-     * @var Vendorepository
-     */
-    protected $vendor_repo;
+    protected $entity_transformer = ExpenseTransformer::class;
 
     /**
-     * VendorController constructor.
-     * @param VendorRepository $vendorRepo
+     * @var Expenseepository
      */
-    public function __construct(VendorRepository $vendor_repo)
+    protected $expense_repo;
+
+    /**
+     * ExpenseController constructor.
+     * @param ExpenseRepository $expenseRepo
+     */
+    public function __construct(ExpenseRepository $expense_repo)
     {
         parent::__construct();
 
-        $this->vendor_repo = $vendor_repo;
+        $this->expense_repo = $expense_repo;
     }
 
     /**
      *      @OA\Get(
-     *      path="/api/v1/vendors",
-     *      operationId="getVendors",
-     *      tags={"vendors"},
-     *      summary="Gets a list of vendors",
-     *      description="Lists vendors, search and filters allow fine grained lists to be generated.
+     *      path="/api/v1/expenses",
+     *      operationId="getExpenses",
+     *      tags={"expenses"},
+     *      summary="Gets a list of expenses",
+     *      description="Lists expenses, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the vendors, these are handled by the VendorFilters class which defines the methods available",
+        Query parameters can be added to performed more fine grained filtering of the expenses, these are handled by the ExpenseFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -75,11 +76,11 @@ class VendorController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of vendors",
+     *          description="A list of expenses",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -95,11 +96,11 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function index(VendorFilters $filters)
+    public function index(ExpenseFilters $filters)
     {
-        $vendors = Vendor::filter($filters);
+        $expenses = Expense::filter($filters);
 
-        return $this->listResponse($vendors);
+        return $this->listResponse($expenses);
     }
 
     /**
@@ -110,9 +111,9 @@ class VendorController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/vendors/{id}",
-     *      operationId="showVendor",
-     *      tags={"vendors"},
+     *      path="/api/v1/expenses/{id}",
+     *      operationId="showExpense",
+     *      tags={"expenses"},
      *      summary="Shows a client",
      *      description="Displays a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -122,7 +123,7 @@ class VendorController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Vendor Hashed ID",
+     *          description="The Expense Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -132,11 +133,11 @@ class VendorController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the vendor object",
+     *          description="Returns the expense object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -152,9 +153,9 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function show(ShowVendorRequest $request, Vendor $vendor)
+    public function show(ShowExpenseRequest $request, Expense $expense)
     {
-        return $this->itemResponse($vendor);
+        return $this->itemResponse($expense);
     }
 
     /**
@@ -165,9 +166,9 @@ class VendorController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/vendors/{id}/edit",
-     *      operationId="editVendor",
-     *      tags={"vendors"},
+     *      path="/api/v1/expenses/{id}/edit",
+     *      operationId="editExpense",
+     *      tags={"expenses"},
      *      summary="Shows a client for editting",
      *      description="Displays a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -177,7 +178,7 @@ class VendorController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Vendor Hashed ID",
+     *          description="The Expense Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -191,7 +192,7 @@ class VendorController extends BaseController
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -207,24 +208,24 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function edit(EditVendorRequest $request, Vendor $vendor)
+    public function edit(EditExpenseRequest $request, Expense $expense)
     {
-        return $this->itemResponse($vendor);
+        return $this->itemResponse($expense);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Vendor $vendor
+     * @param  App\Models\Expense $expense
      * @return \Illuminate\Http\Response
      *
      *
      *
      * @OA\Put(
-     *      path="/api/v1/vendors/{id}",
-     *      operationId="updateVendor",
-     *      tags={"vendors"},
+     *      path="/api/v1/expenses/{id}",
+     *      operationId="updateExpense",
+     *      tags={"expenses"},
      *      summary="Updates a client",
      *      description="Handles the updating of a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -234,7 +235,7 @@ class VendorController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Vendor Hashed ID",
+     *          description="The Expense Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -248,7 +249,7 @@ class VendorController extends BaseController
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -264,16 +265,16 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function update(UpdateVendorRequest $request, Vendor $vendor)
+    public function update(UpdateExpenseRequest $request, Expense $expense)
     {
-        if($request->entityIsDeleted($vendor))
+        if($request->entityIsDeleted($expense))
             return $request->disallowUpdate();
 
-        $vendor = $this->client_repo->save($request->all(), $vendor);
+        $expense = $this->client_repo->save($request->all(), $expense);
 
-        $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
+        $this->uploadLogo($request->file('company_logo'), $expense->company, $expense);
 
-        return $this->itemResponse($vendor->fresh());
+        return $this->itemResponse($expense->fresh());
     }
 
     /**
@@ -284,9 +285,9 @@ class VendorController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/vendors/create",
-     *      operationId="getVendorsCreate",
-     *      tags={"vendors"},
+     *      path="/api/v1/expenses/create",
+     *      operationId="getExpensesCreate",
+     *      tags={"expenses"},
      *      summary="Gets a new blank client object",
      *      description="Returns a blank object with default values",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -299,7 +300,7 @@ class VendorController extends BaseController
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -315,11 +316,11 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function create(CreateVendorRequest $request)
+    public function create(CreateExpenseRequest $request)
     {
-        $vendor = VendorFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $expense = ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        return $this->itemResponse($vendor);
+        return $this->itemResponse($expense);
     }
 
     /**
@@ -331,9 +332,9 @@ class VendorController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/vendors",
-     *      operationId="storeVendor",
-     *      tags={"vendors"},
+     *      path="/api/v1/expenses",
+     *      operationId="storeExpense",
+     *      tags={"expenses"},
      *      summary="Adds a client",
      *      description="Adds an client to a company",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -346,7 +347,7 @@ class VendorController extends BaseController
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -362,15 +363,15 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function store(StoreVendorRequest $request)
+    public function store(StoreExpenseRequest $request)
     {
-        $vendor = $this->client_repo->save($request->all(), VendorFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $expense = $this->client_repo->save($request->all(), ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $vendor->load('contacts', 'primary_contact');
+        $expense->load('contacts', 'primary_contact');
 
-        $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
+        $this->uploadLogo($request->file('company_logo'), $expense->company, $expense);
 
-        return $this->itemResponse($vendor);
+        return $this->itemResponse($expense);
     }
 
     /**
@@ -381,9 +382,9 @@ class VendorController extends BaseController
      *
      *
      * @OA\Delete(
-     *      path="/api/v1/vendors/{id}",
-     *      operationId="deleteVendor",
-     *      tags={"vendors"},
+     *      path="/api/v1/expenses/{id}",
+     *      operationId="deleteExpense",
+     *      tags={"expenses"},
      *      summary="Deletes a client",
      *      description="Handles the deletion of a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -393,7 +394,7 @@ class VendorController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Vendor Hashed ID",
+     *          description="The Expense Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -422,10 +423,10 @@ class VendorController extends BaseController
      *     )
      *
      */
-    public function destroy(DestroyVendorRequest $request, Vendor $vendor)
+    public function destroy(DestroyExpenseRequest $request, Expense $expense)
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
-        $vendor->delete();
+        $expense->delete();
 
         return response()->json([], 200);
     }
@@ -433,15 +434,15 @@ class VendorController extends BaseController
     /**
      * Perform bulk actions on the list view
      *
-     * @param BulkVendorRequest $request
+     * @param BulkExpenseRequest $request
      * @return \Illuminate\Http\Response
      *
      *
      * @OA\Post(
-     *      path="/api/v1/vendors/bulk",
-     *      operationId="bulkVendors",
-     *      tags={"vendors"},
-     *      summary="Performs bulk actions on an array of vendors",
+     *      path="/api/v1/expenses/bulk",
+     *      operationId="bulkExpenses",
+     *      tags={"expenses"},
+     *      summary="Performs bulk actions on an array of expenses",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -464,11 +465,11 @@ class VendorController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The Vendor User response",
+     *          description="The Expense User response",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -487,15 +488,15 @@ class VendorController extends BaseController
         $action = request()->input('action');
         
         $ids = request()->input('ids');
-        $vendors = Vendor::withTrashed()->find($this->transformKeys($ids));
+        $expenses = Expense::withTrashed()->find($this->transformKeys($ids));
         
-        $vendors->each(function ($vendor, $key) use ($action) {
-            if (auth()->user()->can('edit', $vendor)) {
-                $this->client_repo->{$action}($vendor);
+        $expenses->each(function ($expense, $key) use ($action) {
+            if (auth()->user()->can('edit', $expense)) {
+                $this->client_repo->{$action}($expense);
             }
         });
         
-        return $this->listResponse(Vendor::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Expense::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**

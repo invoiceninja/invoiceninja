@@ -300,12 +300,6 @@ class CreateTestData extends Command
                 'is_primary' => 0
             ]);
 
-        factory(\App\Models\Vendor::class, rand(10, 50))->create([
-                'user_id' => $client->user->id,
-                'company_id' => $client->company->id
-            ]);
-
-
     }
 
     private function createInvoice($client)

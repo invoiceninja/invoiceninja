@@ -20,6 +20,8 @@ use App\Models\Currency;
 use App\Models\Size;
 use App\Models\Vendor;
 use App\Repositories\BaseRepository;
+use App\Repositories\VendorRepository;
+use App\Transformers\VendorTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
