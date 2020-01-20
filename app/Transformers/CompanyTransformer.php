@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
+use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Payment;
 use App\Models\Product;
@@ -53,6 +54,7 @@ class CompanyTransformer extends EntityTransformer
         'timezone',
         'language',
         'expenses',
+        'vendors',
         'payments',
         'company_user',
         'groups',
@@ -135,6 +137,20 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new ClientTransformer($this->serializer);
 
         return $this->includeCollection($company->clients, $transformer, Client::class);
+    }
+
+    public function includeExpenses(Company $company)
+    {
+        $transformer = new ExpenseTransformer($this->serializer);
+
+        return $this->includeCollection($company->expenses, $transformer, Expense::class);
+    }
+
+    public function includeVendors(Company $company)
+    {
+        $transformer = new VendorTransformer($this->serializer);
+
+        return $this->includeCollection($company->vendors, $transformer, Vendor::class);
     }
 
     public function includeGroups(Company $company)

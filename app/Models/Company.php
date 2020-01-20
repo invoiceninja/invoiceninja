@@ -114,6 +114,14 @@ class Company extends BaseModel
         return $this->hasMany(Client::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vendors()
+    {
+        return $this->hasMany(Vendor::class)->withTrashed();
+    }
+
     public function activities()
     {
         return $this->hasMany(Activity::class);
