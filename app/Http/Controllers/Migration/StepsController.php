@@ -294,7 +294,7 @@ class StepsController extends BaseController
                 'design_id' => $invoice->invoice_design_id,
                 'number' => $invoice->invoice_number,
                 'discount' => $invoice->discount,
-                'is_amount_discount' => $invoice->is_amount_discount,
+                'is_amount_discount' => $invoice->is_amount_discount ?: false,
                 'po_number' => $invoice->po_number,
                 'date' => $invoice->invoice_date,
                 'last_sent_date' => $invoice->last_sent_date,
