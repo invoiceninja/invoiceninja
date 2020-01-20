@@ -3271,6 +3271,12 @@ $LANG = array(
     'migrate_to_next_version' => 'Migrate to the next version of Invoice Ninja',
     'migrate_intro_text' => 'We\'ve been working on next version of Invoice Ninja. Click the button bellow to start the migration.',
     'start_the_migration' => 'Start the migration',
+    'migration' => 'Migration',
+    'welcome_to_the_new_version' => 'Welcome to the new version of Invoice Ninja',
+    'next_step_data_download' => 'At the next step, we\'ll let you download your data for the migration.',
+    'download_data' => 'Press button bellow to download the data. After that you can continue.',
+    'migration_import' => 'Awesome! Now you are ready to import your migration. Click "Continue" and follow instructions.',
+    'continue' => 'Continue',
 );
 
 return $LANG;
