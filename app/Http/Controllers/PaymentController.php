@@ -627,9 +627,9 @@ class PaymentController extends BaseController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created refund.
      *
-     * @param      \App\Http\Requests\Payment\StorePaymentRequest  $request  The request
+     * @param  \App\Http\Requests\Payment\RefundPaymentRequest  $request  The request
      *
      * @return \Illuminate\Http\Response
      *
@@ -674,7 +674,9 @@ class PaymentController extends BaseController
      */
     public function refund(RefundPaymentRequest $request)
     {
-
+        \Log::error("Payment id = ".$request->input('id'));
+        
+        $payment = Payment::whereId($request->input('id'))->first();
 
         return $this->itemResponse($payment);
     }

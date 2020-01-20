@@ -12,10 +12,13 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\ValidRefundableInvoices;
 use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 
 class RefundPaymentRequest extends Request
 {
+	use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -24,12 +27,18 @@ class RefundPaymentRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->payment);
+        return auth()->user()->isAdmin();
     }
     
     protected function prepareForValidation()
     {
         $input = $this->all();
+
+        if(!isset($input['gateway_refund']))
+        	$input['gateway_refund'] = false;
+
+        if(isset($input['id']))
+        	$input['id'] = $this->decodePrimaryKey($input['id']);
 
 	    $this->replace($input);
     }
@@ -41,11 +50,8 @@ class RefundPaymentRequest extends Request
             'refunded' => 'numeric',
             'date' => 'required',
             'invoices.*.invoice_id' => 'required',
-            'invoices.*.amount' => 'required',
-            'credits.*.credit_id' => 'required',
-            'credits.*.amount' => 'required',
-            'invoices' => new ValidPayableInvoicesRule(),
-            'number' => 'nullable',
+            'invoices.*.refunded' => 'required',
+            'invoices' => new ValidRefundableInvoices(),
         ];
 
         return $rules;
