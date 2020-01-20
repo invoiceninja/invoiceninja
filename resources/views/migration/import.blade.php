@@ -1,2 +1,18 @@
-<h1>Awesome!</h1>
-<p>In order to import the data, please switch to InvoiceNinja v2 (/import) route.</p>
+@extends('header')
+
+@section('content')
+    @parent
+    @include('accounts.nav', ['selected' => ACCOUNT_MANAGEMENT])
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
+        </div>
+        <div class="panel-body">
+            <h4>{!! trans('texts.migration_import') !!}</h4>
+        </div>
+        <div class="panel-footer text-right">
+            <a href="https://www.invoiceninja.com/our-blog/migration-guide" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
+        </div>
+    </div>
+@stop
