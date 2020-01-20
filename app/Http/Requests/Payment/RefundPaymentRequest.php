@@ -27,4 +27,27 @@ class RefundPaymentRequest extends Request
         return auth()->user()->can('edit', $this->payment);
     }
     
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+	    $this->replace($input);
+    }
+
+    public function rules()
+    {
+        $rules = [
+            'id' => 'required',
+            'refunded' => 'numeric',
+            'date' => 'required',
+            'invoices.*.invoice_id' => 'required',
+            'invoices.*.amount' => 'required',
+            'credits.*.credit_id' => 'required',
+            'credits.*.amount' => 'required',
+            'invoices' => new ValidPayableInvoicesRule(),
+            'number' => 'nullable',
+        ];
+
+        return $rules;
+    }
 }
