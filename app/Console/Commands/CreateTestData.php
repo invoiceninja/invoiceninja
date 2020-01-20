@@ -115,7 +115,6 @@ class CreateTestData extends Command
             'settings' => new \stdClass,
         ]);
 
-
         $this->info('Creating '.$this->count. ' clients');
 
 
@@ -125,6 +124,23 @@ class CreateTestData extends Command
 
             $this->createClient($company, $user);
         }
+
+        foreach($company->clients as $client) {
+
+            $this->info('creating invoice for client #'.$client->id);
+                $this->createInvoice($client);
+
+            $this->info('creating quote for client #'.$client->id);
+                $this->createQuote($client);
+
+            $this->info('creating expense for client #'.$client->id);
+                $this->createExpense($client);
+
+            $this->info('creating vendor for client #'.$client->id);
+                $this->createVendor($client);    
+
+        }
+        
     }
 
     private function createMediumAccount()
@@ -172,12 +188,27 @@ class CreateTestData extends Command
 
         $this->info('Creating '.$this->count. ' clients');
 
-
         for ($x=0; $x<$this->count; $x++) {
             $z = $x+1;
             $this->info("Creating client # ".$z);
 
             $this->createClient($company, $user);
+        }
+
+        foreach($company->clients as $client) {
+
+            $this->info('creating invoice for client #'.$client->id);
+                $this->createInvoice($client);
+
+            $this->info('creating quote for client #'.$client->id);
+                $this->createQuote($client);
+
+            $this->info('creating expense for client #'.$client->id);
+                $this->createExpense($client);
+
+            $this->info('creating vendor for client #'.$client->id);
+                $this->createVendor($client);    
+
         }
     }
 
@@ -236,14 +267,20 @@ class CreateTestData extends Command
 
         foreach($company->clients as $client) {
 
-
+            $this->info('creating invoice for client #'.$client->id);
                 $this->createInvoice($client);
+
+            $this->info('creating quote for client #'.$client->id);
                 $this->createQuote($client);
+
+            $this->info('creating expense for client #'.$client->id);
                 $this->createExpense($client);
+
+            $this->info('creating vendor for client #'.$client->id);
                 $this->createVendor($client);    
 
         }
-        
+
     }
 
     private function createClient($company, $user)
@@ -273,7 +310,7 @@ class CreateTestData extends Command
     private function createExpense($client)
     {
 
-        factory(\App\Models\Expense::class, rand(10, 50))->create([
+        factory(\App\Models\Expense::class, rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'client_id' => $client->id,
                 'company_id' => $client->company->id
@@ -297,7 +334,7 @@ class CreateTestData extends Command
                 'is_primary' => 1
             ]);
 
-        factory(\App\Models\VendorContact::class, rand(1, 50))->create([
+        factory(\App\Models\VendorContact::class, rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
