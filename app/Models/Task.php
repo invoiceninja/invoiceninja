@@ -28,17 +28,6 @@ class Task extends BaseModel
         'time_log',
     ];
 
-    protected $appends = ['task_id'];
-
-    public function getRouteKeyName()
-    {
-        return 'task_id';
-    }
-
-    public function getTaskIdAttribute()
-    {
-        return $this->encodePrimaryKey($this->id);
-    }
 
     public function documents()
     {

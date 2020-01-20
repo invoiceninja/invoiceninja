@@ -19,6 +19,7 @@ use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\CompanyToken;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\Product;
 use App\Models\User;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\MakesHash;
@@ -115,6 +116,11 @@ class CreateTestData extends Command
             'settings' => new \stdClass,
         ]);
 
+            factory(\App\Models\Product::class,50)->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+            ]);
+
         $this->info('Creating '.$this->count. ' clients');
 
 
@@ -140,7 +146,7 @@ class CreateTestData extends Command
                 $this->createVendor($client);    
 
         }
-        
+
     }
 
     private function createMediumAccount()
@@ -183,6 +189,12 @@ class CreateTestData extends Command
             'permissions' => '',
             'settings' => new \stdClass,
         ]);
+
+
+            factory(\App\Models\Product::class,50)->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+            ]);
 
         $this->count = $this->count*10;
 
@@ -252,6 +264,12 @@ class CreateTestData extends Command
             'permissions' => '',
             'settings' => new \stdClass,
         ]);
+
+
+            factory(\App\Models\Product::class,50)->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+            ]);
 
         $this->count = $this->count*100;
 
@@ -352,7 +370,7 @@ class CreateTestData extends Command
 //        $invoice->date = $faker->date();
         $invoice->date = Carbon::now()->subDays(rand(0,90));
 
-        $invoice->line_items = $this->buildLineItems();
+        $invoice->line_items = $this->buildLineItems(rand(1,10));
         $invoice->uses_inclusive_taxes = false;
 
         if (rand(0, 1)) {
@@ -415,7 +433,7 @@ class CreateTestData extends Command
         $quote->client_id = $client->id;
         $quote->date = $faker->date();
 
-        $quote->line_items = $this->buildLineItems();
+        $quote->line_items = $this->buildLineItems(rand(1,10));
         $quote->uses_inclusive_taxes = false;
 
         if (rand(0, 1)) {
@@ -445,30 +463,45 @@ class CreateTestData extends Command
         CreateQuoteInvitations::dispatch($quote, $quote->company);
     }
 
-    private function buildLineItems()
+    private function buildLineItems($count = 1)
     {
         $line_items = [];
 
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost =10;
+        for($x=0; $x<$count; $x++)
+        {
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            //$item->cost =10;
 
-        if (rand(0, 1)) {
-            $item->tax_name1 = 'GST';
-            $item->tax_rate1 = 10.00;
+            if (rand(0, 1)) {
+                $item->tax_name1 = 'GST';
+                $item->tax_rate1 = 10.00;
+            }
+
+            if (rand(0, 1)) {
+                $item->tax_name1 = 'VAT';
+                $item->tax_rate1 = 17.50;
+            }
+
+            if (rand(0, 1)) {
+                $item->tax_name1 = 'Sales Tax';
+                $item->tax_rate1 = 5;
+            }
+
+                $product = Product::all()->random();
+
+                $item->cost = $product->cost;
+                $item->product_key = $product->product_key;
+                $item->notes = $product->notes;
+                $item->custom_value1 = $product->custom_value1;
+                $item->custom_value2 = $product->custom_value2;
+                $item->custom_value3 = $product->custom_value3;
+                $item->custom_value4 = $product->custom_value4;
+
+
+
+            $line_items[] = $item;
         }
-
-        if (rand(0, 1)) {
-            $item->tax_name1 = 'VAT';
-            $item->tax_rate1 = 17.50;
-        }
-
-        if (rand(0, 1)) {
-            $item->tax_name1 = 'Sales Tax';
-            $item->tax_rate1 = 5;
-        }
-
-        $line_items[] = $item;
 
         return $line_items;
     }
