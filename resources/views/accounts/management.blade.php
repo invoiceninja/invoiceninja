@@ -240,19 +240,19 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title">Migration to Invoice Ninja v2</h3>
+				<h3 class="panel-title">{!! trans('texts.migrate_to_next_version') !!}</h3>
 			</div>
 			<div class="panel-body">
 
 				<div class="col-lg-8 col-sm-8">
 					<div clasS="form-group">
-						We've been working on the next version of the Invoice Ninja. Click the button below to start the migration.
+						{!! trans('texts.migrate_intro_text') !!}
 					</div>	
 				</div>
 
 				<div class="col-md-12">
 					<div class="form-group">
-						<a class="btn btn-primary btn-lg" href="/migration/start">Start the migration</a>
+						<a class="btn btn-primary btn-lg" href="/migration/start">{!! trans('texts.start_the_migration') !!}</a>
 					</div>
 				</div>
 			</div>
