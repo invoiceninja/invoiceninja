@@ -17,6 +17,7 @@ use App\Http\Requests\Payment\ActionPaymentRequest;
 use App\Http\Requests\Payment\CreatePaymentRequest;
 use App\Http\Requests\Payment\DestroyPaymentRequest;
 use App\Http\Requests\Payment\EditPaymentRequest;
+use App\Http\Requests\Payment\RefundPaymentRequest;
 use App\Http\Requests\Payment\ShowPaymentRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
@@ -624,4 +625,60 @@ class PaymentController extends BaseController
                 break;
         }
     }
+
+    /**
+     * Store a newly created refund.
+     *
+     * @param  \App\Http\Requests\Payment\RefundPaymentRequest  $request  The request
+     *
+     * @return \Illuminate\Http\Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/payments/refund",
+     *      operationId="storeRefund",
+     *      tags={"payments"},
+     *      summary="Adds a Refund",
+     *      description="Adds an Refund to the system",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *         description="The refund request",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Payment"),
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved Payment object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Payment"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function refund(RefundPaymentRequest $request)
+    {
+        \Log::error("Payment id = ".$request->input('id'));
+        
+        $payment = Payment::whereId($request->input('id'))->first();
+
+        return $this->itemResponse($payment);
+    }
+
 }

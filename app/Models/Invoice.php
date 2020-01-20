@@ -231,6 +231,17 @@ class Invoice extends BaseModel
         }
     }
 
+    public function isRefundable() : bool
+    {
+        if($this->is_deleted){
+            return false;
+        } elseif ($this->balance <= 0)
+            return false;
+
+
+        return true;
+    }
+
     public static function badgeForStatus(int $status)
     {
         switch ($status) {
