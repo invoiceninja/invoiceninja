@@ -471,7 +471,7 @@ class CreateTestData extends Command
         {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
-            //$item->cost =10;
+            //$item->cost = 10;
 
             if (rand(0, 1)) {
                 $item->tax_name1 = 'GST';
@@ -490,7 +490,7 @@ class CreateTestData extends Command
 
                 $product = Product::all()->random();
 
-                $item->cost = $product->cost;
+                $item->cost = (float)$product->cost;
                 $item->product_key = $product->product_key;
                 $item->notes = $product->notes;
                 $item->custom_value1 = $product->custom_value1;
