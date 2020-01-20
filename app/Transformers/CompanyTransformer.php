@@ -21,7 +21,9 @@ use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Quote;
+use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -61,6 +63,8 @@ class CompanyTransformer extends EntityTransformer
         'company_gateways',
         'activities',
         'quotes',
+        'projects',
+        'tasks',
     ];
 
 
@@ -137,6 +141,20 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new ClientTransformer($this->serializer);
 
         return $this->includeCollection($company->clients, $transformer, Client::class);
+    }
+
+    public function includeProjects(Company $company)
+    {
+        $transformer = new ProjectTransformer($this->serializer);
+
+        return $this->includeCollection($company->projects, $transformer, Project::class);
+    }
+
+    public function includeClients(Company $company)
+    {
+        $transformer = new TaskTransformer($this->serializer);
+
+        return $this->includeCollection($company->tasks, $transformer, Task::class);
     }
 
     public function includeExpenses(Company $company)

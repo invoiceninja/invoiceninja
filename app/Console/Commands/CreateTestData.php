@@ -361,6 +361,16 @@ class CreateTestData extends Command
 
     }
 
+    private function createTask($client)
+    {
+
+    }
+
+    private function createProject($client)
+    {
+        
+    }
+
     private function createInvoice($client)
     {
         $faker = \Faker\Factory::create();
