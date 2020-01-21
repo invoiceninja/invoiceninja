@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
+use App\Repositories\InvoiceRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Bus\Queueable;
@@ -48,7 +49,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'tax_rates', 'users', 'clients', 'products',
+        'company', 'tax_rates', 'users', 'clients', 'products', 'invoices',
     ];
 
     /**
@@ -263,20 +264,55 @@ class Import implements ShouldQueue
 
             $modified = $resource;
             $modified['company_id'] = $this->company->id;
-
-            if (array_key_exists('user_id', $resource) && !array_key_exists('users', $this->ids)) {
-                $modified['user_id'] = $this->user->id;
-            } elseif (!array_key_exists('user_id', $resource)) {
-                $modified['user_id'] = $this->user->id;
-            } else {
-                $modified['user_id'] = $this->transformId('users', $resource['user_id']);
-            }
+            $modified['user_id'] = $this->processUserId($resource);
 
             unset($modified['id']);
 
             $product_repository->save($modified, ProductFactory::create(
                 $this->company->id, $modified['user_id'])
             );
+        }
+    }
+
+    private function processInvoices(array $data): void
+    {
+        $rules = [
+            '*.client_id' => ['required'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        $invoice_repository = new InvoiceRepository();
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+
+            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+            }
+
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
+
+            $modified['company_id'] = $this->company->id;
+
+            $invoice = $invoice_repository->save(
+                $modified, InvoiceFactory::create($this->company->id, $modified['user_id'])
+            );
+
+            $this->ids['invoices'] = [
+                "invoices_{$resource['user_id']}" => [
+                    'old' => $resource['user_id'],
+                    'new' => $invoice->id,
+                ]
+            ];
+
         }
     }
 
@@ -323,5 +359,25 @@ class Import implements ShouldQueue
         }
 
         return $this->ids[$resource]["{$resource}_{$old}"]['new'];
+    }
+
+    /**
+     * Process & handle user_id
+     *
+     * @param array $resource
+     * @return int|mixed
+     * @throws \Exception
+     */
+    public function processUserId(array $resource)
+    {
+        if (!array_key_exists('user_id', $resource)) {
+            return $this->user->id;
+        }
+
+        if (array_key_exists('user_id', $resource) && !array_key_exists('users', $this->ids)) {
+            return $this->user->id;
+        }
+
+        return $this->transformId('users', $resource['user_id']);
     }
 }

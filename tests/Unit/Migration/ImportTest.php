@@ -203,4 +203,9 @@ class ImportTest extends TestCase
 
         $this->assertGreaterThan($original_number, Product::count());
     }
+
+    public function testInvoicesImporting()
+    {
+        
+    }
 }
