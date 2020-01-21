@@ -100,6 +100,7 @@ class ImportTest extends TestCase
 
         $data['users'] = [
             0 => [
+                'id' => 1,
                 'first_name' => 'David',
                 'last_name' => 'IN',
                 'email' => 'my@awesomemail.com',

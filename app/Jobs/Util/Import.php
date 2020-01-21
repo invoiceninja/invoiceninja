@@ -6,7 +6,6 @@ use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
-use App\Http\ValidationRules\ValidSettingsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
@@ -55,6 +54,13 @@ class Import implements ShouldQueue
      * @var array
      */
     private $resources;
+
+    /**
+     * Local state manager for ids.
+     *
+     * @var array
+     */
+    private $ids;
 
     /**
      * Create a new job instance.
@@ -170,11 +176,22 @@ class Import implements ShouldQueue
         $user_repository = new UserRepository();
 
         foreach ($data as $resource) {
-            $user = $user_repository->save($resource, $this->fetchUser($resource['email']));
+
+            $modified = $resource;
+            unset($modified['id']);
+
+            $user = $user_repository->save($modified, $this->fetchUser($resource['email']));
 
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
 
             CreateCompanyToken::dispatchNow($this->company, $user, $user_agent);
+
+            $key = "users_{$resource['id']}";
+
+            $this->ids['users'][$key] = [
+                'old' => $resource['id'],
+                'new' => $user->id,
+            ];
         }
     }
 
