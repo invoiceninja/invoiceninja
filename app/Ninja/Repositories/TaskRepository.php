@@ -4,6 +4,7 @@ namespace App\Ninja\Repositories;
 
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Product;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use Auth;
@@ -25,6 +26,7 @@ class TaskRepository extends BaseRepository
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
                     ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
+                    ->leftJoin('products', 'products.id', '=', 'tasks.product_id')
                     ->leftJoin('task_statuses', 'task_statuses.id', '=', 'tasks.task_status_id')
                     ->where('tasks.account_id', '=', Auth::user()->account_id)
                     ->where(function ($query) { // handle when client isn't set
@@ -171,6 +173,11 @@ class TaskRepository extends BaseRepository
             } elseif (isset($data['client_id'])) {
                 $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
             }
+        }
+
+        if (!empty($data['product_id'])) {
+            $product = Product::scope($data['product_id'])->firstOrFail();
+            $task->product_id = $product->id;
         }
 
         if (isset($data['description'])) {

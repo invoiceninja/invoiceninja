@@ -84,6 +84,14 @@ class Task extends EntityModel
     /**
      * @return mixed
      */
+    public function product()
+    {
+        return $this->belongsTo('App\Models\Product')->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function task_status()
     {
         return $this->belongsTo('App\Models\TaskStatus')->withTrashed();
@@ -180,7 +188,9 @@ class Task extends EntityModel
     {
         $value = 0;
 
-        if ($this->project && floatval($this->project->task_rate)) {
+        if ($this->product && $this->product->cost) {
+            $value = $this->product->cost;
+        } elseif ($this->project && floatval($this->project->task_rate)) {
             $value = $this->project->task_rate;
         } elseif ($this->client && floatval($this->client->task_rate)) {
             $value = $this->client->task_rate;

@@ -936,7 +936,8 @@
                     item.notes(task.description);
                     item.qty(task.duration);
 					item.cost(task.cost);
-                    item.task_public_id(task.publicId);
+					item.task_public_id(task.publicId);
+					item.product_key(task.productKey);
                 }
                 model.invoice().has_tasks(true);
 				NINJA.formIsChanged = true;
