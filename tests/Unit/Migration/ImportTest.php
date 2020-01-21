@@ -5,6 +5,7 @@ namespace Tests\Unit\Migration;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Models\Client;
+use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -155,8 +156,6 @@ class ImportTest extends TestCase
     {
         $original_number = Client::count();
 
-        print $original_number;
-
         $data['users'] = [
             0 => [
                 'id' => 1,
@@ -184,5 +183,24 @@ class ImportTest extends TestCase
         Import::dispatchNow($data, $this->company, $this->user);
 
         $this->assertGreaterThan($original_number, Client::count());
+    }
+
+    public function testProductsImporting()
+    {
+        $original_number = Product::count();
+
+        $data['products'] = [
+            0 => [
+                'id' => 1,
+                'product_key' => 'My awesome product',
+                'cost' => '21.0000',
+                'price' => '1.000',
+                'quantity' => 1,
+            ],
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Product::count());
     }
 }

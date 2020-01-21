@@ -5,6 +5,7 @@ namespace App\Jobs\Util;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
+use App\Factory\ProductFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
@@ -13,11 +14,13 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
+use App\Repositories\ProductRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -45,7 +48,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'tax_rates', 'users', 'clients',
+        'company', 'tax_rates', 'users', 'clients', 'products',
     ];
 
     /**
@@ -210,26 +213,28 @@ class Import implements ShouldQueue
 
         $client_repository = new ClientRepository(new ClientContactRepository());
 
-        foreach ($data as $key => $client_array) {
+        foreach ($data as $key => $resource) {
 
-            $modified = $client_array;
+            $modified = $resource;
             $modified['company_id'] = $this->company->id;
 
-            if (array_key_exists('user_id', $client_array) && !array_key_exists('users', $this->ids)) {
+            if (array_key_exists('user_id', $resource) && !array_key_exists('users', $this->ids)) {
                 throw new ResourceDependencyMissing(array_key_first($data), 'users');
             }
 
-            $modified['user_id'] = $this->transformId('users', $client_array['user_id']);
+            // .. maybe in else, put the default value as $this->user->id?
+
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
             unset($modified['id']);
 
             $client = $client_repository->save($modified, ClientFactory::create(
                 $this->company->id, $modified['user_id'])
             );
 
-            $key = "clients_{$client_array['id']}";
+            $key = "clients_{$resource['id']}";
 
             $this->ids['clients'][$key] = [
-                'old' => $client_array['id'],
+                'old' => $resource['id'],
                 'new' => $client->id,
             ];
         }
@@ -237,7 +242,42 @@ class Import implements ShouldQueue
 
     private function processProducts(array $data): void
     {
+        Product::unguard();
 
+        $rules = [
+            '*.product_key' => 'required|distinct|unique:products,product_key,null,null,company_id,' . $this->company->id,
+            '*.cost' => 'numeric',
+            '*.price' => 'numeric',
+            '*.quantity' => 'numeric',
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        $product_repository = new ProductRepository();
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+            $modified['company_id'] = $this->company->id;
+
+            if (array_key_exists('user_id', $resource) && !array_key_exists('users', $this->ids)) {
+                $modified['user_id'] = $this->user->id;
+            } elseif (!array_key_exists('user_id', $resource)) {
+                $modified['user_id'] = $this->user->id;
+            } else {
+                $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            }
+
+            unset($modified['id']);
+
+            $product_repository->save($modified, ProductFactory::create(
+                $this->company->id, $modified['user_id'])
+            );
+        }
     }
 
     /**
