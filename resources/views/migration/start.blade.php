@@ -10,7 +10,6 @@
         </div>
         <div class="panel-body">
             <h4>{!! trans('texts.next_step_data_download') !!}</h4>
-            <p>More text goes here. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi culpa dolorem ex recusandae ullam voluptatum!</p>
         </div>
         <div class="panel-footer text-right">
             <a href="/migration/download" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
