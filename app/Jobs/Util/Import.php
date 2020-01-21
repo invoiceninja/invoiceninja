@@ -7,6 +7,7 @@ use App\Factory\TaxRateFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Company;
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Repositories\CompanyRepository;
 use Illuminate\Bus\Queueable;
@@ -106,11 +107,28 @@ class Import implements ShouldQueue
         $company_repository->save($data, $this->company);
     }
 
+    /**
+     * @param array $data
+     * @throws \Exception
+     */
     private function processTaxRates(array $data): void
     {
-        foreach ($data as $tax_rate_array) {
+        TaxRate::unguard();
+
+        $rules = [
+            '*.name' => 'required|distinct|unique:tax_rates,name,null,null,company_id,' . $this->company->id,
+            '*.rate' => 'required|numeric',
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        foreach ($data as $resource) {
             $tax_rate = TaxRateFactory::create($this->company->id, $this->user->id);
-            $tax_rate->fill($tax_rate_array);
+            $tax_rate->fill($resource);
             $tax_rate->save();
         }
     }

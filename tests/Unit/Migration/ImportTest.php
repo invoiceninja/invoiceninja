@@ -60,8 +60,6 @@ class ImportTest extends TestCase
     {
         $total_tax_rates = TaxRate::count();
 
-        print $total_tax_rates;
-
         $data['tax_rates'] = [
             0 => [
                 'name' => 'My awesome tax rate 1',
@@ -72,5 +70,26 @@ class ImportTest extends TestCase
         Import::dispatchNow($data, $this->company, $this->user);
 
         $this->assertNotEquals($total_tax_rates, TaxRate::count());
+    }
+
+    public function testTaaxRateUniqueValidation()
+    {
+        $original_number = TaxRate::count();
+
+        $data['tax_rates'] = [
+            0 => [
+                'name' => 'My awesome tax rate 1',
+                'rate' => '1.000',
+            ],
+            1 => [
+                'name' => 'My awesome tax rate 1',
+                'rate' => '1.000',
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->expectException(\Exception::class);
+        $this->assertEquals($original_number, TaxRate::count());
     }
 }
