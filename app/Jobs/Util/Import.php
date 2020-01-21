@@ -220,4 +220,23 @@ class Import implements ShouldQueue
 
         return $user;
     }
+
+    /**
+     * @param string $resource
+     * @param string $old
+     * @return int
+     * @throws \Exception
+     */
+    public function transformId(string $resource, string $old): int
+    {
+        if (!array_key_exists($resource, $this->ids)) {
+            throw new \Exception('Resource not available.');
+        }
+
+        if (!array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
+            throw new \Exception("Missing resource key: {$resource}_{$old}");
+        }
+
+        return $this->ids[$resource]["{$resource}_{$old}"]['new'];
+    }
 }
