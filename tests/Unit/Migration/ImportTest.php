@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\Migration;
 
+use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
@@ -150,6 +152,8 @@ class ImportTest extends TestCase
         ];
 
         Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->expectException(ResourceDependencyMissing::class);
     }
 
     public function testClientImporting()
@@ -204,8 +208,42 @@ class ImportTest extends TestCase
         $this->assertGreaterThan($original_number, Product::count());
     }
 
+    public function testInvoicesFailsWithoutClient()
+    {
+        $data['invoices'] = [
+            0 => [
+                'client_id' => 1,
+                'is_amount_discount' => false,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->expectException(ResourceDependencyMissing::class);
+    }
+
     public function testInvoicesImporting()
     {
-        
+        $original_number = Invoice::count();
+
+        $data['clients'] = [
+            0 => [
+                'id' => 1,
+                'name' => 'My awesome client',
+                'balance' => '0.00',
+                'user_id' => 1,
+            ]
+        ];
+
+        $data['invoices'] = [
+            0 => [
+                'client_id' => 1,
+                'discount' => '0.00',
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Invoice::count());
     }
 }

@@ -5,6 +5,7 @@ namespace App\Jobs\Util;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
@@ -14,6 +15,7 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
@@ -207,6 +209,7 @@ class Import implements ShouldQueue
     /**
      * @param array $data
      * @throws ResourceDependencyMissing
+     * @throws \Exception
      */
     private function processClients(array $data): void
     {
@@ -218,14 +221,8 @@ class Import implements ShouldQueue
 
             $modified = $resource;
             $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->processUserId($resource);
 
-            if (array_key_exists('user_id', $resource) && !array_key_exists('users', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'users');
-            }
-
-            // .. maybe in else, put the default value as $this->user->id?
-
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
             unset($modified['id']);
 
             $client = $client_repository->save($modified, ClientFactory::create(
@@ -276,6 +273,8 @@ class Import implements ShouldQueue
 
     private function processInvoices(array $data): void
     {
+        Invoice::unguard();
+
         $rules = [
             '*.client_id' => ['required'],
         ];
@@ -297,7 +296,6 @@ class Import implements ShouldQueue
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
             $modified['user_id'] = $this->processUserId($resource);
 
             $modified['company_id'] = $this->company->id;
@@ -306,9 +304,11 @@ class Import implements ShouldQueue
                 $modified, InvoiceFactory::create($this->company->id, $modified['user_id'])
             );
 
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
             $this->ids['invoices'] = [
-                "invoices_{$resource['user_id']}" => [
-                    'old' => $resource['user_id'],
+                "invoices_{$old_user_key}" => [
+                    'old' => $old_user_key,
                     'new' => $invoice->id,
                 ]
             ];
@@ -351,7 +351,7 @@ class Import implements ShouldQueue
     public function transformId(string $resource, string $old): int
     {
         if (!array_key_exists($resource, $this->ids)) {
-            throw new \Exception('Resource not available.');
+            throw new \Exception("Resource {$resource} not available.");
         }
 
         if (!array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
