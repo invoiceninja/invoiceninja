@@ -4,6 +4,7 @@ namespace Tests\Unit\Migration;
 
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
+use App\Models\TaxRate;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -44,14 +45,32 @@ class ImportTest extends TestCase
 
     public function testCompanyUpdating()
     {
-        $original_key = $this->company->company_key;
+        $original_company_key = $this->company->company_key;
 
         $data['company'] = [
-            'company_key' => 'my_awesome_secret_key',
+            'company_key' => 0,
         ];
 
         Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->assertNotEquals($this->company->company_key, $original_key);
+        $this->assertNotEquals($original_company_key, $this->company->company_key);
+    }
+
+    public function testTaxRatesInserting()
+    {
+        $total_tax_rates = TaxRate::count();
+
+        print $total_tax_rates;
+
+        $data['tax_rates'] = [
+            0 => [
+                'name' => 'My awesome tax rate 1',
+                'rate' => '1.000',
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->assertNotEquals($total_tax_rates, TaxRate::count());
     }
 }

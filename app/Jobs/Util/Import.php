@@ -3,6 +3,7 @@
 namespace App\Jobs\Util;
 
 use App\Exceptions\ResourceNotAvailableForMigration;
+use App\Factory\TaxRateFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Company;
@@ -34,12 +35,20 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company',
+        'company', 'tax_rates',
     ];
+
     /**
      * @var User
      */
     private $user;
+
+    /**
+     * Custom list of resources to be imported.
+     *
+     * @var array
+     */
+    private $resources;
 
     /**
      * Create a new job instance.
@@ -47,12 +56,14 @@ class Import implements ShouldQueue
      * @param array $data
      * @param Company $company
      * @param User $user
+     * @param array $resources
      */
-    public function __construct(array $data, Company $company, User $user)
+    public function __construct(array $data, Company $company, User $user, array $resources = [])
     {
         $this->data = $data;
         $this->company = $company;
         $this->user = $user;
+        $this->resources = $resources;
     }
 
     /**
@@ -81,6 +92,8 @@ class Import implements ShouldQueue
      */
     private function processCompany(array $data): void
     {
+        Company::unguard();
+
         $rules = (new UpdateCompanyRequest())->rules();
 
         $validator = Validator::make($data, $rules);
@@ -90,6 +103,15 @@ class Import implements ShouldQueue
         }
 
         $company_repository = new CompanyRepository();
-        $company = $company_repository->save($data, $this->company);
+        $company_repository->save($data, $this->company);
+    }
+
+    private function processTaxRates(array $data): void
+    {
+        foreach ($data as $tax_rate_array) {
+            $tax_rate = TaxRateFactory::create($this->company->id, $this->user->id);
+            $tax_rate->fill($tax_rate_array);
+            $tax_rate->save();
+        }
     }
 }
