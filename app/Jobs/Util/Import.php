@@ -200,6 +200,10 @@ class Import implements ShouldQueue
         }
     }
 
+    /**
+     * @param array $data
+     * @throws ResourceDependencyMissing
+     */
     private function processClients(array $data): void
     {
         Client::unguard();
@@ -229,6 +233,11 @@ class Import implements ShouldQueue
                 'new' => $client->id,
             ];
         }
+    }
+
+    private function processProducts(array $data): void
+    {
+
     }
 
     /**
