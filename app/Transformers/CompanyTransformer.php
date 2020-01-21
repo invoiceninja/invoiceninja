@@ -26,6 +26,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Transformers\TaskTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -150,7 +151,7 @@ class CompanyTransformer extends EntityTransformer
         return $this->includeCollection($company->projects, $transformer, Project::class);
     }
 
-    public function includeClients(Company $company)
+    public function includeTasks(Company $company)
     {
         $transformer = new TaskTransformer($this->serializer);
 
