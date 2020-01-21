@@ -88,6 +88,8 @@ class BaseController extends Controller
                   'company.quotes',
                   'company.vendors',
                   'company.expenses',
+                  'company.tasks',
+                  'company.projects',
               ];
             } else {
                 $include = [

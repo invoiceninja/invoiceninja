@@ -31,7 +31,11 @@ class Project extends BaseModel
         'custom_value1',
         'custom_value2',
     ];
-
+    
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

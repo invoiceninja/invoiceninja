@@ -28,6 +28,10 @@ class Task extends BaseModel
         'time_log',
     ];
 
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+    ];
 
     public function documents()
     {
