@@ -11,8 +11,5 @@
         <div class="panel-body">
             <h4>{!! trans('texts.migration_import') !!}</h4>
         </div>
-        <div class="panel-footer text-right">
-            <a href="https://www.invoiceninja.com/our-blog/migration-guide" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
-        </div>
     </div>
 @stop
