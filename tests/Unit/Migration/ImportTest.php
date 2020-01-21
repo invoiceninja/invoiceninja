@@ -5,6 +5,7 @@ namespace Tests\Unit\Migration;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Models\TaxRate;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -72,7 +73,7 @@ class ImportTest extends TestCase
         $this->assertNotEquals($total_tax_rates, TaxRate::count());
     }
 
-    public function testTaaxRateUniqueValidation()
+    public function testTaxRateUniqueValidation()
     {
         $original_number = TaxRate::count();
 
@@ -91,5 +92,45 @@ class ImportTest extends TestCase
 
         $this->expectException(\Exception::class);
         $this->assertEquals($original_number, TaxRate::count());
+    }
+
+    public function testUsersImporting()
+    {
+        $original_number = User::count();
+
+        $data['users'] = [
+            0 => [
+                'first_name' => 'David',
+                'last_name' => 'IN',
+                'email' => 'my@awesomemail.com',
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, User::count());
+    }
+
+    public function testUserValidator()
+    {
+        $original_number = User::count();
+
+        $data['users'] = [
+            0 => [
+                'first_name' => 'David',
+                'last_name' => 'IN',
+                'email' => 'my@awesomemail.com',
+            ],
+            1 => [
+                'first_name' => 'Someone',
+                'last_name' => 'Else',
+                'email' => 'my@awesomemail.com',
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->expectException(\Exception::class);
+        $this->assertEquals($original_number, User::count());
     }
 }

@@ -4,12 +4,17 @@ namespace App\Jobs\Util;
 
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\TaxRateFactory;
+use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\ValidUserForCompany;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Repositories\CompanyRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,7 +41,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'tax_rates',
+        'company', 'tax_rates', 'users',
     ];
 
     /**
@@ -136,5 +141,66 @@ class Import implements ShouldQueue
             $tax_rate->fill($resource);
             $tax_rate->save();
         }
+    }
+
+    /**
+     * @param array $data
+     * @throws \Exception
+     */
+    private function processUsers(array $data): void
+    {
+        User::unguard();
+
+        $rules = [
+            '*.first_name' => ['required', 'string', 'max:100'],
+            '*.last_name' => ['required', 'string', 'max:100'],
+            '*.email' => ['distinct'],
+        ];
+
+        if (config('ninja.db.multi_db_enabled')) {
+            array_push($rules['*.email'], new ValidUserForCompany());
+        }
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        $user_repository = new UserRepository();
+
+        foreach ($data as $resource) {
+            $user = $user_repository->save($resource, $this->fetchUser($resource['email']));
+
+            $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
+
+            CreateCompanyToken::dispatchNow($this->company, $user, $user_agent);
+        }
+    }
+
+    /**
+     * |--------------------------------------------------------------------------
+     * | Additional migration methods.
+     * |--------------------------------------------------------------------------
+     * |
+     * | These methods aren't initialized automatically, so they don't depend on
+     * | the migration data.
+     */
+
+    /**
+     * Cloned from App\Http\Requests\User\StoreUserRequest.
+     *
+     * @param string $data
+     * @return User
+     */
+    public function fetchUser(string $data): User
+    {
+        $user = MultiDB::hasUser(['email' => $data]);
+
+        if (!$user) {
+            $user = UserFactory::create();
+        }
+
+        return $user;
     }
 }
