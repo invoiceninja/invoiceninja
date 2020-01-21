@@ -8,6 +8,7 @@ use App\Jobs\Util\Import;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -245,5 +246,44 @@ class ImportTest extends TestCase
         Import::dispatchNow($data, $this->company, $this->user);
 
         $this->assertGreaterThan($original_number, Invoice::count());
+    }
+
+    public function testQuotesFailsWithoutClient()
+    {
+        $data['quotes'] = [
+            0 => [
+                'client_id' => 1,
+                'is_amount_discount' => false,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->expectException(ResourceDependencyMissing::class);
+    }
+
+    public function testQuotesImporting()
+    {
+        $original_number = Quote::count();
+
+        $data['clients'] = [
+            0 => [
+                'id' => 1,
+                'name' => 'My awesome client',
+                'balance' => '0.00',
+                'user_id' => 1,
+            ]
+        ];
+
+        $data['quotes'] = [
+            0 => [
+                'client_id' => 1,
+                'discount' => '0.00',
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Quote::count());
     }
 }

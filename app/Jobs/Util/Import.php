@@ -7,6 +7,7 @@ use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
+use App\Factory\QuoteFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
@@ -17,6 +18,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
@@ -24,6 +26,7 @@ use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -51,7 +54,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'tax_rates', 'users', 'clients', 'products', 'invoices',
+        'company', 'tax_rates', 'users', 'clients', 'products', 'invoices', 'quotes',
     ];
 
     /**
@@ -308,6 +311,51 @@ class Import implements ShouldQueue
 
             $this->ids['invoices'] = [
                 "invoices_{$old_user_key}" => [
+                    'old' => $old_user_key,
+                    'new' => $invoice->id,
+                ]
+            ];
+
+        }
+    }
+
+    private function processQuotes(array $data): void
+    {
+        Quote::unguard();
+
+        $rules = [
+            '*.client_id' => ['required'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        $quote_repository = new QuoteRepository();
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+
+            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+            }
+
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
+
+            $modified['company_id'] = $this->company->id;
+
+            $invoice = $quote_repository->save(
+                $modified, QuoteFactory::create($this->company->id, $modified['user_id'])
+            );
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['quotes'] = [
+                "quotes_{$old_user_key}" => [
                     'old' => $old_user_key,
                     'new' => $invoice->id,
                 ]
