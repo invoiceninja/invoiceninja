@@ -127,6 +127,11 @@ class Import implements ShouldQueue
         }
 
         foreach ($data as $resource) {
+
+            $modified = $resource;
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->user->id;
+
             $tax_rate = TaxRateFactory::create($this->company->id, $this->user->id);
             $tax_rate->fill($resource);
             $tax_rate->save();
