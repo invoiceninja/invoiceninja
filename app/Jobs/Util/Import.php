@@ -2,16 +2,21 @@
 
 namespace App\Jobs\Util;
 
+use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
+use App\Factory\ClientFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Bus\Queueable;
@@ -40,7 +45,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'tax_rates', 'users',
+        'company', 'tax_rates', 'users', 'clients',
     ];
 
     /**
@@ -60,7 +65,7 @@ class Import implements ShouldQueue
      *
      * @var array
      */
-    private $ids;
+    private $ids = [];
 
     /**
      * Create a new job instance.
@@ -191,6 +196,37 @@ class Import implements ShouldQueue
             $this->ids['users'][$key] = [
                 'old' => $resource['id'],
                 'new' => $user->id,
+            ];
+        }
+    }
+
+    private function processClients(array $data): void
+    {
+        Client::unguard();
+
+        $client_repository = new ClientRepository(new ClientContactRepository());
+
+        foreach ($data as $key => $client_array) {
+
+            $modified = $client_array;
+            $modified['company_id'] = $this->company->id;
+
+            if (array_key_exists('user_id', $client_array) && !array_key_exists('users', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'users');
+            }
+
+            $modified['user_id'] = $this->transformId('users', $client_array['user_id']);
+            unset($modified['id']);
+
+            $client = $client_repository->save($modified, ClientFactory::create(
+                $this->company->id, $modified['user_id'])
+            );
+
+            $key = "clients_{$client_array['id']}";
+
+            $this->ids['clients'][$key] = [
+                'old' => $client_array['id'],
+                'new' => $client->id,
             ];
         }
     }

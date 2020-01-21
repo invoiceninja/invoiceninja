@@ -4,6 +4,7 @@ namespace Tests\Unit\Migration;
 
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
+use App\Models\Client;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -118,11 +119,13 @@ class ImportTest extends TestCase
 
         $data['users'] = [
             0 => [
+                'id' => 1,
                 'first_name' => 'David',
                 'last_name' => 'IN',
                 'email' => 'my@awesomemail.com',
             ],
             1 => [
+                'id' => 2,
                 'first_name' => 'Someone',
                 'last_name' => 'Else',
                 'email' => 'my@awesomemail.com',
@@ -133,5 +136,53 @@ class ImportTest extends TestCase
 
         $this->expectException(\Exception::class);
         $this->assertEquals($original_number, User::count());
+    }
+
+    public function testClientImportingDependsOnUsers()
+    {
+        $data['clients'] = [
+            0 => [
+                'name' => 'My client',
+                'balance' => '0.00',
+                'user_id' => 1,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+    }
+
+    public function testClientImporting()
+    {
+        $original_number = Client::count();
+
+        print $original_number;
+
+        $data['users'] = [
+            0 => [
+                'id' => 1,
+                'first_name' => 'David',
+                'last_name' => 'IN',
+                'email' => 'my@awesomemail.com',
+            ],
+            1 => [
+                'id' => 2,
+                'first_name' => 'Someone',
+                'last_name' => 'Else',
+                'email' => 'my@awesomemail2.com',
+            ]
+        ];
+
+        $data['clients'] = [
+            0 => [
+                'id' => 1,
+                'name' => 'My awesome client',
+                'balance' => '0.00',
+                'user_id' => 1,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Client::count());
     }
 }
