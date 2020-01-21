@@ -35,7 +35,7 @@ class TaskTransformer extends EntityTransformer
         return [
             'id' => (string) $this->encodePrimaryKey($task->id),
             'description' => $task->description ?: '',
-            'duration' => $task->getDuration() ?: 0,
+           // 'duration' => $task->getDuration() ?: 0,
             'updated_at' => (int)$task->updated_at,
             'archived_at' => (int)$task->deleted_at,
             'invoice_id' => $this->encodePrimaryKey($task->invoice_id),

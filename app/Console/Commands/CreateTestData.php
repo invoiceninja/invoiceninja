@@ -145,6 +145,13 @@ class CreateTestData extends Command
             $this->info('creating vendor for client #'.$client->id);
                 $this->createVendor($client);    
 
+            $this->info('creating task for client #'.$client->id);
+                $this->createTask($client);    
+
+            $this->info('creating project for client #'.$client->id);
+                $this->createProject($client);    
+
+
         }
 
     }
@@ -221,6 +228,11 @@ class CreateTestData extends Command
             $this->info('creating vendor for client #'.$client->id);
                 $this->createVendor($client);    
 
+            $this->info('creating task for client #'.$client->id);
+                $this->createTask($client);    
+
+            $this->info('creating project for client #'.$client->id);
+                $this->createProject($client);    
         }
     }
 
@@ -297,6 +309,11 @@ class CreateTestData extends Command
             $this->info('creating vendor for client #'.$client->id);
                 $this->createVendor($client);    
 
+            $this->info('creating task for client #'.$client->id);
+                $this->createTask($client);    
+
+            $this->info('creating project for client #'.$client->id);
+                $this->createProject($client);    
         }
 
     }
@@ -364,11 +381,19 @@ class CreateTestData extends Command
     private function createTask($client)
     {
 
+        $vendor = factory(\App\Models\Task::class)->create([
+                'user_id' => $client->user->id,
+                'company_id' => $client->company->id
+            ]);
     }
 
     private function createProject($client)
     {
-        
+
+        $vendor = factory(\App\Models\Project::class)->create([
+                'user_id' => $client->user->id,
+                'company_id' => $client->company->id
+            ]);
     }
 
     private function createInvoice($client)
