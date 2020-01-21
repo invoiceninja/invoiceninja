@@ -155,7 +155,7 @@ class Import implements ShouldQueue
 
             $modified = $resource;
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->user->id;
+            $modified['user_id'] = $this->processUserId($resource);
 
             $tax_rate = TaxRateFactory::create($this->company->id, $this->user->id);
             $tax_rate->fill($resource);
