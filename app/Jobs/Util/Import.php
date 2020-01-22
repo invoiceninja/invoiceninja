@@ -5,7 +5,9 @@ namespace App\Jobs\Util;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\TaxRateFactory;
@@ -16,7 +18,9 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
@@ -24,7 +28,9 @@ use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
@@ -54,7 +60,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'users', 'tax_rates',  'clients', 'products', 'invoices', 'quotes',
+        'company', 'users', 'tax_rates',  'clients', 'products', 'invoices', 'quotes', 'payments', 'credits',
     ];
 
     /**
@@ -146,7 +152,8 @@ class Import implements ShouldQueue
         TaxRate::unguard();
 
         $rules = [
-            '*.name' => 'required|distinct|unique:tax_rates,name,null,null,company_id,' . $this->company->id,
+            '*.name' => 'required',
+            //'*.name' => 'required|distinct|unique:tax_rates,name,null,null,company_id,' . $this->company->id,
             '*.rate' => 'required|numeric',
         ];
 
@@ -184,8 +191,8 @@ class Import implements ShouldQueue
         User::unguard();
 
         $rules = [
-            '*.first_name' => ['required', 'string', 'max:100'],
-            '*.last_name' => ['required', 'string', 'max:100'],
+            '*.first_name' => ['string'],
+            '*.last_name' => ['string'],
             '*.email' => ['distinct'],
         ];
 
@@ -258,7 +265,7 @@ class Import implements ShouldQueue
         Product::unguard();
 
         $rules = [
-            '*.product_key' => 'required|distinct|unique:products,product_key,null,null,company_id,' . $this->company->id,
+            //'*.product_key' => 'required|distinct|unique:products,product_key,null,null,company_id,' . $this->company->id,
             '*.cost' => 'numeric',
             '*.price' => 'numeric',
             '*.quantity' => 'numeric',
@@ -313,20 +320,64 @@ class Import implements ShouldQueue
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             $modified['user_id'] = $this->processUserId($resource);
-
             $modified['company_id'] = $this->company->id;
+
+            unset($modified['id']);
 
             $invoice = $invoice_repository->save(
                 $modified, InvoiceFactory::create($this->company->id, $modified['user_id'])
             );
 
-            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+            $key = "invoices_{$resource['id']}";
 
-            $this->ids['invoices'] = [
-                "invoices_{$old_user_key}" => [
-                    'old' => $old_user_key,
-                    'new' => $invoice->id,
-                ]
+            $this->ids['invoices'][$key] = [
+                'old' => $resource['id'],
+                'new' => $invoice->id,
+            ];
+
+        }
+    }
+
+    private function processCredits(array $data): void
+    {
+
+        Credit::unguard();
+
+        $rules = [
+            '*.client_id' => ['required'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        $credit_repository = new CreditRepository();
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+
+            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+            }
+
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
+            $modified['company_id'] = $this->company->id;
+
+            unset($modified['id']);
+
+            $invoice = $credit_repository->save(
+                $modified, CreditFactory::create($this->company->id, $modified['user_id'])
+            );
+
+            $key = "credits_{$resource['id']}";
+
+            $this->ids['credits'][$key] = [
+                'old' => $resource['id'],
+                'new' => $invoice->id,
             ];
 
         }
@@ -361,6 +412,8 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
 
+            unset($modified['id']);
+
             $invoice = $quote_repository->save(
                 $modified, QuoteFactory::create($this->company->id, $modified['user_id'])
             );
@@ -371,6 +424,61 @@ class Import implements ShouldQueue
                 "quotes_{$old_user_key}" => [
                     'old' => $old_user_key,
                     'new' => $invoice->id,
+                ]
+            ];
+
+        }
+    }
+
+    private function processPayments(array $data): void
+    {
+        Payment::reguard();
+
+        $rules = [
+            '*.amount' => ['required'],
+            '*.client_id' => ['required'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors());
+        }
+
+        $payment_repository = new PaymentRepository(new CreditRepository());
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+
+            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+            }
+
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
+            //$modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            $modified['company_id'] = $this->company->id;
+
+            //unset($modified['invoices']);
+            unset($modified['invoice_id']);
+
+            if(isset($modified['invoices']))
+            {
+                foreach($modified['invoices'] as $invoice)
+                    $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
+            }
+            
+            $payment = $payment_repository->save(
+                $modified, PaymentFactory::create($this->company->id, $modified['user_id'])
+            );
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['payments'] = [
+                "payments_{$old_user_key}" => [
+                    'old' => $old_user_key,
+                    'new' => $payment->id,
                 ]
             ];
 

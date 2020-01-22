@@ -87,7 +87,7 @@ class ImportTest extends TestCase
         try {
             $data['tax_rates'] = [
                 0 => [
-                    'name' => 'My awesome tax rate 1',
+                    'name' => '',
                     'rate' => '1.000',
                 ],
                 1 => [
@@ -234,6 +234,7 @@ class ImportTest extends TestCase
 
         $data['invoices'] = [
             0 => [
+                'id' => 1,
                 'client_id' => 1,
                 'discount' => '0.00',
             ]
@@ -246,7 +247,6 @@ class ImportTest extends TestCase
         Invoice::where('id', '>=', '0')->forceDelete();
 
         $this->assertEquals(0, Invoice::count());
-
 
     }
 
