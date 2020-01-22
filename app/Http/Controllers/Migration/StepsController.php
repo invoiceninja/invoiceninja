@@ -57,14 +57,14 @@ class StepsController extends BaseController
 
         $data = [
             'company' => $this->getCompany(),
-            'tax_rates' => $this->getTaxRates(),
             'users' => $this->getUsers(),
+            'tax_rates' => $this->getTaxRates(),
             'clients' => $this->getClients(),
             'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),
             'quotes' => $this->getQuotes(),
-            'payments' => $this->getPayments(),
-            'credits' => $this->getCredits(),
+            'payments' => array_merge($this->getPayments(), $this->getCredits()),
+            'credits' => $this->getCreditsNotes(),
         ];
 
         $file = storage_path("{$fileName}.zip");
@@ -111,8 +111,8 @@ class StepsController extends BaseController
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
             'custom_fields' => $this->account->custom_fields,
-            'created_at' => $this->account->created_at,
-            'updated_at' => $this->account->updated_at,
+            'created_at' => $this->account->created_at  ? $this->account->created_at->toDateString() : null,
+            'updated_at' => $this->account->updated_at  ? $this->account->updated_at->toDateString() : null,
         ];
     }
 
@@ -133,9 +133,9 @@ class StepsController extends BaseController
                 'rate' => $rate->rate,
                 'company_id' => $rate->account_id,
                 'user_id' => $rate->user_id,
-                'created_at' => $rate->created_at,
-                'updated_at' => $rate->updated_at,
-                'deleted_at' => $rate->deleted_at,
+                'created_at' => $rate->created_at ? $rate->created_at->toDateString() : null,
+                'updated_at' => $rate->updated_at ? $rate->updated_at->toDateString() : null,
+                'deleted_at' => $rate->deleted_at ? $rate->deleted_at->toDateString() : null,
             ];
         }
 
@@ -213,9 +213,9 @@ class StepsController extends BaseController
                 'tax_name2' => $product->tax_name2,
                 'tax_rate1' => $product->tax_rate1,
                 'tax_rate2' => $product->tax_rate2,
-                'created_at' => $product->created_at,
-                'updated_at' => $product->updated_at,
-                'deleted_at' => $product->deleted_at,
+                'created_at' => $product->created_at ? $product->created_at->toDateString() : null,
+                'updated_at' => $product->updated_at ? $product->updated_at->toDateString() : null,
+                'deleted_at' => $product->deleted_at ? $product->deleted_at->toDateString() : null,
             ];
         }
 
@@ -251,15 +251,64 @@ class StepsController extends BaseController
                 'accepted_terms_version' => $user->accepted_terms_version,
                 'password' => $user->password,
                 'remember_token' => $user->remember_token,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-                'deleted_at' => $user->deleted_at,
+                'created_at' => $user->created_at ? $user->created_at->toDateString() : null,
+                'updated_at' => $user->updated_at ? $user->updated_at->toDateString() : null,
+                'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateString() : null,
             ];
         }
 
         return $transformed;
     }
 
+    private function getCreditsNotes()
+    {
+        // Confusions, what do to with: assigned_user_id, project_id, vendor_id,
+        // line_items, backup, total_taxes, uses_inclusive_taxes, custom_surcharge1, last_viewed,
+
+        // Questions: recurring_id, will be added when we split invoices by is_recurring?
+
+        $credits = [];
+
+        foreach ($this->account->invoices()->where('amount', '<', '0')->withTrashed()->get() as $credit) {
+            $invoices[] = [
+                'id' => $credit->id,
+                'client_id' => $credit->client_id,
+                'user_id' => $credit->user_id,
+                'company_id' => $credit->account_id,
+                'status_id' => $credit->invoice_status_id,
+                'design_id' => $credit->invoice_design_id,
+                'number' => $credit->invoice_number,
+                'discount' => $credit->discount,
+                'is_amount_discount' => $credit->is_amount_discount ?: false,
+                'po_number' => $credit->po_number,
+                'date' => $credit->invoice_date,
+                'last_sent_date' => $credit->last_sent_date,
+                'due_date' => $credit->due_date,
+                'is_deleted' => $credit->is_deleted,
+                'footer' => $credit->invoice_footer,
+                'public_notes' => $credit->public_notes,
+                'private_notes' => $credit->private_notes,
+                'terms' => $credit->terms,
+                'tax_name1' => $credit->tax_name1,
+                'tax_name2' => $credit->tax_name2,
+                'tax_rate1' => $credit->tax_rate1,
+                'tax_rate2' => $credit->tax_rate2,
+                'custom_value1' => $credit->custom_value1,
+                'custom_value2' => $credit->custom_value2,
+                'next_send_date' => null,
+                'amount' => $credit->amount,
+                'balance' => $credit->balance,
+                'partial' => $credit->partial,
+                'partial_due_date' => $credit->partial_due_date,
+                'line_items' => $this->getInvoiceItems($credit->invoice_items),
+                'created_at' => $credit->created_at ? $invoice->created_at->toDateString() : null,
+                'updated_at' => $credit->updated_at ? $invoice->updated_at->toDateString() : null,
+                'deleted_at' => $credit->deleted_at ? $invoice->deleted_at->toDateString() : null,
+            ];
+        }
+
+        return $credits;
+    }
     /**
      * @return array
      */
@@ -272,8 +321,9 @@ class StepsController extends BaseController
 
         $invoices = [];
 
-        foreach ($this->account->invoices()->withTrashed()->get() as $invoice) {
+        foreach ($this->account->invoices()->where('amount', '>=', '0')->withTrashed()->get() as $invoice) {
             $invoices[] = [
+                'id' => $invoice->id,
                 'client_id' => $invoice->client_id,
                 'user_id' => $invoice->user_id,
                 'company_id' => $invoice->account_id,
@@ -303,9 +353,9 @@ class StepsController extends BaseController
                 'partial' => $invoice->partial,
                 'partial_due_date' => $invoice->partial_due_date,
                 'line_items' => $this->getInvoiceItems($invoice->invoice_items),
-                'created_at' => $invoice->created_at,
-                'updated_at' => $invoice->updated_at,
-                'deleted_at' => $invoice->deleted_at,
+                'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
+                'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
+                'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
             ];
         }
 
@@ -357,6 +407,7 @@ class StepsController extends BaseController
         // Notes: assigned_user_id, project_id,
         foreach ($quotes as $quote) {
             $transformed[] = [
+                'id' => $quote->id,
                 'client_id' => $quote->client_id,
                 'user_id' => $quote->user_id,
                 'company_id' => $quote->account_id,
@@ -364,7 +415,7 @@ class StepsController extends BaseController
                 'design_id' => $quote->invoice_design_id,
                 'number' => $quote->invoice_number,
                 'discount' => $quote->discount,
-                'is_amount_discount' => $quote->is_amount_discount,
+                'is_amount_discount' => $quote->is_amount_discount ?: false,
                 'po_number' => $quote->po_number,
                 'date' => $quote->invoice_date,
                 'last_sent_date' => $quote->last_sent_date,
@@ -385,9 +436,9 @@ class StepsController extends BaseController
                 'balance' => $quote->balance,
                 'partial' => $quote->partial,
                 'partial_due_date' => $quote->partial_due_date,
-                'created_at' => $quote->created_at,
-                'updated_at' => $quote->updated_at,
-                'deleted_at' => $quote->deleted_at,
+                'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
+                'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
+                'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
             ];
         }
 
@@ -408,6 +459,9 @@ class StepsController extends BaseController
         foreach ($payments as $payment) {
             $transformed[] = [
                 'id' => $payment->id,
+                    'invoices' => [
+                        ['invoice_id' => $payment->invoice_id, 'amount' => $payment->amount, 'refunded' => $payment->refunded],
+                    ],
                 'invoice_id' => $payment->invoice_id,
                 'company_id' => $payment->account_id,
                 'client_id' => $payment->client_id,
@@ -418,15 +472,16 @@ class StepsController extends BaseController
                 'type_id' => $payment->payment_type_id,
                 'status_id' => $payment->payment_status_id,
                 'amount' => $payment->amount,
+                'applied' => $payment->amount,
                 'refunded' => $payment->refunded,
                 'date' => $payment->payment_date,
                 'transaction_reference' => $payment->transaction_reference,
                 'payer_id' => $payment->payer_id,
-                'number' => $payment->routing_number, // @needs verification
-                'updated_at' => $payment->updated_at,
-                'created_at' => $payment->created_at,
-                'deleted_at' => $payment->deleted_at,
                 'is_deleted' => $payment->is_deleted,
+                //'number' => $payment->routing_number, // @needs verification
+                'updated_at' => $payment->updated_at ? $payment->updated_at->toDateString() : null,
+                'created_at' => $payment->created_at ? $payment->created_at->toDateString() : null,
+                'deleted_at' => $payment->deleted_at ? $payment->deleted_at->toDateString() : null,
             ];
         }
 
@@ -438,7 +493,7 @@ class StepsController extends BaseController
      */
     private function getCredits()
     {
-        $credits = Credit::where('account_id', $this->account->id)
+        $credits = Credit::where('account_id', $this->account->id)->where('balance', '>', '0')->whereIsDeleted(false)
             ->withTrashed()
             ->get();
 
@@ -448,19 +503,18 @@ class StepsController extends BaseController
 
         foreach ($credits as $credit) {
             $transformed[] = [
-                'id' => $credit->id,
                 'client_id' => $credit->client_id,
                 'user_id' => $credit->user_id,
                 'company_id' => $credit->account_id,
                 'is_deleted' => $credit->is_deleted,
-                'amount' => $credit->amount,
-                'balance' => $credit->balance,
-                'credit_date' => $credit->date, // needs verification
-                'credit_number' => $credit->number, // needs verification
-                'private_notes' => $credit->private_notes,
-                'created_at' => $credit->created_at,
-                'updated_at' => $credit->updated_at,
-                'deleted_at' => $credit->deleted_at,
+                'amount' => $credit->balance,
+                'applied' => 0,
+                'refunded' => 0,
+                'date' => $credit->date, // needs verification
+                //'private_notes' => $credit->private_notes,
+                'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
+                'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
+                'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
             ];
         }
 
