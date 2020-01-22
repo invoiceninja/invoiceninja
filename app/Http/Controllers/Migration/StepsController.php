@@ -111,8 +111,8 @@ class StepsController extends BaseController
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
             'custom_fields' => $this->account->custom_fields,
-            'created_at' => $this->account->created_at  ? $this->account->created_at->toDateString() : null,
-            'updated_at' => $this->account->updated_at  ? $this->account->updated_at->toDateString() : null,
+            'created_at' => $this->account->created_at ? $this->account->created_at->toDateString() : null,
+            'updated_at' => $this->account->updated_at ? $this->account->updated_at->toDateString() : null,
         ];
     }
 
@@ -309,6 +309,7 @@ class StepsController extends BaseController
 
         return $credits;
     }
+
     /**
      * @return array
      */
@@ -459,9 +460,9 @@ class StepsController extends BaseController
         foreach ($payments as $payment) {
             $transformed[] = [
                 'id' => $payment->id,
-                    'invoices' => [
-                        ['invoice_id' => $payment->invoice_id, 'amount' => $payment->amount, 'refunded' => $payment->refunded],
-                    ],
+                'invoices' => [
+                    ['invoice_id' => $payment->invoice_id, 'amount' => $payment->amount, 'refunded' => $payment->refunded],
+                ],
                 'invoice_id' => $payment->invoice_id,
                 'company_id' => $payment->account_id,
                 'client_id' => $payment->client_id,
