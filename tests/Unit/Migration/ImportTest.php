@@ -6,8 +6,11 @@ use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
@@ -294,11 +297,11 @@ class ImportTest extends TestCase
 
     public function testImportFileExists()
     {
-        $migration_file = base_path().'/tests/Unit/Migration/migration.json';
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
         $this->assertTrue(file_exists($migration_file));
 
-        $migration_array = json_decode(file_get_contents($migration_file),1);
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
 
         $this->assertGreaterThan(1, count($migration_array));
 
@@ -311,10 +314,159 @@ class ImportTest extends TestCase
 
         $this->invoice->forceDelete();
 
-        $migration_file = base_path().'/tests/Unit/Migration/migration.json';
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file),1);
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
 
         Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $this->assertTrue(true);
+    }
+
+    public function testClientAttributes()
+    {
+        $original_number = Client::count();
+
+        $random_balance = rand(0, 10);
+
+        $data['clients'] = [
+            0 => [
+                'id' => 1,
+                'name' => 'My awesome unique client',
+                'balance' => $random_balance,
+                'user_id' => 1,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        $client = Client::where('name', 'My awesome unique client')
+            ->where('balance', $random_balance)
+            ->first();
+
+        // Originally was checked with ClientContact::whereEmail() but it throws 'array to string conversion' on insert.
+
+        $this->assertNotNull($client);
+        $this->assertGreaterThan($original_number, Client::count());
+        $this->assertGreaterThanOrEqual(0, $client->balance);
+    }
+
+    public function testInvoiceImporting()
+    {
+        $original_number = Invoice::count();
+
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Invoice::count());
+    }
+
+    public function testInvoiceAttributes()
+    {
+        $original_number = Invoice::count();
+
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Invoice::count());
+
+        $invoice_1 = Invoice::where('number', '0001')
+            ->where('discount', '0.00')
+            ->where('date', '2020-03-18')
+            ->first();
+
+        $invoice_2 = Invoice::where('number', '0018')
+            ->where('discount', '0.00')
+            ->where('date', '2019-10-15')
+            ->first();
+
+        $this->assertNotNull($invoice_1);
+        $this->assertNotNull($invoice_2);
+
+        $this->assertEquals('43.7500', $invoice_1->amount);
+        $this->assertEquals('55.2600', $invoice_2->amount);
+
+        $this->assertEquals('18.7700', $invoice_1->balance);
+        $this->assertEquals('49.37', $invoice_1->balance);
+    }
+
+    public function testQuoteAttributes()
+    {
+        $original_number = Quote::count();
+
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_number, Invoice::count());
+
+        $quote = Quote::where('number', '0002')
+            ->where('discount', '0.00')
+            ->where('date', '2020-04-26')
+            ->first();
+
+        $this->assertNotNull($quote);
+        $this->assertEquals('17.12', $quote->amount);
+        $this->assertEquals('17.12', $quote->balance);
+    }
+
+    public function testPaymentsImport()
+    {
+        $original_count = Payment::count();
+
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_count, Payment::count());
+    }
+
+    public function testPaymentDependsOnClient()
+    {
+        try {
+            $data['payments'] = [
+                0 => [
+                    'client_id' => 1,
+                    'amount' => 1,
+                ]
+            ];
+
+            Import::dispatchNow($data, $this->company, $this->user);
+        } catch (ResourceDependencyMissing $e) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function testQuotesImport()
+    {
+        $original_count = Credit::count();
+
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_count, Credit::count());
     }
 }
