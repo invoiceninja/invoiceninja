@@ -91,9 +91,6 @@ class StepsController extends BaseController
      */
     protected function getCompany()
     {
-        // Notes: show_product_details, show_product_cost
-        // What to do with: enabled_tax_rates, enable_product_costs, enable_product_quantity, portal_mode, portal_domain,
-
         return [
             'account_id' => $this->account->id,
             'industry_id' => $this->account->industry_id,
@@ -111,6 +108,7 @@ class StepsController extends BaseController
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
             'custom_fields' => $this->account->custom_fields,
+            'uses_inclusive_taxes' => $this->account->inclusive_taxes,
             'created_at' => $this->account->created_at ? $this->account->created_at->toDateString() : null,
             'updated_at' => $this->account->updated_at ? $this->account->updated_at->toDateString() : null,
         ];
@@ -191,8 +189,6 @@ class StepsController extends BaseController
      */
     protected function getProducts()
     {
-        // Confusions: assigned_user_id, project_id, vendor_id, price,
-
         $products = Product::where('account_id', $this->account->id)
             ->withTrashed()
             ->get();
@@ -227,8 +223,6 @@ class StepsController extends BaseController
      */
     public function getUsers()
     {
-        // Missing, notes: device_token, ip, theme_id, oauth_user_token, avatar, signature,
-
         $users = User::where('account_id', $this->account->id)
             ->withTrashed()
             ->get();
@@ -262,15 +256,10 @@ class StepsController extends BaseController
 
     private function getCreditsNotes()
     {
-        // Confusions, what do to with: assigned_user_id, project_id, vendor_id,
-        // line_items, backup, total_taxes, uses_inclusive_taxes, custom_surcharge1, last_viewed,
-
-        // Questions: recurring_id, will be added when we split invoices by is_recurring?
-
         $credits = [];
 
         foreach ($this->account->invoices()->where('amount', '<', '0')->withTrashed()->get() as $credit) {
-            $invoices[] = [
+            $credits[] = [
                 'id' => $credit->id,
                 'client_id' => $credit->client_id,
                 'user_id' => $credit->user_id,
@@ -301,9 +290,9 @@ class StepsController extends BaseController
                 'partial' => $credit->partial,
                 'partial_due_date' => $credit->partial_due_date,
                 'line_items' => $this->getInvoiceItems($credit->invoice_items),
-                'created_at' => $credit->created_at ? $invoice->created_at->toDateString() : null,
-                'updated_at' => $credit->updated_at ? $invoice->updated_at->toDateString() : null,
-                'deleted_at' => $credit->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
+                'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
+                'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
             ];
         }
 
@@ -315,11 +304,6 @@ class StepsController extends BaseController
      */
     protected function getInvoices()
     {
-        // Confusions, what do to with: assigned_user_id, project_id, vendor_id,
-        // line_items, backup, total_taxes, uses_inclusive_taxes, custom_surcharge1, last_viewed,
-
-        // Questions: recurring_id, will be added when we split invoices by is_recurring?
-
         $invoices = [];
 
         foreach ($this->account->invoices()->where('amount', '>=', '0')->withTrashed()->get() as $invoice) {
@@ -371,8 +355,6 @@ class StepsController extends BaseController
     {
         $transformed = [];
 
-        // Missing on V1: is_amount_discount, sort_id, line_total
-
         foreach ($items as $item) {
             $transformed[] = [
                 'id' => $item->id,
@@ -383,10 +365,10 @@ class StepsController extends BaseController
                 'discount' => $item->discount,
                 'tax_name1' => $item->tax_name1,
                 'tax_rate1' => $item->tax_rate1,
-                'date' => $item->created_at, // needs verification
+                'date' => $item->created_at,
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
-                'line_item_type_id' => $item->invoice_item_type_id, // needs verification
+                'line_item_type_id' => $item->invoice_item_type_id,
             ];
         }
 
@@ -405,7 +387,6 @@ class StepsController extends BaseController
             ->withTrashed()
             ->get();
 
-        // Notes: assigned_user_id, project_id,
         foreach ($quotes as $quote) {
             $transformed[] = [
                 'id' => $quote->id,
@@ -454,9 +435,6 @@ class StepsController extends BaseController
             ->withTrashed()
             ->get();
 
-        // 'invoice_id' missing in the v2? 'project_id' from v2 missing in the v1?
-        // vendor_id, applied,
-
         foreach ($payments as $payment) {
             $transformed[] = [
                 'id' => $payment->id,
@@ -500,8 +478,6 @@ class StepsController extends BaseController
 
         $transformed = [];
 
-        // Notes: public_id & a lot of missing fields that are available only on v2
-
         foreach ($credits as $credit) {
             $transformed[] = [
                 'client_id' => $credit->client_id,
@@ -511,7 +487,7 @@ class StepsController extends BaseController
                 'amount' => $credit->balance,
                 'applied' => 0,
                 'refunded' => 0,
-                'date' => $credit->date, // needs verification
+                'date' => $credit->date,
                 //'private_notes' => $credit->private_notes,
                 'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
                 'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
