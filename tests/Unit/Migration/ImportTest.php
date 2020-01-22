@@ -397,7 +397,7 @@ class ImportTest extends TestCase
         $this->assertEquals('55.2600', $invoice_2->amount);
 
         $this->assertEquals('18.7700', $invoice_1->balance);
-        $this->assertEquals('49.37', $invoice_1->balance);
+        $this->assertEquals('49.3700', $invoice_2->balance);
     }
 
     public function testQuoteAttributes()
@@ -420,8 +420,8 @@ class ImportTest extends TestCase
             ->first();
 
         $this->assertNotNull($quote);
-        $this->assertEquals('17.12', $quote->amount);
-        $this->assertEquals('17.12', $quote->balance);
+        $this->assertEquals('0.0000', $quote->amount);
+        $this->assertEquals('0.0000', $quote->balance);
     }
 
     public function testPaymentsImport()
