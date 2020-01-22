@@ -54,7 +54,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'tax_rates', 'users', 'clients', 'products', 'invoices', 'quotes',
+        'company', 'users', 'tax_rates',  'clients', 'products', 'invoices', 'quotes',
     ];
 
     /**
@@ -102,6 +102,8 @@ class Import implements ShouldQueue
     {
         foreach ($this->data as $key => $resource) {
 
+\Log::error("processing {$key}");
+
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration($key);
             }
@@ -127,6 +129,9 @@ class Import implements ShouldQueue
         if ($validator->fails()) {
             throw new \Exception($validator->errors());
         }
+
+        if(isset($data['account_id']))
+            unset($data['account_id']);
 
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
@@ -154,11 +159,18 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
 
             $modified = $resource;
-            $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->processUserId($resource);
+            $company_id = $this->company->id;
+            $user_id = $this->processUserId($resource);
 
-            $tax_rate = TaxRateFactory::create($this->company->id, $this->user->id);
+                if(isset($resource['user_id']))
+                    unset($resource['user_id']);
+
+                if(isset($resource['company_id']))
+                    unset($resource['company_id']);
+
+            $tax_rate = TaxRateFactory::create($this->company->id, $user_id);
             $tax_rate->fill($resource);
+
             $tax_rate->save();
         }
     }
@@ -276,6 +288,7 @@ class Import implements ShouldQueue
 
     private function processInvoices(array $data): void
     {
+
         Invoice::unguard();
 
         $rules = [
@@ -418,6 +431,7 @@ class Import implements ShouldQueue
      */
     public function processUserId(array $resource)
     {
+
         if (!array_key_exists('user_id', $resource)) {
             return $this->user->id;
         }
