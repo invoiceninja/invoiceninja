@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Util;
 
+use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
@@ -108,8 +109,6 @@ class Import implements ShouldQueue
     {
         foreach ($this->data as $key => $resource) {
 
-\Log::error("processing {$key}");
-
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration($key);
             }
@@ -133,7 +132,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         if(isset($data['account_id']))
@@ -160,7 +159,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         foreach ($data as $resource) {
@@ -203,7 +202,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         $user_repository = new UserRepository();
@@ -274,7 +273,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         $product_repository = new ProductRepository();
@@ -305,7 +304,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         $invoice_repository = new InvoiceRepository();
@@ -350,7 +349,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         $credit_repository = new CreditRepository();
@@ -394,7 +393,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         $quote_repository = new QuoteRepository();
@@ -442,7 +441,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new \Exception($validator->errors());
+            throw new MigrationValidatorFailed($validator->errors());
         }
 
         $payment_repository = new PaymentRepository(new CreditRepository());
@@ -468,7 +467,7 @@ class Import implements ShouldQueue
                 foreach($modified['invoices'] as $invoice)
                     $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
             }
-            
+
             $payment = $payment_repository->save(
                 $modified, PaymentFactory::create($this->company->id, $modified['user_id'])
             );

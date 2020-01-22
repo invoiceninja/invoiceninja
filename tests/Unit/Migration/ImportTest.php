@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Migration;
 
+use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
@@ -100,7 +101,7 @@ class ImportTest extends TestCase
             ];
 
             Import::dispatchNow($data, $this->company, $this->user);
-        } catch (\Exception $e) {
+        } catch (MigrationValidatorFailed $e) {
             $this->assertTrue(true);
         }
 
@@ -146,7 +147,7 @@ class ImportTest extends TestCase
             ];
 
             Import::dispatchNow($data, $this->company, $this->user);
-        } catch (\Exception $e) {
+        } catch (MigrationValidatorFailed $e) {
             $this->assertTrue(true);
         }
 
