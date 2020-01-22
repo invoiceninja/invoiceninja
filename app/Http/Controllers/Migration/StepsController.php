@@ -457,7 +457,6 @@ class StepsController extends BaseController
                 'transaction_reference' => $payment->transaction_reference,
                 'payer_id' => $payment->payer_id,
                 'is_deleted' => $payment->is_deleted,
-                //'number' => $payment->routing_number, // @needs verification
                 'updated_at' => $payment->updated_at ? $payment->updated_at->toDateString() : null,
                 'created_at' => $payment->created_at ? $payment->created_at->toDateString() : null,
                 'deleted_at' => $payment->deleted_at ? $payment->deleted_at->toDateString() : null,
@@ -488,7 +487,6 @@ class StepsController extends BaseController
                 'applied' => 0,
                 'refunded' => 0,
                 'date' => $credit->date,
-                //'private_notes' => $credit->private_notes,
                 'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
                 'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
                 'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
