@@ -7,6 +7,7 @@ use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
@@ -86,7 +87,7 @@ class ImportTest extends TestCase
         try {
             $data['tax_rates'] = [
                 0 => [
-                    'name' => 'My awesome tax rate 1',
+                    'name' => '',
                     'rate' => '1.000',
                 ],
                 1 => [
@@ -219,6 +220,7 @@ class ImportTest extends TestCase
 
     public function testInvoicesImporting()
     {
+
         $original_number = Invoice::count();
 
         $data['clients'] = [
@@ -232,6 +234,7 @@ class ImportTest extends TestCase
 
         $data['invoices'] = [
             0 => [
+                'id' => 1,
                 'client_id' => 1,
                 'discount' => '0.00',
             ]
@@ -240,6 +243,11 @@ class ImportTest extends TestCase
         Import::dispatchNow($data, $this->company, $this->user);
 
         $this->assertGreaterThan($original_number, Invoice::count());
+
+        Invoice::where('id', '>=', '0')->forceDelete();
+
+        $this->assertEquals(0, Invoice::count());
+
     }
 
     public function testQuotesFailsWithoutClient()
@@ -281,5 +289,32 @@ class ImportTest extends TestCase
         Import::dispatchNow($data, $this->company, $this->user);
 
         $this->assertGreaterThan($original_number, Quote::count());
+    }
+
+
+    public function testImportFileExists()
+    {
+        $migration_file = base_path().'/tests/Unit/Migration/migration.json';
+
+        $this->assertTrue(file_exists($migration_file));
+
+        $migration_array = json_decode(file_get_contents($migration_file),1);
+
+        $this->assertGreaterThan(1, count($migration_array));
+
+    }
+
+    public function testAllImport()
+    {
+
+        //$this->makeTestData();
+
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path().'/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file),1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
     }
 }
