@@ -108,7 +108,7 @@ class StepsController extends BaseController
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
             'custom_fields' => $this->account->custom_fields,
-            'uses_inclusive_taxes' => $this->account->inclusive_taxes,
+            //'uses_inclusive_taxes' => $this->account->inclusive_taxes,
             'created_at' => $this->account->created_at ? $this->account->created_at->toDateString() : null,
             'updated_at' => $this->account->updated_at ? $this->account->updated_at->toDateString() : null,
         ];
@@ -325,6 +325,7 @@ class StepsController extends BaseController
                 'footer' => $invoice->invoice_footer,
                 'public_notes' => $invoice->public_notes,
                 'private_notes' => $invoice->private_notes,
+                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
                 'terms' => $invoice->terms,
                 'tax_name1' => $invoice->tax_name1,
                 'tax_name2' => $invoice->tax_name2,
