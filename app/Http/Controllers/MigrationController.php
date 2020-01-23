@@ -12,7 +12,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\Migration\UploadMigrationFileRequest;
 use App\Jobs\Account\CreateAccount;
+use App\Jobs\Util\StartMigration;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
@@ -135,5 +137,17 @@ class MigrationController extends BaseController
         $company->save();
 
         return response()->json(['message'=>'Settings preserved'], 200);
+    }
+
+    public function uploadMigrationFile(UploadMigrationFileRequest $request)
+    {
+        $file = $request->file('migration')->storeAs(
+            'migrations', $request->file('migration')->getClientOriginalName()
+        );
+
+        /** Not tested. */
+        StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
+
+        return response()->json([], 200);
     }
 }

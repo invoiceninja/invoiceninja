@@ -78,6 +78,8 @@ Route::group(['middleware' => ['api_db', 'api_secret_check', 'token_auth', 'loca
 
     Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
 
+    Route::post('migrate', 'Migration\MigrateController@index')->name('migrate.start');
+
 //  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
     Route::get('users', 'UserController@index');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
@@ -90,6 +92,7 @@ Route::group(['middleware' => ['api_db', 'api_secret_check', 'token_auth', 'loca
 
     Route::post('migration/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
     Route::post('migration/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
+    Route::post('migration/upload_migration', 'MigrationController@uploadMigrationFile')->middleware('password_protected');
 
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
 

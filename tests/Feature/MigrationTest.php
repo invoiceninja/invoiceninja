@@ -93,4 +93,22 @@ class MigrationTest extends TestCase
     	$this->assertNotNull($this->company->settings->timezone_id);
 
     }
+
+    public function testMigrationFileUpload()
+    {
+        $data = [];
+
+        $token = $this->company->tokens->first()->token;
+
+        $response = $this->withHeaders([
+                'X-API-TOKEN' => $token,
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-Requested-With' => 'XMLHttpRequest'
+            ])->post('/api/v1/migration/upload_migration', $data);
+
+        dd($response->getContent()); // "{"message":"Access denied","errors":[]}"
+
+        $response->assertStatus(200);
+        $this->assertTrue(file_exists(base_path('migrations/migration/migration.json')));
+    }
 }
