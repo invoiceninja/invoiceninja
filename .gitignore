@@ -22,3 +22,6 @@ yarn-error.log
 /public/vendors/*
 public/mix-manifest.json
 *.log
+
+# Ignore local migrations
+storage/migrations

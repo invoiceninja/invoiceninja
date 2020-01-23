@@ -81,11 +81,24 @@ trait GeneratesCounter
         $this->resetCounters($client);
 
         //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->credit_number_pattern;
-        $prefix = $client->company->settings->credit_number_pattern;
-        $padding = $client->company->settings->credit_number_pattern;
+        $pattern = $client->getSetting('credit_number_pattern');
+        //Determine if we are using client_counters
+        if (strpos($pattern, 'clientCounter')) {
+            $counter = $client->settings->credit_number_counter;
+            $counter_entity = $client;
+        } elseif (strpos($pattern, 'groupCounter')) {
+            $counter = $client->group_settings->credit_number_counter;
+            $counter_entity = $client->group_settings;
+        } else {
+            $counter = $client->company->settings->credit_number_counter;
+            $counter_entity = $client->company;
+        }
 
-        $credit_number = $this->checkEntityNumber(Credit::class, $client, $counter, $padding, $prefix, $pattern);
+        //Return a valid counter
+        $pattern = $client->getSetting('credit_number_pattern');
+        $padding = $client->getSetting('counter_padding');
+
+        $credit_number = $this->checkEntityNumber(Credit::class, $client, $counter, $padding, $pattern);
 
         $this->incrementCounter($client->company, 'credit_number_counter');
 

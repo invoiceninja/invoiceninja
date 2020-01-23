@@ -45,7 +45,6 @@ class SystemHealth
             $system_health = false;
         }
 
-
         return [
             'system_health' => $system_health,
             'extensions' => self::extensions(),
@@ -91,7 +90,9 @@ class SystemHealth
                 }
             }
 
-            return $result;
         }
+
+        return $result;
+
     }
 }

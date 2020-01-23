@@ -69,10 +69,12 @@ class PaymentRepository extends BaseRepository
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
 
+
         $payment->fill($data);
         $payment->status_id = Payment::STATUS_COMPLETED;
 
         $payment->save();
+
 
         if (!$payment->number)
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
@@ -87,12 +89,12 @@ class PaymentRepository extends BaseRepository
 
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
-            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->company()->get();
+            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
 
             foreach ($data['invoices'] as $paid_invoice) {
-                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->company()->first();
+                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
                     ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
@@ -107,12 +109,12 @@ class PaymentRepository extends BaseRepository
 
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->company()->get();
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
 
             $payment->credits()->saveMany($credits);
 
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::whereId($paid_credit['credit_id'])->company()->first();
+                $credit = Credit::whereId($paid_credit['credit_id'])->first();
 
                 if ($credit)
                     ApplyCreditPayment::dispatchNow($paid_credit, $payment, $paid_credit['amount'], $credit->company);
@@ -145,7 +147,7 @@ class PaymentRepository extends BaseRepository
 
             foreach ($data['invoices'] as $adjusted_invoice) {
 
-                $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->company()->first();
+                $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->first();
 
                 $invoice_total_adjustment += $adjusted_invoice['amount'];
 
@@ -154,7 +156,7 @@ class PaymentRepository extends BaseRepository
                     //process and insert credit notes
                     foreach ($adjusted_invoice['credits'] as $credit) {
 
-                        $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->company()->id, auth()->user()->id), $invoice);
+                        $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->id, auth()->user()->id), $invoice);
 
                     }
 
