@@ -9,6 +9,7 @@ use App\Jobs\Util\Import;
 use App\Jobs\Util\StartMigration;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -18,6 +19,7 @@ use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -194,11 +196,21 @@ class ImportTest extends TestCase
 
         $data['products'] = [
             0 => [
-                'id' => 1,
-                'product_key' => 'My awesome product',
-                'cost' => '21.0000',
-                'price' => '1.000',
-                'quantity' => 1,
+                "company_id" => 1,
+                "user_id" => 1,
+                "custom_value1" => null,
+                "custom_value2" => null,
+                "product_key" => "et",
+                "notes" => "Natus repudiandae occaecati odit est aliquam reiciendis. Nihil sit praesentium excepturi provident nostrum sint. In fugit a dicta voluptas neque quo vel ullam.",
+                "cost" => "5.0000",
+                "quantity" => "0.0000",
+                "tax_name1" => null,
+                "tax_name2" => null,
+                "tax_rate1" => "0.000",
+                "tax_rate2" => "0.000",
+                "created_at" => "2020-01-22",
+                "updated_at" => "2020-01-22",
+                "deleted_at" => null
             ],
         ];
 
@@ -491,5 +503,104 @@ class ImportTest extends TestCase
         $this->assertTrue(file_exists($extracted_archive));
         $this->assertTrue(is_dir($extracted_archive));
         $this->assertTrue(file_exists($migration_file));
+    }
+
+    public function testValidityOfImportedData()
+    {
+        $this->invoice->forceDelete();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+
+        $differences = [];
+
+        foreach ($migration_array['users'] as $key => $user) {
+            $record = User::where('email', $user['email'])->first();
+
+            if (!$record) {
+                $differences['users']['missing'][] = $user['email'];
+            }
+        }
+
+        foreach ($migration_array['tax_rates'] as $key => $tax_rate) {
+            $record = TaxRate::where('name', $tax_rate['name'])
+                ->where('rate', $tax_rate['rate'])
+                ->first();
+
+            if (!$record) {
+                $differences['tax_rates']['missing'][] = $tax_rate['name'];
+            }
+        }
+
+        foreach ($migration_array['clients'] as $key => $client) {
+            $record = Client::where('name', $client['name'])
+                ->where('city', $client['city'])
+                ->first();
+
+            if (!$record) {
+                $differences['clients']['missing'][] = $client['name'];
+            }
+        }
+
+        /* foreach ($migration_array['products'] as $key => $product) {
+            $record = Product::where('product_key', $product['product_key'])
+                ->where('quantity', $product['quantity'])
+                ->first();
+
+            if (!$record) {
+                $differences['products']['missing'][] = $product['notes'];
+            }
+        } */
+
+        foreach ($migration_array['invoices'] as $key => $invoices) {
+            $record = Invoice::where('number', $invoices['number'])
+                ->where('is_amount_discount', $invoices['is_amount_discount'])
+                ->where('due_date', $invoices['due_date'])
+                ->first();
+
+            if (!$record) {
+                $differences['invoices']['missing'][] = $invoices['id'];
+            }
+        }
+
+        foreach ($migration_array['quotes'] as $key => $quote) {
+            $record = Quote::where('number', $quote['number'])
+                ->where('is_amount_discount', $quote['is_amount_discount'])
+                ->where('due_date', $quote['due_date'])
+                ->first();
+
+            if (!$record) {
+                $differences['quotes']['missing'][] = $quote['id'];
+            }
+        }
+
+        foreach ($migration_array['payments'] as $key => $payment) {
+            $record = Payment::where('amount', $payment['amount'])
+                ->where('applied', $payment['applied'])
+                ->where('refunded', $payment['refunded'])
+                ->first();
+
+            if (!$record) {
+                $differences['quotes']['missing'][] = $payment['id'];
+            }
+        }
+
+        /*foreach ($migration_array['credits'] as $key => $credit) {
+            $record = Credit::where('number', $credit['number'])
+                ->where('date', $credit['date'])
+                ->first();
+
+            if (!$record) {
+                $differences['credits']['missing'][] = $credit['id'];
+            }
+        }*/
+
+        dd($differences);
+
+        $this->assertCount(0, $differences);
     }
 }
