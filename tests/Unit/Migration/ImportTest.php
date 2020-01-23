@@ -6,6 +6,7 @@ use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
+use App\Jobs\Util\StartMigration;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -469,5 +470,26 @@ class ImportTest extends TestCase
         Import::dispatchNow($migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original_count, Credit::count());
+    }
+
+    public function testMigrationFileExists()
+    {
+        $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
+
+        $this->assertTrue(file_exists($migration_archive));
+    }
+
+    public function testMigrationFileBeingExtracted()
+    {
+        $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
+
+        StartMigration::dispatchNow($migration_archive, $this->user, $this->company);
+
+        $extracted_archive = storage_path("migrations/migration");
+        $migration_file = storage_path("migrations/migration/migration.json");
+
+        $this->assertTrue(file_exists($extracted_archive));
+        $this->assertTrue(is_dir($extracted_archive));
+        $this->assertTrue(file_exists($migration_file));
     }
 }
