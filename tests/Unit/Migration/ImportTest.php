@@ -599,8 +599,6 @@ class ImportTest extends TestCase
             }
         }*/
 
-        dd($differences);
-
         $this->assertCount(0, $differences);
     }
 }
