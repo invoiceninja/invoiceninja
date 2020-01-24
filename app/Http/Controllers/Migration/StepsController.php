@@ -163,7 +163,6 @@ class StepsController extends BaseController
                 'country_id' => $client->country_id,
                 'phone' => $client->work_phone,
                 'private_notes' => $client->private_notes,
-                'last_login' => $client->last_login,
                 'website' => $client->website,
                 'industry_id' => $client->industry_id,
                 'size_id' => $client->size_id,
