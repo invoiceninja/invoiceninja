@@ -57,6 +57,10 @@ class ClientRepository extends BaseRepository
      */
     public function save(array $data, Client $client) : ?Client
     {
+
+        if(array_key_exists('last_login', $data)) //todo fix source testing data in migration.json file
+            unset($data['last_login']);
+
         $client->fill($data);
 
         $client->save();
