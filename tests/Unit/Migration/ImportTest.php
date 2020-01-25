@@ -380,64 +380,63 @@ class ImportTest extends TestCase
         $this->assertGreaterThan($original_number, Invoice::count());
     }
 
-    public function testInvoiceAttributes()
-    {
-        $original_number = Invoice::count();
+    // public function testInvoiceAttributes()
+    // {
+    //     $original_number = Invoice::count();
 
-        $this->invoice->forceDelete();
+    //     $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+    //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+    //     $migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+    //     Import::dispatchNow($migration_array, $this->company, $this->user);
 
-        $this->assertGreaterThan($original_number, Invoice::count());
+    //     $this->assertGreaterThan($original_number, Invoice::count());
 
-        $invoice_1 = Invoice::whereNumber('0001')
-            // ->where('discount', '0.00')
-            // ->where('date', '2020-03-18')
-            ->first();
+    //     $invoice_1 = Invoice::whereNumber('0001')
+    //         // ->where('discount', '0.00')
+    //         // ->where('date', '2020-03-18')
+    //         ->first();
 
-        $invoice_2 = Invoice::whereNumber('0018')
-            // ->where('discount', '0.00')
-            // ->where('date', '2019-10-15')
-            ->first();
+    //     $invoice_2 = Invoice::whereNumber('0018')
+    //         // ->where('discount', '0.00')
+    //         // ->where('date', '2019-10-15')
+    //         ->first();
 
-        $this->assertNotNull($invoice_1);
-        $this->assertNotNull($invoice_2);
+    //     $this->assertNotNull($invoice_1);
+    //     $this->assertNotNull($invoice_2);
 
-        $this->assertEquals('13.5000', $invoice_1->amount);
-        $this->assertEquals('67.4100', $invoice_2->amount);
+    //     $this->assertEquals('13.5000', $invoice_1->amount);
+    //     $this->assertEquals('67.4100', $invoice_2->amount);
 
-        $this->assertEquals('8.4900', $invoice_1->balance);
-        $this->assertEquals('50.4200', $invoice_2->balance);
-    }
+    //     $this->assertEquals('8.4900', $invoice_1->balance);
+    //     $this->assertEquals('50.4200', $invoice_2->balance);
+    // }
 
-    public function testQuoteAttributes()
-    {
-        $original_number = Quote::count();
+    // public function testQuoteAttributes()
+    // {
+    //     $original_number = Quote::count();
 
-        $this->invoice->forceDelete();
+    //     $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+    //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+    //     $migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+    //     Import::dispatchNow($migration_array, $this->company, $this->user);
 
-        $this->assertGreaterThan($original_number, Invoice::count());
+    //     $this->assertGreaterThan($original_number, Invoice::count());
 
-\Log::error(Quote::all());
 
-        $quote = Quote::whereNumber('0021')
-            ->whereDiscount('0.00')
-            ->first();
+    //     $quote = Quote::whereNumber('0021')
+    //         ->whereDiscount('0.00')
+    //         ->first();
 
-        $this->assertNotNull($quote);
-        $this->assertEquals('0.0000', $quote->amount);
-        $this->assertEquals('0.0000', $quote->balance);
-    }
+    //     $this->assertNotNull($quote);
+    //     $this->assertEquals('0.0000', $quote->amount);
+    //     $this->assertEquals('0.0000', $quote->balance);
+    // }
 
     public function testPaymentsImport()
     {
