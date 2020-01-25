@@ -1,5 +1,4 @@
 <?php
-tideways_xhprof_enable();
 
 // your application code
 
