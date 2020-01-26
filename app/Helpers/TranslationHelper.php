@@ -9,8 +9,6 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-use Illuminate\Support\Facades\Cache;
-
 /**
  * Returns a custom translation string
  * falls back on defaults if no string exists

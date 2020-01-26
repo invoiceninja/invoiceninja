@@ -37,18 +37,9 @@ class ImportTest extends TestCase
 
     public function testImportClassExists()
     {
-        tideways_xhprof_enable();
-
-
         $status = class_exists('App\Jobs\Util\Import');
 
         $this->assertTrue($status);
-
-        $data = tideways_xhprof_disable();
-        file_put_contents(
-            "/home/david/tmp/" . uniqid() . ".ninja.xhprof",
-            serialize($data)
-        );
 
     }
 
