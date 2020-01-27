@@ -237,34 +237,19 @@ class ImportTest extends TestCase
 
     public function testInvoicesImporting()
     {
+        $this->makeTestData();
 
-        $original_number = Invoice::count();
+        $this->invoice->forceDelete();
 
-        $data['clients'] = [
-            0 => [
-                'id' => 1,
-                'name' => 'My awesome client',
-                'balance' => '0.00',
-                'user_id' => 1,
-            ]
-        ];
+        $original_count = Invoice::count();
 
-        $data['invoices'] = [
-            0 => [
-                'id' => 1,
-                'client_id' => 1,
-                'discount' => '0.00',
-            ]
-        ];
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        Import::dispatchNow($data, $this->company, $this->user);
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        $this->assertGreaterThan($original_number, Invoice::count());
+        Import::dispatchNow($migration_array, $this->company, $this->user);
 
-        Invoice::where('id', '>=', '0')->forceDelete();
-
-        $this->assertEquals(0, Invoice::count());
-
+        $this->assertGreaterThan($original_count, Invoice::count());
     }
 
     public function testQuotesFailsWithoutClient()
@@ -378,6 +363,8 @@ class ImportTest extends TestCase
         Import::dispatchNow($migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original_number, Invoice::count());
+
+
     }
 
     public function testInvoiceAttributes()
@@ -519,6 +506,19 @@ class ImportTest extends TestCase
 
         $differences = [];
 
+        foreach ($migration_array['invoices'] as $key => $invoices) {
+            $record = Invoice::whereNumber($invoices['number'])
+                ->whereIsAmountDiscount($invoices['is_amount_discount'])
+                ->whereDueDate($invoices['due_date'])
+                ->whereAmount($invoices['amount'])
+                ->whereBalance($invoices['balance'])
+                ->first();
+
+            if (!$record) {
+                $differences['invoices']['missing'][] = $invoices['id'];
+            }
+        }
+
         foreach ($migration_array['users'] as $key => $user) {
             $record = User::whereEmail($user['email'])->first();
 
@@ -540,6 +540,7 @@ class ImportTest extends TestCase
         foreach ($migration_array['clients'] as $key => $client) {
             $record = Client::whereName($client['name'])
                 ->whereCity($client['city'])
+                // ->where('paid_to_date', $client['paid_to_date']) // TODO: Doesn't work. Need debugging.
                 ->first();
 
             if (!$record) {
@@ -556,17 +557,6 @@ class ImportTest extends TestCase
                 $differences['products']['missing'][] = $product['notes'];
             }
         } */
-
-        foreach ($migration_array['invoices'] as $key => $invoices) {
-            $record = Invoice::whereNumber($invoices['number'])
-                ->whereIsAmountDiscount($invoices['is_amount_discount'])
-                ->whereDueDate($invoices['due_date'])
-                ->first();
-
-            if (!$record) {
-                $differences['invoices']['missing'][] = $invoices['id'];
-            }
-        }
 
         foreach ($migration_array['quotes'] as $key => $quote) {
             $record = Quote::whereNumber($quote['number'])
