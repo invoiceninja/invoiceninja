@@ -18,8 +18,8 @@ class TaxRateTransformer extends EntityTransformer
             'id' => (string) $this->encodePrimaryKey($tax_rate->id),
             'name' => (string) $tax_rate->name,
             'rate' => (float) $tax_rate->rate,
-            'updated_at' => $tax_rate->updated_at,
-            'archived_at' => $tax_rate->deleted_at,
+            'updated_at' => (int)$tax_rate->updated_at,
+            'archived_at' => (int)$tax_rate->deleted_at,
         ];
     }
 }
