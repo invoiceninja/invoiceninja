@@ -45,14 +45,13 @@ class ImportTest extends TestCase
 
     public function testExceptionOnUnavailableResource()
     {
-        try {
-            $data['panda_bears'] = [
-                'name' => 'Awesome Panda Bear',
-            ];
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (ResourceNotAvailableForMigration $e) {
-            $this->assertTrue(true);
-        }
+        $data['panda_bears'] = [
+            'name' => 'Awesome Panda Bear',
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+
     }
 
     public function testCompanyUpdating()
@@ -310,7 +309,7 @@ class ImportTest extends TestCase
             }
         }
 
-         foreach ($migration_array['products'] as $key => $product) {
+        foreach ($migration_array['products'] as $key => $product) {
             $record = Product::where('product_key', $product['product_key'])
                 ->first();
 

@@ -17,6 +17,7 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
+use App\Mail\MigrationFailed;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
@@ -40,6 +41,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -61,7 +63,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'users', 'tax_rates',  'clients', 'products', 'invoices', 'quotes', 'payments', 'credits',
+        'company', 'users', 'tax_rates', 'clients', 'products', 'invoices', 'quotes', 'payments', 'credits',
     ];
 
     /**
@@ -107,15 +109,23 @@ class Import implements ShouldQueue
      */
     public function handle()
     {
-        foreach ($this->data as $key => $resource) {
+        try {
+            foreach ($this->data as $key => $resource) {
 
-            if (!in_array($key, $this->available_imports)) {
-                throw new ResourceNotAvailableForMigration($key);
+                if (!in_array($key, $this->available_imports)) {
+                    throw new ResourceNotAvailableForMigration($key);
+                }
+
+                $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
+
+                $this->{$method}($resource);
             }
-
-            $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
-
-            $this->{$method}($resource);
+        } catch (ResourceNotAvailableForMigration $e) {
+            Mail::to($this->user)->send(new MigrationFailed($e));
+        } catch (MigrationValidatorFailed $e) {
+            Mail::to($this->user)->send(new MigrationFailed($e));
+        } catch (ResourceDependencyMissing $e) {
+            Mail::to($this->user)->send(new MigrationFailed($e));
         }
     }
 
@@ -135,7 +145,7 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed($validator->errors());
         }
 
-        if(isset($data['account_id']))
+        if (isset($data['account_id']))
             unset($data['account_id']);
 
         $company_repository = new CompanyRepository();
@@ -168,11 +178,11 @@ class Import implements ShouldQueue
             $company_id = $this->company->id;
             $user_id = $this->processUserId($resource);
 
-                if(isset($resource['user_id']))
-                    unset($resource['user_id']);
+            if (isset($resource['user_id']))
+                unset($resource['user_id']);
 
-                if(isset($resource['company_id']))
-                    unset($resource['company_id']);
+            if (isset($resource['company_id']))
+                unset($resource['company_id']);
 
             $tax_rate = TaxRateFactory::create($this->company->id, $user_id);
             $tax_rate->fill($resource);
@@ -460,9 +470,8 @@ class Import implements ShouldQueue
             //unset($modified['invoices']);
             unset($modified['invoice_id']);
 
-            if(isset($modified['invoices']))
-            {
-                foreach($modified['invoices'] as $invoice)
+            if (isset($modified['invoices'])) {
+                foreach ($modified['invoices'] as $invoice)
                     $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
             }
 
