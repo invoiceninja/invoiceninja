@@ -43,10 +43,6 @@ class ImportTest extends TestCase
 
     }
 
-    /**
-     * Ensure exception is thrown when resource
-     * is not available for the migration.
-     */
     public function testExceptionOnUnavailableResource()
     {
         try {
@@ -71,154 +67,6 @@ class ImportTest extends TestCase
 
         $this->assertNotEquals($original_company_key, $this->company->company_key);
     }
-
-    // public function testTaxRatesInserting()
-    // {
-    //     $total_tax_rates = TaxRate::count();
-
-    //     $data['tax_rates'] = [
-    //         0 => [
-    //             'name' => 'My awesome tax rate 1',
-    //             'rate' => '1.000',
-    //         ]
-    //     ];
-
-    //     Import::dispatchNow($data, $this->company, $this->user);
-
-    //     $this->assertNotEquals($total_tax_rates, TaxRate::count());
-    // }
-
-    // public function testTaxRateUniqueValidation()
-    // {
-    //     $original_number = TaxRate::count();
-
-    //     try {
-    //         $data['tax_rates'] = [
-    //             0 => [
-    //                 'name' => '',
-    //                 'rate' => '1.000',
-    //             ],
-    //             1 => [
-    //                 'name' => 'My awesome tax rate 1',
-    //                 'rate' => '1.000',
-    //             ]
-    //         ];
-
-    //         Import::dispatchNow($data, $this->company, $this->user);
-    //     } catch (MigrationValidatorFailed $e) {
-    //         $this->assertTrue(true);
-    //     }
-
-    //     $this->assertEquals($original_number, TaxRate::count());
-    // }
-
-    // public function testUsersImporting()
-    // {
-    //     $original_number = User::count();
-
-    //     $data['users'] = [
-    //         0 => [
-    //             'id' => 1,
-    //             'first_name' => 'David',
-    //             'last_name' => 'IN',
-    //             'email' => 'my@awesomemail.com',
-    //         ]
-    //     ];
-
-    //     Import::dispatchNow($data, $this->company, $this->user);
-
-    //     $this->assertGreaterThan($original_number, User::count());
-    // }
-
-    // public function testUserValidator()
-    // {
-    //     $original_number = User::count();
-
-    //     try {
-    //         $data['users'] = [
-    //             0 => [
-    //                 'id' => 1,
-    //                 'first_name' => 'David',
-    //                 'last_name' => 'IN',
-    //                 'email' => 'my@awesomemail.com',
-    //             ],
-    //             1 => [
-    //                 'id' => 2,
-    //                 'first_name' => 'Someone',
-    //                 'last_name' => 'Else',
-    //                 'email' => 'my@awesomemail.com',
-    //             ]
-    //         ];
-
-    //         Import::dispatchNow($data, $this->company, $this->user);
-    //     } catch (MigrationValidatorFailed $e) {
-    //         $this->assertTrue(true);
-    //     }
-
-    //     $this->assertEquals($original_number, User::count());
-    // }
-
-    // public function testClientImporting()
-    // {
-    //     $original_number = Client::count();
-
-    //     $data['users'] = [
-    //         0 => [
-    //             'id' => 1,
-    //             'first_name' => 'David',
-    //             'last_name' => 'IN',
-    //             'email' => 'my@awesomemail.com',
-    //         ],
-    //         1 => [
-    //             'id' => 2,
-    //             'first_name' => 'Someone',
-    //             'last_name' => 'Else',
-    //             'email' => 'my@awesomemail2.com',
-    //         ]
-    //     ];
-
-    //     $data['clients'] = [
-    //         0 => [
-    //             'id' => 1,
-    //             'name' => 'My awesome client',
-    //             'balance' => '0.00',
-    //             'user_id' => 1,
-    //         ]
-    //     ];
-
-    //     Import::dispatchNow($data, $this->company, $this->user);
-
-    //     $this->assertGreaterThan($original_number, Client::count());
-    // }
-
-    // public function testProductsImporting()
-    // {
-    //     $original_number = Product::count();
-
-    //     $data['products'] = [
-    //         0 => [
-    //             "company_id" => 1,
-    //             "user_id" => 1,
-    //             "custom_value1" => null,
-    //             "custom_value2" => null,
-    //             "product_key" => "et",
-    //             "notes" => "Natus repudiandae occaecati odit est aliquam reiciendis. Nihil sit praesentium excepturi provident nostrum sint. In fugit a dicta voluptas neque quo vel ullam.",
-    //             "cost" => "5.0000",
-    //             "quantity" => "0.0000",
-    //             "tax_name1" => null,
-    //             "tax_name2" => null,
-    //             "tax_rate1" => "0.000",
-    //             "tax_rate2" => "0.000",
-    //             "created_at" => "2020-01-22",
-    //             "updated_at" => "2020-01-22",
-    //             "deleted_at" => null
-    //         ],
-    //     ];
-
-    //     Import::dispatchNow($data, $this->company, $this->user);
-
-    //     $this->assertGreaterThan($original_number, Product::count());
-    // }
 
     public function testInvoicesFailsWithoutClient()
     {
@@ -268,32 +116,6 @@ class ImportTest extends TestCase
             $this->assertTrue(true);
         }
     }
-
-    // public function testQuotesImporting()
-    // {
-    //     $original_number = Quote::count();
-
-    //     $data['clients'] = [
-    //         0 => [
-    //             'id' => 1,
-    //             'name' => 'My awesome client',
-    //             'balance' => '0.00',
-    //             'user_id' => 1,
-    //         ]
-    //     ];
-
-    //     $data['quotes'] = [
-    //         0 => [
-    //             'client_id' => 1,
-    //             'discount' => '0.00',
-    //         ]
-    //     ];
-
-    //     Import::dispatchNow($data, $this->company, $this->user);
-
-    //     $this->assertGreaterThan($original_number, Quote::count());
-    // }
-
 
     public function testImportFileExists()
     {
@@ -367,64 +189,6 @@ class ImportTest extends TestCase
 
 
     }
-
-    // public function testInvoiceAttributes()
-    // {
-    //     $original_number = Invoice::count();
-
-    //     $this->invoice->forceDelete();
-
-    //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
-
-    //     $migration_array = json_decode(file_get_contents($migration_file), 1);
-
-    //     Import::dispatchNow($migration_array, $this->company, $this->user);
-
-    //     $this->assertGreaterThan($original_number, Invoice::count());
-
-    //     $invoice_1 = Invoice::whereNumber('0001')
-    //         // ->where('discount', '0.00')
-    //         // ->where('date', '2020-03-18')
-    //         ->first();
-
-    //     $invoice_2 = Invoice::whereNumber('0018')
-    //         // ->where('discount', '0.00')
-    //         // ->where('date', '2019-10-15')
-    //         ->first();
-
-    //     $this->assertNotNull($invoice_1);
-    //     $this->assertNotNull($invoice_2);
-
-    //     $this->assertEquals('13.5000', $invoice_1->amount);
-    //     $this->assertEquals('67.4100', $invoice_2->amount);
-
-    //     $this->assertEquals('8.4900', $invoice_1->balance);
-    //     $this->assertEquals('50.4200', $invoice_2->balance);
-    // }
-
-    // public function testQuoteAttributes()
-    // {
-    //     $original_number = Quote::count();
-
-    //     $this->invoice->forceDelete();
-
-    //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
-
-    //     $migration_array = json_decode(file_get_contents($migration_file), 1);
-
-    //     Import::dispatchNow($migration_array, $this->company, $this->user);
-
-    //     $this->assertGreaterThan($original_number, Invoice::count());
-
-
-    //     $quote = Quote::whereNumber('0021')
-    //         ->whereDiscount('0.00')
-    //         ->first();
-
-    //     $this->assertNotNull($quote);
-    //     $this->assertEquals('0.0000', $quote->amount);
-    //     $this->assertEquals('0.0000', $quote->balance);
-    // }
 
     public function testPaymentsImport()
     {
