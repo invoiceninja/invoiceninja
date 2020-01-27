@@ -176,10 +176,44 @@ class StepsController extends BaseController
                 'shipping_state' => $client->shipping_state,
                 'shipping_postal_code' => $client->shipping_postal_code,
                 'shipping_country_id' => $client->shipping_country_id,
+                'contacts' => $this->getClientContacts($client->contacts),
             ];
         }
 
         return $clients;
+    }
+
+    /**
+     * @param $contacts
+     * @return array
+     */
+    protected function getClientContacts($contacts)
+    {
+        $transformed = [];
+
+        foreach($contacts as $contact) {
+            $transformed[] = [
+                'id' => $contact->id,
+                'company_id' => $contact->account_id,
+                'user_id' => $contact->user_id,
+                'client_id' => $contact->client_id,
+                'first_name' => $contact->first_name,
+                'last_name' => $contact->last_name,
+                'phone' => $contact->phone,
+                'custom_value1' => $contact->custom_value1,
+                'custom_value2' => $contact->custom_value2,
+                'email' => $contact->email,
+                'is_primary' => $contact->is_primary,
+                'send_invoice' => $contact->send_invoice,
+                'confirmed' => $contact->confirmation_token ? true : false,
+                'last_login' => $contact->last_login,
+                'password' => $contact->password,
+                'remember_token' => $contact->remember_token,
+                'contact_key' => $contact->contact_key,
+            ];
+        }
+
+        return $transformed;
     }
 
     /**
