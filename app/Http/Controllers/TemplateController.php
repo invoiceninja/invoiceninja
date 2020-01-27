@@ -113,7 +113,7 @@ class TemplateController extends BaseController
 
         $data = [
             'subject' => request()->input('subject'),
-            'body' => $converter->convertToHtml(request()->input('body')),
+            'body' => $converter->convertToHtml($body),
         ];
 
         return response()->json($data, 200);

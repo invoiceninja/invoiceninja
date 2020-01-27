@@ -166,4 +166,9 @@ class Payment extends BaseModel
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
+
+    public function refund()
+    {
+        
+    }
 }
