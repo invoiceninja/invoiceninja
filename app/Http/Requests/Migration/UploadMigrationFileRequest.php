@@ -24,7 +24,7 @@ class UploadMigrationFileRequest extends FormRequest
     public function rules()
     {
         return [
-            'migration' => ['required', 'mimes:zip'],
+            'migration' => [], // TODO: Write mimes check for zip file.
         ];
     }
 }

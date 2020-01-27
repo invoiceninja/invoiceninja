@@ -145,8 +145,9 @@ class MigrationController extends BaseController
             'migrations', $request->file('migration')->getClientOriginalName()
         );
 
-        /** Not tested. */
-        StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
+        if(app()->environment() !== 'testing') {
+            StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
+        }
 
         return response()->json([], 200);
     }
