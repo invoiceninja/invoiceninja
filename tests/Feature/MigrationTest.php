@@ -40,7 +40,7 @@ class MigrationTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
-    
+
         $this->makeTestData();
     }
 
@@ -110,7 +110,7 @@ class MigrationTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-Requested-With' => 'XMLHttpRequest',
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-            ])->post('/api/v1/migration/upload_migration', $data);
+            ])->post('/api/v1/migration/start', $data);
 
         $response->assertStatus(200);
         $this->assertTrue(file_exists(base_path('storage/migrations/migration/migration.json')));
