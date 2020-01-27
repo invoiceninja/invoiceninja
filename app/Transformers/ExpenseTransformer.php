@@ -73,8 +73,8 @@ class ExpenseTransformer extends EntityTransformer
             'custom_value2' => $expense->custom_value2 ?: '',
             'custom_value3' => $expense->custom_value3 ?: '',
             'custom_value4' => $expense->custom_value4 ?: '',
-            'updated_at' => $expense->updated_at,
-            'archived_at' => $expense->deleted_at,
+            'updated_at' => (int)$expense->updated_at,
+            'archived_at' => (int)$expense->deleted_at,
         ];
     }
 }
