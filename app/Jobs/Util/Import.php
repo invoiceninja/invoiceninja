@@ -339,7 +339,6 @@ class Import implements ShouldQueue
 
     private function processCredits(array $data): void
     {
-
         Credit::unguard();
 
         $rules = [
@@ -368,7 +367,7 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
-            $invoice = $credit_repository->save(
+            $credit = $credit_repository->save(
                 $modified, CreditFactory::create($this->company->id, $modified['user_id'])
             );
 
@@ -376,9 +375,8 @@ class Import implements ShouldQueue
 
             $this->ids['credits'][$key] = [
                 'old' => $resource['id'],
-                'new' => $invoice->id,
+                'new' => $credit->id,
             ];
-
         }
     }
 

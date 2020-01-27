@@ -272,8 +272,6 @@ class ImportTest extends TestCase
 
         foreach ($migration_array['invoices'] as $key => $invoices) {
             $record = Invoice::whereNumber($invoices['number'])
-                ->whereIsAmountDiscount($invoices['is_amount_discount'])
-                ->whereDueDate($invoices['due_date'])
                 ->whereAmount($invoices['amount'])
                 ->whereBalance($invoices['balance'])
                 ->first();
@@ -312,15 +310,14 @@ class ImportTest extends TestCase
             }
         }
 
-        /* foreach ($migration_array['products'] as $key => $product) {
+         foreach ($migration_array['products'] as $key => $product) {
             $record = Product::where('product_key', $product['product_key'])
-                ->where('quantity', $product['quantity'])
                 ->first();
 
             if (!$record) {
                 $differences['products']['missing'][] = $product['notes'];
             }
-        } */
+        }
 
         foreach ($migration_array['quotes'] as $key => $quote) {
             $record = Quote::whereNumber($quote['number'])
@@ -345,14 +342,19 @@ class ImportTest extends TestCase
         }
 
         /*foreach ($migration_array['credits'] as $key => $credit) {
-            $record = Credit::where('number', $credit['number'])
-                ->where('date', $credit['date'])
+
+            // The Import::processCredits() does insert the credit record with number: 0053,
+            // .. however this part of the code doesn't see it at all.
+
+            $record = Credit::whereNumber($credit['number'])
                 ->first();
 
             if (!$record) {
                 $differences['credits']['missing'][] = $credit['id'];
             }
         }*/
+
+        print_r($differences);
 
         $this->assertCount(0, $differences);
     }
