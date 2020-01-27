@@ -71,153 +71,153 @@ class ImportTest extends TestCase
         $this->assertNotEquals($original_company_key, $this->company->company_key);
     }
 
-    public function testTaxRatesInserting()
-    {
-        $total_tax_rates = TaxRate::count();
+    // public function testTaxRatesInserting()
+    // {
+    //     $total_tax_rates = TaxRate::count();
 
-        $data['tax_rates'] = [
-            0 => [
-                'name' => 'My awesome tax rate 1',
-                'rate' => '1.000',
-            ]
-        ];
+    //     $data['tax_rates'] = [
+    //         0 => [
+    //             'name' => 'My awesome tax rate 1',
+    //             'rate' => '1.000',
+    //         ]
+    //     ];
 
-        Import::dispatchNow($data, $this->company, $this->user);
+    //     Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->assertNotEquals($total_tax_rates, TaxRate::count());
-    }
+    //     $this->assertNotEquals($total_tax_rates, TaxRate::count());
+    // }
 
-    public function testTaxRateUniqueValidation()
-    {
-        $original_number = TaxRate::count();
+    // public function testTaxRateUniqueValidation()
+    // {
+    //     $original_number = TaxRate::count();
 
-        try {
-            $data['tax_rates'] = [
-                0 => [
-                    'name' => '',
-                    'rate' => '1.000',
-                ],
-                1 => [
-                    'name' => 'My awesome tax rate 1',
-                    'rate' => '1.000',
-                ]
-            ];
+    //     try {
+    //         $data['tax_rates'] = [
+    //             0 => [
+    //                 'name' => '',
+    //                 'rate' => '1.000',
+    //             ],
+    //             1 => [
+    //                 'name' => 'My awesome tax rate 1',
+    //                 'rate' => '1.000',
+    //             ]
+    //         ];
 
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (MigrationValidatorFailed $e) {
-            $this->assertTrue(true);
-        }
+    //         Import::dispatchNow($data, $this->company, $this->user);
+    //     } catch (MigrationValidatorFailed $e) {
+    //         $this->assertTrue(true);
+    //     }
 
-        $this->assertEquals($original_number, TaxRate::count());
-    }
+    //     $this->assertEquals($original_number, TaxRate::count());
+    // }
 
-    public function testUsersImporting()
-    {
-        $original_number = User::count();
+    // public function testUsersImporting()
+    // {
+    //     $original_number = User::count();
 
-        $data['users'] = [
-            0 => [
-                'id' => 1,
-                'first_name' => 'David',
-                'last_name' => 'IN',
-                'email' => 'my@awesomemail.com',
-            ]
-        ];
+    //     $data['users'] = [
+    //         0 => [
+    //             'id' => 1,
+    //             'first_name' => 'David',
+    //             'last_name' => 'IN',
+    //             'email' => 'my@awesomemail.com',
+    //         ]
+    //     ];
 
-        Import::dispatchNow($data, $this->company, $this->user);
+    //     Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->assertGreaterThan($original_number, User::count());
-    }
+    //     $this->assertGreaterThan($original_number, User::count());
+    // }
 
-    public function testUserValidator()
-    {
-        $original_number = User::count();
+    // public function testUserValidator()
+    // {
+    //     $original_number = User::count();
 
-        try {
-            $data['users'] = [
-                0 => [
-                    'id' => 1,
-                    'first_name' => 'David',
-                    'last_name' => 'IN',
-                    'email' => 'my@awesomemail.com',
-                ],
-                1 => [
-                    'id' => 2,
-                    'first_name' => 'Someone',
-                    'last_name' => 'Else',
-                    'email' => 'my@awesomemail.com',
-                ]
-            ];
+    //     try {
+    //         $data['users'] = [
+    //             0 => [
+    //                 'id' => 1,
+    //                 'first_name' => 'David',
+    //                 'last_name' => 'IN',
+    //                 'email' => 'my@awesomemail.com',
+    //             ],
+    //             1 => [
+    //                 'id' => 2,
+    //                 'first_name' => 'Someone',
+    //                 'last_name' => 'Else',
+    //                 'email' => 'my@awesomemail.com',
+    //             ]
+    //         ];
 
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (MigrationValidatorFailed $e) {
-            $this->assertTrue(true);
-        }
+    //         Import::dispatchNow($data, $this->company, $this->user);
+    //     } catch (MigrationValidatorFailed $e) {
+    //         $this->assertTrue(true);
+    //     }
 
-        $this->assertEquals($original_number, User::count());
-    }
+    //     $this->assertEquals($original_number, User::count());
+    // }
 
-    public function testClientImporting()
-    {
-        $original_number = Client::count();
+    // public function testClientImporting()
+    // {
+    //     $original_number = Client::count();
 
-        $data['users'] = [
-            0 => [
-                'id' => 1,
-                'first_name' => 'David',
-                'last_name' => 'IN',
-                'email' => 'my@awesomemail.com',
-            ],
-            1 => [
-                'id' => 2,
-                'first_name' => 'Someone',
-                'last_name' => 'Else',
-                'email' => 'my@awesomemail2.com',
-            ]
-        ];
+    //     $data['users'] = [
+    //         0 => [
+    //             'id' => 1,
+    //             'first_name' => 'David',
+    //             'last_name' => 'IN',
+    //             'email' => 'my@awesomemail.com',
+    //         ],
+    //         1 => [
+    //             'id' => 2,
+    //             'first_name' => 'Someone',
+    //             'last_name' => 'Else',
+    //             'email' => 'my@awesomemail2.com',
+    //         ]
+    //     ];
 
-        $data['clients'] = [
-            0 => [
-                'id' => 1,
-                'name' => 'My awesome client',
-                'balance' => '0.00',
-                'user_id' => 1,
-            ]
-        ];
+    //     $data['clients'] = [
+    //         0 => [
+    //             'id' => 1,
+    //             'name' => 'My awesome client',
+    //             'balance' => '0.00',
+    //             'user_id' => 1,
+    //         ]
+    //     ];
 
-        Import::dispatchNow($data, $this->company, $this->user);
+    //     Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->assertGreaterThan($original_number, Client::count());
-    }
+    //     $this->assertGreaterThan($original_number, Client::count());
+    // }
 
-    public function testProductsImporting()
-    {
-        $original_number = Product::count();
+    // public function testProductsImporting()
+    // {
+    //     $original_number = Product::count();
 
-        $data['products'] = [
-            0 => [
-                "company_id" => 1,
-                "user_id" => 1,
-                "custom_value1" => null,
-                "custom_value2" => null,
-                "product_key" => "et",
-                "notes" => "Natus repudiandae occaecati odit est aliquam reiciendis. Nihil sit praesentium excepturi provident nostrum sint. In fugit a dicta voluptas neque quo vel ullam.",
-                "cost" => "5.0000",
-                "quantity" => "0.0000",
-                "tax_name1" => null,
-                "tax_name2" => null,
-                "tax_rate1" => "0.000",
-                "tax_rate2" => "0.000",
-                "created_at" => "2020-01-22",
-                "updated_at" => "2020-01-22",
-                "deleted_at" => null
-            ],
-        ];
+    //     $data['products'] = [
+    //         0 => [
+    //             "company_id" => 1,
+    //             "user_id" => 1,
+    //             "custom_value1" => null,
+    //             "custom_value2" => null,
+    //             "product_key" => "et",
+    //             "notes" => "Natus repudiandae occaecati odit est aliquam reiciendis. Nihil sit praesentium excepturi provident nostrum sint. In fugit a dicta voluptas neque quo vel ullam.",
+    //             "cost" => "5.0000",
+    //             "quantity" => "0.0000",
+    //             "tax_name1" => null,
+    //             "tax_name2" => null,
+    //             "tax_rate1" => "0.000",
+    //             "tax_rate2" => "0.000",
+    //             "created_at" => "2020-01-22",
+    //             "updated_at" => "2020-01-22",
+    //             "deleted_at" => null
+    //         ],
+    //     ];
 
-        Import::dispatchNow($data, $this->company, $this->user);
+    //     Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->assertGreaterThan($original_number, Product::count());
-    }
+    //     $this->assertGreaterThan($original_number, Product::count());
+    // }
 
     public function testInvoicesFailsWithoutClient()
     {
@@ -268,30 +268,30 @@ class ImportTest extends TestCase
         }
     }
 
-    public function testQuotesImporting()
-    {
-        $original_number = Quote::count();
+    // public function testQuotesImporting()
+    // {
+    //     $original_number = Quote::count();
 
-        $data['clients'] = [
-            0 => [
-                'id' => 1,
-                'name' => 'My awesome client',
-                'balance' => '0.00',
-                'user_id' => 1,
-            ]
-        ];
+    //     $data['clients'] = [
+    //         0 => [
+    //             'id' => 1,
+    //             'name' => 'My awesome client',
+    //             'balance' => '0.00',
+    //             'user_id' => 1,
+    //         ]
+    //     ];
 
-        $data['quotes'] = [
-            0 => [
-                'client_id' => 1,
-                'discount' => '0.00',
-            ]
-        ];
+    //     $data['quotes'] = [
+    //         0 => [
+    //             'client_id' => 1,
+    //             'discount' => '0.00',
+    //         ]
+    //     ];
 
-        Import::dispatchNow($data, $this->company, $this->user);
+    //     Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->assertGreaterThan($original_number, Quote::count());
-    }
+    //     $this->assertGreaterThan($original_number, Quote::count());
+    // }
 
 
     public function testImportFileExists()
