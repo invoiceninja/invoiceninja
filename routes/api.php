@@ -92,7 +92,7 @@ Route::group(['middleware' => ['api_db', 'api_secret_check', 'token_auth', 'loca
 
     Route::post('migration/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
     Route::post('migration/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
-    Route::post('migration/upload_migration', 'MigrationController@uploadMigrationFile')->middleware('password_protected');
+    Route::post('migration/start', 'MigrationController@startMigration')->middleware('password_protected');
 
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
 
