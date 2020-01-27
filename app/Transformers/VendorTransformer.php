@@ -92,8 +92,8 @@ class VendorTransformer extends EntityTransformer
             'is_deleted' => (bool) $vendor->is_deleted,
             'vat_number' => $vendor->vat_number ?: '',
             'id_number' => $vendor->id_number ?: '',
-            'updated_at' => $vendor->updated_at,
-            'archived_at' => $vendor->deleted_at,
+            'updated_at' => (int)$vendor->updated_at,
+            'archived_at' => (int)$vendor->deleted_at,
         ];
     }
 }

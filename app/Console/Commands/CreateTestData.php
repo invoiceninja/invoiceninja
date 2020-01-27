@@ -217,22 +217,34 @@ class CreateTestData extends Command
         foreach($company->clients as $client) {
 
             $this->info('creating invoice for client #'.$client->id);
-                $this->createInvoice($client);
+
+                for($i=0; $i<$this->count; $i++)
+                    $this->createInvoice($client);
 
             $this->info('creating quote for client #'.$client->id);
-                $this->createQuote($client);
+
+                for($i=0; $i<$this->count; $i++)
+                    $this->createQuote($client);
 
             $this->info('creating expense for client #'.$client->id);
-                $this->createExpense($client);
+    
+                for($i=0; $i<$this->count; $i++)
+                    $this->createExpense($client);
 
             $this->info('creating vendor for client #'.$client->id);
-                $this->createVendor($client);    
+        
+                for($i=0; $i<$this->count; $i++)
+                    $this->createVendor($client);    
 
             $this->info('creating task for client #'.$client->id);
-                $this->createTask($client);    
+                
+                for($i=0; $i<$this->count; $i++)
+                    $this->createTask($client);    
 
             $this->info('creating project for client #'.$client->id);
-                $this->createProject($client);    
+
+                for($i=0; $i<$this->count; $i++)
+                    $this->createProject($client);    
         }
     }
 
@@ -403,7 +415,8 @@ class CreateTestData extends Command
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
 //        $invoice->date = $faker->date();
-        $invoice->date = Carbon::now()->subDays(rand(0,90));
+        $dateable = Carbon::now()->subDays(rand(0,90));
+        $invoice->date = $dateable;
 
         $invoice->line_items = $this->buildLineItems(rand(1,10));
         $invoice->uses_inclusive_taxes = false;
@@ -442,7 +455,7 @@ class CreateTestData extends Command
 
         if (rand(0, 1)) {
             $payment = PaymentFactory::create($client->company->id, $client->user->id);
-            $payment->date = now();
+            $payment->date = $dateable;
             $payment->client_id = $client->id;
             $payment->amount = $invoice->balance;
             $payment->transaction_reference = rand(0, 500);

@@ -18,8 +18,8 @@ class InvoiceItemTransformer extends EntityTransformer
         return [
             'id' => (int) $item->id,
             'product_key' => $item->product_key,
-            'updated_at' => $item->updated_at,
-            'archived_at' => $item->deleted_at,
+            'updated_at' => (int)$item->updated_at,
+            'archived_at' => (int)$item->deleted_at,
             'notes' => $item->notes ?: '',
             'cost' => (float) $item->cost ?: '',
             'quantity' => (float) ($item->quantity ?: 0.0),

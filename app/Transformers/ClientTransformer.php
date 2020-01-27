@@ -111,8 +111,8 @@ class ClientTransformer extends EntityTransformer
             'is_deleted' => (bool) $client->is_deleted,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',
-            'updated_at' => $client->updated_at,
-            'archived_at' => $client->deleted_at,
+            'updated_at' => (int)$client->updated_at,
+            'archived_at' => (int)$client->deleted_at,
             'display_name' => $client->present()->name()
         ];
     }
