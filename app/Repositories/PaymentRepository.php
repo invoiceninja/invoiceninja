@@ -138,48 +138,52 @@ class PaymentRepository extends BaseRepository
 
     }
 
+    /**
+     * @deprecated Refundable trait replaces this.
+     */
     private function refundPayment(array $data, Payment $payment): string
     {
-        //temp variable to sum the total refund/credit amount
-        $invoice_total_adjustment = 0;
+        // //temp variable to sum the total refund/credit amount
+        // $invoice_total_adjustment = 0;
 
-        if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
+        // if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
 
-            foreach ($data['invoices'] as $adjusted_invoice) {
+        //     foreach ($data['invoices'] as $adjusted_invoice) {
 
-                $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->first();
+        //         $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->first();
 
-                $invoice_total_adjustment += $adjusted_invoice['amount'];
+        //         $invoice_total_adjustment += $adjusted_invoice['amount'];
 
-                if (array_key_exists('credits', $adjusted_invoice)) {
+        //         if (array_key_exists('credits', $adjusted_invoice)) {
 
-                    //process and insert credit notes
-                    foreach ($adjusted_invoice['credits'] as $credit) {
+        //             //process and insert credit notes
+        //             foreach ($adjusted_invoice['credits'] as $credit) {
 
-                        $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->id, auth()->user()->id), $invoice);
+        //                 $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->id, auth()->user()->id), $invoice);
 
-                    }
+        //             }
 
-                } else {
-                    //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
-                }
+        //         } else {
+        //             //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
+        //         }
 
-            }
+        //     }
 
-            if (array_key_exists('amount', $data) && $data['amount'] != $invoice_total_adjustment)
-                return 'Amount must equal the sum of invoice adjustments';
-        }
+        //     if (array_key_exists('amount', $data) && $data['amount'] != $invoice_total_adjustment)
+        //         return 'Amount must equal the sum of invoice adjustments';
+        // }
 
 
-        //adjust applied amount
-        $payment->applied += $invoice_total_adjustment;
+        // //adjust applied amount
+        // $payment->applied += $invoice_total_adjustment;
 
-        //adjust clients paid to date
-        $client = $payment->client;
-        $client->paid_to_date += $invoice_total_adjustment;
+        // //adjust clients paid to date
+        // $client = $payment->client;
+        // $client->paid_to_date += $invoice_total_adjustment;
 
-        $payment->save();
-        $client->save();
+        // $payment->save();
+        // $client->save();
+
     }
 
 

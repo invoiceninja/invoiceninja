@@ -37,8 +37,27 @@ class RefundPaymentRequest extends Request
         if(!isset($input['gateway_refund']))
         	$input['gateway_refund'] = false;
 
+        if(!isset($input['send_email']))
+            $input['send_email'] = false;
+
         if(isset($input['id']))
         	$input['id'] = $this->decodePrimaryKey($input['id']);
+
+        if(isset($input['invoices']))
+        {
+
+            foreach($input['invoices'] as $key => $invoice)
+                $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($invoice['invoice_id']);
+
+        }
+
+        if(isset($input['credits']))
+        {
+
+            foreach($input['credits'] as $key => $credit)
+                $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($credit['credit_id']);
+            
+        }
 
 	    $this->replace($input);
     }

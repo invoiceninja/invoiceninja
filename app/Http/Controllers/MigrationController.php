@@ -139,14 +139,62 @@ class MigrationController extends BaseController
         return response()->json(['message'=>'Settings preserved'], 200);
     }
 
-    public function uploadMigrationFile(UploadMigrationFileRequest $request)
+    /**
+     *
+     * Start the migration from V1
+     *
+     * @OA\Post(
+     *      path="/api/v1/migration/start",
+     *      operationId="postStartMigration",
+     *      tags={"migration"},
+     *      summary="Starts the migration from previous version of Invoice Ninja",
+     *      description="Starts the migration from previous version of Invoice Ninja",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"), // Needs verification.
+     *      @OA\Parameter(
+     *          name="migration",
+     *          in="path",
+     *          description="The migraton file",
+     *          example="migration.zip",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="file",
+     *              format="file",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function startMigration(UploadMigrationFileRequest $request)
     {
         $file = $request->file('migration')->storeAs(
             'migrations', $request->file('migration')->getClientOriginalName()
         );
 
-        /** Not tested. */
-        StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
+        // config('ninja.environment') - Returns 'selfhosted' instead of 'testing' while running with PhpUnit, which makes it run the migration file.
+
+        if(app()->environment() !== 'testing') {
+            StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
+        }
 
         return response()->json([], 200);
     }
