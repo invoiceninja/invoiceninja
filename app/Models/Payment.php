@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Models\BaseModel;
+use App\Models\Credit;
 use App\Models\DateFormat;
 use App\Models\Filterable;
 use App\Models\Paymentable;
@@ -169,11 +170,11 @@ class Payment extends BaseModel
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
-    public function refund(array $data) :Payment
+    public function refund(array $data) :Credit
     {
-        $this->processRefund($data);
 
-        return $this;
+        return $this->processRefund($data);
+
     }
     
 }
