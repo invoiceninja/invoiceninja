@@ -18,6 +18,7 @@ use App\Models\Paymentable;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Payment\Refundable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -27,7 +28,8 @@ class Payment extends BaseModel
     use Filterable;
     use MakesDates;
     use SoftDeletes;
-    
+    use Refundable;
+
     const STATUS_PENDING = 1;
     const STATUS_VOIDED = 2;
     const STATUS_FAILED = 3;
@@ -167,8 +169,11 @@ class Payment extends BaseModel
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
-    public function refund()
+    public function refund(array $data) :Payment
     {
-        
+        $this->processRefund($data);
+
+        return $this;
     }
+    
 }

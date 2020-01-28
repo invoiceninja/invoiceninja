@@ -678,6 +678,8 @@ class PaymentController extends BaseController
         
         $payment = Payment::whereId($request->input('id'))->first();
 
+        $payment->refund($request->all());
+
         return $this->itemResponse($payment);
     }
 

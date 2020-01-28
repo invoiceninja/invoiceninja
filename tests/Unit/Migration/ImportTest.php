@@ -43,8 +43,6 @@ class ImportTest extends TestCase
 
     }
 
-    }
-
     public function testExceptionOnUnavailableResource()
     {
         $data['panda_bears'] = [
