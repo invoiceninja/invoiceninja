@@ -9,6 +9,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Account;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -1141,6 +1142,14 @@ class PaymentTest extends TestCase
         $arr = $response->json();
 
         $response->assertStatus(200);
+
+        $this->assertEquals(50, $arr['data']['refunded']);
+        $this->assertEquals(Payment::STATUS_REFUNDED, $arr['data']['status_id']);
+    
+        $activity = Activity::wherePaymentId($payment->id)->first();
+
+        $this->assertNotNull($activity);
+        $this->assertEquals(Activity::REFUNDED_PAYMENT, $activity->activity_type_id);
     }
 
 }

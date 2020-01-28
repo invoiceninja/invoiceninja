@@ -73,7 +73,7 @@ trait Refundable
 		if($data['refunded'] == $this->amount)
 			$this->status_id = Payment::STATUS_REFUNDED;
 		else
-			$this->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+			$this->status_id = Payment::STATUS_PARTIALLY_REFUNDED; 
 
 		$credit_note = CreditFactory::create($this->company_id, $this->user_id);
 		$credit_note->assigned_user_id = isset($this->assigned_user_id) ?: null;
