@@ -170,7 +170,7 @@ class Payment extends BaseModel
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
-    public function refund(array $data) :Credit
+    public function refund(array $data) :Payment
     {
 
         return $this->processRefund($data);

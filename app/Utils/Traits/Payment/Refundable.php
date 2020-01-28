@@ -110,7 +110,10 @@ trait Refundable
 
 		$this->save();
 
-		return $credit_note;
+		$this->client->paid_to_date -= $data['refunded'];
+		$this->client->save();
+
+		return $this;
 	}
 
 
