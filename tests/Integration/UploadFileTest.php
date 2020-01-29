@@ -40,13 +40,12 @@ class UploadFileTest extends TestCase
 
     public function testFileUploadWorks()
     {
+        $image = UploadedFile::fake()->image('avatar.jpg');
 
-        $document = UploadFile::dispatchNow(UploadedFile::fake()->image('avatar.jpg'), $this->invoice->user, $this->invoice->company, $this->invoice);
+        $document = UploadFile::dispatchNow(
+            $image, UploadFile::IMAGE, $this->invoice->user, $this->invoice->company, $this->invoice
+        );
 
         $this->assertNotNull($document);
-
     }
-
-
-
 }
