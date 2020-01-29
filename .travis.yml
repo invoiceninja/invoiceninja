@@ -13,7 +13,7 @@ group: deprecated-2017Q4
 
 php:
   - 7.3
-#  - 7.4
+  - 7.4
 #  - nightly
 
 addons:
