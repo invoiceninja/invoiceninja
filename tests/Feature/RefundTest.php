@@ -138,8 +138,8 @@ class RefundTest extends TestCase
         $this->assertEquals(50, $arr['data']['refunded']);
         $this->assertEquals(Payment::STATUS_REFUNDED, $arr['data']['status_id']);
     
-        $activity = Activity::wherePaymentId($payment->id)->whereInvoiceId($this->invoice->id)->first();
-
+        $activity = Activity::wherePaymentId($payment->id)->first();
+\Log::error($activity);
         $this->assertNotNull($activity);
         $this->assertEquals(Activity::REFUNDED_PAYMENT, $activity->activity_type_id);
     }
