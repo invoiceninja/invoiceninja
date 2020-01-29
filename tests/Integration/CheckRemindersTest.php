@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\MakesReminder
+ * @covers  App\Utils\Traits\MakesReminders
  */
 class CheckRemindersTest extends TestCase
 {
