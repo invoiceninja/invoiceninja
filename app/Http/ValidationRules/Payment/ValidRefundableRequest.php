@@ -56,11 +56,13 @@ class ValidRefundableRequest implements Rule
         foreach($request_credits as $key => $value)
             $request_credits[$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
 
+
         if($payment->invoices()->exists())
         {
             foreach($payment->invoices as $paymentable_invoice)
                 $this->checkInvoice($paymentable_invoice, $request_invoices);
         }
+
 
         if($payment->credits()->exists())
         {
@@ -72,9 +74,13 @@ class ValidRefundableRequest implements Rule
         foreach($request_invoices as $request_invoice)
             $this->checkInvoiceIsPaymentable($request_invoice, $payment);
 
+
         foreach($request_credits as $request_credit)
             $this->checkCreditIsPaymentable($request_credit, $payment);
 
+
+        if(strlen($this->error_msg) > 0 )
+            return false;
 
         return true;
     }
