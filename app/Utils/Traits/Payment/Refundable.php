@@ -120,12 +120,12 @@ trait Refundable
 
 	private function refundPaymentWithInvoices($data)
 	{
-
+		return $this;
 	}
 
 	private function refundPaymentWithInvoicesAndCredits($data)
 	{
-
+		return $this;
 	}
 
 	private function createCreditLineItems()
