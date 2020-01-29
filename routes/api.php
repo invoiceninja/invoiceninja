@@ -42,9 +42,15 @@ Route::group(['middleware' => ['api_db', 'api_secret_check', 'token_auth', 'loca
 
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
 
+    Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
+
     Route::get('invoices/{invoice}/{action}', 'InvoiceController@action')->name('invoices.action');
 
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
+
+    Route::get('credits/{invoice}/{action}', 'CreditController@action')->name('credits.action');
+
+    Route::post('credits/bulk', 'CreditController@bulk')->name('credits.bulk');
 
     Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
 
