@@ -100,7 +100,7 @@ class ClientApiTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertNull($arr['data']['archived_at']);
+        $this->assertEquals(0, $arr['data']['archived_at']);
     }
 
     public function testClientArchived()
