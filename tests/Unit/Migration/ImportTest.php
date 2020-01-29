@@ -412,8 +412,21 @@ class ImportTest extends TestCase
             }
         }*/
 
-        print_r($differences);
-
         $this->assertCount(0, $differences);
+    }
+
+    public function testClientContactsImport()
+    {
+        $this->invoice->forceDelete();
+
+        $original = ClientContact::count();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+        
+        $this->assertGreaterThan($original, ClientContact::count());
     }
 }
