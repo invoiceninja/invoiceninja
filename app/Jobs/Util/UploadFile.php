@@ -11,44 +11,52 @@
 
 namespace App\Jobs\Util;
 
-use App\Libraries\MultiDB;
 use App\Models\Document;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
+use App\Utils\Traits\MakesHash;
+use Intervention\Image\ImageManager;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class UploadFile implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    use MakesHash;
+    const IMAGE = 1;
+    const DOCUMENT = 2;
+
+    const PROPERTIES = [
+        self::IMAGE => [
+            'path' => 'public/images',
+        ],
+        self::DOCUMENT => [
+            'path' => 'public/documents',
+        ]
+    ];
 
     protected $file;
-
     protected $user;
-
     protected $company;
+    protected $type;
 
     public $entity;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-
-    public function __construct($file, $user, $company, $entity)
+    public function __construct($file, $type, $user, $company, $entity, $disk = 'local')
     {
         $this->file = $file;
+        $this->type = $type;
         $this->user = $user;
         $this->company = $company;
         $this->entity = $entity;
+        $this->disk = $disk ?? config('filesystems.default');
+
+        MultiDB::setDB($this->company->db);
     }
 
     /**
@@ -58,41 +66,31 @@ class UploadFile implements ShouldQueue
      */
     public function handle() : ?Document
     {
-        MultiDB::setDB($this->company->db);
+        $instance = Storage::disk($this->disk)->putFileAs(
+            self::PROPERTIES[$this->type]['path'], $this->file, $this->file->hashName() 
+        );
 
-        $path = $this->encodePrimaryKey($this->company->id);
+        if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
+            $image_size = getimagesize($this->file);
 
-        $file_path = $path . '/' . $this->file->hashName();
-
-        Storage::put($path, $this->file);
-
-        $width = 0;
-
-        $height = 0;
-
-        if (in_array($this->file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
-            $imageSize = getimagesize($this->file);
-
-            $width = $imageSize[0];
-
-            $height = $imageSize[1];
+            $width = $image_size[0];
+            $height = $image_size[1];
         }
 
         $document = new Document();
         $document->user_id = $this->user->id;
         $document->company_id = $this->company->id;
-        $document->path = $path;
+        $document->path = $instance;
         $document->name = $this->file->getClientOriginalName();
-        $document->type = $this->file->getClientOriginalExtension();
-        $document->disk = config('filesystems.default');
+        $document->type = $this->file->extension();
+        $document->disk = $this->disk;
         $document->hash = $this->file->hashName();
-        $document->size = filesize(Storage::path($file_path));
-        $document->width = $width;
-        $document->height = $height;
+        $document->size = $this->file->getSize();
+        $document->width = isset($width) ?? null;
+        $document->height = isset($height) ?? null;
 
-        $preview_path = $this->encodePrimaryKey($this->company->id);
-
-        $document->preview = $this->generatePreview($preview_path);
+        // $preview_path = $this->encodePrimaryKey($this->company->id);
+        // $document->preview = $this->generatePreview($preview_path);
 
         $this->entity->documents()->save($document);
 
