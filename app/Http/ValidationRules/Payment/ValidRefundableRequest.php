@@ -40,7 +40,6 @@ class ValidRefundableRequest implements Rule
 
         $payment = Payment::whereId($this->decodePrimaryKey(request()->input('id')))->first();
 
-\Log::error("payment id = ".request()->input('id'));
 
         if(!$payment)
         {
@@ -60,7 +59,7 @@ class ValidRefundableRequest implements Rule
         if($payment->invoices()->exists())
         {
             foreach($payment->invoices as $paymentable_invoice)
-                    $this->checkInvoice($paymentable_invoice, $request_invoices);
+                $this->checkInvoice($paymentable_invoice, $request_invoices);
         }
 
         if($payment->credits()->exists())
@@ -75,6 +74,7 @@ class ValidRefundableRequest implements Rule
 
         foreach($request_credits as $request_credit)
             $this->checkCreditIsPaymentable($request_credit, $payment);
+
 
         return true;
     }
@@ -140,7 +140,6 @@ class ValidRefundableRequest implements Rule
                     $invoice = $paymentable->paymentable;
 
                     $this->error_msg = "Attempting to refund more than allowed for invoice ".$invoice->number.", maximum refundable amount is ". $refundable_amount;
-                    \Log::error($this->error_msg);
                     return false;
                 }
 
@@ -151,16 +150,16 @@ class ValidRefundableRequest implements Rule
         if(!$record_found)
         {
             $this->error_msg = "Attempting to refund a payment with invoices attached, please specify valid invoice/s to be refunded.";
-           \Log::error($this->error_msg);
             return false;
         }
+
 
     }
 
 
     private function checkCredit($paymentable, $request_credits)
     {
-        $record_found = false;
+        $record_found = null;
 
         foreach($request_credits as $request_credit)
         {
@@ -175,9 +174,7 @@ class ValidRefundableRequest implements Rule
                     
                     $credit = $paymentable->paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for credit ".$credit->number.", maximum refundable amount is ". $refundable_amount;
-                                \Log::error($this->error_msg);
-        
+                    $this->error_msg = "Attempting to refund more than allowed for credit ".$credit->number.", maximum refundable amount is ". $refundable_amount;        
                     return false;
                 }
 
@@ -188,7 +185,6 @@ class ValidRefundableRequest implements Rule
         if(!$record_found)
         {
             $this->error_msg = "Attempting to refund a payment with credits attached, please specify valid credit/s to be refunded.";
-                           \Log::error($this->error_msg);
             return false;
         }
 

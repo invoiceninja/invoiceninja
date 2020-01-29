@@ -709,7 +709,7 @@ class PaymentTest extends TestCase
             'date' => '2019/12/12',
         ];
 
-    $response = false;
+        $response = false;
 
         try {
             $response = $this->withHeaders([

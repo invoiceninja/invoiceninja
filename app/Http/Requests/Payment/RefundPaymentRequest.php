@@ -68,7 +68,7 @@ class RefundPaymentRequest extends Request
             'id' => 'required',
             'id' => new ValidRefundableRequest(),
             'refunded' => 'numeric',
-            //'date' => 'required',
+            'date' => 'required',
             'invoices.*.invoice_id' => 'required',
             'invoices.*.refunded' => 'required',
             'invoices' => new ValidRefundableInvoices(),
