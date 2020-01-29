@@ -175,6 +175,26 @@ trait Refundable
 
 	private function adjustInvoices(array $data) :void
 	{
+        foreach($data['invoices'] as $refunded_invoice)
+        {
+        	$invoice = Invoice::find($refunded_invoice['invoice_id']);
 
+        	$invoice->updateBalance($refunded_invoice['amount']);
+
+        	if($invoice->amount == $invoice->balance)
+        		$invoice->setStatus(Invoice::STATUS_SENT);
+        	else
+        		$invoice->setStatus(Invoice::STATUS_PARTIAL);
+
+        	$client = $invoice->client;
+
+        	$client->balance += $refunded_invoice['amount'];
+        	$client->paid_to_date -= $refunded_invoice['amount'];
+
+        	$client->save();
+
+        	//todo adjust ledger balance here? or after and reference the credit and its total
+
+        }
 	}
 }
