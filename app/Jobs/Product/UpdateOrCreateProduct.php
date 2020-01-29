@@ -69,6 +69,8 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->tax_rate1 = isset($item->tax_rate1) ? $item->tax_rate1 : 0 ;
             $product->tax_name2 = isset($item->tax_name2) ? $item->tax_name2 : '';
             $product->tax_rate2 = isset($item->tax_rate2) ? $item->tax_rate2 : 0;
+            $product->tax_name3 = isset($item->tax_name3) ? $item->tax_name3 : '';
+            $product->tax_rate3 = isset($item->tax_rate3) ? $item->tax_rate3 : 0;
             $product->custom_value1 = isset($item->custom_value1) ? $item->custom_value1 : '';
             $product->custom_value2 = isset($item->custom_value2) ? $item->custom_value2 : '';
             $product->custom_value3 = isset($item->custom_value3) ? $item->custom_value3 : '';

@@ -36,7 +36,7 @@ class ValidRefundableInvoices implements Rule
     {
         $payment = Payment::whereId($this->decodePrimaryKey(request()->input('id')))->first();
 
-        if($request->has('refunded') && ($request->input('refunded') > $payment->amount)){
+        if($request->has('refunded') && ($request->input('refunded') > ($payment->amount - $payment->refunded))){
             $this->error_msg = "Attempting to refunded more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
             return false;
         }
@@ -63,6 +63,7 @@ class ValidRefundableInvoices implements Rule
                     if($val['refunded'] > ($invoice->amount - $invoice->balance))
                         $this->error_msg = "Attempting to refund more than is possible for an invoice";
                     return false;
+                    
                }
             }
 

@@ -674,9 +674,10 @@ class PaymentController extends BaseController
      */
     public function refund(RefundPaymentRequest $request)
     {
-        \Log::error("Payment id = ".$request->input('id'));
         
-        $payment = Payment::whereId($request->input('id'))->first();
+        $payment = $request->payment();
+
+        $payment->refund($request->all());
 
         return $this->itemResponse($payment);
     }
