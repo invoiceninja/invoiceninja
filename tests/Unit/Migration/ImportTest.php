@@ -7,6 +7,7 @@ use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Jobs\Util\StartMigration;
+use App\Mail\MigrationFailed;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -19,6 +20,7 @@ use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -45,13 +47,15 @@ class ImportTest extends TestCase
 
     public function testExceptionOnUnavailableResource()
     {
+        Mail::fake();
+
         $data['panda_bears'] = [
             'name' => 'Awesome Panda Bear',
         ];
 
         Import::dispatchNow($data, $this->company, $this->user);
 
-
+        Mail::assertSent(MigrationFailed::class);
     }
 
     public function testCompanyUpdating()
@@ -69,18 +73,18 @@ class ImportTest extends TestCase
 
     public function testInvoicesFailsWithoutClient()
     {
-        try {
-            $data['invoices'] = [
-                0 => [
-                    'client_id' => 1,
-                    'is_amount_discount' => false,
-                ]
-            ];
+        Mail::fake();
 
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (ResourceDependencyMissing $e) {
-            $this->assertTrue(true);
-        }
+        $data['invoices'] = [
+            0 => [
+                'client_id' => 1,
+                'is_amount_discount' => false,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        Mail::assertSent(MigrationFailed::class);
     }
 
     public function testInvoicesImporting()
@@ -102,18 +106,18 @@ class ImportTest extends TestCase
 
     public function testQuotesFailsWithoutClient()
     {
-        try {
-            $data['quotes'] = [
-                0 => [
-                    'client_id' => 1,
-                    'is_amount_discount' => false,
-                ]
-            ];
+        Mail::fake();
 
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (ResourceDependencyMissing $e) {
-            $this->assertTrue(true);
-        }
+        $data['quotes'] = [
+            0 => [
+                'client_id' => 1,
+                'is_amount_discount' => false,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        Mail::assertSent(MigrationFailed::class);
     }
 
     public function testImportFileExists()
@@ -164,8 +168,6 @@ class ImportTest extends TestCase
         $client = Client::where('name', 'My awesome unique client')
             ->where('balance', $random_balance)
             ->first();
-
-        // Originally was checked with ClientContact::whereEmail() but it throws 'array to string conversion' on insert.
 
         $this->assertNotNull($client);
         $this->assertGreaterThan($original_number, Client::count());
@@ -263,18 +265,18 @@ class ImportTest extends TestCase
 
     public function testPaymentDependsOnClient()
     {
-        try {
-            $data['payments'] = [
-                0 => [
-                    'client_id' => 1,
-                    'amount' => 1,
-                ]
-            ];
+        Mail::fake();
 
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (ResourceDependencyMissing $e) {
-            $this->assertTrue(true);
-        }
+        $data['payments'] = [
+            0 => [
+                'client_id' => 1,
+                'amount' => 1,
+            ]
+        ];
+
+        Import::dispatchNow($data, $this->company, $this->user);
+
+        Mail::assertSent(MigrationFailed::class);
     }
 
     public function testQuotesImport()
@@ -410,8 +412,21 @@ class ImportTest extends TestCase
             }
         }*/
 
-        print_r($differences);
-
         $this->assertCount(0, $differences);
+    }
+
+    public function testClientContactsImport()
+    {
+        $this->invoice->forceDelete();
+
+        $original = ClientContact::count();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($migration_array, $this->company, $this->user);
+        
+        $this->assertGreaterThan($original, ClientContact::count());
     }
 }

@@ -246,7 +246,8 @@ class Import implements ShouldQueue
     {
         Client::unguard();
 
-        $client_repository = new ClientRepository(new ClientContactRepository());
+        $contact_repository  = new ClientContactRepository();
+        $client_repository = new ClientRepository($contact_repository);
 
         foreach ($data as $key => $resource) {
 
@@ -255,10 +256,25 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
 
             unset($modified['id']);
+            unset($modified['contacts']);
 
             $client = $client_repository->save($modified, ClientFactory::create(
                 $this->company->id, $modified['user_id'])
             );
+
+            if(array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
+                $modified_contacts = $resource['contacts'];
+
+                foreach($modified_contacts as $key => $client_contacts) {
+                    $modified_contacts[$key]['company_id'] = $this->company->id;
+                    $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
+                    $modified_contacts[$key]['client_id'] = $client->id;
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code.. 
+                    unset($modified_contacts[$key]['id']);
+                }
+
+                $contact_repository->save($modified_contacts, $client);
+            }
 
             $key = "clients_{$resource['id']}";
 
