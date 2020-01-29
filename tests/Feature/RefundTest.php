@@ -242,7 +242,7 @@ class RefundTest extends TestCase
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
         $this->invoice->line_items = $this->buildLineItems();
-        $this->invoice->uses_inclusive_Taxes = false;
+        $this->invoice->uses_inclusive_taxes = false;
 
         $this->invoice->save();
 
@@ -291,7 +291,98 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
+                'refunded' => $this->invoice->amount
+                ],
+            ],
+            'date' => '2020/12/12',
+        ];
+
+       $response = false;
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/refund', $data);
+        
+            $response->assertStatus(200);
+
+    }
+
+    
+    public function testRefundValidationWithInValidInvoiceProvided()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+        $this->invoice->status_id = Invoice::STATUS_SENT;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+
+        $data = [
+            'amount' => 50,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                'invoice_id' => $this->invoice->hashed_id,
                 'amount' => $this->invoice->amount
+                ],
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments', $data);
+
+        
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $payment_id = $arr['data']['id'];
+
+        $this->assertEquals(50, $arr['data']['amount']);
+
+        $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+        $this->assertNotNull($payment);
+        $this->assertNotNull($payment->invoices());
+        $this->assertEquals(1, $payment->invoices()->count());
+        
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+        $this->invoice->status_id = Invoice::STATUS_SENT;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+
+        $data = [
+            'id' => $this->encodePrimaryKey($payment->id),
+            'refunded' => 50,
+            'invoices' => [
+                [
+                'invoice_id' => $this->invoice->hashed_id,
+                'refunded' => $this->invoice->amount
                 ],
             ],
             'date' => '2020/12/12',
@@ -304,19 +395,16 @@ class RefundTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/refund', $data);
-        }catch( ValidationException $e)
+        }catch(ValidationException $e)
         {
-
             $message = json_decode($e->validator->getMessageBag(),1);
 
             \Log::error($message);            
         }
 
-       $response->assertStatus(200);
+        if($response)
+            $response->assertStatus(302);
 
     }
-
-    
-
 
 }

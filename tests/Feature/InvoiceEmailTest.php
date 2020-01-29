@@ -79,7 +79,7 @@ class InvoiceEmailTest extends TestCase
                 //fire any events
                 
 
-                sleep(5);//here to cope with mailtrap time delays
+                //sleep(5);//here to cope with mailtrap time delays
                 
             }
 

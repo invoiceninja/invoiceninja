@@ -60,16 +60,14 @@ class ValidRefundableInvoices implements Rule
             foreach ($value as $val) {
                if ($val['invoice_id'] == $invoice->id) {
 
-                    if($val['refunded'] > ($invoice->amount - $invoice->balance))
+                    if($val['refunded'] > ($invoice->amount - $invoice->balance)){
                         $this->error_msg = "Attempting to refund more than is possible for an invoice";
-                    return false;
-                    
+                        return false;
+                    }
                }
             }
 
         }
-
-
 
         return true;
     }

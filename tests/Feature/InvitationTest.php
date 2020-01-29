@@ -27,7 +27,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Models\InvoiceInvitation\InvoiceInvitationFactory
+ * @covers App\Models\InvoiceInvitation
  */
 
 class InvitationTest extends TestCase
