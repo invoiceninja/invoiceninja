@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
   *
   * @param Document $document
   * @param boolean $absolute
-  * @return void
+  * @return string|null
   */
 function generateUrl(Document $document, $absolute = false)
 {
