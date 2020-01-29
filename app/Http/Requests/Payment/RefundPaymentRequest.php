@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Payment\ValidRefundableRequest;
 use App\Http\ValidationRules\ValidRefundableInvoices;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -33,7 +34,6 @@ class RefundPaymentRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
         if(!isset($input['gateway_refund']))
         	$input['gateway_refund'] = false;
 
@@ -66,8 +66,9 @@ class RefundPaymentRequest extends Request
     {
         $rules = [
             'id' => 'required',
+            'id' => new ValidRefundableRequest(),
             'refunded' => 'numeric',
-            'date' => 'required',
+            //'date' => 'required',
             'invoices.*.invoice_id' => 'required',
             'invoices.*.refunded' => 'required',
             'invoices' => new ValidRefundableInvoices(),

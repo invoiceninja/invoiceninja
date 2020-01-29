@@ -30,4 +30,9 @@ class Paymentable extends Pivot
         'deleted_at' => 'timestamp',
         'settings' => 'object',
     ];
+
+    public function paymentable()
+    {
+        return $this->morphTo();
+    }
 }

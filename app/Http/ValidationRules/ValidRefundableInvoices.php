@@ -63,6 +63,7 @@ class ValidRefundableInvoices implements Rule
                     if($val['refunded'] > ($invoice->amount - $invoice->balance))
                         $this->error_msg = "Attempting to refund more than is possible for an invoice";
                     return false;
+                    
                }
             }
 
