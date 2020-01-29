@@ -163,7 +163,7 @@ class Invoice extends BaseModel
 
     public function payments()
     {
-        return $this->morphToMany(Payment::class, 'paymentable');
+        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();;
     }
 
     public function company_ledger()
@@ -173,7 +173,7 @@ class Invoice extends BaseModel
 
     public function credits()
     {
-        return $this->belongsToMany(Credit::class)->using(Paymentable::class);
+        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount','refunded')->withTimestamps();;
     }
 
 
@@ -233,15 +233,15 @@ class Invoice extends BaseModel
 
     public function isRefundable() : bool
     {
-        // if($this->is_deleted){
-        //     return false;
-        // } elseif ($this->balance <= 0)
-        //     return false;
 
         if($this->is_deleted)
             return false;
 
+        if(($this->amount - $this->balance) == 0)
+            return false;
+
         return true;
+        
     }
 
     public static function badgeForStatus(int $status)

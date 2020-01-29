@@ -104,7 +104,7 @@ trait Refundable
 		//determine if we need to refund via gateway
 		if($data['gateway_refund'] !== false)
 		{
-			//process gateway refund, on success, reduce the credit note balance to 0
+			//todo process gateway refund, on success, reduce the credit note balance to 0
 		}
 
 
@@ -120,6 +120,20 @@ trait Refundable
 
 	private function refundPaymentWithInvoices($data)
 	{
+		$this->refunded = $data['refunded'];
+
+		$total_refund = 0;
+
+		foreach($data['invoices'] as $invoice)
+		{
+			$total_refund += $invoice['refunded'];
+		}
+
+		if($data['refunded'] == $this->amount)
+			$this->status_id = Payment::STATUS_REFUNDED;
+		else
+			$this->status_id = Payment::STATUS_PARTIALLY_REFUNDED; 
+
 		return $this;
 	}
 

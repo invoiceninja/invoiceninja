@@ -143,9 +143,9 @@ class ValidRefundableRequest implements Rule
 
                 if($request_invoice['refunded'] > $refundable_amount){
                     
-                    $invoice = $paymentable->paymentable;
+                    $invoice = $paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for invoice ".$invoice->number.", maximum refundable amount is ". $refundable_amount;
+                    $this->error_msg = "Attempting to refund more than allowed for invoice id ".$invoice->hashed_id.", maximum refundable amount is ". $refundable_amount;
                     return false;
                 }
 
@@ -178,7 +178,7 @@ class ValidRefundableRequest implements Rule
 
                 if($request_credit['refunded'] > $refundable_amount){
                     
-                    $credit = $paymentable->paymentable;
+                    $credit = $paymentable;
 
                     $this->error_msg = "Attempting to refund more than allowed for credit ".$credit->number.", maximum refundable amount is ". $refundable_amount;        
                     return false;
