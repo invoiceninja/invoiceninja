@@ -47,5 +47,10 @@ class UploadFileTest extends TestCase
         );
 
         $this->assertNotNull($document);
+
+        print_r([
+            'relative' => generateUrl($document),
+            'full' => generateUrl($document, true)
+        ]);
     }
 }
