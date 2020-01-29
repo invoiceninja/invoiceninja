@@ -134,7 +134,7 @@ class ClientApiTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertNull($arr['data'][0]['archived_at']);
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
     }
 
     public function testClientDeleted()
