@@ -141,7 +141,7 @@ class ValidRefundableRequest implements Rule
 
                 $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                if($request_invoice['refunded'] > $refundable_amount){
+                if($request_invoice['amount'] > $refundable_amount){
                     
                     $invoice = $paymentable;
 
@@ -176,7 +176,7 @@ class ValidRefundableRequest implements Rule
 
                 $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                if($request_credit['refunded'] > $refundable_amount){
+                if($request_credit['amount'] > $refundable_amount){
                     
                     $credit = $paymentable;
 

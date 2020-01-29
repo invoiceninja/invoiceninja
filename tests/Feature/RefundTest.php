@@ -106,7 +106,7 @@ class RefundTest extends TestCase
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
-            'refunded' => 50,
+            'amount' => 50,
             // 'invoices' => [
             //     [
             //     'invoice_id' => $this->invoice->hashed_id,
@@ -198,7 +198,7 @@ class RefundTest extends TestCase
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
-            'refunded' => 50,
+            'amount' => 50,
             // 'invoices' => [
             //     [
             //     'invoice_id' => $this->invoice->hashed_id,
@@ -286,11 +286,11 @@ class RefundTest extends TestCase
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
-            'refunded' => 50,
+            'amount' => 50,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'refunded' => $this->invoice->amount
+                'amount' => $this->invoice->amount
                 ],
             ],
             'date' => '2020/12/12',
@@ -362,11 +362,11 @@ class RefundTest extends TestCase
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
-            'refunded' => 50,
+            'amount' => 50,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'refunded' => 100
+                'amount' => 100
                 ],
             ],
             'date' => '2020/12/12',
@@ -460,11 +460,11 @@ class RefundTest extends TestCase
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
-            'refunded' => 50,
+            'amount' => 50,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'refunded' => $this->invoice->amount
+                'amount' => $this->invoice->amount
                 ],
             ],
             'date' => '2020/12/12',

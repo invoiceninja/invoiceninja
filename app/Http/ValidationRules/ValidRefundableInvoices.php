@@ -36,7 +36,7 @@ class ValidRefundableInvoices implements Rule
     {
         $payment = Payment::whereId($this->decodePrimaryKey(request()->input('id')))->first();
 
-        if(request()->has('refunded') && (request()->input('refunded') > ($payment->amount - $payment->refunded))){
+        if(request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))){
             $this->error_msg = "Attempting to refunded more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
             return false;
         }
@@ -63,8 +63,8 @@ class ValidRefundableInvoices implements Rule
                     //$pivot_record = $invoice->payments->where('id', $invoice->id)->first();
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
-                    if($val['refunded'] > ($pivot_record->amount - $pivot_record->refunded)) {
-                        $this->error_msg = "Attempting to refund ". $val['refunded'] ." only ".($pivot_record->amount - $pivot_record->refunded)." available for refund";
+                    if($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
+                        $this->error_msg = "Attempting to refund ". $val['amount'] ." only ".($pivot_record->amount - $pivot_record->refunded)." available for refund";
                         return false;
                     }
                }
