@@ -16,6 +16,7 @@ use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
@@ -179,6 +180,14 @@ trait MockAccountData
         $this->invoice->save();
 
         $this->invoice->markSent();
+
+        $this->credit = CreditFactory::create($this->company->id,$this->user->id);
+        $this->credit->client_id = $this->client->id;
+
+		$this->credit->line_items = $this->buildLineItems();
+		$this->credit->uses_inclusive_Taxes = false;
+
+        $this->credit->save();
         
         $contacts = $this->invoice->client->contacts;
 
