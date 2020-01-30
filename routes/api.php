@@ -41,10 +41,16 @@ Route::group(['middleware' => ['api_db', 'api_secret_check', 'token_auth', 'loca
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
-
+    
     Route::get('invoices/{invoice}/{action}', 'InvoiceController@action')->name('invoices.action');
-
+    
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
+
+    Route::resource('credits', 'CreditsController'); // name = (credits. index / create / show / update / destroy / edit
+
+    Route::get('credits/{credit}/{action}', 'CreditController@action')->name('credits.action');
+
+    Route::post('credits/bulk', 'CreditController@bulk')->name('credits.bulk');
 
     Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
 
