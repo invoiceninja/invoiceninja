@@ -41,7 +41,6 @@
         "omnipay/stripe": "^3.0",
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^1.0",
-        "simshaun/recurr": "^4.0",
         "spatie/browsershot": "^3.29",
         "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.0",
@@ -52,6 +51,7 @@
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
+        "ext-json": "*",
         "barryvdh/laravel-debugbar": "^3.2",
         "beyondcode/laravel-dump-server": "^1.0",
         "darkaonline/l5-swagger": "^6.0",
@@ -60,8 +60,7 @@
         "laravel/dusk": "^5.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^2.0",
-        "phpunit/phpunit": "^7.0",
-        "ext-json": "*"
+        "phpunit/phpunit": "^7.0"
     },
     "autoload": {
         "classmap": [
