@@ -69,8 +69,8 @@ class PaymentRepository extends BaseRepository
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
 
-
         $payment->fill($data);
+
         $payment->status_id = Payment::STATUS_COMPLETED;
 
         $payment->save();
@@ -127,9 +127,9 @@ class PaymentRepository extends BaseRepository
         $invoice_totals -= $credit_totals;
 
         if ($invoice_totals == $payment->amount)
-            $payment->applied = $payment->amount;
+            $payment->applied += $payment->amount;
         elseif ($invoice_totals < $payment->amount)
-            $payment->applied = $invoice_totals;
+            $payment->applied += $invoice_totals;
 
         //UpdateInvoicePayment::dispatchNow($payment);
         $payment->save();
