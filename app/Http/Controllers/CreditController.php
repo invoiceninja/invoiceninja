@@ -80,7 +80,7 @@ class CreditController extends BaseController
         if($request->entityIsDeleted($credit))
             return $request->disallowUpdate();
 
-        $credit = $this->credit_repo->save($request->all(), $credit);
+        $credit = $this->credit_repository->save($request->all(), $credit);
 
         event(new CreditWasUpdated($credit, $credit->company));
 
@@ -160,14 +160,14 @@ class CreditController extends BaseController
                     return response()->download(public_path($credit->pdf_file_path()));
                 break;
             case 'archive':
-                $this->credit_repo->archive($credit);
+                $this->credit_repository->archive($credit);
 
                 if (!$bulk) {
                     return $this->listResponse($credit);
                 }
                 break;
             case 'delete':
-                $this->credit_repo->delete($credit);
+                $this->credit_repository->delete($credit);
 
                 if (!$bulk) {
                     return $this->listResponse($credit);
