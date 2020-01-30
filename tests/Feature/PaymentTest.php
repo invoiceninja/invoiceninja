@@ -945,7 +945,11 @@ class PaymentTest extends TestCase
         }
 
         $response->assertStatus(200);
-    
+        
+        $arr = $response->json();
+
+        $this->assertEquals(20, $arr['data']['applied']);
+
     }
 
 

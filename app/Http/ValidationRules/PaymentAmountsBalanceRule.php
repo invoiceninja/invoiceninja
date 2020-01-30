@@ -16,7 +16,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class NewUniqueUserRule
+ * Class PaymentAmountsBalanceRule
  * @package App\Http\ValidationRules
  */
 class PaymentAmountsBalanceRule implements Rule
@@ -42,6 +42,17 @@ class PaymentAmountsBalanceRule implements Rule
 
     private function calculateAmounts() :bool
     {
+        /**
+         * Sometimes the request may not contain the amount or it may be zero,
+         * and this is a valid use case, only compare the amounts if they
+         * have been presented!
+         */
+
+        if(!request()->has('amount'))
+            return true;
+
+        if(request()->has('amount') && request()->input('amount') == 0)
+            return true
 
         $payment_amounts = 0;
         $invoice_amounts = 0;
