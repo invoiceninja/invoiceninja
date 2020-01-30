@@ -1068,7 +1068,7 @@ class PaymentTest extends TestCase
 
         }
         
-
+        $response->assertStatus(200);
     }
 
 }
