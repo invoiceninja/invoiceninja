@@ -13,19 +13,19 @@ use App\Repositories\ActivityRepository;
 trait Refundable
 {
 
+	/**
+	 * Entry point for processing of refunds
+	 */
 	public function processRefund(array $data)
 	{
 
 		if(isset($data['invoices']))
-			return $this->refundPaymentWithInvoicesAndOrCredits($data);
+			return $this->refundPaymentWithInvoices($data);
 
-		if(!isset($data['invoices']) && isset($data['credits']))
-			return $this->refundPaymentWithCreditsOnly($data);
-
-		return $this->refundPaymentWithNoInvoicesOrCredits($data);
+		return $this->refundPaymentWithNoInvoices($data);
 	}
 
-	private function refundPaymentWithNoInvoicesOrCredits(array $data)
+	private function refundPaymentWithNoInvoices(array $data)
 	{
 		//adjust payment refunded column amount
 		$this->refunded = $data['amount'];
@@ -66,13 +66,8 @@ trait Refundable
 		return $this;
 	}
 
-	private function refundPaymentWithCreditsOnly($data)
-	{
 
-	}
-
-
-	private function refundPaymentWithInvoicesAndOrCredits($data)
+	private function refundPaymentWithInvoices($data)
 	{
 
 		$total_refund = 0;
@@ -82,11 +77,13 @@ trait Refundable
 
 		$data['amount'] = $total_refund;
 
+		/* Set Payment Status*/
 		if($total_refund == $this->amount)
 			$this->status_id = Payment::STATUS_REFUNDED;
 		else
 			$this->status_id = Payment::STATUS_PARTIALLY_REFUNDED; 
 
+		/* Build Credit Note*/
 		$credit_note = $this->buildCreditNote($data);
 
 		$line_items = [];
@@ -121,34 +118,39 @@ trait Refundable
 
             	}
 
-
             }
 
-
-            if(isset($data['credits']))
+            if($this->credits()->exists())
             {
-
-				/* Update paymentable record */
+            	//Adjust credits first!!!
 	            foreach($this->credits as $paymentable_credit)
 	            {
+	            	$available_credit = $paymentable_credit->pivot->amount - $paymentable_credit->pivot->refunded;
 
-	            	foreach($data['credits'] as $refunded_credit)
-	            	{
+	            	if($available_credit > $total_refund){
+	            		$paymentable_credit->pivot->refunded += $total_refund;
+	            		$paymentable_credit->pivot->save();
 
-	            		if($refunded_credit['credit_id'] == $refunded_credit->id)
-	            		{
-	            			$refunded_credit->pivot->refunded += $refunded_credit['amount'];
-	            			$refunded_credit->pivot->save();
-	            			
-	            			$refunded_credit->balance += $refunded_credit['amount'];
-	            			$refunded_credit->save();
+	            		$paymentable_credit->balance += $total_refund;
+	            		$paymentable_credit->save();
 
-	            		}
+	            		$total_refund = 0;
 
 	            	}
+	            	else {
+	            		$paymentable_credit->pivot->refunded += $available_credit;
+	            		$paymentable_credit->pivot->save();
 
+	            		$paymentable_credit->balance += $available_credit;
+	            		$paymentable_credit->save();
 
+	            		$total_refund -= $available_credit;
+	            	}
+
+	            	if($total_refund == 0)
+	            		break;
 	            }
+
             }
 
 		$credit_note->line_items = $line_items;
@@ -160,6 +162,10 @@ trait Refundable
 			//todo process gateway refund, on success, reduce the credit note balance to 0
 		}
 
+
+		if($total_refund > 0)
+			$this->refunded += $total_refund; 
+
 		$this->save();
 
 		$this->adjustInvoices($data);
@@ -170,12 +176,6 @@ trait Refundable
 
 		return $this;
 	}
-
-	private function refundPaymentWithInvoicesAndCredits($data)
-	{
-		return $this;
-	}
-
 
 	private function createActivity(array $data, int $credit_id)
 	{

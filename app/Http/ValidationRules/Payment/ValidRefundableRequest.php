@@ -40,7 +40,6 @@ class ValidRefundableRequest implements Rule
 
         $payment = Payment::whereId($this->decodePrimaryKey(request()->input('id')))->first();
 
-
         if(!$payment)
         {
             $this->error_msg = "Unable to retrieve specified payment";
