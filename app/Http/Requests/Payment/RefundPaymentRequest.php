@@ -67,10 +67,10 @@ class RefundPaymentRequest extends Request
         $rules = [
             'id' => 'required',
             'id' => new ValidRefundableRequest(),
-            'refunded' => 'numeric',
+            'amount' => 'numeric',
             'date' => 'required',
             'invoices.*.invoice_id' => 'required',
-            'invoices.*.refunded' => 'required',
+            'invoices.*.amount' => 'required',
             'invoices' => new ValidRefundableInvoices(),
         ];
 

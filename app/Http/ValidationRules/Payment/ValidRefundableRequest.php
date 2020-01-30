@@ -67,7 +67,7 @@ class ValidRefundableRequest implements Rule
         if($payment->credits()->exists())
         {
             foreach($payment->credits as $paymentable_credit)
-                $this->paymentable_type($paymentable_credit, $request_credits);
+                $this->checkCredit($paymentable_credit, $request_credits);
         }
 
 
@@ -141,11 +141,11 @@ class ValidRefundableRequest implements Rule
 
                 $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                if($request_invoice['refunded'] > $refundable_amount){
+                if($request_invoice['amount'] > $refundable_amount){
                     
-                    $invoice = $paymentable->paymentable;
+                    $invoice = $paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for invoice ".$invoice->number.", maximum refundable amount is ". $refundable_amount;
+                    $this->error_msg = "Attempting to refund more than allowed for invoice id ".$invoice->hashed_id.", maximum refundable amount is ". $refundable_amount;
                     return false;
                 }
 
@@ -169,16 +169,16 @@ class ValidRefundableRequest implements Rule
 
         foreach($request_credits as $request_credit)
         {
-            if($request_credit['invoice_id'] == $paymentable->pivot->paymentable_id)
+            if($request_credit['credit_id'] == $paymentable->pivot->paymentable_id)
             {
 
                 $record_found = true;
 
                 $refundable_amount = ($paymentable->pivot->amount - $paymentable->pivot->refunded);
 
-                if($request_credit['refunded'] > $refundable_amount){
+                if($request_credit['amount'] > $refundable_amount){
                     
-                    $credit = $paymentable->paymentable;
+                    $credit = $paymentable;
 
                     $this->error_msg = "Attempting to refund more than allowed for credit ".$credit->number.", maximum refundable amount is ". $refundable_amount;        
                     return false;
