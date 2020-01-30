@@ -52,7 +52,7 @@ class PaymentAmountsBalanceRule implements Rule
             return true;
 
         if(request()->has('amount') && request()->input('amount') == 0)
-            return true
+            return true;
 
         $payment_amounts = 0;
         $invoice_amounts = 0;

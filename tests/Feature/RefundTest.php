@@ -53,7 +53,10 @@ class RefundTest extends TestCase
 
     }
 
-
+    /**
+     * Test that a simple payment of $50
+     * is able to be refunded.
+     */
     public function testBasicRefundValidation()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
@@ -77,12 +80,6 @@ class RefundTest extends TestCase
         $data = [
             'amount' => 50,
             'client_id' => $client->hashed_id,
-            // 'invoices' => [
-            //     [
-            //     'invoice_id' => $this->invoice->hashed_id,
-            //     'amount' => $this->invoice->amount
-            //     ],
-            // ],
             'date' => '2020/12/12',
 
         ];
@@ -107,12 +104,6 @@ class RefundTest extends TestCase
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
             'amount' => 50,
-            // 'invoices' => [
-            //     [
-            //     'invoice_id' => $this->invoice->hashed_id,
-            //     'amount' => $this->invoice->amount
-            //     ],
-            // ],
             'date' => '2020/12/12',
         ];
 
@@ -137,12 +128,16 @@ class RefundTest extends TestCase
 
         $this->assertEquals(50, $arr['data']['refunded']);
         $this->assertEquals(Payment::STATUS_REFUNDED, $arr['data']['status_id']);
-    
-        // $activity = Activity::wherePaymentId($payment->id)->whereActivityTypeId(Activity::REFUNDED_PAYMENT)->first();
 
-        // $this->assertNotNull($activity);
     }
 
+    /**
+     * Test that a payment with Invoices
+     * requires a refund with invoices specified.
+     *
+     * Should produce a validation error if
+     * no invoices are specified in the refund
+     */
     public function testRefundValidationNoInvoicesProvided()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
@@ -199,12 +194,6 @@ class RefundTest extends TestCase
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
             'amount' => 50,
-            // 'invoices' => [
-            //     [
-            //     'invoice_id' => $this->invoice->hashed_id,
-            //     'amount' => $this->invoice->amount
-            //     ],
-            // ],
             'date' => '2020/12/12',
         ];
 
@@ -230,7 +219,10 @@ class RefundTest extends TestCase
 
     }
 
-
+    /**
+     * Test that a refund with invoices provided
+     * passes.
+     */
     public function testRefundValidationWithValidInvoiceProvided()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
@@ -307,6 +299,9 @@ class RefundTest extends TestCase
 
     }
 
+    /**
+     * Test Validation with incorrect invoice refund amounts
+     */
     public function testRefundValidationWithInValidInvoiceRefundedAmount()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
@@ -391,6 +386,10 @@ class RefundTest extends TestCase
 
     }
     
+    /**
+     * Tests refund when providing an invoice
+     * not related to the payment
+     */
     public function testRefundValidationWithInValidInvoiceProvided()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
@@ -489,4 +488,8 @@ class RefundTest extends TestCase
 
     }
 
+
+    /*Additional scenarios*/
+
+    /*Test refunds where payments include credits*/
 }
