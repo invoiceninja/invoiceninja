@@ -67,7 +67,7 @@ class ValidRefundableRequest implements Rule
         if($payment->credits()->exists())
         {
             foreach($payment->credits as $paymentable_credit)
-                $this->paymentable_type($paymentable_credit, $request_credits);
+                $this->checkCredit($paymentable_credit, $request_credits);
         }
 
 
@@ -169,7 +169,7 @@ class ValidRefundableRequest implements Rule
 
         foreach($request_credits as $request_credit)
         {
-            if($request_credit['invoice_id'] == $paymentable->pivot->paymentable_id)
+            if($request_credit['credit_id'] == $paymentable->pivot->paymentable_id)
             {
 
                 $record_found = true;
