@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Credit;
 
+use App\Models\Credit;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCreditRequest extends FormRequest
@@ -13,7 +14,7 @@ class StoreCreditRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('create', Credit::class);
     }
 
     /**

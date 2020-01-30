@@ -32,12 +32,12 @@ class CreditFilters extends QueryFilters
      * - overdue
      * - reversed
      *
-     * @param      string client_status The credit status as seen by the client
+     * @param      string credit_status The credit status as seen by the client
      * @return     Illuminate\Database\Query\Builder
      *
      */
     
-    public function client_status(string $value = '') :Builder
+    public function credit_status(string $value = '') :Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -49,21 +49,20 @@ class CreditFilters extends QueryFilters
             return $this->builder;
         }
         
-        if (in_array('paid', $status_parameters)) {
-            $this->builder->where('status_id', Credit::STATUS_PAID);
+        if (in_array('draft', $status_parameters)) {
+            $this->builder->where('status_id', Credit::STATUS_DRAFT);
         }
 
-        if (in_array('unpaid', $status_parameters)) {
-            $this->builder->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL]);
+        if (in_array('partial', $status_parameters)) {
+            $this->builder->where('status_id', Credit::STAUTS_PARTIAL);
         }
+
+        if(in_array('applied', $status_parameters)) {
+            $this->builder->where('status_id', Credit::STATUS_APPLIED);
+        }
+
         //->where('due_date', '>', Carbon::now())
         //->orWhere('partial_due_date', '>', Carbon::now());
-
-        if (in_array('overdue', $status_parameters)) {
-            $this->builder->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])
-                            ->where('due_date', '<', Carbon::now())
-                            ->orWhere('partial_due_date', '<', Carbon::now());
-        }
 
         return $this->builder;
     }
@@ -84,7 +83,7 @@ class CreditFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('credits.number', 'like', '%'.$filter.'%')
-                          ->orWhere('credits.po_number', 'like', '%'.$filter.'%')
+                          ->orWhere('credits.number', 'like', '%'.$filter.'%')
                           ->orWhere('credits.date', 'like', '%'.$filter.'%')
                           ->orWhere('credits.amount', 'like', '%'.$filter.'%')
                           ->orWhere('credits.balance', 'like', '%'.$filter.'%')
@@ -188,6 +187,6 @@ class CreditFilters extends QueryFilters
     {
         return $this->builder
                     ->whereCompanyId(auth('contact')->user()->company->id)
-                    ->whereNotIn('status_id', [Credit::STATUS_DRAFT, Credit::STATUS_CANCELLED]);
+                    ->whereNotIn('status_id', [Credit::STATUS_DRAFT]);
     }
 }

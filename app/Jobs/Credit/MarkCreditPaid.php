@@ -75,9 +75,9 @@ class MarkCreditPaid implements ShouldQueue
         /* Update Credit balance */
         event(new PaymentWasCreated($payment, $payment->company));
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $this->company);
-        UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $this->company);
-        UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $this->company);
+        // UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $this->company);
+        // UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $this->company);
+        // UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $this->company);
 
         return $this->credit;
     }
