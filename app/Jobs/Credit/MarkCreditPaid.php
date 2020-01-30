@@ -13,6 +13,7 @@ namespace App\Jobs\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
+use App\Factory\PaymentFactory;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
@@ -57,7 +58,7 @@ class MarkCreditPaid implements ShouldQueue
             $this->credit->markSent();
 
         /* Create Payment */
-        $payment = CreditFactory::create($this->credit->company_id, $this->credit->user_id);
+        $payment = PaymentFactory::create($this->credit->company_id, $this->credit->user_id);
 
         $payment->amount = $this->credit->balance;
         $payment->status_id = Credit::STATUS_COMPLETED;
