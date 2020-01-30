@@ -16,10 +16,11 @@ trait Refundable
 	public function processRefund(array $data)
 	{
 
-		if(isset($data['invoices']) && isset($data['credits']))
-			return $this->refundPaymentWithInvoicesAndCredits($data);
-		else if(isset($data['invoices']))
-			return $this->refundPaymentWithInvoices($data);
+		if(isset($data['invoices']))
+			return $this->refundPaymentWithInvoicesAndOrCredits($data);
+
+		if(!isset($data['invoices']) && isset($data['credits']))
+			return $this->refundPaymentWithCreditsOnly($data);
 
 		return $this->refundPaymentWithNoInvoicesOrCredits($data);
 	}
@@ -59,15 +60,19 @@ trait Refundable
 
 		$this->save();
 
-		$this->client->paid_to_date -= $data['amount'];
+		//$this->client->paid_to_date -= $data['amount'];
 		$this->client->save();
 
 		return $this;
 	}
 
+	private function refundPaymentWithCreditsOnly($data)
+	{
+
+	}
 
 
-	private function refundPaymentWithInvoices($data)
+	private function refundPaymentWithInvoicesAndOrCredits($data)
 	{
 
 		$total_refund = 0;
@@ -101,6 +106,51 @@ trait Refundable
 				$line_items[] = $credit_line_item;
 			}
 
+			/* Update paymentable record */
+            foreach($this->invoices as $paymentable_invoice)
+            {
+
+            	foreach($data['invoices'] as $refunded_invoice)
+            	{
+
+            		if($refunded_invoice['invoice_id'] == $paymentable_invoice->id)
+            		{
+            			$paymentable_invoice->pivot->refunded += $refunded_invoice['amount'];
+            			$paymentable_invoice->pivot->save();
+            		}
+
+            	}
+
+
+            }
+
+
+            if(isset($data['credits']))
+            {
+
+				/* Update paymentable record */
+	            foreach($this->credits as $paymentable_credit)
+	            {
+
+	            	foreach($data['credits'] as $refunded_credit)
+	            	{
+
+	            		if($refunded_credit['credit_id'] == $refunded_credit->id)
+	            		{
+	            			$refunded_credit->pivot->refunded += $refunded_credit['amount'];
+	            			$refunded_credit->pivot->save();
+	            			
+	            			$refunded_credit->balance += $refunded_credit['amount'];
+	            			$refunded_credit->save();
+
+	            		}
+
+	            	}
+
+
+	            }
+            }
+
 		$credit_note->line_items = $line_items;
 		$credit_note->save();
 
@@ -126,10 +176,6 @@ trait Refundable
 		return $this;
 	}
 
-	private function createCreditLineItems()
-	{
-
-	}
 
 	private function createActivity(array $data, int $credit_id)
 	{
@@ -189,7 +235,7 @@ trait Refundable
         	$client = $invoice->client;
 
         	$client->balance += $refunded_invoice['amount'];
-        	$client->paid_to_date -= $refunded_invoice['amount'];
+        	///$client->paid_to_date -= $refunded_invoice['amount'];
 
         	$client->save();
 
