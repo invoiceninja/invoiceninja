@@ -30,11 +30,21 @@ class ImportTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
+    public $migration_array;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->makeTestData();
+
+        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+
+        $handle = fopen($migration_file, "r");
+        $migration_file = fread($handle, filesize($migration_file));
+        fclose($handle);
+
+        $this->migration_array = json_decode($migration_file,1);
     }
 
     public function testImportClassExists()
@@ -95,11 +105,11 @@ class ImportTest extends TestCase
 
         $original_count = Invoice::count();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        //$this->migration_array = json_decode(file_get_contents($migration_file), 1);
+
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original_count, Invoice::count());
     }
@@ -122,13 +132,13 @@ class ImportTest extends TestCase
 
     public function testImportFileExists()
     {
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $this->assertTrue(file_exists($migration_file));
+        // $this->assertTrue(file_exists($migration_file));
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        $this->assertGreaterThan(1, count($migration_array));
+        $this->assertGreaterThan(1, count($this->migration_array));
 
     }
 
@@ -139,11 +149,11 @@ class ImportTest extends TestCase
 
         $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $this->assertTrue(true);
     }
@@ -180,11 +190,11 @@ class ImportTest extends TestCase
 
         $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original_number, Invoice::count());
 
@@ -198,9 +208,9 @@ class ImportTest extends TestCase
 
     //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-    //     $migration_array = json_decode(file_get_contents($migration_file), 1);
+    //     $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-    //     Import::dispatchNow($migration_array, $this->company, $this->user);
+    //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
     //     $this->assertGreaterThan($original_number, Invoice::count());
 
@@ -232,9 +242,9 @@ class ImportTest extends TestCase
 
     //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-    //     $migration_array = json_decode(file_get_contents($migration_file), 1);
+    //     $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-    //     Import::dispatchNow($migration_array, $this->company, $this->user);
+    //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
     //     $this->assertGreaterThan($original_number, Invoice::count());
 
@@ -254,11 +264,11 @@ class ImportTest extends TestCase
 
         $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original_count, Payment::count());
     }
@@ -285,11 +295,11 @@ class ImportTest extends TestCase
 
         $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original_count, Credit::count());
     }
@@ -319,16 +329,16 @@ class ImportTest extends TestCase
     {
         $this->invoice->forceDelete();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $differences = [];
 
-        foreach ($migration_array['invoices'] as $key => $invoices) {
+        foreach ($this->migration_array['invoices'] as $key => $invoices) {
             $record = Invoice::whereNumber($invoices['number'])
                 ->whereAmount($invoices['amount'])
                 ->whereBalance($invoices['balance'])
@@ -339,7 +349,7 @@ class ImportTest extends TestCase
             }
         }
 
-        foreach ($migration_array['users'] as $key => $user) {
+        foreach ($this->migration_array['users'] as $key => $user) {
             $record = User::whereEmail($user['email'])->first();
 
             if (!$record) {
@@ -347,7 +357,7 @@ class ImportTest extends TestCase
             }
         }
 
-        foreach ($migration_array['tax_rates'] as $key => $tax_rate) {
+        foreach ($this->migration_array['tax_rates'] as $key => $tax_rate) {
             $record = TaxRate::whereName($tax_rate['name'])
                 ->where('rate', $tax_rate['rate'])
                 ->first();
@@ -357,7 +367,7 @@ class ImportTest extends TestCase
             }
         }
 
-        foreach ($migration_array['clients'] as $key => $client) {
+        foreach ($this->migration_array['clients'] as $key => $client) {
             $record = Client::whereName($client['name'])
                 ->whereCity($client['city'])
                 // ->where('paid_to_date', $client['paid_to_date']) // TODO: Doesn't work. Need debugging.
@@ -368,7 +378,7 @@ class ImportTest extends TestCase
             }
         }
 
-        foreach ($migration_array['products'] as $key => $product) {
+        foreach ($this->migration_array['products'] as $key => $product) {
             $record = Product::where('product_key', $product['product_key'])
                 ->first();
 
@@ -377,7 +387,7 @@ class ImportTest extends TestCase
             }
         }
 
-        foreach ($migration_array['quotes'] as $key => $quote) {
+        foreach ($this->migration_array['quotes'] as $key => $quote) {
             $record = Quote::whereNumber($quote['number'])
                 ->whereIsAmountDiscount($quote['is_amount_discount'])
                 ->whereDueDate($quote['due_date'])
@@ -388,7 +398,7 @@ class ImportTest extends TestCase
             }
         }
 
-        foreach ($migration_array['payments'] as $key => $payment) {
+        foreach ($this->migration_array['payments'] as $key => $payment) {
             $record = Payment::whereAmount($payment['amount'])
                 ->whereApplied($payment['applied'])
                 ->whereRefunded($payment['refunded'])
@@ -399,7 +409,7 @@ class ImportTest extends TestCase
             }
         }
 
-        /*foreach ($migration_array['credits'] as $key => $credit) {
+        /*foreach ($this->migration_array['credits'] as $key => $credit) {
 
             // The Import::processCredits() does insert the credit record with number: 0053,
             // .. however this part of the code doesn't see it at all.
@@ -421,11 +431,11 @@ class ImportTest extends TestCase
 
         $original = ClientContact::count();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $migration_array = json_decode(file_get_contents($migration_file), 1);
+        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        Import::dispatchNow($migration_array, $this->company, $this->user);
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
         
         $this->assertGreaterThan($original, ClientContact::count());
     }

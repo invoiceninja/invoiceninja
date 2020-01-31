@@ -34,6 +34,10 @@ class TemplateApiTest extends TestCase
     {
         parent::setUp();
 
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+
         $this->makeTestData();
 
         Session::start();

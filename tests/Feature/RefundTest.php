@@ -42,6 +42,10 @@ class RefundTest extends TestCase
 
         parent::setUp();
 
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+
         Session::start();
 
         $this->faker = \Faker\Factory::create();
