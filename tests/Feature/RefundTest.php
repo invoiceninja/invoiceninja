@@ -489,7 +489,20 @@ class RefundTest extends TestCase
 
     }
 
-    /*Test refunds where payments include credits*/
+    /**
+     * Test refunds where payments include credits
+     * 
+     * $10 invoice
+     * $10 credit
+     * $50 credit card payment
+     *
+     *
+     * result should be
+     *
+     * payment.applied = 10
+     * credit.balance = 0
+     * 
+     */
     public function testRefundWhereCreditsArePresent()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
@@ -540,7 +553,7 @@ class RefundTest extends TestCase
         ];
 
         $response = false;
-        
+
         try{
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -594,14 +607,15 @@ class RefundTest extends TestCase
             \Log::error($message);
         }
 
-        if($response){
 
             $response->assertStatus(200);
-
             $arr = $response->json();
-            \Log::error($arr);
 
-        }        
+            $payment = Payment::find($this->decodePrimaryKey($arr['data']['id']));
+
+            \Log::error(print_r($payment->paymentables->toArray(),1));
+
+              
 
 
     }
