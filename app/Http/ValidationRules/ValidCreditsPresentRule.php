@@ -14,6 +14,7 @@ namespace App\Http\ValidationRules;
 use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -22,6 +23,7 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class ValidCreditsPresentRule implements Rule
 {
+    use MakesHash;
 
     /**
      * @param string $attribute
@@ -38,7 +40,7 @@ class ValidCreditsPresentRule implements Rule
      */
     public function message()
     {
-        return 'Attempting to use one or more invalid credits';
+        return 'Insufficient balance on credit.';
     }
 
 
@@ -51,9 +53,9 @@ class ValidCreditsPresentRule implements Rule
         {
             foreach(request()->input('credits') as $credit)
             {
-                $cred = Credit::find($credit['invoice_id']);
+                $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
                 
-                if($cred->balance >= $credit['amount'])
+                if($cred->balance == 0)
                 	return false;
             }
         }
