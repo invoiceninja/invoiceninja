@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\ClientFactory;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -40,6 +42,10 @@ class RefundTest extends TestCase
     {
 
         parent::setUp();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
 
         Session::start();
 
@@ -488,8 +494,135 @@ class RefundTest extends TestCase
 
     }
 
+    /**
+     * Test refunds where payments include credits
+     * 
+     * $10 invoice
+     * $10 credit
+     * $50 credit card payment
+     *
+     *
+     * result should be
+     *
+     * payment.applied = 10
+     * credit.balance = 0
+     * 
+     */
+    public function testRefundWhereCreditsArePresent()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+        $this->invoice->status_id = Invoice::STATUS_SENT;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+
+        $this->credit = CreditFactory::create($this->company->id,$this->user->id);
+        $this->credit->client_id = $this->client->id;
+
+        $this->credit->line_items = $this->buildLineItems();
+        $this->credit->amount = 10;
+        $this->credit->balance = 10;
+
+        $this->credit->uses_inclusive_taxes = false;
+        $this->credit->save();
+
+        $data = [
+            'amount' => 50,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                'invoice_id' => $this->invoice->hashed_id,
+                'amount' => $this->invoice->amount
+                ],
+            ],
+            'credits' => [
+                [
+                'credit_id' => $this->credit->hashed_id,
+                'amount' => $this->credit->amount
+                ],
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        $response = false;
+
+        try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments', $data);
+        }catch(ValidationException $e)
+        {
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error($message);
+        }
+        
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $payment_id = $arr['data']['id'];
+
+        $this->assertEquals(50, $arr['data']['amount']);
+
+        $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+        $this->assertNotNull($payment);
+        $this->assertNotNull($payment->invoices());
+        $this->assertEquals(1, $payment->invoices()->count());
+        
+
+        $data = [
+            'id' => $this->encodePrimaryKey($payment->id),
+            'amount' => 50,
+            'invoices' => [
+                [
+                'invoice_id' => $this->invoice->hashed_id,
+                'amount' => $this->invoice->amount
+                ],
+            ],
+            'date' => '2020/12/12',
+        ];
+
+       $response = false;
+
+       try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/refund', $data);
+        }catch(ValidationException $e)
+        {
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error("refund message error");
+            \Log::error($message);
+        }
+
+
+            $response->assertStatus(200);
+            $arr = $response->json();
+
+            $payment = Payment::find($this->decodePrimaryKey($arr['data']['id']));
+
+//            \Log::error(print_r($payment->paymentables->toArray(),1));
+
+              
+
+
+    }
 
     /*Additional scenarios*/
 
-    /*Test refunds where payments include credits*/
 }

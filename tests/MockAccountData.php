@@ -168,7 +168,7 @@ trait MockAccountData
         $this->invoice->client_id = $this->client->id;
 
 		$this->invoice->line_items = $this->buildLineItems();
-		$this->invoice->uses_inclusive_Taxes = false;
+		$this->invoice->uses_inclusive_taxes = false;
 
         $this->invoice->save();
 
@@ -185,7 +185,10 @@ trait MockAccountData
         $this->credit->client_id = $this->client->id;
 
 		$this->credit->line_items = $this->buildLineItems();
-		$this->credit->uses_inclusive_Taxes = false;
+        $this->credit->amount = 10;
+        $this->credit->balance = 10;
+
+		$this->credit->uses_inclusive_taxes = false;
 
         $this->credit->save();
         

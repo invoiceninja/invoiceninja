@@ -63,19 +63,19 @@ class ValidRefundableRequest implements Rule
         }
 
 
-        if($payment->credits()->exists())
-        {
-            foreach($payment->credits as $paymentable_credit)
-                $this->checkCredit($paymentable_credit, $request_credits);
-        }
+        // if($payment->credits()->exists())
+        // {
+        //     foreach($payment->credits as $paymentable_credit)
+        //         $this->checkCredit($paymentable_credit, $request_credits);
+        // }
 
 
         foreach($request_invoices as $request_invoice)
             $this->checkInvoiceIsPaymentable($request_invoice, $payment);
 
 
-        foreach($request_credits as $request_credit)
-            $this->checkCreditIsPaymentable($request_credit, $payment);
+        // foreach($request_credits as $request_credit)
+        //     $this->checkCreditIsPaymentable($request_credit, $payment);
 
 
         if(strlen($this->error_msg) > 0 )
