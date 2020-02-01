@@ -73,7 +73,7 @@ class StorePaymentRequest extends Request
             $input['credits'] = null;
         }
 
-        if(!isset($input['amount'])){
+        if(!isset($input['amount']) || $input['amount'] == 0){
             $input['amount'] = $invoices_total - $credits_total;
         }
 

@@ -579,8 +579,6 @@ class RefundTest extends TestCase
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
 
-        \Log::error($payment);
-
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
@@ -618,7 +616,7 @@ class RefundTest extends TestCase
 
             $payment = Payment::find($this->decodePrimaryKey($arr['data']['id']));
 
-            \Log::error(print_r($payment->paymentables->toArray(),1));
+//            \Log::error(print_r($payment->paymentables->toArray(),1));
 
               
 

@@ -62,7 +62,7 @@ class UpdateOrCreateProduct implements ShouldQueue
                 
             $product->product_key = $item->product_key;
             $product->notes = isset($item->notes) ? $item->notes : '';
-            $product->cost = isset($item->cost) ? $item->cost : 0;
+            //$product->cost = isset($item->cost) ? $item->cost : 0; //this value shouldn't be updated.
             $product->price = isset($item->price) ? $item->cost : 0;
             $product->quantity = isset($item->quantity) ? $item->quantity : 0;
             $product->tax_name1 = isset($item->tax_name1) ? $item->tax_name1 : '';
