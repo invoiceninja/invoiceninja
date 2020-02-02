@@ -77,6 +77,8 @@ class StorePaymentRequest extends Request
             $input['amount'] = $invoices_total - $credits_total;
         }
 
+        $input['is_manual'] = true;
+        
         $this->replace($input);
     }
 
