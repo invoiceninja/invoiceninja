@@ -177,11 +177,19 @@ class Invoice extends BaseModel
         return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount','refunded')->withTimestamps();;
     }
 
-
+    /**
+     * Service entry points
+     */
     public function service() :InvoiceService
     {
         return new InvoiceService($this);
     }
+
+    public function markPaid()
+    {
+        return $this->service()->markPaid();
+    }
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */

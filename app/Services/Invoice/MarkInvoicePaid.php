@@ -23,6 +23,12 @@ use App\Services\Payment\PaymentService;
 
 class MarkInvoicePaid
 {
+    private $client_service;
+
+    public function __construct($client_service)
+    {
+        $this->client_service = $client_service;
+    }
 
   	public function __invoke($invoice)
   	{
@@ -50,8 +56,14 @@ class MarkInvoicePaid
         event(new PaymentWasCreated($payment, $payment->company));
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $payment->company);
-        UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $payment->company);
-        UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
+        
+        $this->client_service
+            ->updateBalance($payment->amount*-1)
+            ->updatePaidToDate($payment->amount)
+            ->save();
+
+        //UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $payment->company);
+        //UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
 
         return $invoice;
   	}

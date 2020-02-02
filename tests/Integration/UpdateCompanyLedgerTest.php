@@ -37,8 +37,7 @@ class UpdateCompanyLedgerTest extends TestCase
     public function testPaymentIsPresentInLedger()
     {
 
-        $invoice = MarkInvoicePaid::dispatchNow($this->invoice, $this->company);
-
+        $invoice = $this->invoice->markPaid();
 
         $ledger = CompanyLedger::whereClientId($invoice->client_id)
                                 ->whereCompanyId($invoice->company_id)

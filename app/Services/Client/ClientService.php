@@ -21,5 +21,24 @@ class ClientService
         $this->client = $client;
     }
 
+    public function updateBalance($amount)
+    {
+        $this->client->balance += $amount;
 
+        return $this;
+    }
+
+    public function updatePaidToDate($amount)
+    {
+        $this->client->paid_to_date += $amount;
+
+        return $this;
+    }
+
+    public function save()
+    {
+    	$this->client->save();
+
+    	return $this;
+    }
 }

@@ -14,15 +14,12 @@ namespace App\Services\Invoice;
 use App\Models\Invoice;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\MarkInvoicePaid;
-use App\Services\Payment\PaymentService;
 
 class InvoiceService
 {
     private $invoice;
 
     private $client_service;
-
-    private $payment_service;
 
     public function __construct($invoice)
     {
@@ -34,7 +31,7 @@ class InvoiceService
 
     public function markPaid()
     {
-        $mip = new MarkInvoicePaid();
-        return $mip($this->invoice);
+        $mark_invoice_paid = new MarkInvoicePaid($this->client_service);
+        return $mark_invoice_paid($this->invoice);
     }
 }

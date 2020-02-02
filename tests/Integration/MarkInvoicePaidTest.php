@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Jobs\Invoice\MarkInvoicePaid
+ * @covers  App\Services\Invoice\MarkInvoicePaid
  */
 class MarkInvoicePaidTest extends TestCase
 {
@@ -37,11 +37,15 @@ class MarkInvoicePaidTest extends TestCase
     public function testMarkInvoicePaidInvoice()
     {
 
-        //MarkInvoicePaid::dispatchNow($this->invoice, $this->company);
+        $invoice = Invoice::find($this->invoice->id);
+        $invoice_balance = $invoice->balance;
+        $client = $invoice->client;
+        $client_balance = $client->balance;
 
-        $this->invoice->service()->markPaid();
+        $this->invoice->markPaid();
 
         $invoice = Invoice::find($this->invoice->id);
+        $client = $invoice->client;
 
         $this->assertEquals(0.00, $invoice->balance);
 
@@ -54,7 +58,7 @@ class MarkInvoicePaidTest extends TestCase
        //events are not firing which makes this impossible to control.
 
         $this->assertEquals(0.00, $invoice->balance);
-
+        $this->assertEquals(($client_balance - $invoice_balance), $client->balance);
     }
 
 }
