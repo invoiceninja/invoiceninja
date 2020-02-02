@@ -32,7 +32,7 @@ class InvoiceService
 
     }
 
-    public function markInvoicePaid()
+    public function markPaid()
     {
         $mip = new MarkInvoicePaid();
         return $mip($this->invoice);
