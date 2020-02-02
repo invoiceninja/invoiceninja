@@ -113,7 +113,9 @@ class ApplyPaymentToInvoice implements ShouldQueue
 
         $this->invoice->save();
 
-        $this->invoice = ApplyInvoiceNumber::dispatchNow($this->invoice, $invoice->client->getMergedSettings(), $this->invoice->company);
+        //$this->invoice = ApplyInvoiceNumber::dispatchNow($this->invoice, $invoice->client->getMergedSettings(), $this->invoice->company);
+
+        $this->invoice = $this->invoice->applyNumber()->save();
 
         return $this->invoice;
     }

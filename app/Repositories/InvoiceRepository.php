@@ -115,7 +115,8 @@ class InvoiceRepository extends BaseRepository
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount), $invoice->company);
         }
 
-        $invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
+        //$invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
+        $invoice = $invoice->applyNumber()->save();
 
         if ($invoice->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice, $invoice->company);

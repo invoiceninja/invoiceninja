@@ -190,6 +190,11 @@ class Invoice extends BaseModel
         return $this->service()->markPaid();
     }
 
+    public function applyNumber()
+    {
+        return $this->service()->applyNumber();
+    }
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */
@@ -483,7 +488,8 @@ class Invoice extends BaseModel
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance, $this->company);
 
-        ApplyInvoiceNumber::dispatchNow($this, $this->client->getMergedSettings(), $this->company);
+        $this->applyNumber($this)->save();
+        //ApplyInvoiceNumber::dispatchNow($this, $this->client->getMergedSettings(), $this->company);
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this, $this->balance, $this->company);
 

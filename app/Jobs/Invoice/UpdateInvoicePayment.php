@@ -36,6 +36,7 @@ class UpdateInvoicePayment implements ShouldQueue
     private $company;
 
     /**
+     * @deprecated we only use this in test data creation. shouldn't be used in production
      * Create the event listener.
      *
      * @return void
@@ -138,25 +139,3 @@ class UpdateInvoicePayment implements ShouldQueue
         }
     }
 }
-
-/*
-        $this->payment = $event->payment;
-        $invoice = $this->payment->invoice;
-        $adjustment = $this->payment->amount * -1;
-        $partial = max(0, $invoice->partial - $this->payment->amount);
-
-        $invoice->updateBalances($adjustment, $partial);
-        $invoice->updatePaidStatus(true);
-
-        // store a backup of the invoice
-        $activity = Activity::wherePaymentId($this->payment->id)
-                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
-                        ->first();
-        $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
-        $activity->save();
-
-        if ($invoice->balance == 0 && $this->payment->account->auto_archive_invoice) {
-            $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
-            $invoiceRepo->archive($invoice);
-        }
-*/

@@ -21,7 +21,7 @@ use App\Models\Payment;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
 
-class MarkInvoicePaid
+class MarkPaid
 {
     private $client_service;
 
