@@ -23,6 +23,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\PaymentTerm;
+use App\Services\Invoice\InvoiceService;
 use App\Utils\Number;
 use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\MakesDates;
@@ -177,6 +178,10 @@ class Invoice extends BaseModel
     }
 
 
+    public function service() :InvoiceService
+    {
+        return new InvoiceService($this);
+    }
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */

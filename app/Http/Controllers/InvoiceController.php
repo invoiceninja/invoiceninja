@@ -618,7 +618,7 @@ class InvoiceController extends BaseController
                     return $this->errorResponse(['message' => 'Invoice cannot be marked as paid'], 400);
                 }
 
-                $invoice = MarkInvoicePaid::dispatchNow($invoice, $invoice->company);
+                $invoice = $invoice->service()->markInvoicePaid(); //MarkInvoicePaid::dispatchNow($invoice, $invoice->company);
 
                 if (!$bulk) {
                     return $this->itemResponse($invoice);
