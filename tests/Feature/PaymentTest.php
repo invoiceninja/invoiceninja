@@ -1073,6 +1073,14 @@ class PaymentTest extends TestCase
         }
         
         $response->assertStatus(200);
+
+        $arr = $response->json();
+        $payment_id = $arr['data']['id'];
+        $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+        $this->assertEquals(round($payment->amount,2), $this->invoice->amount);
+    
+        $this->assertEquals(round($payment->applied,2), $this->invoice->amount);
     }
 
 }
