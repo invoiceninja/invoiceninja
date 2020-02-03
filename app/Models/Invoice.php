@@ -199,6 +199,36 @@ class Invoice extends BaseModel
         return $this->service()->applyPayment($payment, $payment_amount);
     }
     
+    public function updateBalance($balance_adjustment) :InvoiceService
+    {
+        return $this->service()->updateBalance($balance_adjustment);
+    }
+
+    public function setDueDate() :InvoiceService
+    {
+        return $this->service->setDueDate();
+    }
+
+    public function setStatus($status) :InvoiceService
+    {
+        return $this->service()->setStatus($status);
+    }
+
+    public function clearPartial() :InvoiceService
+    {
+        return $this->service()->clearPartial();
+    }
+
+    public function updatePartial($amount) :InvoiceService
+    {
+        return $this->service()->updatePartial($amount);
+    }
+
+    public function markSent() :InvoiceService
+    {
+        return $this->service()->markSent();
+    }
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */
@@ -429,83 +459,10 @@ class Invoice extends BaseModel
     }
 
     /**
-     * Clear partial fields
-     * @return void
-     */
-    public function clearPartial() : void
-    {
-        $this->partial = null;
-        $this->partial_due_date = null;
-        $this->save();
-    }
-
-    /**
-     * @param float $balance_adjustment
-     */
-    public function updateBalance($balance_adjustment)
-    {
-        if ($this->is_deleted) {
-            return;
-        }
-
-        $balance_adjustment = floatval($balance_adjustment);
-
-        $this->balance = $this->balance + $balance_adjustment;
-
-        if ($this->balance == 0) {
-            $this->status_id = self::STATUS_PAID;
-            $this->save();
-            event(new InvoiceWasPaid($this, $this->company));
-
-            return;
-        }
-
-        $this->save();
-    }
-
-    public function setDueDate()
-    {
-        $this->due_date = Carbon::now()->addDays($this->client->getSetting('payment_terms'));
-        $this->save();
-    }
-
-    public function setStatus($status)
-    {
-        $this->status_id = $status;
-        $this->save();
-    }
-
-    public function markSent()
-    {
-        /* Return immediately if status is not draft */
-        if ($this->status_id != Invoice::STATUS_DRAFT) {
-            return $this;
-        }
-
-        $this->status_id = Invoice::STATUS_SENT;
-
-        $this->markInvitationsSent();
-
-        $this->setReminder();
-
-        event(new InvoiceWasMarkedSent($this, $this->company));
-
-        UpdateClientBalance::dispatchNow($this->client, $this->balance, $this->company);
-
-        $this->applyNumber()->save();
-
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this, $this->balance, $this->company);
-
-        $this->save();
-
-        return $this;
-    }
-
-    /**
      * Updates Invites to SENT
      *
      */
-    private function markInvitationsSent()
+    public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {
             if (!isset($invitation->sent_date)) {

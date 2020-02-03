@@ -217,6 +217,10 @@ class Client extends BaseModel
         return $this->service()->updatePaidToDate($amount);
     }
 
+    public function updateBalance($amount) :ClientService
+    {
+        return $this->service()->updateBalance($amount);
+    }
     /**
      * Adjusts client "balances" when a client
      * makes a payment that goes on file, but does
