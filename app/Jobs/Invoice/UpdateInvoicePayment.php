@@ -64,7 +64,7 @@ class UpdateInvoicePayment implements ShouldQueue
             $invoices->each(function ($invoice) {
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
                 
-                $payment->client
+                $this->payment->client
                     ->updateBalance($invoice->balance*-1)
                     ->updatePaidToDate($invoice->balance)
                     ->save();

@@ -15,7 +15,6 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Credit\ApplyCreditPayment;
-use App\Jobs\Invoice\ApplyInvoicePayment;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -95,7 +94,7 @@ class PaymentRepository extends BaseRepository
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
-                    ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
+                    $invoice->applyPayment($payment, $paid_invoice['amount'])->save();
                 }
             }
         } else {

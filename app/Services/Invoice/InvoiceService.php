@@ -12,6 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\MarkInvoicePaid;
@@ -103,6 +104,8 @@ class InvoiceService
     public function markViewed()
     {
         $this->invoice->last_viewed = Carbon::now()->format('Y-m-d H:i');
+
+        return $this;
     }
 
     /* One liners */
