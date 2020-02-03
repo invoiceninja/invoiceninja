@@ -39,7 +39,7 @@ class ClientService
 
     public function adjustCreditBalance(float $amount)
     {
-        $this->client->client_balance += $amount;
+        $this->client->credit_balance += $amount;
 
         return $this;
     }

@@ -16,7 +16,6 @@ use App\Factory\CreditFactory;
 use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Credit\ApplyCreditPayment;
-use App\Jobs\Invoice\ApplyClientPayment;
 use App\Jobs\Invoice\ApplyInvoicePayment;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Models\Credit;
@@ -103,7 +102,6 @@ class PaymentRepository extends BaseRepository
             }
         } else {
             //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
-            // ApplyClientPayment::dispatchNow($payment, $payment->company);
             $payment->client->processUnappliedPayment($payment->amount);
         }
 
