@@ -37,6 +37,7 @@ class ApplyPaymentToInvoice implements ShouldQueue
     private $company;
 
     /**
+     * @deprecated confirm to be deleted
      * Create a new job instance.
      *
      * @return void

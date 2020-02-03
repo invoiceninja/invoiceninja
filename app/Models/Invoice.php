@@ -194,6 +194,11 @@ class Invoice extends BaseModel
         return $this->service()->applyNumber();
     }
 
+    public function applyPayment($payment, $payment_amount) :InvoiceService
+    {
+        return $this->service()->applyPayment($payment, $payment_amount);
+    }
+    
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */

@@ -57,6 +57,15 @@ class InvoiceService
         return $this;
     }
 
+    public function applyPayment(Payment $payment, float $payment_amount)
+    {
+        $apply_payment = new ApplyPayment($this->invoice);
+
+        $this->invoice = $apply_payment($payment, $payment_amount);
+
+        return $this;
+    }
+
     /**
      * Saves the invoice
      * @return Invoice object 
