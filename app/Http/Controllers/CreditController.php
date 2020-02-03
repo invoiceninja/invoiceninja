@@ -142,7 +142,7 @@ class CreditController extends BaseController
                 if ($credit->balance < 0 || $credit->status_id == Credit::STATUS_PAID || $credit->is_deleted === true) {
                     return $this->errorResponse(['message' => 'Credit cannot be marked as paid'], 400);
                 }
-
+                //@todo fix and replace
                 $credit = MarkInvoicePaid::dispatchNow($credit, $credit->company);
 
                 if (!$bulk) {

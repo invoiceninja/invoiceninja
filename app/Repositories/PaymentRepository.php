@@ -13,11 +13,8 @@ namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
-use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Credit\ApplyCreditPayment;
-use App\Jobs\Invoice\ApplyClientPayment;
-use App\Jobs\Invoice\ApplyInvoicePayment;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -80,8 +77,7 @@ class PaymentRepository extends BaseRepository
         if (!$payment->number)
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
-        //we only ever update the ACTUAL amount of money transferred
-        UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
+        $payment->client->updatePaidToDate($payment->amount)->save();
 
         $invoice_totals = 0;
         $credit_totals = 0;
@@ -98,12 +94,12 @@ class PaymentRepository extends BaseRepository
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
-                    ApplyInvoicePayment::dispatchNow($invoice, $payment, $paid_invoice['amount'], $invoice->company);
+                    $invoice->applyPayment($payment, $paid_invoice['amount'])->save();
                 }
             }
         } else {
             //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
-            ApplyClientPayment::dispatchNow($payment, $payment->company);
+            $payment->client->processUnappliedPayment($payment->amount);
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {

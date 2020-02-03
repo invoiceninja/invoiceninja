@@ -26,6 +26,7 @@ use App\Models\GroupSetting;
 use App\Models\Language;
 use App\Models\Timezone;
 use App\Models\User;
+use App\Services\Client\ClientService;
 use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
@@ -204,6 +205,36 @@ class Client extends BaseModel
         return $currencies->filter(function ($item) {
             return $item->id == $this->getSetting('currency_id');
         })->first();
+    }
+
+    public function service() :ClientService
+    {
+        return new ClientService($this);
+    }
+
+    public function updatePaidToDate($amount) :ClientService
+    {
+        return $this->service()->updatePaidToDate($amount);
+    }
+
+    public function updateBalance($amount) :ClientService
+    {
+        return $this->service()->updateBalance($amount);
+    }
+    /**
+     * Adjusts client "balances" when a client
+     * makes a payment that goes on file, but does
+     * not effect the client.balance record
+     *    
+     * @param  float $amount Adjustment amount
+     * @return Client         
+     */
+    public function processUnappliedPayment($amount) :Client
+    {
+
+        return $this->service()->updatePaidToDate($amount)
+                                ->adjustCreditBalance($amount)
+                                ->save();
     }
 
     /**

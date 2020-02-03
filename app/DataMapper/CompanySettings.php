@@ -71,6 +71,7 @@ class CompanySettings extends BaseSettings
 
     public $counter_number_applied = 'when_saved'; // when_saved , when_sent , when_paid
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent
+    
     /* Counters */
     public $invoice_number_pattern = '';
     public $invoice_number_counter = 1;
