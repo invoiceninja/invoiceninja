@@ -10,12 +10,14 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
+use App\Models\Credit;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
@@ -23,6 +25,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
@@ -185,6 +188,31 @@ class RandomDataSeeder extends Seeder
 
                 UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
+
+        });
+
+        /*Credits*/
+        factory(\App\Models\Credit::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+
+        $credits = Credit::cursor();
+        $credit_repo = new CreditRepository();
+
+        $credits->each(function ($credit) use($credit_repo, $user, $company, $client){
+
+            $credit_calc = null;
+
+            if($credit->uses_inclusive_taxes)
+                $credit_calc = new InvoiceSumInclusive($credit);
+            else
+                $credit_calc = new InvoiceSum($credit);
+
+            $credit = $credit_calc->build()->getInvoice();
+
+            $credit->save();
+
+            event(new CreateCreditInvitation($credit));
+
+            //$invoice->markSent()->save();
 
         });
 

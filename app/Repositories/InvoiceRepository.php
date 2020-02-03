@@ -132,6 +132,6 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-        return $invoice->markSent();
+        return $invoice->markSent()->save();
     }
 }

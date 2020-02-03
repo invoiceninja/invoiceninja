@@ -15,6 +15,7 @@ use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Quote\CreateQuoteInvitations;
+use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\CompanyToken;
 use App\Models\Payment;
@@ -136,6 +137,9 @@ class CreateTestData extends Command
             $this->info('creating invoice for client #'.$client->id);
                 $this->createInvoice($client);
 
+            $this->info('creating credit for client #'.$client->id);
+                $this->createCredit($client);
+
             $this->info('creating quote for client #'.$client->id);
                 $this->createQuote($client);
 
@@ -220,6 +224,12 @@ class CreateTestData extends Command
 
                 for($i=0; $i<$this->count; $i++)
                     $this->createInvoice($client);
+
+            $this->info('creating credit for client #'.$client->id);
+
+                for($i=0; $i<$this->count; $i++)
+                    $this->createCredit($client);
+
 
             $this->info('creating quote for client #'.$client->id);
 
@@ -311,6 +321,9 @@ class CreateTestData extends Command
 
             $this->info('creating invoice for client #'.$client->id);
                 $this->createInvoice($client);
+
+            $this->info('creating credit for client #'.$client->id);
+                $this->createCredit($client);
 
             $this->info('creating quote for client #'.$client->id);
                 $this->createQuote($client);
@@ -472,6 +485,48 @@ class CreateTestData extends Command
         }
     }
 
+    private function createCredit($client)
+    {
+        $faker = \Faker\Factory::create();
+
+        $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+
+        //$invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
+        //$invoice->client_id = $client->id;
+//        $invoice->date = $faker->date();
+        $dateable = Carbon::now()->subDays(rand(0,90));
+        $credit->date = $dateable;
+
+        $credit->line_items = $this->buildLineItems(rand(1,10));
+        $credit->uses_inclusive_taxes = false;
+
+        if (rand(0, 1)) {
+            $credit->tax_name1 = 'GST';
+            $credit->tax_rate1 = 10.00;
+        }
+
+        if (rand(0, 1)) {
+            $credit->tax_name2 = 'VAT';
+            $credit->tax_rate2 = 17.50;
+        }
+
+        if (rand(0, 1)) {
+            $credit->tax_name3 = 'CA Sales Tax';
+            $credit->tax_rate3 = 5;
+        }
+
+        $credit->save();
+
+        $invoice_calc = new InvoiceSum($credit);
+        $invoice_calc->build();
+
+        $credit = $invoice_calc->getInvoice();
+
+        $credit->save();
+
+        event(new CreateCreditInvitation($credit));
+
+    }
 
     private function createQuote($client)
     {
