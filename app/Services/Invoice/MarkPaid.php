@@ -13,8 +13,6 @@ namespace App\Services\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Client\UpdateClientBalance;
-use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -61,9 +59,6 @@ class MarkPaid
             ->updateBalance($payment->amount*-1)
             ->updatePaidToDate($payment->amount)
             ->save();
-
-        //UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $payment->company);
-        //UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
 
         return $invoice;
   	}

@@ -115,22 +115,6 @@ class Invoice extends BaseModel
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
 
-
-    public function getStatusAttribute()
-    {
-        if ($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now()) {
-            return Invoice::STATUS_UNPAID;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
-            return Invoice::STATUS_UNPAID;
-        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now()) {
-            return Invoice::STATUS_OVERDUE;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
-            return Invoice::STATUS_OVERDUE;
-        } else {
-            return $this->status_id;
-        }
-    }
-
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -229,9 +213,29 @@ class Invoice extends BaseModel
         return $this->service()->markSent();
     }
 
+    public function markViewed() :InvoiceService
+    {
+        return $this->service()->markViewed();
+    }
+
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */
+
+    public function getStatusAttribute()
+    {
+        if ($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now()) {
+            return Invoice::STATUS_UNPAID;
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
+            return Invoice::STATUS_UNPAID;
+        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now()) {
+            return Invoice::STATUS_OVERDUE;
+        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
+            return Invoice::STATUS_OVERDUE;
+        } else {
+            return $this->status_id;
+        }
+    }
 
     /**
      * If True, prevents an invoice from being
@@ -242,30 +246,6 @@ class Invoice extends BaseModel
     public function isLocked() : bool
     {
         return $this->client->getSetting('lock_sent_invoices');
-    }
-
-//    /**
-//     * Determines if invoice overdue.
-//     *
-//     * @param      float    $balance   The balance
-//     * @param      date.    $due_date  The due date
-//     *
-//     * @return     boolean  True if overdue, False otherwise.
-//     */
-//    public static function isOverdue($balance, $due_date)
-//    {
-//        if (! $this->formatValue($balance,2) > 0 || ! $due_date) {
-//            return false;
-//        }
-//
-//        // it isn't considered overdue until the end of the day
-//        return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
-//    }
-
-    public function markViewed() :void
-    {
-        $this->last_viewed = Carbon::now()->format('Y-m-d H:i');
-        $this->save();
     }
 
     public function isPayable() : bool
@@ -294,6 +274,22 @@ class Invoice extends BaseModel
 
         return true;
         
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPartial() : bool
+    {
+        return $this->status_id >= self::STATUS_PARTIAL;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPartial() : bool
+    {
+        return ($this->partial && $this->partial > 0) === true;
     }
 
     public static function badgeForStatus(int $status)
@@ -420,43 +416,6 @@ class Invoice extends BaseModel
         return $storage_path;
     }
 
-    /**
-     * @param bool $save
-     */
-    public function updatePaidStatus($paid = false, $save = true) : bool
-    {
-        $status_id = false;
-        if ($paid && $this->balance == 0) {
-            $status_id = self::STATUS_PAID;
-        } elseif ($paid && $this->balance > 0 && $this->balance < $this->amount) {
-            $status_id = self::STATUS_PARTIAL;
-        } elseif ($this->hasPartial() && $this->balance > 0) {
-            $status_id = ($this->balance == $this->amount ? self::STATUS_SENT : self::STATUS_PARTIAL);
-        }
-
-        if ($status_id && $status_id != $this->status_id) {
-            $this->status_id = $status_id;
-            if ($save) {
-                $this->save();
-            }
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasPartial() : bool
-    {
-        return ($this->partial && $this->partial > 0) === true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPartial() : bool
-    {
-        return $this->status_id >= self::STATUS_PARTIAL;
-    }
 
     /**
      * Updates Invites to SENT
@@ -471,4 +430,52 @@ class Invoice extends BaseModel
             }
         });
     }
+
+
+/* Graveyard */
+
+//    /**
+//     * Determines if invoice overdue.
+//     *
+//     * @param      float    $balance   The balance
+//     * @param      date.    $due_date  The due date
+//     *
+//     * @return     boolean  True if overdue, False otherwise.
+//     */
+//    public static function isOverdue($balance, $due_date)
+//    {
+//        if (! $this->formatValue($balance,2) > 0 || ! $due_date) {
+//            return false;
+//        }
+//
+//        // it isn't considered overdue until the end of the day
+//        return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
+//    }
+
+
+    /**
+     * @param bool $save
+     *
+     * Has this been dragged from V1?
+     */
+    // public function updatePaidStatus($paid = false, $save = true) : bool
+    // {
+    //     $status_id = false;
+    //     if ($paid && $this->balance == 0) {
+    //         $status_id = self::STATUS_PAID;
+    //     } elseif ($paid && $this->balance > 0 && $this->balance < $this->amount) {
+    //         $status_id = self::STATUS_PARTIAL;
+    //     } elseif ($this->hasPartial() && $this->balance > 0) {
+    //         $status_id = ($this->balance == $this->amount ? self::STATUS_SENT : self::STATUS_PARTIAL);
+    //     }
+
+    //     if ($status_id && $status_id != $this->status_id) {
+    //         $this->status_id = $status_id;
+    //         if ($save) {
+    //             $this->save();
+    //         }
+    //     }
+    // }
+
+
 }

@@ -13,7 +13,6 @@ namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
-use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Credit\ApplyCreditPayment;
 use App\Jobs\Invoice\ApplyInvoicePayment;
@@ -79,8 +78,7 @@ class PaymentRepository extends BaseRepository
         if (!$payment->number)
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
-        //we only ever update the ACTUAL amount of money transferred
-        UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $payment->company);
+        $payment->client->updatePaidToDate($payment->amount)->save();
 
         $invoice_totals = 0;
         $credit_totals = 0;

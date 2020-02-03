@@ -14,8 +14,6 @@ namespace App\Jobs\Invoice;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Factory\PaymentFactory;
-use App\Jobs\Client\UpdateClientBalance;
-use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Libraries\MultiDB;
 use App\Models\Company;
@@ -77,8 +75,6 @@ class MarkCreditPaid implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company));
 
         // UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $this->company);
-        // UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $this->company);
-        // UpdateClientPaidToDate::dispatchNow($payment->client, $payment->amount, $this->company);
 
         return $this->credit;
     }

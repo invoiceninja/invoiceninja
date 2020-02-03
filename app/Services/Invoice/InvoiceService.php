@@ -100,7 +100,10 @@ class InvoiceService
         return $this;
     }
 
-
+    public function markViewed()
+    {
+        $this->invoice->last_viewed = Carbon::now()->format('Y-m-d H:i');
+    }
 
     /* One liners */
     public function setDueDate()

@@ -13,8 +13,6 @@ namespace App\Jobs\Credit;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Client\UpdateClientBalance;
-use App\Jobs\Client\UpdateClientPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Credit\ApplyPaymentToCredit;
 use App\Libraries\MultiDB;
