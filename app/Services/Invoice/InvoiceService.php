@@ -44,6 +44,7 @@ class InvoiceService
         $mark_invoice_paid = new MarkPaid($this->client_service);
         
         $this->invoice = $mark_invoice_paid($this->invoice);
+        $this->invoice->setStatus(Invoice::STATUS_PAID)->save();
 
         return $this;
     }
