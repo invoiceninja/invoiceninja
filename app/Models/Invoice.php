@@ -18,7 +18,6 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Currency;
 use App\Models\Filterable;
@@ -185,12 +184,12 @@ class Invoice extends BaseModel
         return new InvoiceService($this);
     }
 
-    public function markPaid()
+    public function markPaid() :InvoiceService
     {
         return $this->service()->markPaid();
     }
 
-    public function applyNumber()
+    public function applyNumber() :InvoiceService
     {
         return $this->service()->applyNumber();
     }
@@ -488,8 +487,7 @@ class Invoice extends BaseModel
 
         UpdateClientBalance::dispatchNow($this->client, $this->balance, $this->company);
 
-        $this->applyNumber($this)->save();
-        //ApplyInvoiceNumber::dispatchNow($this, $this->client->getMergedSettings(), $this->company);
+        $this->applyNumber()->save();
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this, $this->balance, $this->company);
 

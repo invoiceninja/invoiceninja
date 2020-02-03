@@ -50,7 +50,7 @@ class InvoiceService
      */
     public function applyNumber()
     {
-        $apply_number new ApplyNumber($this->invoice->client);
+        $apply_number = new ApplyNumber($this->invoice->client);
 
         $this->invoice = $apply_number($this->invoice);
 
@@ -59,10 +59,12 @@ class InvoiceService
 
     /**
      * Saves the invoice
-     * @return void 
+     * @return Invoice object 
      */
-    public function save()
+    public function save() :?Invoice
     {
         $this->invoice->save();
+
+        return $this->invoice;
     }
 }

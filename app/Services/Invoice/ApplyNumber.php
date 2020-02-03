@@ -39,7 +39,7 @@ class ApplyNumber
         if ($invoice->number != '') 
             return $invoice;
 
-        switch ($this->client->getSetting('counter_number_applied') {
+        switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
                 $invoice->number = $this->getNextInvoiceNumber($this->client);
                 break;

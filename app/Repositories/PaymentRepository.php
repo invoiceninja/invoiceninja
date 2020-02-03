@@ -103,7 +103,8 @@ class PaymentRepository extends BaseRepository
             }
         } else {
             //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
-            ApplyClientPayment::dispatchNow($payment, $payment->company);
+            // ApplyClientPayment::dispatchNow($payment, $payment->company);
+            $payment->client->processUnappliedPayment($payment->amount);
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {

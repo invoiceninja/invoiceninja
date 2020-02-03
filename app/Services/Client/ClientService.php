@@ -11,34 +11,43 @@
 
 namespace App\Services\Client;
 
+use App\Models\Client;
+
 
 class ClientService
 {
     private $client;
 
-    public function __construct($client)
+    public function __construct(Client $client)
     {
         $this->client = $client;
     }
 
-    public function updateBalance($amount)
+    public function updateBalance(float $amount)
     {
         $this->client->balance += $amount;
 
         return $this;
     }
 
-    public function updatePaidToDate($amount)
+    public function updatePaidToDate(float $amount)
     {
         $this->client->paid_to_date += $amount;
 
         return $this;
     }
 
-    public function save()
+    public function adjustCreditBalance(float $amount)
+    {
+        $this->client->client_balance += $amount;
+
+        return $this;
+    }
+
+    public function save() :Client
     {
     	$this->client->save();
 
-    	return $this;
+    	return $this->client;
     }
 }

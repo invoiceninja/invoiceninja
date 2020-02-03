@@ -16,7 +16,6 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -115,7 +114,6 @@ class InvoiceRepository extends BaseRepository
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount), $invoice->company);
         }
 
-        //$invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->client->getMergedSettings(), $invoice->company);
         $invoice = $invoice->applyNumber()->save();
 
         if ($invoice->company->update_products !== false) {

@@ -12,7 +12,6 @@
 namespace App\Jobs\Invoice;
 
 use App\Events\Invoice\InvoiceWasPaid;
-use App\Jobs\Invoice\ApplyInvoiceNumber;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -112,8 +111,6 @@ class ApplyPaymentToInvoice implements ShouldQueue
         }
 
         $this->invoice->save();
-
-        //$this->invoice = ApplyInvoiceNumber::dispatchNow($this->invoice, $invoice->client->getMergedSettings(), $this->invoice->company);
 
         $this->invoice = $this->invoice->applyNumber()->save();
 
