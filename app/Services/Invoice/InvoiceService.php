@@ -15,6 +15,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\ApplyNumber;
+use App\Services\Invoice\ApplyPayment;
+use App\Services\Invoice\CreateInvitations;
 use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
 use App\Services\Invoice\UpdateBalance;
@@ -92,6 +94,15 @@ class InvoiceService
         return $this;
     }
 
+    public function createInvitations()
+    {
+        $create_invitation = new CreateInvitations();
+
+        $this->invoice = $create_invitation($this->invoice);
+
+        return $this;
+    }
+
     public function markSent()
     {
         $mark_sent = new MarkSent($this->invoice->client);
@@ -137,9 +148,6 @@ class InvoiceService
 
         return $this;
     }
-
-
-
 
 
 

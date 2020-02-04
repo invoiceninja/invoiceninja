@@ -42,7 +42,7 @@ class MarkInvoicePaidTest extends TestCase
         $client = $invoice->client;
         $client_balance = $client->balance;
 
-        $this->invoice->markPaid();
+        $this->invoice->service()->markPaid();
 
         $invoice = Invoice::find($this->invoice->id);
         $client = $invoice->client;

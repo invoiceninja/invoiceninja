@@ -168,56 +168,6 @@ class Invoice extends BaseModel
         return new InvoiceService($this);
     }
 
-    public function markPaid() :InvoiceService
-    {
-        return $this->service()->markPaid();
-    }
-
-    public function applyNumber() :InvoiceService
-    {
-        return $this->service()->applyNumber();
-    }
-
-    public function applyPayment($payment, $payment_amount) :InvoiceService
-    {
-        return $this->service()->applyPayment($payment, $payment_amount);
-    }
-    
-    public function updateBalance($balance_adjustment) :InvoiceService
-    {
-        return $this->service()->updateBalance($balance_adjustment);
-    }
-
-    public function setDueDate() :InvoiceService
-    {
-        return $this->service->setDueDate();
-    }
-
-    public function setStatus($status) :InvoiceService
-    {
-        return $this->service()->setStatus($status);
-    }
-
-    public function clearPartial() :InvoiceService
-    {
-        return $this->service()->clearPartial();
-    }
-
-    public function updatePartial($amount) :InvoiceService
-    {
-        return $this->service()->updatePartial($amount);
-    }
-
-    public function markSent() :InvoiceService
-    {
-        return $this->service()->markSent();
-    }
-
-    public function markViewed() :InvoiceService
-    {
-        return $this->service()->markViewed();
-    }
-
     /* ---------------- */
     /* Settings getters */
     /* ---------------- */

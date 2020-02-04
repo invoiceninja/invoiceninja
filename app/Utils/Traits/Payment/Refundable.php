@@ -225,12 +225,12 @@ trait Refundable
         {
         	$invoice = Invoice::find($refunded_invoice['invoice_id']);
 
-        	$invoice->updateBalance($refunded_invoice['amount'])->save();
+        	$invoice->service()->updateBalance($refunded_invoice['amount'])->save();
 
         	if($invoice->amount == $invoice->balance)
-        		$invoice->setStatus(Invoice::STATUS_SENT);
+        		$invoice->service()->setStatus(Invoice::STATUS_SENT);
         	else
-        		$invoice->setStatus(Invoice::STATUS_PARTIAL);
+        		$invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
 
         	$client = $invoice->client;
 

@@ -94,7 +94,7 @@ class PaymentRepository extends BaseRepository
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
-                    $invoice->applyPayment($payment, $paid_invoice['amount'])->save();
+                    $invoice->service()->applyPayment($payment, $paid_invoice['amount'])->save();
                 }
             }
         } else {

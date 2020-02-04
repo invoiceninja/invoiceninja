@@ -295,8 +295,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
-        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
 
 
         $data = [
@@ -373,7 +372,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent()->save();
         $this->invoice->is_deleted = false;
         $this->invoice->save();
 
@@ -445,8 +444,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
-        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
 
 
         $data = [
@@ -506,8 +504,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
-        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
 
 
         $data = [
@@ -563,8 +560,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
-        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
 
 
         $data = [
@@ -630,8 +626,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
-        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
 
         $payment = PaymentFactory::create($this->company->id, $this->user->id);
         $payment->amount = 10;
@@ -690,8 +685,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
-        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
 
         $payment = PaymentFactory::create($this->company->id, $this->user->id);
         $payment->amount = 10;
@@ -757,7 +751,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent()->save();
 
         $data = [
             'amount' => 15.0,
@@ -810,7 +804,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent()->save();
 
 
         $data = [
@@ -870,7 +864,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent()->save();
 
         $data = [
             'amount' => 20.0,
@@ -914,7 +908,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent()->save();
 
 
         $data = [

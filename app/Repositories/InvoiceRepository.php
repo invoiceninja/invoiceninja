@@ -16,7 +16,6 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\ClientContact;
@@ -100,7 +99,7 @@ class InvoiceRepository extends BaseRepository
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($invoice->invitations->count() == 0) {
-            CreateInvoiceInvitations::dispatchNow($invoice, $invoice->company);
+            $invoice->service()->createInvitations();
         }
 
         $invoice = $invoice->calc()->getInvoice();
@@ -114,7 +113,7 @@ class InvoiceRepository extends BaseRepository
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount), $invoice->company);
         }
 
-        $invoice = $invoice->applyNumber()->save();
+        $invoice = $invoice->service()->applyNumber()->save();
 
         if ($invoice->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice, $invoice->company);
@@ -132,6 +131,6 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-        return $invoice->markSent()->save();
+        return $invoice->service()->markSent()->save();
     }
 }

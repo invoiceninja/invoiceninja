@@ -23,7 +23,6 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -179,7 +178,7 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent();
 
         $this->credit = CreditFactory::create($this->company->id,$this->user->id);
         $this->credit->client_id = $this->client->id;

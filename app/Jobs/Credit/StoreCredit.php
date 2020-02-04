@@ -44,13 +44,13 @@ class StoreCredit implements ShouldQueue
      */
     public function handle(CreditRepository $credit_repository): ?Credit
     {
-        MultiDB::setDB($this->company->db);
+        // MultiDB::setDB($this->company->db);
 
-        $payment = false;
+        // $payment = false;
 
-        if ($payment) {
-            PaymentNotification::dispatch($payment, $payment->company);
-        }
+        // if ($payment) {
+        //     PaymentNotification::dispatch($payment, $payment->company);
+        // }
 
         return $this->credit;
     }
