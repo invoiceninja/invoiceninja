@@ -32,7 +32,7 @@ class MarkPaid
   	{
 
         if($invoice->status_id == Invoice::STATUS_DRAFT)
-            $invoice->markSent();
+            $invoice->service()->markSent();
 
         /* Create Payment */
         $payment = PaymentFactory::create($invoice->company_id, $invoice->user_id);
