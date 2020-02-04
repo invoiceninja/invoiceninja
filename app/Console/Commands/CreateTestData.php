@@ -12,7 +12,6 @@ use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Credit\CreateCreditInvitation;
@@ -464,7 +463,6 @@ class CreateTestData extends Command
 
         $this->invoice_repo->markSent($invoice);
 
-        //CreateInvoiceInvitations::dispatch($invoice, $invoice->company);
         $invoice->service()->createInvitations();
 
         if (rand(0, 1)) {

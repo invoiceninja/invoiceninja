@@ -16,7 +16,6 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\CreateInvoiceInvitations;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\ClientContact;

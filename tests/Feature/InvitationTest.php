@@ -7,7 +7,6 @@ use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Account\CreateAccount;
-use App\Listeners\Invoice\CreateInvoiceInvitations;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
