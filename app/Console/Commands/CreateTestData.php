@@ -464,7 +464,8 @@ class CreateTestData extends Command
 
         $this->invoice_repo->markSent($invoice);
 
-        CreateInvoiceInvitations::dispatch($invoice, $invoice->company);
+        //CreateInvoiceInvitations::dispatch($invoice, $invoice->company);
+        $invoice->service()->createInvitations();
 
         if (rand(0, 1)) {
             $payment = PaymentFactory::create($client->company->id, $client->user->id);

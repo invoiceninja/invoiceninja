@@ -100,7 +100,7 @@ class InvoiceRepository extends BaseRepository
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($invoice->invitations->count() == 0) {
-            CreateInvoiceInvitations::dispatchNow($invoice, $invoice->company);
+            $invoice->service()->createInvitations();
         }
 
         $invoice = $invoice->calc()->getInvoice();
