@@ -69,7 +69,7 @@ class TokenAuth
                 'errors' => []
             ];
 
-            return response()->json($error, JSON_PRETTY_PRINT 403);
+            return response()->json($error, 403);
         }
 
         return $next($request);
