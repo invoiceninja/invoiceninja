@@ -65,6 +65,7 @@ class UpdateInvoicePayment implements ShouldQueue
                 UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
                 
                 $this->payment->client
+                    ->service()
                     ->updateBalance($invoice->balance*-1)
                     ->updatePaidToDate($invoice->balance)
                     ->save();
@@ -72,7 +73,8 @@ class UpdateInvoicePayment implements ShouldQueue
                 $invoice->pivot->amount = $invoice->balance;
                 $invoice->pivot->save();
 
-                $invoice->clearPartial()
+                $invoice->service()
+                    ->clearPartial()
                     ->updateBalance($invoice->balance*-1)
                     ->save();
             });
@@ -96,7 +98,8 @@ class UpdateInvoicePayment implements ShouldQueue
                     if ($invoice->hasPartial()) {
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1), $this->company);
 
-                        $this->payment->client->updateBalance($invoice->partial*-1)
+                        $this->payment->client->service()
+                                                ->updateBalance($invoice->partial*-1)
                                                 ->updatePaidToDate($invoice->partial)
                                                 ->save();
 
@@ -111,14 +114,15 @@ class UpdateInvoicePayment implements ShouldQueue
                     } else {
                         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
 
-                        $this->payment->client->updateBalance($invoice->balance*-1)
+                        $this->payment->client->service()
+                                              ->updateBalance($invoice->balance*-1)
                                               ->updatePaidToDate($invoice->balance)
                                               ->save();
 
                         $invoice->pivot->amount = $invoice->balance;
                         $invoice->pivot->save();
                         
-                        $invoice->clearPartial()->updateBalance($invoice->balance*-1)->save();
+                        $invoice->service()->clearPartial()->updateBalance($invoice->balance*-1)->save();
                     }
                 });
             } else {

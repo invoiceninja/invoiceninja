@@ -33,7 +33,7 @@ class ApiSecretCheck
                 'errors' => []
             ];
             return response()
-            ->json(json_encode($error, JSON_PRETTY_PRINT), 403)
+            ->json($error, 403)
             ->header('X-App-Version', config('ninja.app_version'))
             ->header('X-Api-Version', config('ninja.api_version'));
         }

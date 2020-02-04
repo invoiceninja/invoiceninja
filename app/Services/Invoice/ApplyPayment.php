@@ -31,7 +31,7 @@ class ApplyPayment
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment_amount*-1), $payment->company);
 
-        $payment->client->updateBalance($payment_amount*-1)->save();
+        $payment->client->service()->updateBalance($payment_amount*-1)->save();
 
         /* Update Pivot Record amount */
         $payment->invoices->each(function ($inv) use($payment_amount){

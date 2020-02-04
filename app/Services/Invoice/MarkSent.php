@@ -33,17 +33,15 @@ class MarkSent
             return $invoice;
         }
 
-        $invoice->status_id = Invoice::STATUS_SENT;
-
         $invoice->markInvitationsSent();
 
         $invoice->setReminder();
 
         event(new InvoiceWasMarkedSent($invoice, $invoice->company));
 
-        $this->client->updateBalance($invoice->balance)->save();
+        $this->client->service()->updateBalance($invoice->balance)->save();
 
-        $invoice->service()->applyNumber()->save();
+        $invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 

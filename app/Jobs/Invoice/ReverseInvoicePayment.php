@@ -68,7 +68,8 @@ class ReverseInvoicePayment implements ShouldQueue
 
         UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->payment->amount), $this->company);
 
-        $client->updateBalance($this->payment->amount)
+        $client->service()
+            ->updateBalance($this->payment->amount)
             ->updatePaidToDate($this->payment->amount*-1)
             ->save();
 

@@ -34,10 +34,10 @@ class ContactSetDb
 
         if ($request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) {
             if (! MultiDB::contactFindAndSetDb($request->header('X-API-TOKEN'))) {
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+                return response()->json($error, 403);
             }
         } else {
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+            return response()->json($error, 403);
         }
 
         return $next($request);
