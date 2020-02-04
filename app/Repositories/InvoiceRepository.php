@@ -113,7 +113,7 @@ class InvoiceRepository extends BaseRepository
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount), $invoice->company);
         }
 
-        $invoice = $invoice->applyNumber()->save();
+        $invoice = $invoice->service()->applyNumber()->save();
 
         if ($invoice->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice, $invoice->company);
@@ -131,6 +131,6 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice) : ?Invoice
     {
-        return $invoice->markSent()->save();
+        return $invoice->service()->markSent()->save();
     }
 }

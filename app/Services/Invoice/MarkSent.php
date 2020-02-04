@@ -43,7 +43,7 @@ class MarkSent
 
         $this->client->updateBalance($invoice->balance)->save();
 
-        $invoice->applyNumber()->save();
+        $invoice->service()->applyNumber()->save();
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 

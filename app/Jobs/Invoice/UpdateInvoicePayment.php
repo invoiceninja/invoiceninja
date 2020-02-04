@@ -103,7 +103,7 @@ class UpdateInvoicePayment implements ShouldQueue
                         $invoice->pivot->amount = $invoice->partial;
                         $invoice->pivot->save();
 
-                        $invoice->updateBalance($invoice->partial*-1)
+                        $invoice->service()->updateBalance($invoice->partial*-1)
                                 ->clearPartial()
                                 ->setDueDate()
                                 ->setStatus(Invoice::STATUS_PARTIAL)

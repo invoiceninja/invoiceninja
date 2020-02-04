@@ -178,7 +178,7 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        $this->invoice->markSent();
+        $this->invoice->service()->markSent();
 
         $this->credit = CreditFactory::create($this->company->id,$this->user->id);
         $this->credit->client_id = $this->client->id;

@@ -48,7 +48,7 @@ class MarkPaid
             'amount' => $payment->amount
         ]);
 
-        $invoice->updateBalance($payment->amount*-1)->save();
+        $invoice->service()->updateBalance($payment->amount*-1)->save();
 
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company));
