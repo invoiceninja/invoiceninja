@@ -33,6 +33,7 @@ class RefundPaymentRequest extends Request
     
     protected function prepareForValidation()
     {
+        
         $input = $this->all();
         
         if(!isset($input['gateway_refund']))
