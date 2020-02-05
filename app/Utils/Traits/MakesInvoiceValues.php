@@ -261,7 +261,7 @@ trait MakesInvoiceValues
         $data['$client.custom_value4'] = $this->client->custom_value4;
 
         if(!$contact)
-            $contact = $this->client->primary_contact;
+            $contact = $this->client->primary_contact->first();
 
         $data['$contact_name'] = $contact->present()->name();
         $data['$contact.name'] = &$data['$contact_name'];
