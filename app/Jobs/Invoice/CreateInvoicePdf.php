@@ -158,6 +158,8 @@ class CreateInvoicePdf implements ShouldQueue
             //->showBrowserHeaderAndFooter()
             //->headerHtml($header)
             //->footerHtml($footer)
+            ->deviceScaleFactor(1)
+            ->showBackground()
             ->waitUntilNetworkIdle(false)->pdf();
         //->margins(10,10,10,10)
             //->savePdf('test.pdf');

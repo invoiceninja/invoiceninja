@@ -25,6 +25,7 @@ class Modern
 			<!DOCTYPE html>
 			<html lang="en">
 			    <head>
+			    	<title>$number</title>
 			        <meta charset="utf-8">
 			        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 			        <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -91,9 +92,7 @@ class Modern
 			            </tr>
 			        </thead>
 			        <tbody>
-			            
 			                $table_body
-			            
 			        </tbody>
 			    </table>
 
@@ -136,7 +135,7 @@ class Modern
 	{
 
 		return '
-			<div class="bg-orange-600 flex justify-between py-8 px-12">
+			<div class="bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
 			    <div class="w-1/2">
 			        <!-- // -->
 			    </div>

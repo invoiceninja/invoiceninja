@@ -100,7 +100,7 @@ class RefundTest extends TestCase
         $response->assertStatus(200);
 
         $payment_id = $arr['data']['id'];
-
+        
         $this->assertEquals(50, $arr['data']['amount']);
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();

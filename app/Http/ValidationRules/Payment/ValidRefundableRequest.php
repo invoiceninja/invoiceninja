@@ -34,11 +34,18 @@ class ValidRefundableRequest implements Rule
      */
     private $error_msg;
 
+    private $input;
+
+
+    public function __construct($input)
+    {
+        $this->input = $input;
+    }
 
     public function passes($attribute, $value)
     {
 
-        $payment = Payment::whereId(request()->input('id'))->first();
+        $payment = Payment::whereId($this->input['id'])->first();
 
         if(!$payment)
         {
@@ -46,14 +53,14 @@ class ValidRefundableRequest implements Rule
             return false;
         }
 
-        $request_invoices = request()->has('invoices') ? request()->input('invoices') : [];
-        $request_credits = request()->has('credits') ? request()->input('credits') : [];
+        $request_invoices = request()->has('invoices') ? $this->input['invoices'] : [];
+        $request_credits = request()->has('credits') ? $this->input['credits'] : [];
 
-        foreach($request_invoices as $key => $value)
-            $request_invoices[$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+        // foreach($request_invoices as $key => $value)
+        //     $request_invoices[$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
 
-        foreach($request_credits as $key => $value)
-            $request_credits[$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
+        // foreach($request_credits as $key => $value)
+        //     $request_credits[$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
 
 
         if($payment->invoices()->exists())
@@ -62,21 +69,17 @@ class ValidRefundableRequest implements Rule
                 $this->checkInvoice($paymentable_invoice, $request_invoices);
         }
 
-
         // if($payment->credits()->exists())
         // {
         //     foreach($payment->credits as $paymentable_credit)
         //         $this->checkCredit($paymentable_credit, $request_credits);
         // }
 
-
         foreach($request_invoices as $request_invoice)
             $this->checkInvoiceIsPaymentable($request_invoice, $payment);
 
-
         // foreach($request_credits as $request_credit)
         //     $this->checkCreditIsPaymentable($request_credit, $payment);
-
 
         if(strlen($this->error_msg) > 0 )
             return false;
@@ -86,7 +89,8 @@ class ValidRefundableRequest implements Rule
 
     private function checkInvoiceIsPaymentable($invoice, $payment)
     {
-        $invoice = Invoice::find($invoice['invoice_id']);
+
+        $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->first();
 
         if($payment->invoices()->exists())
         {
@@ -108,7 +112,7 @@ class ValidRefundableRequest implements Rule
 
     private function checkCreditIsPaymentable($credit, $payment)
     {
-        $credit = Credit::find($credit['credit_id']);
+        $credit = Credit::whereId($credit['credit_id'])->whereCompanyId($payment->company_id)->first();
 
         if($payment->credits()->exists())
         {
