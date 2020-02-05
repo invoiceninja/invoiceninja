@@ -25,7 +25,11 @@ class CompanyPresenter extends EntityPresenter
      */
     public function name()
     {
-        return $this->entity->name ?: ctrans('texts.untitled_account');
+        $settings = $this->entity->settings;
+
+        return $this->settings->name ?: ctrans('texts.untitled_account');
+
+        //return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
     public function logo($settings = null)

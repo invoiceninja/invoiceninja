@@ -456,8 +456,7 @@ class CreateTestData extends Command
         $invoice = $invoice_calc->getInvoice();
 
         $invoice->save();
-
-        event(new CreateInvoiceInvitation($invoice));
+        $invoice->service()->createInvitations();
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
