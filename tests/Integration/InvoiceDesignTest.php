@@ -4,6 +4,7 @@ namespace Tests\Integration;
 
 use App\Designs\Designer;
 use App\Designs\Modern;
+use App\Jobs\Invoice\CreateInvoicePdf;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -96,7 +97,9 @@ class InvoiceDesignTest extends TestCase
 
     	$this->assertNotNull($html);
 
-    	\Log::error($html);
+    	//\Log::error($html);
+
+    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company);
     }
 
     
