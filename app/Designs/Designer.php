@@ -84,6 +84,7 @@ class Designer
 		$this->exported_variables['$client_details'] = $this->processVariables($this->input_variables['client_details'], $this->clientDetails());
 		$this->exported_variables['$company_details'] = $this->processVariables($this->input_variables['company_details'], $this->companyDetails());
 		$this->exported_variables['$company_address'] = $this->processVariables($this->input_variables['company_address'], $this->companyAddress());
+		$this->exported_variables['$invoice_details_labels'] = $this->processLabels($this->input_variables['invoice_details'], $this->invoiceDetails());
 		$this->exported_variables['$invoice_details'] = $this->processVariables($this->input_variables['invoice_details'], $this->invoiceDetails());
 
 		return $this;
@@ -99,6 +100,20 @@ class Designer
 
 		return $output;
 
+	}
+
+	private function processLabels($input_variables, $variables) :string
+	{
+		$output = '';
+
+		foreach($input_variables as $value) {
+			
+			$tmp = str_replace("</span>", "_label</span>", $variables[$value]);
+
+			$output .= $tmp;
+		}
+
+		return $output;
 	}
 
 	// private function exportVariables()
