@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Designs\Bold;
+namespace App\Designs;
 
 class Modern
 {
@@ -59,7 +59,7 @@ class Modern
 			    </div>
 			    <div class="w-1/2 flex justify-end">
 			        <div class="w-56 flex flex-col">
-			            $clientDetails
+			            $client_details
 			        </div>
 			        <div class="w-32">
 			            <!-- -->
@@ -141,10 +141,10 @@ class Modern
 			    </div>
 			    <div class="w-1/2 flex justify-end">
 			        <div class="w-56 flex flex-col text-white">
-			            $companyDetails
+			            $company_details
 			        </div>
 			        <div class="w-32 flex flex-col text-left text-white">
-			            $companyAddress
+			            $company_address
 			        </div>
 			    </div>
 			</div>

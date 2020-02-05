@@ -11,22 +11,32 @@
 
 namespace App\Designs;
 
-use App\Models\ClientContact;
-
 class Designer
 {
 
 	protected $design;
 
-	protected $contact;
+	protected $input_variables;
+
+	protected $exported_variables;
 
 	protected $html;
 
-	public function __construct($design, ClientContact $contact)
+	private static $labels = [
+		'$client_details',
+		'$invoice_details',
+		'$company_details',
+		'$company_address',
+		'$invoice_details_labels',
+		'$invoice_details_labels',
+		'$invoice_details_labels',
+	];
+
+	public function __construct($design, array $input_variables)
 	{
 		$this->design = $design;
 
-		$this->contact = $contact;
+		$this->input_variables = $input_variables;
 	}
 
 	/**
@@ -37,42 +47,106 @@ class Designer
 	public function build() :string
 	{
 
+		$this->setDesign($this->getSection('header'))
+			 ->setDesign($this->getSection('body'))
+			 ->setDesign($this->getSection('table'))
+			 ->setDesign($this->getSection('footer'));
+
+		return $this->html;
 	}
+
 
 	private function setDesign($section)
 	{
 
 		$this->html .= $section;
 
+		return $this;
 	}
 
-	public function clientDetails()
+	/**
+	 * Returns the template section on with the 
+	 * stacked variables replaced with single variables.
+	 * 
+	 * @param  string $section the method name to be executed ie header/body/table/footer
+	 * @return string The HTML of the template section
+	 */
+	public function getSection($section) :string
+	{
+		$this->exportVariables();
+
+		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
+	}
+
+	private function exportVariables()
+	{
+		$this->exported_variables['$client_details'] = $this->processVariables($this->input_variables['client_details'], $this->clientDetails());
+		$this->exported_variables['$company_details'] = $this->processVariables($this->input_variables['company_details'], $this->companyDetails());
+		$this->exported_variables['$company_address'] = $this->processVariables($this->input_variables['company_address'], $this->companyAddress());
+		$this->exported_variables['$invoice_details'] = $this->processVariables($this->input_variables['invoice_details'], $this->invoiceDetails());
+
+		return $this;
+	}
+
+	private function processVariables($input_variables, $variables)
 	{
 
-			return [
-			'name' => '<p>$client.name</p>',
+		$output = [];
 
-			'custom_value1' => '<span>$client.custom_value1</span>',
-			'custom_value2' => '<span>$client.custom_value2</span>',
-			'custom_value3' => '<span>$client.custom_value3</span>',
-			'custom_value4' => '<span>$client.custom_value4</span>',
+		foreach($input_variables as $key => $value)
+			$output[$key] = $variables[$key];
+
+		return $output;
+	}
+
+	// private function exportVariables()
+	// {
+	// 	/*
+	// 	 * $invoice_details_labels
+	// 	 * $invoice_details
+	// 	 */
+	// 	$header = $this->design->header();
+		
+	// 	/*
+	// 	 * $company_logo - full URL
+	// 	 * $client_details
+	// 	 */
+	// 	$body = $this->design->body();
+
+	// 	/* 
+	// 	 * $table_header
+	// 	 * $table_body
+	// 	 * $total_labels
+	// 	 * $total_values
+ // 		 */
+	// 	$table = $this->design->table();
+
+	// 	/*
+	// 	 * $company_details
+	// 	 * $company_address
+	// 	 */
+	// 	$footer = $this->design->footer();
+	// }
+
+	private function clientDetails()
+	{
+
+		return [
+			'name' => '<p>$client.name</p>',
+			'id_number' => '<p>$client.id_number</p>',
+			'vat_number' => '<p>$client.vat_number</p>',
+			'address1' => '<p>$client.address1</p>',
+			'address2' => '<p>$client.address2</p>',
+			'city_state_postal' => '<p>$client.city_state_postal</p>',
+			'postal_city_state' => '<p>$client.postal_city_state</p>',
+			'country' => '<p>$client.country</p>',
+			'email' => '<p>$client.email</p>',
+			'custom_value1' => '<p>$client.custom_value1</p>',
+			'custom_value2' => '<p>$client.custom_value2</p>',
+			'custom_value3' => '<p>$client.custom_value3</p>',
+			'custom_value4' => '<p>$client.custom_value4</p>',
 		];
-            // 'client.client_name',
-            // 'client.id_number',
-            // 'client.vat_number',
-            // 'client.address1',
-            // 'client.address2',
-            // 'client.city_state_postal',
-            // 'client.country',
-            // 'client.email',
-            // 'client.custom_value1',
-            // 'client.custom_value2',
-            // 'client.custom_value3',
-            // 'client.custom_value4',
-            // 'contact.custom_value1',
-            // 'contact.custom_value2',
-            // 'contact.custom_value3',
-            // 'contact.custom_value4',
+
 	}
 
 	private function companyDetails()

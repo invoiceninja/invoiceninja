@@ -259,13 +259,15 @@ trait MakesInvoiceValues
         $data['$client.custom_value3'] = $this->client->custom_value3;
         $data['$client.custom_value4'] = $this->client->custom_value4;
 
-        if ($contact) {
-            $data['$contact_name'] = $contact->present()->name();
-            $data['$contact.name'] = &$data['$contact_name'];
-        } else {
-            $data['$contact_name'] = $this->client->present()->primary_contact_name();
-            $data['$contact.name'] = &$data['$contact_name'];
-        }
+        if(!$contact)
+            $contact = $this->client->primary_contact;
+
+        $data['$contact_name'] = $contact->present()->name();
+        $data['$contact.name'] = &$data['$contact_name'];
+        $data['$contact.custom_value1'] = $contact->custom_value1;
+        $data['$contact.custom_value2'] = $contact->custom_value2;
+        $data['$contact.custom_value3'] = $contact->custom_value3;
+        $data['$contact.custom_value4'] = $contact->custom_value4;
 
         $data['$company.name'] = $this->company->present()->name();
         $data['$company.address1'] = $settings->address1;
