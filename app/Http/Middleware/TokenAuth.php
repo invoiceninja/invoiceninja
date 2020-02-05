@@ -37,7 +37,7 @@ class TokenAuth
             ];
             //user who once existed, but has been soft deleted
             if (!$user) {
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+                return response()->json($error, 403);
             }
 
             /*
@@ -56,7 +56,7 @@ class TokenAuth
                     'errors' => []
                 ];
 
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+                return response()->json($error, 403);
             }
    
             //stateless, don't remember the user.
@@ -69,7 +69,7 @@ class TokenAuth
                 'errors' => []
             ];
 
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+            return response()->json($error, 403);
         }
 
         return $next($request);

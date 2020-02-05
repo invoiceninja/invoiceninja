@@ -35,7 +35,7 @@ class SetDomainNameDb
          **/
         if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByDomain($request->getSchemeAndHttpHost())) {
             if (request()->json) {
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+                return response()->json($error, 403);
             } else {
                 abort(404);
             }

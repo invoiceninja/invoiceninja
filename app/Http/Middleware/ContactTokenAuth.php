@@ -36,7 +36,7 @@ class ContactTokenAuth
 
             //client_contact who once existed, but has been soft deleted
             if (!$client_contact) {
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+                return response()->json($error, 403);
             }
 
 
@@ -47,7 +47,7 @@ class ContactTokenAuth
 
             //client_contact who has been disabled
             if ($client_contact->is_locked) {
-                return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+                return response()->json($error, 403);
             }
 
             //stateless, don't remember the contact.
@@ -60,7 +60,7 @@ class ContactTokenAuth
                 'errors' => []
             ];
 
-            return response()->json(json_encode($error, JSON_PRETTY_PRINT), 403);
+            return response()->json($error, 403);
         }
 
         return $next($request);
