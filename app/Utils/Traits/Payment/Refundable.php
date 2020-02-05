@@ -19,7 +19,7 @@ trait Refundable
 	public function processRefund(array $data)
 	{
 
-		if(isset($data['invoices']))
+		if(isset($data['invoices']) && count($data['invoices']) > 0)
 			return $this->refundPaymentWithInvoices($data);
 
 		return $this->refundPaymentWithNoInvoices($data);
@@ -63,7 +63,7 @@ trait Refundable
 		//$this->client->paid_to_date -= $data['amount'];
 		$this->client->save();
 
-		return $this;
+		return $this->fresh();
 	}
 
 

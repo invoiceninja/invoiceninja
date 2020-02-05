@@ -4,6 +4,8 @@ namespace Tests\Integration;
 
 use App\Designs\Designer;
 use App\Designs\Modern;
+use App\Jobs\Invoice\CreateInvoicePdf;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -12,11 +14,13 @@ use Tests\TestCase;
  */
 class InvoiceDesignTest extends TestCase
 {
-   
+  	use MockAccountData;
+
     public function setUp() :void
     {
         parent::setUp();
 
+        $this->makeTestData();
     }
 
     public function testDesignExists()
@@ -76,16 +80,29 @@ class InvoiceDesignTest extends TestCase
 				'custom_value3',
 				'custom_value4',
     		],
+    		'table_columns' => [
+    			'product_key', 
+	    		'notes', 
+	    		'cost',
+	    		'quantity', 
+	    		'discount', 
+	    		'tax_name1', 
+	    		'line_total'
+    		],
     	];
 
     	$designer = new Designer($modern, $input_variables);
 
-    	$html = $designer->build();
+    	$html = $designer->build($this->invoice)->getHtml();
 
     	$this->assertNotNull($html);
 
-    	\Log::error($html);
+    	//\Log::error($html);
+
+    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company);
     }
+
+    
 }
 
             

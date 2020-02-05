@@ -175,6 +175,7 @@ trait MakesInvoiceValues
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$number'] = $this->number;
         $data['$invoice.number'] = &$data['$number'];
+        $data['$invoice_number'] = &$data['$number'];
         $data['$po_number'] = $this->po_number;
         $data['$invoice.po_number'] = &$data['$po_number'];
         $data['$line_taxes'] = $this->makeLineTaxes();
@@ -261,16 +262,19 @@ trait MakesInvoiceValues
         $data['$client.custom_value4'] = $this->client->custom_value4;
 
         if(!$contact)
-            $contact = $this->client->primary_contact->first();
+            $contact = $this->client->primary_contact()->first();
 
-        $data['$contact_name'] = $contact->present()->name();
+        $data['$contact_name'] = $contact->present()->name() ?: 'no contact name on record';
         $data['$contact.name'] = &$data['$contact_name'];
         $data['$contact.custom_value1'] = $contact->custom_value1;
         $data['$contact.custom_value2'] = $contact->custom_value2;
         $data['$contact.custom_value3'] = $contact->custom_value3;
         $data['$contact.custom_value4'] = $contact->custom_value4;
 
+        $data['$company.city_state_postal'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false);
+        $data['$company.postal_city_state'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true);
         $data['$company.name'] = $this->company->present()->name();
+        $data['$company.company_name'] = &$data['$company.name'];
         $data['$company.address1'] = $settings->address1;
         $data['$company.address2'] = $settings->address2;
         $data['$company.city'] = $settings->city;
@@ -281,14 +285,17 @@ trait MakesInvoiceValues
         $data['$company.email'] = $settings->email;
         $data['$company.vat_number'] = $settings->vat_number;
         $data['$company.id_number'] = $settings->id_number;
+        $data['$company.website'] = $settings->website;
         $data['$company.address'] = $this->company->present()->address($settings);
-        $data['$company.logo'] = $this->company->present()->logo($settings);
+        
+        $logo = $this->company->present()->logo($settings);
+
+        $data['$company.logo'] = "<img src='{$logo}' class='w-48'>";
+        $data['$company_logo'] = &$data['$company.logo'];
         $data['$company.custom_value1'] = $this->company->custom_value1;
         $data['$company.custom_value2'] = $this->company->custom_value2;
         $data['$company.custom_value3'] = $this->company->custom_value3;
         $data['$company.custom_value4'] = $this->company->custom_value4;
-        $data['$company.city_state_postal'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false);
-        $data['$company.postal_city_state'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true);
         //$data['$blank'] = ;
         //$data['$surcharge'] = ;
         /*
@@ -364,6 +371,45 @@ trait MakesInvoiceValues
         return $data;
     }
 
+
+    public function table_header(array $columns, array $css) :?string
+    {
+
+        /* Table Header */
+        $table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
+
+        $column_headers = $this->transformColumnsForHeader($columns);
+
+        foreach ($column_headers as $column) 
+            $table_header .= '<td class="'.$css['table_header_td_class'].'">' . ctrans('texts.'.$column.'') . '</td>';
+        
+        $table_header .= '</tr></thead>';
+
+        return $table_header;
+
+    }
+
+    public function table_body(array $columns, array $css) :?string
+    {
+
+        /* Table Body */
+        $columns = $this->transformColumnsForLineItems($columns);
+
+        $items = $this->transformLineItems($this->line_items);
+
+        foreach ($items as $item) {
+
+            $table_body = '<tr class="">';
+
+            foreach ($columns as $column) {
+                $table_body .= '<td class="'.$css['table_body_td_class'].'">'. $item->{$column} . '</td>';
+            }
+
+            $table_body .= '</tr>';
+        }
+
+        return $table_body;
+    }
 
     /**
      * Transform the column headers into translated header values

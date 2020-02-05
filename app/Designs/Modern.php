@@ -28,7 +28,7 @@ class Modern
 			        <meta charset="utf-8">
 			        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 			        <meta http-equiv="x-ua-compatible" content="ie=edge">
-			        <link rel="stylesheet" href="/assets/build/css/main.css">
+			        <link rel="stylesheet" href="http://ninja.test:8000/css/main.css">
 			    </head>
 			    <body>
 			        
@@ -73,8 +73,9 @@ class Modern
 	public function table_styles()
 	{
 		return [
-			'table_header_class' => "px-4 py-2",
-			'table_body_class' => "border-t border-b border-gray-900 px-4 py-4",
+			'table_header_thead_class' => "text-left text-white bg-gray-900",
+			'table_header_td_class' => "px-4 py-2",
+			'table_body_td_class' => "border-t border-b border-gray-900 px-4 py-4",
 		];
 	}
 
@@ -90,9 +91,9 @@ class Modern
 			            </tr>
 			        </thead>
 			        <tbody>
-			            <tr>
+			            
 			                $table_body
-			            </tr>
+			            
 			        </tbody>
 			    </table>
 

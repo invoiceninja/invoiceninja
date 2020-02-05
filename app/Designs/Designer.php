@@ -11,6 +11,8 @@
 
 namespace App\Designs;
 
+use App\Models\Invoice;
+
 class Designer
 {
 
@@ -21,16 +23,6 @@ class Designer
 	protected $exported_variables;
 
 	protected $html;
-
-	private static $labels = [
-		'$client_details',
-		'$invoice_details',
-		'$company_details',
-		'$company_address',
-		'$invoice_details_labels',
-		'$invoice_details_labels',
-		'$invoice_details_labels',
-	];
 
 	public function __construct($design, array $input_variables)
 	{
@@ -44,17 +36,34 @@ class Designer
 	 * formatted HTML
 	 * @return string The HTML design built
 	 */
-	public function build() :string
+	public function build(Invoice $invoice)
 	{
 
 		$this->setDesign($this->getSection('header'))
 			 ->setDesign($this->getSection('body'))
-			 ->setDesign($this->getSection('table'))
+			 ->setDesign($this->getTable($invoice))
 			 ->setDesign($this->getSection('footer'));
 
-		return $this->html;
+		return $this;
 	}
 
+	public function getTable(Invoice $invoice) :string
+	{
+
+		$table_header = $invoice->table_header($this->input_variables['table_columns'], $this->design->table_styles());
+		$table_body = $invoice->table_body($this->input_variables['table_columns'], $this->design->table_styles());
+
+		$data = str_replace('$table_header', $table_header, $this->getSection('table'));
+		$data = str_replace('$table_body', $table_body, $data);
+
+		return $data;
+
+	}
+
+	public function getHtml() :string
+	{
+		return $this->html;
+	}
 
 	private function setDesign($section)
 	{

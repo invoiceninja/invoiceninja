@@ -38,7 +38,7 @@ class ValidRefundableRequest implements Rule
     public function passes($attribute, $value)
     {
 
-        $payment = Payment::whereId($this->decodePrimaryKey(request()->input('id')))->first();
+        $payment = Payment::whereId(request()->input('id'))->first();
 
         if(!$payment)
         {

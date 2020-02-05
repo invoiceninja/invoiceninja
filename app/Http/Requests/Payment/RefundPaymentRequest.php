@@ -79,6 +79,6 @@ class RefundPaymentRequest extends Request
 
     public function payment() :?Payment
     {
-        return Payment::whereId($this->decodePrimaryKey(request()->input('id')))->first();
+        return Payment::whereId(request()->input('id'))->first();
     }
 }
