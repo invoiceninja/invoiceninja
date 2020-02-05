@@ -60,7 +60,7 @@ class ValidRefundableInvoices implements Rule
         $invoices = [];
 
         if (is_array($value)) {
-            $invoices = Invoice::whereIn('id', array_column($this->input['invoices'], 'invoice_id'))ss->get();
+            $invoices = Invoice::whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->company()->get();
         }
         else
             return true;
