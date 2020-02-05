@@ -80,6 +80,7 @@ class Designer
 
 	private function exportVariables()
 	{
+
 		$this->exported_variables['$client_details'] = $this->processVariables($this->input_variables['client_details'], $this->clientDetails());
 		$this->exported_variables['$company_details'] = $this->processVariables($this->input_variables['company_details'], $this->companyDetails());
 		$this->exported_variables['$company_address'] = $this->processVariables($this->input_variables['company_address'], $this->companyAddress());
@@ -88,15 +89,16 @@ class Designer
 		return $this;
 	}
 
-	private function processVariables($input_variables, $variables)
+	private function processVariables($input_variables, $variables) :string
 	{
 
-		$output = [];
+		$output = '';
 
-		foreach($input_variables as $key => $value)
-			$output[$key] = $variables[$key];
+		foreach($input_variables as $value)
+			$output .= $variables[$value];
 
 		return $output;
+
 	}
 
 	// private function exportVariables()
@@ -193,10 +195,10 @@ class Designer
 			'balance_due' => '<span>$balance_due</span>',
 			'invoice_total' => '<span>$invoice_total</span>',
 			'partial_due' => '<span>$partial_due</span>',
-			'custom_value1' => '<span>$custom_value1</span>',
-			'custom_value2' => '<span>$custom_value2</span>',
-			'custom_value3' => '<span>$custom_value3</span>',
-			'custom_value4' => '<span>$custom_value4</span>',
+			'custom_value1' => '<span>$invoice.custom_value1</span>',
+			'custom_value2' => '<span>$invoice.custom_value2</span>',
+			'custom_value3' => '<span>$invoice.custom_value3</span>',
+			'custom_value4' => '<span>$invoice.custom_value4</span>',
 		];
 
 	}

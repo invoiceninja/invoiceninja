@@ -212,6 +212,7 @@ trait MakesInvoiceValues
         $data['$invoice.custom_value2'] = $this->custom_value2;
         $data['$invoice.custom_value3'] = $this->custom_value3;
         $data['$invoice.custom_value4'] = $this->custom_value4;
+        $data['$invoice.public_notes'] = $this->public_notes;
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;
         // $data['$your_quote'] = ;

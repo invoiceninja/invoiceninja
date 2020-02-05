@@ -30,7 +30,7 @@ class InvoiceDesignTest extends TestCase
 				'id_number',
 				'vat_number',
 				'address1',
-				'address2'
+				'address2',
 				'city_state_postal',
 				'postal_city_state',
 				'country',
