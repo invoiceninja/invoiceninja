@@ -677,7 +677,7 @@ class PaymentController extends BaseController
         
         $payment = $request->payment();
 
-        $payment->refund($request->all());
+        $payment = $payment->refund($request->all());
 
         return $this->itemResponse($payment);
     }
