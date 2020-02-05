@@ -34,6 +34,7 @@ class RefundPaymentRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
+        
         if(!isset($input['gateway_refund']))
         	$input['gateway_refund'] = false;
 
@@ -64,14 +65,16 @@ class RefundPaymentRequest extends Request
 
     public function rules()
     {
+        $input = $this->all();
+
         $rules = [
             'id' => 'required',
-            'id' => new ValidRefundableRequest(),
+            'id' => new ValidRefundableRequest($input),
             'amount' => 'numeric',
             'date' => 'required',
             'invoices.*.invoice_id' => 'required',
             'invoices.*.amount' => 'required',
-            'invoices' => new ValidRefundableInvoices(),
+            'invoices' => new ValidRefundableInvoices($input),
         ];
 
         return $rules;
@@ -79,6 +82,8 @@ class RefundPaymentRequest extends Request
 
     public function payment() :?Payment
     {
-        return Payment::whereId(request()->input('id'))->first();
+        $input = $this->all();
+
+        return Payment::whereId($input['id'])->first();
     }
 }

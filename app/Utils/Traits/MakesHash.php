@@ -60,10 +60,14 @@ trait MakesHash
 
     public function decodePrimaryKey($value) : string
     {
+    //    \Log::error("pre decode = {$value}");
+
         try {
             $hashids = new Hashids('', 10);
 
             $decoded_array =  $hashids->decode($value);
+
+  //          \Log::error($decoded_array);
 
             return $decoded_array[0];
         } catch (\Exception $e) {

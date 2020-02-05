@@ -264,12 +264,12 @@ trait MakesInvoiceValues
         if(!$contact)
             $contact = $this->client->primary_contact()->first();
 
-        $data['$contact_name'] = $contact->present()->name() ?: 'no contact name on record';
+        $data['$contact_name'] = isset($contact) ? $contact->present()->name() : 'no contact name on record';
         $data['$contact.name'] = &$data['$contact_name'];
-        $data['$contact.custom_value1'] = $contact->custom_value1;
-        $data['$contact.custom_value2'] = $contact->custom_value2;
-        $data['$contact.custom_value3'] = $contact->custom_value3;
-        $data['$contact.custom_value4'] = $contact->custom_value4;
+        $data['$contact.custom_value1'] = isset($contact) ? $contact->custom_value1 : '';
+        $data['$contact.custom_value2'] = isset($contact) ? $contact->custom_value2 : '';
+        $data['$contact.custom_value3'] = isset($contact) ? $contact->custom_value3 : '';
+        $data['$contact.custom_value4'] = isset($contact) ? $contact->custom_value4 : '';
 
         $data['$company.city_state_postal'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false);
         $data['$company.postal_city_state'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true);
@@ -393,6 +393,7 @@ trait MakesInvoiceValues
 
     public function table_body(array $columns, array $css) :?string
     {
+        $table_body = '';
 
         /* Table Body */
         $columns = $this->transformColumnsForLineItems($columns);
