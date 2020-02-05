@@ -365,6 +365,45 @@ trait MakesInvoiceValues
     }
 
 
+    public function table_header(array $columns, array $css) :?string
+    {
+
+        /* Table Header */
+        $table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
+
+        $column_headers = $this->transformColumnsForHeader($columns);
+
+        foreach ($column_headers as $column) 
+            $table_header .= '<td class="'.$css['table_header_td_class'].'">' . ctrans('texts.'.$column.'') . '</td>';
+        
+        $table_header .= '</tr></thead>';
+
+        return $table_header;
+
+    }
+
+    public function table_body(array $columns, array $css) :?string
+    {
+
+        /* Table Body */
+        $columns = $this->transformColumnsForLineItems($columns);
+
+        $items = $this->transformLineItems($this->line_items);
+
+        foreach ($items as $item) {
+
+            $table_body = '<tr class="">';
+
+            foreach ($columns as $column) {
+                $table_body .= '<td class="'.$css['table_body_td_class'].'">'. $item->{$column} . '</td>';
+            }
+
+            $table_body .= '</tr>';
+        }
+
+        return $table_body;
+    }
+
     /**
      * Transform the column headers into translated header values
      *
