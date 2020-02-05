@@ -290,7 +290,7 @@ trait MakesInvoiceValues
         
         $logo = $this->company->present()->logo($settings);
 
-        $data['$company.logo'] = "<img src='{$logo}' class='w-48'>";
+        $data['$company.logo'] = "<img src='{$logo}' class='w-48' alt='logo'>";
         $data['$company_logo'] = &$data['$company.logo'];
         $data['$company.custom_value1'] = $this->company->custom_value1;
         $data['$company.custom_value2'] = $this->company->custom_value2;
@@ -376,14 +376,16 @@ trait MakesInvoiceValues
     {
 
         /* Table Header */
-        $table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
+        //$table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
 
+        $table_header = '';
+        
         $column_headers = $this->transformColumnsForHeader($columns);
 
         foreach ($column_headers as $column) 
             $table_header .= '<td class="'.$css['table_header_td_class'].'">' . ctrans('texts.'.$column.'') . '</td>';
         
-        $table_header .= '</tr></thead>';
+        //$table_header .= '</tr></thead>';
 
         return $table_header;
 
