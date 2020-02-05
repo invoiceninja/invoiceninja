@@ -166,7 +166,7 @@ class RandomDataSeeder extends Seeder
 
             UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
-            $invoice->markSent()->save();
+            $invoice->service()->markSent()->save();
 
             event(new InvoiceWasMarkedSent($invoice, $company));
 
