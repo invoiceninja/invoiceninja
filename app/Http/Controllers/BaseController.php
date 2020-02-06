@@ -56,32 +56,35 @@ class BaseController extends Controller
 
     public function __construct()
     {
+
         $this->manager = new Manager();
 
         $this->forced_includes = [];
 
         $this->forced_index = 'data';
+
     }
 
     private function buildManager()
     {
+
         $include = '';
 
         if(request()->has('first_load') && request()->input('first_load') == 'true') {
-          $include = $this->getRequestIncludes([]);
 
-          $include = array_merge($this->forced_includes, $include);
+          $include = implode("," , array_merge($this->forced_includes, $this->getRequestIncludes([])));
 
-          $include = implode(",", $include);
         }
         else if (request()->input('include') !== null) {
-            $request_include = explode(",", request()->input('include'));
 
-            $include = array_merge($this->forced_includes, $request_include);
+            $include = array_merge($this->forced_includes, explode(",", request()->input('include')));
 
             $include = implode(",", $include);
+
         } elseif (count($this->forced_includes) >= 1) {
+
             $include = implode(",", $this->forced_includes);
+
         }
 
         $this->manager->parseIncludes($include);
@@ -89,10 +92,15 @@ class BaseController extends Controller
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
         if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
+
             $this->manager->setSerializer(new JsonApiSerializer());
+
         } else {
+
             $this->manager->setSerializer(new ArraySerializer());
+
         }
+
     }
 
     /**
@@ -101,27 +109,36 @@ class BaseController extends Controller
      */
     public function notFound()
     {
+
         return response()->json(['message' => '404 | Nothing to see here!'], 404)
                          ->header('X-API-VERSION', config('ninja.api_version'))
                          ->header('X-APP-VERSION', config('ninja.app_version'));
+
     }
 
     public function notFoundClient()
     {
+
         return abort(404);
+
     }
 
     protected function errorResponse($response, $httpErrorCode = 400)
     {
+
         $error['error'] = $response;
+
         $error = json_encode($error, JSON_PRETTY_PRINT);
+
         $headers = self::getApiHeaders();
 
         return response()->make($error, $httpErrorCode, $headers);
+
     }
 
     protected function listResponse($query)
     {
+
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
@@ -145,32 +162,40 @@ class BaseController extends Controller
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 
         return $this->response($data);
+
     }
 
     protected function createCollection($query, $transformer, $entity_type)
     {
+
         $this->buildManager();
 
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
             $entity_type = null;
-        }
+        
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
+
             $limit = Input::get('per_page', 20);
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+
         } else {
+
             $resource = new Collection($query, $transformer, $entity_type);
+
         }
 
         return $this->manager->createData($resource)->toArray();
+
     }
 
     protected function response($response)
     {
+
         $index = request()->input('index') ?: $this->forced_index;
 
         if ($index == 'none') {
@@ -194,55 +219,50 @@ class BaseController extends Controller
         ksort($response);
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
+
         $headers = self::getApiHeaders();
         
-
         return response()->make($response, 200, $headers);
+
     }
 
     protected function itemResponse($item)
     {
+
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
-        if (request()->include_static) {
+        if (request()->include_static) 
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
-        }
         
-
         return $this->response($data);
+
     }
 
     protected function createItem($data, $transformer, $entity_type)
     {
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
-            $entity_type = null;
-        }
-        
 
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+            $entity_type = null;
+      
         $resource = new Item($data, $transformer, $entity_type);
 
         return $this->manager->createData($resource)->toArray();
+
     }
 
     public static function getApiHeaders($count = 0)
     {
+
         return [
           'Content-Type' => 'application/json',
-          //'Access-Control-Allow-Origin' => '*',
-          //'Access-Control-Allow-Methods' => 'GET',
-          //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
-          //'Access-Control-Allow-Credentials' => 'true',
-          //'X-Total-Count' => $count,
           'X-Api-Version' => config('ninja.api_version'),
           'X-App-Version' => config('ninja.app_version'),
-          //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
-          //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
-          //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
         ];
+
     }
 
 
@@ -279,7 +299,9 @@ class BaseController extends Controller
           'company.groups',
         ];
 
-
+        /**
+         * Thresholds for displaying large account on first load
+         */
         if (request()->has('first_load') && request()->input('first_load') == 'true') 
         {
 
@@ -315,4 +337,5 @@ class BaseController extends Controller
         return $data;
 
     }
+    
 }
