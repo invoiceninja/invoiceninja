@@ -283,7 +283,7 @@ class BaseController extends Controller
         if (request()->has('first_load') && request()->input('first_load') == 'true') 
         {
 
-          if (auth()->user()->getCompany()->clients->count() > 1000) 
+          if (auth()->user()->getCompany()->invoices->count() > 1000) 
           {
 
             $data = $mini_load;
