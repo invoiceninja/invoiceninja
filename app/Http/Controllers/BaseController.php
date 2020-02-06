@@ -67,53 +67,14 @@ class BaseController extends Controller
     {
         $include = '';
 
-        if (request()->has('first_load') && request()->input('first_load') == 'true') {
+        if(request()->has('first_load') && request()->input('first_load') == 'true') {
+          $include = $this->getRequestIncludes([]);
 
-            /* For very large accounts, we reduce the includes automatically */
-            if (auth()->user()->getCompany()->clients->count() < 1000) {
-                $include = [
-                  'account',
-                  'user.company_user',
-                  'token',
-                  'company.activities',
-                  'company.users.company_user',
-                  'company.tax_rates',
-                  'company.groups',
-                  'company.company_gateways.gateway',
-                  'company.clients',
-                  'company.products',
-                  'company.invoices',
-                  //'company.payments',
-                  'company.payments.paymentables',
-                  'company.quotes',
-                  'company.vendors',
-                  'company.expenses',
-                  'company.tasks',
-                  'company.projects',
-              ];
-            } else {
-                $include = [
-                  'account',
-                  'user.company_user',
-                  'token',
-                  'company.activities',
-                  'company.users.company_user',
-                  'company.tax_rates',
-                  'company.groups',
-                  // 'company.company_gateways.gateway',
-                  // 'company.clients',
-                  // 'company.products',
-                  // 'company.invoices',
-                  // 'company.payments',
-                  // 'company.payments.paymentables',
-                  // 'company.quotes',
-              ];
-            }
+          $include = array_merge($this->forced_includes, $include);
 
-            $include = array_merge($this->forced_includes, $include);
-
-            $include = implode(",", $include);
-        } elseif (request()->input('include') !== null) {
+          $include = implode(",", $include);
+        }
+        else if (request()->input('include') !== null) {
             $request_include = explode(",", request()->input('include'));
 
             $include = array_merge($this->forced_includes, $request_include);
@@ -124,7 +85,7 @@ class BaseController extends Controller
         }
 
         $this->manager->parseIncludes($include);
-
+        
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
         if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
@@ -284,19 +245,74 @@ class BaseController extends Controller
         ];
     }
 
+
     protected function getRequestIncludes($data)
     {
-        $included = request()->input('include');
-        $included = explode(',', $included);
 
-        foreach ($included as $include) {
-            if ($include == 'clients') {
-                $data[] = 'clients.contacts';
-            } elseif ($include) {
-                $data[] = $include;
-            }
+        $first_load = [
+          'account',
+          'user.company_user',
+          'token',
+          'company.activities',
+          'company.users.company_user',
+          'company.tax_rates',
+          'company.groups',
+          'company.company_gateways.gateway',
+          'company.clients.contacts',
+          'company.products',
+          'company.invoices',
+          'company.payments.paymentables',
+          'company.quotes',
+          'company.vendors.contacts',
+          'company.expenses',
+          'company.tasks',
+          'company.projects',
+        ];
+
+        $mini_load = [
+          'account',
+          'user.company_user',
+          'token',
+          'company.activities',
+          'company.users.company_user',
+          'company.tax_rates',
+          'company.groups',
+        ];
+
+
+        if (request()->has('first_load') && request()->input('first_load') == 'true') 
+        {
+
+          if (auth()->user()->getCompany()->clients->count() > 1000) 
+          {
+
+            $data = $mini_load;
+
+          }
+          else
+          {
+
+            $data = $first_load;
+
+          }
+        }
+        else
+        {
+
+          $included = request()->input('include');
+          $included = explode(',', $included);
+
+          foreach ($included as $include) {
+              if ($include == 'clients') {
+                  $data[] = 'clients.contacts';
+              } elseif ($include) {
+                  $data[] = $include;
+              }
+          }
+
         }
 
         return $data;
+
     }
 }

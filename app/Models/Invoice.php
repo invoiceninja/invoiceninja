@@ -96,8 +96,8 @@ class Invoice extends BaseModel
     ];
 
     protected $with = [
-        'company',
-        'client',
+        // 'company',
+        // 'client',
     ];
 
     protected $appends = [

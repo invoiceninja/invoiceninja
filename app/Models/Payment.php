@@ -71,6 +71,10 @@ class Payment extends BaseModel
         'is_deleted' => 'bool',
     ];
 
+    protected $with = [
+        'paymentables',
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class)->withTrashed();
