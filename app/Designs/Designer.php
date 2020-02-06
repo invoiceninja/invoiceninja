@@ -36,10 +36,11 @@ class Designer
 	 * formatted HTML
 	 * @return string The HTML design built
 	 */
-	public function build(Invoice $invoice)
+	public function build(Invoice $invoice) :Designer
 	{
 
-		$this->setDesign($this->getSection('header'))
+		$this->exportVariables()
+			 ->setDesign($this->getSection('header'))
 			 ->setDesign($this->getSection('body'))
 			 ->setDesign($this->getTable($invoice))
 			 ->setDesign($this->getSection('footer'));
@@ -82,8 +83,6 @@ class Designer
 	 */
 	public function getSection($section) :string
 	{
-		$this->exportVariables();
-
 		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
 	}
 

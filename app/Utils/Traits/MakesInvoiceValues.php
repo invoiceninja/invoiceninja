@@ -140,6 +140,8 @@ trait MakesInvoiceValues
      */
     public function makeLabels() :array
     {
+        $custom_fields = $this->company->custom_fields;
+
         //todo we might want to translate like this
         //trans('texts.labe', [], null, $this->client->locale());
         $data = [];
@@ -147,6 +149,9 @@ trait MakesInvoiceValues
         foreach (self::$labels as $label) {
             $data['$'.$label . '_label'] = ctrans('texts.'.$label);
         }
+
+        if(property_exists($custom_fields,'invoice_text1'))
+            $data['$invoice_text1'] = $custom_fields->invoice_text1;
 
         return $data;
     }
@@ -168,6 +173,11 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $data = [];
+
+        $data['$total_tax_labels'] = $this->totalTaxLabels();
+        $data['$total_tax_values'] = $this->totalTaxValues();
+        $data['$line_tax_labels'] = $this->lineTaxLabels();
+        $data['$line_tax_values'] = $this->lineTaxValues();
 
         $data['$date'] = $this->date;
         $data['$invoice.date'] = &$data['$date'];
@@ -402,7 +412,7 @@ trait MakesInvoiceValues
 
         foreach ($items as $item) {
 
-            $table_body = '<tr class="">';
+            $table_body .= '<tr class="">';
 
             foreach ($columns as $column) {
                 $table_body .= '<td class="'.$css['table_body_td_class'].'">'. $item->{$column} . '</td>';
@@ -538,6 +548,60 @@ trait MakesInvoiceValues
             $data .= '<td>'. Number::formatMoney($tax['total'], $this->client) .'</td></tr>';
         }
 
+        return $data;
+    }
+
+    private function totalTaxLabels() :string
+    {
+        $data = '';
+
+        if (!$this->calc()->getTotalTaxMap()) {
+            return $data;
+        }
+
+        foreach ($this->calc()->getTotalTaxMap() as $tax) {
+            $data .= '<span>'. $tax['name'] .'</span>';
+        }
+
+        return $data;
+    }
+
+    private function totalTaxValues() :string
+    {
+        $data = '';
+
+        if (!$this->calc()->getTotalTaxMap()) {
+            return $data;
+        }
+
+        foreach ($this->calc()->getTotalTaxMap() as $tax) {
+            $data .= '<span>'. Number::formatMoney($tax['total'], $this->client) .'</span>';
+        }
+
+        return $data;
+    }
+
+    private function lineTaxLabels() :string
+    {
+        $tax_map = $this->calc()->getTaxMap();
+        
+        $data = '';
+
+        foreach ($tax_map as $tax) 
+            $data .= '<span>'. $tax['name'] .'</span>';
+        
+        return $data;
+    }
+
+    private function lineTaxValues() :string
+    {
+        $tax_map = $this->calc()->getTaxMap();
+        
+        $data = '';
+
+        foreach ($tax_map as $tax) 
+            $data .= '<span>'. Number::formatMoney($tax['total'], $this->client) .'</span>';
+        
         return $data;
     }
 }
