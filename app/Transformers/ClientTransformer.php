@@ -113,7 +113,7 @@ class ClientTransformer extends EntityTransformer
             'id_number' => $client->id_number ?: '',
             'updated_at' => (int)$client->updated_at,
             'archived_at' => (int)$client->deleted_at,
-            'display_name' => $client->present()->name()
+            //'display_name' => $client->present()->name()
         ];
     }
 }

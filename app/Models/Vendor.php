@@ -54,7 +54,7 @@ class Vendor extends BaseModel
     ];
 
     protected $with = [
-        'contacts',
+    //    'contacts',
     ];
 
     public function documents()

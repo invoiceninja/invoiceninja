@@ -95,7 +95,7 @@ class Client extends BaseModel
         //'currency',
         // 'primary_contact',
         // 'country',
-         'contacts',
+        // 'contacts',
         // 'shipping_country',
         // 'company',
     ];
