@@ -51,6 +51,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     ];
 
     protected $with = [
+//        'client',
 //        'company'
     ];
 
