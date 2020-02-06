@@ -94,9 +94,10 @@ class Client extends BaseModel
     protected $with = [
         //'currency',
         // 'primary_contact',
-         'country',
+        // 'country',
+         'contacts',
         // 'shipping_country',
-        // 'company'
+        // 'company',
     ];
     
     protected $casts = [

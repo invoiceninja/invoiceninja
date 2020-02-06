@@ -30,7 +30,7 @@ class CreditInvitation extends BaseModel
     ];
 
     protected $with = [
-        'company',
+    //    'company',
     ];
 
     public function entityType()
