@@ -625,7 +625,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'mark_sent':
-                $invoice->markSent();
+                $invoice->service()->markSent()->save();
 
                 if (!$bulk) {
                     return $this->itemResponse($invoice);

@@ -32,12 +32,19 @@ class ValidRefundableInvoices implements Rule
     
     private $error_msg;
 
+    private $input;
+
+    public function __construct($input)
+    {
+        $this->input = $input;
+    }
+
+
+
     public function passes($attribute, $value)
     {
 
-        //\Log::error(request()->input('id'));
-
-        $payment = Payment::whereId(request()->input('id'))->first();
+        $payment = Payment::whereId($this->input['id'])->first();
 
         if(!$payment){
             $this->error_msg = "Payment couldn't be retrieved cannot be refunded ";
@@ -53,7 +60,7 @@ class ValidRefundableInvoices implements Rule
         $invoices = [];
 
         if (is_array($value)) {
-            $invoices = Invoice::whereIn('id', array_column($value, 'invoice_id'))->company()->get();
+            $invoices = Invoice::whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->company()->get();
         }
         else
             return true;
@@ -65,7 +72,7 @@ class ValidRefundableInvoices implements Rule
             }
 
 
-            foreach ($value as $val) {
+            foreach ($this->input['invoices'] as $val) {
                if ($val['invoice_id'] == $invoice->id) {
 
                     //$pivot_record = $invoice->payments->where('id', $invoice->id)->first();

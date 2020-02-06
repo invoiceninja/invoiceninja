@@ -33,8 +33,6 @@ trait MakesInvoiceHtml
     {
         $variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
 
-        // uasort($variables, 'arraySort');
-
         $design = str_replace(array_keys($variables), array_values($variables), $design);
 
         $data['invoice'] = $invoice;
