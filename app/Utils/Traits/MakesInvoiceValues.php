@@ -150,7 +150,7 @@ trait MakesInvoiceValues
             $data['$'.$label . '_label'] = ctrans('texts.'.$label);
         }
 
-        if(property_exists($custom_fields,'invoice_text1'))
+        if($custom_fields && property_exists($custom_fields,'invoice_text1'))
             $data['$invoice_text1'] = $custom_fields->invoice_text1;
 
         return $data;
