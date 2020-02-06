@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\DataMapper\DefaultSettings;
+use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\ClientFactory;
@@ -481,6 +482,8 @@ class CreateTestData extends Command
 
             UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
+        //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
+        //event(new InvoiceWasCreated($invoice, $invoice->company));
     }
 
     private function createCredit($client)

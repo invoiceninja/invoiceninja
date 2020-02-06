@@ -49,8 +49,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     ];
 
     protected $with = [
-        'vendor',
-        'company'
+        // 'vendor',
+        // 'company'
     ];
 
     protected $casts = [
