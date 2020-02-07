@@ -132,6 +132,25 @@ trait MakesInvoiceValues
         'amount_paid',
     ];
 
+    private static $custom_label_fields = [
+        'invoice1',
+        'invoice2',
+        'invoice3',
+        'invoice4',
+        'surcharge1',
+        'surcharge2',
+        'surcharge3',
+        'surcharge4',
+        'client1',
+        'client2',
+        'client3',
+        'client4',
+        'contact1',
+        'contact2',
+        'contact3',
+        'contact4',
+    ];
+
     /**
      * Iterates and translates all labels
      *
@@ -150,8 +169,46 @@ trait MakesInvoiceValues
             $data['$'.$label . '_label'] = ctrans('texts.'.$label);
         }
 
-        if($custom_fields && property_exists($custom_fields,'invoice_text1'))
-            $data['$invoice_text1'] = $custom_fields->invoice_text1;
+        if($custom_fields)
+        {
+
+            foreach($custom_fields as $key => $value)
+            {
+
+                if(strpos($value, '|')
+                {
+                    $value = explode("|", $value);
+                    $value = $value[0];
+                }
+
+                $data['$'.$key.'_label'] = $value;
+            }
+
+        }
+         
+
+        /*
+        Don't forget pipe | strings for dropdowns needs to be filtered
+         */
+
+        /*
+        invoice1
+        invoice2
+        invoice3
+        invoice4
+        surcharge1
+        surcharge2
+        surcharge3
+        surcharge4
+        client1
+        client2
+        client3
+        client4
+        contact1
+        contact2
+        contact3
+        contact4
+         */
 
         return $data;
     }

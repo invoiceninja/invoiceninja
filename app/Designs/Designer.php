@@ -166,10 +166,10 @@ class Designer
 			'postal_city_state' => '<p>$client.postal_city_state</p>',
 			'country' => '<p>$client.country</p>',
 			'email' => '<p>$client.email</p>',
-			'custom_value1' => '<p>$client.custom_value1</p>',
-			'custom_value2' => '<p>$client.custom_value2</p>',
-			'custom_value3' => '<p>$client.custom_value3</p>',
-			'custom_value4' => '<p>$client.custom_value4</p>',
+			'client1' => '<p>$client.custom_value1</p>',
+			'client2' => '<p>$client.custom_value2</p>',
+			'client3' => '<p>$client.custom_value3</p>',
+			'client4' => '<p>$client.custom_value4</p>',
 		];
 
 	}
@@ -183,10 +183,10 @@ class Designer
 			'website' => '<span>$company.website</span>',
 			'email' => '<span>$company.email</span>',
 			'phone' => '<span>$company.phone</span>',
-			'custom_value1' => '<span>$company.custom_value1</span>',
-			'custom_value2' => '<span>$company.custom_value2</span>',
-			'custom_value3' => '<span>$company.custom_value3</span>',
-			'custom_value4' => '<span>$company.custom_value4</span>',
+			'company1' => '<span>$company.custom_value1</span>',
+			'company2' => '<span>$company.custom_value2</span>',
+			'company3' => '<span>$company.custom_value3</span>',
+			'company4' => '<span>$company.custom_value4</span>',
 		];
 	}
 
@@ -199,10 +199,10 @@ class Designer
 			'city_state_postal' => '<span>$company.city_state_postal</span>',
 			'postal_city_state' => '<span>$company.postal_city_state</span>',
 			'country' => '<span>$company.country</span>',
-			'custom_value1' => '<span>$company.custom_value1</span>',
-			'custom_value2' => '<span>$company.custom_value2</span>',
-			'custom_value3' => '<span>$company.custom_value3</span>',
-			'custom_value4' => '<span>$company.custom_value4</span>',
+			'company1' => '<span>$company.custom_value1</span>',
+			'company2' => '<span>$company.custom_value2</span>',
+			'company3' => '<span>$company.custom_value3</span>',
+			'company4' => '<span>$company.custom_value4</span>',
 		];
 
 	}
@@ -218,10 +218,14 @@ class Designer
 			'balance_due' => '<span>$balance_due</span>',
 			'invoice_total' => '<span>$invoice_total</span>',
 			'partial_due' => '<span>$partial_due</span>',
-			'custom_value1' => '<span>$invoice.custom_value1</span>',
-			'custom_value2' => '<span>$invoice.custom_value2</span>',
-			'custom_value3' => '<span>$invoice.custom_value3</span>',
-			'custom_value4' => '<span>$invoice.custom_value4</span>',
+			'invoice1' => '<span>$invoice.custom_value1</span>',
+			'invoice2' => '<span>$invoice.custom_value2</span>',
+			'invoice3' => '<span>$invoice.custom_value3</span>',
+			'invoice4' => '<span>$invoice.custom_value4</span>',
+			'surcharge1' =>'<span>$invoice.custom_surcharge1</span>',
+			'surcharge2' =>'<span>$invoice.custom_surcharge2</span>',
+			'surcharge3' =>'<span>$invoice.custom_surcharge3</span>',
+			'surcharge4' =>'<span>$invoice.custom_surcharge4</span>',
 		];
 
 	}
