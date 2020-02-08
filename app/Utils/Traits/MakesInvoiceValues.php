@@ -119,10 +119,10 @@ trait MakesInvoiceValues
         'service',
         'product_key',
         'unit_cost',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
+        // 'custom_value1',
+        // 'custom_value2',
+        // 'custom_value3',
+        // 'custom_value4',
         'delivery_note',
         'date',
         'method',
@@ -130,6 +130,26 @@ trait MakesInvoiceValues
         'reference',
         'amount',
         'amount_paid',
+        'invoice1',
+        'invoice2',
+        'invoice3',
+        'invoice4',
+        'surcharge1',
+        'surcharge2',
+        'surcharge3',
+        'surcharge4',
+        'client1',
+        'client2',
+        'client3',
+        'client4',
+        'contact1',
+        'contact2',
+        'contact3',
+        'contact4',
+        'company1',
+        'company2',
+        'company3',
+        'company4',
     ];
 
     private static $custom_label_fields = [
@@ -149,6 +169,10 @@ trait MakesInvoiceValues
         'contact2',
         'contact3',
         'contact4',
+        'company1',
+        'company2',
+        'company3',
+        'company4',
     ];
 
     /**
@@ -175,7 +199,7 @@ trait MakesInvoiceValues
             foreach($custom_fields as $key => $value)
             {
 
-                if(strpos($value, '|')
+                if(strpos($value, '|') !== false)
                 {
                     $value = explode("|", $value);
                     $value = $value[0];
@@ -276,10 +300,10 @@ trait MakesInvoiceValues
         $data['$invoice.taxes'] = &$data['$taxes'];
         $data['$terms'] = $this->terms;
         $data['$invoice.terms'] = &$data['$terms'];
-        $data['$invoice.custom_value1'] = $this->custom_value1;
-        $data['$invoice.custom_value2'] = $this->custom_value2;
-        $data['$invoice.custom_value3'] = $this->custom_value3;
-        $data['$invoice.custom_value4'] = $this->custom_value4;
+        $data['$invoice1'] = $this->custom_value1;
+        $data['$invoice2'] = $this->custom_value2;
+        $data['$invoice3'] = $this->custom_value3;
+        $data['$invoice4'] = $this->custom_value4;
         $data['$invoice.public_notes'] = $this->public_notes;
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;
@@ -323,20 +347,20 @@ trait MakesInvoiceValues
         $data['$client.country'] = &$data['$country'];
         $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
         $data['$client.email'] = &$data['$email'];
-        $data['$client.custom_value1'] = $this->client->custom_value1;
-        $data['$client.custom_value2'] = $this->client->custom_value2;
-        $data['$client.custom_value3'] = $this->client->custom_value3;
-        $data['$client.custom_value4'] = $this->client->custom_value4;
+        $data['$client1'] = $this->client->custom_value1;
+        $data['$client2'] = $this->client->custom_value2;
+        $data['$client3'] = $this->client->custom_value3;
+        $data['$client4'] = $this->client->custom_value4;
 
         if(!$contact)
             $contact = $this->client->primary_contact()->first();
 
         $data['$contact_name'] = isset($contact) ? $contact->present()->name() : 'no contact name on record';
         $data['$contact.name'] = &$data['$contact_name'];
-        $data['$contact.custom_value1'] = isset($contact) ? $contact->custom_value1 : '';
-        $data['$contact.custom_value2'] = isset($contact) ? $contact->custom_value2 : '';
-        $data['$contact.custom_value3'] = isset($contact) ? $contact->custom_value3 : '';
-        $data['$contact.custom_value4'] = isset($contact) ? $contact->custom_value4 : '';
+        $data['$contact1'] = isset($contact) ? $contact->custom_value1 : '';
+        $data['$contact2'] = isset($contact) ? $contact->custom_value2 : '';
+        $data['$contact3'] = isset($contact) ? $contact->custom_value3 : '';
+        $data['$contact4'] = isset($contact) ? $contact->custom_value4 : '';
 
         $data['$company.city_state_postal'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false);
         $data['$company.postal_city_state'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true);
@@ -359,10 +383,10 @@ trait MakesInvoiceValues
 
         $data['$company.logo'] = "<img src='{$logo}' class='w-48' alt='logo'>";
         $data['$company_logo'] = &$data['$company.logo'];
-        $data['$company.custom_value1'] = $this->company->custom_value1;
-        $data['$company.custom_value2'] = $this->company->custom_value2;
-        $data['$company.custom_value3'] = $this->company->custom_value3;
-        $data['$company.custom_value4'] = $this->company->custom_value4;
+        $data['$company1'] = $settings->custom_value1;
+        $data['$company2'] = $settings->custom_value2;
+        $data['$company3'] = $settings->custom_value3;
+        $data['$company4'] = $settings->custom_value4;
         //$data['$blank'] = ;
         //$data['$surcharge'] = ;
         /*

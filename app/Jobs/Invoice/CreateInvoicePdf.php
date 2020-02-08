@@ -67,10 +67,14 @@ class CreateInvoicePdf implements ShouldQueue
                 'postal_city_state',
                 'country',
                 'email',
-                'custom_value1',
-                'custom_value2',
-                'custom_value3',
-                'custom_value4',
+                'client1',
+                'client2',
+                'client3',
+                'client4',
+                'contact1',
+                'contact2',
+                'contact3',
+                'contact4',
             ],
             'company_details' => [
                 'company_name',
@@ -79,10 +83,10 @@ class CreateInvoicePdf implements ShouldQueue
                 'website',
                 'email',
                 'phone',
-                'custom_value1',
-                'custom_value2',
-                'custom_value3',
-                'custom_value4',
+                'company1',
+                'company2',
+                'company3',
+                'company4',
             ],
             'company_address' => [
                 'address1',
@@ -90,10 +94,10 @@ class CreateInvoicePdf implements ShouldQueue
                 'city_state_postal',
                 'postal_city_state',
                 'country',
-                'custom_value1',
-                'custom_value2',
-                'custom_value3',
-                'custom_value4',
+                'company1',
+                'company2',
+                'company3',
+                'company4',
             ],
             'invoice_details' => [
                 'invoice_number',
@@ -103,10 +107,14 @@ class CreateInvoicePdf implements ShouldQueue
                 'balance_due',
                 'invoice_total',
                 'partial_due',
-                'custom_value1',
-                'custom_value2',
-                'custom_value3',
-                'custom_value4',
+                'invoice1',
+                'invoice2',
+                'invoice3',
+                'invoice4',
+                'surcharge1',
+                'surcharge2',
+                'surcharge3',
+                'surcharge4',
             ],
             'table_columns' => [
                 'product_key', 
@@ -136,7 +144,7 @@ class CreateInvoicePdf implements ShouldQueue
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-\Log::error($html);
+//\Log::error($html);
         //create pdf
         $pdf = $this->makePdf(null, null, $html);
 
