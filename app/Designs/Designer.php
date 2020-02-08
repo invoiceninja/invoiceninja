@@ -48,11 +48,11 @@ class Designer
         'company4',
 	];
 
-	public function __construct($design, array $input_variables)
+	public function __construct($design, $input_variables)
 	{
 		$this->design = $design;
 
-		$this->input_variables = $input_variables;
+		$this->input_variables = (array)$input_variables;
 	}
 
 	/**

@@ -349,9 +349,9 @@ trait MakesInvoiceValues
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;';
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
-        $data['$country'] = isset($this->client->country->name) ?: 'No Country Set';
+        $data['$country'] = isset($this->client->country->name) ? $this->client->country->name : 'No Country Set';
         $data['$client.country'] = &$data['$country'];
-        $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
+        $data['$email'] = isset($this->client->primary_contact()->first()->email) ? $this->client->primary_contact()->first()->email : 'no contact email on record';
         $data['$client.email'] = &$data['$email'];
 
         if(!$contact)
@@ -427,7 +427,7 @@ trait MakesInvoiceValues
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
         //     \Log::error('woop');
-        //\Log::error(print_r($data,1));
+        \Log::error(print_r($data,1));
 
         return $data;
     }
