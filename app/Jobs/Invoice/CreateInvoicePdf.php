@@ -128,9 +128,6 @@ class CreateInvoicePdf implements ShouldQueue
         ];
 
 
-
-
-
         $this->invoice->load('client');
         $path = 'public/' . $this->invoice->client->client_hash . '/invoices/';
         $file_path = $path . $this->invoice->number . '.pdf';
@@ -144,7 +141,7 @@ class CreateInvoicePdf implements ShouldQueue
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-//\Log::error($html);
+\Log::error($html);
         //create pdf
         $pdf = $this->makePdf(null, null, $html);
 

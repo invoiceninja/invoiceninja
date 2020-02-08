@@ -260,7 +260,7 @@ trait MakesInvoiceValues
         $data['$line_tax_labels'] = $this->lineTaxLabels();
         $data['$line_tax_values'] = $this->lineTaxValues();
 
-        $data['$date'] = $this->date;
+        $data['$date'] = $this->date ?: ' ';
         $data['$invoice.date'] = &$data['$date'];
         $data['$due_date'] = $this->due_date;
         $data['$invoice.due_date'] = &$data['$due_date'];
@@ -323,14 +323,18 @@ trait MakesInvoiceValues
         $data['$invoice.invoice_no'] = &$data['$invoice_no'];
         // $data['$quote_no'] = ;
         // $data['$valid_until'] = ;
+        $data['$client1'] = $this->client->custom_value1;
+        $data['$client2'] = $this->client->custom_value2;
+        $data['$client3'] = $this->client->custom_value3;
+        $data['$client4'] = $this->client->custom_value4;
         $data['$client_name'] = $this->present()->clientName();
         $data['$client.name'] = &$data['$client_name'];
-        $data['$client_address'] = $this->present()->address();
-        $data['$client.address'] = &$data['$client_address'];
         $data['$address1'] = $this->client->address1;
-        $data['$client.address1'] = &$data['$address1'];
         $data['$address2'] = $this->client->address2;
         $data['$client.address2'] = &$data['$address2'];
+        $data['$client.address1'] = &$data['$address1'];
+        $data['$client.address'] = &$data['$client_address'];
+        $data['$client_address'] = $this->present()->address();
         $data['$id_number'] = $this->client->id_number;
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$vat_number'] = $this->client->vat_number;
@@ -347,10 +351,6 @@ trait MakesInvoiceValues
         $data['$client.country'] = &$data['$country'];
         $data['$email'] = isset($this->client->primary_contact()->first()->email) ?: 'no contact email on record';
         $data['$client.email'] = &$data['$email'];
-        $data['$client1'] = $this->client->custom_value1;
-        $data['$client2'] = $this->client->custom_value2;
-        $data['$client3'] = $this->client->custom_value3;
-        $data['$client4'] = $this->client->custom_value4;
 
         if(!$contact)
             $contact = $this->client->primary_contact()->first();
@@ -421,6 +421,12 @@ trait MakesInvoiceValues
         $data['$amount'] = ;
         $data['$amount_paid'] =;
         	*/
+
+        $arrKeysLength = array_map('strlen', array_keys($data));
+        array_multisort($arrKeysLength, SORT_DESC, $data);
+        //     \Log::error('woop');
+        // \Log::error(print_r($data,1));
+
         return $data;
     }
 
