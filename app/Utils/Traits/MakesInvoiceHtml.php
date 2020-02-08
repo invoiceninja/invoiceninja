@@ -31,9 +31,14 @@ trait MakesInvoiceHtml
      */
     public function generateInvoiceHtml($design, $invoice) :string
     {
-        $variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
+        //$variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
+        //$design = str_replace(array_keys($variables), array_values($variables), $design);
 
-        $design = str_replace(array_keys($variables), array_values($variables), $design);
+        $labels = $invoice->makeLabels();
+        $values = $invoice->makeValues();
+
+        $design = str_replace(array_keys($labels), array_values($labels), $design);
+        $design = str_replace(array_keys($values), array_values($values), $design);
 
         $data['invoice'] = $invoice;
 

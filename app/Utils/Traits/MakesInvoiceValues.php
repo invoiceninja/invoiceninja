@@ -233,6 +233,8 @@ trait MakesInvoiceValues
         contact3
         contact4
          */
+        $arrKeysLength = array_map('strlen', array_keys($data));
+        array_multisort($arrKeysLength, SORT_DESC, $data);
 
         return $data;
     }
@@ -260,18 +262,18 @@ trait MakesInvoiceValues
         $data['$line_tax_labels'] = $this->lineTaxLabels();
         $data['$line_tax_values'] = $this->lineTaxValues();
 
-        $data['$date'] = $this->date ?: ' ';
+        $data['$date'] = $this->date ?: '&nbsp;';
         $data['$invoice.date'] = &$data['$date'];
-        $data['$due_date'] = $this->due_date;
+        $data['$due_date'] = $this->due_date ?: '&nbsp;';
         $data['$invoice.due_date'] = &$data['$due_date'];
-        $data['$number'] = $this->number;
+        $data['$number'] = $this->number ?: '&nbsp;';
         $data['$invoice.number'] = &$data['$number'];
         $data['$invoice_number'] = &$data['$number'];
-        $data['$po_number'] = $this->po_number;
+        $data['$po_number'] = $this->po_number ?: '&nbsp;';
         $data['$invoice.po_number'] = &$data['$po_number'];
-        $data['$line_taxes'] = $this->makeLineTaxes();
+        $data['$line_taxes'] = $this->makeLineTaxes() ?: '&nbsp;';
         $data['$invoice.line_taxes'] = &$data['$line_taxes'];
-        $data['$total_taxes'] = $this->makeTotalTaxes();
+        $data['$total_taxes'] = $this->makeTotalTaxes() ?: '&nbsp;';
         $data['$invoice.total_taxes'] = &$data['$total_taxes'];
         // $data['$tax'] = ;
         // $data['$item'] = ;
@@ -280,31 +282,31 @@ trait MakesInvoiceValues
         // $data['$quantity'] = ;
         // $data['$line_total'] = ;
         //        $data['$paid_to_date'] = ;
-        $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client);
+        $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client) ?: '&nbsp;';
         $data['$invoice.discount'] = &$data['$discount'];
-        $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client);
+        $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client) ?: '&nbsp;';
         $data['$invoice.subtotal'] = &$data['$subtotal'];
-        $data['$balance_due'] = Number::formatMoney($this->balance, $this->client);
+        $data['$balance_due'] = Number::formatMoney($this->balance, $this->client) ?: '&nbsp;';
         $data['$invoice.balance_due'] = &$data['$balance_due'];
-        $data['$partial_due'] = Number::formatMoney($this->partial, $this->client);
+        $data['$partial_due'] = Number::formatMoney($this->partial, $this->client) ?: '&nbsp;';
         $data['$invoice.partial_due'] = &$data['$partial_due'];
-        $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client);
+        $data['$total'] = Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;';
         $data['$invoice.total'] = &$data['$total'];
         $data['$amount'] = &$data['$total'];
         $data['$invoice_total'] =  &$data['$total'];
         $data['$invoice.amount'] = &$data['$total'];
 
-        $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client);
+        $data['$balance'] = Number::formatMoney($this->calc()->getBalance(), $this->client) ?: '&nbsp;';
         $data['$invoice.balance'] = &$data['$balance'];
-        $data['$taxes'] = Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client);
+        $data['$taxes'] = Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client) ?: '&nbsp;';
         $data['$invoice.taxes'] = &$data['$taxes'];
-        $data['$terms'] = $this->terms;
+        $data['$terms'] = $this->terms ?: '&nbsp;';
         $data['$invoice.terms'] = &$data['$terms'];
-        $data['$invoice1'] = $this->custom_value1;
-        $data['$invoice2'] = $this->custom_value2;
-        $data['$invoice3'] = $this->custom_value3;
-        $data['$invoice4'] = $this->custom_value4;
-        $data['$invoice.public_notes'] = $this->public_notes;
+        $data['$invoice1'] = $this->custom_value1 ?: '&nbsp;';
+        $data['$invoice2'] = $this->custom_value2 ?: '&nbsp;';
+        $data['$invoice3'] = $this->custom_value3 ?: '&nbsp;';
+        $data['$invoice4'] = $this->custom_value4 ?: '&nbsp;';
+        $data['$invoice.public_notes'] = $this->public_notes ?: '&nbsp;';
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;
         // $data['$your_quote'] = ;
@@ -319,33 +321,33 @@ trait MakesInvoiceValues
         // $data['$invoice_to'] = ;
         // $data['$quote_to'] = ;
         // $data['$details'] = ;
-        $data['$invoice_no'] = $this->number;
+        $data['$invoice_no'] = $this->number ?: '&nbsp;';
         $data['$invoice.invoice_no'] = &$data['$invoice_no'];
         // $data['$quote_no'] = ;
         // $data['$valid_until'] = ;
-        $data['$client1'] = $this->client->custom_value1;
-        $data['$client2'] = $this->client->custom_value2;
-        $data['$client3'] = $this->client->custom_value3;
-        $data['$client4'] = $this->client->custom_value4;
-        $data['$client_name'] = $this->present()->clientName();
+        $data['$client1'] = $this->client->custom_value1 ?: '&nbsp;';
+        $data['$client2'] = $this->client->custom_value2 ?: '&nbsp;';
+        $data['$client3'] = $this->client->custom_value3 ?: '&nbsp;';
+        $data['$client4'] = $this->client->custom_value4 ?: '&nbsp;';
+        $data['$client_name'] = $this->present()->clientName() ?: '&nbsp;';
         $data['$client.name'] = &$data['$client_name'];
-        $data['$address1'] = $this->client->address1;
-        $data['$address2'] = $this->client->address2;
+        $data['$address1'] = $this->client->address1 ?: '&nbsp;';
+        $data['$address2'] = $this->client->address2 ?: '&nbsp;';
         $data['$client.address2'] = &$data['$address2'];
         $data['$client.address1'] = &$data['$address1'];
         $data['$client.address'] = &$data['$client_address'];
-        $data['$client_address'] = $this->present()->address();
-        $data['$id_number'] = $this->client->id_number;
+        $data['$client_address'] = $this->present()->address() ?: '&nbsp;';
+        $data['$id_number'] = $this->client->id_number ?: '&nbsp;';
         $data['$client.id_number'] = &$data['$id_number'];
-        $data['$vat_number'] = $this->client->vat_number;
+        $data['$vat_number'] = $this->client->vat_number ?: '&nbsp;';
         $data['$client.vat_number'] = &$data['$vat_number'];
-        $data['$website'] = $this->client->present()->website();
+        $data['$website'] = $this->client->present()->website() ?: '&nbsp;';
         $data['$client.website'] = &$data['$website'];
-        $data['$phone'] = $this->client->present()->phone();
+        $data['$phone'] = $this->client->present()->phone() ?: '&nbsp;';
         $data['$client.phone'] = &$data['$phone'];
-        $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false);
+        $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;';
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
-        $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true);
+        $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;';
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
         $data['$country'] = isset($this->client->country->name) ?: 'No Country Set';
         $data['$client.country'] = &$data['$country'];
@@ -357,36 +359,36 @@ trait MakesInvoiceValues
 
         $data['$contact_name'] = isset($contact) ? $contact->present()->name() : 'no contact name on record';
         $data['$contact.name'] = &$data['$contact_name'];
-        $data['$contact1'] = isset($contact) ? $contact->custom_value1 : '';
-        $data['$contact2'] = isset($contact) ? $contact->custom_value2 : '';
-        $data['$contact3'] = isset($contact) ? $contact->custom_value3 : '';
-        $data['$contact4'] = isset($contact) ? $contact->custom_value4 : '';
+        $data['$contact1'] = isset($contact) ? $contact->custom_value1 : '&nbsp;';
+        $data['$contact2'] = isset($contact) ? $contact->custom_value2 : '&nbsp;';
+        $data['$contact3'] = isset($contact) ? $contact->custom_value3 : '&nbsp;';
+        $data['$contact4'] = isset($contact) ? $contact->custom_value4 : '&nbsp;';
 
-        $data['$company.city_state_postal'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false);
-        $data['$company.postal_city_state'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true);
-        $data['$company.name'] = $this->company->present()->name();
+        $data['$company.city_state_postal'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false) ?: '&nbsp;';
+        $data['$company.postal_city_state'] = $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true) ?: '&nbsp;';
+        $data['$company.name'] = $this->company->present()->name() ?: '&nbsp;';
         $data['$company.company_name'] = &$data['$company.name'];
-        $data['$company.address1'] = $settings->address1;
-        $data['$company.address2'] = $settings->address2;
-        $data['$company.city'] = $settings->city;
-        $data['$company.state'] = $settings->state;
-        $data['$company.postal_code'] = $settings->postal_code;
-        $data['$company.country'] = Country::find($settings->country_id)->first()->name;
-        $data['$company.phone'] = $settings->phone;
-        $data['$company.email'] = $settings->email;
-        $data['$company.vat_number'] = $settings->vat_number;
-        $data['$company.id_number'] = $settings->id_number;
-        $data['$company.website'] = $settings->website;
-        $data['$company.address'] = $this->company->present()->address($settings);
+        $data['$company.address1'] = $settings->address1 ?: '&nbsp;';
+        $data['$company.address2'] = $settings->address2 ?: '&nbsp;';
+        $data['$company.city'] = $settings->city ?: '&nbsp;';
+        $data['$company.state'] = $settings->state ?: '&nbsp;';
+        $data['$company.postal_code'] = $settings->postal_code ?: '&nbsp;';
+        $data['$company.country'] = Country::find($settings->country_id)->first()->name ?: '&nbsp;';
+        $data['$company.phone'] = $settings->phone ?: '&nbsp;';
+        $data['$company.email'] = $settings->email ?: '&nbsp;';
+        $data['$company.vat_number'] = $settings->vat_number ?: '&nbsp;';
+        $data['$company.id_number'] = $settings->id_number ?: '&nbsp;';
+        $data['$company.website'] = $settings->website ?: '&nbsp;';
+        $data['$company.address'] = $this->company->present()->address($settings) ?: '&nbsp;';
         
         $logo = $this->company->present()->logo($settings);
 
-        $data['$company.logo'] = "<img src='{$logo}' class='w-48' alt='logo'>";
+        $data['$company.logo'] = "<img src='{$logo}' class='w-48' alt='logo'>" ?: '&nbsp;';
         $data['$company_logo'] = &$data['$company.logo'];
-        $data['$company1'] = $settings->custom_value1;
-        $data['$company2'] = $settings->custom_value2;
-        $data['$company3'] = $settings->custom_value3;
-        $data['$company4'] = $settings->custom_value4;
+        $data['$company1'] = $settings->custom_value1 ?: '&nbsp;';
+        $data['$company2'] = $settings->custom_value2 ?: '&nbsp;';
+        $data['$company3'] = $settings->custom_value3 ?: '&nbsp;';
+        $data['$company4'] = $settings->custom_value4 ?: '&nbsp;';
         //$data['$blank'] = ;
         //$data['$surcharge'] = ;
         /*
@@ -425,7 +427,7 @@ trait MakesInvoiceValues
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
         //     \Log::error('woop');
-        // \Log::error(print_r($data,1));
+        \Log::error(print_r($data,1));
 
         return $data;
     }
