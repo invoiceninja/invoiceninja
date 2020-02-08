@@ -102,7 +102,7 @@ class Modern
 			        <div class="w-1/2">
 			            $invoice.public_notes
 			        </div>
-			        <div class="w-1/2 flex">
+			        <div class="w-1/2 flex" style="page-break-inside: avoid;">
 			            <div class="w-1/2 text-right flex flex-col">
 			                $total_tax_labels
 			                $line_tax_labels

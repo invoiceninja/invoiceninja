@@ -427,7 +427,7 @@ trait MakesInvoiceValues
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
         //     \Log::error('woop');
-        \Log::error(print_r($data,1));
+        //\Log::error(print_r($data,1));
 
         return $data;
     }
@@ -588,6 +588,26 @@ trait MakesInvoiceValues
                     $item->discount = $item->discount . '%';
                 }
             }
+            else
+                $item->discount = '';
+
+            if(isset($item->tax_rate1) && $item->tax_rate1 > 0)
+                $item->tax_rate1 = $item->tax_rate1."%";
+        
+            if(isset($item->tax_rate2) && $item->tax_rate2 > 0)
+                $item->tax_rate2 = $item->tax_rate2."%";
+
+            if(isset($item->tax_rate2) && $item->tax_rate2 > 0)
+                $item->tax_rate2 = $item->tax_rate2."%";
+
+            if(isset($item->tax_rate1) && $item->tax_rate1 == 0)
+                $item->tax_rate1 = '';
+        
+            if(isset($item->tax_rate2) && $item->tax_rate2 == 0)
+                $item->tax_rate2 = '';
+
+            if(isset($item->tax_rate2) && $item->tax_rate2 == 0)
+                $item->tax_rate2 = '';
         }
     
 
