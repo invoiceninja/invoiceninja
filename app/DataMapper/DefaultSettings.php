@@ -44,7 +44,7 @@ class DefaultSettings extends BaseSettings
     private static function userSettingsObject() : \stdClass
     {
         return (object)[
-            'per_page' => self::$per_page,
+        //    'per_page' => self::$per_page,
         ];
     }
 }

@@ -213,8 +213,8 @@ class CompanyController extends BaseController
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
-            'permissions' => json_encode([]),
-            'settings' => json_encode(DefaultSettings::userSettings()),
+            'permissions' => [],
+            'settings' => DefaultSettings::userSettings(),
         ]);
 
         /*

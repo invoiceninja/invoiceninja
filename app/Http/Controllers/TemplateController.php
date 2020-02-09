@@ -103,8 +103,8 @@ class TemplateController extends BaseController
             $entity_obj = $class::whereId(request()->input('entity_id'))->company()->first();
         }
 
-        $subject = request()->input('subject');
-        $body = request()->input('body');
+        $subject = request()->input('subject') ?: '';
+        $body = request()->input('body') ?: '';
 
         $converter = new CommonMarkConverter([
             'html_input' => 'strip',
