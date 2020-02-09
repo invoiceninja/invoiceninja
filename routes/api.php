@@ -112,6 +112,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('templates', 'TemplateController@show')->name('templates.show');
 
+    Route::post('self-update', 'SelfUpdateController@update');
+
     /*
       Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 

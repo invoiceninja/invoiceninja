@@ -427,7 +427,7 @@ trait MakesInvoiceValues
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
         //     \Log::error('woop');
-        \Log::error(print_r($data,1));
+        //\Log::error(print_r($data,1));
 
         return $data;
     }

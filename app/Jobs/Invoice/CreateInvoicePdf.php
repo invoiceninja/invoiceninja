@@ -68,7 +68,7 @@ class CreateInvoicePdf implements ShouldQueue
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-//\Log::error($html);
+        //\Log::error($html);
         //create pdf
         $pdf = $this->makePdf(null, null, $html);
 
@@ -92,7 +92,7 @@ class CreateInvoicePdf implements ShouldQueue
             //->footerHtml($footer)
             ->deviceScaleFactor(1)
             ->showBackground()
-            ->waitUntilNetworkIdle(false)->pdf();
+            ->waitUntilNetworkIdle(true)->pdf();
         //->margins(10,10,10,10)
             //->savePdf('test.pdf');
     }
