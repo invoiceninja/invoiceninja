@@ -24,12 +24,10 @@ use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
-
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Invoice\EmailInvoice;
-
 use App\Jobs\Invoice\StoreInvoice;
 use App\Models\Invoice;
-
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
@@ -41,6 +39,7 @@ use Illuminate\Http\Request;
  */
 
 class InvoiceController extends BaseController {
+
 	use MakesHash;
 
 	protected $entity_type = Invoice::class ;
@@ -654,6 +653,10 @@ class InvoiceController extends BaseController {
 		$contact    = $invitation->contact;
 		$invoice    = $invitation->invoice;
 
-		return response()->json($invitation_key);
+		$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
+
+		return response()->download($file_path);
+
+		//return response()->json($invitation_key);
 	}
 }

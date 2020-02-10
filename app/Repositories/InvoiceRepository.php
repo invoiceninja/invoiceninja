@@ -81,6 +81,10 @@ class InvoiceRepository extends BaseRepository {
 
 				if (!$inv) {
 
+					if (isset($invitation['id'])) {
+						unset($invitation['id']);
+					}
+
 					$new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
 					$new_invitation->fill($invitation);
 					$new_invitation->invoice_id        = $invoice->id;
