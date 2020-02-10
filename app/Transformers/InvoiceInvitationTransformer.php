@@ -11,24 +11,23 @@
 
 namespace App\Transformers;
 
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 
-class InvoiceInvitationTransformer extends EntityTransformer
-{
-    use MakesHash;
+class InvoiceInvitationTransformer extends EntityTransformer {
+	use MakesHash;
 
-    public function transform(InvoiceInvitation $invitation)
-    {
-        return [
-            'id' => $this->encodePrimaryKey($invitation->id),
-            'client_contact_id' => $this->encodePrimaryKey($invitation->client_contact_id),
-            'key' => $invitation->key,
-            'link' => $invitation->getLink() ?: '',
-            'sent_date' => $invitation->sent_date ?: '',
-            'viewed_date' => $invitation->viewed_date ?: '',
-            'opened_date' => $invitation->opened_date ?: '',
-        ];
-    }
+	public function transform(InvoiceInvitation $invitation) {
+		return [
+			'id'                => $this->encodePrimaryKey($invitation->id),
+			'client_contact_id' => $this->encodePrimaryKey($invitation->client_contact_id),
+			'key'               => $invitation->key,
+			'link'              => $invitation->getLink()?:'',
+			'sent_date'         => $invitation->sent_date?:'',
+			'viewed_date'       => $invitation->viewed_date?:'',
+			'opened_date'       => $invitation->opened_date?:'',
+			'updated_at'        => (int) $invitation->updated_at,
+			'archived_at'       => (int) $invitation->deleted_at,
+		];
+	}
 }
