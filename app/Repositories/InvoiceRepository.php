@@ -67,16 +67,17 @@ class InvoiceRepository extends BaseRepository {
 		if (isset($data['invitations'])) {
 			$invitations = collect($data['invitations']);
 
-			/* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
+			/* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
 			collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
-					InvoiceInvitation::destroy($invitation);
+					InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation])->delete();
 				});
 
 			foreach ($data['invitations'] as $invitation) {
 				$inv = false;
 
 				if (array_key_exists('key', $invitation)) {
-					$inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+					// $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+					$inv = InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
 				}
 
 				if (!$inv) {
