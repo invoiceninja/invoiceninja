@@ -233,6 +233,7 @@ trait MakesInvoiceValues
         contact3
         contact4
          */
+        
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
