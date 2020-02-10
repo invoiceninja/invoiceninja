@@ -86,7 +86,7 @@ class InvoiceRepository extends BaseRepository {
 					}
 
 					$new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-					$new_invitation->fill($invitation);
+					//$new_invitation->fill($invitation);
 					$new_invitation->invoice_id        = $invoice->id;
 					$new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
 					$new_invitation->save();
