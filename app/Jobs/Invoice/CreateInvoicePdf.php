@@ -14,6 +14,7 @@ namespace App\Jobs\Invoice;
 use App\Designs\Designer;
 use App\Designs\Modern;
 use App\Libraries\MultiDB;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -27,6 +28,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
@@ -39,21 +41,27 @@ class CreateInvoicePdf implements ShouldQueue
     public $invoice;
 
     public $company;
+
+    public $locale;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Company $company)
+    public function __construct(Invoice $invoice, Company $company, $locale = 'en')
     {
         $this->invoice = $invoice;
 
         $this->company = $company;
+
+        $this->locale = $locale;
     }
 
     public function handle()
     {
         MultiDB::setDB($this->company->db);
+
+        App::setLocale($this->locale);
 
         $this->invoice->load('client');
         $path = 'public/' . $this->invoice->client->client_hash . '/invoices/';
@@ -93,7 +101,7 @@ class CreateInvoicePdf implements ShouldQueue
             ->deviceScaleFactor(1)
             ->showBackground()
             ->waitUntilNetworkIdle(true)->pdf();
-        //->margins(10,10,10,10)
+            //->margins(10,10,10,10)
             //->savePdf('test.pdf');
     }
 }

@@ -217,7 +217,7 @@ class CompanySettings extends BaseSettings
     public $embed_documents = false;
     public $all_pages_header = true;
     public $all_pages_footer = true;
-    public $invoice_variables;
+    public $invoice_variables = [];
 
     public static $casts = [
         'auto_email_invoice' => 'bool',
@@ -369,7 +369,7 @@ class CompanySettings extends BaseSettings
         'counter_padding' => 'integer',
         'design' => 'string',
         'website' => 'string',
-        'invoice_variables' => 'array',
+        'invoice_variables' => 'object',
     ];
 
     /**

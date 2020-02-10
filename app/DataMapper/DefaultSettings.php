@@ -34,7 +34,7 @@ class DefaultSettings extends BaseSettings
     public static function userSettings() : \stdClass
     {
         return (object)[
-            class_basename(User::class) => self::userSettingsObject(),
+        //    class_basename(User::class) => self::userSettingsObject(),
         ];
     }
 
