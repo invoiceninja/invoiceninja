@@ -348,7 +348,7 @@ class Invoice extends BaseModel
 
         if (!Storage::exists($storage_path)) {
             event(new InvoiceWasUpdated($this, $this->company));
-            CreateInvoicePdf::dispatch($this, $this->company);
+            CreateInvoicePdf::dispatch($this, $this->company, $this->client->primary_contact()->first());
         }
 
         return $public_path;
@@ -359,7 +359,7 @@ class Invoice extends BaseModel
         $storage_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
         if (!Storage::exists($storage_path)) {
-            CreateInvoicePdf::dispatchNow($this, $this->company);
+            CreateInvoicePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
         }
 
         return $storage_path;

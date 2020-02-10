@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
@@ -29,13 +30,17 @@ trait MakesInvoiceHtml
      *
      * @return string           The invoice string in HTML format
      */
-    public function generateInvoiceHtml($design, $invoice) :string
+    public function generateInvoiceHtml($design, $invoice, $contact = null) :string
     {
         //$variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
         //$design = str_replace(array_keys($variables), array_values($variables), $design);
+        if(!$contact)
+            $contact = $invoice->client->primary_contact()->first();
+
+        App::setLocale($contact->preferredLocale());
 
         $labels = $invoice->makeLabels();
-        $values = $invoice->makeValues();
+        $values = $invoice->makeValues($contact);
 
         $design = str_replace(array_keys($labels), array_values($labels), $design);
         $design = str_replace(array_keys($values), array_values($values), $design);

@@ -107,7 +107,7 @@ class InvoiceDesignTest extends TestCase
 
     	//\Log::error($html);
 
-    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company);
+    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
     }
 
     

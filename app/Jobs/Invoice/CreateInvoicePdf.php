@@ -42,26 +42,26 @@ class CreateInvoicePdf implements ShouldQueue
 
     public $company;
 
-    public $locale;
+    public $contact;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Company $company, $locale = 'en')
+    public function __construct(Invoice $invoice, Company $company, ClientContact $contact)
     {
         $this->invoice = $invoice;
 
         $this->company = $company;
 
-        $this->locale = $locale;
+        $this->contact = $contact;
     }
 
     public function handle()
     {
         MultiDB::setDB($this->company->db);
 
-        App::setLocale($this->locale);
+        App::setLocale($this->contact->preferredLocale());
 
         $this->invoice->load('client');
         $path = 'public/' . $this->invoice->client->client_hash . '/invoices/';
@@ -71,7 +71,7 @@ class CreateInvoicePdf implements ShouldQueue
         $designer = new Designer($modern, $this->invoice->client->getSetting('invoice_variables'));
 
         //get invoice design
-        $html = $this->generateInvoiceHtml($designer->build($this->invoice)->getHtml(), $this->invoice);
+        $html = $this->generateInvoiceHtml($designer->build($this->invoice)->getHtml(), $this->invoice, $this->contact);
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
