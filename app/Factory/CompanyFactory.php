@@ -31,7 +31,8 @@ class CompanyFactory
         $company->company_key = $this->createHash();
         $company->settings = CompanySettings::defaults();
         $company->db = config('database.default');
-        $company->custom_fields = (object) ['custom1' => '1', 'custom2' => '2', 'custom3'=>'3'];
+        //$company->custom_fields = (object) ['invoice1' => '1', 'invoice2' => '2', 'client1'=>'3'];
+        $company->custom_fields = (object) [];
         $company->subdomain = '';
 
         return $company;

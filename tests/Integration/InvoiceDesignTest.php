@@ -39,10 +39,14 @@ class InvoiceDesignTest extends TestCase
 				'postal_city_state',
 				'country',
 				'email',
-				'custom_value1',
-				'custom_value2',
-				'custom_value3',
-				'custom_value4',
+				'client1',
+				'client2',
+				'client3',
+				'client4',
+				'contact1',
+				'contact2',
+				'contact3',
+				'contact4',
     		],
     		'company_details' => [
     			'company_name',
@@ -51,10 +55,10 @@ class InvoiceDesignTest extends TestCase
 				'website',
 				'email',
 				'phone',
-				'custom_value1',
-				'custom_value2',
-				'custom_value3',
-				'custom_value4',
+				'company1',
+				'company2',
+				'company3',
+				'company4',
     		],
     		'company_address' => [
 				'address1',
@@ -62,10 +66,10 @@ class InvoiceDesignTest extends TestCase
 				'city_state_postal',
 				'postal_city_state',
 				'country',
-				'custom_value1',
-				'custom_value2',
-				'custom_value3',
-				'custom_value4',
+				'company1',
+				'company2',
+				'company3',
+				'company4',
     		],
     		'invoice_details' => [
 				'invoice_number',
@@ -75,10 +79,14 @@ class InvoiceDesignTest extends TestCase
 				'balance_due',
 				'invoice_total',
 				'partial_due',
-				'custom_value1',
-				'custom_value2',
-				'custom_value3',
-				'custom_value4',
+				'invoice1',
+				'invoice2',
+				'invoice3',
+				'invoice4',
+				'surcharge1',
+				'surcharge2',
+				'surcharge3',
+				'surcharge4',
     		],
     		'table_columns' => [
     			'product_key', 
@@ -99,7 +107,7 @@ class InvoiceDesignTest extends TestCase
 
     	//\Log::error($html);
 
-    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company);
+    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
     }
 
     

@@ -281,6 +281,14 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
+        factory(\App\Models\ClientContact::class)->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' =>$this->company->id,
+            'is_primary' => true,  
+        ]);
+    
+
         $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
         $this->invoice->client_id = $client->id;
 

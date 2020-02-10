@@ -32,13 +32,14 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
 
-class Client extends BaseModel
+class Client extends BaseModel implements HasLocalePreference
 {
     use PresentableTrait;
     use MakesHash;
@@ -424,4 +425,18 @@ class Client extends BaseModel
 
         return $payment_urls;
     }
+
+    public function preferredLocale()
+    {
+        $languages = Cache::get('languages');
+        
+        return $languages->filter(function ($item) {
+            return $item->id == $this->client->getSetting('language_id');
+        })->first()->locale;
+
+        //$lang = Language::find($this->client->getSetting('language_id'));
+
+        //return $lang->locale;
+    }
+
 }

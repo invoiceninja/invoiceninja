@@ -483,7 +483,7 @@ class CreateTestData extends Command
             UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
-        //event(new InvoiceWasCreated($invoice, $invoice->company));
+        event(new InvoiceWasCreated($invoice, $invoice->company));
     }
 
     private function createCredit($client)

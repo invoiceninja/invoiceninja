@@ -11,6 +11,9 @@
 
 namespace App\Http\Controllers;
 
+use Codedge\Updater\UpdaterManager;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+
 class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
@@ -20,8 +23,10 @@ class SelfUpdateController extends BaseController
 
     }
 
-    public function update()
+    public function update(UpdaterManager $updater)
     {
+    	
+    	$updater->update();
 
     }
 }
