@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
+use App\Services\QuoteService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -126,4 +127,9 @@ class Quote extends BaseModel
             }
         });
     }
+
+    public function service(): QuoteService
+     {
+         return new QuoteService($this);
+     }
 }
