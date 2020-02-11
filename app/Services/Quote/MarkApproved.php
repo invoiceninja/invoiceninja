@@ -17,7 +17,7 @@ class MarkApproved
     public function __invoke($quote)
     {
         /* Return immediately if status is not draft */
-        if ($quote->status_id != Quote::STATUS_DRAFT) {
+        if ($quote->status_id != Quote::STATUS_SENT) {
             return $quote;
         }
 
