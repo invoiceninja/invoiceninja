@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
+use App\Services\Quote\QuoteService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,7 +24,7 @@ class Quote extends BaseModel
     use MakesHash;
     use Filterable;
     use SoftDeletes;
-    
+
     protected $fillable = [
         'number',
         'discount',
@@ -59,7 +60,7 @@ class Quote extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-    
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_APPROVED = 3;
@@ -84,7 +85,7 @@ class Quote extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function invitations()
     {
         return $this->hasMany(QuoteInvitation::class);
@@ -112,4 +113,23 @@ class Quote extends BaseModel
 
         return $quote_calc->build();
     }
+
+    /**
+     * Updates Invites to SENT
+     *
+     */
+    public function markInvitationsSent()
+    {
+        $this->invitations->each(function ($invitation) {
+            if (!isset($invitation->sent_date)) {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+        });
+    }
+
+    public function service(): QuoteService
+     {
+         return new QuoteService($this);
+     }
 }
