@@ -23,7 +23,7 @@ class Quote extends BaseModel
     use MakesHash;
     use Filterable;
     use SoftDeletes;
-    
+
     protected $fillable = [
         'number',
         'discount',
@@ -59,7 +59,7 @@ class Quote extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-    
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_APPROVED = 3;
@@ -84,7 +84,7 @@ class Quote extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function invitations()
     {
         return $this->hasMany(QuoteInvitation::class);
@@ -111,5 +111,19 @@ class Quote extends BaseModel
         }
 
         return $quote_calc->build();
+    }
+
+    /**
+     * Updates Invites to SENT
+     *
+     */
+    public function markInvitationsSent()
+    {
+        $this->invitations->each(function ($invitation) {
+            if (!isset($invitation->sent_date)) {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+        });
     }
 }
