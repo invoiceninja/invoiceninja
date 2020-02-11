@@ -23,7 +23,7 @@ class MarkApproved
 
         $quote->service()->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
-        event(new QuoteWasMarkedApproved($quote));
+        event(new QuoteWasMarkedApproved($quote, $quote->company));
 
         return $quote;
     }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Events\Quote;
 
+use App\Models\Company;
 use App\Models\Quote;
 use Illuminate\Queue\SerializesModels;
 
@@ -15,13 +16,16 @@ class QuoteWasMarkedApproved
      */
     public $quote;
 
+    public $company;
+
     /**
-     * Create a new event instance.
-     *
+     * QuoteWasMarkedApproved constructor.
      * @param Quote $quote
+     * @param Company $company
      */
-    public function __construct(Quote $quote)
+    public function __construct(Quote $quote, Company $company)
     {
         $this->quote = $quote;
+        $this->company = $company;
     }
 }

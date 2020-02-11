@@ -24,7 +24,7 @@ class MarkSent
 
         $quote->markInvitationsSent();
 
-        event(new QuoteWasMarkedSent($quote));
+        event(new QuoteWasMarkedSent($quote, $quote->company));
 
         $quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
 
