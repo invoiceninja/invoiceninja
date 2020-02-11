@@ -632,7 +632,7 @@
     <p>&nbsp;</p>
     <center>
         @if (isset($invitation))
-            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo(HTMLUtils::previousUrl('/')) !!}
             &nbsp;&nbsp;
         @endif
 
