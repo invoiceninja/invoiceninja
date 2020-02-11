@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->call('PaymentTypesSeeder');
         $this->call('GatewayTypesSeeder');
         $this->call('DateFormatsSeeder');
+        $this->call('DesignSeeder');
 
     }
 }
