@@ -27,6 +27,11 @@ class QuoteService
 
         $this->quote = $mark_approved($this->quote);
 
+        if($this->quote->client->getSetting('auto_convert_quote') === true) {
+            $convert_quote = new ConvertQuote($this->quote->client);
+            $this->quote = $convert_quote($this->quote);
+        }
+
         return $this;
     }
 
