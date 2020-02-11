@@ -17,6 +17,7 @@ use App\Services\Client\ClientService;
 use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\ApplyPayment;
 use App\Services\Invoice\CreateInvitations;
+use App\Services\Invoice\GetInvoicePdf;
 use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
 use App\Services\Invoice\UpdateBalance;
@@ -112,6 +113,22 @@ class InvoiceService
         return $this;
     }
 
+    public function getInvoicePdf()
+    {
+        $get_invoice_pdf = new GetInvoicePdf();
+
+        return $get_invoice_pdf($this->invoice);
+    }
+
+
+
+
+
+
+
+
+
+
     public function markViewed()
     {
         $this->invoice->last_viewed = Carbon::now()->format('Y-m-d H:i');
@@ -148,7 +165,6 @@ class InvoiceService
 
         return $this;
     }
-
 
 
 

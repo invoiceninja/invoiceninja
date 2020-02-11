@@ -39,27 +39,35 @@ class CreateInvoicePdf implements ShouldQueue {
 	public $company;
 
 	public $contact;
+
+	private $disk;
 	/**
 	 * Create a new job instance.
 	 *
 	 * @return void
 	 */
-	public function __construct(Invoice $invoice, Company $company, ClientContact $contact) {
+	public function __construct(Invoice $invoice, Company $company, ClientContact $contact, $disk = 'local') 
+	{
+
 		$this->invoice = $invoice;
 
 		$this->company = $company;
 
 		$this->contact = $contact;
+
+        $this->disk = $disk ?? config('filesystems.default');
+
 	}
 
 	public function handle() {
+
 		MultiDB::setDB($this->company->db);
 
 		App::setLocale($this->contact->preferredLocale());
 
 		$this->invoice->load('client');
-		$path      = 'public/'.$this->invoice->client->client_hash.'/invoices/';
-		$file_path = $path.$this->invoice->number.'.pdf';
+		$path      = 'public/' . $this->invoice->client->client_hash . '/invoices/';
+		$file_path = $path . $this->invoice->number . '.pdf';
 
 		$modern   = new Modern();
 		$designer = new Designer($modern, $this->invoice->client->getSetting('invoice_variables'));
@@ -74,9 +82,14 @@ class CreateInvoicePdf implements ShouldQueue {
 		//create pdf
 		$pdf = $this->makePdf(null, null, $html);
 
-		$path = Storage::put($file_path, $pdf);
+		$instance = Storage::disk($this->disk)->put($file_path, $pdf);
+        
+        \Log::error($instance);
+        
+        //$instance = Storage::disk($this->disk)->putFileAs($path, $pdf, $this->invoice->number . '.pdf');
+        //$instance = Storage::putFileAs($path, $pdf, $this->invoice->number . '.pdf');
 
-		return $path;
+		return $instance;
 	}
 
 	/**
