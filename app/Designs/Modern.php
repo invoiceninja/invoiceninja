@@ -11,7 +11,8 @@
 
 namespace App\Designs;
 
-class Modern {
+class Modern extends AbstractDesign
+{
 
 	public function __construct() {
 	}
