@@ -653,49 +653,49 @@ class InvoiceController extends BaseController {
 	}
 
 	/**
-		 *
-		 * @OA\Get(
-		 *      path="/api/v1/invoice/{invitation_key}/download",
-		 *      operationId="downloadInvoice",
-		 *      tags={"invoices"},
-		 *      summary="Download a specific invoice by invitation key",
-		 *      description="Downloads a specific invoice",
-		 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-		 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-		 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-		 *      @OA\Parameter(ref="#/components/parameters/include"),
-		 *      @OA\Parameter(
-		 *          name="invitation_key",
-		 *          in="path",
-		 *          description="The Invoice Invitation Key",
-		 *          example="D2J234DFA",
-		 *          required=true,
-		 *          @OA\Schema(
-		 *              type="string",
-		 *              format="string",
-		 *          ),
-		 *      ),
-		 *      @OA\Response(
-		 *          response=200,
-		 *          description="Returns the invoice pdf",
-		 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-		 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-		 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-		 *       ),
-		 *       @OA\Response(
-		 *          response=422,
-		 *          description="Validation error",
-		 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-		 *
-		 *       ),
-		 *       @OA\Response(
-		 *           response="default",
-		 *           description="Unexpected Error",
-		 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-		 *       ),
-		 *     )
-		 *
-		 */
+	 *
+	 * @OA\Get(
+	 *      path="/api/v1/invoice/{invitation_key}/download",
+	 *      operationId="downloadInvoice",
+	 *      tags={"invoices"},
+	 *      summary="Download a specific invoice by invitation key",
+	 *      description="Downloads a specific invoice",
+	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+	 *      @OA\Parameter(ref="#/components/parameters/include"),
+	 *      @OA\Parameter(
+	 *          name="invitation_key",
+	 *          in="path",
+	 *          description="The Invoice Invitation Key",
+	 *          example="D2J234DFA",
+	 *          required=true,
+	 *          @OA\Schema(
+	 *              type="string",
+	 *              format="string",
+	 *          ),
+	 *      ),
+	 *      @OA\Response(
+	 *          response=200,
+	 *          description="Returns the invoice pdf",
+	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+	 *       ),
+	 *       @OA\Response(
+	 *          response=422,
+	 *          description="Validation error",
+	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+	 *
+	 *       ),
+	 *       @OA\Response(
+	 *           response="default",
+	 *           description="Unexpected Error",
+	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
+	 *       ),
+	 *     )
+	 *
+	 */
 	public function downloadPdf($invitation_key) {
 
 		$invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
