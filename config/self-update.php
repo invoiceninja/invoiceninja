@@ -120,7 +120,7 @@ return [
 			//]
 		],
 		'post_update' => [
-	        'postupdate:cleanup' => [
+	        'ninja:post-update' => [
             	'class' => \App\Console\Commands\ArtisanUpgrade::class,
             	'params' => [],
 			],
