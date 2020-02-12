@@ -29,15 +29,15 @@ class QuoteRepository extends BaseRepository
 {
 
     use MakesHash;
-    
+
     public function getClassName()
     {
         return Quote::class;
     }
-    
+
     public function save($data, Quote $quote) : ?Quote
     {
-        
+
         /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
         $starting_amount = $quote->amount;
 
@@ -89,12 +89,12 @@ class QuoteRepository extends BaseRepository
         }
 
         $quote = $quote->calc()->getInvoice();
-        
+
         $quote->save();
 
         $finished_amount = $quote->amount;
 
-        $quote = ApplyQuoteNumber::dispatchNow($quote, $quote->client->getMergedSettings(), $quote->company);
+        $quote = $quote->service()->applyNumber()->save();
 
         return $quote->fresh();
     }
