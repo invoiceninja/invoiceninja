@@ -85,7 +85,7 @@ class QuoteRepository extends BaseRepository
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($quote->invitations->count() == 0) {
-            CreateQuoteInvitations::dispatchNow($quote, $quote->company);
+            $quote->service()->createInvitations();
         }
 
         $quote = $quote->calc()->getInvoice();
