@@ -19,6 +19,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -50,7 +51,7 @@ class UploadFileTest extends TestCase
         $document = UploadFile::dispatchNow(
             $image, UploadFile::IMAGE, $this->invoice->user, $this->invoice->company, $this->invoice
         );
-
+ 
         $this->assertNotNull($document);
 
     }

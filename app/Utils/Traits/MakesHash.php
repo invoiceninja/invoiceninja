@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Exceptions\ModelNotFoundException;
 use App\Libraries\MultiDB;
 use Hashids\Hashids;
 
@@ -69,6 +70,9 @@ trait MakesHash
 
   //          \Log::error($decoded_array);
 
+            if(!is_array($decoded_array))
+              throw new ModelNotFoundException("Resource not found", 1);
+              
             return $decoded_array[0];
         } catch (\Exception $e) {
             return response()->json(['error'=>'Invalid primary key'], 400);

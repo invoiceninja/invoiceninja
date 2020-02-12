@@ -342,9 +342,14 @@ class Invoice extends BaseModel
     /** TODO// DOCUMENT THIS FUNCTIONALITY */
     public function pdf_url()
     {
-        $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+        // $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
-        $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+        // $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+
+       $public_path = $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+
+       $storage_path = $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+
 
         if (!Storage::exists($storage_path)) {
             event(new InvoiceWasUpdated($this, $this->company));

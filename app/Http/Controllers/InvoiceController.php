@@ -28,10 +28,13 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class InvoiceController
@@ -57,9 +60,11 @@ class InvoiceController extends BaseController {
 	 * @param      \App\Repositories\InvoiceRepository  $invoice_repo  The invoice repo
 	 */
 	public function __construct(InvoiceRepository $invoice_repo) {
+
 		parent::__construct();
 
 		$this->invoice_repo = $invoice_repo;
+
 	}
 
 	/**
@@ -75,8 +80,8 @@ class InvoiceController extends BaseController {
 	 *      tags={"invoices"},
 	 *      summary="Gets a list of invoices",
 	 *      description="Lists invoices, search and filters allow fine grained lists to be generated.
-
-	Query parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available",
+	 *
+	 *		Query parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available",
 	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
 	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
 	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -519,17 +524,17 @@ class InvoiceController extends BaseController {
 	 *      tags={"invoices"},
 	 *      summary="Performs a custom action on an invoice",
 	 *      description="Performs a custom action on an invoice.
-
-	The current range of actions are as follows
-	- clone_to_invoice
-	- clone_to_quote
-	- history
-	- delivery_note
-	- mark_paid
-	- download
-	- archive
-	- delete
-	- email",
+     *
+	 *		The current range of actions are as follows
+	 *		- clone_to_invoice
+	 *		- clone_to_quote
+	 *		- history
+	 *		- delivery_note
+	 *		- mark_paid
+	 *		- download
+	 *		- archive
+	 *		- delete
+	 *		- email",
 	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
 	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
 	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -649,11 +654,11 @@ class InvoiceController extends BaseController {
 
 	public function downloadPdf($invitation_key) {
 
-		$invitation = InvoiceInvitation::whereKey($invitation_key)->company()->first();
+		$invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
 		$contact    = $invitation->contact;
 		$invoice    = $invitation->invoice;
 
-		$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
+		$file_path = $invoice->service()->getInvoicePdf(); //CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
 
 		return response()->download($file_path);
 

@@ -11,15 +11,13 @@
 
 namespace App\Designs;
 
-class Modern
+class Modern extends AbstractDesign
 {
 
-    public function __construct()
-    {
-    }
+	public function __construct() {
+	}
 
-	public function header()
-	{
+	public function header() {
 
 		return '
 			<!DOCTYPE html>
@@ -35,7 +33,7 @@ class Modern
 			        </style>
 			    </head>
 			    <body>
-			        
+
 			<div class="bg-orange-600 flex justify-between py-12 px-12">
 			    <div class="w-1/2">
 			        <h1 class="text-white font-bold text-5xl">$company.name</h1>
@@ -53,8 +51,7 @@ class Modern
 
 	}
 
-	public function body()
-	{
+	public function body() {
 
 		return '
 			<div class="flex justify-between px-12 pt-12">
@@ -74,17 +71,15 @@ class Modern
 
 	}
 
-	public function table_styles()
-	{
+	public function table_styles() {
 		return [
 			'table_header_thead_class' => "text-left text-white bg-gray-900",
-			'table_header_td_class' => "px-4 py-2",
-			'table_body_td_class' => "border-t border-b border-gray-900 px-4 py-4",
+			'table_header_td_class'    => "px-4 py-2",
+			'table_body_td_class'      => "border-t border-b border-gray-900 px-4 py-4",
 		];
 	}
 
-	public function table()
-	{
+	public function table() {
 
 		return '
 			<div class="px-12 pt-5 pb-20">
@@ -115,14 +110,14 @@ class Modern
 			        </div>
 			    </div>
 
-			    <div class="flex px-4 mt-4 w-full items-end mt-5">
+			    <div class="flex px-4 mt-4 w-full items-end mt-5" style="page-break-inside: avoid;">
 			        <div class="w-1/2">
 			            <p class="font-semibold">$terms_label</p>
 			            $terms
 			        </div>
 			    </div>
 
-			    <div class="mt-8 px-4 py-2 bg-gray-900 text-white">
+			    <div class="mt-8 px-4 py-2 bg-gray-900 text-white" style="page-break-inside: avoid;">
 			        <div class="w-1/2"></div>
 			        <div class="w-auto flex justify-end">
 			            <div class="w-56">
@@ -136,8 +131,7 @@ class Modern
 		';
 	}
 
-	public function footer()
-	{
+	public function footer() {
 
 		return '
 			<div class="bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">

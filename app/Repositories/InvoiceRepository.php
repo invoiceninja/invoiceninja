@@ -131,4 +131,9 @@ class InvoiceRepository extends BaseRepository {
 	public function markSent(Invoice $invoice):?Invoice {
 		return $invoice->service()->markSent()->save();
 	}
+
+	public function getInvitationByKey($key)
+	{
+		return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+	}
 }

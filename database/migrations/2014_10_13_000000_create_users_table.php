@@ -1353,6 +1353,20 @@ class CreateUsersTable extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
         });
         
+
+        Schema::create('designs', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedInteger('company_id')->nullable()->index();
+            $table->string('name');
+            $table->boolean('is_custom')->default(true);
+            $table->boolean('is_active')->default(true);
+            $table->mediumText('design')->nullable();
+            $table->timestamps(6);
+            
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+
+        });
     }
   
     /**
