@@ -113,11 +113,11 @@ class InvoiceService
         return $this;
     }
 
-    public function getInvoicePdf()
+    public function getInvoicePdf($contact)
     {
         $get_invoice_pdf = new GetInvoicePdf();
 
-        return $get_invoice_pdf($this->invoice);
+        return $get_invoice_pdf($this->invoice, $contact);
     }
 
 

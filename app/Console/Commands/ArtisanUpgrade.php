@@ -59,7 +59,5 @@ class ArtisanUpgrade extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
-
-        \Log::error("finished upgrade post");
     }
 }

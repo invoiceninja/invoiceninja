@@ -57,7 +57,7 @@ class ClientRepository extends BaseRepository
      */
     public function save(array $data, Client $client) : ?Client
     {
-
+\Log::error($data);
         $client->fill($data);
 
         $client->save();
@@ -67,6 +67,8 @@ class ClientRepository extends BaseRepository
         } //todo write tests for this and make sure that custom client numbers also works as expected from here
 
         $client->save();
+
+// \Log::error($client);
 
         if (isset($data['contacts'])) {
             $contacts = $this->contact_repo->save($data['contacts'], $client);
