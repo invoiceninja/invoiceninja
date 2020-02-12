@@ -11,9 +11,11 @@
 
 namespace App\Http\Requests\Client;
 
+use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\IsDeletedRule;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
+use App\Http\ValidationRules\ValidSettingsRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
@@ -48,14 +50,14 @@ class UpdateClientRequest extends Request
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        $contacts = request('contacts');
+        // $contacts = request('contacts');
 
-        if (is_array($contacts)) {
-            // for ($i = 0; $i < count($contacts); $i++) {
-                // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
-                //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
-                // }
-        }
+        // if (is_array($contacts)) {
+        //     // for ($i = 0; $i < count($contacts); $i++) {
+        //         // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
+        //         //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
+        //         // }
+        // }
         return $rules;
     }
 
@@ -73,9 +75,19 @@ class UpdateClientRequest extends Request
     {
         $input = $this->all();
         
-
         if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
+
+        if(isset($input['contacts']))
+        {
+            foreach($input['contacts'] as $contact)
+            {
+                if(is_numeric($contact['id']))
+                    unset($contact['id']);
+                elseif(is_string($contact['id']))
+                    $contact['id'] = $this->decodePrimaryKey($contact['id']);
+            }
         }
 
         $this->replace($input);
