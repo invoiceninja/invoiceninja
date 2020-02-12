@@ -658,9 +658,9 @@ class InvoiceController extends BaseController {
 		$contact    = $invitation->contact;
 		$invoice    = $invitation->invoice;
 
-		$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
+		$file_path = $invoice->service()->getInvoicePdf(); //CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
 
-		return response()->download(Storage::url($file_path));
+		return response()->download($file_path);
 
 		//return response()->json($invitation_key);
 	}

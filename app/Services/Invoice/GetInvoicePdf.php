@@ -24,7 +24,7 @@ class GetInvoicePdf
   	public function __invoke($invoice, $contact = null)
   	{
 
-		$path      = 'public/' . $invoice->client->client_hash . '/invoices/';
+		$path      = $invoice->client->client_hash . '/invoices/';
 
 		$file_path = $path . $invoice->number . '.pdf';
 
@@ -38,12 +38,13 @@ class GetInvoicePdf
 		if(!$file)
 		{
 		
-			$file_path = CreateInvoicePdf::dispatchNow($this, $this->invoice->company, $contact);
+			$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
 
 		}
 
+		//return $file_path;
 
-		return Storage::disk($disk)->url($file_path);
+		return Storage::disk($disk)->path($file_path);
 
   	}
 

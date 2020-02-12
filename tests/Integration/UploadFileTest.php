@@ -51,8 +51,6 @@ class UploadFileTest extends TestCase
         $document = UploadFile::dispatchNow(
             $image, UploadFile::IMAGE, $this->invoice->user, $this->invoice->company, $this->invoice
         );
-
-        $this->assertTrue(Storage::exists($document));
  
         $this->assertNotNull($document);
 

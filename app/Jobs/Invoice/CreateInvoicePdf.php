@@ -46,7 +46,7 @@ class CreateInvoicePdf implements ShouldQueue {
 	 *
 	 * @return void
 	 */
-	public function __construct(Invoice $invoice, Company $company, ClientContact $contact, $disk = 'local') 
+	public function __construct(Invoice $invoice, Company $company, ClientContact $contact, $disk = 'public') 
 	{
 
 		$this->invoice = $invoice;
@@ -66,7 +66,7 @@ class CreateInvoicePdf implements ShouldQueue {
 		App::setLocale($this->contact->preferredLocale());
 
 		$this->invoice->load('client');
-		$path      = 'public/' . $this->invoice->client->client_hash . '/invoices/';
+		$path      = $this->invoice->client->client_hash . '/invoices/';
 		$file_path = $path . $this->invoice->number . '.pdf';
 
 		$modern   = new Modern();
@@ -85,7 +85,7 @@ class CreateInvoicePdf implements ShouldQueue {
 		$instance = Storage::disk($this->disk)->put($file_path, $pdf);
         
         \Log::error($instance);
-        
+
         //$instance = Storage::disk($this->disk)->putFileAs($path, $pdf, $this->invoice->number . '.pdf');
         //$instance = Storage::putFileAs($path, $pdf, $this->invoice->number . '.pdf');
 

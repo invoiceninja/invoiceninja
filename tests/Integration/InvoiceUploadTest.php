@@ -31,10 +31,8 @@ class InvoiceUploadTest extends TestCase
 
         CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
 
-\Log::error($this->invoice->service()->getInvoicePdf());
-
         $this->assertNotNull($this->invoice->service()->getInvoicePdf());
-        $this->assertTrue(Storage::exists($this->invoice->service()->getInvoicePdf()));
+
     }
 
 
