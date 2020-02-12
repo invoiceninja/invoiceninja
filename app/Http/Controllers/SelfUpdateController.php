@@ -26,7 +26,8 @@ class SelfUpdateController extends BaseController
     public function update(UpdaterManager $updater)
     {
     	
-    	$updater->update();
+    	$res = $updater->update();
 
+    	return response()->json($res);
     }
 }

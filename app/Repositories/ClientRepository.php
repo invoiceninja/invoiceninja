@@ -57,7 +57,7 @@ class ClientRepository extends BaseRepository
      */
     public function save(array $data, Client $client) : ?Client
     {
-\Log::error($data);
+
         $client->fill($data);
 
         $client->save();
