@@ -28,6 +28,6 @@ class SelfUpdateController extends BaseController
     	
     	$res = $updater->update();
 
-    	return response()->json($res);
+    	return response()->json(['message'=>$res], 200);
     }
 }
