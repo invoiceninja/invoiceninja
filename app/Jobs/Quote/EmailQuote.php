@@ -57,7 +57,7 @@ class EmailQuote implements ShouldQueue
             if ($invitation->contact->email) {
                 $message_array = $this->quote->getEmailData('', $invitation->contact);
                 $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
+                $message_array['footer'] = "<a href='{$invitation->getLink()}'>Quote Link</a>";
 
                 //change the runtime config of the mail provider here:
 
