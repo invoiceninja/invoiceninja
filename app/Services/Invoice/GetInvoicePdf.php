@@ -25,7 +25,7 @@ class GetInvoicePdf
 
 		$path      = $invoice->client->client_hash . '/invoices/';
 
-		$file_path = $path . $invoice->number . '-' . $contact->contact_key . '.pdf';
+		$file_path = $path . $invoice->number . '.pdf';
 
 		$disk 	   = config('filesystems.default');
 

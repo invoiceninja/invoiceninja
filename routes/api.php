@@ -16,8 +16,7 @@ return $request->user();
 });
  */
 
-Route::group(['middleware' => ['api_secret_check']],
-	function () {
+Route::group(['middleware' => ['api_secret_check']], function () {
 
 		Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
 		Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
@@ -85,7 +84,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
 		Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
 
-		Route::post('migrate', 'Migration\MigrateController@index')->name('migrate.start');
+		Route::post('migrate', 'MigrationController@index')->name('migrate.start');
 
 		//  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
 		Route::get('users', 'UserController@index');

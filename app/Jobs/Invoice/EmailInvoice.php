@@ -64,15 +64,22 @@ class EmailInvoice implements ShouldQueue
         
         $this->invoice->invitations->each(function ($invitation) use ($template_style) {
             if ($invitation->contact->send_invoice && $invitation->contact->email) {
+
                 $message_array = $this->invoice->getEmailData('', $invitation->contact);
+
                 $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
+
+                //$message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
+                $message_array['footer'] = "<a href='{$invitation->getLink()}'>Invoice Link</a>";
                 
                 //change the runtime config of the mail provider here:
                 
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
-                ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
+                ->send(new TemplateEmail($message_array, 
+                                         $template_style, 
+                                         $invitation->contact->user, 
+                                         $invitation->contact->client));
 
                 if (count(Mail::failures()) > 0) {
                     event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
