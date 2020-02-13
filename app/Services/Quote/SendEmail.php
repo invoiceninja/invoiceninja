@@ -44,7 +44,7 @@ class SendEmail
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
             $body_template = trans('texts.quote_message',
-                ['amount' => $this->present()->amount(), 'account' => $this->account->present()->name()], null,
+                ['amount' => $this->quote->amount, 'account' => $this->account->present()->name()], null,
                 $this->customer->locale());
         }
 
@@ -53,11 +53,11 @@ class SendEmail
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {
                 $subject_template = trans('texts.quote_subject',
-                    ['number' => $this->quote->present()->invoice_number(), 'account' => $this->quote->account->present()->name()],
+                    ['number' => $this->quote->number, 'account' => $this->quote->account->present()->name()],
                     null, $this->customer->locale());
             } else {
                 $subject_template = trans('texts.reminder_subject',
-                    ['number' => $this->quote->present()->invoice_number(), 'account' => $this->quote->account->present()->name()],
+                    ['number' => $this->quote->number, 'account' => $this->quote->account->present()->name()],
                     null, $this->quote->customer->locale());
             }
         }
