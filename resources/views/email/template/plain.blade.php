@@ -5,9 +5,9 @@
 </head>
 <body>
 
-{{ $body }}
+{!! $body !!}
 
 
-{{ $footer }}
+{!! $footer !!}
 </body>
 </html>

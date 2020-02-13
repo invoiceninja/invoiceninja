@@ -66,6 +66,7 @@ trait InvoiceEmailBuilder
             }
         }
 
+
         $data['body'] = $this->parseTemplate($body_template, true, $contact);
 
         $data['subject'] = $this->parseTemplate($subject_template, false, $contact);
