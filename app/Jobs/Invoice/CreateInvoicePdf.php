@@ -74,7 +74,8 @@ class CreateInvoicePdf implements ShouldQueue {
 
 		$path      = $this->invoice->client->client_hash . '/invoices/';
 
-		$file_path = $path . $this->invoice->number . '-' . $this->contact->contact_key .'.pdf';
+		//$file_path = $path . $this->invoice->number . '-' . $this->contact->contact_key .'.pdf';
+		$file_path = $path . $this->invoice->number . '.pdf';
 
 		$modern   = new Modern();
 		$designer = new Designer($modern, $this->invoice->client->getSetting('invoice_variables'));

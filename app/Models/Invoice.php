@@ -348,7 +348,7 @@ class Invoice extends BaseModel
 
        $public_path = $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
-       $storage_path = $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+       $storage_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
 
 
         if (!Storage::exists($storage_path)) {
@@ -356,7 +356,7 @@ class Invoice extends BaseModel
             CreateInvoicePdf::dispatch($this, $this->company, $this->client->primary_contact()->first());
         }
 
-        return $public_path;
+        return $storage_path;
     }
 
     public function pdf_file_path()
