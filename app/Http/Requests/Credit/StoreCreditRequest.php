@@ -30,7 +30,7 @@ class StoreCreditRequest extends FormRequest
     public function rules()
     {
         return [
-            'client_id' => 'required',
+            'client_id' => 'required|exists:clients,id',
            // 'invoice_type_id' => 'integer',
       //      'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
