@@ -24,7 +24,6 @@ use Parsedown;
 trait InvoiceEmailBuilder
 {
 
-
     /**
      * Builds the correct template to send
      * @param  string $reminder_template The template name ie reminder1
@@ -78,7 +77,7 @@ trait InvoiceEmailBuilder
         return $data;
     }
 
-    private function parseTemplate(string $template_data, bool $is_markdown = true, $contact) :string
+    private function parseTemplate(string $template_data, bool $is_markdown = true, $contact = null) :string
     {
         $invoice_variables = $this->makeValues($contact);
 
