@@ -67,6 +67,7 @@ trait InvoiceEmailBuilder
         }
 
         $data['body'] = $this->parseTemplate($body_template, false, $contact);
+        
         $data['subject'] = $this->parseTemplate($subject_template, true, $contact);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {

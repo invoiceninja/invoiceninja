@@ -16,8 +16,7 @@ return $request->user();
 });
  */
 
-Route::group(['middleware' => ['api_secret_check']],
-	function () {
+Route::group(['middleware' => ['api_secret_check']], function () {
 
 		Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
 		Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
