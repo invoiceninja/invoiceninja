@@ -338,4 +338,8 @@ class BaseController extends Controller
 
     }
     
+    public function flutterRoute()
+    {
+      return redirect('/index.html');
+    }
 }
