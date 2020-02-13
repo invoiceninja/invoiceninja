@@ -66,9 +66,9 @@ trait InvoiceEmailBuilder
             }
         }
 
-        $data['body'] = $this->parseTemplate($body_template, false, $contact);
-        
-        $data['subject'] = $this->parseTemplate($subject_template, true, $contact);
+        $data['body'] = $this->parseTemplate($body_template, true, $contact);
+
+        $data['subject'] = $this->parseTemplate($subject_template, false, $contact);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $data['files'][] = $this->pdf_file_path();
@@ -86,11 +86,10 @@ trait InvoiceEmailBuilder
 
         //process markdown
         if ($is_markdown) {
-            //$data = Parsedown::instance()->line($data);
 
             $converter = new CommonMarkConverter([
-                'html_input' => 'strip',
-                'allow_unsafe_links' => false,
+                'html_input' => 'allow',
+                'allow_unsafe_links' => true,
             ]);
 
             $data = $converter->convertToHtml($data);
