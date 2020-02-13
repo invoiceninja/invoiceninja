@@ -59,5 +59,13 @@ class ArtisanUpgrade extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
+        try {
+        
+            Artisan::call('queue:restart');
+        
+        }catch(Exception $e) {
+
+            \Log::error("I wasn't able to restart the queue");
+        }
     }
 }
