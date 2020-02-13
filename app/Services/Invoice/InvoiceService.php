@@ -38,14 +38,14 @@ class InvoiceService
     }
 
     /**
-     * Marks as invoice as paid 
+     * Marks as invoice as paid
      * and executes child sub functions
      * @return $this InvoiceService object
      */
     public function markPaid()
     {
         $mark_invoice_paid = new MarkPaid($this->client_service);
-        
+
         $this->invoice = $mark_invoice_paid($this->invoice);
 
         return $this;
@@ -120,14 +120,12 @@ class InvoiceService
         return $get_invoice_pdf($this->invoice);
     }
 
+    public function sendEmail($contact)
+    {
+        $send_email = new SendEmail($this->invoice);
 
-
-
-
-
-
-
-
+        return $send_email->sendEmail(null, $contact);
+    }
 
     public function markViewed()
     {
@@ -178,7 +176,7 @@ class InvoiceService
 
     /**
      * Saves the invoice
-     * @return Invoice object 
+     * @return Invoice object
      */
     public function save() :?Invoice
     {
