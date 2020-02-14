@@ -8,6 +8,8 @@
 
 namespace App\Helpers\Email;
 
+use App\Models\Quote;
+
 
 class QuoteEmail extends EmailBuilder
 {
