@@ -26,7 +26,7 @@ class EmailPayment extends EmailBuilder
                 $this->client->locale());
         }
 
-        $subject_template = $client->getSetting('payment_subject');
+        $subject_template = $client->getSetting('email_subject_payment');
 
         if (iconv_strlen($subject_template) == 0) {
             $subject_template = trans('texts.payment_subject',
