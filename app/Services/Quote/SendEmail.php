@@ -31,7 +31,7 @@ class SendEmail
 
         $this->quote->invitations->each(function ($invitation) use ($email_builder) {
             if ($invitation->contact->send_invoice && $invitation->contact->email) {
-                EmailQuote::dispatchNow($this->quote, $this->quote->company, $email_builder, $invitation);
+                EmailQuote::dispatchNow($email_builder, $invitation);
             }
         });
 
