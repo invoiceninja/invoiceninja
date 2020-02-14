@@ -2,7 +2,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Helpers\Email\BuildEmail;
+use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Models\Invoice;
 use Illuminate\Support\Carbon;
@@ -28,7 +28,7 @@ class SendEmail
             $reminder_template = $this->invoice->status_id == Invoice::STATUS_DRAFT || Carbon::parse($this->invoice->due_date) > now() ? 'invoice' : $this->invoice->calculateTemplate();
         }
 
-        $email_builder = (new BuildEmail())->buildInvoiceEmail($this->invoice, $reminder_template, $contact);
+        $email_builder = (new InvoiceEmail())->build($this->invoice, $reminder_template, $contact);
 
         $this->invoice->invitations->each(function ($invitation) use ($email_builder) {
             if ($invitation->contact->send_invoice && $invitation->contact->email) {
