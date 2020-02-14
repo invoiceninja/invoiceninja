@@ -8,6 +8,8 @@
 
 namespace App\Helpers\Email;
 
+use App\Models\Payment;
+
 
 class EmailPayment extends EmailBuilder
 {
