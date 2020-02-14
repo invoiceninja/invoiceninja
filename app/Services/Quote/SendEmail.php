@@ -4,6 +4,7 @@ namespace App\Services\Quote;
 
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Quote\EmailQuote;
+use App\Models\Quote;
 use App\Traits\FormatEmail;
 
 class SendEmail
@@ -25,7 +26,7 @@ class SendEmail
     public function sendEmail($reminder_template = null, $contact = null): array
     {
         if (!$reminder_template) {
-            $reminder_template = $this->calculateTemplate();
+            $reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
         }
 
         $email_builder = (new BuildEmail())->buildQuoteEmail($this->quote, $reminder_template, $contact);
