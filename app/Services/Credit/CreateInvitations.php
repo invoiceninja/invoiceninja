@@ -1,8 +1,8 @@
 <?php
 namespace App\Services\Credit;
 
-use App\CreditInvitation;
 use App\Factory\CreditInvitationFactory;
+use App\Models\CreditInvitation;
 
 class CreateInvitations
 {
@@ -17,9 +17,9 @@ class CreateInvitations
         $contacts = $credit->customer->contacts;
 
         $contacts->each(function ($contact) use($credit){
-            $invitation = CreditInvitation::whereAccountId($credit->account_id)
+            $invitation = CreditInvitation::whereCompanyId($credit->account_id)
                 ->whereClientContactId($contact->id)
-                ->whereQuoteId($credit->id)
+                ->whereCreditId($credit->id)
                 ->first();
 
             if (!$invitation) {
