@@ -15,6 +15,7 @@ use App\Mail\TemplateEmail;
 
 use App\Models\Company;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,22 +28,19 @@ class EmailQuote implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $quote;
+    public $quote_invitation;
 
     public $email_builder;
 
-    private $company;
-
     /**
      * EmailQuote constructor.
-     * @param Quote $quote
-     * @param Account $account
+     * @param BuildEmail $email_builder
+     * @param QuoteInvitation $quote_invitation
      */
-    public function __construct(Quote $quote, Company $company, BuildEmail $email_builder)
+    public function __construct(BuildEmail $email_builder, QuoteInvitation $quote_invitation)
     {
-        $this->quote = $quote;
+        $this->quote_invitation = $quote_invitation;
         $this->email_builder = $email_builder;
-        $this->company = $company;
     }
 
     /**
@@ -54,18 +52,17 @@ class EmailQuote implements ShouldQueue
     public function handle()
     {
         $email_builder = $this->email_builder;
+        $recipient = $email_builder->getRecipients();
 
-        foreach ($email_builder->getRecipients() as $recipient) {
-            Mail::to($recipient['email'], $recipient['name'])
-                ->send(new TemplateEmail($email_builder,
-                        $this->quote->user,
-                        $this->quote->client
-                    )
-                );
+        Mail::to($this->quote_invitation->contact->email, $this->quote_invitation->contact->present()->name())
+            ->send(new TemplateEmail($email_builder,
+                    $this->quote_invitation->contact->user,
+                    $this->quote_invitation->contact->client
+                )
+            );
 
-            if (count(Mail::failures()) > 0) {
-                return $this->logMailError($errors);
-            }
+        if (count(Mail::failures()) > 0) {
+            return $this->logMailError($errors);
         }
     }
 

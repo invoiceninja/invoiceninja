@@ -92,8 +92,7 @@ class BuildEmail
             ->setVariables($quote->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$quote->invitations->first()->getLink()}'>Invoice Link</a>")
-            ->buildRecipientsForInvitations($quote);
+            ->setFooter("<a href='{$quote->invitations->first()->getLink()}'>Invoice Link</a>");
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $this->pdf_file_path();
@@ -140,25 +139,12 @@ class BuildEmail
             ->setVariables($invoice->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$invoice->invitations->first()->getLink()}'>Invoice Link</a>")
-            ->buildRecipientsForInvitations($invoice);
+            ->setFooter("<a href='{$invoice->invitations->first()->getLink()}'>Invoice Link</a>");
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $this->pdf_file_path();
         }
         return $this;
-    }
-
-    private function buildRecipientsForInvitations($entity)
-    {
-        $entity->invitations->each(function ($invitation) {
-            if ($invitation->contact->email) {
-                $this->recipients[] = array(
-                    'name' => $invitation->contact->present()->name(),
-                    'email' => $invitation->contact->email
-                );
-            }
-        });
     }
 
     public function buildCreditEmail(Credit $credit)

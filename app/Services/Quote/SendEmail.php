@@ -31,6 +31,12 @@ class SendEmail
 
         $email_builder = (new BuildEmail())->buildQuoteEmail($this->quote, $reminder_template, $contact);
 
-        EmailQuote::dispatchNow($email_builder);
+        $this->quote->invitations->each(function ($invitation) use ($email_builder) {
+            if ($invitation->contact->send_invoice && $invitation->contact->email) {
+                EmailQuote::dispatchNow($this->quote, $this->quote->company, $email_builder, $invitation);
+            }
+        });
+
+
     }
 }

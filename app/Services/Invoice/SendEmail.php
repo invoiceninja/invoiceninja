@@ -30,7 +30,12 @@ class SendEmail
             $reminder_template = $this->invoice->status_id == Invoice::STATUS_DRAFT || Carbon::parse($this->invoice->due_date) > now() ? 'invoice' : $this->invoice->calculateTemplate();
         }
 
-        $email_builder = (new BuildEmail)->buildInvoiceEmail($this->invoice, $reminder_template, $contact);
-        EmailInvoice::dispatchNow($email_builder);
+        $email_builder = (new BuildEmail())->buildInvoiceEmail($this->invoice, $reminder_template, $contact);
+
+        $this->invoice->invitations->each(function ($invitation) use ($email_builder) {
+            if ($invitation->contact->send_invoice && $invitation->contact->email) {
+                EmailInvoice::dispatchNow($this->invoice, $this->invoice->company, $email_builder, $invitation);
+            }
+        });
     }
 }
