@@ -4,8 +4,6 @@ namespace App\Services\Payment;
 
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Payment\EmailPayment;
-use App\Jobs\Quote\EmailQuote;
-use App\Quote;
 use App\Traits\FormatEmail;
 
 class SendEmail
@@ -28,6 +26,6 @@ class SendEmail
     {
 
         //Need to determine which email template we are producing
-        EmailPayment::dispatchNow((new BuildEmail())->buildPaymentEmail($this->payment));
+        EmailPayment::dispatchNow((new BuildEmail())->buildPaymentEmail($this->payment, $contact));
     }
 }

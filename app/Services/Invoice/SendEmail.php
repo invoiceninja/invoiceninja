@@ -3,7 +3,6 @@
 namespace App\Services\Invoice;
 
 use App\Helpers\Email\BuildEmail;
-use App\Invoice;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Traits\FormatEmail;
 use Illuminate\Support\Carbon;

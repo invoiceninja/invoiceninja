@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Quote;
 
-use App\Account;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Quote\QuoteWasEmailed;
@@ -10,8 +9,10 @@ use App\Events\Quote\QuoteWasEmailedAndFailed;
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
-use App\Mail\TemplateEmail;
-use App\Quote;
+use App\Mail\TemplateEmail;;
+
+use App\Models\Company;
+use App\Models\Quote;
 use App\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,18 +29,18 @@ class EmailQuote implements ShouldQueue
 
     public $email_builder;
 
-    private $account;
+    private $company;
 
     /**
      * EmailQuote constructor.
      * @param Quote $quote
      * @param Account $account
      */
-    public function __construct(Quote $quote, Account $account, BuildEmail $email_builder)
+    public function __construct(Quote $quote, Company $company, BuildEmail $email_builder)
     {
         $this->quote = $quote;
         $this->email_builder = $email_builder;
-        $this->account = $account;
+        $this->company = $company;
     }
 
     /**
@@ -59,7 +60,7 @@ class EmailQuote implements ShouldQueue
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
                     ->send(new TemplateEmail($email_builder, $invitation->contact->user,
-                        $invitation->contact->customer));
+                        $invitation->contact->client));
 
                 if (count(Mail::failures()) > 0) {
                     event(new QuoteWasEmailedAndFailed($this->quote, Mail::failures()));
@@ -82,7 +83,7 @@ class EmailQuote implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->quote->customer
+            $this->quote->client
         );
     }
 }

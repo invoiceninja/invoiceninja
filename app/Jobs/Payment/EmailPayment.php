@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Payment;
 
-use App\Account;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailed;
@@ -11,7 +10,8 @@ use App\Helpers\Email\BuildEmail;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
-use App\Payment;
+use App\Models\Company;
+use App\Models\Payment;
 use App\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,18 +28,18 @@ class EmailPayment implements ShouldQueue
 
     public $emailBuilder;
 
-    private $account;
+    private $company;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment, Account $account, BuildEmail $emailBuilder)
+    public function __construct(Payment $payment, Company $company, BuildEmail $emailBuilder)
     {
         $this->payment = $payment;
         $this->emailBuilder = $emailBuilder;
-        $this->account = $account;
+        $this->company = $company;
     }
 
     /**
@@ -50,10 +50,9 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-        $template_style = $this->payment->customer->getSetting('email_style');
         $emailBuilder = $this->emailBuilder;
 
-        $this->payment->customer->contacts->each(function ($contact) use ($emailBuilder) {
+        $this->payment->client->contacts->each(function ($contact) use ($emailBuilder) {
             if ($contact->email) {
 
                 //change the runtime config of the mail provider here:
@@ -62,7 +61,7 @@ class EmailPayment implements ShouldQueue
 
                 //send message
                 Mail::to($recipients[0]['email'], $recipients[0]['name'])
-                    ->send(new TemplateEmail($emailBuilder, $contact->user, $contact->customer));
+                    ->send(new TemplateEmail($emailBuilder, $contact->user, $contact->client));
 
                 if (count(Mail::failures()) > 0) {
                     event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
@@ -85,7 +84,7 @@ class EmailPayment implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->payment->customer
+            $this->payment->client
         );
     }
 }

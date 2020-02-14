@@ -7,9 +7,8 @@ use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Utils\SystemLogger;
 use App\Mail\TemplateEmail;
-use App\Invoice;
-use App\Account;
-use App\SystemLog;
+use App\Models\Company;
+use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,18 +25,18 @@ class EmailInvoice implements ShouldQueue
 
     public $email_builder;
 
-    private $account;
+    private $company;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Account $account, BuildEmail $email_builder)
+    public function __construct(Invoice $invoice, Company $company, BuildEmail $email_builder)
     {
         $this->invoice = $invoice;
         $this->email_builder = $email_builder;
-        $this->account = $account;
+        $this->company = $company;
     }
 
     /**
@@ -63,7 +62,7 @@ class EmailInvoice implements ShouldQueue
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
                     ->send(new TemplateEmail($email_builder,
                         $invitation->contact->user,
-                        $invitation->contact->customer));
+                        $invitation->contact->client));
 
                 if (count(Mail::failures()) > 0) {
                     event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
@@ -86,7 +85,7 @@ class EmailInvoice implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->invoice->customer
+            $this->invoice->client
         );
     }
 }

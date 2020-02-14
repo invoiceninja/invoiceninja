@@ -4,7 +4,6 @@ namespace App\Services\Quote;
 
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Quote\EmailQuote;
-use App\Quote;
 use App\Traits\FormatEmail;
 
 class SendEmail
