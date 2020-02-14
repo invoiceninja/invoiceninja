@@ -5,11 +5,9 @@ namespace App\Services\Quote;
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Quote\EmailQuote;
 use App\Models\Quote;
-use App\Traits\FormatEmail;
 
 class SendEmail
 {
-    use FormatEmail;
 
     public $quote;
 

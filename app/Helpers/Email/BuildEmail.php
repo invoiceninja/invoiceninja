@@ -4,10 +4,9 @@
 namespace App\Helpers\Email;
 
 
-use App\Credit;
-use App\Invoice;
-use App\Payment;
-use App\Quote;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Quote;
 use League\CommonMark\CommonMarkConverter;
 
 class BuildEmail
@@ -23,7 +22,7 @@ class BuildEmail
 
     public function buildPaymentEmail(Payment $payment, $contact = null)
     {
-        $client = $payment->customer;
+        $client = $payment->client;
 
         $body_template = $client->getSetting('payment_message');
 
@@ -61,8 +60,7 @@ class BuildEmail
 
     public function buildQuoteEmail(Quote $quote, $reminder_template, $contact = null)
     {
-        $client = $quote->customer;
-        $this->template_style = $quote->customer->getSetting('email_style');
+        $client = $quote->client;
 
         $body_template = $client->getSetting('email_template_' . $reminder_template);
 
@@ -87,7 +85,7 @@ class BuildEmail
             }
         }
 
-        $this->setTemplate($quote->customer->getSetting('email_style'))
+        $this->setTemplate($quote->client->getSetting('email_style'))
             ->setContact($contact)
             ->setVariables($quote->makeValues($contact))
             ->setSubject($subject_template)
@@ -103,7 +101,7 @@ class BuildEmail
 
     public function buildInvoiceEmail(Invoice $invoice, $reminder_template, $contact = null)
     {
-        $client = $invoice->customer;
+        $client = $invoice->client;
 
         $body_template = $client->getSetting('email_template_' . $reminder_template);
 

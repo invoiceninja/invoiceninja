@@ -47,7 +47,6 @@ class EmailInvoice implements ShouldQueue
     public function handle()
     {
         $email_builder = $this->email_builder;
-        $recipient = $email_builder->getRecipients();
 
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
             ->send(new TemplateEmail($email_builder,

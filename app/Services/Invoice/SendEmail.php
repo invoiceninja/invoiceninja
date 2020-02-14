@@ -5,12 +5,10 @@ namespace App\Services\Invoice;
 use App\Helpers\Email\BuildEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Models\Invoice;
-use App\Traits\FormatEmail;
 use Illuminate\Support\Carbon;
 
 class SendEmail
 {
-    use FormatEmail;
 
     public $invoice;
 
