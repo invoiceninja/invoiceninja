@@ -1,29 +1,22 @@
 <?php
-/**
- * Invoice Ninja (https://invoiceninja.com)
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
- *
- * @license https://opensource.org/licenses/AAL
- */
 
 namespace App\Jobs\Invoice;
 
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Libraries\MultiDB;
+use App\Helpers\Email\BuildEmail;
+use App\Jobs\Utils\SystemLogger;
 use App\Mail\TemplateEmail;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Models\SystemLog;
+use App\Invoice;
+use App\Account;
+use App\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mime\Test\Constraint\EmailTextBodyContains;
 
 class EmailInvoice implements ShouldQueue
 {
@@ -31,20 +24,20 @@ class EmailInvoice implements ShouldQueue
 
     public $invoice;
 
-    public $message_array = [];
-    
-    private $company;
+    public $email_builder;
+
+    private $account;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Company $company)
+    public function __construct(Invoice $invoice, Account $account, BuildEmail $email_builder)
     {
         $this->invoice = $invoice;
-
-        $this->company = $company;
+        $this->email_builder = $email_builder;
+        $this->account = $account;
     }
 
     /**
@@ -55,28 +48,26 @@ class EmailInvoice implements ShouldQueue
      */
     public function handle()
     {
-        /*Jobs are not multi-db aware, need to set! */
-        MultiDB::setDB($this->company->db);
 
         //todo - change runtime config of mail driver if necessary
 
-        $template_style = $this->invoice->client->getSetting('email_style');
-        
-        $this->invoice->invitations->each(function ($invitation) use ($template_style) {
+        $email_builder = $this->email_builder;
+
+        $this->invoice->invitations->each(function ($invitation) use ($email_builder) {
             if ($invitation->contact->send_invoice && $invitation->contact->email) {
-                $message_array = $this->invoice->getEmailData('', $invitation->contact);
-                $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
-                
+                $email_builder->setFooter("<a href='{$invitation->getLink()}'>Invoice Link</a>");
+
                 //change the runtime config of the mail provider here:
-                
+
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
-                ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
+                    ->send(new TemplateEmail($email_builder,
+                        $invitation->contact->user,
+                        $invitation->contact->customer));
 
                 if (count(Mail::failures()) > 0) {
                     event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
-                    
+
                     return $this->logMailError($errors);
                 }
 
@@ -95,7 +86,7 @@ class EmailInvoice implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->invoice->client
+            $this->invoice->customer
         );
     }
 }

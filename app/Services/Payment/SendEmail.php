@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Helpers\Email\BuildEmail;
 use App\Jobs\Payment\EmailPayment;
 use App\Jobs\Quote\EmailQuote;
 use App\Quote;
@@ -27,39 +28,6 @@ class SendEmail
     {
 
         //Need to determine which email template we are producing
-        $message_array = $this->generateTemplateData($contact);
-        EmailPayment::dispatchNow($message_array);
-    }
-
-    private function generateTemplateData($contact) :array
-    {
-        $data = [];
-
-        $client = $this->payment->customer;
-
-        $body_template = $client->getSetting('payment_message');
-
-        /* Use default translations if a custom message has not been set*/
-        if (iconv_strlen($body_template) == 0) {
-
-            $body_template = trans('texts.payment_message',
-                ['amount' => $this->payment->amount, 'account' => $this->account->present()->name()], null,
-                $this->customer->locale());
-        }
-
-        $subject_template = $client->getSetting('payment_subject');
-
-        if (iconv_strlen($subject_template) == 0) {
-            $subject_template = trans('texts.payment_subject', ['number'=>$this->payment->number,'account'=>$this->account->present()->name()], null, $this->customer->locale());
-        }
-
-        $data['body'] = $this->parseTemplate($body_template, true, $contact);
-        $data['subject'] = $this->parseTemplate($subject_template, false, $contact);
-
-        if ($client->getSetting('pdf_email_attachment') !== false) {
-            $data['files'][] = $this->pdf_file_path();
-        }
-
-        return $data;
+        EmailPayment::dispatchNow((new BuildEmail())->buildPaymentEmail($this->payment));
     }
 }

@@ -1,14 +1,18 @@
 <?php
+
 namespace App\Jobs\Payment;
 
+use App\Account;
+use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Jobs\Util\SystemLogger;
+use App\Helpers\Email\BuildEmail;
+use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
-use App\Models\Company;
-use App\Models\Payment;
-use App\Models\SystemLog;
+use App\Payment;
+use App\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,20 +26,20 @@ class EmailPayment implements ShouldQueue
 
     public $payment;
 
-    public $message_array = [];
+    public $emailBuilder;
 
-    private $company;
+    private $account;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment, Company $company)
+    public function __construct(Payment $payment, Account $account, BuildEmail $emailBuilder)
     {
         $this->payment = $payment;
-
-        $this->company = $company;
+        $this->emailBuilder = $emailBuilder;
+        $this->account = $account;
     }
 
     /**
@@ -46,24 +50,19 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-        /*Jobs are not multi-db aware, need to set! */
-        MultiDB::setDB($this->company->db);
+        $template_style = $this->payment->customer->getSetting('email_style');
+        $emailBuilder = $this->emailBuilder;
 
-        //todo - change runtime config of mail driver if necessary
-
-        $template_style = $this->payment->client->getSetting('email_style');
-
-        $this->payment->client->contacts->each(function ($contact) use ($template_style) {
+        $this->payment->customer->contacts->each(function ($contact) use ($emailBuilder) {
             if ($contact->email) {
-                $message_array = $this->payment->getEmailData('', $contact);
-                $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$contact->present()->name();
 
                 //change the runtime config of the mail provider here:
 
+                $recipients = $emailBuilder->getRecipients();
+
                 //send message
-                Mail::to($contact->email, $contact->present()->name())
-                    ->send(new TemplateEmail($message_array, $template_style, $contact->user, $contact->client));
+                Mail::to($recipients[0]['email'], $recipients[0]['name'])
+                    ->send(new TemplateEmail($emailBuilder, $contact->user, $contact->customer));
 
                 if (count(Mail::failures()) > 0) {
                     event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
@@ -86,7 +85,7 @@ class EmailPayment implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->payment->client
+            $this->payment->customer
         );
     }
 }

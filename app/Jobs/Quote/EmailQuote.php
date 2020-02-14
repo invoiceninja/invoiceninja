@@ -1,14 +1,18 @@
 <?php
+
 namespace App\Jobs\Quote;
 
+use App\Account;
+use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasEmailedAndFailed;
-use App\Jobs\Util\SystemLogger;
+use App\Helpers\Email\BuildEmail;
+use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
-use App\Models\Company;
-use App\Models\Quote;
-use App\Models\SystemLog;
+use App\Quote;
+use App\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,20 +26,20 @@ class EmailQuote implements ShouldQueue
 
     public $quote;
 
-    public $message_array = [];
+    public $email_builder;
 
-    private $company;
+    private $account;
 
     /**
-     * Create a new job instance.
-     *
-     * @return void
+     * EmailQuote constructor.
+     * @param Quote $quote
+     * @param Account $account
      */
-    public function __construct(Quote $quote, Company $company)
+    public function __construct(Quote $quote, Account $account, BuildEmail $email_builder)
     {
         $this->quote = $quote;
-
-        $this->company = $company;
+        $this->email_builder = $email_builder;
+        $this->account = $account;
     }
 
     /**
@@ -46,24 +50,16 @@ class EmailQuote implements ShouldQueue
      */
     public function handle()
     {
-        /*Jobs are not multi-db aware, need to set! */
-        MultiDB::setDB($this->company->db);
+        $email_builder = $this->email_builder;
 
-        //todo - change runtime config of mail driver if necessary
-
-        $template_style = $this->quote->client->getSetting('email_style');
-
-        $this->quote->invitations->each(function ($invitation) use ($template_style) {
+        $this->quote->invitations->each(function ($invitation) use ($email_builder) {
             if ($invitation->contact->email) {
-                $message_array = $this->quote->getEmailData('', $invitation->contact);
-                $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
-
-                //change the runtime config of the mail provider here:
+                $email_builder->setFooter("<a href='{$invitation->getLink()}'>Invoice Link</a>");
 
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
-                    ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
+                    ->send(new TemplateEmail($email_builder, $invitation->contact->user,
+                        $invitation->contact->customer));
 
                 if (count(Mail::failures()) > 0) {
                     event(new QuoteWasEmailedAndFailed($this->quote, Mail::failures()));
@@ -86,7 +82,7 @@ class EmailQuote implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->quote->client
+            $this->quote->customer
         );
     }
 }
