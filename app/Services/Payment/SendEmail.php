@@ -24,9 +24,12 @@ class SendEmail
      */
     public function sendEmail($contact = null): array
     {
-         $this->payment->client->contacts->each(function ($contact) use ($emailBuilder) {
+        $email_builder = (new BuildEmail())->buildPaymentEmail($this->payment, $contact);
 
-        //Need to determine which email template we are producing
-        EmailPayment::dispatchNow((new BuildEmail())->buildPaymentEmail($this->payment, $contact));
+        $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
+            if ($invitation->contact->send_invoice && $contact->email) {
+                EmailPayment::dispatchNow($this->payment, $email_builder, $contact);
+            }
+        });
     }
 }
