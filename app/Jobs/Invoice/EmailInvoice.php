@@ -17,6 +17,7 @@ use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,7 +30,7 @@ class EmailInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoice;
+    public $invitation;
 
     public $message_array = [];
     
@@ -40,9 +41,9 @@ class EmailInvoice implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Company $company)
+    public function __construct(InvoiceInvitation $invitation, Company $company)
     {
-        $this->invoice = $invoice;
+        $this->invitation = $invitation;
 
         $this->company = $company;
     }
@@ -55,45 +56,83 @@ class EmailInvoice implements ShouldQueue
      */
     public function handle()
     {
-        /*Jobs are not multi-db aware, need to set! */
+
         MultiDB::setDB($this->company->db);
 
-        //todo - change runtime config of mail driver if necessary
+        $invoice = $invitation->invoice;
 
-        $template_style = $this->invoice->client->getSetting('email_style');
-        
-        $this->invoice->invitations->each(function ($invitation) use ($template_style) {
-            if ($invitation->contact->send_invoice && $invitation->contact->email) {
+        $contact = $invitation->contact;
 
-                $message_array = $this->invoice->getEmailData('', $invitation->contact);
+        $message_array = $this->buildMessageArray();
 
-                $message_array['title'] = &$message_array['subject'];
+        Mail::to($invitation->contact->email, $invitation->contact->present()->name())
+        ->send(new TemplateEmail($message_array, 
+                                 $template_style, 
+                                 $invitation->contact->user, 
+                                 $invitation->contact->client));
 
-                //$message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
-                $message_array['footer'] = "<a href='{$invitation->getLink()}'>Invoice Link</a>";
-                
-                //change the runtime config of the mail provider here:
-                
-                //send message
-                Mail::to($invitation->contact->email, $invitation->contact->present()->name())
-                ->send(new TemplateEmail($message_array, 
-                                         $template_style, 
-                                         $invitation->contact->user, 
-                                         $invitation->contact->client));
+        if (count(Mail::failures()) > 0) {
 
-                if (count(Mail::failures()) > 0) {
-                    event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
-                    
-                    return $this->logMailError($errors);
-                }
+            event(new InvoiceWasEmailedAndFailed($this->invitation->invoice, Mail::failures()));
+            
+            return $this->logMailError($errors);
+        }
 
-                //fire any events
-                event(new InvoiceWasEmailed($this->invoice));
+        event(new InvoiceWasEmailed($invitation));
 
-                //sleep(5);
-            }
-        });
     }
+
+    private function buildMessageArray() :array
+    {
+
+        $message_array = $this->invitation->invoice->getEmailData('', $this->invitation->contact);
+        $message_array['title'] = &$message_array['subject'];
+        $message_array['footer'] = "<a href='{$this->invitation->invitation->getLink()}'>Invoice Link</a>";
+
+        return $message_array;
+    }
+    // public function handle()
+    // {
+    //     /*Jobs are not multi-db aware, need to set! */
+    //     MultiDB::setDB($this->company->db);
+
+    //     //todo - change runtime config of mail driver if necessary
+
+    //     $template_style = $this->invoice->client->getSetting('email_style');
+        
+    //     $this->invoice->invitations->each(function ($invitation) use ($template_style) {
+
+    //         if ($invitation->contact->send_invoice && $invitation->contact->email) {
+
+    //             $message_array = $this->invoice->getEmailData('', $invitation->contact);
+
+    //             $message_array['title'] = &$message_array['subject'];
+
+    //             //$message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
+    //             $message_array['footer'] = "<a href='{$invitation->getLink()}'>Invoice Link</a>";
+                
+    //             //change the runtime config of the mail provider here:
+                
+    //             //send message
+    //             Mail::to($invitation->contact->email, $invitation->contact->present()->name())
+    //             ->send(new TemplateEmail($message_array, 
+    //                                      $template_style, 
+    //                                      $invitation->contact->user, 
+    //                                      $invitation->contact->client));
+
+    //             if (count(Mail::failures()) > 0) {
+    //                 event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
+                    
+    //                 return $this->logMailError($errors);
+    //             }
+
+    //             //fire any events
+    //             event(new InvoiceWasEmailed($this->invoice));
+
+    //             //sleep(5);
+    //         }
+    //     });
+    // }
 
     private function logMailError($errors)
     {
