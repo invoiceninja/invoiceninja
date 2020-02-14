@@ -26,7 +26,7 @@ class ApplyPayment
         $this->invoice = $invoice;
     }
 
-  	public function __invoke($payment, $payment_amount)
+  	public function run($payment, $payment_amount)
   	{
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment_amount*-1), $payment->company);
@@ -55,7 +55,7 @@ class ApplyPayment
         } elseif($payment_amount < $this->invoice->balance) { //partial invoice payment made
             $this->invoice->service()->clearPartial()->updateBalance($payment_amount*-1);
         }
-        
+
         return $this->invoice;
   	}
 }
