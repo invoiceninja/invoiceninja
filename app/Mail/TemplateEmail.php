@@ -13,6 +13,7 @@ class TemplateEmail extends Mailable
     private $build_email; //the message array  // ['body', 'footer', 'title', 'files']
     private $user; //the user the email will be sent from
     private $customer;
+    private $footer;
 
     public function __construct(BuildEmail $build_email, $user, $customer)
     {

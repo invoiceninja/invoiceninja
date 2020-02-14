@@ -59,7 +59,7 @@ class EmailQuote implements ShouldQueue
             Mail::to($recipient['email'], $recipient['name'])
                 ->send(new TemplateEmail($email_builder,
                         $this->quote->user,
-                        $this->quote->customer
+                        $this->quote->client
                     )
                 );
 
