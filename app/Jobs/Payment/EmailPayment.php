@@ -35,12 +35,12 @@ class EmailPayment implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Payment $payment, BuildEmail $emailBuilder, $contact)
-    {
+     public function __construct(Payment $payment, $email_builder, $contact)
+     {
         $this->payment = $payment;
+        $this->emailBuilder = $email_builder;
         $this->contact = $contact;
-        $this->emailBuilder = $emailBuilder;
-    }
+     }
 
     /**
      * Execute the job.
@@ -52,27 +52,21 @@ class EmailPayment implements ShouldQueue
     {
         $emailBuilder = $this->emailBuilder;
 
-       
-            if ($this->contact->email) {
+        if ($this->contact->email) {
+            Mail::to($this->contact->email, $this->contact->present()->name())
+                ->send(new TemplateEmail($emailBuilder, $this->contact->user, $this->contact->customer));
 
-                //change the runtime config of the mail provider here:
+            if (count(Mail::failures()) > 0) {
+                event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
 
-                //send message
-                Mail::to($contact->email, $contact->present()->name)
-                    ->send(new TemplateEmail($emailBuilder, $contact->user, $contact->client));
-
-                if (count(Mail::failures()) > 0) {
-                    event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
-
-                    return $this->logMailError($errors);
-                }
-
-                //fire any events
-                event(new PaymentWasEmailed($this->payment));
-
-                //sleep(5);
+                return $this->logMailError($errors);
             }
-        });
+
+            //fire any events
+            event(new PaymentWasEmailed($this->payment));
+
+            //sleep(5);
+        }
     }
 
     private function logMailError($errors)
