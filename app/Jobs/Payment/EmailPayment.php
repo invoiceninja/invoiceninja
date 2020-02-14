@@ -28,18 +28,18 @@ class EmailPayment implements ShouldQueue
 
     public $emailBuilder;
 
-    private $company;
+    private $contact;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment, Company $company, BuildEmail $emailBuilder)
+    public function __construct(Payment $payment, BuildEmail $emailBuilder, $contact)
     {
         $this->payment = $payment;
+        $this->contact = $contact;
         $this->emailBuilder = $emailBuilder;
-        $this->company = $company;
     }
 
     /**
@@ -52,15 +52,13 @@ class EmailPayment implements ShouldQueue
     {
         $emailBuilder = $this->emailBuilder;
 
-        $this->payment->client->contacts->each(function ($contact) use ($emailBuilder) {
-            if ($contact->email) {
+       
+            if ($this->contact->email) {
 
                 //change the runtime config of the mail provider here:
 
-                $recipients = $emailBuilder->getRecipients();
-
                 //send message
-                Mail::to($recipients[0]['email'], $recipients[0]['name'])
+                Mail::to($contact->email, $contact->present()->name)
                     ->send(new TemplateEmail($emailBuilder, $contact->user, $contact->client));
 
                 if (count(Mail::failures()) > 0) {
