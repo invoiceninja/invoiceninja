@@ -16,6 +16,8 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesReminders;
+use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -24,6 +26,10 @@ class Quote extends BaseModel
     use MakesHash;
     use Filterable;
     use SoftDeletes;
+    use MakesReminders;
+    use PresentableTrait;
+
+    protected $presenter = 'App\Models\Presenters\QuotePresenter';
 
     protected $fillable = [
         'number',
@@ -132,22 +138,4 @@ class Quote extends BaseModel
      {
          return new QuoteService($this);
      }
-
-    private function inReminderWindow($schedule_reminder, $num_days_reminder)
-    {
-        switch ($schedule_reminder) {
-            case 'after_invoice_date':
-                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
-            case 'before_due_date':
-                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
-            case 'after_due_date':
-                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
-            default:
-                # code...
-                break;
-        }
-    }
 }

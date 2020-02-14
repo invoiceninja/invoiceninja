@@ -40,12 +40,12 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
         }
-        
+
         if ($settings->enable_reminder1 !== false &&
             $settings->schedule_reminder1 == 'before_due_date' &&
             $settings->num_days_reminder1 > 0) {
@@ -54,7 +54,7 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
@@ -69,12 +69,12 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
         }
-        
+
         if ($settings->enable_reminder2 !== false &&
             $settings->schedule_reminder2 == 'after_invoice_date' &&
             $settings->num_days_reminder2 > 0) {
@@ -83,12 +83,12 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
         }
-        
+
         if ($settings->enable_reminder2 !== false &&
             $settings->schedule_reminder2 == 'before_due_date' &&
             $settings->num_days_reminder2 > 0) {
@@ -97,7 +97,7 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
@@ -112,7 +112,7 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
@@ -126,12 +126,12 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
         }
-        
+
         if ($settings->enable_reminder3 !== false &&
             $settings->schedule_reminder3 == 'before_due_date' &&
             $settings->num_days_reminder3 > 0) {
@@ -140,7 +140,7 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
@@ -155,13 +155,31 @@ trait MakesReminders
             if (!$nsd) {
                 $nsd = $reminder_date;
             }
-            
+
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date;
             }
         }
-                
+
         $this->next_send_date = $nsd;
         $this->save();
+    }
+
+    private function inReminderWindow($schedule_reminder, $num_days_reminder)
+    {
+        switch ($schedule_reminder) {
+            case 'after_invoice_date':
+                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+                break;
+            case 'before_due_date':
+                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+                break;
+            case 'after_due_date':
+                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 }
