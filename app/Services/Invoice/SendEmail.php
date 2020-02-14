@@ -32,7 +32,7 @@ class SendEmail
 
         $this->invoice->invitations->each(function ($invitation) use ($email_builder) {
             if ($invitation->contact->send_invoice && $invitation->contact->email) {
-                EmailInvoice::dispatchNow($this->invoice, $this->invoice->company, $email_builder, $invitation);
+                EmailInvoice::dispatchNow($email_builder, $invitation);
             }
         });
     }
