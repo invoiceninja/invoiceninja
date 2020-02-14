@@ -6,7 +6,6 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasEmailedAndFailed;
-use App\Helpers\Email\BuildEmail;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
@@ -37,7 +36,7 @@ class EmailQuote implements ShouldQueue
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
      */
-    public function __construct(BuildEmail $email_builder, QuoteInvitation $quote_invitation)
+    public function __construct($email_builder, QuoteInvitation $quote_invitation)
     {
         $this->quote_invitation = $quote_invitation;
         $this->email_builder = $email_builder;
