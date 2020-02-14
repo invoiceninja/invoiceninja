@@ -97,6 +97,11 @@ abstract class EmailBuilder
         $this->template_style = $template_style;
         return $this;
     }
+    
+    public function setAttachments($attachments)
+    {
+        $this->attachments[] = $attachments;
+    }
 
 
     /**
