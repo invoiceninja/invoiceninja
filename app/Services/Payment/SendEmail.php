@@ -4,12 +4,9 @@ namespace App\Services\Payment;
 
 use App\Helpers\Email\PaymentEmail;
 use App\Jobs\Payment\EmailPayment;
-use App\Traits\FormatEmail;
 
 class SendEmail
 {
-    use FormatEmail;
-
     public $payment;
 
     public function __construct($payment)
