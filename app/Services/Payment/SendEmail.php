@@ -24,6 +24,7 @@ class SendEmail
      */
     public function sendEmail($contact = null): array
     {
+         $this->payment->client->contacts->each(function ($contact) use ($emailBuilder) {
 
         //Need to determine which email template we are producing
         EmailPayment::dispatchNow((new BuildEmail())->buildPaymentEmail($this->payment, $contact));
