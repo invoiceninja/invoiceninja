@@ -86,8 +86,9 @@ class BuildEmail
             }
         }
 
-        $this->body = $this->parseTemplate($body_template, true, $contact);
-        $this->subject = $this->parseTemplate($subject_template, false, $contact);
+        $invoice_variables = $quote->makeValues($contact);
+        $this->body = $this->parseTemplate($body_template, $invoice_variables, true, $contact);
+        $this->subject = $this->parseTemplate($subject_template, $invoice_variables, false, $contact);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $this->pdf_file_path();
@@ -124,8 +125,9 @@ class BuildEmail
             }
         }
 
-        $this->body = $this->parseTemplate($body_template, true, $contact);
-        $this->subject = $this->parseTemplate($subject_template, false, $contact);
+        $invoice_variables = $invoice->makeValues($contact);
+        $this->body = $this->parseTemplate($body_template, $invoice_variables, true, $contact);
+        $this->subject = $this->parseTemplate($subject_template, $invoice_variables, false, $contact);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $this->pdf_file_path();
