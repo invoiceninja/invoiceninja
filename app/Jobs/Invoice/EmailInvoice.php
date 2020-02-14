@@ -52,30 +52,18 @@ class EmailInvoice implements ShouldQueue
 
         $email_builder = $this->email_builder;
 
-        $this->invoice->invitations->each(function ($invitation) use ($email_builder) {
-            if ($invitation->contact->send_invoice && $invitation->contact->email) {
-                $email_builder->setFooter("<a href='{$invitation->getLink()}'>Invoice Link</a>");
+        foreach ($email_builder->getRecipients() as $recipient) {
+            Mail::to($recipient['email'], $recipient['name'])
+                ->send(new TemplateEmail($email_builder,
+                        $this->quote->user,
+                        $this->quote->customer
+                    )
+                );
 
-                //change the runtime config of the mail provider here:
-
-                //send message
-                Mail::to($invitation->contact->email, $invitation->contact->present()->name())
-                    ->send(new TemplateEmail($email_builder,
-                        $invitation->contact->user,
-                        $invitation->contact->client));
-
-                if (count(Mail::failures()) > 0) {
-                    event(new InvoiceWasEmailedAndFailed($this->invoice, Mail::failures()));
-
-                    return $this->logMailError($errors);
-                }
-
-                //fire any events
-                event(new InvoiceWasEmailed($this->invoice));
-
-                //sleep(5);
+            if (count(Mail::failures()) > 0) {
+                return $this->logMailError($errors);
             }
-        });
+        }
     }
 
     private function logMailError($errors)

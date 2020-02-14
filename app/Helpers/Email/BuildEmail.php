@@ -89,6 +89,7 @@ class BuildEmail
         $invoice_variables = $quote->makeValues($contact);
         $this->body = $this->parseTemplate($body_template, $invoice_variables, true, $contact);
         $this->subject = $this->parseTemplate($subject_template, $invoice_variables, false, $contact);
+        $this->buildRecipientsForInvitations($quote);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $this->pdf_file_path();
@@ -128,11 +129,25 @@ class BuildEmail
         $invoice_variables = $invoice->makeValues($contact);
         $this->body = $this->parseTemplate($body_template, $invoice_variables, true, $contact);
         $this->subject = $this->parseTemplate($subject_template, $invoice_variables, false, $contact);
+        $this->buildRecipientsForInvitations($invoice);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $this->pdf_file_path();
         }
         return $this;
+    }
+
+    private function buildRecipientsForInvitations($entity)
+    {
+        $entity->invitations->each(function ($invitation) {
+            if ($invitation->contact->email) {
+                $this->recipients[] = array(
+                    'footer' => "<a href='{$invitation->getLink()}'>Invoice Link</a>",
+                    'name' => $invitation->contact->present()->name(),
+                    'email' => $invitation->contact->email
+                );
+            }
+        });
     }
 
     public function buildCreditEmail(Credit $credit)
