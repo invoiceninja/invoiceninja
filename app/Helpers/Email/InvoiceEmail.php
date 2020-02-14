@@ -9,7 +9,7 @@
 namespace App\Helpers\Email;
 
 
-use App\Invoice;
+use App\Models\Invoice;
 
 class InvoiceEmail extends EmailBuilder
 {
