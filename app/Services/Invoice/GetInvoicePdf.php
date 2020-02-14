@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 class GetInvoicePdf
 {
 
-  	public function __invoke($invoice, $contact = null)
+  	public function run($invoice, $contact = null)
   	{
 
     	if(!$contact)
@@ -33,7 +33,7 @@ class GetInvoicePdf
 
 		if(!$file)
 		{
-		
+
 			$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
 
 		}

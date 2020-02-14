@@ -28,7 +28,7 @@ class MarkPaid
         $this->client_service = $client_service;
     }
 
-  	public function __invoke($invoice)
+  	public function run($invoice)
   	{
 
         if($invoice->status_id == Invoice::STATUS_DRAFT)
@@ -57,7 +57,7 @@ class MarkPaid
         event(new PaymentWasCreated($payment, $payment->company));
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $payment->company);
-        
+
         $this->client_service
             ->updateBalance($payment->amount*-1)
             ->updatePaidToDate($payment->amount)
