@@ -2,7 +2,7 @@
 
 namespace App\Services\Payment;
 
-use App\Helpers\Email\BuildEmail;
+use App\Helpers\Email\PaymentEmail;
 use App\Jobs\Payment\EmailPayment;
 use App\Traits\FormatEmail;
 
@@ -24,7 +24,7 @@ class SendEmail
      */
     public function sendEmail($contact = null): array
     {
-        $email_builder = (new BuildEmail())->buildPaymentEmail($this->payment, $contact);
+        $email_builder = (new PaymentEmail())->build($this->payment, $contact);
 
         $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
             if ($contact->send_invoice && $contact->email) {
