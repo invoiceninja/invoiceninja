@@ -1,7 +1,6 @@
 <?php
 namespace App\Mail;
 
-use App\Helpers\Email\BuildEmail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -15,7 +14,7 @@ class TemplateEmail extends Mailable
     private $customer;
     private $footer;
 
-    public function __construct(BuildEmail $build_email, $user, $customer)
+    public function __construct($build_email, $user, $customer)
     {
         $this->build_email = $build_email;
         $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
