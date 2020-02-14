@@ -34,10 +34,6 @@ class EmailPayment extends EmailBuilder
                 $payment->client->locale());
         }
 
-        if ($client->getSetting('pdf_email_attachment') !== false) {
-            $this->attachments = $this->pdf_file_path();
-        }
-
         $this->setTemplate($payment->client->getSetting('email_style'))
             ->setContact($contact)
             ->setSubject($subject_template)
