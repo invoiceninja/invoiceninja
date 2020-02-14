@@ -20,11 +20,11 @@ abstract class EmailBuilder
     protected $variables = [];
     protected $contact = null;
 
-    private function parseTemplate(string $template_data, bool $is_markdown = true, $contact = null): string
+    private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
     {
         //process variables
         if (!empty($this->variables)) {
-            $data = str_replace(array_keys($this->variables), array_values($this->variables), $template_data);
+            $data = str_replace(array_keys($this->variables), array_values($this->variables), $data);
         }
 
         //process markdown
