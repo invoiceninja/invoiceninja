@@ -16,7 +16,7 @@ class EmailPayment extends EmailBuilder
     public function build(Payment $payment, $contact = null) {
         $client = $payment->client;
 
-        $body_template = $client->getSetting('payment_message');
+        $body_template = $client->getSetting('email_template_payment');
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
