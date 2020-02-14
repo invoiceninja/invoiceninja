@@ -4,7 +4,7 @@ namespace App\Jobs\Invoice;
 
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Helpers\Email\BuildEmail;
+use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Utils\SystemLogger;
 use App\Mail\TemplateEmail;
 use App\Models\Company;
@@ -31,7 +31,7 @@ class EmailInvoice implements ShouldQueue
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
      */
-    public function __construct(BuildEmail $email_builder, InvoiceInvitation $invoice_invitation)
+    public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation)
     {
         $this->invoice_invitation = $invoice_invitation;
         $this->email_builder = $email_builder;
