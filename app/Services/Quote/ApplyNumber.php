@@ -15,7 +15,7 @@ class ApplyNumber
         $this->client = $client;
     }
 
-    public function __invoke($quote)
+    public function run($quote)
     {
 
         if ($quote->number != '')

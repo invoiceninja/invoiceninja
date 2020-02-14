@@ -14,7 +14,7 @@ class MarkSent
         $this->client = $client;
     }
 
-    public function __invoke($quote)
+    public function run($quote)
     {
 
         /* Return immediately if status is not draft */
