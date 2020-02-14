@@ -35,9 +35,7 @@ class EmailPayment extends EmailBuilder
         }
 
         $this->setTemplate($payment->client->getSetting('email_style'))
-            ->setContact($contact)
             ->setSubject($subject_template)
-            ->setFooter("Sent to " . $contact->present()->name())
             ->setBody($body_template);
 
         return $this;
