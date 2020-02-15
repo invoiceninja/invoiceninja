@@ -124,7 +124,7 @@ class InvoiceService
     {
         $send_email = new SendEmail($this->invoice);
 
-        return $send_email->sendEmail(null, $contact);
+        return $send_email->run(null, $contact);
     }
 
     public function markViewed()
